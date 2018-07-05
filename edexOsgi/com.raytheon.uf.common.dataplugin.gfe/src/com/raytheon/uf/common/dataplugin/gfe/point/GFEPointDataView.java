@@ -33,9 +33,11 @@ import com.raytheon.uf.common.pointdata.IPointDataViewReader;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * GFE Point Data View
+ * GFE Point Data View to support AvnFPS
  * 
  * <pre>
  * 
@@ -45,18 +47,21 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 4, 2009            njensen     Initial creation
  * Apr 23, 2014  #3006    randerso    Added toString to aid in debugging
  *                                    Fixed conversion of Double to float
+ * Nov 02, 2016   5979    njensen     Cleanup and cast to Number where applicable
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
 
 @DynamicSerialize
 public class GFEPointDataView implements IPointDataViewReader {
 
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GFEPointDataView.class);
+
     @DynamicSerializeElement
-    private Map<String, GFEPointDataValue> valueMap = new HashMap<String, GFEPointDataValue>();
+    private Map<String, GFEPointDataValue> valueMap = new HashMap<>();
 
     @Transient
     private GFEPointDataContainer parent;
@@ -75,166 +80,100 @@ public class GFEPointDataView implements IPointDataViewReader {
         return valueMap.keySet();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.pointdata.IPointDataViewReader#getContainer()
-     */
     @Override
     public IPointDataContainerReader getContainer() {
         return parent;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.pointdata.IPointDataViewReader#getFloat(java.lang
-     * .String)
-     */
     @Override
     public float getFloat(String parameter) {
         GFEPointDataValue pd = valueMap.get(parameter);
         if (pd != null) {
             Type type = pd.getType();
             Object obj = pd.getValue();
-            if (type == Type.FLOAT) {
-                return ((Number) obj).floatValue();
-            } else if (type == Type.STRING) {
-                return Float.valueOf((String) obj);
-            } else {
-                return Float.valueOf((Long) obj);
+            if (type == Type.STRING) {
+                return Float.valueOf(obj.toString());
             }
-        } else {
-            throw new IllegalArgumentException("Parameter not present: "
-                    + parameter);
+
+            return ((Number) obj).floatValue();
         }
+
+        throw new IllegalArgumentException(
+                "Parameter not present: " + parameter);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.pointdata.IPointDataViewReader#getInt(java.lang
-     * .String)
-     */
     @Override
     public int getInt(String parameter) {
         GFEPointDataValue pd = valueMap.get(parameter);
         if (pd != null) {
             Type type = pd.getType();
             Object obj = pd.getValue();
-            if (type == Type.LONG) {
-                return (Integer) obj;
-            } else if (type == Type.STRING) {
-                return Integer.valueOf((String) obj);
-            } else {
-                return Integer.valueOf((Integer) obj);
+            if (type == Type.STRING) {
+                return Integer.valueOf(obj.toString());
             }
-        } else {
-            throw new IllegalArgumentException("Parameter not present: "
-                    + parameter);
+
+            return ((Number) obj).intValue();
         }
+
+        throw new IllegalArgumentException(
+                "Parameter not present: " + parameter);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.pointdata.IPointDataViewReader#getLong(java.lang
-     * .String)
-     */
     @Override
     public long getLong(String parameter) {
         GFEPointDataValue pd = valueMap.get(parameter);
         if (pd != null) {
             Type type = pd.getType();
             Object obj = pd.getValue();
-            if (type == Type.LONG) {
-                return (Long) obj;
-            } else if (type == Type.STRING) {
-                return Long.valueOf((String) obj);
-            } else {
-                return Long.valueOf((Long) obj);
+            if (type == Type.STRING) {
+                return Long.valueOf(obj.toString());
             }
-        } else {
-            throw new IllegalArgumentException("Parameter not present: "
-                    + parameter);
+
+            return ((Number) obj).longValue();
         }
 
+        throw new IllegalArgumentException(
+                "Parameter not present: " + parameter);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.pointdata.IPointDataViewReader#getNumber(java.
-     * lang.String)
-     */
     @Override
     public Number getNumber(String parameter) {
         GFEPointDataValue pd = valueMap.get(parameter);
         if (pd != null) {
             Object obj = pd.getValue();
-            if (pd.getType() != Type.STRING) {
-                return (Number) obj;
-            } else {
-                return Float.valueOf((String) obj);
+            if (pd.getType() == Type.STRING) {
+                return Float.valueOf(obj.toString());
             }
-        } else {
-            throw new IllegalArgumentException("Parameter not present: "
-                    + parameter);
+
+            return (Number) obj;
         }
+
+        throw new IllegalArgumentException(
+                "Parameter not present: " + parameter);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.pointdata.IPointDataViewReader#getString(java.
-     * lang.String)
-     */
     @Override
     public String getString(String parameter) {
         GFEPointDataValue pd = valueMap.get(parameter);
         if (pd != null) {
-            Type type = pd.getType();
             Object obj = pd.getValue();
-            if (type == Type.STRING) {
-                return (String) obj;
-            } else {
-                return obj.toString();
-            }
-        } else {
-            throw new IllegalArgumentException("Parameter not present: "
-                    + parameter);
+            return obj.toString();
         }
+
+        throw new IllegalArgumentException(
+                "Parameter not present: " + parameter);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.pointdata.IPointDataViewReader#getType(java.lang
-     * .String)
-     */
     @Override
     public Type getType(String parameter) {
         if (valueMap.containsKey(parameter)) {
             return valueMap.get(parameter).getType();
-        } else {
-            throw new IllegalArgumentException("Parameter not present: "
-                    + parameter);
         }
+
+        throw new IllegalArgumentException(
+                "Parameter not present: " + parameter);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.pointdata.IPointDataViewReader#getUnit(java.lang
-     * .String)
-     */
     @Override
     public Unit<?> getUnit(String parameter) {
         if (valueMap.containsKey(parameter)) {
@@ -244,8 +183,7 @@ public class GFEPointDataView implements IPointDataViewReader {
                     return (Unit<?>) UnitFormat.getUCUMInstance().parseObject(
                             unit);
                 } catch (ParseException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    statusHandler.error("Error parsing unit " + unit, e);
                 }
             }
         }
@@ -264,11 +202,6 @@ public class GFEPointDataView implements IPointDataViewReader {
         parent = container;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return valueMap.toString();

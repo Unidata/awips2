@@ -1,33 +1,31 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.viz.d2d.xy.adapters.timeseries;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
@@ -35,7 +33,6 @@ import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
@@ -44,6 +41,7 @@ import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.PointDataConstants;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
@@ -66,9 +64,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * Adapter for converting pdos that are compatible with the point data api into
  * XYDataLists that can be used for time series.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
@@ -76,15 +74,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 09, 2013  1869     bsteffen    Modified D2D time series of point data to
  *                                    work without dataURI.
  * Feb 17, 2014  2661     bsteffen    Use only u,v for vectors.
- * 
+ * Nov 09, 2016  5986     tgurney     Move getDataTime to PointDataView
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
- * @version 1.0
  */
 
-public class PointDataTimeSeriesAdapter extends
-        AbstractTimeSeriesAdapter<PluginDataObject> {
+public class PointDataTimeSeriesAdapter
+        extends AbstractTimeSeriesAdapter<PluginDataObject> {
 
     private static final int GRID_SIZE = 100;
 
@@ -92,12 +90,6 @@ public class PointDataTimeSeriesAdapter extends
 
     private Unit<?> unit = Unit.ONE;
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.timeseries.adapter.ITimeSeriesAdapter#loadData()
-     */
     @Override
     public XYDataList loadData() throws VizException {
         if (this.resourceData.getSource().endsWith("OA")) {
@@ -126,14 +118,14 @@ public class PointDataTimeSeriesAdapter extends
             dataTimeConstraint.addToConstraintValueList(dt.toString());
             refTimeOnly &= !dt.getUtilityFlags().contains(FLAG.FCST_USED);
             if (refTimeOnly) {
-                refTimeConstraint.addToConstraintValueList(TimeUtil
-                        .formatToSqlTimestamp(dt.getRefTime()));
+                refTimeConstraint.addToConstraintValueList(
+                        TimeUtil.formatToSqlTimestamp(dt.getRefTime()));
             }
         }
 
         String parameter = resourceData.getYParameter().code;
 
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+        Map<String, RequestConstraint> constraints = new HashMap<>(
                 resourceData.getMetadataMap());
         String[] parameters = null;
         if (refTimeOnly) {
@@ -162,10 +154,11 @@ public class PointDataTimeSeriesAdapter extends
         boolean isWind = pdc.getParameters().contains(parameter + "[1]");
         boolean isIcon = displayType == DisplayType.ICON;
 
-        ArrayList<XYData> data = new ArrayList<XYData>();
-        for (int uriCounter = 0; uriCounter < pdc.getAllocatedSz(); uriCounter++) {
+        ArrayList<XYData> data = new ArrayList<>();
+        for (int uriCounter = 0; uriCounter < pdc
+                .getAllocatedSz(); uriCounter++) {
             PointDataView pdv = pdc.readRandom(uriCounter);
-            DataTime x = getDataTime(pdv, refTimeOnly);
+            DataTime x = pdv.getDataTime(refTimeOnly);
             Number y = pdv.getNumber(parameter);
 
             if (x == null || y.intValue() < -9000) {
@@ -200,43 +193,17 @@ public class PointDataTimeSeriesAdapter extends
         return list;
     }
 
-    private DataTime getDataTime(PointDataView pdv, boolean refTimeOnly) {
-        long refTime = pdv.getNumber(PointDataConstants.DATASET_REFTIME)
-                .longValue();
-        Unit<?> refUnit = pdv.getUnit(PointDataConstants.DATASET_REFTIME);
-        if (refUnit != null && !refUnit.equals(SI.MILLI(SI.SECOND))
-                && refUnit.isCompatible(SI.SECOND)) {
-            refTime = (long) refUnit.getConverterTo(SI.MILLI(SI.SECOND))
-                    .convert(refTime);
-        }
-        if (refTimeOnly) {
-            return new DataTime(new Date(refTime));
-        }
-
-        int forecastTime = pdv.getNumber(PointDataConstants.DATASET_FORECASTHR)
-                .intValue();
-        Unit<?> forecastUnit = pdv
-                .getUnit(PointDataConstants.DATASET_FORECASTHR);
-        if (forecastUnit != null && !forecastUnit.equals(SI.SECOND)
-                && forecastUnit.isCompatible(SI.SECOND)) {
-            forecastTime = (int) forecastUnit.getConverterTo(SI.SECOND)
-                    .convert(forecastTime);
-        }
-
-        return new DataTime(new Date(refTime), forecastTime);
-    }
-
     private XYDataList loadDataOAInternal(PluginDataObject[] recordsToLoad)
             throws VizException {
-        Set<DataTime> times = new HashSet<DataTime>();
+        Set<DataTime> times = new HashSet<>();
         for (PluginDataObject pdo : recordsToLoad) {
-            times.add(this.resourceData.getBinOffset().getNormalizedTime(
-                    pdo.getDataTime()));
+            times.add(this.resourceData.getBinOffset()
+                    .getNormalizedTime(pdo.getDataTime()));
         }
         Coordinate coord = resourceData.getPointCoordinate();
         CoordinateReferenceSystem crs = MapUtil.constructStereographic(
-                MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS,
-                coord.y, coord.x);
+                MapUtil.AWIPS_EARTH_RADIUS, MapUtil.AWIPS_EARTH_RADIUS, coord.y,
+                coord.x);
         GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
         generalEnvelope.setCoordinateReferenceSystem(crs);
 
@@ -244,14 +211,15 @@ public class PointDataTimeSeriesAdapter extends
         generalEnvelope.setRange(0, -maxExtent, maxExtent);
         generalEnvelope.setRange(1, -maxExtent, maxExtent);
 
-        GridGeometry2D gridGeom = new GridGeometry2D(new GeneralGridEnvelope(
-                new int[] { 0, 0 }, new int[] { GRID_SIZE, GRID_SIZE }, false),
+        GridGeometry2D gridGeom = new GridGeometry2D(
+                new GeneralGridEnvelope(new int[] { 0, 0 },
+                        new int[] { GRID_SIZE, GRID_SIZE }, false),
                 generalEnvelope);
 
         OAGridTransformer transformer = new OAGridTransformer(gridGeom, crs,
                 GRID_SIZE, 3);
-        ArrayList<XYData> data = new ArrayList<XYData>();
-        HashMap<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+        ArrayList<XYData> data = new ArrayList<>();
+        HashMap<String, RequestConstraint> constraints = new HashMap<>(
                 resourceData.getMetadataMap());
         for (DataTime time : times) {
             RequestConstraint dtConstraint = new RequestConstraint();
@@ -306,8 +274,9 @@ public class PointDataTimeSeriesAdapter extends
             return level;
         }
         try {
-            LevelMapping mapping = LevelMappingFactory.getInstance(
-                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+            LevelMapping mapping = LevelMappingFactory
+                    .getInstance(
+                            LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
                     .getLevelMappingForKey(resourceData.getLevelKey());
             for (Level l : mapping.getLevels()) {
                 if (LevelUtilities.isPressureLevel(l)) {
@@ -327,23 +296,11 @@ public class PointDataTimeSeriesAdapter extends
         return level;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter#
-     * getDataUnit()
-     */
     @Override
     public Unit<?> getDataUnit() {
         return unit;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.xy.timeseries.adapter.AbstractTimeSeriesAdapter#
-     * getParamterName()
-     */
     @Override
     public String getParameterName() {
         return resourceData.getYParameter().name;

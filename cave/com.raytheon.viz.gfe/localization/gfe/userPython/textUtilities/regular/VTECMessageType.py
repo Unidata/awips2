@@ -30,6 +30,10 @@
 # ----------------------------------------------------------------------------
 #Products not listed will be considered VTEC disabled.
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 VTECMessageTypeDict = {
     'WSW' : 'O',
     'WCN' : 'O',

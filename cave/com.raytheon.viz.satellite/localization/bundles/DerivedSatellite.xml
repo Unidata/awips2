@@ -18,44 +18,51 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
-				<resource>
-					<loadProperties loadWithoutData="true">
-						<capabilities>
-							<capability xsi:type="colorMapCapability">
-								<colorMapParameters colorMapName="${colormap}" />
-							</capability>
-							<capability xsi:type="imagingCapability" />
-						</capabilities>
-						<perspectiveProperty xsi:type="d2dLoadProperties"
-							overlayMatchTolerance="1" />
-					</loadProperties>
-					<resourceData xsi:type="satResourceData">
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="satellite"
-									constraintType="EQUALS" />
-							</mapping>
-							<mapping key="physicalElement">
-								<constraint constraintValue="${element}"
-									constraintType="EQUALS" />
-							</mapping>
-							<mapping key="sectorID">
-								<constraint constraintValue="${sector}"
-									constraintType="EQUALS" />
-							</mapping>
-							<mapping key="creatingEntity">
-								<constraint constraintValue="${entity}"
-									constraintType="LIKE" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-			</descriptor>
-		</displays>
-	</displayList>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="colorMapCapability">
+                                <colorMapParameters
+                                    colorMapName="${colormap}" />
+                            </capability>
+                            <capability xsi:type="imagingCapability" />
+                        </capabilities>
+                        <perspectiveProperty
+                            xsi:type="d2dLoadProperties"
+                            overlayMatchTolerance="1" />
+                    </loadProperties>
+                    <resourceData xsi:type="satResourceData">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="satellite"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="physicalElement">
+                                <constraint constraintValue="${element}"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="sectorID">
+                                <constraint constraintValue="${sector}"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="creatingEntity">
+                                <constraint constraintValue="${entity}"
+                                    constraintType="LIKE" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

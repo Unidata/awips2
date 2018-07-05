@@ -49,25 +49,20 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 9, 2010             mschenke    Initial creation
+ * Jun 09, 2010            mschenke    Initial creation
  * Jul 09, 2015 4500       rjpeter     Fix SQL Injection concern.
+ * Jun 27, 2017 6316       njensen     Fix logging, cleanup
+ * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 
 public class GetWfoCenterHandler implements IRequestHandler<GetWfoCenterPoint> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GetWfoCenterHandler.class);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
-     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
-     */
     @Override
     public Coordinate handleRequest(GetWfoCenterPoint request) throws Exception {
 
@@ -109,9 +104,11 @@ public class GetWfoCenterHandler implements IRequestHandler<GetWfoCenterPoint> {
             }
             if ((rows != null) && (rows.length > 0)) {
                 Object[] row = (Object[]) rows[0];
-                Double lat = ((Number) row[0]).doubleValue();
-                Double lon = ((Number) row[1]).doubleValue();
-                loc = new Coordinate(lon, lat);
+                if (row[0] != null && row[1] != null) {
+                    Double lat = ((Number) row[0]).doubleValue();
+                    Double lon = ((Number) row[1]).doubleValue();
+                    loc = new Coordinate(lon, lat);
+                }
             }
 
             if (loc == null) {
@@ -133,13 +130,11 @@ public class GetWfoCenterHandler implements IRequestHandler<GetWfoCenterPoint> {
      * @return
      */
     private static Coordinate loadPoint(File file) {
-        if (file.exists() == false) {
+        if (!file.exists()) {
             return null;
         }
         Coordinate point = null;
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader(file));
+        try (BufferedReader in = new BufferedReader(new FileReader(file))) {
             String line = in.readLine();
             line = line.trim();
             int p = line.indexOf(' ');
@@ -161,18 +156,10 @@ public class GetWfoCenterHandler implements IRequestHandler<GetWfoCenterPoint> {
                             e);
         } catch (FileNotFoundException e) {
             statusHandler.handle(Priority.EVENTA,
-                    "No wfo center point file found, creating default.");
+                    "No wfo center point file found, creating default.", e);
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error reading wfo center point file, using default", e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // nothing to do
-                }
-            }
         }
         return point;
     }
@@ -189,23 +176,11 @@ public class GetWfoCenterHandler implements IRequestHandler<GetWfoCenterPoint> {
             file.getParentFile().mkdirs();
         }
 
-        BufferedWriter out = null;
-        try {
-            out = new BufferedWriter(new FileWriter(file));
+        try (BufferedWriter out = new BufferedWriter(new FileWriter(file))) {
             out.write(String.format("%f %f\n", point.y, point.x));
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM, "Error writing to file: "
                     + file.getAbsolutePath(), e);
-        } finally {
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Error writing to file: " + file.getAbsolutePath(),
-                            e);
-                }
-            }
         }
     }
 }

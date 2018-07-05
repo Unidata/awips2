@@ -28,8 +28,8 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -46,8 +46,19 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
 /**
+ * Gage Table column selection dialog.
+ * 
+ * <pre>
+ * 
+ * SOFTWARE HISTORY
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * ?            ?          RajaramV    Initial creation.
+ * May 12, 2017 6283       bkowal      Cleanup for Java 7.
+ * 
+ * </pre>
+ * 
  * @author RajaramV
- * @modifiedBy CGobs
  */
 public class ItemsSelectionDialog extends JDialog {
     private static final long serialVersionUID = 6174341838620769671L;
@@ -60,9 +71,9 @@ public class ItemsSelectionDialog extends JDialog {
 
     private boolean _isSelectionCancelled = false;
 
-    private JList _allowedItemsJList;
+    private JList<String> _allowedItemsJList;
 
-    private JList _selectedItemsJList;
+    private JList<String> _selectedItemsJList;
 
     private Container _container;
 
@@ -88,8 +99,6 @@ public class ItemsSelectionDialog extends JDialog {
 
     private boolean _isAnyItemSelectedForMovedUpOrDown = false;
 
-    // ------------------------------------------------------------------------------------------------------------
-
     public ItemsSelectionDialog(JFrame owner, String title,
             String[] itemsAllowed, String[] itemsToBePresentInSelectedList) {
         super(owner, true);
@@ -98,7 +107,6 @@ public class ItemsSelectionDialog extends JDialog {
 
         _selectedItems = itemsToBePresentInSelectedList;
         _orgSelectedItems = _selectedItems;
-        // Arrays.sort(_selectedItems, 0, _selectedItems.length);
 
         setStringForPrototypeCellValue();
         if (title == null) {
@@ -108,8 +116,6 @@ public class ItemsSelectionDialog extends JDialog {
         }
         initGui();
     }
-
-    // ------------------------------------------------------------------------------------------------------------
 
     private void setStringForPrototypeCellValue() {
         String string = null;
@@ -124,10 +130,7 @@ public class ItemsSelectionDialog extends JDialog {
         _stringForPrototypeCellValue = string;
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-
     private void initGui() {
-
         _container = getContentPane();
         _container.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -153,8 +156,6 @@ public class ItemsSelectionDialog extends JDialog {
             _isAnyItemSelectedForMovedUpOrDown = false;
         }
 
-        // mainPanel.addComponentListener(new WindowResizeListener(mainPanel));
-
         addListeners();
 
         _newItemsAfterAdditionOrRemoval = new String[_selectedItems.length];
@@ -163,8 +164,6 @@ public class ItemsSelectionDialog extends JDialog {
         pack();
         setVisible(true);
     }
-
-    // ------------------------------------------------------------------------------------------------------------
 
     private JPanel initMainPanel() {
         final int visibleRowCount = 30;
@@ -175,7 +174,6 @@ public class ItemsSelectionDialog extends JDialog {
 
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
-        // mainPanel.setBackground(Color.RED);
 
         GridBagConstraints gbc = new GridBagConstraints();
 
@@ -189,57 +187,54 @@ public class ItemsSelectionDialog extends JDialog {
         _moveUpButton.setToolTipText("Move selected items up in the list.");
         _moveDownButton.setToolTipText("Move selected items down in the list.");
 
-        // _moveUpButton = new JButton("^");
-        // _moveDownButton = new JButton("v");
-
         _allowedColLabel = new JLabel("Allowed Items");
         _selectedColLabel = new JLabel("Selected Items");
 
-        _allowedItemsJList = new JList(_allowedItems);
+        _allowedItemsJList = new JList<String>(_allowedItems);
         _allowedItemsJList.setVisibleRowCount(visibleRowCount);
-        _allowedItemsJList
-                .setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        if (_stringForPrototypeCellValue.length() < ("Allowed Items").length()) {
+        _allowedItemsJList.setSelectionMode(
+                DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        if (_stringForPrototypeCellValue.length() < ("Allowed Items")
+                .length()) {
             _allowedItemsJList.setPrototypeCellValue(("Allowed Items"));
         }
         _allowedItemsJList.setAutoscrolls(true);
 
         JPanel allowedListPanel = new JPanel();
         JScrollPane allowedScrollPane = new JScrollPane(_allowedItemsJList);
-        allowedScrollPane
-                .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        allowedScrollPane
-                .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        allowedScrollPane.setVerticalScrollBarPolicy(
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        allowedScrollPane.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         allowedListPanel.setLayout(new GridLayout(1, 1));
         allowedListPanel.add(allowedScrollPane);
 
         if (_selectedItems != null) {
-            _selectedItemsJList = new JList(_selectedItems);
+            _selectedItemsJList = new JList<String>(_selectedItems);
         } else {
-            _selectedItemsJList = new JList();
+            _selectedItemsJList = new JList<String>();
         }
 
         _selectedItemsJList.setVisibleRowCount(visibleRowCount);
-        _selectedItemsJList
-                .setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        if (_stringForPrototypeCellValue.length() < ("Selected Items").length()) {
+        _selectedItemsJList.setSelectionMode(
+                DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        if (_stringForPrototypeCellValue.length() < ("Selected Items")
+                .length()) {
             _selectedItemsJList.setPrototypeCellValue(("Selected Items"));
         }
         _selectedItemsJList.setAutoscrolls(true);
 
         JPanel selectedListPanel = new JPanel();
         JScrollPane selectedScrollPane = new JScrollPane(_selectedItemsJList);
-        selectedScrollPane
-                .setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        selectedScrollPane
-                .setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        selectedScrollPane.setVerticalScrollBarPolicy(
+                JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        selectedScrollPane.setHorizontalScrollBarPolicy(
+                JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         selectedListPanel.setLayout(new GridLayout(1, 1));
         selectedListPanel.add(selectedScrollPane);
 
         JPanel addAndRemoveButtonPanel = new JPanel();
-        // addandRemoveButtonsPanel.setLayout(new GridLayout(2,1,15,15));
 
-        // addAndRemoveButtonPanel.setBackground(Color.PINK);
         addAndRemoveButtonPanel.setLayout(new GridLayout(2, 1, 0, 15));
         addAndRemoveButtonPanel.add(_addButton);
         addAndRemoveButtonPanel.add(_removeButton);
@@ -251,11 +246,9 @@ public class ItemsSelectionDialog extends JDialog {
 
         JPanel verticalFillerPanel = new JPanel();
         verticalFillerPanel.setPreferredSize(new Dimension(50, 50));
-        // verticalFillerPanel.setBackground(Color.BLUE);
 
         JPanel verticalFillerPanel2 = new JPanel();
         verticalFillerPanel2.setPreferredSize(new Dimension(50, 50));
-        // verticalFillerPanel2.setBackground(Color.GREEN);
 
         gbc.insets = new Insets(5, 5, 5, 5);
         /* col, row, width, height, weightx weighty fill(opt) */
@@ -276,16 +269,12 @@ public class ItemsSelectionDialog extends JDialog {
 
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-
     private void addComponent(Container container, Component component,
             GridBagConstraints gbc, int column, int row, int columnCells,
             int rowCells, int weightX, int weightY) {
         addComponent(container, component, gbc, column, row, columnCells,
                 rowCells, weightX, weightY, 0);
     }
-
-    // ------------------------------------------------------------------------------------------------------------
 
     private void addComponent(Container container, Component component,
             GridBagConstraints gbc, int column, int row, int columnCells,
@@ -306,11 +295,7 @@ public class ItemsSelectionDialog extends JDialog {
         gbc.fill = fill;
 
         container.add(component, gbc);
-
-        return;
     }
-
-    // ------------------------------------------------------------------------------------------------------------
 
     private void addListeners() {
         _addButton.addActionListener(new AddButtonListener());
@@ -328,10 +313,8 @@ public class ItemsSelectionDialog extends JDialog {
 
         _allowedItemsJList.addKeyListener(new AllowedListKeyListener());
         _allowedItemsJList.addMouseListener(new DoubleClickOnAllowedListener());
-        return;
     }
 
-    // ------------------------------------------------------------------------------------------------------------
     public String[] getSelectedItems() {
         String[] returnedSelectedItems = null;
         if (!_isSelectionCancelled) {
@@ -347,19 +330,14 @@ public class ItemsSelectionDialog extends JDialog {
         return returnedSelectedItems;
     }
 
-    // ------------------------------------------------------------------------------------------------------------
     private class DoubleClickOnAllowedListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
             if (e.getClickCount() == 2) {
                 addSelectedItems();
             }
-
         }
-
     }
-
-    // ------------------------------------------------------------------------------------------------------------
 
     private class DoubleClickOnSelectedListener extends MouseAdapter {
         @Override
@@ -367,9 +345,7 @@ public class ItemsSelectionDialog extends JDialog {
             if (e.getClickCount() == 2) {
                 removeSelectedItems();
             }
-
         }
-
     }
 
     private class AddButtonListener implements ActionListener {
@@ -378,8 +354,6 @@ public class ItemsSelectionDialog extends JDialog {
         }
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-
     private class CloseButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             _isSelectionCancelled = true;
@@ -387,7 +361,6 @@ public class ItemsSelectionDialog extends JDialog {
         }
     }
 
-    // ------------------------------------------------------------------------------------------------------------
     private void addSelectedItems() {
         int[] indicesOfNewItemsSelectedFromAllowedList = _allowedItemsJList
                 .getSelectedIndices();
@@ -403,7 +376,7 @@ public class ItemsSelectionDialog extends JDialog {
         // New List is empty, so add all the item selected from allowed list
         else if (numOfExistingItemsInNewList == 0) {
             _selectedItemsJList.setListData(_allowedItemsJList
-                    .getSelectedValues());
+                    .getSelectedValuesList().toArray(new String[0]));
         } else // Compare existing new list and items newly selected from
                // allowed list for any match then add
         {
@@ -421,8 +394,8 @@ public class ItemsSelectionDialog extends JDialog {
                 }
             }
 
-            int numOfFinalItemsAfterAddition = (numOfNewItemsSelectedFromAllowedList + numOfExistingItemsInNewList)
-                    - cntOfSameItems;
+            int numOfFinalItemsAfterAddition = (numOfNewItemsSelectedFromAllowedList
+                    + numOfExistingItemsInNewList) - cntOfSameItems;
 
             _newItemsAfterAdditionOrRemoval = new String[numOfFinalItemsAfterAddition];
 
@@ -445,7 +418,7 @@ public class ItemsSelectionDialog extends JDialog {
                         break;
                     }
                 }
-                if (found == false) {
+                if (!found) {
                     if (cnt < numOfFinalItemsAfterAddition) {
                         _newItemsAfterAdditionOrRemoval[cnt++] = itemFromAllowed;
                     }
@@ -459,7 +432,6 @@ public class ItemsSelectionDialog extends JDialog {
         }
     }
 
-    // ------------------------------------------------------------------------
     private void removeSelectedItems() {
         int[] removeItemsListIndices = _selectedItemsJList.getSelectedIndices();
 
@@ -493,25 +465,23 @@ public class ItemsSelectionDialog extends JDialog {
         }
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-
     private class RemoveButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             removeSelectedItems();
         }
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-
     private class MoveUpButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             _isAnyItemSelectedForMovedUpOrDown = true;
             int[] moveUpItemsIndices = _selectedItemsJList.getSelectedIndices();
-            Object[] itemsToHighLight = _selectedItemsJList.getSelectedValues();
-            List contiguousBlockList = createListOfContiguousBlockLists(moveUpItemsIndices);
+            List<String> itemsToHighLight = _selectedItemsJList
+                    .getSelectedValuesList();
+            List<List<Integer>> contiguousBlockList = createListOfContiguousBlockLists(
+                    moveUpItemsIndices);
             createFinalMovedList(contiguousBlockList, true);
-            int[] indices = new int[itemsToHighLight.length];
-            for (int i = 0; i < itemsToHighLight.length; i++) {
+            int[] indices = new int[itemsToHighLight.size()];
+            for (int i = 0; i < itemsToHighLight.size(); i++) {
                 if (moveUpItemsIndices[i] != 0) {
                     indices[i] = moveUpItemsIndices[i] - 1;
                 } else {
@@ -522,19 +492,19 @@ public class ItemsSelectionDialog extends JDialog {
         }
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-
     private class MoveDownButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             _isAnyItemSelectedForMovedUpOrDown = true;
             int[] moveDownItemsIndices = _selectedItemsJList
                     .getSelectedIndices();
-            Object[] itemsToHighLight = _selectedItemsJList.getSelectedValues();
+            List<String> itemsToHighLight = _selectedItemsJList
+                    .getSelectedValuesList();
 
-            List contiguousBlockList = createListOfContiguousBlockLists(moveDownItemsIndices);
+            List<List<Integer>> contiguousBlockList = createListOfContiguousBlockLists(
+                    moveDownItemsIndices);
             createFinalMovedList(contiguousBlockList, false);
-            int[] indices = new int[itemsToHighLight.length];
-            for (int i = 0; i < itemsToHighLight.length; i++) {
+            int[] indices = new int[itemsToHighLight.size()];
+            for (int i = 0; i < itemsToHighLight.size(); i++) {
                 if (moveDownItemsIndices[i] != _selectedItems.length) {
                     indices[i] = moveDownItemsIndices[i] + 1;
                 } else {
@@ -544,8 +514,6 @@ public class ItemsSelectionDialog extends JDialog {
             _selectedItemsJList.setSelectedIndices(indices);
         }
     }
-
-    // ------------------------------------------------------------------------------------------------------------
 
     private void setFinalSelectedItemsArray() {
         int sizeOfSelectedItemsArray = _selectedItemsJList.getModel().getSize();
@@ -560,13 +528,12 @@ public class ItemsSelectionDialog extends JDialog {
         }
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-
-    private List createListOfContiguousBlockLists(int[] movedItemsIndices) {
+    private List<List<Integer>> createListOfContiguousBlockLists(
+            int[] movedItemsIndices) {
         setFinalSelectedItemsArray();
 
-        List contiguousBlockList = new ArrayList();
-        List indicesBlockList = new ArrayList();
+        List<List<Integer>> contiguousBlockList = new ArrayList<>();
+        List<Integer> indicesBlockList = new ArrayList<>();
         if (movedItemsIndices.length == 1) {
             indicesBlockList.add(new Integer(movedItemsIndices[0]));
             contiguousBlockList.add(indicesBlockList);
@@ -576,11 +543,12 @@ public class ItemsSelectionDialog extends JDialog {
                     indicesBlockList.add(new Integer(movedItemsIndices[i]));
                     continue;
                 } else {
-                    if (movedItemsIndices[i] == (movedItemsIndices[i - 1] + 1)) {
+                    if (movedItemsIndices[i] == (movedItemsIndices[i - 1]
+                            + 1)) {
                         indicesBlockList.add(new Integer(movedItemsIndices[i]));
                     } else {
                         contiguousBlockList.add(indicesBlockList);
-                        indicesBlockList = new ArrayList();
+                        indicesBlockList = new ArrayList<>();
                         indicesBlockList.add(new Integer(movedItemsIndices[i]));
                     }
                     if (i == movedItemsIndices.length - 1) {
@@ -595,17 +563,16 @@ public class ItemsSelectionDialog extends JDialog {
         return contiguousBlockList;
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-
-    private void createFinalMovedList(List contiguousBlockList, boolean isMoveUp) {
+    private void createFinalMovedList(List<List<Integer>> contiguousBlockList,
+            boolean isMoveUp) {
         String finalSelectedItems[] = new String[_newItemsAfterAdditionOrRemoval.length];
-        System.arraycopy(_newItemsAfterAdditionOrRemoval, 0,
-                finalSelectedItems, 0, _newItemsAfterAdditionOrRemoval.length);
+        System.arraycopy(_newItemsAfterAdditionOrRemoval, 0, finalSelectedItems,
+                0, _newItemsAfterAdditionOrRemoval.length);
         for (int i = 0; i < contiguousBlockList.size(); i++) {
-            List blockList = (List) contiguousBlockList.get(i);
+            List<Integer> blockList = contiguousBlockList.get(i);
             if (isMoveUp) {
-                int indexOfFirstItemInBlockList = new Integer(blockList.get(0)
-                        .toString()).intValue();
+                int indexOfFirstItemInBlockList = new Integer(
+                        blockList.get(0).toString()).intValue();
                 if (indexOfFirstItemInBlockList == 0) {
                     continue;
                 }
@@ -613,28 +580,31 @@ public class ItemsSelectionDialog extends JDialog {
                     int indexInBlock = new Integer(blockList.get(j).toString())
                             .intValue();
                     String temp = finalSelectedItems[indexInBlock - 1];
-                    finalSelectedItems[indexInBlock - 1] = finalSelectedItems[indexInBlock];
+                    finalSelectedItems[indexInBlock
+                            - 1] = finalSelectedItems[indexInBlock];
                     finalSelectedItems[indexInBlock] = temp;
                 }
             } else // MoveDown
             {
-                int indexOfLastItemInBlockList = new Integer(blockList.get(
-                        blockList.size() - 1).toString()).intValue();
-                if (indexOfLastItemInBlockList == finalSelectedItems.length - 1) {
+                int indexOfLastItemInBlockList = new Integer(
+                        blockList.get(blockList.size() - 1).toString())
+                                .intValue();
+                if (indexOfLastItemInBlockList == finalSelectedItems.length
+                        - 1) {
                     continue;
                 }
                 for (int j = blockList.size() - 1; j >= 0; j--) {
                     int indexInBlock = new Integer(blockList.get(j).toString())
                             .intValue();
                     String temp = finalSelectedItems[indexInBlock + 1];
-                    finalSelectedItems[indexInBlock + 1] = finalSelectedItems[indexInBlock];
+                    finalSelectedItems[indexInBlock
+                            + 1] = finalSelectedItems[indexInBlock];
                     finalSelectedItems[indexInBlock] = temp;
                 }
             }
         }
-        System.arraycopy(finalSelectedItems, 0,
-                _newItemsAfterAdditionOrRemoval, 0,
-                _newItemsAfterAdditionOrRemoval.length);
+        System.arraycopy(finalSelectedItems, 0, _newItemsAfterAdditionOrRemoval,
+                0, _newItemsAfterAdditionOrRemoval.length);
         System.arraycopy(finalSelectedItems, 0, _selectedItems, 0,
                 _selectedItems.length);
 
@@ -642,13 +612,9 @@ public class ItemsSelectionDialog extends JDialog {
 
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-
     private void closeItemsSelectionDialog() {
         dispose();
     }
-
-    // ------------------------------------------------------------------------------------------------------------
 
     private class ConfirmSelectionButtonListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
@@ -657,82 +623,25 @@ public class ItemsSelectionDialog extends JDialog {
         }
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-
-    private class SelectedListKeyListener implements KeyListener {
+    private class SelectedListKeyListener extends KeyAdapter {
+        @Override
         public void keyPressed(KeyEvent e) {
             int keyCode = e.getKeyCode();
-
             if ((keyCode == KeyEvent.VK_DELETE)
                     || (keyCode == KeyEvent.VK_BACK_SPACE)) {
                 removeSelectedItems();
             }
 
         }
-
-        public void keyReleased(KeyEvent e) {
-
-        }
-
-        public void keyTyped(KeyEvent e) {
-
-        }
     }
 
-    // ------------------------------------------------------------------------------------------------------------
-    private class AllowedListKeyListener implements KeyListener {
+    private class AllowedListKeyListener extends KeyAdapter {
+        @Override
         public void keyPressed(KeyEvent e) {
             int keyCode = e.getKeyCode();
-
             if (keyCode == KeyEvent.VK_ENTER) {
                 addSelectedItems();
             }
         }
-
-        public void keyReleased(KeyEvent e) {
-
-        }
-
-        public void keyTyped(KeyEvent e) {
-
-        }
-    }
-
-    // ------------------------------------------------------------------------------------------------------------
-
-    private static String[] initBigItemsArray(int count) {
-        String[] itemStringArray = new String[count];
-
-        for (int i = 0; i < count; i++) {
-            itemStringArray[i] = "Item" + i;
-        }
-
-        return itemStringArray;
-    }
-
-    // ------------------------------------------------------------------------------------------------------------
-
-    public static void main(String[] args) {
-        JFrame frame = new JFrame();
-
-        frame.setSize(new Dimension(250, 250));
-        frame.setVisible(true);
-
-        // FrameCloseWindowListener.addFrameCloseWindowListener(frame);
-
-        String titleString = "Test ColumnSelection";
-
-        String[] initialSelectedList = { "Item2", "Item4" };
-
-        String[] bigItemsAllowed = initBigItemsArray(100);
-
-        new ItemsSelectionDialog(frame, titleString, bigItemsAllowed,
-                initialSelectedList);
-
-        frame.dispose();
-
     }
 }
-
-// ------------------------------------------------------------------------------------
-

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,38 +34,51 @@ import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.texteditor.util.VtecObject;
-import com.raytheon.viz.texteditor.util.VtecUtil;
+import com.raytheon.uf.viz.vtec.VtecObject;
+import com.raytheon.uf.viz.vtec.VtecUtil;
 import com.raytheon.viz.warngen.gis.AffectedAreas;
 
 /**
  * Abstract class that locks certain text patterns in the warning text.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 24, 2012    15332   jsanchez     Initial creation
- * Oct 18, 2012    15332   jsanchez     Updated the find method.
- * Jan  8, 2013    15664   Qinglu Lin   Appended WarningAction to lock()'s parameter list;
- *                                      moved the following methods from InitialLockingBehavior to this class:
- *                                      bulletIndices(), header(), firstBullet(), secondBullet(), getImmediateCausesPtrn();
- *                                      updated body(), header(), and secondBullet();
- * Mar 13, 2013  DR 15892  D. Friedman  Fix bullet parsing.
- * Apr 29, 2014    3033    jsanchez     Moved patterns into ICommonPatterns
- * May  1, 2014  DR 16627  Qinglu Lin   Added hasStateAbbrev(), isOtherType(), lockListOfNames(), and updated lock(). 
- * May 13, 2014  DR 17177  Qinglu Lin   Updated secondBullet().
- * May 29, 2015    4442    randerso     Fixed WarnGen text locking to work with mixed case
- * Jul 10, 2015  DR 17314  Qinglu Lin   Updated firstBullet().
- * Jul 15, 2015 DR17716 mgamazaychikov  Remove all nulls from the affectedAreas to avoid TimSort NPE in initialize.
- * Jul 17, 2015  DR 17314  D. Friedman  Fix string replacement in firstBullet().
- * Aug  5, 2015  DR 17865  Qinglu Lin   Updated firstBullet() for issue brought in by mixed case DCS.
- * Dec 24, 2015  DR 17311  Qinglu Lin   Added findIndexNextToUGC() and updated lockListOfNames().
- * 
+ *
+ * Date          Ticket#  Engineer        Description
+ * ------------- -------- --------------- --------------------------------------
+ * Sep 24, 2012  15332    jsanchez        Initial creation
+ * Oct 18, 2012  15332    jsanchez        Updated the find method.
+ * Jan 08, 2013  15664    Qinglu Lin      Appended WarningAction to lock()'s
+ *                                        parameter list; moved the following
+ *                                        methods from InitialLockingBehavior to
+ *                                        this class: bulletIndices(), header(),
+ *                                        firstBullet(), secondBullet(),
+ *                                        getImmediateCausesPtrn(); updated
+ *                                        body(), header(), and secondBullet();
+ * Mar 13, 2013  15892    D. Friedman     Fix bullet parsing.
+ * Apr 29, 2014  3033     jsanchez        Moved patterns into ICommonPatterns
+ * May 01, 2014  16627    Qinglu Lin      Added hasStateAbbrev(), isOtherType(),
+ *                                        lockListOfNames(), and updated lock().
+ * May 13, 2014  17177    Qinglu Lin      Updated secondBullet().
+ * May 29, 2015  4442     randerso        Fixed WarnGen text locking to work
+ *                                        with mixed case
+ * Jul 10, 2015  17314    Qinglu Lin      Updated firstBullet().
+ * Jul 15, 2015  17716    mgamazaychikov  Remove all nulls from the
+ *                                        affectedAreas to avoid TimSort NPE in
+ *                                        initialize.
+ * Jul 17, 2015  17314    D. Friedman     Fix string replacement in
+ *                                        firstBullet().
+ * Aug 05, 2015  17865    Qinglu Lin      Updated firstBullet() for issue
+ *                                        brought in by mixed case DCS.
+ * Dec 24, 2015  17311    Qinglu Lin      Added findIndexNextToUGC() and updated
+ *                                        lockListOfNames().
+ * Nov 03, 2016  5934     randerso        Moved VtecObject and VtecUtil to a
+ *                                        separate plugin.
+ * Jul 27, 2017  #6368     dgilling       Added DSW and SQW warning types to warningType constant.
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
  * @version 1.0
  */
@@ -77,19 +90,20 @@ abstract public class AbstractLockingBehavior {
             + "|(SEVERE WEATHER STATEMENT)|(EXTREME WIND WARNING)|(FIRE WARNING)"
             + "|(FLASH FLOOD WARNING)|(FLASH FLOOD STATEMENT)|(SEVERE THUNDERSTORM WARNING)"
             + "|(TORNADO WARNING)|(MARINE WEATHER STATEMENT)|(SHORT TERM FORECAST)"
-            + "|(SPECIAL WEATHER STATEMENT)|(SPECIAL MARINE WARNING)";
+            + "|(SPECIAL WEATHER STATEMENT)|(SPECIAL MARINE WARNING)"
+            + "|(DUST STORM WARNING)|(DUST ADVISORY)|(SNOW SQUALL WARNING)";
 
-    private static Pattern ugcPtrn = Pattern.compile(WarnGenPatterns.ugc
-            + WarnGenPatterns.NEWLINE, Pattern.MULTILINE);
+    private static Pattern ugcPtrn = Pattern.compile(
+            WarnGenPatterns.ugc + WarnGenPatterns.NEWLINE, Pattern.MULTILINE);
 
     private static Pattern listOfAreaNamePtrn = Pattern.compile(
             WarnGenPatterns.listOfAreaName + WarnGenPatterns.NEWLINE,
             Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
-    private static Pattern startMND = Pattern
-            .compile(
-                    "(BULLETIN - IMMEDIATE BROADCAST REQUESTED)|(BULLETIN - EAS ACTIVATION REQUESTED)|"
-                            + warningType, Pattern.CASE_INSENSITIVE);
+    private static Pattern startMND = Pattern.compile(
+            "(BULLETIN - IMMEDIATE BROADCAST REQUESTED)|(BULLETIN - EAS ACTIVATION REQUESTED)|"
+                    + warningType,
+            Pattern.CASE_INSENSITIVE);
 
     private static Pattern stateAbbrevPtrn = Pattern.compile(
             WarnGenPatterns.listOfAreaName + WarnGenPatterns.NEWLINE,
@@ -99,9 +113,9 @@ abstract public class AbstractLockingBehavior {
 
     /**
      * Sorts in reverse order the areas based on the length of the name.
-     * 
+     *
      * @author jsanchez
-     * 
+     *
      */
     private class AreaLockingComparator implements Comparator<AffectedAreas> {
 
@@ -123,7 +137,7 @@ abstract public class AbstractLockingBehavior {
     /**
      * Locks the particular strings in the texts based on common patterns and
      * the affected areas.
-     * 
+     *
      * @param text
      * @param affectedAreas
      * @param canceledAreas
@@ -162,11 +176,11 @@ abstract public class AbstractLockingBehavior {
 
     /**
      * Helper method to determine the index of each bullet.
-     * 
+     *
      * @return
      */
     private Integer[] bulletIndices() {
-        List<Integer> bulletIndices = new ArrayList<Integer>();
+        List<Integer> bulletIndices = new ArrayList<>();
 
         /*
          * Assumes first line cannot be a bullet and that the '*' is at the
@@ -194,7 +208,7 @@ abstract public class AbstractLockingBehavior {
 
     /**
      * Locks the affected area names in the first bullet, the immediate cause.
-     * 
+     *
      * @param start
      * @param end
      */
@@ -232,9 +246,8 @@ abstract public class AbstractLockingBehavior {
                     // immediate cause
                     m = immediateCausePtrn.matcher(line);
                     if (m.find()) {
-                        String i = line.replace(line,
-                                WarnGenPatterns.LOCK_START + line
-                                        + WarnGenPatterns.LOCK_END);
+                        String i = line.replace(line, WarnGenPatterns.LOCK_START
+                                + line + WarnGenPatterns.LOCK_END);
                         newText.append(i);
                         continue;
                     }
@@ -312,8 +325,8 @@ abstract public class AbstractLockingBehavior {
         StringBuffer pattern = new StringBuffer();
 
         try {
-            String immediateCause = WarnFileUtil.convertFileContentsToString(
-                    filename, null, null);
+            String immediateCause = WarnFileUtil
+                    .convertFileContentsToString(filename, null, null);
             pattern.append("(.*)(A DAM BREAK");
             for (String ic : immediateCause.split("\n")) {
                 String[] parts = ic.split("\\\\");
@@ -321,13 +334,12 @@ abstract public class AbstractLockingBehavior {
             }
 
             pattern.append(")(.*)");
-            return Pattern
-                    .compile(pattern.toString(), Pattern.CASE_INSENSITIVE);
+            return Pattern.compile(pattern.toString(),
+                    Pattern.CASE_INSENSITIVE);
         } catch (Exception e) {
-            statusHandler
-                    .handle(Priority.ERROR,
-                            "Unable to process immediateCause.txt in the base directory",
-                            e);
+            statusHandler.handle(Priority.ERROR,
+                    "Unable to process immediateCause.txt in the base directory",
+                    e);
         }
 
         return null;
@@ -335,7 +347,7 @@ abstract public class AbstractLockingBehavior {
 
     /**
      * Adds the affect areas into the appropriate lists.
-     * 
+     *
      * @param affectedAreas
      * @param canceledAreas
      */
@@ -344,10 +356,10 @@ abstract public class AbstractLockingBehavior {
         AreaLockingComparator comparator = new AreaLockingComparator();
 
         if (affectedAreas != null) {
-            this.affectedAreas = new ArrayList<AffectedAreas>(
+            this.affectedAreas = new ArrayList<>(
                     Arrays.asList(affectedAreas));
         } else {
-            this.affectedAreas = new ArrayList<AffectedAreas>(0);
+            this.affectedAreas = new ArrayList<>(0);
         }
 
         if (canceledAreas != null) {
@@ -388,7 +400,7 @@ abstract public class AbstractLockingBehavior {
 
     /**
      * Helper method to replace the found patterns.
-     * 
+     *
      * @param m
      */
     protected void find(Matcher m) {
@@ -490,7 +502,7 @@ abstract public class AbstractLockingBehavior {
     /**
      * Returns true if this is a Marine Weather Statement and not a Standalone
      * MWS. Standalone MWS do not have VTECs.
-     * 
+     *
      * @return
      */
     protected boolean isMarineProduct() {
@@ -504,7 +516,7 @@ abstract public class AbstractLockingBehavior {
     /**
      * Tests if the ICommonPatterns.LOCK_START count matches the
      * ICommonPatterns.LOCK_END count.
-     * 
+     *
      * @return
      */
     public static boolean validate(String modified) {
@@ -519,7 +531,7 @@ abstract public class AbstractLockingBehavior {
     /**
      * Tests if the name has been locked already by the template to avoid
      * stacked lock tags.
-     * 
+     *
      * @return
      */
     protected boolean hasBeenLocked(String line, String name) {
@@ -581,8 +593,9 @@ abstract public class AbstractLockingBehavior {
      */
     private void lockListOfNames() {
         int index = findIndexNextToUGC(ugcPtrn.matcher(text));
-        if (index == -1)
+        if (index == -1) {
             return;
+        }
         String[] timePattern = { " AM ", " PM ", "NOON", "MIDNIGHT" };
         String text1 = "";
         String text2 = text.substring(index, text.length() - 1);
@@ -598,15 +611,15 @@ abstract public class AbstractLockingBehavior {
         if (text1.length() > 0) {
             index1 = text1.indexOf(WarnGenPatterns.LOCK_END);
             index2 = text1.lastIndexOf("-");
-            if (index1 == -1 || index2 == -1 || (index2 + 1 < index1 + 4))
+            if ((index1 == -1) || (index2 == -1)
+                    || ((index2 + 1) < (index1 + 4))) {
                 return;
+            }
             text2 = text1.substring(index1 + 4, index2 + 1);
             index1 = text.indexOf(text2);
-            text = text.substring(0, index1)
-                    + WarnGenPatterns.LOCK_START
-                    + text2
-                    + WarnGenPatterns.LOCK_END
-                    + text.substring(index1 + text2.length(), text.length() - 1);
+            text = text.substring(0, index1) + WarnGenPatterns.LOCK_START
+                    + text2 + WarnGenPatterns.LOCK_END + text.substring(
+                            index1 + text2.length(), text.length() - 1);
         }
     }
 

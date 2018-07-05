@@ -44,23 +44,26 @@
 #    10/29/2015      17701         yteng          Correct parm selection for Hazards to exclude Hazardsnc
 #    12/07/2015      5129          dgilling       Support new IFPClient.
 #    09/13/2016      19348         ryu            Validate ETN for tropical events.
+#    11/21/2016      5959          njensen        Removed unused imports and made more pythonic
+#    02/16/2017      18215         ryu            Fix issue of re-creating EXP records when they have
+#                                                 already been issued before the end time of an event.
 #
 
+##
+# This is a base file that is not intended to be overridden.
+##
 
-import time, getopt, sys, copy, string, logging
+import time, copy, string, logging
 import os
 import VTECTableUtil, VTECTable
 import TimeRange, AbsTime, ActiveTableVtec
-import JUtil
 from java.util import ArrayList
 from com.raytheon.uf.common.activetable import ActiveTableMode
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID as JavaDatabaseID
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceID
 from com.raytheon.uf.common.dataplugin.gfe.discrete import DiscreteKey
-from com.raytheon.uf.common.time import TimeRange as JavaTimeRange
 from com.raytheon.viz.gfe.sampler import HistoSampler, SamplerRequest
 from com.raytheon.viz.gfe.vtec import GFEVtecUtil
-import cPickle
 
 # This class makes an object that interfaces to the GFE hazard grid
 # sampling code and the TimeCombine code and generates formatted
@@ -998,7 +1001,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
                 areaTime = TimeRange.TimeRange(s.validTime()) # timerange
                 histpairs = s.histogram()
                 for p in histpairs:
-                    subkeys = JUtil.javaObjToPyVal(p.value().discrete().getSubKeys())
+                    subkeys = p.value().discrete().getSubKeys()
                     for sk in subkeys:
                         # skip if no hazard
                         if sk == "<None>":
@@ -1300,6 +1303,7 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         for a in aTable:
             if a['act'] == 'EXP' and a['endTime'] > self.__time:
                 a['act'] = 'CON'
+                a['expired'] = True
         return aTable
 
 
@@ -2181,6 +2185,27 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
 
         return newTable
 
+    # Remove EXP codes that have already been issued
+    def __removeIssuedEXPs(self, pTable, activeTable):
+        newTable = []
+        for proposed in pTable:
+            if proposed['act'] == 'EXP' and \
+                proposed['endTime'] >= self.__time:
+                issued = False
+                for active in activeTable:
+                    if active['pil'] == self.__pil and \
+                        active['officeid'] == self.__siteID4 and \
+                        active.has_key('expired'):
+                        if proposed['id'] == active['id'] and \
+                            proposed['endTime'] == active['endTime']:
+                            issued = True
+                            break
+                if issued:
+                    continue
+            newTable.append(proposed)
+            
+        return newTable
+
     #ensure that we don't have two vtecs with same action code, same etns.
     #Switch the 2nd one to NEW.
     def __checkETNdups(self, pTable):
@@ -2374,6 +2399,11 @@ class HazardsTable(VTECTableUtil.VTECTableUtil):
         # Remove EXPs that are 30mins past the end of events
         pTable = self.__removeOverdueEXPs(pTable)
         self.log.debug("After removeOverdueEXPs:" +
+          self.printActiveTable(pTable, combine=True))
+
+        # Remove EXPs that have already been issued
+        pTable = self.__removeIssuedEXPs(pTable, activeTable)
+        self.log.debug("After removeIssuedEXPs:" +
           self.printActiveTable(pTable, combine=True))
 
         # Ensure that there are not ETN dups in the same segment w/diff

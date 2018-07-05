@@ -31,6 +31,16 @@
 #    09/30/2015       18141        ryu            Added PHFO to VTEC_TPC_SITE
 #
 
+##
+# This is an incremental override file, indicating that the files at different
+# localization levels will be combined. Incremental overrides are achieved by 
+# creating a localVTECPartners file at a higher priority localization level 
+# that is imported by this base file.
+#
+# See the Configuration Guides->Server Configuration->Syntax for 
+# localVTECpartners.py section of the GFE Online Help for more information.
+##
+
 #VTEC_Partners.py - configuration file to control filtering and merging
 #of VTEC active table.
 

@@ -18,27 +18,31 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="K/hPa/s" name="Equiv Pot Vort" abbreviation="pVeq" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="K/hPa/s" name="Equiv Pot Vort" abbreviation="pVeq">
     <Method levels="S,MB,K" name="PotVortMB">
-        <Field level="upper" abbreviation="EPT"/>
-        <Field abbreviation="EPT"/>
-        <Field level="upper" abbreviation="P"/>
-        <Field abbreviation="P"/>
-        <Field level="upper" abbreviation="Wind"/>
-        <Field abbreviation="Wind"/>
-        <Field abbreviation="dx"/>
-        <Field abbreviation="dy"/>
-        <Field abbreviation="coriolis"/>
+        <Field level="upper" abbreviation="EPT" />
+        <Field abbreviation="EPT" />
+        <Field level="upper" abbreviation="P" />
+        <Field abbreviation="P" />
+        <Field level="upper" abbreviation="Wind" />
+        <Field abbreviation="Wind" />
+        <Field abbreviation="dx" />
+        <Field abbreviation="dy" />
+        <Field abbreviation="coriolis" />
     </Method>
     <Method levels="C,MB" name="PotVortMB">
-        <Field level="upper" abbreviation="EPT"/>
-        <Field level="lower" abbreviation="EPT"/>
-        <Field level="upper" abbreviation="P"/>
-        <Field level="lower" abbreviation="P"/>
-        <Field level="upper" abbreviation="Wind"/>
-        <Field level="lower" abbreviation="Wind"/>
-        <Field abbreviation="dx"/>
-        <Field abbreviation="dy"/>
-        <Field abbreviation="coriolis"/>
+        <Field level="upper" abbreviation="EPT" />
+        <Field level="lower" abbreviation="EPT" />
+        <Field level="upper" abbreviation="P" />
+        <Field level="lower" abbreviation="P" />
+        <Field level="upper" abbreviation="Wind" />
+        <Field level="lower" abbreviation="Wind" />
+        <Field abbreviation="dx" />
+        <Field abbreviation="dy" />
+        <Field abbreviation="coriolis" />
     </Method>
 </DerivedParameter>

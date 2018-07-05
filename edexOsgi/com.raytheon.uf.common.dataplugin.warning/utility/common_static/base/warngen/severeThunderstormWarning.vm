@@ -1,17 +1,22 @@
-##########################################################################
-## SEVERE THUNDERSTORM WARNING TEMPLATE                                 ##
-## CREATED BY EVAN BOOKBINDER - WFO PBZ                                 ##
-## RECENT VERSION HISTORY                                               ##  
-##       BY QINGLU LIN     8-14-2012 DR 14493 use TMLtime               ##
-##        Mike Dangelo     9-13-2012 minor tweaks to some ${variables}  ## 
-##        Mike Dangelo     2-4-2013  NWS Mets detected a svr            ## 
-##        Evan Bookbinder  9-16-2013 Fixed CTA                          ##
-##        Evan Bookbinder  9-18-2013 Implemented config.vm              ##
-##        Evan Bookbinder  9-5-2014 fixed law enf cta                   ##
-##        Mike Dangelo     26 Mar 2015 Mixed Case edits               ##
-##        Evan Bookbinder  6-15-15 fixed softball/grapefruit hail size  ##
-##        Evan Bookbinder  9-04-15 fixed line of storms grammar         ##
-##########################################################################
+###########################################################################
+## SEVERE THUNDERSTORM WARNING TEMPLATE                                  ##
+## CREATED BY EVAN BOOKBINDER - WFO PBZ                                  ##
+## RECENT VERSION HISTORY                                                ##  
+##       BY QINGLU LIN     8-14-2012 DR 14493 use TMLtime                ##
+##        Mike Dangelo     9-13-2012 minor tweaks to some ${variables}   ## 
+##        Mike Dangelo     2-4-2013  NWS Mets detected a svr             ## 
+##        Evan Bookbinder  9-16-2013 Fixed CTA                           ##
+##        Evan Bookbinder  9-18-2013 Implemented config.vm               ##
+##        Evan Bookbinder  9-5-2014 fixed law enf cta                    ##
+##        Mike Dangelo     3-26-2015 Mixed Case edits                    ##
+##        Evan Bookbinder  6-15-15 fixed softball/grapefruit hail size   ##
+##        Evan Bookbinder  9-04-15 fixed line of storms grammar          ##
+##        Evan Bookbinder  1-30-17 SVR/TOR watch capitalization DR 19649 ##
+###########################################################################
+## This is an absolute override file, indicating that a higher priority  ##
+## version of the file will completely replace a lower priority version  ##
+## of the file.                                                          ##
+###########################################################################
 ##
 #parse("config.vm")
 ##SET SOME INITIAL VARIABLES
@@ -248,7 +253,7 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#commaOrEllipsis()${report}${hailwind}. ${reportType2} located ##
+, ${report}${hailwind}. ${reportType2} located ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
@@ -258,7 +263,7 @@ THIS IS A TEST MESSAGE. ##
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 . ${reportType2} nearly stationary. ${smallHail}
 #else
-#commaOrEllipsis()and moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph. ${smallHail}
+, and moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph. ${smallHail}
 #end
 
 ##
@@ -333,51 +338,51 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 #end
 ##
 #if(${list.contains(${bullets}, "torWatchCTA")})
-A tornado watch remains in effect for the area. Although a tornado is not immediately likely#commaOrEllipsis()if one is spotted#commaOrEllipsis()act quickly and move to a place of safety in a sturdy structure#commaOrEllipsis()such as a basement or small interior room.
+A Tornado Watch remains in effect for the area. Although a tornado is not immediately likely, if one is spotted, act quickly and move to a place of safety in a sturdy structure, such as a basement or small interior room.
 
 #end
 ##
 #if(${list.contains(${bullets}, "genericCTA")})
-Severe thunderstorms produce damaging winds#commaOrEllipsis()destructive hail#commaOrEllipsis()deadly lightning and very heavy rain. For your protection#commaOrEllipsis()move to an interior room on the lowest floor of your home or business. Heavy rains flood roads quickly so do not drive into areas where water covers the road.
+Severe thunderstorms produce damaging winds, destructive hail, deadly lightning and very heavy rain. For your protection, move to an interior room on the lowest floor of your home or business. Heavy rains flood roads quickly so do not drive into areas where water covers the road.
 
 #end
 ##
 #if(${list.contains(${bullets}, "canProduceTornadoesCTA")})
 #if(${stormType} == "line")
-Doppler radar has indicated some weak rotation within these storms. Although a tornado is not immediately likely#commaOrEllipsis()if one is spotted#commaOrEllipsis()act quickly and move to a place of safety in a sturdy structure#commaOrEllipsis()such as a basement or small interior room.
+Doppler radar has indicated some weak rotation within these storms. Although a tornado is not immediately likely, if one is spotted, act quickly and move to a place of safety in a sturdy structure, such as a basement or small interior room.
 
 #else
-Doppler radar has indicated some weak rotation within this storm. Although a tornado is not immediately likely#commaOrEllipsis()if one is spotted#commaOrEllipsis()act quickly and move to a place of safety in a sturdy structure#commaOrEllipsis()such as a basement or small interior room.
+Doppler radar has indicated some weak rotation within this storm. Although a tornado is not immediately likely, if one is spotted, act quickly and move to a place of safety in a sturdy structure, such as a basement or small interior room.
 
 #end
 #end
 ##
 #if(${list.contains(${bullets}, "largeHailCTA")})
 #if(${stormType} == "line")
-If you are in the path of these storms#commaOrEllipsis()prepare immediately for large hail and deadly cloud to ground lightning. People outside should move to a shelter#commaOrEllipsis()preferably inside a strong building and away from windows.
+If you are in the path of these storms, prepare immediately for large hail and deadly cloud to ground lightning. People outside should move to a shelter, preferably inside a strong building and away from windows.
 
 #else
-If you are in the path of this storm#commaOrEllipsis()prepare immediately for large hail and deadly cloud to ground lightning. People outside should move to a shelter#commaOrEllipsis()preferably inside a strong building and away from windows.
+If you are in the path of this storm, prepare immediately for large hail and deadly cloud to ground lightning. People outside should move to a shelter, preferably inside a strong building and away from windows.
 
 #end
 #end
 ##
 #if(${list.contains(${bullets}, "veryLargeHailCTA")})
 #if(${stormType} == "line")
-These are dangerous storms. If you are in their path#commaOrEllipsis()prepare immediately for large destructive hail capable of producing significant damage. People outside should move to a shelter#commaOrEllipsis()preferably inside a strong building and away from windows.
+These are dangerous storms. If you are in their path, prepare immediately for large destructive hail capable of producing significant damage. People outside should move to a shelter, preferably inside a strong building and away from windows.
 
 #else
-This is a dangerous storm. If you are in its path#commaOrEllipsis()prepare immediately for large destructive hail capable of producing significant damage. People outside should move to a shelter#commaOrEllipsis()preferably inside a strong building and away from windows.
+This is a dangerous storm. If you are in its path, prepare immediately for large destructive hail capable of producing significant damage. People outside should move to a shelter, preferably inside a strong building and away from windows.
 
 #end
 #end
 ##
 #if(${list.contains(${bullets}, "largeHailWindCTA")})
 #if(${stormType} == "line")
-If you are in the path of these storms#commaOrEllipsis()prepare immediately for large hail and damaging winds. People outside should move to a shelter#commaOrEllipsis()preferably inside a strong building and away from windows.
+If you are in the path of these storms, prepare immediately for large hail and damaging winds. People outside should move to a shelter, preferably inside a strong building and away from windows.
 
 #else
-If you are in the path of this storm#commaOrEllipsis()prepare immediately for large hail and damaging winds. People outside should move to a shelter#commaOrEllipsis()preferably inside a strong building and away from windows.
+If you are in the path of this storm, prepare immediately for large hail and damaging winds. People outside should move to a shelter, preferably inside a strong building and away from windows.
 
 #end
 #end
@@ -413,22 +418,22 @@ This storm has a history of producing destructive winds and large hail. This is 
 #end
 ##
 #if(${list.contains(${bullets}, "lawEnforcementCTA")})
-To report severe weather#commaOrEllipsis()contact the National Weather Service#commaOrEllipsis()or your nearest law enforcement agency who will relay your report to the National Weather Service office in ${officeLoc}.
+To report severe weather, contact the National Weather Service, or your nearest law enforcement agency who will relay your report to the National Weather Service office in ${officeLoc}.
 
 #end
 ##
 #if(${list.contains(${bullets}, "squallLineCTA")})
 #if(${stormType} == "line")
-Intense thunderstorm lines can occasionally produce brief tornadoes and widespread significant wind damage. Although not immediately likely#commaOrEllipsis()for your protection move to an interior room on the lowest floor of your home or business. These storms have the potential to cause serious injury and significant damage to property.
+Intense thunderstorm lines can occasionally produce brief tornadoes and widespread significant wind damage. Although not immediately likely, for your protection move to an interior room on the lowest floor of your home or business. These storms have the potential to cause serious injury and significant damage to property.
 
 #else
-Intense thunderstorm lines can occasionally produce brief tornadoes and widespread significant wind damage. Although not immediately likely#commaOrEllipsis()for your protection move to an interior room on the lowest floor of your home or business. This storm has the potential to cause serious injury and significant damage to property.
+Intense thunderstorm lines can occasionally produce brief tornadoes and widespread significant wind damage. Although not immediately likely, for your protection move to an interior room on the lowest floor of your home or business. This storm has the potential to cause serious injury and significant damage to property.
 
 #end
 #end
 ##
 #if(${list.contains(${bullets}, "superCellsCTA")})
-This is a supercell thunderstorm. Due to the rotating nature of these storms#commaOrEllipsis()they are capable of producing all types of severe weather including extremely large hail#commaOrEllipsis()destructive straight line winds#commaOrEllipsis()and possibly tornadoes. Move quickly to a safe shelter#commaOrEllipsis()preferably into a basement#commaOrEllipsis()or an interior room such as a bathroom or closet.
+This is a supercell thunderstorm. Due to the rotating nature of these storms, they are capable of producing all types of severe weather including extremely large hail, destructive straight line winds, and possibly tornadoes. Move quickly to a safe shelter, preferably into a basement, or an interior room such as a bathroom or closet.
 
 #end
 ##
@@ -448,21 +453,21 @@ This is an EXTREMELY DANGEROUS SITUATION with tornado like wind speeds expected.
 #end
 ##
 #if(${list.contains(${bullets}, "lightningCTA")})
-In addition to large hail and damaging winds#commaOrEllipsis()continuous cloud to ground lightning is occurring with this storm. Move indoors immediately. Lightning is one of nature's leading killers. Remember#commaOrEllipsis()if you can hear thunder#commaOrEllipsis()you are close enough to be struck by lightning.
+In addition to large hail and damaging winds, continuous cloud to ground lightning is occurring with this storm. Move indoors immediately. Lightning is one of nature's leading killers. Remember, if you can hear thunder, you are close enough to be struck by lightning.
 
 #end
 ##
 #if(${list.contains(${bullets}, "boatersCTA")})
-If on or near !**NAME OF LAKE**!#commaOrEllipsis()get out of the water and move indoors or inside a vehicle. Remember#commaOrEllipsis()lightning can strike out to 15 miles from the parent thunderstorm. If you can hear thunder#commaOrEllipsis()you are close enough to be struck by lightning. Move to safe shelter now!  Do not be caught on the water in a thunderstorm.
+If on or near !**NAME OF LAKE**!, get out of the water and move indoors or inside a vehicle. Remember, lightning can strike out to 15 miles from the parent thunderstorm. If you can hear thunder, you are close enough to be struck by lightning. Move to safe shelter now!  Do not be caught on the water in a thunderstorm.
 
 #end
 ##
 #if(${list.contains(${bullets}, "torrentialRainfallCTA")})
 #if(${stormType} == "line")
-Torrential rainfall is also occurring with these storms#commaOrEllipsis()and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
+Torrential rainfall is also occurring with these storms, and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
 
 #else
-Torrential rainfall is also occurring with this storm#commaOrEllipsis()and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
+Torrential rainfall is also occurring with this storm, and may lead to flash flooding. Do not drive your vehicle through flooded roadways.
 
 #end
 #end
@@ -476,6 +481,7 @@ Torrential rainfall is also occurring with this storm#commaOrEllipsis()and may l
 #############
 
 #if(${list.contains(${includedWatches}, "TO.A")})
+
 #inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
 
 #end

@@ -2,8 +2,11 @@
 ## DAM BREAK FFW  TEMPLATE             ##
 ## CREATED BY PHIL KURIMSKI - WFO DTX  ##
 ## VERSION AWIPS II 1.0 -- APR 2 2011  ##
-#########################################
-##
+###########################################################################
+## This is an absolute override file, indicating that a higher priority  ##
+## version of the file will completely replace a lower priority version  ##
+## of the file.                                                          ##
+###########################################################################
 #if(${action} == "EXT")
 	#set($starttime = "000000T0000Z")
 	#set($extend = true)

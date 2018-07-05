@@ -28,6 +28,10 @@
 # 
 # ----------------------------------------------------------------------------
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
 # Possible items are: Populate, Edit, Consistency, Verify, Hazards

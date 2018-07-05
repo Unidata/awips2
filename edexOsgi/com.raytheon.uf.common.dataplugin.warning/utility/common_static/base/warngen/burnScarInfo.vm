@@ -6,7 +6,7 @@
 ## pre-defined polygon in Boulders (BOU) cwa. 
 ## If you have any questions please contact Phil Kurimski - WFO DTX 
 ##            Mike Dangelo  23 March 2015  Mixed Case changes
-#########################################################################
+########################################################################### 
 #*
 #if(${list.contains($bullets, "FourMileBurnArea")})
     #set($burnScarName = "Four Mile Burn Area")

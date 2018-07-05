@@ -22,8 +22,6 @@ package com.raytheon.edex.plugin.gfe.textproducts;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +30,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.raytheon.edex.utility.ProtectedFiles;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -42,17 +39,16 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
+import com.raytheon.uf.common.protectedfiles.ProtectedFiles;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
-import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 
+import jep.JepConfig;
 import jep.JepException;
 
 /**
@@ -86,20 +82,22 @@ import jep.JepException;
  *                                  methods
  * Jul 18, 2016  5747     dgilling  Move edex_static to common_static.
  * Sep 19, 2016  19293    randerso  Add NHA to generated SiteCFG.py file
+ * Apr 20, 2017  5898     randerso  Make configureTextProducts run unconditionally
+ * Aug 07, 2017  6379     njensen   Updated import of ProtectedFiles
+ * Nov 27, 2017  6538     randerso  Move National center configurations to
+ *                                  external Python file
  *
  * </pre>
  *
  * @author jelkins
- * @version 1.0
  */
 
 public class Configurator {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Configurator.class);
 
     private static final String CWA_QUERY = "select wfo, region, fullstaid, citystate, city, state from mapdata.cwa order by wfo;";
-
-    private static final String CONFIG_TEXT_PRODUCTS_TASK = "GfeConfigureTextProducts";
 
     private String siteID;
 
@@ -166,53 +164,18 @@ public class Configurator {
     }
 
     /**
-     * Check if text products have been configured already
-     *
-     * @return true if text products have been configured
-     */
-    public boolean isConfigured() {
-        boolean filesHaveChanges = false;
-
-        IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext ctx = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        File templatesDir = pathMgr.getFile(ctx,
-                LocalizationUtil.join("gfe", "textproducts", "templates"));
-        ClusterTask task = ClusterLockUtils
-                .lookupLock(CONFIG_TEXT_PRODUCTS_TASK, this.siteID);
-        filesHaveChanges = FileUtil.hasBeenModifiedSince(templatesDir,
-                task.getLastExecution(), true);
-
-        // if the destination dir does not exist, configurator needs run
-        if ((!Files
-                .isDirectory(Paths.get(destinationDirectory, "textProducts")))
-                || (!Files.isDirectory(
-                        Paths.get(destinationDirectory, "textUtilities")))) {
-            filesHaveChanges = true;
-        }
-
-        return !filesHaveChanges;
-    }
-
-    /**
      * Create and configure text products
      * <p>
      * Call the configureTextProduct.py script. After successfully creating and
      * configuring the text products, a cluster lock will be created to indicate
      * the last time the site's text products were configured.
      * </p>
-     *
-     * @see Configurator#isConfigured()
      */
     public void execute() {
-        if (isConfigured()) {
-            statusHandler.info("All text products are up to date");
-            return;
-        }
-
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
+        context.setContextName(siteID);
 
         // regenerate siteCFG.py
         ILocalizationFile lf = null;
@@ -246,30 +209,23 @@ public class Configurator {
                             wfoCityState, wfoCity, state));
 
                     // Add in AFC's dual domain sites
-                    if (wfo.equals("AFC")) {
+                    if ("AFC".equals(wfo)) {
                         out.println(formatEntry("AER", region, fullStationID,
                                 wfoCityState, wfoCity, state));
                         out.println(formatEntry("ALU", region, fullStationID,
                                 wfoCityState, wfoCity, state));
                     }
                 }
-
-                // Add in the national centers since they
-                // aren't in the shape file
-                out.println(formatEntry("NH1", "NC", "KNHC",
-                        "National Hurricane Center Miami FL", "Miami", ""));
-                out.println(formatEntry("NH2", "NC", "KNHC",
-                        "National Hurricane Center Miami FL", "Miami", ""));
-                out.println(formatEntry("NHA", "NC", "KNHC",
-                        "National Hurricane Center Miami FL", "Miami", ""));
-                out.println(formatEntry("ONA", "NC", "KWBC",
-                        "Ocean Prediction Center Washington DC",
-                        "Washington DC", ""));
-                out.println(formatEntry("ONP", "NC", "KWBC",
-                        "Ocean Prediction Center Washington DC",
-                        "Washington DC", ""));
-
                 out.println("}");
+
+                // Import national centers info
+                out.println("try:");
+                out.println("    import OtherCFG");
+                out.println("    SiteInfo.update(OtherCFG.SiteInfo)");
+                out.println("except:");
+                out.println(
+                        "    LogStream.logProblem(\"Error importing OtherCFG:\\n\"+LogStream.exc())");
+
                 out.close();
                 lfStream.save();
             }
@@ -297,9 +253,11 @@ public class Configurator {
         preEval.add("SCRIPT_DIR = '" + scriptDir + "'");
 
         try {
-            python = new PythonScript(filePath,
-                    PyUtil.buildJepIncludePath(pythonDirectory, commonPython),
-                    this.getClass().getClassLoader(), preEval);
+            JepConfig jepConfig = new JepConfig()
+                    .setIncludePath(PyUtil.buildJepIncludePath(pythonDirectory,
+                            commonPython))
+                    .setClassLoader(this.getClass().getClassLoader());
+            python = new PythonScript(jepConfig, filePath, preEval);
 
             // Open the Python interpreter using the designated script.
             @SuppressWarnings("unchecked")
@@ -307,7 +265,6 @@ public class Configurator {
                     .execute("runFromJava", argList);
 
             updateProtectedFile(protectedFilesList);
-            updateLastRuntime();
         } catch (JepException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error Configuring Text Products", e);
@@ -340,13 +297,8 @@ public class Configurator {
      * @param protectedFilesList
      */
     private void updateProtectedFile(List<String> protectedFilesList) {
-        if ((protectedFilesList != null) && (protectedFilesList.size() > 0)) {
+        if ((protectedFilesList != null) && (!protectedFilesList.isEmpty())) {
             ProtectedFiles.protect(siteID, protectedFilesList);
         }
-    }
-
-    private void updateLastRuntime() {
-        ClusterLockUtils.lock(CONFIG_TEXT_PRODUCTS_TASK, this.siteID, 0, false);
-        ClusterLockUtils.unlock(CONFIG_TEXT_PRODUCTS_TASK, this.siteID);
     }
 }

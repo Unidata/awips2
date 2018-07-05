@@ -67,6 +67,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData.CombineOperation;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.graph.labeling.DataTimeLabel;
 import com.raytheon.uf.viz.xy.graph.labeling.DoubleLabel;
@@ -80,8 +82,6 @@ import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
 import com.raytheon.viz.core.graphing.xy.XYImageData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
-import com.raytheon.viz.core.rsc.ICombinedResourceData;
-import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 

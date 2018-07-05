@@ -41,9 +41,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataquery.db.QueryResult;
@@ -58,15 +60,15 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Sep 4, 2008				lvenable	Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * Sep 4, 2008              lvenable    Initial creation
  * Nov 24, 2008   1628      dhladky     Interactiveized.
  * Jan 13, 2009   1802      askripsk    Added check for DB FK constraints.
  * Feb 22, 2010   1985      mpduff      Apply button now reloads data list.
  * Apr 08, 2010   4277      mpduff      Fixed day offset problem.
- * Nov 11, 2010   5518      lbousaidi	fixed filter options to reflect 
- * 										changes in crest data list display
+ * Nov 11, 2010   5518      lbousaidi   fixed filter options to reflect 
+ *                                      changes in crest data list display
  * Nov 18, 2010   6981      lbousaidi   fixed Ok button and prelim problem
  * Mar 29,2012  14463       wkwock      Fix max # of char for remark text box to 255
  *                                      Also see https://bugs.eclipse.org/bugs/show_bug.cgi?id=43004
@@ -78,10 +80,11 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 30, 2015   14228     wkwock      Update remark limit to 160.
  * Aug 17, 2016   19239     JingtaoD    track applyBtn enabled or not
  * Aug 17, 2016   19243     JingtaoD    CrestHistory dialog should allow insert either Flow or Stage data
+ * Feb 22, 2017   6035      njensen     Changed crest history list to use table
+ * 
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  */
 public class CrestHistoryDlg extends CaveSWTDialog implements
         ISelectedCrestData {
@@ -112,9 +115,9 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
     private Combo sortCrestsCbo;
 
     /**
-     * Crest history list control.
+     * Crest history table control.
      */
-    private List crestHistoryList;
+    private Table crestHistoryTable;
 
     /**
      * Stage text control.
@@ -280,11 +283,6 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         setReturnValue(lid);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -294,23 +292,11 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         return mainLayout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
     protected void disposed() {
         font.dispose();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
 
@@ -325,9 +311,9 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         createBottomButtons();
 
         if (crestHistoryData != null) {
-            sortCrestHistoryList();
-            updateCrestHistoryList();
-            crestHistoryList.setSelection(0);
+            sortCrestHistoryTable();
+            updateCrestHistoryTable();
+            crestHistoryTable.setSelection(0);
             if ((crestHistoryData != null)
                     && (crestHistoryData.getCrestDataArray().size() > 0)) {
                 setSelectedCrest(crestHistoryData.getCrestDataArray().get(0));
@@ -376,9 +362,9 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
                     getCrestData(2);
                 }
 
-                sortCrestHistoryList();
-                updateCrestHistoryList();
-                crestHistoryList.setSelection(0);
+                sortCrestHistoryTable();
+                updateCrestHistoryTable();
+                crestHistoryTable.setSelection(0);
                 if ((crestHistoryData != null)
                         && (crestHistoryData.getCrestDataArray().size() > 0)) {
                     setSelectedCrest(crestHistoryData.getCrestDataArray()
@@ -404,9 +390,9 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         sortCrestsCbo.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                sortCrestHistoryList();
-                updateCrestHistoryList();
-                crestHistoryList.setSelection(0);
+                sortCrestHistoryTable();
+                updateCrestHistoryTable();
+                crestHistoryTable.setSelection(0);
                 setSelectedCrest(crestHistoryData.getCrestDataArray().get(0));
             }
         });
@@ -420,7 +406,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         GridLayout gl = new GridLayout(1, false);
         rightComp.setLayout(gl);
 
-        createCrestHistoryList(rightComp);
+        createCrestHistoryTable(rightComp);
         createSelectedCrestGroup(rightComp);
     }
 
@@ -430,50 +416,49 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
      * @param parentComp
      *            Parent composite.
      */
-    private void createCrestHistoryList(Composite parentComp) {
-        // -----------------------------------------
-        // Create Crest History List labels
-        // -----------------------------------------
-        Composite labelComp = new Composite(parentComp, SWT.NONE);
-        GridLayout gl = new GridLayout(1, false);
-        labelComp.setLayout(gl);
+    private void createCrestHistoryTable(Composite parentComp) {
+        crestHistoryTable = new Table(parentComp,
+                SWT.SINGLE | SWT.FULL_SELECTION | SWT.V_SCROLL | SWT.H_SCROLL);
 
-        GridData gd = new GridData();
-        gd.horizontalIndent = 4;
-        Label listLbl = new Label(labelComp, SWT.NONE);
-        listLbl.setText(getCrestHistoryListLabel());
-        listLbl.setFont(font);
-        listLbl.setLayoutData(gd);
-
-        // -----------------------------------------
-        // Create Crest History list control
-        // -----------------------------------------
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, false, false);
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, false, false);
         gd.widthHint = 450;
         gd.heightHint = 150;
-        crestHistoryList = new List(labelComp, SWT.BORDER | SWT.SINGLE
-                | SWT.V_SCROLL);
-        crestHistoryList.setLayoutData(gd);
-        crestHistoryList.setFont(font);
+        crestHistoryTable.setLayoutData(gd);
 
-        crestHistoryList.addSelectionListener(new SelectionAdapter() {
+        crestHistoryTable.setLinesVisible(false);
+        crestHistoryTable.setHeaderVisible(true);
+        crestHistoryTable.setFont(font);
+        String[] headerTitles = new String[] { "STAGE", "FLOW", "DATE", "TIME",
+                "" };
+        for (String header : headerTitles) {
+            int style = SWT.RIGHT;
+            if ("DATE".equals(header)) {
+                style = SWT.CENTER;
+            } else if ("".equals(header)) {
+                style = SWT.LEFT;
+            }
+
+            TableColumn column = new TableColumn(crestHistoryTable, style);
+            column.setText(header);
+        }
+
+        crestHistoryTable.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                double stage = crestHistoryData.getCrestDataArray()
-                        .get(crestHistoryList.getSelectionIndex()).getStage();
-
-                int year = crestHistoryData.getCrestDataArray()
-                        .get(crestHistoryList.getSelectionIndex()).getYear();
+                java.util.List<CrestData> crestData = crestHistoryData
+                        .getCrestDataArray();
+                int index = crestHistoryTable.getSelectionIndex();
+                double stage = crestData.get(index).getStage();
+                int year = crestData.get(index).getYear();
 
                 crestHistCanvas.selectCrestData(stage, year);
                 // sets the selected crest
-                setSelectedCrest(crestHistoryData.getCrestDataArray().get(
-                        crestHistoryList.getSelectionIndex()));
+                setSelectedCrest(crestData.get(index));
             }
         });
 
         if (crestHistoryData != null) {
-            updateCrestHistoryList();
+            updateCrestHistoryTable();
         }
     }
 
@@ -582,6 +567,8 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
          */
         currentRemarkText = remarksTF.getText();
         ModifyListener listener = new ModifyListener() {
+
+            @Override
             public void modifyText(ModifyEvent e) {
                 if (remarksTF.getText().length() > MAX_REMARK_CHAR) {
                     remarksTF.setText(currentRemarkText);
@@ -649,7 +636,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
                 apply();
 
                 if (function == 1) {
-                    crestHistoryList
+                    crestHistoryTable
                             .setSelection(findIndex(getSelectedCrest()));
                 }
             }
@@ -719,11 +706,10 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
     /**
      * Sort the data in the crest history list control.
      */
-    private void sortCrestHistoryList() {
-
-        if (sortCrestsCbo.getText().compareTo("Flow") == 0) {
+    private void sortCrestHistoryTable() {
+        if (sortCrestsCbo.getText().equals("Flow")) {
             crestHistoryData.sortByFlow();
-        } else if (sortCrestsCbo.getText().compareTo("Date") == 0) {
+        } else if (sortCrestsCbo.getText().equals("Date")) {
             crestHistoryData.sortByDate();
         } else {
             crestHistoryData.sortByStage();
@@ -733,20 +719,26 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
     /**
      * Update the data in the crest history list control.
      */
-    private void updateCrestHistoryList() {
-        crestHistoryList.removeAll();
-
-        ArrayList<CrestData> crestDataArray = crestHistoryData
+    private void updateCrestHistoryTable() {
+        crestHistoryTable.removeAll();
+        java.util.List<CrestData> crestDataArray = crestHistoryData
                 .getCrestDataArray();
-
         for (CrestData crestData : crestDataArray) {
-            crestHistoryList.add(crestData.getFormattedData());
+            TableItem entry = new TableItem(crestHistoryTable, SWT.NONE);
+            entry.setFont(font);
+
+            String[] formatted = crestData.getFormattedData();
+            entry.setText(formatted);
+        }
+        for (TableColumn column : crestHistoryTable.getColumns()) {
+            column.pack();
         }
     }
 
     /**
      * Update the crest data indicating it has been selected.
      */
+    @Override
     public void crestDataSelected(double stage, int year) {
         ArrayList<CrestData> crestDataArray = crestHistoryData
                 .getCrestDataArray();
@@ -754,24 +746,10 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         for (int i = 0; i < crestDataArray.size(); i++) {
             if ((crestDataArray.get(i).getStage() == stage)
                     && (crestDataArray.get(i).getYear() == year)) {
-                crestHistoryList.select(i);
+                crestHistoryTable.select(i);
                 setSelectedCrest(crestHistoryData.getCrestDataArray().get(i));
             }
         }
-    }
-
-    /**
-     * Get the label text for the crest history list control.
-     * 
-     * @return Label text.
-     */
-    private String getCrestHistoryListLabel() {
-        String format = "     %S       %S       %S          %S";
-
-        String labelStr = String
-                .format(format, "Stage", "Flow", "Date", "Time");
-
-        return labelStr;
     }
 
     /**
@@ -857,7 +835,6 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
      * to display
      * 
      * @param enable
-     * @return
      */
     private void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -868,7 +845,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
      */
     private void executeEnable() {
         crestHistCanvas.setEnabled(enabled);
-        crestHistoryList.setEnabled(enabled);
+        crestHistoryTable.setEnabled(enabled);
         sortCrestsCbo.setEnabled(enabled);
         filterCrestsCbo.setEnabled(enabled);
     }
@@ -983,9 +960,9 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
                 mb.open();
             }
             getCrestData(allFlag);
-            sortCrestHistoryList();
+            sortCrestHistoryTable();
             crestHistCanvas.updateCrestHistotryData(crestHistoryData);
-            updateCrestHistoryList();
+            updateCrestHistoryTable();
 
         }
     }
@@ -999,7 +976,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         if (getSelectedCrest() != null) {
             crestHistCanvas.updateCrestHistotryData(crestHistoryData);
             crestHistoryData.getCrestDataArray().remove(getSelectedCrest());
-            sortCrestHistoryList();
+            sortCrestHistoryTable();
             updateCrestDB(getSelectedCrest());
             clearData();
         }
@@ -1046,14 +1023,9 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
             error(msg, null);
         }
 
-        updateCrestHistoryList();
+        updateCrestHistoryTable();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#opened()
-     */
     @Override
     protected void opened() {
         if ((crestHistoryData.getCrestDataArray() == null)
@@ -1061,18 +1033,16 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
             return;
         }
 
-        crestHistoryList.setSelection(0);
-        double stage = crestHistoryData.getCrestDataArray()
-                .get(crestHistoryList.getSelectionIndex()).getStage();
-
-        int year = crestHistoryData.getCrestDataArray()
-                .get(crestHistoryList.getSelectionIndex()).getYear();
-
+        crestHistoryTable.setSelection(0);
+        java.util.List<CrestData> crestData = crestHistoryData
+                .getCrestDataArray();
+        int index = crestHistoryTable.getSelectionIndex();
+        double stage = crestData.get(index).getStage();
+        int year = crestData.get(index).getYear();
         crestHistCanvas.selectCrestData(stage, year);
 
         // sets the selected crest
-        setSelectedCrest(crestHistoryData.getCrestDataArray().get(
-                crestHistoryList.getSelectionIndex()));
+        setSelectedCrest(crestData.get(crestHistoryTable.getSelectionIndex()));
     }
 
     /**
@@ -1172,7 +1142,7 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
         remarksTF.setText("");
         // nothing selected
         if (function == 2) {
-            crestHistoryList.setSelection(-1);
+            crestHistoryTable.setSelection(-1);
         }
     }
 
@@ -1188,9 +1158,8 @@ public class CrestHistoryDlg extends CaveSWTDialog implements
             for (CrestData cd2 : crestHistoryData.getCrestDataArray()) {
                 if (cd.equals(cd2)) {
                     break;
-                } else {
-                    i++;
                 }
+                i++;
             }
         }
         return i;

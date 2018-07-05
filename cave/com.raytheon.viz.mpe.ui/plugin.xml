@@ -170,6 +170,15 @@
          		class="com.raytheon.viz.mpe.ui.RFCPrecipFieldsPopulator"
          		id="com.raytheon.viz.mpe.ui.rfcPrecipFieldsPopulator">
 			</dynamic> 
+            <separator
+                  name="separatorRFCQPE"
+                  visible="true">
+            </separator>
+            <command
+                  commandId="com.raytheon.viz.mpe.ui.actions.RFCsQPECollaborationAction"
+                  label="RFCs QPE Collaboration"
+                  mnemonic="S">
+            </command>
          </menu>
          <menu
                id="com.raytheon.viz.mpe.BaseFields"
@@ -977,6 +986,16 @@
          </commandParameter>
       </command>
       <command
+            id="com.raytheon.viz.mpe.ui.actions.setQpeRfc"
+            name="QPE RFC">
+            <commandParameter id="rfcName" name="RFCNAME" optional="false" />
+            <commandParameter id="buttonState" name="FALSE" optional="false" />
+        <state
+               class="org.eclipse.ui.handlers.RegistryToggleState:false"
+               id="org.eclipse.ui.commands.toggleState">
+         </state>
+      </command>
+      <command
             id="com.raytheon.viz.mpe.ui.actions.fieldGen"
             name="Regenerate Hour Fields">
       </command>
@@ -1567,6 +1586,15 @@
                </reference>
             </activeWhen>
       </handler>
+      <handler
+               class="com.raytheon.viz.mpe.ui.actions.RFCsQPECollaborationAction"
+               commandId="com.raytheon.viz.mpe.ui.actions.RFCsQPECollaborationAction">
+               <activeWhen>
+                   <reference
+                         definitionId="com.raytheon.viz.inMPEActionSet">
+                   </reference>
+               </activeWhen>
+      </handler>
     </extension>
     <extension
           point="com.raytheon.viz.ui.perspectiveManager">
@@ -1819,6 +1847,22 @@
 	          </contextId>
 	      </classContext>
 	</extension>
+    <extension
+          point="com.raytheon.uf.viz.localization.perspective.localizationpath">
+       <path
+             application="MPE"
+             localizationType="COMMON_STATIC"
+             name="MPE Proc"
+             value="mpeProc">
+       </path>
+       <path
+             application="MPE"
+             localizationType="COMMON_STATIC"
+             name="MPE Lookup"
+             value="mpeLookup"
+             recursive="true">
+       </path>
+    </extension>
 	<extension point="org.eclipse.ui.services">
 		<sourceProvider
        		provider="com.raytheon.viz.mpe.ui.TransmitBestEstimateQPEProvider">

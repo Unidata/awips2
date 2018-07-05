@@ -25,21 +25,21 @@
 #   
 #
 #    
-#    SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    10/21/08                      njensen        Initial Creation.
-#    01/17/13         1486         dgilling       Re-factor based on 
-#                                                 RollbackMasterInterface.
-#    07/23/15         4263         dgilling       Support refactored Java
-#                                                 SmartToolControllers.
-#    04/13/16         5568         dgilling       More lenient handling of 
-#                                                 ScreenList.
-#    
-# 
+# SOFTWARE HISTORY
 #
-
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- --------------------------------------------
+# Oct 21, 2008           njensen   Initial Creation.
+# Jan 17, 2013  1486     dgilling  Re-factor based on RollbackMasterInterface.
+# Jul 23, 2015  4263     dgilling  Support refactored Java SmartToolControllers.
+# Apr 13, 2016  5568     dgilling  More lenient handling of ScreenList.
+# May 05, 2017  6261     randerso  Added handling for SmartScript.cancel()
+# Feb 19, 2018  7222     mapeters  Removed handling of SmartScript.cancel()
+#
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 import logging
 import sys
@@ -148,9 +148,3 @@ class SmartToolInterface(RollbackMasterInterface.RollbackMasterInterface):
         except Exceptions.EditActionError, e:
             msg = e.errorType() + ": " + e.errorInfo()
             raise RuntimeError(msg)
-            
-        
-            
-
-    
-    

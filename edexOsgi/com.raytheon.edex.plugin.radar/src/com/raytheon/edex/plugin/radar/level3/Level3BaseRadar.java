@@ -105,6 +105,7 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
  * Apr 14, 2016  DR 18800 jdynina     Remove UAM and AM
  * Apr 25, 2016  DR 18796 jdynina     Implemented SCC
  * May 09, 2016  DCS18795 jdynina     Implemented CPM
+ * Sep 18, 2017  DCS19530 jdynina     Pad FTM text to use even-numbered char line counts per ICD
  *
  * </pre>
  *
@@ -191,7 +192,7 @@ public class Level3BaseRadar {
 
     private RadarInfoDict dict = null;
 
-    private final List<Integer> SPECIAL_PRODS = new ArrayList<Integer>(
+    private final List<Integer> SPECIAL_PRODS = new ArrayList<>(
             Arrays.asList(62, 75, 77, 82));
 
     public static final int GSM_MESSAGE = 2;
@@ -203,6 +204,8 @@ public class Level3BaseRadar {
     public static final int COMMAND_PARAMETER_MESSAGE = 12;
 
     public final int RADAR_CODED_MESSAGE = 74;
+
+    public static final int FREE_TEXT_MESSAGE = 75;
 
     public final int SHIFT_CHANGE_CHECKLIST = 202;
 
@@ -609,11 +612,16 @@ public class Level3BaseRadar {
             throw new MalformedDataException("Standalone tabular block offset "
                     + offset + " does not point to a standalone tabular block");
         }
-        List<List<String>> pages = new ArrayList<List<String>>();
+        List<List<String>> pages = new ArrayList<>();
         for (int p = 0; p < numPages; p++) {
-            List<String> page = new ArrayList<String>();
+            List<String> page = new ArrayList<>();
             int lineLen = theRadarData.readUnsignedShort();
             while (lineLen != 0xFFFF) {
+                if (this.theMessageCode == FREE_TEXT_MESSAGE) {  // FTM pads lines to even number of characters
+                    if ((lineLen % 2) > 0) {
+                        lineLen = lineLen+1;
+                    }
+                }
                 byte[] buf = new byte[lineLen];
                 theRadarData.readFully(buf);
                 page.add(new String(buf));
@@ -633,7 +641,7 @@ public class Level3BaseRadar {
     private TabularBlock readRadarCodedMessage(int offset) throws IOException {
         TabularBlock tabBlock = new TabularBlock();
         int temp = theRadarData.read();
-        ArrayList<Byte> array = new ArrayList<Byte>();
+        ArrayList<Byte> array = new ArrayList<>();
         while (temp != -1) {
             array.add((byte) temp);
             temp = theRadarData.read();

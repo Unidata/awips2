@@ -59,9 +59,9 @@ function check_edex {
   if [[ $(rpm -qa | grep awips2-edex) ]]; then
     echo "found EDEX RPMs installed. Updating..."
   else
-    if [ -d /awips2/data/ ]; then
-      echo "cleaning up /awips2/data/ for new install..."
-      rm -rf /awips2/data/
+    if [ -d /awips2/database/data/ ]; then
+      echo "cleaning up /awips2/database/data/ for new install..."
+      rm -rf /awips2/database/data/
     fi
   fi
   for dir in /awips2/tmp /awips2/data_store ; do

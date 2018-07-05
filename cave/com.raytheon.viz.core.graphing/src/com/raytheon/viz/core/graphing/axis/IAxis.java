@@ -25,7 +25,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 
 import com.raytheon.uf.viz.core.drawables.IRenderable;
-import com.raytheon.uf.viz.core.rsc.capabilities.IColorableResource;
 import com.raytheon.viz.core.graphing.DataAxisInfo;
 
 /**
@@ -33,17 +32,17 @@ import com.raytheon.viz.core.graphing.DataAxisInfo;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 23, 2007            njensen     Initial creation	
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ------------------------------------
+ * Oct 23, 2007           njensen   Initial creation
+ * Nov 08, 2016  5976     bsteffen  Remove IColorableResource interface
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
-
-public interface IAxis extends IRenderable, IColorableResource {
+public interface IAxis extends IRenderable {
 
     public static enum Orientation {
         HORIZONTAL, VERTICAL
@@ -79,6 +78,8 @@ public interface IAxis extends IRenderable, IColorableResource {
      * @return if the axis successfully zoomed
      */
     public boolean zoom(double x, double y, double zoom);
+
+    public void setColor(RGB color);
 
     /**
      * Sets the possible range of data values on the axis

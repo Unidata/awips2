@@ -35,6 +35,10 @@
 #
 ##
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 import TextUtils
 from WxMethods import *
 import types

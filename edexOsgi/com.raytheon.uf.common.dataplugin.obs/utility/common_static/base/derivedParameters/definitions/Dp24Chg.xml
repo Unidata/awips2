@@ -18,11 +18,15 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter unit="°F" name="Dp24Chg" abbreviation="Dp24Chg" xmlns:ns2="group">
     <Method name="Dp24Chg">
-        <Field abbreviation="dewpoint"/>
-        <Field abbreviation="dpFromTenths"/>
-        <Field abbreviation="accum_dewpoint24"/>
-        <Field abbreviation="accum_dpFromTenths24"/>
+        <Field abbreviation="dewpoint" />
+        <Field abbreviation="dpFromTenths" />
+        <Field abbreviation="accum_dewpoint24" />
+        <Field abbreviation="accum_dpFromTenths24" />
     </Method>
 </DerivedParameter>

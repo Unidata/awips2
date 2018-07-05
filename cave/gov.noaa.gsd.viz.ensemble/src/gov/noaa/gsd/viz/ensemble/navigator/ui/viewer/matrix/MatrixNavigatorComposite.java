@@ -1,28 +1,11 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
-import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.EnsembleToolViewer;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix.FieldPlanePairChooserControl.FieldPlanePairControl;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix.VizMatrixEditor.MatrixNavigationOperation;
-import gov.noaa.gsd.viz.ensemble.util.EnsembleToolImageStore;
-import gov.noaa.gsd.viz.ensemble.util.RequestableResourceMetadata;
-import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
-
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -31,48 +14,68 @@ import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabItem;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.PlatformUI;
 
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPane;
+import com.raytheon.uf.viz.core.IDisplayPaneContainer;
+import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IFrameCoordinator;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.maps.display.VizMapEditor;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager;
+import com.raytheon.uf.viz.core.maps.scales.MapScalesManager.ManagedMapScale;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
+import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.d2d.core.map.D2DColorBarResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
-import com.raytheon.viz.ui.BundleLoader;
-import com.raytheon.viz.ui.BundleLoader.BundleInfoType;
-import com.raytheon.viz.ui.BundleProductLoader;
 import com.raytheon.viz.ui.EditorUtil;
-import com.raytheon.viz.ui.actions.FramesHandler;
+import com.raytheon.viz.ui.UiUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
+
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool.EnsembleToolMode;
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool.MatrixNavigationOperation;
+import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.EnsembleToolViewer;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix.FieldPlanePairChooserControl.FieldPlanePairControl;
+import gov.noaa.gsd.viz.ensemble.util.EnsembleToolImageStore;
+import gov.noaa.gsd.viz.ensemble.util.RequestableResourceMetadata;
+import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
 
 /***
  * 
@@ -95,39 +98,38 @@ import com.raytheon.viz.ui.actions.FramesHandler;
  * Nov 13, 2015   13211      polster     Matrix editor commonalities
  * Jun 27, 2016   19975      bsteffen    Eclipse 4: Fix NPE when focus event
  *                                       arrives before selection event.
+ * Oct 12, 2016   19443      polster     Make sure matrix editor can be swapped
+ * Mar 01, 2017   19443      polster     Safer way to hide color bar
+ * Dec 01, 2017   41520      polster     Now uses actual VizMatrixEditor
  * 
  * </pre>
  * 
  * @author polster
  * @version 1.0
  */
-public class MatrixNavigatorComposite extends Composite implements
-        IModelFamilyListener, IFieldPlanePairVisibilityChangedListener,
-        IModelSourceSelectionProvider, IMemoryUsageProvider,
-        IMatrixEditorFocusProvider {
+public class MatrixNavigatorComposite extends Composite
+        implements IModelFamilyListener,
+        IFieldPlanePairVisibilityChangedListener, IModelSourceSelectionProvider,
+        IMatrixEditorFocusProvider, IMatrixResourceLoadProvider,
+        IMatrixResourceMatcher, IModelFamilyProvider {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MatrixNavigatorComposite.class);
 
-    private static ModelSources primaryTimeBasisModelSource = null;
+    public static final String MATRIX_EDITOR_TAB_TITLE = "Matrix";
 
-    protected static int totalExpectedResources = 0;
+    private static final String DEFAULT_SCALES_DIR = "bundles"
+            + IPathManager.SEPARATOR + "scales";
 
-    private static VizMatrixEditor matrixEditor = null;
+    private static final String DEFAULT_SCALES_FILE = "ET_scalesInfo.xml";
 
-    private static final String MODEL_VARIABLE = "modelName";
+    private VizMapEditor matrixEditor = null;
 
-    private static final String TOTAL_PRECIP_VARIABLE = "TP";
+    private static boolean isExtant = false;
 
-    private static final String FRAME_COUNT_VARIABLE = "frameCount";
+    private static ModelFamilyBrowserDialog modelFamilyDialog = null;
 
-    private static final int initialLoadCount = 1;
-
-    protected static final int defaultMaxFrameCount = 5;
-
-    protected static final int maxFrameCount = 64;
-
-    private static boolean isStepLoadComplete = false;
+    public static boolean isInitializing = false;
 
     private final String spacerPadding = "  ";
 
@@ -135,29 +137,21 @@ public class MatrixNavigatorComposite extends Composite implements
 
     private TreeViewer modelSourceTreeViewer = null;
 
-    private Tree modelSourceTree = null;
+    private static Tree modelSourceTree = null;
 
     private ScrolledComposite modelSourceRootContainerScrolledComp = null;
 
-    private FieldPlanePairChooserControl fieldPlaneSelector = null;
+    private FieldPlanePairChooserControl fieldPlaneChooserControl = null;
 
-    private LoadControlStatusComposite loaderControl = null;
-
-    private ArrayList<ColumnLabelProvider> columnLabelProviders = new ArrayList<ColumnLabelProvider>();
+    private ArrayList<ColumnLabelProvider> columnLabelProviders = new ArrayList<>();
 
     private ResolvedModelFamily currentModelFamily = null;
 
     private List<Image> imageCache = null;
 
-    private ModelSources lastSelectedSource = null;
+    private ModelSourceKind lastSelectedSource = null;
 
-    private FramesHandler framesHandler = null;
-
-    private long startMemory = 0;
-
-    private long memoryPerLoad = 0;
-
-    private static WaitForLoadingToComplete updateMemoryStats = null;
+    private EnsembleToolLayer matrixToolLayer = null;
 
     /**
      * The constructor for the Matrix navigator control.
@@ -171,71 +165,117 @@ public class MatrixNavigatorComposite extends Composite implements
      *            the owning GUI controller of this control.
      * @param itemMatrixTabItem
      *            the tab item inside which this control resides.
-     */
-    public MatrixNavigatorComposite(Composite parentTabFolder, int style,
-            CTabItem itemMatrixTabItem) {
-        super(parentTabFolder, style);
-        matrixTabItem = itemMatrixTabItem;
-        imageCache = new ArrayList<>();
-        framesHandler = new FramesHandler();
-        createContents();
-        updateMemoryStats = new WaitForLoadingToComplete(
-                (IMemoryUsageProvider) this);
-    }
-
-    /**
-     * Currently, there is only one VizMatrixEditor associated with the Ensemble
-     * Tool's Matrix feature. This method acts like a singleton accessor for
-     * this matrix editor.
-     * 
-     * @return the existing or created matrix editor.
      * @throws InstantiationException
      */
-    public VizMatrixEditor getMatrixEditor() throws InstantiationException {
+    public MatrixNavigatorComposite(Composite parentTabFolder, int style,
+            CTabItem itemMatrixTabItem) throws InstantiationException {
+        super(parentTabFolder, style);
 
-        VizMatrixEditor me = MatrixNavigatorComposite.matrixEditor;
-        if (MatrixNavigatorComposite.matrixEditor == null) {
-            MatrixNavigatorComposite.matrixEditor = (VizMatrixEditor) VizMatrixEditor
-                    .create();
-            if (MatrixNavigatorComposite.matrixEditor == null) {
-                throw new InstantiationException();
-            }
-            me = MatrixNavigatorComposite.matrixEditor;
-            EnsembleTool.getInstance().getEditorPartListener()
-                    .addEditor(MatrixNavigatorComposite.matrixEditor);
+        isInitializing = true;
+        matrixTabItem = itemMatrixTabItem;
+        imageCache = new ArrayList<>();
+
+        EnsembleTool.getInstance().ignorePartActivatedEvent(true);
+        try {
+            matrixEditor = (VizMatrixEditor) create();
+        } catch (Exception e) {
+            throw new InstantiationException(
+                    "Unable to create a Matrix Navigator editor: "
+                            + e.getMessage());
+        } finally {
+            EnsembleTool.getInstance().ignorePartActivatedEvent(false);
         }
-        return me;
+
+        modelFamilyDialog = new ModelFamilyBrowserDialog(getShell(), this);
+
+        createContents();
+
+        isInitializing = false;
+
     }
 
     /**
-     * Creates the entire contents of the matrix navigator control.
+     * Create the Matrix editor which is a VizMapEditor with a unique name.
+     * 
+     * @return the created editor
+     * @throws SerializationException
+     */
+    public AbstractEditor create() throws SerializationException {
+        AbstractEditor matrixEditor = null;
+
+        MapScalesManager mgr = new MapScalesManager(DEFAULT_SCALES_DIR,
+                DEFAULT_SCALES_FILE);
+        ManagedMapScale editorScale = mgr.getScaleByName("CONUS");
+
+        if (editorScale != null) {
+            try {
+                Bundle b = editorScale.getScaleBundle();
+
+                matrixEditor = UiUtil.createEditor(VizMatrixEditor.EDITOR_ID,
+                        b.getDisplays());
+
+                matrixEditor.setPartName(MATRIX_EDITOR_TAB_TITLE);
+            } catch (Exception e) {
+                statusHandler.handle(Priority.SIGNIFICANT,
+                        "Unable to load bundle for scale " + editorScale
+                                + " to screen",
+                        e);
+            }
+        } else {
+            statusHandler.handle(Priority.SIGNIFICANT,
+                    "Unable to find an editor based map scale");
+            matrixEditor = null;
+        }
+        EnsembleToolLayer toolLayer = null;
+        if (matrixEditor != null) {
+            try {
+                toolLayer = EnsembleTool.getInstance()
+                        .createToolLayer(matrixEditor, EnsembleToolMode.MATRIX);
+            } catch (VizException e1) {
+                statusHandler.handle(Priority.SIGNIFICANT,
+                        "Unable to create tool layer for Matrix Navigator", e1);
+            }
+            matrixToolLayer = toolLayer;
+            EnsembleTool.getInstance().setEditor(matrixEditor);
+            EnsembleTool.getInstance().setHideLegendsMode();
+            EnsembleTool.getInstance().refreshTool(true);
+        }
+        MatrixNavigatorComposite.isExtant = true;
+        return matrixEditor;
+    }
+
+    public static boolean isEmpty() {
+        return (modelSourceTree.getItemCount() == 0);
+    }
+
+    public static boolean isExtant() {
+        return isExtant;
+    }
+
+    /**
+     * Get the matrix editor reference.
+     * 
+     */
+    public VizMapEditor getMatrixEditor() {
+
+        return matrixEditor;
+    }
+
+    /**
+     * Creates the housing contents of the matrix navigator control.
      */
     private void createContents() {
 
-        configureRootArea();
+        setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
+        setLayout(new GridLayout(1, false));
 
         createModelSourcesControlArea();
 
         createFieldPlanesControlArea();
 
-        createLoaderControl();
-
         /* put this control into tab item */
         matrixTabItem.setControl(this);
 
-    }
-
-    private void createLoaderControl() {
-        loaderControl = new LoadControlStatusComposite(this, this);
-        loaderControl.setEnabled(false);
-    }
-
-    /**
-     * Configures the layout and layout data for the control's root area.
-     */
-    private void configureRootArea() {
-        setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1));
-        setLayout(new GridLayout(1, false));
     }
 
     /**
@@ -247,7 +287,7 @@ public class MatrixNavigatorComposite extends Composite implements
         modelSourceRootContainerScrolledComp = new ScrolledComposite(this,
                 SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
         GridData matrixRootContainerComposite_gd = new GridData(SWT.FILL,
-                SWT.FILL, true, true, 1, 1);
+                SWT.FILL, true, false, 1, 1);
         modelSourceRootContainerScrolledComp
                 .setLayoutData(matrixRootContainerComposite_gd);
 
@@ -274,9 +314,9 @@ public class MatrixNavigatorComposite extends Composite implements
         modelSourceTreeViewer
                 .setContentProvider(new ModelSourcesTreeContentProvider());
         modelSourceTreeViewer.setSorter(new ModelSourcesTreeSorter());
-        modelSourceTreeViewer
-                .addSelectionChangedListener(new ModelSourceTreeSelectionListener());
-
+        modelSourceTreeViewer.addSelectionChangedListener(
+                new ModelSourceTreeSelectionListener());
+        modelSourceTree.addMouseListener(new IgnoreFocusListener());
     }
 
     /**
@@ -284,8 +324,14 @@ public class MatrixNavigatorComposite extends Composite implements
      * manipulated by the user.
      */
     private void createFieldPlanesControlArea() {
-        fieldPlaneSelector = new FieldPlanePairChooserControl(this, SWT.BORDER,
-                this, this, this);
+        fieldPlaneChooserControl = new FieldPlanePairChooserControl(
+                (Composite) this, SWT.BORDER, matrixToolLayer,
+                (IFieldPlanePairVisibilityChangedListener) this,
+                (IModelSourceSelectionProvider) this,
+                (IMatrixEditorFocusProvider) this,
+                (IMatrixResourceLoadProvider) this,
+                (IMatrixResourceMatcher) this, (IModelFamilyProvider) this,
+                (IMatrixEditorFocusProvider) this);
     }
 
     /**
@@ -312,6 +358,8 @@ public class MatrixNavigatorComposite extends Composite implements
     @Override
     public void dispose() {
 
+        MatrixNavigatorComposite.isExtant = false;
+
         for (Image img : imageCache) {
             img.dispose();
         }
@@ -321,7 +369,7 @@ public class MatrixNavigatorComposite extends Composite implements
                 clp.dispose();
             }
         }
-        if (isViewerTreeReady()) {
+        if (isWidgetReady()) {
 
             modelSourceTree.removeAll();
             modelSourceTree.dispose();
@@ -331,26 +379,34 @@ public class MatrixNavigatorComposite extends Composite implements
             modelSourceTreeViewer = null;
         }
 
-        if (MatrixNavigatorComposite.matrixEditor != null
-                && MatrixNavigatorComposite.matrixEditor.isCloseable()) {
-            MatrixNavigatorComposite.matrixEditor.dispose();
-            MatrixNavigatorComposite.matrixEditor = null;
+        if (matrixEditor != null) {
+            matrixEditor.dispose();
+            matrixEditor = null;
         }
 
-        if (fieldPlaneSelector != null) {
-            fieldPlaneSelector.dispose();
+        if (fieldPlaneChooserControl != null) {
+            fieldPlaneChooserControl.dispose();
+            fieldPlaneChooserControl = null;
+        }
+
+        modelFamilyDialog = null;
+
+        /*
+         * The following cleanup is necessary for times when the user wishes to
+         * unload the matrix tool layer and reopen it at a later time.
+         */
+        if (!PlatformUI.getWorkbench().isClosing()) {
+            Control[] children = getChildren();
+            for (Control c : children) {
+                c.dispose();
+            }
         }
     }
 
     /**
      * Listen to mouse actions on the model source tree.
      */
-    private class ModelSourcesTreeMouseListener implements MouseListener {
-
-        @Override
-        public void mouseDoubleClick(MouseEvent event) {
-            /* ignore */
-        }
+    private class ModelSourcesTreeMouseListener extends MouseAdapter {
 
         @Override
         public void mouseDown(MouseEvent event) {
@@ -364,7 +420,7 @@ public class MatrixNavigatorComposite extends Composite implements
              * if the ensemble tool isn't open then ignore user mouse clicks ...
              */
             if (!EnsembleTool.getInstance().isToolEditable()
-                    || !isViewerTreeReady()) {
+                    || !isWidgetReady()) {
                 return;
             }
 
@@ -372,7 +428,8 @@ public class MatrixNavigatorComposite extends Composite implements
             Point point = new Point(event.x, event.y);
 
             final TreeItem userClickedTreeItem = modelSourceTree.getItem(point);
-            if (userClickedTreeItem == null || userClickedTreeItem.isDisposed()) {
+            if (userClickedTreeItem == null
+                    || userClickedTreeItem.isDisposed()) {
                 return;
             }
 
@@ -385,14 +442,9 @@ public class MatrixNavigatorComposite extends Composite implements
             else if (userClickedTreeItem != null && event.button == 1) {
 
                 select(userClickedTreeItem);
-                giveEditorFocus();
             }
         }
 
-        @Override
-        public void mouseUp(MouseEvent event) {
-            /* ignore */
-        }
     }
 
     /**
@@ -405,7 +457,7 @@ public class MatrixNavigatorComposite extends Composite implements
 
             @Override
             public void run() {
-                if (isViewerTreeReady()) {
+                if (isWidgetReady()) {
                     modelSourceTree.setCursor(cursor);
                 }
             }
@@ -419,7 +471,7 @@ public class MatrixNavigatorComposite extends Composite implements
      * 
      * @return
      */
-    public boolean isViewerTreeReady() {
+    public boolean isWidgetReady() {
         boolean isReady = false;
 
         if (modelSourceTreeViewer != null && modelSourceTree != null
@@ -432,33 +484,38 @@ public class MatrixNavigatorComposite extends Composite implements
     }
 
     /**
-     * Called from the controlling ViewPart ensemble viewer.
-     * 
-     * TODO: Currently this does not act on this control but is kept here for
-     * future use.
-     * 
-     * @param toolLayer
-     *            the tool layer which is the administrator for this control.
-     */
-    public void refreshInput(EnsembleToolLayer toolLayer) {
-
-        Map<String, List<AbstractResourceHolder>> map = toolLayer
-                .getEnsembleResources();
-        if (map.size() == 0) {
-        }
-
-    }
-
-    /**
-     * The method to reset controls and state varialbles to an initial state.
+     * The method to reset controls and state variables to an initial state.
      */
     public void clearAllResources() {
 
-        modelSourceTree.clearAll(true);
-        loaderControl.clearAll();
-        fieldPlaneSelector.clearFieldPlanePairControls();
-        currentModelFamily = null;
-        modelSourceTreeViewer.refresh();
+        if (isWidgetReady()) {
+            modelSourceTree.clearAll(true);
+            fieldPlaneChooserControl.clearFieldPlanePairControls();
+            hideSupportResources();
+            currentModelFamily = null;
+            modelSourceTreeViewer.refresh();
+
+            matrixEditor.refresh();
+
+        }
+    }
+
+    /**
+     * Hide any supporting resources.
+     * 
+     * Currently only the color bar needs to be hidden.
+     */
+    private void hideSupportResources() {
+
+        List<D2DColorBarResource> colorBarList = matrixEditor
+                .getActiveDisplayPane().getDescriptor().getResourceList()
+                .getResourcesByTypeAsType(D2DColorBarResource.class);
+        /* only one color bar in any given editor. */
+        if (!colorBarList.isEmpty()) {
+            D2DColorBarResource cbr = colorBarList.get(0);
+            cbr.getProperties().setVisible(false);
+        }
+
     }
 
     /**
@@ -470,51 +527,26 @@ public class MatrixNavigatorComposite extends Composite implements
          * The editor will be null on initial selection if SWT sends the focus
          * event before the selection event.
          */
-        if (matrixEditor != null) {
+        if (matrixEditor != null && matrixEditor.getEditorSite() != null
+                && matrixEditor.getEditorSite().getPart() != null) {
             matrixEditor.getEditorSite().getPart().setFocus();
         }
     }
 
     /**
-     * Returns the first tree item that contains (via <code>item.getData</code>)
-     * the passed in model source.
-     * 
-     * TODO: Currently this method is not used but is kept here for future use.
+     * Here's how we control what items are displayed in the tree.
      */
-    private TreeItem findTreeItemBySource(ModelSources targetSrc) {
-
-        TreeItem foundItem = null;
-        TreeItem[] allRoots = modelSourceTree.getItems();
-
-        for (TreeItem ti : allRoots) {
-            if (foundItem != null)
-                break;
-            Object tio = ti.getData();
-            if ((tio != null) && (tio instanceof ModelSources)) {
-                ModelSources src = (ModelSources) tio;
-                if (src == targetSrc) {
-                    foundItem = ti;
-                    break;
-                }
-            }
-        }
-        return foundItem;
-    }
-
-    /**
-     * Here's how we control how the items are displayed in the tree.
-     */
-    private class ModelSourcesTreeColumnLabelProvider extends
-            ColumnLabelProvider {
+    private class ModelSourcesTreeColumnLabelProvider
+            extends ColumnLabelProvider {
 
         public Font getFont(Object element) {
-            Font f = SWTResourceManager.getFont("courier new", 11, SWT.BOLD);
+            Font f = SWTResourceManager.getFont("courier new", 10, SWT.BOLD);
             return f;
         }
 
         public Image getImage(Object element) {
             Image image = null;
-            if (element instanceof ModelSources) {
+            if (element instanceof ModelSourceKind) {
                 image = EnsembleToolImageStore.DOT_IMG;
             }
             return image;
@@ -522,9 +554,9 @@ public class MatrixNavigatorComposite extends Composite implements
 
         public String getText(Object element) {
             String nodeLabel = null;
-            ModelSources src = null;
-            if (element instanceof ModelSources) {
-                src = (ModelSources) element;
+            ModelSourceKind src = null;
+            if (element instanceof ModelSourceKind) {
+                src = (ModelSourceKind) element;
                 nodeLabel = src.getModelName();
             }
             return spacerPadding + nodeLabel;
@@ -534,12 +566,13 @@ public class MatrixNavigatorComposite extends Composite implements
     /**
      * This is the content provider for the model sources tree.
      */
-    private class ModelSourcesTreeContentProvider implements
-            ITreeContentProvider {
+    private class ModelSourcesTreeContentProvider
+            implements ITreeContentProvider {
 
         @Override
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-            // do nothing
+        public void inputChanged(Viewer viewer, Object oldInput,
+                Object newInput) {
+            modelSourceRootContainerScrolledComp.layout();
         }
 
         /**
@@ -552,10 +585,10 @@ public class MatrixNavigatorComposite extends Composite implements
             Object[] members = null;
 
             if (currentModelFamily != null) {
-                List<ModelSources> sources = currentModelFamily.getSources();
+                List<ModelSourceKind> sources = currentModelFamily.getSources();
                 members = new Object[sources.size()];
                 int i = 0;
-                for (ModelSources src : sources) {
+                for (ModelSourceKind src : sources) {
                     members[i++] = src;
                 }
             } else {
@@ -609,35 +642,40 @@ public class MatrixNavigatorComposite extends Composite implements
      *            the map which contains the resources loaded into the matrix
      *            editor.
      */
-    synchronized private void select(final TreeItem treeItem) {
+    private void select(final TreeItem treeItem) {
 
         VizApp.runSync(new Runnable() {
 
             @Override
             public void run() {
-                if (treeItem.getData() instanceof ModelSources) {
+                if (treeItem == null || treeItem.isDisposed()
+                        || !isWidgetReady()) {
+                    return;
+                }
+                if (treeItem.getData() instanceof ModelSourceKind) {
 
-                    getShell().setCursor(EnsembleToolViewer.waitCursor);
-                    Map<String, List<AbstractResourceHolder>> ensembleResourcesMap = EnsembleTool
-                            .getInstance().getCurrentToolLayerResources();
+                    getShell().setCursor(EnsembleToolViewer.getWaitCursor());
+                    List<AbstractResourceHolder> rscHolderList = EnsembleTool
+                            .getInstance().getResourceList();
 
-                    if (ensembleResourcesMap != null) {
+                    if (rscHolderList != null) {
                         modelSourceTree.select(treeItem);
-                        ModelSources currSrc = (ModelSources) treeItem
+                        ModelSourceKind currSrc = (ModelSourceKind) treeItem
                                 .getData();
                         if (lastSelectedSource != null
                                 && lastSelectedSource == currSrc) {
                             return;
                         }
 
-                        refreshDisplayBySelectedSource(currSrc,
-                                ensembleResourcesMap);
+                        refreshDisplayBySelectedSource(currSrc, rscHolderList);
                         lastSelectedSource = currSrc;
 
-                        getShell().setCursor(EnsembleToolViewer.normalCursor);
+                        getShell().setCursor(
+                                EnsembleToolViewer.getNormalCursor());
 
                         modelSourceTreeViewer.refresh();
-                        getShell().setCursor(EnsembleToolViewer.normalCursor);
+                        getShell().setCursor(
+                                EnsembleToolViewer.getNormalCursor());
                     }
                 }
             }
@@ -651,34 +689,44 @@ public class MatrixNavigatorComposite extends Composite implements
      * resource name and a list of one to many resources associated with that
      * key (e.g. many resources are associated with an ensemble resource).
      * 
-     * @param rscMap
+     * @param rscHolderList
      *            the map of resources to hide.
      */
     private void hideAllResources(
-            final Map<String, List<AbstractResourceHolder>> rscMap) {
+            final List<AbstractResourceHolder> rscHolderList) {
 
-        if (rscMap == null || rscMap.isEmpty()) {
+        if (rscHolderList == null || rscHolderList.isEmpty()) {
             return;
         }
 
-        List<AbstractResourceHolder> currResources = null;
-        Set<String> loadedProductNames = rscMap.keySet();
-        Iterator<String> iterator = loadedProductNames.iterator();
-        String currName = null;
-        while (iterator.hasNext()) {
-            /*
-             * Either a top-level ensemble name (e.g. SREF) or an individual
-             * product name (e.g. NAM40 500MB Height)
-             */
-            currName = iterator.next();
-            currResources = rscMap.get(currName);
-            if (currResources != null) {
-                for (AbstractResourceHolder arh : currResources) {
-                    arh.getRsc().getProperties().setVisible(false);
-                    arh.getRsc().issueRefresh();
-                }
+        for (AbstractResourceHolder arh : rscHolderList) {
+            if (arh.isIndivdualProduct()) {
+                arh.getRsc().getProperties().setVisible(false);
+                arh.getRsc().issueRefresh();
             }
+        }
+    }
 
+    /**
+     * If the user chooses a different model source in the list, then refresh
+     * the display by hiding all existing resources displayed (i.e. of the
+     * previously selected source) and then update the display with the new
+     * model sources resources.
+     * 
+     * @param selectedSrc
+     *            the newly selected model source
+     * @param rscHolderList
+     *            the map which contains the resources loaded into the matrix
+     *            editor.
+     */
+    public void updateControls() {
+
+        List<AbstractResourceHolder> rscHolderList = EnsembleTool.getInstance()
+                .getResourceList();
+        if (rscHolderList != null && !rscHolderList.isEmpty()
+                && fieldPlaneChooserControl != null
+                && !fieldPlaneChooserControl.isDisposed()) {
+            fieldPlaneChooserControl.updateControls(rscHolderList);
         }
 
     }
@@ -691,78 +739,69 @@ public class MatrixNavigatorComposite extends Composite implements
      * 
      * @param selectedSrc
      *            the newly selected model source
-     * @param ensembleResourcesMap
+     * @param rscHolderList
      *            the map which contains the resources loaded into the matrix
      *            editor.
      */
-    public void refreshDisplayBySelectedSource(ModelSources selectedSrc,
-            Map<String, List<AbstractResourceHolder>> ensembleResourcesMap) {
+    public void refreshDisplayBySelectedSource(ModelSourceKind selectedSrc,
+            List<AbstractResourceHolder> rscHolderList) {
 
-        hideAllResources(ensembleResourcesMap);
-        updateElementsBySelectedSource(selectedSrc, ensembleResourcesMap);
+        hideAllResources(rscHolderList);
+        updateElementsBySelectedSource(selectedSrc, rscHolderList);
+        EnsembleTool.getInstance().refreshEditor();
 
     }
 
     /**
-     * Show the Elements (field/plane pairs) that are currently asserted for the
-     * currently selected Source.
+     * Show the field/plane pairs that are currently asserted for the currently
+     * selected Source.
      * 
      * @param ensembleResourcesMap
      */
-    private void updateElementsBySelectedSource(final ModelSources currSrc,
-            final Map<String, List<AbstractResourceHolder>> rscMap) {
+    private void updateElementsBySelectedSource(final ModelSourceKind currSrc,
+            final List<AbstractResourceHolder> rscHolderList) {
 
-        if (rscMap == null || rscMap.isEmpty()) {
+        if (rscHolderList == null || rscHolderList.isEmpty()) {
             return;
         }
 
         String currSrcName = currSrc.getModelName();
-        List<FieldPlanePair> elements = fieldPlaneSelector.getFieldPlanePairs();
+        List<FieldPlanePair> elements = fieldPlaneChooserControl
+                .getActiveFieldPlanePairs();
 
-        List<AbstractResourceHolder> currResources = null;
-        Set<String> loadedProductNames = rscMap.keySet();
-        Iterator<String> iterator = loadedProductNames.iterator();
         RequestableResourceMetadata rrmd = null;
         String fieldAbbrev = null;
         String plane = null;
-        String currName = null;
-        while (iterator.hasNext()) {
+
+        for (AbstractResourceHolder arh : rscHolderList) {
+
+            if (arh.isIndivdualProduct() == false) {
+                continue;
+            }
             /*
-             * Either a top-level ensemble name (e.g. SREF) or an individual
-             * product name (e.g. NAM40 500MB Height)
+             * Only look at resources having the same Source as the selected
+             * Source
              */
-            currName = iterator.next();
-            currResources = rscMap.get(currName);
-            if (currResources != null) {
-                for (AbstractResourceHolder arh : currResources) {
-                    /*
-                     * Only look at resources having the same Source as the
-                     * selected Source
-                     */
-                    if (arh.getRsc().getName().trim()
-                            .startsWith(currSrcName.trim())) {
-                        for (FieldPlanePair e : elements) {
-                            if (e.isVisible()) {
-                                if (arh.getRsc().getResourceData() instanceof AbstractRequestableResourceData) {
-                                    AbstractRequestableResourceData ard = (AbstractRequestableResourceData) arh
-                                            .getRsc().getResourceData();
-                                    rrmd = new RequestableResourceMetadata(ard);
-                                    fieldAbbrev = rrmd.getFieldAbbrev();
-                                    plane = rrmd.getPlane();
-                                    if (e.getFieldAbbrev().equals(fieldAbbrev)
-                                            && e.getPlane().equals(plane)) {
-                                        arh.getRsc().getProperties()
-                                                .setVisible(true);
-                                        arh.getRsc().issueRefresh();
-                                    }
-                                }
+            if (arh.getRsc().getName().trim().startsWith(currSrcName.trim())) {
+                for (FieldPlanePair e : elements) {
+                    if (e.isResourceVisible()) {
+                        if (arh.getRsc()
+                                .getResourceData() instanceof AbstractRequestableResourceData) {
+                            AbstractRequestableResourceData ard = (AbstractRequestableResourceData) arh
+                                    .getRsc().getResourceData();
+                            rrmd = new RequestableResourceMetadata(ard);
+                            fieldAbbrev = rrmd.getFieldAbbrev();
+                            plane = rrmd.getPlane();
+                            if (e.getFieldAbbrev().equals(fieldAbbrev)
+                                    && e.getPlane().equals(plane)) {
+                                arh.getRsc().getProperties().setVisible(true);
+                                arh.getRsc().issueRefresh();
                             }
                         }
                     }
                 }
             }
         }
-        EditorUtil.getActiveVizContainer().refresh();
 
     }
 
@@ -771,12 +810,13 @@ public class MatrixNavigatorComposite extends Composite implements
      * currently selected Source.
      */
     private void updateChangeInElementVisibility(
-            final ModelSources selectedSrc, final FieldPlanePair changedElement) {
+            final ModelSourceKind selectedSrc,
+            final FieldPlanePair changedElement) {
 
-        final Map<String, List<AbstractResourceHolder>> rscMap = EnsembleTool
-                .getInstance().getCurrentToolLayerResources();
+        final List<AbstractResourceHolder> rscHolderList = EnsembleTool
+                .getInstance().getResourceList();
 
-        if (rscMap == null || rscMap.isEmpty()) {
+        if (rscHolderList == null || rscHolderList.isEmpty()) {
             return;
         }
 
@@ -787,84 +827,68 @@ public class MatrixNavigatorComposite extends Composite implements
 
                 String currSrcName = selectedSrc.getModelName();
 
-                List<AbstractResourceHolder> currResources = null;
-                Set<String> loadedProductNames = rscMap.keySet();
-                Iterator<String> iterator = loadedProductNames.iterator();
                 RequestableResourceMetadata rrmd = null;
                 String fieldAbbrev = null;
                 String plane = null;
                 String currName = null;
-                while (iterator.hasNext()) {
+                for (AbstractResourceHolder arh : rscHolderList) {
+
+                    if (arh.isIndivdualProduct() == false) {
+                        continue;
+                    }
+
+                    currName = arh.getRsc().getName();
+
                     /*
-                     * The following name is either a top-level ensemble name
-                     * (e.g. SREF 500MB Height) or an individual product name
-                     * (e.g. NAM40 500MB Height)
+                     * Only look at resources having the same Source as the
+                     * selected Source
                      */
-                    currName = iterator.next();
-                    currResources = rscMap.get(currName);
-                    for (AbstractResourceHolder arh : currResources) {
-                        /*
-                         * Only look at resources having the same Source as the
-                         * selected Source
-                         */
-                        if (arh.getRsc().getName().trim()
-                                .startsWith(currSrcName.trim())) {
-                            if (arh.getRsc().getResourceData() instanceof AbstractRequestableResourceData) {
-                                AbstractRequestableResourceData ard = (AbstractRequestableResourceData) arh
-                                        .getRsc().getResourceData();
+                    if (currName.trim().startsWith(currSrcName.trim())) {
+                        if (arh.getRsc()
+                                .getResourceData() instanceof AbstractRequestableResourceData) {
+                            AbstractRequestableResourceData ard = (AbstractRequestableResourceData) arh
+                                    .getRsc().getResourceData();
 
-                                rrmd = new RequestableResourceMetadata(ard);
-                                fieldAbbrev = rrmd.getFieldAbbrev();
-                                plane = rrmd.getPlane();
+                            rrmd = new RequestableResourceMetadata(ard);
+                            fieldAbbrev = rrmd.getFieldAbbrev();
+                            plane = rrmd.getPlane();
 
-                                if (changedElement.getFieldAbbrev().equals(
-                                        fieldAbbrev)
-                                        && changedElement.getPlane().equals(
-                                                plane)) {
+                            if (changedElement.getFieldAbbrev()
+                                    .equals(fieldAbbrev)
+                                    && changedElement.getPlane()
+                                            .equals(plane)) {
 
-                                    arh.getRsc()
-                                            .getProperties()
-                                            .setVisible(
-                                                    changedElement.isVisible());
+                                arh.getRsc().getProperties().setVisible(
+                                        changedElement.isResourceVisible());
 
-                                    if (arh.getRsc().hasCapability(
-                                            DisplayTypeCapability.class)) {
-                                        DisplayType dt = arh
-                                                .getRsc()
-                                                .getCapability(
-                                                        DisplayTypeCapability.class)
-                                                .getDisplayType();
-                                        if (dt == DisplayType.IMAGE) {
-                                            /**
-                                             * TODO: This apparently is not how
-                                             * color bars work.
-                                             */
-                                            if (arh.getRsc().getProperties()
-                                                    .isVisible()) {
-                                                /* show color bar */
-                                                setColorBarVisible(true);
-                                            } else {
-                                                /* hide color bar */
-                                                setColorBarVisible(false);
-                                            }
-
+                                if (arh.getRsc().hasCapability(
+                                        DisplayTypeCapability.class)) {
+                                    DisplayType dt = arh.getRsc()
+                                            .getCapability(
+                                                    DisplayTypeCapability.class)
+                                            .getDisplayType();
+                                    if (dt == DisplayType.IMAGE) {
+                                        if (arh.getRsc().getProperties()
+                                                .isVisible()) {
+                                            setColorBarVisible(true);
+                                        } else {
+                                            setColorBarVisible(false);
                                         }
-                                        arh.getRsc().issueRefresh();
                                     }
+                                    arh.getRsc().issueRefresh();
                                 }
-
                             }
                         }
                     }
                 }
-                EditorUtil.getActiveVizContainer().refresh();
+                EnsembleTool.getInstance().refreshEditor();
             }
         });
 
     }
 
     /**
-     * TODO: HELP!! Why doesn't this work? Need a DR for 16.2.2!
+     * Set whether the color bar is visible or not.
      * 
      * @param isVisible
      */
@@ -884,9 +908,6 @@ public class MatrixNavigatorComposite extends Composite implements
 
     /**
      * The model source tree is sorted in alphabetical order.
-     * 
-     * TODO: It may be better to display the model sources in the order they are
-     * loaded, which is shortest time-step to longest time-step.
      */
     private class ModelSourcesTreeSorter extends ViewerSorter {
 
@@ -904,258 +925,116 @@ public class MatrixNavigatorComposite extends Composite implements
         }
     }
 
-    private void loadModelFamily(final ResolvedModelFamily modelFamily) {
-
-        VizApp.runSync(new Runnable() {
-
-            @Override
-            public void run() {
-                getShell().setCursor(EnsembleToolViewer.waitCursor);
-
-                if (modelFamily.getSources() != null
-                        && modelFamily.getSources().size() > 0) {
-
-                    currentModelFamily = modelFamily;
-                    fieldPlaneSelector.addModelFamily(modelFamily);
-
-                    totalExpectedResources = modelFamily.getSources().size()
-                            * fieldPlaneSelector.getNumberOfFieldPlanePairs();
-
-                    layout();
-                    modelSourceTreeViewer.setInput(currentModelFamily);
-                    modelSourceTreeViewer.expandAll();
-
-                }
-                getShell().setCursor(EnsembleToolViewer.normalCursor);
-
-            }
-        });
-
-        VizApp.runAsync(new Runnable() {
-
-            @Override
-            public void run() {
-                loadModels(currentModelFamily);
-            }
-        });
-
-    }
-
-    private void selectInitialModelSource() {
-
-        VizApp.runSync(new Runnable() {
-
-            @Override
-            public void run() {
-                select(modelSourceTree.getItem(0));
-            }
-        });
-
-    }
-
-    @Override
-    public void updateMemoryUsage() {
-        Runtime runtime = Runtime.getRuntime();
-        System.gc();
-        memoryPerLoad = runtime.totalMemory()
-                - (runtime.freeMemory() + startMemory);
-        loaderControl.setMemoryUsage(memoryPerLoad);
-    }
-
     /**
      * Reinitializes this entire control with a newly selected model family.
      */
     @Override
     public void addModelFamily(final ResolvedModelFamily modelFamily) {
 
-        clearAllResources();
-        System.gc();
-        Runtime runtime = Runtime.getRuntime();
-        startMemory = runtime.totalMemory() - runtime.freeMemory();
-        primaryTimeBasisModelSource = modelFamily.getSources().get(0);
-
-        if (updateMemoryStats.getState() == Job.RUNNING) {
-            updateMemoryStats.cancel();
+        boolean proceed = false;
+        if (modelSourceTree.getItemCount() > 1) {
+            proceed = MessageDialog.openConfirm(
+                    matrixEditor.getActiveDisplayPane().getDisplay()
+                            .getActiveShell(),
+                    "Model family verification",
+                    "Loading this model family will remove any already loaded family.\n"
+                            + "Okay to proceed?");
+        } else {
+            proceed = true;
         }
-        updateMemoryStats.setPriority(Job.LONG);
-        updateMemoryStats.schedule(2000);
+        if (proceed) {
+            clearAllResources();
 
-        LoadModelFamily lmfJob = new LoadModelFamily(modelFamily);
-        lmfJob.setPriority(Job.SHORT);
-        lmfJob.schedule();
+            currentModelFamily = modelFamily;
 
-        /**
-         * TODO: Need to wait until all resources are loaded via preceding job
-         * (see method loadModels and the job MatchResourceCapabilityState) or
-         * once a delay expires, whichever comes first.
-         * 
-         * For now, waitfor an arbitrary but extended period of time to start
-         * the "select first item" job; this is obviously not scalable for any
-         * arbitrary user-requested model family. Not sure how to solve this for
-         * the 16.2.2 release.
+            createModelFamilyControls(modelFamily);
+
+            /* reset the previously selected resource variable */
+            lastSelectedSource = null;
+        }
+    }
+
+    /**
+     * Load those resources of a certain field/plane pair across all model
+     * sources.
+     */
+    @Override
+    public void loadResources(FieldPlanePair fpp) {
+
+        /*
+         * If this is the first resource being loaded then use the default
+         * number of frames from the map descriptor.
          */
-
-        int numModelSources = modelFamily.getSources().size();
-        final int delayTimePerModelSource = 11000;
-
-        SelectInitialModelSource selectSrcJob = new SelectInitialModelSource();
-        selectSrcJob.setPriority(Job.SHORT);
-        selectSrcJob.schedule(numModelSources * delayTimePerModelSource);
-
-        DisableControlsForUnloadedResources disableControlsJob = new DisableControlsForUnloadedResources();
-        disableControlsJob.setPriority(Job.SHORT);
-        disableControlsJob.schedule(numModelSources * delayTimePerModelSource);
-
-        loaderControl.setEnabled(true);
-
-    }
-
-    /**
-     * Load the resources associated with the given resolved model family which
-     * will therefore request all elements (field/plane pairs) for each model
-     * source contained in therein.
-     * 
-     * @param rmf
-     *            the resolved model family containing the specific resources to
-     *            associate with the family's field/plane pairs.
-     */
-    private void loadModels(ResolvedModelFamily rmf) {
-
-        /* reset the previously selected resource variable */
-        lastSelectedSource = null;
-
-        List<ModelSources> sources = rmf.getSources();
-
-        Map<String, String> variableTranslations = new HashMap<>();
-        ModelFamilyDefinitions mfd = null;
-        String modelDbId = null; // e.g. GFS215
-        String totalPrecipValue = null;
-
-        Bundle bundle = null;
-        getShell().setCursor(EnsembleToolViewer.waitCursor);
-        for (ModelSources src : sources) {
-            modelDbId = src.getModelId();
-            mfd = rmf.getCurrFamilyDefinition();
-            totalPrecipValue = mfd.getTotalPrecip();
-            variableTranslations.put(TOTAL_PRECIP_VARIABLE, totalPrecipValue);
-            variableTranslations.put(MODEL_VARIABLE, modelDbId);
-            variableTranslations.put(FRAME_COUNT_VARIABLE,
-                    Integer.toString(initialLoadCount));
-            try {
-                bundle = BundleLoader.getBundle(mfd.getFamilyFileName(),
-                        variableTranslations, BundleInfoType.FILE_LOCATION);
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Failed to load bundle: " + rmf.bundle.getName() + "; "
-                                + e.getLocalizedMessage(), e);
-                continue;
-
+        boolean loadFrameCountDefault = false;
+        /*
+         * If this is the first field/plane pair to become active the select the
+         * first model source in the model source tree.
+         */
+        if (fieldPlaneChooserControl.getActiveFieldPlanePairCount() == 1) {
+            if (modelSourceTree != null
+                    && modelSourceTree.getItems().length > 0) {
+                loadFrameCountDefault = true;
+                modelSourceTree.select(modelSourceTree.getItem(0));
+                lastSelectedSource = (ModelSourceKind) modelSourceTree
+                        .getItem(0).getData();
             }
-            /* load synchronously */
-            new BundleProductLoader(matrixEditor, bundle).run();
-
         }
-
-        MatchResourceCapabilityState matchSimilarResources = null;
-        matchSimilarResources = new MatchResourceCapabilityState();
-        matchSimilarResources.setPriority(Job.SHORT);
-        matchSimilarResources.schedule(4000);
-
-        getShell().setCursor(EnsembleToolViewer.normalCursor);
-
-        return;
-    }
-
-    /**
-     * Loop through all the Matrix (.i.e. resolved model family) resources and
-     */
-    public void associateResourcesWithFPPControl() {
-
-        VizApp.runSync(new Runnable() {
-
-            @Override
-            public void run() {
-                getShell().setCursor(EnsembleToolViewer.waitCursor);
-
-                Map<String, List<AbstractResourceHolder>> rscMap = EnsembleTool
-                        .getInstance().getCurrentToolLayerResources();
-
-                List<AbstractResourceHolder> currResources = null;
-                List<FieldPlanePairControl> controls = null;
-                Set<String> loadedProductNames = rscMap.keySet();
-                Iterator<String> iterator = null;
-                AbstractVizResource<?, ?> currRsc = null;
-                String currName = null;
-
-                FieldPlanePair fpp = null;
-                String fppField = null;
-                String fppPlane = null;
-                String matchToRscField = null;
-                String matchToRscPlane = null;
-                RequestableResourceMetadata matchToRscMetaData = null;
-
-                controls = fieldPlaneSelector.getFieldPlanePairControls();
-                for (FieldPlanePairControl fppc : controls) {
-                    fpp = fppc.getFieldPlanePair();
-                    fppField = fpp.getFieldAbbrev();
-                    fppPlane = fpp.getPlane();
-                    iterator = loadedProductNames.iterator();
-                    while (iterator.hasNext()) {
-                        /*
-                         * Either a top-level ensemble name (e.g. SREF) or an
-                         * individual product name (e.g. NAM40 500MB Height)
-                         */
-                        currName = iterator.next();
-                        currResources = rscMap.get(currName);
-
-                        for (AbstractResourceHolder arh : currResources) {
-
-                            currRsc = arh.getRsc();
-                            if (currRsc.getResourceData() instanceof AbstractRequestableResourceData) {
-
-                                AbstractRequestableResourceData arrd = (AbstractRequestableResourceData) currRsc
-                                        .getResourceData();
-                                matchToRscMetaData = new RequestableResourceMetadata(
-                                        arrd);
-
-                                matchToRscField = matchToRscMetaData
-                                        .getFieldAbbrev();
-                                matchToRscPlane = matchToRscMetaData.getPlane();
-
-                                if (matchToRscField == null
-                                        || matchToRscField.length() == 0
-                                        || matchToRscPlane == null
-                                        || matchToRscField.length() == 0) {
-                                    continue;
-                                }
-
-                                if (matchToRscField.equals(fppField)
-                                        && matchToRscPlane.equals(fppPlane)) {
-                                    // fppc.register(currRsc);
-                                    currRsc.getResourceData()
-                                            .addChangeListener(
-                                                    (IResourceDataChanged) fppc);
-                                }
-                            }
-                        }
-                    }
-
-                }
-                getShell().setCursor(EnsembleToolViewer.normalCursor);
-            }
-        });
+        /*
+         * Load the resources for the given field/plane pair for all the models
+         * sources in the current resolved model family.
+         */
+        currentModelFamily.loadModelsByFieldPlanePairs(matrixEditor, fpp,
+                loadFrameCountDefault);
 
     }
 
     /**
-     * Starts a job to match resources, having shared field/plane pairs, to have
-     * the same color and density.
+     * Unload those resources associated with a field/plane pair. This happens
+     * when the field/plane pair control widget is deactivated (i.e. moved from
+     * the upper composite/activated fpp list to the lower composite
+     * not-activated list).
+     * 
+     * TODO: This will be associated with deactivating a field/plane pair
+     * control.
+     * 
+     * @param fpp
+     *            the resources associated with the given field/plane pair will
+     *            be unloaded.
      */
-    public void matchLikeResources() {
-        MatchResourceCapabilityState matchSimilarResources = null;
-        matchSimilarResources = new MatchResourceCapabilityState();
-        matchSimilarResources.setPriority(Job.SHORT);
-        matchSimilarResources.schedule();
+
+    @Override
+    public void unloadResources(FieldPlanePair fpp) {
+        for (AbstractVizResource<?, ?> rsc : currentModelFamily
+                .getAssociatedRscSet(fpp)) {
+            removeResourceByResourcePair(rsc);
+        }
+        matrixEditor.refresh();
+    }
+
+    private void removeResourceByResourcePair(AbstractVizResource<?, ?> rsc) {
+
+        EnsembleToolLayer toolLayer = EnsembleTool.getToolLayer(matrixEditor);
+        if (toolLayer != null) {
+            toolLayer.getResourceList().removeRsc(rsc);
+            toolLayer.issueRefresh();
+        }
+    }
+
+    /**
+     * Populate the model source tree and create the field/plane pair
+     * controllers.
+     * 
+     * @param modelFamily
+     */
+    private void createModelFamilyControls(
+            final ResolvedModelFamily modelFamily) {
+
+        fieldPlaneChooserControl.addModelFamily(modelFamily);
+
+        modelSourceTreeViewer.setInput(currentModelFamily);
+        modelSourceTreeViewer.refresh();
+        modelSourceTreeViewer.expandAll();
+
     }
 
     public ModelFamily getCurrentModelFamily() {
@@ -1171,14 +1050,23 @@ public class MatrixNavigatorComposite extends Composite implements
         /* Refresh the display to match the change in Element visibility */
         TreeItem[] selectedItems = modelSourceTree.getSelection();
         TreeItem currItem = selectedItems[0];
-        if (currItem.getData() instanceof ModelSources) {
-            ModelSources currSrc = (ModelSources) currItem.getData();
+        if (currItem.getData() instanceof ModelSourceKind) {
+            ModelSourceKind currSrc = (ModelSourceKind) currItem.getData();
             updateChangeInElementVisibility(currSrc, e);
         }
     }
 
     @Override
-    public ModelSources getSelected() {
+    public ModelSourceKind getSelected() {
+
+        if (lastSelectedSource == null) {
+            if (isWidgetReady() && modelSourceTree.getItemCount() > 0) {
+                lastSelectedSource = (ModelSourceKind) modelSourceTree
+                        .getItem(0).getData();
+                modelSourceTree.select(modelSourceTree.getItem(0));
+            }
+        }
+
         return lastSelectedSource;
     }
 
@@ -1189,360 +1077,66 @@ public class MatrixNavigatorComposite extends Composite implements
      * @param enabled
      *            the boolean enabled/disabled flag
      */
-    public void setViewEditable(final boolean enabled) {
+    public void setEditable(final boolean enabled) {
 
         VizApp.runSync(new Runnable() {
             @Override
             public void run() {
-                modelSourceTree.setEnabled(enabled);
-                fieldPlaneSelector.setViewEditable(enabled);
+                if (isWidgetReady()) {
+                    modelSourceTree.setEnabled(enabled);
+                    if (fieldPlaneChooserControl != null
+                            && !fieldPlaneChooserControl.isDisposed()) {
+                        fieldPlaneChooserControl.setEditable(enabled);
+                    }
+                }
             }
         });
     }
 
-    public static ModelSources getPrimaryTimeBasisModelSource() {
-        return primaryTimeBasisModelSource;
-    }
-
-    public boolean setFocus() {
-        giveEditorFocus();
-        return true;
-    }
-
     /**
-     * This job loads the resources associated with the given resolved model
-     * family.
+     * When a model source is selected from the model source tree, update the
+     * active editor with that source's resources and return focus to the active
+     * editor.
      */
-    private class LoadModelFamily extends Job {
-
-        private IStatus status = Status.OK_STATUS;
-
-        private ResolvedModelFamily resolvedModelFamily = null;
-
-        public LoadModelFamily(ResolvedModelFamily rmf) {
-            super("Load Model Family");
-            resolvedModelFamily = rmf;
-            status = Status.OK_STATUS;
-        }
-
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-
-            status = Status.OK_STATUS;
-            if (!monitor.isCanceled()) {
-                loadModelFamily(resolvedModelFamily);
-
-            } else {
-                status = Status.CANCEL_STATUS;
-            }
-
-            return status;
-
-        }
-    }
-
-    /**
-     * This job programmatically selects the first source in the model source
-     * tree.
-     */
-    private class SelectInitialModelSource extends Job {
-
-        private IStatus status = Status.OK_STATUS;
-
-        public SelectInitialModelSource() {
-            super("Select Initial Model Family");
-            status = Status.OK_STATUS;
-        }
-
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-
-            status = Status.OK_STATUS;
-            if (!monitor.isCanceled()) {
-                selectInitialModelSource();
-            } else {
-                status = Status.CANCEL_STATUS;
-            }
-
-            return status;
-
-        }
-    }
-
-    private class DisableControlsForUnloadedResources extends Job {
-
-        private IStatus status = Status.OK_STATUS;
-
-        public DisableControlsForUnloadedResources() {
-            super("Check for unloaded resources");
-            status = Status.OK_STATUS;
-        }
-
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-
-            /**
-             * TODO: Strange place to turn off memory usage updater job. Remove
-             * this when the final solution for the WaitForLoadingComplete is
-             * refactored for the 16.2.2 release.
-             */
-            if (updateMemoryStats.getState() == Job.RUNNING) {
-                updateMemoryStats.cancel();
-            }
-
-            status = Status.OK_STATUS;
-            if (!monitor.isCanceled()) {
-                fieldPlaneSelector.disableEmptyFieldPlanePairControls();
-            } else {
-                status = Status.CANCEL_STATUS;
-            }
-            EditorUtil.getActiveVizContainer().refresh();
-            return status;
-
-        }
-
-    }
-
-    /**
-     * This job waits for resources to be available then attempts to match the
-     * resource Color and Density across all model sources.
-     * 
-     * Once the resources have been matched the Job exits.
-     */
-    private class MatchResourceCapabilityState extends Job {
-
-        private IStatus status = Status.OK_STATUS;
-
-        public MatchResourceCapabilityState() {
-            super("Match A-B Resource");
-            status = Status.OK_STATUS;
-        }
-
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-
-            status = Status.OK_STATUS;
-            if (!monitor.isCanceled()) {
-                List<AbstractVizResource<?, ?>> foundRscs = findSourceToMatchToResources();
-                matchProductCapability(foundRscs, ColorableCapability.class);
-                matchProductCapability(foundRscs, DensityCapability.class);
-                EditorUtil.getActiveVizContainer().refresh();
-            } else {
-                status = Status.CANCEL_STATUS;
-            }
-
-            return status;
-
-        }
-
-        /**
-         * Finds the shortest time-step resources against which all other
-         * resources will be matched.
-         * 
-         * @return the list of found resources
-         */
-        private List<AbstractVizResource<?, ?>> findSourceToMatchToResources() {
-
-            List<AbstractVizResource<?, ?>> foundRscs = new ArrayList<>();
-            IDisplayPane pane = null;
-            /* Currently only deal with single display families */
-            if (matrixEditor != null) {
-                pane = matrixEditor.getActiveDisplayPane();
-                ModelSources modelSource = currentModelFamily.getSources().get(
-                        0);
-
-                ResourceList rscList = pane.getDescriptor().getResourceList();
-                for (int i = 0; i < rscList.size(); i++) {
-                    ResourcePair rp = rscList.get(i);
-                    if (rp != null && rp.getResource() != null
-                            && rp.getResource().getName() != null) {
-                        rp.getResource();
-                        if (rp.getResource().getName()
-                                .startsWith(modelSource.getModelName())) {
-                            foundRscs.add(rp.getResource());
-                        }
-                    }
-                }
-            }
-
-            return foundRscs;
-        }
-
-        /**
-         * Given a list of source resources and a capability class, walk through
-         * all target resources and set the target capability equal to the
-         * source.
-         * 
-         * @param matchToTheseRscs
-         *            the resources to match to
-         * @param capabilityClass
-         *            the capability to match
-         */
-        private void matchProductCapability(
-                List<AbstractVizResource<?, ?>> matchToTheseRscs,
-                Class<? extends AbstractCapability> capabilityClass) {
-
-            IDisplayPane pane = null;
-            if (matchToTheseRscs.size() == 0) {
-                return;
-            }
-
-            /**
-             * A model family is a family of resources resolved by a model
-             * source.
-             * 
-             * The first model source contains the resources against which all
-             * other resources will be matched.
-             */
-            ModelSources matchToModelSource = currentModelFamily.getSources()
-                    .get(0);
-
-            /**
-             * The other model sources contain the family of resources that need
-             * to have their capabilities matched.
-             */
-            List<ModelSources> toBeMatchedSources = new ArrayList<>();
-            for (int i = 1; i < currentModelFamily.getSources().size(); i++) {
-                toBeMatchedSources.add(currentModelFamily.getSources().get(i));
-            }
-
-            AbstractVizResource<?, ?> rsc = null;
-
-            /**
-             * TODO: only working with single-display families for now
-             */
-            pane = matrixEditor.getActiveDisplayPane();
-            ResourceList rscList = pane.getDescriptor().getResourceList();
-
-            /**
-             * Get the resources that need to match the color and density of the
-             * match-to model source resources.
-             */
-            List<AbstractVizResource<?, ?>> rscsNeedingToBeMatched = new ArrayList<>();
-            for (ResourcePair rp : rscList) {
-                if (rp == null) {
-                    continue;
-                }
-                /**
-                 * This rsc can be any flavor found in the editor.
-                 * 
-                 * Ignore the match-to model source resources.
-                 */
-                rsc = rp.getResource();
-                if (rsc != null && rsc.getName() != null) {
-                    if (rsc.getName().startsWith(
-                            matchToModelSource.getModelName())) {
-                        continue;
-                    } else {
-                        /**
-                         * Check to make sure the resource starts with the
-                         * to-be-matched model source names
-                         */
-                        for (ModelSources ms : toBeMatchedSources) {
-                            if (rsc.getName().startsWith(ms.getModelName())) {
-                                rscsNeedingToBeMatched.add(rsc);
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-
-            String toBeMatchedField = null;
-            String toBeMatchedPlane = null;
-            String matchToField = null;
-            String matchToPlane = null;
-            RequestableResourceMetadata toBeMatchedRscMetaData = null;
-            RequestableResourceMetadata matchToRscMetaData = null;
-            for (AbstractVizResource<?, ?> matchToRsc : matchToTheseRscs) {
-                if (matchToRsc == null) {
-                    continue;
-                }
-                AbstractRequestableResourceData arrd = (AbstractRequestableResourceData) matchToRsc
-                        .getResourceData();
-                matchToRscMetaData = new RequestableResourceMetadata(arrd);
-
-                matchToField = matchToRscMetaData.getFieldAbbrev();
-                matchToPlane = matchToRscMetaData.getPlane();
-
-                if (matchToField == null || matchToField.length() == 0
-                        || matchToPlane == null || matchToField.length() == 0) {
-                    continue;
-                }
-                /**
-                 * Loop through the to-be-matched resources and find a
-                 * field/plane pair match and then set the capability on the
-                 * to-be-matched resource to be equal to the same capability on
-                 * the match-to resource.
-                 */
-                for (AbstractVizResource<?, ?> rscToBeMatched : rscsNeedingToBeMatched) {
-
-                    /* both field and plane need to match */
-                    AbstractRequestableResourceData tbmr = (AbstractRequestableResourceData) rscToBeMatched
-                            .getResourceData();
-
-                    toBeMatchedRscMetaData = new RequestableResourceMetadata(
-                            tbmr);
-
-                    toBeMatchedField = toBeMatchedRscMetaData.getFieldAbbrev();
-                    toBeMatchedPlane = toBeMatchedRscMetaData.getPlane();
-
-                    if (toBeMatchedField == null
-                            || toBeMatchedField.length() == 0
-                            || toBeMatchedPlane == null
-                            || toBeMatchedPlane.length() == 0) {
-                        continue;
-                    }
-
-                    if (!matchToField.equals(toBeMatchedField)
-                            || !matchToPlane.equals(toBeMatchedPlane)) {
-                        continue;
-                    }
-                    if (matchToRsc.hasCapability(capabilityClass)
-                            && rscToBeMatched.hasCapability(capabilityClass)) {
-                        if (capabilityClass == ColorableCapability.class) {
-                            rscToBeMatched.getCapability(
-                                    ColorableCapability.class).setColor(
-                                    matchToRsc.getCapability(
-                                            ColorableCapability.class)
-                                            .getColor());
-
-                            rscToBeMatched.issueRefresh();
-                        }
-                        if (capabilityClass == DensityCapability.class) {
-                            rscToBeMatched.getCapability(
-                                    DensityCapability.class).setDensity(
-                                    matchToRsc.getCapability(
-                                            DensityCapability.class)
-                                            .getDensity());
-                            rscToBeMatched.issueRefresh();
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private class ModelSourceTreeSelectionListener implements
-            ISelectionChangedListener {
+    private class ModelSourceTreeSelectionListener
+            implements ISelectionChangedListener {
 
         @Override
         public void selectionChanged(SelectionChangedEvent event) {
-            getShell().setCursor(EnsembleToolViewer.waitCursor);
-            TreeItem[] tis = modelSourceTree.getSelection();
 
-            if (tis != null && tis.length > 0 && tis[0] != null
-                    && !tis[0].isDisposed()
-                    && tis[0].getData() instanceof ModelSources) {
+            IDisplayPaneContainer editor = EditorUtil.getActiveVizContainer();
 
-                select(tis[0]);
+            /*
+             * This check is here as during swapping we want to make sure the
+             * editor hasn't changed out from under us.
+             */
+            if (editor != null && EnsembleTool.isMatrixEditor(editor)) {
 
+                getShell().setCursor(EnsembleToolViewer.getWaitCursor());
+                TreeItem[] tis = modelSourceTree.getSelection();
+
+                if (tis != null && tis.length > 0 && tis[0] != null
+                        && !tis[0].isDisposed()
+                        && tis[0].getData() instanceof ModelSourceKind) {
+
+                    select(tis[0]);
+
+                }
+                getShell().setCursor(EnsembleToolViewer.getNormalCursor());
+                giveEditorFocus();
             }
-            getShell().setCursor(EnsembleToolViewer.normalCursor);
         }
     }
 
+    /**
+     * The navigation operation is one of: UP_ARROW, DOWN_ARROW, RIGHT_ARROW, or
+     * LEFT_ARROW. It is generated by the ensemble tool plugin extensions.
+     * Delegation method for the matrix navigation inner tool.
+     * 
+     * @param operation
+     */
     public void matrixNavigationRequest(MatrixNavigationOperation operation) {
+
         switch (operation) {
         case DOWN_MODEL_SOURCE:
         case UP_MODEL_SOURCE:
@@ -1552,31 +1146,63 @@ public class MatrixNavigatorComposite extends Composite implements
         case RIGHT_FRAME:
             navigateFrames(operation);
             break;
+        default:
+            break;
         }
     }
 
+    /**
+     * Handle up and down arrows navigation in the model source tree.
+     * 
+     * @param operation
+     */
     private void navigateModelSources(MatrixNavigationOperation operation) {
-        /**
-         * Programmatically move up or down one model source in the tree.
-         */
-        TreeItem treeItem = (TreeItem) modelSourceTree.getSelection()[0];
-        if (treeItem != null) {
-            int currentTreeItemCount = modelSourceTree.indexOf(treeItem);
-            if (operation == MatrixNavigationOperation.UP_MODEL_SOURCE) {
-                if (currentTreeItemCount > 0) {
-                    select(modelSourceTree.getItem(currentTreeItemCount - 1));
+
+        if (matrixEditor == null) {
+            return;
+        }
+        if (modelSourceTree != null && modelSourceTree.getItemCount() > 1
+                && modelSourceTree.getSelection().length == 1) {
+            /**
+             * Programmatically move up or down one model source in the tree.
+             */
+            TreeItem treeItem = (TreeItem) modelSourceTree.getSelection()[0];
+            if (treeItem != null) {
+                int currentTreeItemCount = modelSourceTree.indexOf(treeItem);
+                if (operation == MatrixNavigationOperation.UP_MODEL_SOURCE) {
+                    if (currentTreeItemCount > 0) {
+                        select(modelSourceTree
+                                .getItem(currentTreeItemCount - 1));
+                        fieldPlaneChooserControl
+                                .disableEmptyFieldPlanePairControls();
+                    }
                 }
-            }
-            if (operation == MatrixNavigationOperation.DOWN_MODEL_SOURCE) {
-                if (currentTreeItemCount < modelSourceTree.getItemCount() - 1) {
-                    select(modelSourceTree.getItem(currentTreeItemCount + 1));
+                if (operation == MatrixNavigationOperation.DOWN_MODEL_SOURCE) {
+                    if (currentTreeItemCount < modelSourceTree.getItemCount()
+                            - 1) {
+                        select(modelSourceTree
+                                .getItem(currentTreeItemCount + 1));
+                        fieldPlaneChooserControl
+                                .disableEmptyFieldPlanePairControls();
+                    }
                 }
             }
         }
 
     }
 
+    /**
+     * Handle left and right arrows navigation to move back and forward plan
+     * view editor frames.
+     * 
+     * @param operation
+     */
     private void navigateFrames(MatrixNavigationOperation operation) {
+
+        if (matrixEditor == null) {
+            return;
+        }
+
         matrixEditor.getLoopProperties().setLooping(false);
 
         int currentFrame = matrixEditor.getActiveDisplayPane().getDescriptor()
@@ -1587,182 +1213,357 @@ public class MatrixNavigatorComposite extends Composite implements
         currentFrame += 1;
         if (operation == MatrixNavigationOperation.LEFT_FRAME) {
             if (currentFrame == 1) {
-                matrixEditor
-                        .getActiveDisplayPane()
-                        .getDescriptor()
-                        .getFrameCoordinator()
-                        .changeFrame(
+                matrixEditor.getActiveDisplayPane().getDescriptor()
+                        .getFrameCoordinator().changeFrame(
                                 IFrameCoordinator.FrameChangeOperation.LAST,
                                 IFrameCoordinator.FrameChangeMode.TIME_ONLY);
             } else {
-                matrixEditor
-                        .getActiveDisplayPane()
-                        .getDescriptor()
-                        .getFrameCoordinator()
-                        .changeFrame(
+                matrixEditor.getActiveDisplayPane().getDescriptor()
+                        .getFrameCoordinator().changeFrame(
                                 IFrameCoordinator.FrameChangeOperation.PREVIOUS,
                                 IFrameCoordinator.FrameChangeMode.TIME_ONLY);
             }
         }
         if (operation == MatrixNavigationOperation.RIGHT_FRAME) {
 
-            /**
-             * If the current frame is less than the maximum loaded frame, then
-             * just step forward one frame.
-             */
             if (currentFrame < currentMaxFrame) {
-                matrixEditor
-                        .getActiveDisplayPane()
-                        .getDescriptor()
-                        .getFrameCoordinator()
-                        .changeFrame(
+                matrixEditor.getActiveDisplayPane().getDescriptor()
+                        .getFrameCoordinator().changeFrame(
                                 IFrameCoordinator.FrameChangeOperation.NEXT,
                                 IFrameCoordinator.FrameChangeMode.TIME_ONLY);
+            } else if (currentFrame == currentMaxFrame) {
+                matrixEditor.getActiveDisplayPane().getDescriptor()
+                        .getFrameCoordinator().changeFrame(
+                                IFrameCoordinator.FrameChangeOperation.FIRST,
+                                IFrameCoordinator.FrameChangeMode.TIME_ONLY);
             }
-            /**
-             * Otherwise, if the current frame is equal to the maximum loaded
-             * frame, then check to see if the user requested maximum frame is
-             * reached. If it isn't yet reached, then request to load another
-             * frame. If it is reached then go to the first frame.
-             */
-            else if (currentFrame == currentMaxFrame) {
-                if (currentFrame < loaderControl.getMaxFrameCount()) {
-
-                    getShell().setCursor(EnsembleToolViewer.waitCursor);
-
-                    Map<String, String> params = new HashMap<String, String>();
-                    params.put("frameCount", Integer.toString(currentFrame + 1));
-                    ExecutionEvent eEvent = new ExecutionEvent(null, params,
-                            null, null);
-                    try {
-                        framesHandler.execute(eEvent);
-                    } catch (ExecutionException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Error executing frame handler", e);
-                    }
-
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        /* ignore */
-                    }
-                    isStepLoadComplete = false;
-
-                    BlockUserInteraction waitForCompleteJob = new BlockUserInteraction();
-                    waitForCompleteJob.setPriority(Job.SHORT);
-                    waitForCompleteJob.setUser(true);
-                    waitForCompleteJob.schedule();
-
-                    matrixEditor
-                            .getActiveDisplayPane()
-                            .getDescriptor()
-                            .getFrameCoordinator()
-                            .changeFrame(
-                                    IFrameCoordinator.FrameChangeOperation.LAST,
-                                    IFrameCoordinator.FrameChangeMode.TIME_ONLY);
-
-                } else if (currentFrame == loaderControl.getMaxFrameCount()) {
-                    matrixEditor
-                            .getActiveDisplayPane()
-                            .getDescriptor()
-                            .getFrameCoordinator()
-                            .changeFrame(
-                                    IFrameCoordinator.FrameChangeOperation.FIRST,
-                                    IFrameCoordinator.FrameChangeMode.TIME_ONLY);
-                }
-            }
-
         }
     }
 
+    /**
+     * Called when a frameChange event is just completed. Assert the
+     * step-frame-complete flag.
+     * 
+     * @param framesInfo
+     */
     public void frameChanged(FramesInfo framesInfo) {
-
-        isStepLoadComplete = true;
+        fieldPlaneChooserControl.disableEmptyFieldPlanePairControls();
     }
 
-    synchronized public boolean isStepLoadComplete() {
-        return isStepLoadComplete;
-    }
-
-    private class BlockUserInteraction extends Job {
-
-        private IStatus status = Status.OK_STATUS;
-
-        public BlockUserInteraction() {
-            super("Waiting for step");
-        }
-
-        @Override
-        protected IStatus run(IProgressMonitor monitor) {
-
-            final int maxWait = 5000;
-            final int sleepStep = 200;
-            int counter = 0;
-            while (!isStepLoadComplete) {
-                try {
-                    Thread.sleep(sleepStep);
-                    counter += sleepStep;
-                    if (counter > maxWait) {
-                        break;
-                    }
-                } catch (InterruptedException e) {
-                    /* ignore */
-                }
-            }
-            VizApp.runAsync(new Runnable() {
-
-                @Override
-                public void run() {
-                    getShell().setCursor(EnsembleToolViewer.normalCursor);
-                }
-            });
-            return status;
-        }
-
-    }
-
-    public void refreshResources() {
-        DisableControlsForUnloadedResources disableControlsJob = new DisableControlsForUnloadedResources();
-        disableControlsJob.setPriority(Job.SHORT);
-        disableControlsJob.schedule();
-    }
-
+    /**
+     * Returns the time string of the first found visible resource in the active
+     * editor. The time string is the same one found in the resource's legend.
+     * 
+     * @return The legend time string.
+     */
     public String getActiveRscTime() {
         String rscTime = "";
         IDisplayPane pane = null;
 
-        AbstractVizResource<?, ?> rsc = null;
+        if (matrixEditor != null) {
+            pane = matrixEditor.getActiveDisplayPane();
+            ResourceList rscList = pane.getDescriptor().getResourceList();
 
-        pane = matrixEditor.getActiveDisplayPane();
-        ResourceList rscList = pane.getDescriptor().getResourceList();
-
-        for (ResourcePair rp : rscList) {
-            if (rp == null) {
-                continue;
-            }
-            /**
-             * TODO: we need to be able to match against any currently visible
-             * resource.
-             */
-            GridNameGenerator.IGridNameResource currRsc = null;
-            if (rp.getResource() instanceof GridNameGenerator.IGridNameResource) {
-                currRsc = (GridNameGenerator.IGridNameResource) rp
-                        .getResource();
-                if (rp.getResource().getProperties().isVisible()) {
-                    if ((currRsc.getLegendParameters() == null)
-                            || (currRsc.getLegendParameters().dataTime == null)) {
-                        rscTime = "";
-                        continue;
-                    } else {
+            for (ResourcePair rp : rscList) {
+                if (rp == null) {
+                    continue;
+                }
+                GridNameGenerator.IGridNameResource currRsc = null;
+                if (rp.getResource() instanceof GridNameGenerator.IGridNameResource) {
+                    currRsc = (GridNameGenerator.IGridNameResource) rp
+                            .getResource();
+                    if (rp.getResource().getProperties().isVisible()) {
                         LegendParameters legendParams = currRsc
                                 .getLegendParameters();
-                        rscTime = legendParams.dataTime.getLegendString();
-                        break;
+                        if (legendParams == null) {
+                            rscTime = "";
+                            continue;
+                        } else if (legendParams.dataTime == null) {
+                            rscTime = "";
+                            continue;
+                        } else {
+                            rscTime = legendParams.dataTime.getLegendString();
+                            break;
+                        }
                     }
                 }
             }
         }
+
         return rscTime;
+    }
+
+    /**
+     * Opening this dialog allows a user to choose/load a model family.
+     */
+    public void openFamilyLoaderDialog() {
+
+        modelFamilyDialog.setBlockOnOpen(true);
+        if (modelFamilyDialog.open() == Window.OK) {
+            modelFamilyDialog.close();
+        }
+    }
+
+    /**
+     * Given a field/plane pair and an expected capability instance, walk
+     * through all associated model family resources (i.e. those that share the
+     * same field/plane pairs) and set the given capability on those resources.
+     * 
+     * @param matchToTheseRscs
+     *            the resources to match to
+     * @param capabilityClass
+     *            the capability to match
+     * @return wasColorMatched
+     */
+    @Override
+    public void matchProductCapabilityByFieldPlanePair(
+            final FieldPlanePairControl fppc, final Object object) {
+
+        final FieldPlanePair fpp = fppc.getFieldPlanePair();
+
+        VizApp.runSync(new Runnable() {
+
+            @Override
+            public void run() {
+
+                if (object instanceof ColorableCapability) {
+                    ColorableCapability cc = (ColorableCapability) object;
+                    RGB rgb = cc.getColor();
+                    for (AbstractVizResource<?, ?> r : currentModelFamily
+                            .getAssociatedRscSet(fpp)) {
+                        if (r.hasCapability(ColorableCapability.class)) {
+                            if (r.getCapability(ColorableCapability.class)
+                                    .getColor() != rgb) {
+                                r.getResourceData().removeChangeListener(fppc);
+                                r.getCapability(ColorableCapability.class)
+                                        .setColor(rgb);
+                                r.issueRefresh();
+                                r.getResourceData().addChangeListener(fppc);
+                            }
+                        }
+                    }
+                }
+                if (object instanceof DensityCapability) {
+                    DensityCapability dc = (DensityCapability) object;
+                    Double density = dc.getDensity();
+                    for (AbstractVizResource<?, ?> r : currentModelFamily
+                            .getAssociatedRscSet(fpp)) {
+                        if (r.hasCapability(DensityCapability.class)) {
+                            if (r.getCapability(DensityCapability.class)
+                                    .getDensity() != density) {
+                                r.getResourceData().removeChangeListener(fppc);
+                                r.getCapability(DensityCapability.class)
+                                        .setDensity(density);
+                                r.issueRefresh();
+                                r.getResourceData().addChangeListener(fppc);
+                            }
+                        }
+                    }
+                }
+
+                if (object instanceof OutlineCapability) {
+                    OutlineCapability oc = (OutlineCapability) object;
+                    LineStyle style = oc.getLineStyle();
+                    int width = oc.getOutlineWidth();
+                    for (AbstractVizResource<?, ?> r : currentModelFamily
+                            .getAssociatedRscSet(fpp)) {
+                        if (r.hasCapability(OutlineCapability.class)) {
+                            if (!(r.getCapability(OutlineCapability.class)
+                                    .getLineStyle().equals(style))) {
+                                r.getResourceData().removeChangeListener(fppc);
+                                r.getCapability(OutlineCapability.class)
+                                        .setLineStyle(style);
+                                r.issueRefresh();
+                                r.getResourceData().addChangeListener(fppc);
+                            }
+                            if (!(r.getCapability(OutlineCapability.class)
+                                    .getOutlineWidth() != width)) {
+                                r.getResourceData().removeChangeListener(fppc);
+                                r.getCapability(OutlineCapability.class)
+                                        .setOutlineWidth(width);
+                                r.issueRefresh();
+                                r.getResourceData().addChangeListener(fppc);
+                            }
+                        }
+                    }
+                }
+
+                if (object instanceof MagnificationCapability) {
+                    MagnificationCapability oc = (MagnificationCapability) object;
+                    Double mag = oc.getMagnification();
+                    for (AbstractVizResource<?, ?> r : currentModelFamily
+                            .getAssociatedRscSet(fpp)) {
+                        if (r.hasCapability(MagnificationCapability.class)) {
+                            if (!(r.getCapability(MagnificationCapability.class)
+                                    .getMagnification() == mag)) {
+                                r.getResourceData().removeChangeListener(fppc);
+                                r.getCapability(MagnificationCapability.class)
+                                        .setMagnification(mag);
+                                r.issueRefresh();
+                                r.getResourceData().addChangeListener(fppc);
+                            }
+                        }
+                    }
+                }
+
+            }
+        });
+    }
+
+    /**
+     * Given a resource and a field/plane pair, walk through all associated
+     * resources and set their capability of color, density, line width, line
+     * style, and magnification equal to the source's respective capability.
+     * 
+     * @param matchToTheseRscs
+     *            the resources to match to
+     * @param capabilityClass
+     *            the capability to match
+     * @return wasColorMatched
+     */
+    @Override
+    public void matchProductCapabilityByResource(
+            final AbstractVizResource<?, ?> matchToRsc,
+            final Set<AbstractVizResource<?, ?>> assocRscs,
+            final FieldPlanePairControl fppc) {
+
+        VizApp.runSync(new Runnable() {
+
+            @Override
+            public void run() {
+
+                RGB rgb = null;
+                Double density = null;
+                Double mag = null;
+                LineStyle lineStyle = null;
+                int lineWidth = 0;
+
+                for (AbstractVizResource<?, ?> currRsc : assocRscs) {
+
+                    currRsc.getResourceData().removeChangeListener(fppc);
+                    if (matchToRsc.hasCapability(ColorableCapability.class)
+                            && currRsc
+                                    .hasCapability(ColorableCapability.class)) {
+                        rgb = matchToRsc
+                                .getCapability(ColorableCapability.class)
+                                .getColor();
+
+                        if (rgb != null) {
+                            currRsc.getCapability(ColorableCapability.class)
+                                    .setColor(rgb);
+                        }
+                    }
+
+                    if (matchToRsc.hasCapability(DensityCapability.class)
+                            && currRsc.hasCapability(DensityCapability.class)) {
+                        density = matchToRsc
+                                .getCapability(DensityCapability.class)
+                                .getDensity();
+                        if (density != null) {
+                            currRsc.getCapability(DensityCapability.class)
+                                    .setDensity(density);
+                        }
+                    }
+
+                    if (matchToRsc.hasCapability(OutlineCapability.class)
+                            && currRsc.hasCapability(OutlineCapability.class)) {
+                        lineStyle = matchToRsc
+                                .getCapability(OutlineCapability.class)
+                                .getLineStyle();
+                        if (lineStyle != null) {
+                            currRsc.getCapability(OutlineCapability.class)
+                                    .setLineStyle(lineStyle);
+                        }
+                        lineWidth = matchToRsc
+                                .getCapability(OutlineCapability.class)
+                                .getOutlineWidth();
+                        currRsc.getCapability(OutlineCapability.class)
+                                .setOutlineWidth(lineWidth);
+                    }
+
+                    if (matchToRsc.hasCapability(MagnificationCapability.class)
+                            && currRsc.hasCapability(
+                                    MagnificationCapability.class)) {
+                        mag = matchToRsc
+                                .getCapability(MagnificationCapability.class)
+                                .getMagnification();
+                        if (mag != null) {
+                            currRsc.getCapability(MagnificationCapability.class)
+                                    .setMagnification(mag);
+                        }
+                    }
+
+                    currRsc.getResourceData().addChangeListener(fppc);
+                    currRsc.issueRefresh();
+                }
+            }
+        });
+    }
+
+    /**
+     * Given a field/plane pair, set all associated model family resources (i.e.
+     * those that share the same field/plane pairs) to have the same
+     * capabilities as the first on those resources.
+     * 
+     * @param makeTheseRscsMatchDefault
+     *            the resources to match to
+     * @param capabilityClass
+     *            the capability to match
+     */
+    @Override
+    public void matchDefaultProductCapability(FieldPlanePairControl fppc) {
+
+        Set<AbstractVizResource<?, ?>> assocRscs = currentModelFamily
+                .getAssociatedRscSet(fppc.getFieldPlanePair());
+
+        /*
+         * There should always be at least one resource in the associated
+         * resources set so this next test is gratuitously defensive.
+         */
+        if (assocRscs.isEmpty() || matrixEditor == null) {
+            return;
+        }
+
+        /*
+         * The first resource found in the field/plane pair resource set can be
+         * used to match resource capabilities.
+         */
+        Iterator<AbstractVizResource<?, ?>> rscSetIter = assocRscs.iterator();
+        AbstractVizResource<?, ?> matchToRsc = rscSetIter.next();
+
+        if (matchToRsc != null) {
+            matchProductCapabilityByResource(matchToRsc, assocRscs, fppc);
+        }
+
+    }
+
+    @Override
+    public ResolvedModelFamily getActiveModelFamily() {
+        return currentModelFamily;
+    }
+
+    /**
+     * Is the given resource in the currently active model source?
+     */
+    @Override
+    public boolean isResourceInVisibleSource(AbstractVizResource<?, ?> rsc) {
+        boolean isOfVisibleSource = false;
+        ModelSourceKind ms = getSelected();
+        if (ms != null) {
+            if (rsc.getName().contains(ms.getModelName())) {
+                isOfVisibleSource = true;
+            }
+        }
+        return isOfVisibleSource;
+    }
+
+    class IgnoreFocusListener extends MouseAdapter {
+
+        @Override
+        public void mouseUp(MouseEvent e) {
+            giveEditorFocus();
+        }
+
     }
 
 }

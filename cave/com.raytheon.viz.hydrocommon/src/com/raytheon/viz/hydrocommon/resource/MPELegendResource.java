@@ -54,16 +54,16 @@ import com.raytheon.viz.hydrocommon.HydroDisplayManager;
  * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
  *                                     parameters, disable colormap interpolation
  *                                     by default.
- * 
+ * Oct 20, 2017  #20214    jdeng       Adjust legend bar height and digit display format
  * </pre>
  * 
  * @author randerso
  * @version 1.0
  */
 
-public class MPELegendResource extends
-        AbstractVizResource<GenericResourceData, IDescriptor> implements
-        ISamplingResource {
+public class MPELegendResource
+        extends AbstractVizResource<GenericResourceData, IDescriptor>
+        implements ISamplingResource {
 
     private double scale;
 
@@ -110,7 +110,8 @@ public class MPELegendResource extends
         IFont font = target.getDefaultFont();
         IExtent screenExtent = paintProps.getView().getExtent();
 
-        scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
+        scale = (screenExtent.getHeight()
+                / paintProps.getCanvasBounds().height);
 
         DrawableString pa = new DrawableString("0", new RGB(255, 255, 255));
         pa.font = font;
@@ -118,10 +119,6 @@ public class MPELegendResource extends
         double padding = 3 * scale;
         textSpace = textHeight + padding;
         double yMax = screenExtent.getMaxY();
-        // PixelExtent pe = new PixelExtent(screenExtent.getMinX(),
-        // screenExtent.getMaxX(), screenExtent.getMinY(),
-        // screenExtent.getMinY() + screenExtent.getMaxY());
-        // this.setExtent(pe);
         target.clearClippingPlane();
 
         yMax = drawMpeLegend(target, paintProps.getAlpha(),
@@ -153,14 +150,18 @@ public class MPELegendResource extends
         if (rsc != null) {
             if (rsc.getStatus().equals(ResourceStatus.INITIALIZED)) {
 
-                double cmapHeight = textHeight * 1.25;
-
-                legendHeight = cmapHeight + 3.0 * textSpace + 2.0 * padding;
+                // colorbar height (thickness)
+                double cmapHeight = textHeight;
+                // colorbar height from the base
+                legendHeight = cmapHeight + 4.25 * textSpace + 4.25 * padding;
+                // colorbar vertical coordinate value
                 double y1 = yMax - legendHeight;
 
-                DrawableColorMap cmap = new DrawableColorMap(rsc.getCapability(
-                        ColorMapCapability.class).getColorMapParameters());
+                DrawableColorMap cmap = new DrawableColorMap(
+                        rsc.getCapability(ColorMapCapability.class)
+                                .getColorMapParameters());
                 cmap.alpha = alpha;
+                cmap.getColorMapParams().setFormatString("0.###");
                 IColorMap cm = cmap.getColorMapParams().getColorMap();
 
                 width = (xMax - xMin) / 30 * cm.getSize();
@@ -193,8 +194,8 @@ public class MPELegendResource extends
                 }
 
                 y1 += textSpace;
-                cmap.extent = new PixelExtent(xMin, xMin + width, y1, y1
-                        + cmapHeight);
+                cmap.extent = new PixelExtent(xMin, xMin + width, y1,
+                        y1 + cmapHeight);
                 target.drawColorRamp(cmap);
                 y1 += cmapHeight;
                 strings.setText(rsc.getName(), textColor);

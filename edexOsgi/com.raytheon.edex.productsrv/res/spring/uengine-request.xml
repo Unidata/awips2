@@ -1,24 +1,26 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="pythonThreadPool" class="com.raytheon.edex.productsrv.PythonExecThreadPool"
-		factory-method="getInstance" >
-	    <property name="maxSize" value="50" />	
-	</bean>
-    
+    <bean id="pythonThreadPool" class="com.raytheon.edex.productsrv.PythonExecThreadPool"
+        factory-method="getInstance" >
+            <property name="maxSize" value="50" />
+    </bean>
+
     <bean id="jaxbMessageRegistry" class="com.raytheon.uf.common.message.JAXBMessageRegistry" factory-method="getInstance" />
 
-	<bean id="uEngine" class="com.raytheon.edex.services.ProductSrv" />
-    
+    <bean id="uEngine" class="com.raytheon.edex.services.ProductSrv" />
+
     <camelContext id="uengine-camel"
         xmlns="http://camel.apache.org/schema/spring"
         errorHandlerRef="errorHandler">
-        
+
         <propertyPlaceholder id="uengineProperties"
                              location="classpath:edex-uengine.properties" />
-        
+
         <restConfiguration component="jetty" host="0.0.0.0" port="{{env:HTTP_PORT}}" >
             <endpointProperty key="disableStreamCache" value="{{edex.uengine.http.disableStreamCache}}" />
             <endpointProperty key="chunked" value="{{edex.uengine.http.chunked}}" />
@@ -32,7 +34,7 @@
                 <to uri="direct:uEngineHttpJaxb" />
             </post>
         </rest>
-        
+
         <!-- UEngine routes -->
         <route id="uEngineHttpThrift" streamCache="false">
             <from uri="direct:uEngineHttpThrift" />
@@ -46,7 +48,7 @@
             <bean ref="uEngine" method="executePython" />
             <bean ref="jaxbMessageRegistry" method="marshalToXml" />
         </route>
-        
+
     </camelContext>
-	
-</beans>  
+
+</beans>

@@ -10,7 +10,7 @@ We create and use the Docker image unidata/awips-ade to build the two RHEL binar
 
 where **${os_version}** is either *el6* or *el7*.
 
-ADE Docker images will be named with the latest major release (17.1.1) and OS version
+ADE Docker images will be named with the latest major release and OS version
 
     docker images
     REPOSITORY              TAG           IMAGE ID        CREATED       SIZE

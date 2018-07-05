@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -45,18 +45,20 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * Computes geometries from UGCs, using the maps DB
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- -----------------
+ * ------------- -------- --------- --------------------------------------------
  * May 19, 2016  5657     tgurney   Initial creation
  * May 26, 2016  5657     tgurney   Always use high-res geometries
- * 
+ * Oct 10, 2017  6362     randerso  Fix NPE when phen is null. Always search
+ *                                  both marinezones and offshore marine zones.
+ *
  * </pre>
- * 
+ *
  * @author tgurney
  */
 
@@ -70,7 +72,7 @@ public class UGCToGeometryUtil {
     /**
      * Take set of UGCs and return a single geometry (Polygon or MultiPolygon)
      * covering all of them. Uses high-resolution geometry.
-     * 
+     *
      * @param ugcs
      *            Set of UGCs from a WWA product
      * @param phen
@@ -89,25 +91,26 @@ public class UGCToGeometryUtil {
 
         /*
          * Determine type of UGC.
-         * 
+         *
          * County contains two-letter state code followed by 'C'. (e.g. NEC055)
-         * 
+         *
          * Marine zone contains two-letter marine zone code followed by 'Z'.
          * (e.g. AMZ234)
-         * 
+         *
          * Public forecast zone contains two-letter state code followed by 'Z'
          * (e.g. NEZ052)
-         * 
+         *
          * Fire wx zone is used only for FW.* products; is otherwise
          * indistinguishable from public forecast zone UGC. (e.g. NEZ052)
          */
+        boolean isFireWxProduct = "FW".equals(phen);
         for (String ugc : ugcs) {
-            if (phen.equals("FW")) {
-                fireWxZones.add(ugc);
-            } else if (ugc.charAt(2) == 'C') {
+            if (ugc.charAt(2) == 'C') {
                 counties.add("'" + ugc + "'");
             } else if (ugc.charAt(2) == 'Z') {
-                if (isMarineZone(ugc)) {
+                if (isFireWxProduct) {
+                    fireWxZones.add(ugc);
+                } else if (isMarineZone(ugc)) {
                     marineZones.add("'" + ugc + "'");
                 } else {
                     zones.add("'" + ugc + "'");
@@ -120,21 +123,17 @@ public class UGCToGeometryUtil {
                 "state||'C'||substring(fips,3,3)", counties));
         geometries
                 .addAll(getGeometriesFromDb("zone", "state||'Z'||zone", zones));
-        geometries.addAll(getGeometriesFromDb("firewxzones",
-                "state||'Z'||zone", fireWxZones));
-
-        List<Geometry> marineGeoms = getGeometriesFromDb("marinezones", "id",
-                marineZones);
-        if (marineGeoms.isEmpty()) {
-            marineGeoms = getGeometriesFromDb("offshore", "id", marineZones);
-        }
-        geometries.addAll(marineGeoms);
+        geometries.addAll(getGeometriesFromDb("firewxzones", "state||'Z'||zone",
+                fireWxZones));
+        geometries
+                .addAll(getGeometriesFromDb("marinezones", "id", marineZones));
+        geometries.addAll(getGeometriesFromDb("offshore", "id", marineZones));
 
         Geometry geomResult = null;
         if (!geometries.isEmpty()) {
             GeometryCollection geomCollection = new GeometryFactory()
-                    .createGeometryCollection(geometries
-                            .toArray(new Geometry[0]));
+                    .createGeometryCollection(
+                            geometries.toArray(new Geometry[0]));
             geomResult = geomCollection.buffer(0.0);
         }
         return geomResult;
@@ -148,19 +147,21 @@ public class UGCToGeometryUtil {
      * Get list of two-letter marine zone prefixes by querying maps DB.
      * Subsequent calls will use cached query results rather than querying the
      * DB multiple times.
-     * 
+     *
      * @return the marine zone prefixes
      * @throws Exception
      *             if there was a problem when querying the maps database
      */
-    private static Set<String> getMarineZonePrefixes() throws Exception {
+    private static synchronized Set<String> getMarineZonePrefixes()
+            throws Exception {
         if (marineZones == null) {
             QlServerRequest req = new QlServerRequest();
             req.setLang(QueryLanguage.SQL);
             req.setType(QueryType.QUERY);
             req.setDatabase("maps");
-            req.setQuery("select distinct substr(id, 1, 2) id "
-                    + " from mapdata.marinezones;");
+            req.setQuery("SELECT distinct(substr(id, 1, 2)) FROM ("
+                    + "SELECT id FROM mapdata.marinezones UNION "
+                    + "SELECT id FROM mapdata.offshore) AS a;");
             ResponseMessageGeneric response = (ResponseMessageGeneric) RequestRouter
                     .route(req);
             QueryResult result = (QueryResult) response.getContents();
@@ -182,11 +183,11 @@ public class UGCToGeometryUtil {
         String geomFieldName = "the_geom_0";
         if (!constraintList.isEmpty()) {
             constraint = new RequestConstraint(field, ConstraintType.IN);
-            constraint.setConstraintValueList(constraintList
-                    .toArray(new String[0]));
+            constraint.setConstraintValueList(
+                    constraintList.toArray(new String[0]));
             constraintMap.put(field, constraint);
-            features = SpatialQueryFactory.create().query(source,
-                    geomFieldName, new String[] { field }, null, constraintMap,
+            features = SpatialQueryFactory.create().query(source, geomFieldName,
+                    new String[] { field }, null, constraintMap,
                     SearchMode.WITHIN);
 
             if (features != null) {

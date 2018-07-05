@@ -19,19 +19,13 @@
  **/
 package com.raytheon.viz.mpe.ui.rsc;
 
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
@@ -47,18 +41,16 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -90,14 +82,35 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  *                                      instances with IRenderedImageCallback
  *                                      and removed unused modifyStation() method.
  * Nov 26, 2014 16889      snaples     Daily QC does not display SNOTEL data.
+ * Mar 08, 2017 6149       mduff       Performance fixes for painting.
+ * Jun 21, 2017 6149       mduff       Fix circle size.
+ * Aug 11, 2017 6148       bkowal      Cleanup.
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class PointPrecipPlotResource extends
         HydroPointResource<PointPrecipResourceData> implements IMpeResource {
+
+    private static final String[] COLOR_MAP_A = { "Aquamarine", "OrangeRed",
+            "Orange", "Yellow", "VioletRed", "SpringGreen4", "Green3", "Grey",
+            "White" };
+
+    private static final String[] COLOR_MAP_N = { "Grey", "Grey", "Blue",
+            "Aquamarine", "LightGreen", "DarkGreen", "Violet", "Purple", "Blue",
+            "Blue", "Yellow", "Yellow", "Yellow2", "VioletRed", "Red",
+            "White" };
+
+    private static final RGB[] RGB_COLOR_MAP_A = new RGB[COLOR_MAP_A.length];
+
+    private static final RGB[] RGB_COLOR_MAP_N = new RGB[COLOR_MAP_N.length];
+
+    private static final RGB WHITE = new RGB(255, 255, 255);
+
+    private static final int TEXT_WIDTH_PADDING = 9;
+
+    private static final double VERTICAL_SPACING_FACTOR = 1.5;
 
     private static Hashtable<String, Station> dataMap = null;
 
@@ -105,31 +118,28 @@ public class PointPrecipPlotResource extends
 
     private static Coordinate selectedCoordinate;
 
+    static {
+        for (int i = 0; i < COLOR_MAP_A.length; i++) {
+            RGB_COLOR_MAP_A[i] = RGBColors.getRGBColor(COLOR_MAP_A[i]);
+        }
+
+        for (int i = 0; i < COLOR_MAP_N.length; i++) {
+            RGB_COLOR_MAP_N[i] = RGBColors.getRGBColor(COLOR_MAP_N[i]);
+        }
+    }
+
     private MPEFontFactory fontFactory;
 
     private final DecimalFormat df = new DecimalFormat();
 
-    private final RGB gageColor = new RGB(255, 255, 255);
+    private final RGB gageColor = WHITE;
 
     private double scaleWidthValue = 0.0;
 
     private double scaleHeightValue = 0.0;
 
-    private Station gageData = null;
+    private Pdata pdata[];
 
-    private static final String[] color_map_a = { "Aquamarine", "OrangeRed",
-            "Orange", "Yellow", "VioletRed", "SpringGreen4", "Green3", "Grey",
-            "White" };
-
-    private static final String[] color_map_n = { "Grey", "Grey", "Blue",
-            "Aquamarine", "LightGreen", "DarkGreen", "Violet", "Purple",
-            "Blue", "Blue", "Yellow", "Yellow", "Yellow2", "VioletRed", "Red",
-            "White" };
-
-    Pdata pdata[];
-
-    ArrayList<Station> station;
-    
     private int time_pos = 0;
 
     private Hashtable<String, Stn> pdataMap;
@@ -138,55 +148,43 @@ public class PointPrecipPlotResource extends
 
     static int prevPcpnDay;
 
+    private List<DrawableString> drawableStrings = new ArrayList<>();
+
+    private List<DrawableCircle> drawableCircles = new ArrayList<>();
+
+    private DrawableLine[] lines = new DrawableLine[typename.length];
+
+    private double circleSize;
+
+    private IFont font;
+
+    private RGB circleColor;
+
     /**
      * Constructor.
      * 
-     * @param name
-     *            Resource name
-     * @param color
-     *            Resource color
-     * @param coord
-     *            Resource Coordinate
-     * @param style
-     *            Resource Style
+     * @param resourceData
+     * @param props
      */
     public PointPrecipPlotResource(PointPrecipResourceData resourceData,
             LoadProperties props) {
         super(resourceData, props);
         pdata = DailyQcUtils.pdata;
-        station = DailyQcUtils.precip_stations;
         prevPcpnDay = 0;
         df.setMaximumFractionDigits(2);
         df.setMaximumIntegerDigits(4);
     }
 
-    /**
-     * Add a point to this resource.
-     * 
-     * @param x
-     *            The point's x coordinate
-     * @param y
-     *            The point's y coordinate
-     * @param inspectString
-     *            String to display when inspection is enabled
-     * @param color
-     *            The point's color
-     */
-    public void addPoints() {
+    private void addPoints() {
 
         dataMap = new Hashtable<String, Station>();
         pdataMap = new Hashtable<String, Stn>();
         strTree = new STRtree();
-        gageData = dqc.new Station();
 
         if (!DailyQcUtils.precip_stations.isEmpty()) {
             int i = 0;
-            for (ListIterator<Station> it = DailyQcUtils.precip_stations.listIterator(); it
-                    .hasNext();) {
-                gageData = it.next();
-                Coordinate xy = new Coordinate();
-                xy.x = gageData.lon;
-                xy.y = gageData.lat;
+            for (Station gageData : DailyQcUtils.precip_stations) {
+                Coordinate xy = new Coordinate(gageData.lon, gageData.lat);
                 String pm = gageData.parm;
                 StringBuilder kv = new StringBuilder(String.valueOf(xy.x));
                 kv.append(":");
@@ -203,37 +201,13 @@ public class PointPrecipPlotResource extends
                 Envelope env = new Envelope(p1, p2);
                 ArrayList<Object> data = new ArrayList<Object>();
                 data.add(xy);
-                data.add("STATION: "
-                        + gageData.hb5
-                        + " VALUE: "
+                data.add("STATION: " + gageData.hb5 + " VALUE: "
                         + pdata[DailyQcUtils.pcpn_day].stn[i].frain[time_pos].data);
                 strTree.insert(env, data);
                 i++;
             }
             prevPcpnDay = DailyQcUtils.pcpn_day;
         }
-        // target.setNeedsRefresh(true);
-    }
-
-    /**
-     * gets the pixel coverage for this image
-     * 
-     * @return
-     */
-    private PixelCoverage getPixelCoverage(Coordinate c) {
-
-        double[] centerpixels = descriptor
-                .worldToPixel(new double[] { c.x, c.y });
-        Coordinate ul = new Coordinate(centerpixels[0] - getScaleWidth(),
-                centerpixels[1] - getScaleHeight());
-        Coordinate ur = new Coordinate(centerpixels[0] + getScaleWidth(),
-                centerpixels[1] - getScaleHeight());
-        Coordinate lr = new Coordinate(centerpixels[0] + getScaleWidth(),
-                centerpixels[1] + getScaleHeight());
-        Coordinate ll = new Coordinate(centerpixels[0] - getScaleWidth(),
-                centerpixels[1] + getScaleHeight());
-
-        return new PixelCoverage(ul, ur, lr, ll);
     }
 
     /**
@@ -245,71 +219,39 @@ public class PointPrecipPlotResource extends
     private PixelExtent getPixelExtent(Coordinate c) {
         double[] pixels = descriptor.worldToPixel(new double[] { c.x, c.y });
         Coordinate[] coors = new Coordinate[4];
-        coors[0] = new Coordinate((pixels[0] - this.getScaleWidth())
-                - (this.getScaleWidth() / 2),
+        coors[0] = new Coordinate(
+                (pixels[0] - this.getScaleWidth()) - (this.getScaleWidth() / 2),
                 (pixels[1] - this.getScaleHeight())
                         - (this.getScaleHeight() / 2));
-        coors[1] = new Coordinate((pixels[0] + this.getScaleWidth())
-                - (this.getScaleWidth() / 2),
+        coors[1] = new Coordinate(
+                (pixels[0] + this.getScaleWidth()) - (this.getScaleWidth() / 2),
                 (pixels[1] - this.getScaleHeight())
                         - (this.getScaleHeight() / 2));
-        coors[2] = new Coordinate((pixels[0] + this.getScaleWidth())
-                - (this.getScaleWidth() / 2),
+        coors[2] = new Coordinate(
+                (pixels[0] + this.getScaleWidth()) - (this.getScaleWidth() / 2),
                 (pixels[1] + this.getScaleHeight())
                         - (this.getScaleHeight() / 2));
-        coors[3] = new Coordinate((pixels[0] - this.getScaleWidth())
-                - (this.getScaleWidth() / 2),
+        coors[3] = new Coordinate(
+                (pixels[0] - this.getScaleWidth()) - (this.getScaleWidth() / 2),
                 (pixels[1] + this.getScaleHeight())
                         - (this.getScaleHeight() / 2));
         return new PixelExtent(coors);
     }
 
-    /**
-     * Draws the plot information
-     * 
-     * @param c
-     * @param gageData
-     * @throws VizException
-     */
     private void drawPlotInfo(Coordinate c, String key, Station station,
-            IGraphicsTarget target, PaintProperties paintProps, RGB color,
-            IFont font) throws VizException {
-
-        if ((MPEDisplayManager.getCurrent().isQpf() == true)
-                && (DailyQcUtils.points_flag == 1)) {
+            IGraphicsTarget target, PaintProperties paintProps, IFont font)
+                    throws VizException {
+        if ((MPEDisplayManager.getCurrent().isQpf())
+                && (DailyQcUtils.points_flag == 1)
+                && (QcPrecipOptionsDialog.isOpen)) {
             int type = DailyQcUtils.plot_view;
-            int i = 0;
-            int m = 0;
-            int dcmode = OtherPrecipOptions.dcmode;
-            int tcmode = OtherPrecipOptions.tcmode;
-            int dmvalue = dqc.dmvalue;
-            int tsmax = DailyQcUtils.tsmax;
-            boolean frzlvl_flag = dqc.frzlvl_flag;
-            int gage_char[] = DailyQcUtils.gage_char;
-            int find_station_flag = dqc.find_station_flag;
-            String mbuf = "";
-            String tbuf = "";
-            String val = "";
-
-            if (MPEDisplayManager.pcpn_time_step == 0) {
-                time_pos = DailyQcUtils.pcpn_time;
-            } else {
-                time_pos = 4;
-            }
-
             if (type == 0) {
                 return;
             }
+            int dcmode = OtherPrecipOptions.dcmode;
+            int tcmode = OtherPrecipOptions.tcmode;
+            int gage_char[] = DailyQcUtils.gage_char;
 
-            double[] centerpixels = descriptor.worldToPixel(new double[] { c.x,
-                    c.y });
-            color = RGBColors.getRGBColor(color_map_n[15]);
-            if ((DailyQcUtils.points_flag == 1)
-                    && (QcPrecipOptionsDialog.isOpen == true)
-                    && (MPEDisplayManager.getCurrent().isQpf() == true)) {
-            } else {
-                return;
-            }
             if ((station.elev >= 0)
                     && (station.elev < DailyQcUtils.elevation_filter_value)) {
                 return;
@@ -339,6 +281,21 @@ public class PointPrecipPlotResource extends
                 return;
             }
 
+            int m = 0;
+            int dmvalue = dqc.dmvalue;
+            int tsmax = DailyQcUtils.tsmax;
+            boolean frzlvl_flag = dqc.frzlvl_flag;
+            int find_station_flag = dqc.find_station_flag;
+            String mbuf = "";
+            String tbuf = "";
+            String val = "";
+
+            if (MPEDisplayManager.pcpn_time_step == 0) {
+                time_pos = DailyQcUtils.pcpn_time;
+            } else {
+                time_pos = 4;
+            }
+
             for (m = 0; m < tsmax; m++) {
                 if (station.parm.substring(3, 5)
                         .equalsIgnoreCase(DailyQcUtils.ts[m].abr)
@@ -352,7 +309,6 @@ public class PointPrecipPlotResource extends
             }
 
             for (m = 0; m < 9; m++) {
-
                 if ((m == pdataMap.get(key).frain[time_pos].qual)
                         && (DailyQcUtils.qflag[m] == 1)) {
                     break;
@@ -361,7 +317,6 @@ public class PointPrecipPlotResource extends
                         && (pdataMap.get(key).frain[time_pos].qual == -99)) {
                     break;
                 }
-
             }
 
             if (m == 9) {
@@ -369,40 +324,38 @@ public class PointPrecipPlotResource extends
             }
 
             /* locate station in data stream */
-            if (((type == 4) || (type == 5))
-                    && (pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
-                    && (pdata[DailyQcUtils.pcpn_day].level == 0)) {
-                return;
+            if (type == 4 || type == 5) {
+                if (pdata[DailyQcUtils.pcpn_day].used[time_pos] == 0
+                        && (pdata[DailyQcUtils.pcpn_day].level == 0)) {
+                    return;
+                }
+                if (pdataMap
+                        .get(key).frain[time_pos].data < QcPrecipOptionsDialog
+                                .getPointFilterValue()
+                        && (pdataMap.get(key).frain[time_pos].data != -99)
+                        && (pdataMap.get(key).frain[time_pos].qual != -99)) {
+                    return;
+                }
+
+                if (pdataMap
+                        .get(key).frain[time_pos].data > QcPrecipOptionsDialog
+                                .getPointFilterReverseValue()
+                        && (pdataMap.get(key).frain[time_pos].data < 20.00)) {
+                    return;
+                }
             }
-            if (((type == 4) || (type == 5))
-                    && (pdataMap.get(key).frain[time_pos].data < QcPrecipOptionsDialog
-                            .getPointFilterValue())
-                    && (pdataMap.get(key).frain[time_pos].data != -99)
-                    && (pdataMap.get(key).frain[time_pos].qual != -99)) {
-                return;
-            }
 
-            if (((type == 4) || (type == 5))
-                    && (pdataMap.get(key).frain[time_pos].data > QcPrecipOptionsDialog
-                            .getPointFilterReverseValue())
-                    && (pdataMap.get(key).frain[time_pos].data < 20.00)) {
-                return;
-            }
+            double[] centerpixels = descriptor
+                    .worldToPixel(new double[] { c.x, c.y });
 
-            final RGB circleColor = color;
-            IImage image = target
-                    .initializeRaster(new IRenderedImageCallback() {
-                        @Override
-                        public RenderedImage getImage() throws VizException {
-                            return drawMPECircle(circleColor);
-                        }
-                    });
-
-            Coordinate idCoor = new Coordinate(centerpixels[0]
-                    + (this.getScaleWidth() / 3), centerpixels[1]
-                    - this.getScaleHeight());
-
-            target.drawRaster(image, getPixelCoverage(c), paintProps);
+            DrawableCircle circle = new DrawableCircle();
+            circle.basics.color = circleColor;
+            circle.setCoordinates(centerpixels[0], centerpixels[1]);
+            double pixelRatio = paintProps.getView().getExtent().getWidth()
+                    / paintProps.getCanvasBounds().width;
+            circle.radius = circleSize * pixelRatio;
+            circle.filled = true;
+            drawableCircles.add(circle);
 
             tbuf = "";
             if (type == 1) {
@@ -454,94 +407,58 @@ public class PointPrecipPlotResource extends
                 mbuf = String.format("%5.2f",
                         pdataMap.get(key).frain[time_pos].stddev);
                 tbuf = mbuf;
-
             }
             if (m == 9) {
                 m = 7;
-
             }
 
-            /* XSetForeground(display,gc,amap[m]); */
-            color = RGBColors.getRGBColor(color_map_a[m]);
-
-            // length = strlen(tbuf);
-            // text_width = XTextWidth(info_font[4], tbuf, length);
+            RGB color = RGB_COLOR_MAP_A[m];
 
             int xadd = station.xadd;
             int yadd = station.yadd;
-            // int xc = 0;
-            // int yc = 0;
+
             IExtent screenExtent = paintProps.getView().getExtent();
-            double scale = (screenExtent.getHeight() / paintProps
-                    .getCanvasBounds().height);
-            DrawableString dstr = new DrawableString("0",
-                    new RGB(255, 255, 255));
+            double scale = (screenExtent.getHeight()
+                    / paintProps.getCanvasBounds().height);
+            DrawableString dstr = new DrawableString("0", WHITE);
             dstr.font = font;
             double textHeight = target.getStringsBounds(dstr).getHeight()
                     * scale;
-            // double padding = .5 * scale;
-            // int text_width = (int) (tbuf.length() * .75);
-            Coordinate valCoor = new Coordinate(centerpixels[0]
-                    + (this.getScaleWidth() / 3), centerpixels[1]
-                    - this.getScaleHeight());
-            // if (xadd < 0) {
-            // xc = (int) (valCoor.x - text_width);
-            // } else {
-            // xc = (int) (valCoor.x + 1);
-            // }
-
-            // if (yadd < 0) {
-            // yc = (int) valCoor.y;
-            // } else {
-            // yc = (int) valCoor.y + 1;
-            // }
+            Coordinate valCoor = new Coordinate(
+                    centerpixels[0] + (this.getScaleWidth() / 3),
+                    centerpixels[1] - this.getScaleHeight());
 
             dstr.setText(tbuf, color);
             dstr.horizontalAlignment = HorizontalAlignment.LEFT;
             dstr.verticalAlignment = VerticalAlignment.TOP;
-            // orig code
-            // dstr.setCoordinates(xc + (.75 * padding) + (text_width * scale),
-            // yc
-            // + (temp + .75) * textSpace);
-            final int textWidthPadding = 9;
-            final double verticalSpacingFactor = 1.5;
+
             double textWidth = target.getStringsBounds(dstr).getWidth();
-            double scaledTextWidth = (textWidth + textWidthPadding) * scale;
+            double scaledTextWidth = (textWidth + TEXT_WIDTH_PADDING) * scale;
             double textX = valCoor.x + (xadd * scaledTextWidth);
             double textY = valCoor.y
-                    + ((yadd) * verticalSpacingFactor * textHeight)
+                    + ((yadd) * VERTICAL_SPACING_FACTOR * textHeight)
                     + (textHeight / 2);
 
             dstr.setCoordinates(textX, textY);
-            target.drawStrings(dstr);
-            /* XDrawString(display,pix,gc,xc,yc,tbuf,length); */
-            // mDrawText(M_EXPOSE, map_number, xc, yc, tbuf);
-            if (i == find_station_flag) {
+            drawableStrings.add(dstr);
+
+            if (0 == find_station_flag) {
                 find_station_flag = -1;
-                /* XDrawLine(display,pix,gc,xc,yc,xc+text_width,yc); */
-                // mDrawLine(M_EXPOSE, map_number, xc, yc, xc + text_width, yc);
             }
 
             if (pdataMap.get(key).snoflag[time_pos] != 0) {
-                /* XSetForeground(display,gc,amap[1]); */
-                color = RGBColors.getRGBColor(color_map_a[1]);
-
-                /* XDrawLine(display,pix,gc,xc,yc,xc+text_width,yc); */
-                // mDrawLine(M_EXPOSE, map_number, xc, yc, xc + text_width, yc);
+                color = RGBColors.getRGBColor(COLOR_MAP_A[1]);
             }
 
             if (pdataMap.get(key).sflag[time_pos] == 1) {
-                /* XSetForeground(display,gc,amap[0]); */
-                color = RGBColors.getRGBColor(color_map_a[0]);
-                /* XDrawLine(display,pix,gc,xc,yc,xc+text_width,yc); */
-                // mDrawLine(M_EXPOSE, map_number, xc, yc, xc + text_width, yc);
+                color = RGBColors.getRGBColor(COLOR_MAP_A[0]);
             }
 
             int mm = 0;
-            if ((frzlvl_flag == true)
-                    && (station.tip == 0)
-                    && ((pdataMap.get(key).frain[time_pos].estimate > .005) || (pdataMap
-                            .get(key).frain[time_pos].data > .005))) {
+            if ((frzlvl_flag == true) && (station.tip == 0)
+                    && ((pdataMap.get(key).frain[time_pos].estimate > .005)
+                            || (pdataMap
+                                    .get(key).frain[time_pos].data > .005))) {
                 if (time_pos == 4) {
                     for (mm = 0; mm < 4; mm++) {
 
@@ -550,7 +467,8 @@ public class PointPrecipPlotResource extends
                             continue;
                         }
 
-                        if ((pdataMap.get(key).frzlvl[mm] - dmvalue) < station.elev) {
+                        if ((pdataMap.get(key).frzlvl[mm]
+                                - dmvalue) < station.elev) {
                             break;
                         }
 
@@ -559,60 +477,52 @@ public class PointPrecipPlotResource extends
                     if (mm == 4) {
                         return;
                     }
-
-                }
-
-                else {
-
+                } else {
                     if ((pdataMap.get(key).frzlvl[time_pos] < -98)
                             || (station.elev < 0)) {
                         return;
                     }
 
-                    if ((pdataMap.get(key).frzlvl[time_pos] - dmvalue) >= station.elev) {
+                    if ((pdataMap.get(key).frzlvl[time_pos]
+                            - dmvalue) >= station.elev) {
                         return;
                     }
-
                 }
 
                 /* XSetForeground(display,gc,amap[1]); */
-                color = RGBColors.getRGBColor(color_map_a[1]);
+                color = RGB_COLOR_MAP_A[1];
 
                 /* XDrawLine(display,pix,gc,xc,yc,xc+text_width,yc); */
                 // mDrawLine(M_EXPOSE, map_number, xc, yc, xc + text_width, yc);
-                Coordinate stageCoor = new Coordinate(centerpixels[0]
-                        + (this.getScaleWidth() / 3), centerpixels[1]
-                        + this.getScaleHeight());
+                Coordinate stageCoor = new Coordinate(
+                        centerpixels[0] + (this.getScaleWidth() / 3),
+                        centerpixels[1] + this.getScaleHeight());
                 val = df.format(pdataMap.get(key).frain[time_pos].data);
                 val = "m";
+
                 // draw the value
-                dstr.setText(val, gageColor);
+                dstr = new DrawableString(val, gageColor);
                 dstr.setCoordinates(stageCoor.x, stageCoor.y);
                 dstr.horizontalAlignment = HorizontalAlignment.LEFT;
-                target.drawStrings(dstr);
+                drawableStrings.add(dstr);
 
                 // draw the ID
-                final BufferedImage gage2 = drawMPECircle(color);
-                IImage image2 = target
-                        .initializeRaster(new IRenderedImageCallback() {
-                            @Override
-                            public RenderedImage getImage() throws VizException {
-                                return gage2;
-                            }
-                        });
-
-                idCoor = new Coordinate(centerpixels[0]
-                        + (this.getScaleWidth() / 3), centerpixels[1]
-                        - this.getScaleHeight());
-
+                Coordinate idCoor = new Coordinate(
+                        centerpixels[0] + (this.getScaleWidth() / 3),
+                        centerpixels[1] - this.getScaleHeight());
+                dstr = new DrawableString(station.hb5, gageColor);
                 dstr.setCoordinates(idCoor.x, idCoor.y);
-                dstr.setText(gageData.hb5, gageColor);
+
                 dstr.horizontalAlignment = HorizontalAlignment.LEFT;
-                target.drawStrings(dstr);
-                target.drawRaster(image2, getPixelCoverage(c), paintProps);
+                drawableStrings.add(dstr);
+
+                DrawableCircle circle2 = new DrawableCircle();
+                circle2.basics.color = color;
+                circle2.setCoordinates(centerpixels[0], centerpixels[1]);
+                circle2.radius = circleSize;
+                circle2.filled = true;
+                drawableCircles.add(circle2);
             }
-        } else {
-            return;
         }
     }
 
@@ -631,9 +541,8 @@ public class PointPrecipPlotResource extends
 
         // If color is near black set the contrast to white
         if (((r + g + b) / 3) == 0) {
-            xc = new RGB(255, 255, 255);
+            xc = WHITE;
         } else {
-
             if (rgb.green <= 127) {
                 g = 255;
             } else {
@@ -704,59 +613,54 @@ public class PointPrecipPlotResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        this.circleSize = resourceData.getDpi().x / 34;
         MPEDisplayManager displayMgr = getResourceData().getMPEDisplayManager();
+        if (!displayMgr.isQpf() || DailyQcUtils.points_flag != 1) {
+            return;
+        }
+
         // Fonts are shared and cached, no need to init or dispose
-        IFont font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
+        font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
 
-        if ((DailyQcUtils.points_flag == 1) && (displayMgr.isQpf() == true)) {
-            Iterator<String> iter = dataMap.keySet().iterator();
+        drawableStrings.clear();
+        drawableCircles.clear();
+        setScaleWidth(paintProps);
+        setScaleHeight(paintProps);
 
-            while (iter.hasNext()) {
+        for (Entry<String, Station> entry : dataMap.entrySet()) {
+            String key = entry.getKey();
+            Station station = entry.getValue();
+            Coordinate coord = new Coordinate(station.lon, station.lat);
 
-                if (displayMgr.isQpf() == true) {
-                    String key = iter.next();
-                    Coordinate c = new Coordinate();
-                    String[] spKey = key.split(":", 5);
-                    c.x = Double.parseDouble(spKey[0]);
-                    c.y = Double.parseDouble(spKey[1]);
-                    double[] pixel = descriptor.worldToPixel(new double[] {
-                            c.x, c.y });
+            double[] pixel = descriptor
+                    .worldToPixel(new double[] { coord.x, coord.y });
 
-                    if (paintProps.getView().getExtent().contains(pixel)) {
-                        setScaleWidth(paintProps);
-                        setScaleHeight(paintProps);
+            // Skip gages not visible on the map
+            if (paintProps.getView().getExtent().contains(pixel)) {
+                drawPlotInfo(coord, key, station, target, paintProps, font);
+                if (getSelectedCoordinate() != null) {
+                    Envelope env = new Envelope(getSelectedCoordinate());
+                    List<?> elements = strTree.query(env);
+                    if (!elements.isEmpty()) {
 
-                        RGB color = new RGB(255, 255, 255);
-                        drawPlotInfo(c, key, dataMap.get(key), target,
-                                paintProps, color, font);
-
-                        if (getSelectedCoordinate() != null) {
-                            Envelope env = new Envelope(getSelectedCoordinate());
-                            List<?> elements = strTree.query(env);
-                            if (elements.size() > 0) {
-                                Iterator<?> iter2 = elements.iterator();
-                                /* Take the first one in the list */
-                                if (iter2.hasNext()) {
-                                    /* element 0 = Coordinate, 1 = inspectString */
-                                    ArrayList<?> data = (ArrayList<?>) iter2
-                                            .next();
-                                    PixelExtent pe = this
-                                            .getPixelExtent((Coordinate) data
-                                                    .get(0));
-                                    target.drawRect(pe,
-                                            HydroConstants.SQUARE_COLOR, 2, 1);
-                                }
-                            }
-                        }
+                        /*
+                         * element 0 = Coordinate, 1 = inspectString
+                         */
+                        ArrayList<?> data = (ArrayList<?>) elements.get(0);
+                        PixelExtent pe = this
+                                .getPixelExtent((Coordinate) data.get(0));
+                        target.drawRect(pe, HydroConstants.SQUARE_COLOR, 2, 1);
                     }
-                } else {
-                    return;
                 }
             }
-            target.clearClippingPlane();
-            drawQCLegend(target, paintProps, font);
-            target.setupClippingPlane(paintProps.getClippingPane());
         }
+
+        target.clearClippingPlane();
+        drawQCLegend(target, paintProps, font);
+        target.drawStrings(drawableStrings);
+        target.drawCircle(drawableCircles.toArray(new DrawableCircle[0]));
+        target.drawLine(lines);
+        target.setupClippingPlane(paintProps.getClippingPane());
     }
 
     private void drawQCLegend(IGraphicsTarget target,
@@ -766,39 +670,38 @@ public class PointPrecipPlotResource extends
         // properties method?
 
         IExtent screenExtent = paintProps.getView().getExtent();
-        double scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
-        DrawableString string = new DrawableString("0");
-        string.font = font;
-        double textHeight = target.getStringsBounds(string).getHeight() * scale;
+        double scale = (screenExtent.getHeight()
+                / paintProps.getCanvasBounds().height);
+        DrawableString drawableString = new DrawableString("0");
+        drawableString.font = font;
+        double textHeight = target.getStringsBounds(drawableString).getHeight()
+                * scale;
         double padding = 3.2 * scale;
         double textSpace = textHeight + padding;
         double cmapHeight = textHeight * 1.25;
         double legendHeight = cmapHeight + (2.0 * textSpace) + (2.0 * padding);
         double y1 = screenExtent.getMinY() + legendHeight;
         double x1 = screenExtent.getMinX() + padding;
-        RGB color = null;
-        String label = "";
         int[] funct = dqc.funct;
-        DrawableLine[] lines = new DrawableLine[typename.length];
+
         for (int i = 0; i < typename.length; i++) {
-            color = RGBColors.getRGBColor(color_map_a[funct[i]]);
+            RGB color = RGB_COLOR_MAP_A[funct[i]];
             lines[i] = new DrawableLine();
             lines[i].setCoordinates(x1, y1 + (i * textSpace));
             lines[i].addPoint(x1 + (2.5 * padding), y1 + (i * textSpace));
             lines[i].basics.color = color;
             lines[i].width = 35;
-            label = typename[i];
-            color = RGBColors.getRGBColor(color_map_n[15]);
+            color = RGB_COLOR_MAP_N[15];
+
             double xLoc = x1 + (4 * padding);
             double yLoc = y1 + ((i + .45) * textSpace);
-            string.setText(label, color);
+            DrawableString string = new DrawableString(typename[i], color);
+            string.font = font;
             string.setCoordinates(xLoc, yLoc);
             string.horizontalAlignment = HorizontalAlignment.LEFT;
             string.verticalAlignment = VerticalAlignment.BOTTOM;
-            target.drawStrings(string);
+            drawableStrings.add(string);
         }
-        target.drawLine(lines);
-
     }
 
     /**
@@ -874,7 +777,10 @@ public class PointPrecipPlotResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+        // Fonts are shared and cached, no need to init or dispose
         fontFactory = new MPEFontFactory(target, this);
+        circleColor = RGB_COLOR_MAP_N[15];
+
         /* Retrieve the precip colormap. */
         List<Colorvalue> colorSet = getResourceData().getColorSet();
         ColorMap colorMap = new ColorMap(colorSet.size());
@@ -925,11 +831,6 @@ public class PointPrecipPlotResource extends
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         if (DrawDQCStations.qcmode == "") {
@@ -937,33 +838,6 @@ public class PointPrecipPlotResource extends
         }
 
         return DrawDQCStations.qcmode;
-    }
-
-    /**
-     * draw the station circle
-     * 
-     * @param image
-     * @return
-     */
-    private static BufferedImage drawMPECircle(RGB color) {
-        // make circle in center
-        BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
-                BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D) image.getGraphics();
-
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
-        Rectangle2D.Double rect = new Rectangle2D.Double(0, 0,
-                image.getWidth(), image.getHeight());
-        g.fill(rect);
-
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, 1.0f));
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        // always red
-        g.setColor(convertR(color));
-        g.fillOval(0, 0, IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2);
-
-        return image;
     }
 
     /**
@@ -994,11 +868,6 @@ public class PointPrecipPlotResource extends
         return new RGB(red, green, blue);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
-     */
     @Override
     protected void disposeInternal() {
         fontFactory.dispose();

@@ -36,8 +36,8 @@ import com.raytheon.uf.viz.d2d.ui.AbstractHeightDisplay;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResource;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData.OverlayMode;
-import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.slice.request.HeightScales;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScales;
 
 /**
  * Renderable display for var height

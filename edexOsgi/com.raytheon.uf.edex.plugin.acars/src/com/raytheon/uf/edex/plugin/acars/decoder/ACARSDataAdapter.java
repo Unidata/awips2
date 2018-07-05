@@ -59,6 +59,7 @@ import com.raytheon.uf.edex.plugin.acars.common.ACARSConstants;
  * Jul 23, 2014  3410     bclement    location changed to floats
  * Sep 16, 2014  3628     mapeters    Replaced static imports.
  * Aug 11, 2016  5757     nabowle     lower most error logs to warn. Don't hold onto traceId.
+ * APR  6, 2017  19870    wkwock      Use descriptor value instead of fixed position to lookup data.
  *
  * </pre>
  *
@@ -69,16 +70,6 @@ public class ACARSDataAdapter {
 
     private IUFStatusHandler logger = UFStatus
             .getHandler(ACARSDataAdapter.class);
-
-    private static final int MONTH_OFFSET = 1;
-
-    private static final int DAY_OFFSET = 2;
-
-    private static final int HOUR_OFFSET = 3;
-
-    private static final int MINUTE_OFFSET = 4;
-
-    private static final int SECOND_OFFSET = 5;
 
     // Map detailed flight phase [0-08-009] to flight phase [0-08-004]
     private static final int[] DETAIL_PHASE_MAP = { 3, 4, 2, 3, 4, 5, 6, 5, 5,
@@ -137,7 +128,8 @@ public class ACARSDataAdapter {
                         }
 
                     } catch (Exception e) {
-                        logger.error(traceId + "Unable to construct datauri", e);
+                        logger.error(traceId + "Unable to construct datauri",
+                                e);
                     }
                 }
             }
@@ -171,27 +163,27 @@ public class ACARSDataAdapter {
                     d = packet.getReferencingDescriptor().getDescriptor();
                     if (d == BUFRDescriptor.createDescriptor(0, 2, 61)) {
 
-                        timeObs = getTimeObs(subList, 2, false);
-                        loc = getObsLocationFine(subList, 7);
-                        tailNumber = getTailNumber(subList, 21);
+                        timeObs = getTimeObs(subList, false);
+                        loc = getObsLocationFine(subList);
+                        tailNumber = getTailNumber(subList);
 
                         if (isValid(traceId, timeObs, loc, tailNumber)) {
                             rpt = createAcarsRecord(timeObs, loc, tailNumber);
-                            getFlightPhase(subList, rpt, 9);
+                            getFlightPhase(subList, rpt);
                             getWxDataA(subList, rpt);
                         }
                     } else if (d == BUFRDescriptor.createDescriptor(0, 1, 8)) {
 
-                        timeObs = getTimeObs(subList, 8, true);
-                        loc = getObsLocationCoarse(subList, 14);
-                        tailNumber = getTailNumber(subList, 1);
+                        timeObs = getTimeObs(subList, true);
+                        loc = getObsLocationCoarse(subList);
+                        tailNumber = getTailNumber(subList);
 
                         if (isValid(traceId, timeObs, loc, tailNumber)) {
                             rpt = createAcarsRecord(timeObs, loc, tailNumber);
-                            getReceiver(subList, rpt, 7);
-                            getFlightPhase(subList, rpt, 18);
+                            getReceiver(subList, rpt);
+                            getFlightPhase(subList, rpt);
                             getWxDataC(subList, rpt, loc);
-                            getPressure(subList, rpt, 16);
+                            getPressure(subList, rpt);
                         }
                     } else {
                         logger.warn(traceId
@@ -203,13 +195,13 @@ public class ACARSDataAdapter {
                     d = packet.getReferencingDescriptor().getDescriptor();
                     if (d == BUFRDescriptor.createDescriptor(0, 4, 1)) {
 
-                        timeObs = getTimeObs(subList, 1, true);
-                        loc = getObsLocationFine(subList, 7);
-                        tailNumber = getTailNumber(subList, 0);
+                        timeObs = getTimeObs(subList, true);
+                        loc = getObsLocationFine(subList);
+                        tailNumber = getTailNumber(subList);
 
                         if (isValid(traceId, timeObs, loc, tailNumber)) {
                             rpt = createAcarsRecord(timeObs, loc, tailNumber);
-                            getFlightPhase(subList, rpt, 9);
+                            getFlightPhase(subList, rpt);
 
                             IBUFRDataPacket wxData = subList.get(10);
                             if (DataPacketTypes.RepSubList.getPacketType()
@@ -222,14 +214,14 @@ public class ACARSDataAdapter {
                         }
                     } else if (d == BUFRDescriptor.createDescriptor(0, 1, 23)) {
 
-                        timeObs = getTimeObs(subList, 4, true);
-                        loc = getObsLocationFine(subList, 2);
-                        tailNumber = getTailNumber(subList, 0);
+                        timeObs = getTimeObs(subList, true);
+                        loc = getObsLocationFine(subList);
+                        tailNumber = getTailNumber(subList);
 
                         if (isValid(traceId, timeObs, loc, tailNumber)) {
                             rpt = createAcarsRecord(timeObs, loc, tailNumber);
-                            getFlightPhaseD(subList, rpt, 11);
-                            getWxDataD(subList, rpt, loc, 12);
+                            getFlightPhaseD(subList, rpt);
+                            getWxDataD(subList, rpt, loc);
                         }
 
                     } else {
@@ -296,11 +288,10 @@ public class ACARSDataAdapter {
 
     /**
      * @param packets
-     * @param yearPos
      * @param getSeconds
      * @return
      */
-    private Calendar getTimeObs(List<IBUFRDataPacket> packets, int yearPos,
+    private Calendar getTimeObs(List<IBUFRDataPacket> packets,
             boolean getSeconds) {
 
         Calendar cal = null;
@@ -308,16 +299,25 @@ public class ACARSDataAdapter {
         int year = -1;
         int month = -1;
         int day = -1;
-        int hour = -1;
-        int minute = -1;
-        int second = -1;
+        int hour = 0;
+        int minute = 0;
+        int second = 0;
 
-        IBUFRDataPacket packet = packets.get(yearPos); // Year
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 4, 1)) {
-            if (!packet.isMissing()) {
-                year = ((Double) packet.getValue()).intValue();
-            }
+        int yearDes = BUFRDescriptor.createDescriptor(0, 4, 1);
+        int monthDes = BUFRDescriptor.createDescriptor(0, 4, 2);
+        int dayDes = BUFRDescriptor.createDescriptor(0, 4, 3);
+        int hourDes = BUFRDescriptor.createDescriptor(0, 4, 4);
+        int minuteDes = BUFRDescriptor.createDescriptor(0, 4, 5);
+        int secondDes = BUFRDescriptor.createDescriptor(0, 4, 6);
+
+        int[] descriptors = { yearDes, monthDes, dayDes, hourDes, minuteDes,
+                secondDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(packets,
+                descriptors);
+
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            year = ((Double) dataPackets[0].getValue()).intValue();
+
             if (year < 100) {
                 // NWS data doesn't have the century.
                 // I'm making a BIG assumption here.
@@ -329,48 +329,28 @@ public class ACARSDataAdapter {
             }
         }
 
-        packet = packets.get(yearPos + MONTH_OFFSET); // Month
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 4, 2)) {
-            if (!packet.isMissing()) {
-                month = ((Double) packet.getValue()).intValue();
-            }
+        if (dataPackets[1] != null && !dataPackets[1].isMissing()) {
+            month = ((Double) dataPackets[1].getValue()).intValue();
         }
-        packet = packets.get(yearPos + DAY_OFFSET); // day
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 4, 3)) {
-            if (!packet.isMissing()) {
-                day = ((Double) packet.getValue()).intValue();
-            }
+
+        if (dataPackets[2] != null && !dataPackets[2].isMissing()) {
+            day = ((Double) dataPackets[2].getValue()).intValue();
         }
+
         if ((year >= 0) && (month >= 0) && (day >= 0)) {
             cal = TimeUtil.newGmtCalendar(year, month, day);
         }
-
-        packet = packets.get(yearPos + HOUR_OFFSET); // Hour
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 4, 4)) {
-            if (!packet.isMissing()) {
-                hour = ((Double) packet.getValue()).intValue();
-            }
+        if (dataPackets[3] != null && !dataPackets[3].isMissing()) {
+            hour = ((Double) dataPackets[3].getValue()).intValue();
         }
-
-        packet = packets.get(yearPos + MINUTE_OFFSET); // Minute
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 4, 5)) {
-            if (!packet.isMissing()) {
-                minute = ((Double) packet.getValue()).intValue();
-            }
+        if (dataPackets[4] != null && !dataPackets[4].isMissing()) {
+            minute = ((Double) dataPackets[4].getValue()).intValue();
         }
 
         // Seconds are only available in certain observations.
         if (getSeconds) {
-            packet = packets.get(yearPos + SECOND_OFFSET); // Second
-            d = packet.getReferencingDescriptor().getDescriptor();
-            if (d == BUFRDescriptor.createDescriptor(0, 4, 6)) {
-                if (!packet.isMissing()) {
-                    second = ((Double) packet.getValue()).intValue();
-                }
+            if (dataPackets[5] != null && !dataPackets[5].isMissing()) {
+                second = ((Double) dataPackets[5].getValue()).intValue();
             }
         }
 
@@ -392,32 +372,28 @@ public class ACARSDataAdapter {
     /**
      *
      * @param packets
-     * @param locPos
      * @return
      */
     private AircraftObsLocation getObsLocationFine(
-            List<IBUFRDataPacket> packets, int locPos) {
+            List<IBUFRDataPacket> packets) {
 
         AircraftObsLocation loc = null;
 
         Double lat = null;
         Double lon = null;
-        Double hgt = null;
 
-        IBUFRDataPacket packet = packets.get(locPos); // Latitude
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 5, 1)) {
-            if (!packet.isMissing()) {
-                lat = ((Double) packet.getValue());
-            }
+        int latDes = BUFRDescriptor.createDescriptor(0, 5, 1);
+        int lonDes = BUFRDescriptor.createDescriptor(0, 6, 1);
+        int heightDes = BUFRDescriptor.createDescriptor(0, 7, 10);
+        int[] descriptors = { latDes, lonDes, heightDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(packets,
+                descriptors);
+
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            lat = ((Double) dataPackets[0].getValue());
         }
-
-        packet = packets.get(locPos + 1); // Longitude
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 6, 1)) {
-            if (!packet.isMissing()) {
-                lon = ((Double) packet.getValue());
-            }
+        if (dataPackets[1] != null && !dataPackets[1].isMissing()) {
+            lon = ((Double) dataPackets[1].getValue());
         }
 
         if ((lat != null) && (lon != null)) {
@@ -428,15 +404,9 @@ public class ACARSDataAdapter {
 
             // We can pick up the height here for some data. Have to look
             // elsewhere i.e. RJTD ACARS
-            packet = packets.get(locPos + 3); // Height
-            d = packet.getReferencingDescriptor().getDescriptor();
-            if (d == BUFRDescriptor.createDescriptor(0, 7, 2)) {
-                if (!packet.isMissing()) {
-                    hgt = ((Double) packet.getValue());
-                }
-            }
-            if (hgt != null) {
-                loc.setFlightLevel(hgt.intValue());
+            if (dataPackets[2] != null && !dataPackets[2].isMissing()) {
+                loc.setFlightLevel(
+                        ((Double) dataPackets[2].getValue()).intValue());
             }
             generateStationId(loc);
         }
@@ -446,34 +416,23 @@ public class ACARSDataAdapter {
     /**
      *
      * @param packets
-     * @param locPos
      * @return
      */
     private AircraftObsLocation getObsLocationCoarse(
-            List<IBUFRDataPacket> packets, int locPos) {
+            List<IBUFRDataPacket> packets) {
 
         AircraftObsLocation loc = null;
 
-        Double lat = null;
-        Double lon = null;
+        int latDes = BUFRDescriptor.createDescriptor(0, 5, 2);
+        int lonDes = BUFRDescriptor.createDescriptor(0, 6, 2);
+        int[] descriptors = { latDes, lonDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(packets,
+                descriptors);
 
-        IBUFRDataPacket packet = packets.get(locPos); // Latitude
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 5, 2)) {
-            if (!packet.isMissing()) {
-                lat = ((Double) packet.getValue());
-            }
-        }
-
-        packet = packets.get(locPos + 1); // Longitude
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 6, 2)) {
-            if (!packet.isMissing()) {
-                lon = ((Double) packet.getValue());
-            }
-        }
-
-        if ((lat != null) && (lon != null)) {
+        if ((dataPackets[0] != null && !dataPackets[0].isMissing())
+                && (dataPackets[1] != null && !dataPackets[1].isMissing())) {
+            Double lat = (Double) dataPackets[0].getValue();
+            Double lon = (Double) dataPackets[1].getValue();
             loc = new AircraftObsLocation();
             loc.setLatitude(lat.floatValue());
             loc.setLongitude(lon.floatValue());
@@ -499,71 +458,56 @@ public class ACARSDataAdapter {
      */
     private ACARSRecord getWxDataA(List<IBUFRDataPacket> dataList,
             ACARSRecord record) {
+        int tempDes = BUFRDescriptor.createDescriptor(0, 12, 1);
+        int windDirDes = BUFRDescriptor.createDescriptor(0, 11, 1);
+        int windSpdDes = BUFRDescriptor.createDescriptor(0, 11, 2);
+        int turbulenceDes = BUFRDescriptor.createDescriptor(0, 11, 31);
+        int turbBaseHgtDes = BUFRDescriptor.createDescriptor(0, 11, 32);
+        int turbTopHgtDes = BUFRDescriptor.createDescriptor(0, 11, 33);
+        int icingDes = BUFRDescriptor.createDescriptor(0, 20, 41);
+        int iceHgtDes = BUFRDescriptor.createDescriptor(0, 7, 7);
+        int rollAngleQualityDes = BUFRDescriptor.createDescriptor(0, 2, 64);
+        int[] descriptors = { tempDes, windDirDes, windSpdDes, turbulenceDes,
+                turbBaseHgtDes, turbTopHgtDes, icingDes, iceHgtDes,
+                rollAngleQualityDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(dataList,
+                descriptors);
 
-        IBUFRDataPacket packet = dataList.get(11); // Temperature
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 12, 1)) {
-            if (!packet.isMissing()) {
-                record.setTemp(((Double) packet.getValue()).floatValue());
-            }
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            record.setTemp(((Double) dataPackets[0].getValue()).floatValue());
         }
 
-        packet = dataList.get(12); // Wind direction
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 1)) {
-            if (!packet.isMissing()) {
-                record.setWindDirection(((Double) packet.getValue()).intValue());
-            }
+        if (dataPackets[1] != null && !dataPackets[1].isMissing()) {
+            record.setWindDirection(
+                    ((Double) dataPackets[1].getValue()).intValue());
         }
 
-        packet = dataList.get(13); // Wind speed
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 2)) {
-            if (!packet.isMissing()) {
-                record.setWindSpeed(((Double) packet.getValue()).floatValue());
-            }
+        if (dataPackets[2] != null && !dataPackets[2].isMissing()) {
+            record.setWindSpeed(
+                    ((Double) dataPackets[2].getValue()).floatValue());
         }
 
-        packet = dataList.get(14); // Turbulence
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 31)) {
-            if (!packet.isMissing()) {
-                record.setTurbulence(((Long) packet.getValue()).intValue());
-            }
+        if (dataPackets[3] != null && !dataPackets[3].isMissing()) {
+            record.setTurbulence(((Long) dataPackets[3].getValue()).intValue());
         }
 
-        packet = dataList.get(15); // Turbulence base height
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 32)) {
-            if (!packet.isMissing()) {
-                record.setTurbBaseHgt(((Long) packet.getValue()).intValue());
-            }
+        if (dataPackets[4] != null && !dataPackets[4].isMissing()) {
+            record.setTurbBaseHgt(
+                    ((Long) dataPackets[4].getValue()).intValue());
         }
 
-        packet = dataList.get(16); // Turbulence top height
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 33)) {
-            if (!packet.isMissing()) {
-                record.setTurbTopHgt(((Long) packet.getValue()).intValue());
-            }
+        if (dataPackets[5] != null && !dataPackets[5].isMissing()) {
+            record.setTurbTopHgt(((Long) dataPackets[5].getValue()).intValue());
         }
 
-        packet = dataList.get(17); // Icing
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 20, 41)) {
-            if (!packet.isMissing()) {
-                record.setIcing(((Long) packet.getValue()).intValue());
-            }
+        if (dataPackets[6] != null && !dataPackets[6].isMissing()) {
+            record.setIcing(((Long) dataPackets[6].getValue()).intValue());
         }
 
-        packet = dataList.get(18); // Height of icing.
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 7, 7)) {
-            if (!packet.isMissing()) {
-                Integer h = ((Long) packet.getValue()).intValue();
-                record.setIceBaseHgt(h);
-                record.setIceTopHgt(h);
-            }
+        if (dataPackets[7] != null && !dataPackets[7].isMissing()) {
+            Integer h = ((Long) dataPackets[7].getValue()).intValue();
+            record.setIceBaseHgt(h);
+            record.setIceTopHgt(h);
         }
 
         if (record.getTurbulence() != null) {
@@ -586,12 +530,9 @@ public class ACARSDataAdapter {
             }
         }
 
-        packet = dataList.get(24); // Aircraft roll angle quality
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 2, 64)) {
-            if (!packet.isMissing()) {
-                record.setIcing(((Long) packet.getValue()).intValue());
-            }
+        if (dataPackets[8] != null && !dataPackets[8].isMissing()) {
+            record.setRollAngleQuality(
+                    ((Long) dataPackets[8].getValue()).intValue());
         }
 
         return record;
@@ -608,67 +549,57 @@ public class ACARSDataAdapter {
 
         List<IBUFRDataPacket> subList = null;
         IBUFRDataPacket packet = dataList.get(0);
-        if (DataPacketTypes.SubSetList.getPacketType()
+        if (!DataPacketTypes.SubSetList.getPacketType()
                 .equals(packet.getUnits())) {
-            subList = (List<IBUFRDataPacket>) packet.getValue();
-            if ((subList != null) && (subList.size() >= 6)) {
-                packet = subList.get(0); // Height
-                int d = packet.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 7, 10)) {
-                    if (!packet.isMissing()) {
-                        Double hgt = ((Double) packet.getValue());
-                        if (hgt != null) {
-                            loc.setFlightLevel(hgt.intValue());
-                        }
-                    }
-                }
+            return record;
+        }
 
-                packet = subList.get(1); // Wind direction
-                d = packet.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 11, 1)) {
-                    if (!packet.isMissing()) {
-                        record.setWindDirection(((Double) packet.getValue())
-                                .intValue());
-                    }
-                }
+        subList = (List<IBUFRDataPacket>) packet.getValue();
+        if (subList == null) {
+            return record;
+        }
 
-                packet = subList.get(2); // Wind speed
-                d = packet.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 11, 2)) {
-                    if (!packet.isMissing()) {
-                        record.setWindSpeed(((Double) packet.getValue())
-                                .floatValue());
-                    }
-                }
+        int heightDes = BUFRDescriptor.createDescriptor(0, 7, 10);
+        int windDirDes = BUFRDescriptor.createDescriptor(0, 11, 1);
+        int windSpdDes = BUFRDescriptor.createDescriptor(0, 11, 2);
+        int rollAngleQualityDes = BUFRDescriptor.createDescriptor(0, 2, 64);
+        int tempDes = BUFRDescriptor.createDescriptor(0, 12, 101);
+        int dewPointDes = BUFRDescriptor.createDescriptor(0, 12, 103);
+        int[] descriptors = { heightDes, windDirDes, windSpdDes,
+                rollAngleQualityDes, tempDes, dewPointDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(subList,
+                descriptors);
 
-                packet = subList.get(3); // Roll angle quality
-                d = packet.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 2, 64)) {
-                    if (!packet.isMissing()) {
-                        record.setRollAngleQuality(((Long) packet.getValue())
-                                .intValue());
-                    }
-                }
-
-                packet = subList.get(4); // Temperature
-                d = packet.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 12, 101)) {
-                    if (!packet.isMissing()) {
-                        record.setTemp(((Double) packet.getValue())
-                                .floatValue());
-                    }
-                }
-
-                packet = subList.get(5); // Dewpoint temperature
-                d = packet.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 12, 103)) {
-                    if (!packet.isMissing()) {
-                        record.setDwpt(((Double) packet.getValue())
-                                .floatValue());
-                    }
-                }
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            Double hgt = ((Double) dataPackets[0].getValue());
+            if (hgt != null) {
+                loc.setFlightLevel(hgt.intValue());
             }
         }
+
+        if (dataPackets[1] != null && !dataPackets[1].isMissing()) {
+            record.setWindDirection(
+                    ((Double) dataPackets[1].getValue()).intValue());
+        }
+
+        if (dataPackets[2] != null && !dataPackets[2].isMissing()) {
+            record.setWindSpeed(
+                    ((Double) dataPackets[2].getValue()).floatValue());
+        }
+
+        if (dataPackets[3] != null && !dataPackets[3].isMissing()) {
+            record.setRollAngleQuality(
+                    ((Long) dataPackets[3].getValue()).intValue());
+        }
+
+        if (dataPackets[4] != null && !dataPackets[4].isMissing()) {
+            record.setTemp(((Double) dataPackets[4].getValue()).floatValue());
+        }
+
+        if (dataPackets[5] != null && !dataPackets[5].isMissing()) {
+            record.setDwpt(((Double) dataPackets[5].getValue()).floatValue());
+        }
+
         return record;
     }
 
@@ -681,63 +612,51 @@ public class ACARSDataAdapter {
     private ACARSRecord getWxDataC(List<IBUFRDataPacket> dataList,
             ACARSRecord record, AircraftObsLocation loc) {
 
-        IBUFRDataPacket packet = dataList.get(20); // Wind direction
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 1)) {
-            if (!packet.isMissing()) {
-                record.setWindDirection(((Double) packet.getValue()).intValue());
-            }
+        int windDirDes = BUFRDescriptor.createDescriptor(0, 11, 1);
+        int windSpdDes = BUFRDescriptor.createDescriptor(0, 11, 2);
+        int tempDes = BUFRDescriptor.createDescriptor(0, 12, 101);
+        int mixingRatioDes = BUFRDescriptor.createDescriptor(0, 13, 2);
+        int humidityDes = BUFRDescriptor.createDescriptor(0, 13, 3);
+        int rollAngleQualityDes = BUFRDescriptor.createDescriptor(0, 2, 64);
+        int flightLevelDes = BUFRDescriptor.createDescriptor(0, 10, 70);
+        int[] descriptors = { windDirDes, windSpdDes, tempDes, mixingRatioDes,
+                humidityDes, rollAngleQualityDes, flightLevelDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(dataList,
+                descriptors);
+
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            record.setWindDirection(
+                    ((Double) dataPackets[0].getValue()).intValue());
         }
 
-        packet = dataList.get(21); // Wind speed
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 2)) {
-            if (!packet.isMissing()) {
-                record.setWindSpeed(((Double) packet.getValue()).floatValue());
-            }
+        if (dataPackets[1] != null && !dataPackets[1].isMissing()) {
+            record.setWindSpeed(
+                    ((Double) dataPackets[1].getValue()).floatValue());
         }
 
-        packet = dataList.get(22); // Temperature
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 12, 1)) {
-            if (!packet.isMissing()) {
-                record.setTemp(((Double) packet.getValue()).floatValue());
-            }
+        if (dataPackets[2] != null && !dataPackets[2].isMissing()) {
+            record.setTemp(((Double) dataPackets[2].getValue()).floatValue());
         }
 
-        packet = dataList.get(23); // Mixing ratio
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 13, 2)) {
-            if (!packet.isMissing()) {
-                record.setMixingRatio(((Double) packet.getValue()).floatValue());
-            }
+        if (dataPackets[3] != null && !dataPackets[3].isMissing()) {
+            record.setMixingRatio(
+                    ((Double) dataPackets[3].getValue()).floatValue());
         }
 
-        packet = dataList.get(24); // Humidity
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 13, 3)) {
-            if (!packet.isMissing()) {
-                record.setHumidity(((Double) packet.getValue()).floatValue());
-            }
+        if (dataPackets[4] != null && !dataPackets[4].isMissing()) {
+            record.setHumidity(
+                    ((Double) dataPackets[4].getValue()).floatValue());
         }
 
-        packet = dataList.get(17); // Roll angle quality
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 2, 64)) {
-            if (!packet.isMissing()) {
-                record.setRollAngleQuality(((Long) packet.getValue())
-                        .intValue());
-            }
+        if (dataPackets[5] != null && !dataPackets[5].isMissing()) {
+            record.setRollAngleQuality(
+                    ((Long) dataPackets[5].getValue()).intValue());
         }
 
-        packet = dataList.get(19); // Indicated aircraft altitude
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 10, 70)) {
-            if (!packet.isMissing()) {
-                Double hgt = ((Double) packet.getValue());
-                if (hgt != null) {
-                    loc.setFlightLevel(hgt.intValue());
-                }
+        if (dataPackets[6] != null && !dataPackets[6].isMissing()) {
+            Double hgt = ((Double) dataPackets[6].getValue());
+            if (hgt != null) {
+                loc.setFlightLevel(hgt.intValue());
             }
         }
 
@@ -748,69 +667,48 @@ public class ACARSDataAdapter {
      * @param dataList
      * @param record
      * @param loc
-     * @param pos
      * @return
      */
     private ACARSRecord getWxDataD(List<IBUFRDataPacket> dataList,
-            ACARSRecord record, AircraftObsLocation loc, int pos) {
+            ACARSRecord record, AircraftObsLocation loc) {
 
-        IBUFRDataPacket packet = dataList.get(pos); // Wind direction
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 1)) {
-            if (!packet.isMissing()) {
-                record.setWindDirection(((Double) packet.getValue()).intValue());
-            }
+        int windDirDes = BUFRDescriptor.createDescriptor(0, 11, 1);
+        int windSpdDes = BUFRDescriptor.createDescriptor(0, 11, 2);
+        int tempDes = BUFRDescriptor.createDescriptor(0, 12, 101);
+        int turbulenceDes = BUFRDescriptor.createDescriptor(0, 11, 31);
+        int rollAngleQualityDes = BUFRDescriptor.createDescriptor(0, 2, 64);
+        int flightLevelDes = BUFRDescriptor.createDescriptor(0, 10, 70);
+        int[] descriptors = { windDirDes, windSpdDes, tempDes, turbulenceDes,
+                rollAngleQualityDes, flightLevelDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(dataList,
+                descriptors);
+
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            record.setWindDirection(
+                    ((Double) dataPackets[0].getValue()).intValue());
         }
 
-        packet = dataList.get(pos + 1); // Wind speed
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 2)) {
-            if (!packet.isMissing()) {
-                record.setWindSpeed(((Double) packet.getValue()).floatValue());
-            }
+        if (dataPackets[1] != null && !dataPackets[1].isMissing()) {
+            record.setWindSpeed(
+                    ((Double) dataPackets[1].getValue()).floatValue());
         }
 
-        packet = dataList.get(pos + 2); // Turbulence
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 31)) {
-            if (!packet.isMissing()) {
-                record.setTurbulence(((Long) packet.getValue()).intValue());
-            }
+        if (dataPackets[2] != null && !dataPackets[2].isMissing()) {
+            record.setTemp(((Double) dataPackets[2].getValue()).floatValue());
         }
 
-        packet = dataList.get(pos + 3); // Maximum derived equivalent vert. gust
-                                        // speed
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 11, 36)) {
-            if (!packet.isMissing()) {
-                // record.setTurbBaseHgt(((Long) packet.getValue()).intValue());
-            }
+        if (dataPackets[3] != null && !dataPackets[3].isMissing()) {
+            record.setTurbulence(((Long) dataPackets[3].getValue()).intValue());
         }
 
-        packet = dataList.get(pos + 4); // Temperature
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 12, 101)) {
-            if (!packet.isMissing()) {
-                record.setTemp(((Double) packet.getValue()).floatValue());
-            }
+        if (dataPackets[4] != null && !dataPackets[4].isMissing()) {
+            record.setIcing(((Long) dataPackets[4].getValue()).intValue());
         }
 
-        packet = dataList.get(pos + 6); // Aircraft roll angle quality
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 2, 64)) {
-            if (!packet.isMissing()) {
-                record.setIcing(((Long) packet.getValue()).intValue());
-            }
-        }
-
-        packet = dataList.get(pos - 2); // Flight level
-        d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 7, 10)) {
-            if (!packet.isMissing()) {
-                Double hgt = ((Double) packet.getValue());
-                if (hgt != null) {
-                    loc.setFlightLevel(hgt.intValue());
-                }
+        if (dataPackets[5] != null && !dataPackets[5].isMissing()) {
+            Double hgt = ((Double) dataPackets[5].getValue());
+            if (hgt != null) {
+                loc.setFlightLevel(hgt.intValue());
             }
         }
 
@@ -820,20 +718,20 @@ public class ACARSDataAdapter {
     /**
      * @param dataList
      * @param record
-     * @param pos
      * @return
      */
     private ACARSRecord getFlightPhaseD(List<IBUFRDataPacket> dataList,
-            ACARSRecord record, int pos) {
+            ACARSRecord record) {
 
-        IBUFRDataPacket packet = dataList.get(pos); // Detailed flight phase
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 8, 9)) {
-            if (!packet.isMissing()) {
-                int phase = DETAIL_PHASE_MAP[((Long) packet.getValue())
-                        .intValue()];
-                record.setFlightPhase(phase);
-            }
+        int flightPhaseDes = BUFRDescriptor.createDescriptor(0, 8, 9);
+        int[] descriptors = { flightPhaseDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(dataList,
+                descriptors);
+
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            int phase = DETAIL_PHASE_MAP[((Long) dataPackets[0].getValue())
+                    .intValue()];
+            record.setFlightPhase(phase);
         }
 
         return record;
@@ -843,21 +741,18 @@ public class ACARSDataAdapter {
      *
      *
      * @param dataList
-     * @param pos
      * @return
      */
-    private String getTailNumber(List<IBUFRDataPacket> dataList, int pos) {
+    private String getTailNumber(List<IBUFRDataPacket> dataList) {
 
         String tailNumber = null;
+        int tailNumberDes = BUFRDescriptor.createDescriptor(0, 1, 8);
+        int[] descriptors = { tailNumberDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(dataList,
+                descriptors);
 
-        if (pos < dataList.size()) {
-            IBUFRDataPacket packet = dataList.get(pos);
-            int d = packet.getReferencingDescriptor().getDescriptor();
-            if (d == BUFRDescriptor.createDescriptor(0, 1, 8)) {
-                if (!packet.isMissing()) {
-                    tailNumber = cleanString((String) packet.getValue());
-                }
-            }
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            tailNumber = cleanString((String) dataPackets[0].getValue());
         }
 
         return tailNumber;
@@ -866,18 +761,19 @@ public class ACARSDataAdapter {
     /**
      * @param dataList
      * @param record
-     * @param pos
      * @return
      */
     private ACARSRecord getFlightPhase(List<IBUFRDataPacket> dataList,
-            ACARSRecord record, int pos) {
+            ACARSRecord record) {
 
-        IBUFRDataPacket packet = dataList.get(pos); // flight phase
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 8, 4)) {
-            if (!packet.isMissing()) {
-                record.setFlightPhase(((Long) packet.getValue()).intValue());
-            }
+        int flightPhaseDes = BUFRDescriptor.createDescriptor(0, 8, 4);
+        int[] descriptors = { flightPhaseDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(dataList,
+                descriptors);
+
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            record.setFlightPhase(
+                    ((Long) dataPackets[0].getValue()).intValue());
         }
 
         return record;
@@ -886,19 +782,18 @@ public class ACARSDataAdapter {
     /**
      * @param dataList
      * @param record
-     * @param pos
      */
     private void getReceiver(List<IBUFRDataPacket> dataList,
-            ACARSRecord record, int pos) {
-
-        IBUFRDataPacket packet = dataList.get(pos); // Receiving station.
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 2, 65)) {
-            if (!packet.isMissing()) {
-                String s = (String) packet.getValue();
-                if (s != null) {
-                    record.setReceiver(cleanString((String) packet.getValue()));
-                }
+            ACARSRecord record) {
+        int receiverDes = BUFRDescriptor.createDescriptor(0, 2, 65);
+        int[] descriptors = { receiverDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(dataList,
+                descriptors);
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            String s = (String) dataPackets[0].getValue();
+            if (s != null) {
+                record.setReceiver(
+                        cleanString((String) dataPackets[0].getValue()));
             }
         }
     }
@@ -906,18 +801,40 @@ public class ACARSDataAdapter {
     /**
      * @param dataList
      * @param record
-     * @param pos
      */
     private void getPressure(List<IBUFRDataPacket> dataList,
-            ACARSRecord record, int pos) {
+            ACARSRecord record) {
+        int pressureDes = BUFRDescriptor.createDescriptor(0, 7, 4);
+        int[] descriptors = { pressureDes };
+        IBUFRDataPacket[] dataPackets = searchDataPacketList(dataList,
+                descriptors);
+        if (dataPackets[0] != null && !dataPackets[0].isMissing()) {
+            record.setPressure(
+                    ((Double) dataPackets[0].getValue()).floatValue());
+        }
+    }
 
-        IBUFRDataPacket packet = dataList.get(pos); // Pressure in pascals
-        int d = packet.getReferencingDescriptor().getDescriptor();
-        if (d == BUFRDescriptor.createDescriptor(0, 7, 4)) {
-            if (!packet.isMissing()) {
-                record.setPressure(((Double) packet.getValue()).floatValue());
+    /**
+     * Search for the dataPacket(s) that match the descriptors
+     * 
+     * @param dataList
+     * @param descriptors
+     * @return dataPacket list
+     */
+    private IBUFRDataPacket[] searchDataPacketList(
+            List<IBUFRDataPacket> dataList, int descriptors[]) {
+        IBUFRDataPacket[] dataPackets = new IBUFRDataPacket[descriptors.length];
+        for (IBUFRDataPacket dataPacket : dataList) {
+            for (int i = 0; i < descriptors.length; i++) {
+                if (dataPacket.getReferencingDescriptor()
+                        .getDescriptor() == descriptors[i]) {
+                    dataPackets[i] = dataPacket;
+                    break; // from this inner for loop
+                }
             }
         }
+
+        return dataPackets;
     }
 
     /**

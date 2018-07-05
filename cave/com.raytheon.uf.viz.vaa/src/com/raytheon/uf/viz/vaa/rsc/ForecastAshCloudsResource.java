@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.vaa.VAARecord;
@@ -38,7 +39,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.vaa.util.CommonUtil;
@@ -48,53 +49,41 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Resource for Forecast Ash Cloud data
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 28, 2009 3268       jsanchez     Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Nov 28, 2009  3268     jsanchez  Initial creation
+ * Sep 23, 2016  5887     mapeters  Added shapeMap to reuse wireframe shapes
+ *                                  across paintInternal() calls
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
  */
 public class ForecastAshCloudsResource extends
         AbstractVizResource<ForecastAshCloudsResourceData, MapDescriptor> {
 
-    protected DataTime displayedDataTime;
+    private static final String FCST06 = "FCST06";
 
-    private final static String FCST06 = "FCST06";
+    private static final String FCST12 = "FCST12";
 
-    private final static String FCST12 = "FCST12";
+    private static final String FCST18 = "FCST18";
 
-    private final static String FCST18 = "FCST18";
+    private static final String AREA = "AREA";
 
-    private final static String AREA = "AREA";
+    private final Map<VAARecord, IWireframeShape> shapeMap = new HashMap<>();
 
-    private Map<DataTime, Collection<VAARecord>> recordsToParse = new HashMap<DataTime, Collection<VAARecord>>();
+    private final Map<DataTime, Collection<VAARecord>> recordsToParse = new HashMap<>();
 
     protected ForecastAshCloudsResource(
             ForecastAshCloudsResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
-        resourceData.addChangeListener(new IResourceDataChanged() {
-            @Override
-            public void resourceChanged(ChangeType type, Object object) {
-                if (type == ChangeType.DATA_UPDATE) {
-                    PluginDataObject[] pdo = (PluginDataObject[]) object;
-                    for (PluginDataObject p : pdo) {
-                        if (p instanceof VAARecord) {
-                            addRecord((VAARecord) p);
-                        }
-                    }
-                }
-                issueRefresh();
-            }
-        });
-        this.dataTimes = new ArrayList<DataTime>();
+        this.dataTimes = new ArrayList<>();
     }
 
     @Override
@@ -105,12 +94,13 @@ public class ForecastAshCloudsResource extends
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         String returnValue = "";
-        if (this.displayedDataTime != null) {
+        DataTime displayedDataTime = descriptor.getTimeForResource(this);
+        if (displayedDataTime != null) {
             Collection<VAARecord> records = null;
-            if (!this.recordsToParse.containsKey(this.displayedDataTime)) {
+            if (!this.recordsToParse.containsKey(displayedDataTime)) {
                 return returnValue;
             } else {
-                records = this.recordsToParse.get(this.displayedDataTime);
+                records = this.recordsToParse.get(displayedDataTime);
             }
 
             for (VAARecord record : records) {
@@ -125,10 +115,8 @@ public class ForecastAshCloudsResource extends
                         Point point;
 
                         try {
-                            point = pixelPoly.getFactory()
-                                    .createPoint(
-                                            coord.asPixel(descriptor
-                                                    .getGridGeometry()));
+                            point = pixelPoly.getFactory().createPoint(coord
+                                    .asPixel(descriptor.getGridGeometry()));
                         } catch (Exception e) {
                             throw new VizException(
                                     "Error inspecting VAA Forecast Ash Clouds",
@@ -138,16 +126,16 @@ public class ForecastAshCloudsResource extends
                         if (pixelPoly.contains(point)) {
                             String temp = "";
                             if (subPart.getSubText().equals(FCST06)) {
-                                temp = record.getFcst06Hr() != null ? record
-                                        .getFcst06Hr() : "";
+                                temp = record.getFcst06Hr() != null
+                                        ? record.getFcst06Hr() : "";
                             } else if (subPart.getSubText().equals(FCST12)) {
-                                temp = record.getFcst12Hr() != null ? record
-                                        .getFcst12Hr() : "";
+                                temp = record.getFcst12Hr() != null
+                                        ? record.getFcst12Hr() : "";
                             } else if (subPart.getSubText().equals(FCST18)) {
-                                temp = record.getFcst18Hr() != null ? record
-                                        .getFcst18Hr() : "";
+                                temp = record.getFcst18Hr() != null
+                                        ? record.getFcst18Hr() : "";
                             }
-                            if (returnValue.length() > 0) {
+                            if (!returnValue.isEmpty()) {
                                 returnValue += "\n \n";
                             }
                             returnValue += temp;
@@ -157,70 +145,110 @@ public class ForecastAshCloudsResource extends
             }
         }
 
-        return returnValue.length() > 0 ? returnValue : "NO DATA";
+        return returnValue.isEmpty() ? "NO DATA" : returnValue;
     }
 
     /**
      * Adds a new record to this resource
-     * 
-     * @param obj
+     *
+     * @param record
      */
-    protected void addRecord(VAARecord obj) {
-        DataTime dataTime = obj.getDataTime();
+    protected void addRecord(VAARecord record) {
+        DataTime dataTime = record.getDataTime();
         Collection<VAARecord> toParse = recordsToParse.get(dataTime);
         if (toParse == null) {
             dataTimes.add(dataTime);
             Collections.sort(this.dataTimes);
-            toParse = new ArrayList<VAARecord>();
+            toParse = new ArrayList<>();
             recordsToParse.put(dataTime, toParse);
         }
-        toParse.add(obj);
+        toParse.add(record);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
+    @Override
+    public void remove(DataTime dataTime) {
+        super.remove(dataTime);
+
+        Collection<VAARecord> toParse = recordsToParse.remove(dataTime);
+        if (toParse != null) {
+            for (VAARecord record : toParse) {
+                synchronized (shapeMap) {
+                    IWireframeShape shape = shapeMap.remove(record);
+                    if (shape != null) {
+                        shape.dispose();
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         DataTime curDataTime = paintProps.getDataTime();
         if (curDataTime == null) {
-            this.displayedDataTime = null;
             return;
         }
 
         Collection<VAARecord> toParse = recordsToParse.get(curDataTime);
         RGB color = getCapability(ColorableCapability.class).getColor();
         target.clearClippingPlane();
-        if (toParse != null && toParse.size() > 0) {
+        if (toParse != null) {
             for (VAARecord record : toParse) {
-                for (VAASubPart subPart : record.getSubParts()) {
-                    if (subPart.getSubText() != null
-                            && subPart.getSubText().startsWith("FCST")) {
-                        Coordinate[] coordinates = CommonUtil
-                                .getCoordinates(subPart.getLocations());
-                        IWireframeShape shape = target.createWireframeShape(
-                                false, descriptor);
-                        shape.addLineSegment(coordinates);
-                        target.drawWireframeShape(shape, color, 0.5f);
-                        shape.dispose();
+                IWireframeShape shape;
+                synchronized (shapeMap) {
+                    shape = shapeMap.get(record);
+                    if (shape == null) {
+                        for (VAASubPart subPart : record.getSubParts()) {
+                            String subText = subPart.getSubText();
+                            if (subText != null && subText.startsWith("FCST")) {
+                                if (shape == null) {
+                                    // Only create it if we find a FCST subPart
+                                    shape = target.createWireframeShape(false,
+                                            descriptor);
+                                    shapeMap.put(record, shape);
+                                }
+                                Coordinate[] coordinates = CommonUtil
+                                        .getCoordinates(subPart.getLocations());
+                                shape.addLineSegment(coordinates);
+                            }
+                        }
                     }
+                }
+                if (shape != null) {
+                    target.drawWireframeShape(shape, color, 0.5f);
                 }
             }
         }
 
         target.setupClippingPlane(paintProps.getView().getExtent());
-        this.displayedDataTime = curDataTime;
+    }
+
+    @Override
+    public void resourceDataChanged(ChangeType type, Object object) {
+        if (type == ChangeType.DATA_UPDATE) {
+            PluginDataObject[] pdo = (PluginDataObject[]) object;
+            for (PluginDataObject p : pdo) {
+                if (p instanceof VAARecord) {
+                    addRecord((VAARecord) p);
+                }
+            }
+        }
+        issueRefresh();
+    }
+
+    private void disposeShapes() {
+        synchronized (shapeMap) {
+            for (IWireframeShape shape : shapeMap.values()) {
+                shape.dispose();
+            }
+            shapeMap.clear();
+        }
     }
 
     @Override
     protected void disposeInternal() {
-
+        disposeShapes();
     }
 
     @Override
@@ -228,4 +256,9 @@ public class ForecastAshCloudsResource extends
 
     }
 
+    @Override
+    public void project(CoordinateReferenceSystem crs) throws VizException {
+        disposeShapes();
+        issueRefresh();
+    }
 }

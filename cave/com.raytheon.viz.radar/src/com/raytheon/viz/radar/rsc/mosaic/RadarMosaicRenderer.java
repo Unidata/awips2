@@ -39,7 +39,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IRefreshListener;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.viz.core.rsc.BestResResource;
+import com.raytheon.uf.viz.core.rsc.groups.BestResResource;
 import com.raytheon.viz.radar.rsc.MosaicPaintProperties;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
 import com.raytheon.viz.radar.rsc.mosaic.RadarMosaicRendererFactory.IRadarMosaicRenderer;

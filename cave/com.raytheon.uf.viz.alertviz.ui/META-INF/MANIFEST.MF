@@ -18,6 +18,6 @@ Export-Package: com.raytheon.uf.viz.alertviz.ui,
  com.raytheon.uf.viz.alertviz.ui.audio,
  com.raytheon.uf.viz.alertviz.ui.dialogs,
  com.raytheon.uf.viz.alertviz.ui.timer
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.alertmonitor
 Bundle-ClassPath: com.raytheon.uf.viz.alertviz.ui.jar

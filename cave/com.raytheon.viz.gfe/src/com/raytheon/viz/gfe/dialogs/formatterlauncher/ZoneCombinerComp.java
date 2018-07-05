@@ -22,7 +22,6 @@ package com.raytheon.viz.gfe.dialogs.formatterlauncher;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,7 +33,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.regex.Matcher;
 
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
@@ -74,6 +72,7 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.protectedfiles.ProtectedFileLookup;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -128,15 +127,16 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  * Oct 03, 2016  19293    randerso  Moved CombinationsFileUtil to common
  * Nov 16, 2016  6007     randerso  Fix issue where combinations file may not be
  *                                  found if created in another GFE session
+ * Aug 07, 2017  6379     njensen   Use ProtectedFileLookup
  *
  * </pre>
  *
  * @author lvenable
- * @version 1.0
  *
  */
 public class ZoneCombinerComp extends Composite implements IZoneCombiner {
-    private final transient IUFStatusHandler statusHandler = UFStatus
+
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ZoneCombinerComp.class);
 
     /**
@@ -229,9 +229,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
     private final String COLOR_MAP_FILE = FileUtil.join("gfe", "combinations",
             "Combinations_ColorMap");
 
-    Matcher matcher;
-
-    private final String theSaved = "";
+    private static final String theSaved = "";
 
     private Composite mapCompCtrl;
 
@@ -755,7 +753,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
             if (name.isEmpty()) {
                 continue;
             }
-            if (!lf.isProtected()) {
+            if (!ProtectedFileLookup.isProtected(lf)) {
                 names.add(name);
             }
         }
@@ -831,7 +829,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         gda.horizontalAlignment = GridData.FILL;
         gda.grabExcessHorizontalSpace = true;
         label.setLayoutData(gda);
-        if (getCombinationsFileName().equals("NONE")) {
+        if ("NONE".equals(getCombinationsFileName())) {
             label.setText("<NONE>");
         } else {
             label.setText(productName + " (" + getCombinationsFileName() + ")");
@@ -965,10 +963,10 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
      */
     public File getLocalization(String local, LocalizationLevel level) {
         if (local == null) {
-            throw new NullPointerException("Local file name is null");
+            throw new IllegalArgumentException("Local file name is null");
         }
         if (level == null) {
-            throw new NullPointerException("Localization level is null");
+            throw new IllegalArgumentException("Localization level is null");
         }
         IPathManager pm = PathManagerFactory.getPathManager();
 
@@ -1044,9 +1042,7 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
 
         IPathManager pm = PathManagerFactory.getPathManager();
         File file = pm.getStaticFile(COLOR_MAP_FILE);
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader(file));
+        try (BufferedReader in = new BufferedReader(new FileReader(file))) {
             String line = null;
             while ((line = in.readLine()) != null) {
                 colors.add(RGBColors.getRGBColor(line));
@@ -1054,14 +1050,6 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error reading file: " + file.getAbsolutePath(), e);
-        } finally {
-            if (in != null) {
-                try {
-                    in.close();
-                } catch (IOException e) {
-                    // nothing to do
-                }
-            }
         }
         return colors;
     }

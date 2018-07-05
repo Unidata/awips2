@@ -57,6 +57,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Admin;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
+import com.raytheon.uf.common.mpe.util.RFCSiteLookup;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.ohd.AppsDefaultsDirKeys;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -88,6 +89,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Jan 26, 2016 5264       bkowal      Eliminate use of System println.
  * Mar 15, 2016 5483       randerso    Fix GUI sizing issues
  * Mar 15, 2016 5483       bkowal      Fix GUI sizing issues
+ * Nov 18, 2017 17911      wkwock      Move RFC_SITEMAP and RFCMAP to com.raytheon.uf.common.mpe.util.
  * 
  * </pre>
  * 
@@ -768,8 +770,8 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
                     if ((idStr != null) && idStr.contains("-")) {
                         String[] parts = idStr.split("-");
                         id = parts[1];
-                        if (dman.rfcSiteLookup(id) != null) {
-                            id = dman.rfcSiteLookup(id);
+                        if (RFCSiteLookup.rfcSiteLookup(id) != null) {
+                            id = RFCSiteLookup.rfcSiteLookup(id);
                         }
                     }
 
@@ -970,9 +972,6 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
      * Display the data in CAVE
      */
     private void displayData() {
-        FlashFloodGuidanceDataManager dman = FlashFloodGuidanceDataManager
-                .getInstance();
-
         shell.setCursor(waitCursor);
 
         FFGGuidanceData selectedRowData = (FFGGuidanceData) ffgTable
@@ -989,7 +988,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         String rfc = null;
         boolean rfcSelected = false;
         if (ffgAreaCbo.getItem(ffgAreaCbo.getSelectionIndex()).equals("RFC")) {
-            rfc = dman.rfcSiteLookup(site);
+            rfc = RFCSiteLookup.rfcSiteLookup(site);
             rfcSelected = true;
         } else {
             rfc = site;
@@ -1060,8 +1059,7 @@ public class FlashFloodGuidanceDlg extends CaveSWTDialog {
         String param = "FFG" + selectedRowData.getFormattedDuration() + "24hr";
 
         // Lookup the name
-        String s = FlashFloodGuidanceDataManager.getInstance().rfcSiteLookup(
-                selectedRowData.getIdentifier());
+        String s = RFCSiteLookup.rfcSiteLookup(selectedRowData.getIdentifier());
         if (s != null) {
             modelname = "FFG-" + s;
         }

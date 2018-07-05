@@ -45,7 +45,7 @@
 # May 27, 2016  ASM#18971 dfriedman   Fix local variable usage in deleteOldEclipseConfigurationDirs
 # Aug 09, 2016  ASM#18911 D. Friedman Add minimum purge period of 24 hours.  Use a lock file to prevent
 #                                     simultaneous purges.  Allow override of days to keep.
-# Apr 17, 2018            M. James    Cleanup for containerization
+# Jan 26,2017   #6092     randerso    return exitCode so it can be propagated back to through the calling processes
 ########################
 
 source /awips2/cave/iniLookup.sh
@@ -349,7 +349,7 @@ function logExitStatus()
    fi
    wait $pid
    exitCode=$?
-   curTime=`date --rfc-3339=seconds`
+   curTime=`date --rfc-3339=seconds -u`
    echo Exited at $curTime with an exit status of $exitCode >> $logFile
    
    # If a core file was generated attempt to save it to a better place
@@ -363,6 +363,8 @@ function logExitStatus()
        mv $coreFile $hostPath
      fi
    fi
+
+   return $exitCode
 }
 
 # takes in a PID
@@ -415,7 +417,9 @@ function deleteOldCaveLogs()
 
     # Purge the old logs.
     local n_days_to_keep=${CAVE_LOG_DAYS_TO_KEEP:-30}
-    find "$logdir" -type f -name "*.log" -mtime +"$n_days_to_keep" | xargs -r rm
+    echo -e "Cleaning consoleLogs: "
+    echo -e "find $logdir -type f -name "*.log" -mtime +$n_days_to_keep | xargs rm "
+    find "$logdir" -type f -name "*.log" -mtime +"$n_days_to_keep" | xargs rm
 
     # Record the last purge time and remove the lock file.
     echo $(date +%s) > "$last_purge_f"
@@ -432,7 +436,7 @@ function deleteOldEclipseConfigurationDirs()
     local save_IFS=$IFS
     IFS=$'\n'
     # Find directories that are owned by the user and  older than one hour
-    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$(whoami)" -mmin +60) )
+    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$USER" -mmin +60) )
     IFS=$save_IFS
     if (( ${#old_dirs[@]} < 1 )); then
         return
@@ -469,7 +473,7 @@ function deleteEclipseConfigurationDir()
 function createEclipseConfigurationDir()
 {
     local d dir id=$(hostname)-$(whoami)
-    for d in "$HOME/caveData/.cave-eclipse/"; do
+    for d in "/local/cave-eclipse/" "$HOME/.cave-eclipse/"; do
         if [[ $d == $HOME/* ]]; then
             mkdir -p "$d" || continue
         fi
@@ -482,7 +486,7 @@ function createEclipseConfigurationDir()
         fi
     done
     echo "Unable to create a unique Eclipse configuration directory.  Will proceed with default." >&2
-    export eclipseConfigurationDir=$HOME/caveData/.cave-eclipse
+    export eclipseConfigurationDir=$HOME/.cave-eclipse
     return 1
 }
 

@@ -552,7 +552,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent event) {
                 if (copyDlg == null) {
                     copyDlg = new CopyNewLocationDlg(shell, locData);
-                    copyDlg.setCloseCallback(new ICloseCallback() {
+                    copyDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -1153,7 +1153,7 @@ public class AddModifyLocationDlg extends CaveSWTDialog implements
                 if (coopAgencyOfficeDlg == null) {
                     coopAgencyOfficeDlg = new CoopAgencyOfficeDlg(shell,
                             titleString, lid);
-                    coopAgencyOfficeDlg.setCloseCallback(new ICloseCallback() {
+                    coopAgencyOfficeDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {

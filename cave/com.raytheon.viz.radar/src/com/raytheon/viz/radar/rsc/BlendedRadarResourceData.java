@@ -24,8 +24,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.core.rsc.BlendedResource;
-import com.raytheon.viz.core.rsc.BlendedResourceData;
+import com.raytheon.uf.viz.core.rsc.groups.BlendedResource;
+import com.raytheon.uf.viz.core.rsc.groups.BlendedResourceData;
 
 /**
  * Use BlendedResourceData instead, it does the exact same thing.

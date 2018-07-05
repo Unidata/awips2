@@ -26,11 +26,17 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/20/16        #5709         dgilling       Initial creation.
+#    06/07/17        #6312         dgilling       Add SS to TROPICAL_PHENS.
 #
 ##
 
+##
+# This is a base file that is not intended to be overridden.
+##
 
-TROPICAL_PHENS = ['TR','TY','HU']
+
+
+TROPICAL_PHENS = ['TR','TY','HU', 'SS']
 
 def get_tropical_storm_basin(record):
     if record['phen'] not in TROPICAL_PHENS:

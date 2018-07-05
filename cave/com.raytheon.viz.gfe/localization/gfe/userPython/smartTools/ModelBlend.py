@@ -48,11 +48,20 @@
 #    2002-10-09: Original Implementation from Les Colin Idea 
 #----------------------------------------------------------------------------
 #
-#     SOFTWARE HISTORY
+# SOFTWARE HISTORY
 #
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    02/10/2016      5283          nabowle        Remove NGM support.
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 10, 2016  5283     nabowle   Remove NGM support.
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls
+# 
+##
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 #---------------------------------------------------------------------
 #
 #  C O N F I G U R A T I O N   S E C T I O N
@@ -96,6 +105,8 @@ Models=("ADJMET:2",
         "ADJMEH:1:MaxT,MinT,PoP",
         "ADJMEN:1:MaxT,MinT,PoP",
         "ADJMEL:1:MaxT,MinT,PoP",
+        "DGEX:1",
+        "DGEXBC:1:MaxT,MinT,MaxRH,MinRH,TdMrn,TdAft,T,Td,RH",
         "ADJHPC:1:MaxT,MinT,PoP,Sky,Td,Wind",
         "ADJKAF:2:MaxT,MinT,Wind,T,Td,MaxRH,MinRH,RH,TdMrn,TdAft",
         "ADJKAFBC:2:MaxT,MinT,MaxRH,MinRH,TdMrn,TdAft,T,Td,RH",
@@ -537,13 +548,9 @@ class Tool (SmartScript.SmartScript):
             # call forces us to retrieve Parm to retrieve some of these 
             # pieces of information
             #
-            # rateParm = parm.getGridInfo().isRateParm()
-            # wxType = parm.getGridInfo().getGridType().toString()
-            # WEname = parm.getGridInfo().getParmID().getParmName()
-            # parmlevel = parm.getGridInfo().getParmID().getParmLevel()
             parm = self.getParm(dbId, WEname, parmlevel)
             rateParm = parm.getGridInfo().isRateParm()
-            wxType = parm.getGridInfo().getGridType().toString()
+            wxType = str(parm.getGridInfo().getGridType())
             del parm
             
             #

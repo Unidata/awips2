@@ -28,19 +28,19 @@ import java.util.Map;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.menus.vb.VbSource;
+import com.raytheon.uf.common.menus.vb.VbSourceList;
 import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.groups.BlendedResourceData;
+import com.raytheon.uf.viz.d2d.core.procedures.AlterBundleContributorAdapter;
 import com.raytheon.uf.viz.xy.crosssection.rsc.CrossSectionResourceData;
 import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData;
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
-import com.raytheon.viz.core.rsc.BlendedResourceData;
-import com.raytheon.viz.volumebrowser.xml.VbSource;
-import com.raytheon.viz.volumebrowser.xml.VbSourceList;
 
 /**
  * Class to handle alter bundles for grids.

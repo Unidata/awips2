@@ -24,6 +24,11 @@
 #
 ########################################################################
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 MenuItems = ["None"]
 
 import os
@@ -232,3 +237,7 @@ class Procedure (TropicalUtility.TropicalUtility):
 
                 #  Format the final KML for this storm
                 self.makeThreatKML(discreteWEName, discreteKeys, discreteGrid_kml, stormNum)
+
+        # Copy all the KML files to the destination
+        # TODO: should this commented out line be removed?
+#        os.system('ssh dx4-nhcn rsync -av --delete -e ssh /data/local/GFEnhc/archive ldad@ls1:/data/ldad/share/test/.')

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,10 +33,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -94,10 +94,10 @@ import com.raytheon.viz.warngen.text.WarningTextHandler;
 import com.raytheon.viz.warngen.text.WarningTextHandlerFactory;
 import com.raytheon.viz.warngen.util.AdjustAngle;
 import com.raytheon.viz.warngen.util.CurrentWarnings;
+import com.raytheon.viz.warngen.util.DateUtil;
 import com.raytheon.viz.warngen.util.FipsUtil;
 import com.raytheon.viz.warngen.util.FollowUpUtil;
 import com.raytheon.viz.warngen.util.WarnGenMathTool;
-import com.raytheon.viz.warnings.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
@@ -107,11 +107,11 @@ import com.vividsolutions.jts.io.WKTReader;
 /**
  * Sets up and runs the velocity engine for a warngen product. Originally
  * separated from WarngenDialog and cleaned up.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 31, 2011            njensen     Initial creation
@@ -127,24 +127,24 @@ import com.vividsolutions.jts.io.WKTReader;
  * Sep 18, 2012   15332    jsanchez    Used a new warning text handler.
  * Nov  9, 1202   DR 15430 D. Friedman Improve watch inclusion.
  * Nov 26, 2012   15550    Qinglu Lin  For CAN to EXP, added TMLtime to context.
- * Nov 30, 2012   15571    Qinglu Lin  For NEW, assigned simulatedTime to TMLtime; For COR, used stormLocs 
+ * Nov 30, 2012   15571    Qinglu Lin  For NEW, assigned simulatedTime to TMLtime; For COR, used stormLocs
  *                                     in oldWarn.
- * Dec 17, 2012   15571    Qinglu Lin  For hydro products, resolved issue caused by calling wkt.read(loc) 
+ * Dec 17, 2012   15571    Qinglu Lin  For hydro products, resolved issue caused by calling wkt.read(loc)
  *                                     while loc is null.
  * Jan  8, 2013   15664    Qinglu Lin  Appended selectedAction to handler.handle()'s argument list.
  * Feb 12, 2013   1600     jsanchez    Correctly set the StormTrackData's motion direction for a CAN and EXP.
  * Feb 15, 2013   1607     jsanchez    Added two variables corEventTime and corCreateTime.
- * Feb 15, 2013   15820    Qinglu Lin  Added createOfficeTimezoneMap() and added logic so that localtimezone 
+ * Feb 15, 2013   15820    Qinglu Lin  Added createOfficeTimezoneMap() and added logic so that localtimezone
  *                                     and secondtimezone can get correct values when warning area covers two time zones.
  * May 10, 2013   1951     rjpeter     Updated ugcZones references
  * May 30, 2013   DR 16237 D. Friedman Fix watch query.
  * Jun 18, 2013   2118     njensen     Only calculate pathcast if it's actually used
  * Aug 19, 2013   2177     jsanchez    Passed PortionsUtil to Area class.
  * Dec  4, 2013   2604     jsanchez    Refactored GisUtil and PortionsUtil.
- * Mar 17, 2014   DR 16309 Qinglu Lin  Updated getWatches(), processATEntries() and determineAffectedPortions(), and 
+ * Mar 17, 2014   DR 16309 Qinglu Lin  Updated getWatches(), processATEntries() and determineAffectedPortions(), and
  *                                     added determineAffectedMarinePortions().
  * Apr 28, 2014   3033     jsanchez    Set the site and backup site in Velocity Engine's properties
- * Jul 21, 2014   3419     jsanchez    Refactored WatchUtil. 
+ * Jul 21, 2014   3419     jsanchez    Refactored WatchUtil.
  * Aug 15, 2014 DR15701 mgamazaychikov Removed static field watchUtil.
  * Aug 28, 2014 ASM #15551 Qinglu Lin  Replaced 1200 PM/1200 AM by NOON/MIDNIGHT, removed days in
  *                                     included tornado/severe thunderstorm watch message.
@@ -157,12 +157,13 @@ import com.vividsolutions.jts.io.WKTReader;
  * Feb 17, 2016 DR 17531   Qinglu Lin  Added calStormVelocityAndEventLocation(), updated runTemplate().
  * Mar 10, 2016 5411       randerso    Added productId and mixedCaseEnabled to Velocity context
  * May 25, 2016 DR18789    D. Friedman Extract timezone calculation to method and add short circuit logic.
- * Jul 21, 2016 DR 18159  Qinglu Lin  update runTemplate().
- * 
+ * Jul 21, 2016 DR 18159  Qinglu Lin   update runTemplate().
+ * Aug 29, 2017  6328      randerso    Fix misspelled method name
+ * Oct 31, 2017  6328      randerso    Fix missing CAN segment for partial cancellation
+ *
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
 public class TemplateRunner {
@@ -177,12 +178,12 @@ public class TemplateRunner {
     private static final Pattern BBB_PATTERN = Pattern
             .compile(".*\\sCC([A-Z])");
 
-    private static Hashtable<String, DateFormat> dateFormat;
+    private static Map<String, DateFormat> dateFormat;
 
     static {
-        dateFormat = new Hashtable<String, DateFormat>();
-        dateFormat
-                .put("header", new SimpleDateFormat("hmm a z EEE MMM d yyyy"));
+        dateFormat = new HashMap<>();
+        dateFormat.put("header",
+                new SimpleDateFormat("hmm a z EEE MMM d yyyy"));
         dateFormat.put("plain", new SimpleDateFormat("hmm a z EEEE"));
         dateFormat.put("clock", new SimpleDateFormat("hmm a z"));
         dateFormat.put("ymdthmz", new SimpleDateFormat("yyMMdd'T'HHmm'Z'"));
@@ -197,7 +198,7 @@ public class TemplateRunner {
      * @return officeCityTimezone map
      */
     public static Map<String, String> createOfficeTimezoneMap() {
-        Map<String, String> officeCityTimezone = new HashMap<String, String>();
+        Map<String, String> officeCityTimezone = new HashMap<>();
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext lc = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
@@ -209,11 +210,12 @@ public class TemplateRunner {
         String[] splitLine;
         try (BufferedReader timezoneReader = Files.newBufferedReader(
                 timezoneFile.toPath(), StandardCharsets.UTF_8)) {
-            for (line = timezoneReader.readLine(); line != null; line = timezoneReader
-                    .readLine()) {
+            for (line = timezoneReader
+                    .readLine(); line != null; line = timezoneReader
+                            .readLine()) {
                 splitLine = line.trim().split("\\\\");
-                officeCityTimezone
-                        .put(splitLine[0].trim(), splitLine[1].trim());
+                officeCityTimezone.put(splitLine[0].trim(),
+                        splitLine[1].trim());
             }
         } catch (Exception e) {
             statusHandler.handle(Priority.SIGNIFICANT,
@@ -224,17 +226,15 @@ public class TemplateRunner {
 
     private static Set<String> determineTimezones(WarngenLayer warngenLayer,
             AffectedAreas[] areas, Geometry warningArea) throws VizException {
-        Map<String, Double> intersectSize = new HashMap<String, Double>();
+        Map<String, Double> intersectSize = new HashMap<>();
         double minSize = 1.0E-3d;
-        Set<String> timeZones = new HashSet<String>();
+        Set<String> timeZones = new HashSet<>();
         for (AffectedAreas affectedAreas : areas) {
             if (affectedAreas.getTimezone() != null) {
                 // Handles counties that span two time zones
-                String oneLetterTimeZones = affectedAreas.getTimezone()
-                        .trim();
+                String oneLetterTimeZones = affectedAreas.getTimezone().trim();
                 if (oneLetterTimeZones.length() == 1) {
-                    timeZones.add(String.valueOf(oneLetterTimeZones
-                            .charAt(0)));
+                    timeZones.add(String.valueOf(oneLetterTimeZones.charAt(0)));
                 }
             }
         }
@@ -244,15 +244,15 @@ public class TemplateRunner {
         for (AffectedAreas affectedAreas : areas) {
             if (affectedAreas.getTimezone() != null) {
                 // Handles counties that span two time zones
-                String oneLetterTimeZones = affectedAreas.getTimezone()
-                        .trim();
+                String oneLetterTimeZones = affectedAreas.getTimezone().trim();
                 if (oneLetterTimeZones.length() > 1) {
                     // Determine if one letter timezone is going to be
                     // put into timeZones.
                     Geometry[] poly1, poly2;
                     int n1, n2;
                     double size, totalSize;
-                    String[] oneLetterTZ = new String[oneLetterTimeZones.length()];
+                    String[] oneLetterTZ = new String[oneLetterTimeZones
+                            .length()];
                     for (int i = 0; i < oneLetterTimeZones.length(); i++) {
                         oneLetterTZ[i] = String
                                 .valueOf(oneLetterTimeZones.charAt(i));
@@ -265,8 +265,7 @@ public class TemplateRunner {
                         n2 = 0;
                         size = 0.0d;
                         totalSize = 0.0d;
-                        if ((timezoneGeom != null)
-                                && (warningArea != null)) {
+                        if ((timezoneGeom != null) && (warningArea != null)) {
                             if (intersectSize.get(oneLetterTZ[i]) != null) {
                                 continue;
                             }
@@ -286,44 +285,45 @@ public class TemplateRunner {
                             for (Geometry p1 : poly1) {
                                 for (Geometry p2 : poly2) {
                                     try {
-                                        size = p1.intersection(p2)
-                                                .getArea();
+                                        size = p1.intersection(p2).getArea();
                                     } catch (TopologyException e) {
-                                        statusHandler
-                                                .handle(Priority.VERBOSE,
-                                                        "Geometry error calculating the total size of intersection.",
-                                                        e);
+                                        statusHandler.handle(Priority.VERBOSE,
+                                                "Geometry error calculating the total size of intersection.",
+                                                e);
                                     }
                                     if (size > 0.0) {
                                         totalSize += size;
                                     }
                                 }
                                 if (totalSize > minSize) {
-                                    break; // save time when the size of
-                                           // poly1 or poly2 is large
+                                    /*
+                                     * save time when the size of poly1 or poly2
+                                     * is large
+                                     */
+                                    break;
                                 }
                             }
-                            intersectSize
-                                    .put(oneLetterTZ[i], totalSize);
+                            intersectSize.put(oneLetterTZ[i], totalSize);
                         } else {
                             throw new VizException(
                                     "Either timezoneGeom or/and warningArea is null. "
                                             + "Timezone cannot be determined.");
                         }
-                        perfLog.logDuration(
-                                "runTemplate size computation",
+                        perfLog.logDuration("runTemplate size computation",
                                 System.currentTimeMillis() - t0);
                         if (totalSize > minSize) {
                             timeZones.add(oneLetterTZ[i]);
                         }
                     }
-                    // If timeZones has nothing in it when the hatched
-                    // area is very small,
-                    // use the timezone of larger intersection size.
-                    if (timeZones.size() == 0) {
+                    /*
+                     * If timeZones has nothing in it when the hatched area is
+                     * very small, use the timezone of larger intersection size.
+                     */
+                    if (timeZones.isEmpty()) {
                         if (intersectSize.size() > 1) {
-                            if (intersectSize.get(oneLetterTZ[0]) > intersectSize
-                                    .get(oneLetterTZ[1])) {
+                            if (intersectSize
+                                    .get(oneLetterTZ[0]) > intersectSize
+                                            .get(oneLetterTZ[1])) {
                                 timeZones.add(oneLetterTZ[0]);
                             } else {
                                 timeZones.add(oneLetterTZ[1]);
@@ -346,15 +346,13 @@ public class TemplateRunner {
     /**
      * Executes a warngen template given the polygon from the Warngen Layer and
      * the Storm tracking information from StormTrackDisplay
-     * 
+     *
      * @param warngenLayer
      * @param startTime
      * @param endTime
      * @param selectedBullets
      * @param followupData
      * @param backupData
-     * @param selectedUpdate
-     * @param backupSite
      * @return the generated product
      * @throws Exception
      */
@@ -368,24 +366,26 @@ public class TemplateRunner {
         WKTReader wkt = new WKTReader();
         DataTime[] datatimes = warngenLayer.getDescriptor().getFramesInfo()
                 .getFrameTimes();
-        Date eventTime = (datatimes != null) && (datatimes.length > 0) ? datatimes[datatimes.length - 1]
-                .getRefTimeAsCalendar().getTime() : startTime;
+        Date eventTime = (datatimes != null) && (datatimes.length > 0)
+                ? datatimes[datatimes.length - 1].getRefTimeAsCalendar()
+                        .getTime()
+                : startTime;
         Date simulatedTime = SimulatedTime.getSystemTime().getTime();
         WarngenConfiguration config = warngenLayer.getConfiguration();
         StormTrackState stormTrackState = warngenLayer.getStormTrackState();
 
         VelocityContext context = new VelocityContext();
         context.put("areaSource", config.getGeospatialConfig().getAreaSource());
-        context.put("parentAreaSource", config.getGeospatialConfig()
-                .getParentAreaSource());
-        context.put("pointSource", config.getGeospatialConfig()
-                .getPointSource());
+        context.put("parentAreaSource",
+                config.getGeospatialConfig().getParentAreaSource());
+        context.put("pointSource",
+                config.getGeospatialConfig().getPointSource());
 
         context.put("user", System.getenv().get(LOGIN_NAME_KEY));
 
         String threeLetterSiteId = warngenLayer.getLocalizedSite();
-        String fourLetterSiteId = SiteMap.getInstance().getSite4LetterId(
-                threeLetterSiteId);
+        String fourLetterSiteId = SiteMap.getInstance()
+                .getSite4LetterId(threeLetterSiteId);
 
         context.put("vtecOffice", fourLetterSiteId);
         context.put("siteId", threeLetterSiteId);
@@ -394,10 +394,11 @@ public class TemplateRunner {
         /** Convenience tools for the template */
         context.put("timeFormat", dateFormat);
         context.put("list", new ListTool());
-        context.put("officeShort", warngenLayer.getDialogConfig()
-                .getWarngenOfficeShort());
-        context.put("officeLoc", warngenLayer.getDialogConfig()
-                .getWarngenOfficeLoc());
+        context.put("officeShort",
+                warngenLayer.getDialogConfig().getWarngenOfficeShort());
+        context.put("officeLoc",
+                warngenLayer.getDialogConfig().getWarngenOfficeLoc());
+
 
         String productId = config.getProductId();
         if (productId == null) {
@@ -406,8 +407,8 @@ public class TemplateRunner {
                     + " does not contain a <productId> tag.");
         }
 
-        String stormType = stormTrackState.displayType == DisplayType.POLY ? "line"
-                : "single";
+        String stormType = stormTrackState.displayType == DisplayType.POLY
+                ? "line" : "single";
         context.put("stormType", stormType);
         context.put("mathUtil", new WarnGenMathTool());
         context.put("dateUtil", new DateUtil());
@@ -428,8 +429,9 @@ public class TemplateRunner {
         AffectedAreas[] cancelareas = null;
         Map<String, Object> intersectAreas = null;
         Wx wx = null;
-        Area area = new Area(new PortionsUtil(LocalizationManager.getInstance()
-                .getCurrentSite(), warngenLayer.getLocalGridGeometry(),
+        Area area = new Area(new PortionsUtil(
+                LocalizationManager.getInstance().getCurrentSite(),
+                warngenLayer.getLocalGridGeometry(),
                 warngenLayer.getlocalToLatLon()));
         long wwaMNDTime = 0l;
         try {
@@ -441,22 +443,23 @@ public class TemplateRunner {
             context.put(config.getHatchedAreaSource().getVariable(), areas);
 
             t0 = System.currentTimeMillis();
-            intersectAreas = area.findInsectingAreas(config, warnPolygon,
+            intersectAreas = area.findIntersectingAreas(config, warnPolygon,
                     warningArea, threeLetterSiteId, warngenLayer);
             perfLog.logDuration("runTemplate get intersecting areas",
                     System.currentTimeMillis() - t0);
-            for (String ia : intersectAreas.keySet()) {
-                context.put(ia, intersectAreas.get(ia));
+            for (Entry<String, Object> entry : intersectAreas.entrySet()) {
+                context.put(entry.getKey(), entry.getValue());
             }
 
             if ((areas != null) && (areas.length > 0)) {
-                Set<String> timeZones = determineTimezones(warngenLayer, areas, warningArea);
+                Set<String> timeZones = determineTimezones(warngenLayer, areas,
+                        warningArea);
 
                 Map<String, String> officeCityTimezone = createOfficeTimezoneMap();
                 String cityTimezone = null;
                 if (officeCityTimezone != null) {
-                    cityTimezone = officeCityTimezone.get(warngenLayer
-                            .getLocalizedSite());
+                    cityTimezone = officeCityTimezone
+                            .get(warngenLayer.getLocalizedSite());
                 }
                 Iterator<String> iterator = timeZones.iterator();
                 if ((timeZones.size() > 1) && (cityTimezone != null)) {
@@ -483,12 +486,12 @@ public class TemplateRunner {
 
             wx = new Wx(config, stormTrackState,
                     warngenLayer.getStormLocations(stormTrackState),
-                    startTime.getTime(), DateUtil.roundDateTo15(endTime)
-                            .getTime(), warnPolygon);
+                    startTime.getTime(),
+                    DateUtil.roundDateTo15(endTime).getTime(), warnPolygon);
 
             // duration: convert millisecond to minute
-            long duration = (wx.getEndTime().getTime() - wx.getStartTime()
-                    .getTime()) / (1000 * 60);
+            long duration = (wx.getEndTime().getTime()
+                    - wx.getStartTime().getTime()) / (1000 * 60);
             context.put("duration", duration);
 
             context.put("event", eventTime);
@@ -498,18 +501,18 @@ public class TemplateRunner {
             std.setDate(simulatedTime);
 
             // CAN and EXP products follow different rules as followups
-            if (!((selectedAction == WarningAction.CAN) ||
-                    (selectedAction == WarningAction.EXP))) {
+            if (!((selectedAction == WarningAction.CAN)
+                    || (selectedAction == WarningAction.EXP))) {
                 if (selectedAction == WarningAction.COR) {
                     wwaMNDTime = wx.getStartTime().getTime();
                 } else {
                     context.put("now", simulatedTime);
                     context.put("start", wx.getStartTime());
                 }
-                context.put(
-                        "expire",
-                        DateUtil.roundDateTo15(selectedAction == WarningAction.EXT ? endTime
-                                : wx.getEndTime()));
+                context.put("expire",
+                        DateUtil.roundDateTo15(
+                                selectedAction == WarningAction.EXT ? endTime
+                                        : wx.getEndTime()));
 
                 if (selectedAction == WarningAction.COR) {
                     context.put("TMLtime", eventTime);
@@ -518,13 +521,13 @@ public class TemplateRunner {
                 }
                 context.put("ugcline",
                         FipsUtil.getUgcLine(areas, wx.getEndTime(), 15));
-                context.put("areaPoly", GisUtil.convertCoords(warngenLayer
-                        .getPolygon().getCoordinates()));
+                context.put("areaPoly", GisUtil.convertCoords(
+                        warngenLayer.getPolygon().getCoordinates()));
 
                 Map<String, Object> points = wx
                         .getClosetsPoints(threeLetterSiteId);
-                for (String variableName : points.keySet()) {
-                    context.put(variableName, points.get(variableName));
+                for (Entry<String, Object> entry : points.entrySet()) {
+                    context.put(entry.getKey(), entry.getValue());
                 }
 
                 boolean hasPathCast = false;
@@ -540,27 +543,27 @@ public class TemplateRunner {
                             pathCast);
 
                     if (pathCast == null) {
-                        statusHandler
-                                .handle(Priority.PROBLEM,
-                                        "WarnGen critical error: No PathCast Information");
+                        statusHandler.handle(Priority.PROBLEM,
+                                "WarnGen critical error: No PathCast Information");
                     }
                 }
 
-                calStormVelocityAndEventLocation(std, simulatedTime, wx, context,
-                        warngenLayer, stormTrackState, selectedAction, wkt,
-                        threeLetterSiteId, etn, phenSig);
+                calStormVelocityAndEventLocation(std, simulatedTime, wx,
+                        context, warngenLayer, stormTrackState, selectedAction,
+                        wkt, threeLetterSiteId, etn, phenSig);
 
-//                if (std.getMotionSpeed() > 0) {
-//                    t0 = System.currentTimeMillis();
-//                    ToolsDataManager.getInstance().setStormTrackData(std);
-//                    perfLog.logDuration("Save storm track data",
-//                            System.currentTimeMillis() - t0);
-//                }
+                if (std.getMotionSpeed() > 0) {
+                    t0 = System.currentTimeMillis();
+                    ToolsDataManager.getInstance().setStormTrackData(std);
+                    perfLog.logDuration("Save storm track data",
+                            System.currentTimeMillis() - t0);
+                }
             } else {
                 // Retrieve the old Warning
                 // Example: s[0-5] = T.CON-KLWX.SV.W.0123
-                AbstractWarningRecord oldWarn = CurrentWarnings.getInstance(
-                        threeLetterSiteId).getNewestByTracking(etn, phenSig);
+                AbstractWarningRecord oldWarn = CurrentWarnings
+                        .getInstance(threeLetterSiteId)
+                        .getNewestByTracking(etn, phenSig);
                 context.put("now", simulatedTime);
                 context.put("start", oldWarn.getStartTime().getTime());
                 context.put("expire", oldWarn.getEndTime().getTime());
@@ -568,13 +571,11 @@ public class TemplateRunner {
                 canOrExpCal.setTimeZone(TimeZone.getTimeZone("GMT"));
                 canOrExpCal.add(Calendar.MINUTE, 10);
                 canOrExpCal.add(Calendar.MILLISECOND, 1);
-                context.put(
-                        "ugcline",
-                        FipsUtil.getUgcLine(oldWarn.getUgcZones(),
-                                canOrExpCal.getTime(), 0));
+                context.put("ugcline", FipsUtil.getUgcLine(
+                        oldWarn.getUgcZones(), canOrExpCal.getTime(), 0));
                 String oldGeom = oldWarn.getGeometry().toString();
-                context.put("areaPoly", GisUtil.convertCoords(wkt.read(oldGeom)
-                        .getCoordinates()));
+                context.put("areaPoly", GisUtil
+                        .convertCoords(wkt.read(oldGeom).getCoordinates()));
                 // If there is no storm track
                 if (oldWarn.getLoc() != null) {
                     // Convert to Point2D representation as Velocity requires
@@ -587,7 +588,8 @@ public class TemplateRunner {
                         locs = GisUtil.d2dCoordinates(locs);
                         coords = new Point2D.Double[locs.length];
                         for (int i = 0; i < locs.length; i++) {
-                            coords[i] = new Point2D.Double(locs[i].x, locs[i].y);
+                            coords[i] = new Point2D.Double(locs[i].x,
+                                    locs[i].y);
                         }
                         context.put("eventLocation", coords);
                         context.put("movementDirection", oldWarn.getMotdir());
@@ -596,16 +598,17 @@ public class TemplateRunner {
                         // StormTrackData motion direction is between -180/180,
                         // whereas a WarningRecord motion direction is between
                         // -360/360
-                        double motionDirection = AdjustAngle.to180Degrees(oldWarn
-                                .getMotdir() - 180);
+                        double motionDirection = AdjustAngle
+                                .to180Degrees(oldWarn.getMotdir() - 180);
                         std.setMotionDirection(motionDirection);
                         std.setMotionSpeed(oldWarn.getMotspd());
                     } else {
                         context.put("TMLtime", simulatedTime);
-                        wx = new Wx(config, stormTrackState, warngenLayer
-                                .getStormLocations(stormTrackState),
-                                startTime.getTime(), DateUtil.
-                                roundDateTo15(endTime).getTime(), warnPolygon);
+                        wx = new Wx(config, stormTrackState,
+                                warngenLayer.getStormLocations(stormTrackState),
+                                startTime.getTime(),
+                                DateUtil.roundDateTo15(endTime).getTime(),
+                                warnPolygon);
                         calStormVelocityAndEventLocation(std, simulatedTime, wx,
                                 context, warngenLayer, stormTrackState,
                                 selectedAction, wkt, threeLetterSiteId, etn,
@@ -637,7 +640,7 @@ public class TemplateRunner {
             // COR product - What are we correcting?
             boolean allowsNewProduct = false;
             for (String s : config.getFollowUps()) {
-                if (s.equals("NEW")) {
+                if ("NEW".equals(s)) {
                     allowsNewProduct = true;
                 }
             }
@@ -673,7 +676,7 @@ public class TemplateRunner {
                 }
                 context.put("etn", etn);
                 context.put("start", oldWarn.getIssueTime().getTime());
-                if (oldWarn.getAct().equals("NEW")) {
+                if ("NEW".equals(oldWarn.getAct())) {
                     context.put("now", new Date(wwaMNDTime));
                     // original warning's 'now' time used in MND header
                     context.put("corCreateTime", new Date(wwaMNDTime));
@@ -694,7 +697,7 @@ public class TemplateRunner {
                     int tmlIndex = message.indexOf("TIME...MOT...LOC");
                     int zIndex = -1;
                     if (tmlIndex > 0) {
-                        zIndex = message.indexOf("Z", tmlIndex);
+                        zIndex = message.indexOf('Z', tmlIndex);
                         if (zIndex > 0) {
                             int startIndex = tmlIndex + 16 + 1;
                             String tmlTime = null;
@@ -703,19 +706,19 @@ public class TemplateRunner {
                             if (tmlTime.length() == 4) {
                                 hour = Integer
                                         .parseInt(tmlTime.substring(0, 2));
-                                minute = Integer.parseInt(tmlTime.substring(2,
-                                        4));
+                                minute = Integer
+                                        .parseInt(tmlTime.substring(2, 4));
                             } else if (tmlTime.length() == 3) {
                                 hour = Integer
                                         .parseInt(tmlTime.substring(0, 1));
-                                minute = Integer.parseInt(tmlTime.substring(1,
-                                        3));
+                                minute = Integer
+                                        .parseInt(tmlTime.substring(1, 3));
                             } else {
                                 throw new VizException(
                                         "The length of hour and minute for TML time is neither 3 nor 4.");
                             }
-                            Calendar c = Calendar.getInstance(TimeZone
-                                    .getTimeZone("GMT"));
+                            Calendar c = Calendar
+                                    .getInstance(TimeZone.getTimeZone("GMT"));
                             c.set(Calendar.HOUR_OF_DAY, hour);
                             c.set(Calendar.MINUTE, minute);
                             context.put("TMLtime", c.getTime());
@@ -726,13 +729,14 @@ public class TemplateRunner {
                     } else {
                         // To prevent errors resulting from undefined
                         // context("TMLtime")
-                        context.put("TMLtime", oldWarn.getIssueTime().getTime());
+                        context.put("TMLtime",
+                                oldWarn.getIssueTime().getTime());
                     }
                 }
 
                 // corEventtime for "COR to NEW", not for
                 // "COR to CON, CAN, or CANCON"
-                if (oldWarn.getAct().equals("NEW")) {
+                if ("NEW".equals(oldWarn.getAct())) {
                     int untilIndex = message.indexOf("UNTIL");
                     int atIndex = -1;
                     int hhmmEnd = -1;
@@ -775,8 +779,9 @@ public class TemplateRunner {
                 if (totalSegments > 1) {
                     al = FollowUpUtil.canceledAreasFromText(originalText);
                 }
-                context.put("cancel"
-                        + config.getHatchedAreaSource().getVariable(), al);
+                context.put(
+                        "cancel" + config.getHatchedAreaSource().getVariable(),
+                        al);
                 context.put("ugclinecan",
                         FollowUpUtil.getUgcLineCanFromText(originalText));
             } else if (selectedAction == WarningAction.EXT) {
@@ -788,27 +793,27 @@ public class TemplateRunner {
             } else if (selectedAction == WarningAction.CON) {
                 context.put("start", oldWarn.getIssueTime().getTime());
                 context.put("expire", oldWarn.getEndTime().getTime());
-                context.put("ugcline", FipsUtil.getUgcLine(areas, oldWarn
-                        .getEndTime().getTime(), 15));
+                context.put("ugcline", FipsUtil.getUgcLine(areas,
+                        oldWarn.getEndTime().getTime(), 15));
                 Calendar cancelTime = Calendar.getInstance();
                 cancelTime.setTime(simulatedTime);
                 cancelTime.setTimeZone(TimeZone.getTimeZone("GMT"));
                 cancelTime.add(Calendar.MINUTE, 10);
                 String[] tmp = compareGeomsForFollowUp(oldWarn, warnPolygon,
                         areas, cancelTime.getTime(), config);
-                if ("".equals(tmp[1]) == false) {
+                if (!tmp[1].isEmpty()) {
                     Geometry oldWarningArea = warngenLayer
                             .getWarningAreaFromPolygon(
                                     (Polygon) oldWarn.getGeometry(), oldWarn);
-                    java.util.List<String> oldGids = new ArrayList<String>(
+                    java.util.List<String> oldGids = new ArrayList<>(
                             Arrays.asList(GeometryUtil.getGID(oldWarningArea)));
-                    java.util.List<String> newGids = new ArrayList<String>(
-                            Arrays.asList(GeometryUtil.getGID(warngenLayer
-                                    .getWarningArea())));
+                    java.util.List<String> newGids = new ArrayList<>(
+                            Arrays.asList(GeometryUtil
+                                    .getGID(warngenLayer.getWarningArea())));
                     oldGids.removeAll(newGids);
-                    Geometry removedAreas = warngenLayer.getWarningAreaForGids(
-                            oldGids, oldWarningArea);
-                    if (removedAreas.isEmpty() == false) {
+                    Geometry removedAreas = warngenLayer
+                            .getWarningAreaForGids(oldGids, oldWarningArea);
+                    if (!removedAreas.isEmpty()) {
                         cancelareas = area.findAffectedAreas(config,
                                 oldWarn.getGeometry(), removedAreas,
                                 threeLetterSiteId, warngenLayer);
@@ -821,7 +826,7 @@ public class TemplateRunner {
                                 }
                             }
                         }
-                        ArrayList<AffectedAreas> al = new ArrayList<AffectedAreas>();
+                        ArrayList<AffectedAreas> al = new ArrayList<>();
                         for (AffectedAreas cancelarea : cancelareas) {
                             if (cancelarea != null) {
                                 al.add(cancelarea);
@@ -835,16 +840,17 @@ public class TemplateRunner {
                         // a removed intersected county be in the affected
                         // intersected county. Need an example to fully test.
                         Map<String, Object> intersectRemovedAreas = area
-                                .findInsectingAreas(config, warnPolygon,
+                                .findIntersectingAreas(config, warnPolygon,
                                         removedAreas, threeLetterSiteId,
                                         warngenLayer);
 
-                        for (String ia : intersectRemovedAreas.keySet()) {
-                            context.put("cancel" + ia,
-                                    intersectRemovedAreas.get(ia));
+                        for (Entry<String, Object> entry : intersectRemovedAreas
+                                .entrySet()) {
+                            context.put("cancel" + entry.getKey(),
+                                    entry.getValue());
                         }
 
-                        if (al.size() < 1) {
+                        if (al.isEmpty()) {
                             tmp[0] = WarningAction.CON.toString();
                         }
 
@@ -869,36 +875,35 @@ public class TemplateRunner {
             context.put("action", WarningAction.NEW.toString());
             context.put("etn", "0000");
             context.put("productClass",
-                    CAVEMode.getMode().equals(CAVEMode.OPERATIONAL) ? "O" : "T");
+                    CAVEMode.getMode().equals(CAVEMode.OPERATIONAL) ? "O"
+                            : "T");
         }
         context.put("oldvtec", context.get("etn")); // Depreciated
         context.put("stationary", stormTrackState.timePoints == null);
         // Store Watches
-//        try {
-//            t0 = System.currentTimeMillis();
-//            WatchUtil watchUtil = new WatchUtil(warngenLayer);
-//            List<Watch> watches = watchUtil.getWatches(config, warnPolygon,
-//                    simulatedTime);
-//            perfLog.logDuration("getWatches", System.currentTimeMillis() - t0);
-//            if ((watches != null) && (watches.isEmpty() == false)) {
-//                context.put("watches", watches);
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            statusHandler
-//                    .handle(Priority.VERBOSE,
-//                            "WarnGen cannot populate Active Watches. Check your local config.xml",
-//                            e);
-//        }
+        try {
+            t0 = System.currentTimeMillis();
+            WatchUtil watchUtil = new WatchUtil(warngenLayer);
+            List<Watch> watches = watchUtil.getWatches(config, warnPolygon,
+                    simulatedTime);
+            perfLog.logDuration("getWatches", System.currentTimeMillis() - t0);
+            if (watches != null && !watches.isEmpty()) {
+                context.put("watches", watches);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            statusHandler.handle(Priority.VERBOSE,
+                    "WarnGen cannot populate Active Watches. Check your local config.xml",
+                    e);
+        }
 
         long tz0 = System.currentTimeMillis();
-        String script = createScript(warngenLayer.getTemplateName() + ".vm",
+        String text = createScript(warngenLayer.getTemplateName() + ".vm",
                 context);
         perfLog.logDuration("velocity", System.currentTimeMillis() - tz0);
 
-        String text = script.toString();
-        WarningTextHandler handler = WarningTextHandlerFactory.getHandler(
-                selectedAction, text, config.getAutoLockText());
+        WarningTextHandler handler = WarningTextHandlerFactory
+                .getHandler(selectedAction, text, config.getAutoLockText());
         String handledText = handler.handle(text, areas, cancelareas,
                 selectedAction);
 
@@ -907,15 +912,19 @@ public class TemplateRunner {
 
     private static VelocityEngine ENGINE;
 
+    /**
+     * @param issuingSite
+     */
     public static void initialize(String issuingSite) {
         synchronized (TemplateRunner.class) {
             ENGINE = new VelocityEngine();
             Properties p = new Properties();
             p.setProperty("file.resource.loader.class",
                     LocalizationResourceLoader.class.getName());
-            p.setProperty("runtime.log", FileUtil.join(
-                    FileUtil.join(LocalizationManager.getUserDir(), "logs"),
-                    "velocity.log"));
+            p.setProperty("runtime.log",
+                    FileUtil.join(FileUtil
+                            .join(LocalizationManager.getUserDir(), "logs"),
+                            "velocity.log"));
             p.setProperty("velocimacro.permissions.allowInline", "true");
             p.setProperty(
                     "velocimacro.permissions.allow.inline.to.replace.global",
@@ -924,7 +933,7 @@ public class TemplateRunner {
             String site = LocalizationManager.getInstance().getCurrentSite();
             p.setProperty(LocalizationResourceLoader.PROPERTY_SITE, site);
 
-            if (issuingSite.equalsIgnoreCase(site) == false) {
+            if (!issuingSite.equalsIgnoreCase(site)) {
                 p.setProperty(LocalizationResourceLoader.PROPERTY_BACKUP,
                         issuingSite);
             }
@@ -953,11 +962,12 @@ public class TemplateRunner {
     /**
      * This method determines whether a CON followup product is reduced in area
      * - which requires that a corresponding CAN segment be issued.
-     * 
+     *
      * @param oldWarning
      * @param newGeom
      * @param areas
      * @param endTime
+     * @param config
      * @return
      * @throws WarngenException
      */
@@ -980,26 +990,26 @@ public class TemplateRunner {
     }
 
     /*
-     * Calculate storm speed, direction, and event coordinates, and
-     * add name/value pairs to context.
+     * Calculate storm speed, direction, and event coordinates, and add
+     * name/value pairs to context.
      */
     private static void calStormVelocityAndEventLocation(StormTrackData std,
             Date simulatedTime, Wx wx, VelocityContext context,
             WarngenLayer warngenLayer, StormTrackState stormTrackState,
-            WarningAction selectedAction, WKTReader wkt, String threeLetterSiteId,
-            String etn, String phenSig) throws Exception {
+            WarningAction selectedAction, WKTReader wkt,
+            String threeLetterSiteId, String etn, String phenSig)
+            throws Exception {
         std.setMotionDirection((int) wx.getMovementDirection());
         std.setMotionSpeed((int) Math.round(wx.getMovementSpeed("kn")));
 
         context.put("movementSpeed", wx.getMovementSpeed());
         context.put("movementInKnots", wx.getMovementSpeed("kn"));
-        double movementDirectionRounded = wx
-                .getMovementDirectionRounded() + 180;
+        double movementDirectionRounded = wx.getMovementDirectionRounded()
+                + 180;
         while (movementDirectionRounded >= 360) {
             movementDirectionRounded -= 360;
         }
-        context.put("movementDirectionRounded",
-                movementDirectionRounded);
+        context.put("movementDirectionRounded", movementDirectionRounded);
         double motionDirection = std.getMotionDirection() + 180;
         while (motionDirection >= 360) {
             motionDirection -= 360;
@@ -1023,8 +1033,7 @@ public class TemplateRunner {
         }
         Point2D.Double[] coords = new Point2D.Double[stormLocs.length];
         for (int i = 0; i < stormLocs.length; i++) {
-            coords[i] = new Point2D.Double(stormLocs[i].x,
-                    stormLocs[i].y);
+            coords[i] = new Point2D.Double(stormLocs[i].x, stormLocs[i].y);
         }
         context.put("eventLocation", coords);
     }

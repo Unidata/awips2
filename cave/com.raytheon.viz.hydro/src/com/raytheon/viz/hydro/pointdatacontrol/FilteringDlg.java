@@ -52,16 +52,16 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 29, 2007  373       lvenable    Initial creation
- * Jan 25, 2011 7625       bkowal      The dialog will now be a modal dialog
+ * 29 NOV 2007  373        lvenable    Initial creation
+ * 25 JAN 2011  7625       bkowal      The dialog will now be a modal dialog
  *                                     and it will include a title bar and
  *                                     close button.
- * Feb 07, 2013 1578       rferrel     Change for non-blocking dialog.
- * Jul 28, 2016 4623       skorolev    Cleanup
+ * 07 FEB 2013  1578       rferrel     Change for non-blocking dialog.
  * 
  * </pre>
  * 
  * @author lvenable
+ * @version 1.0
  * 
  */
 public class FilteringDlg extends CaveSWTDialog {
@@ -138,6 +138,11 @@ public class FilteringDlg extends CaveSWTDialog {
         this.peSelection = peSelection;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
+     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, true);
@@ -146,6 +151,13 @@ public class FilteringDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -233,7 +245,7 @@ public class FilteringDlg extends CaveSWTDialog {
                  */
                 if ((pcOptions.getDataSourcesChosen() != null)
                         && (pcOptions.getDataSourceChosenCount() > 0)) {
-                    java.util.List<Integer> al = new ArrayList<>();
+                    ArrayList<Integer> al = new ArrayList<Integer>();
                     for (int i = 0; i < pcOptions.getDataSourcesChosen().length; i++) {
                         for (int j = 0; j < dataList.getItemCount(); j++) {
                             if (dataSourceArray[j].equalsIgnoreCase(pcOptions
@@ -251,7 +263,7 @@ public class FilteringDlg extends CaveSWTDialog {
                     dataList.setSelection(indices);
                 }
             } else if (dialogType == DialogType.SERVICE_AREA) {
-                java.util.List<String> hsaList = dataManager.getHsaList("");
+                ArrayList<String> hsaList = dataManager.getHsaList("");
 
                 for (int i = 0; i < hsaList.size(); i++) {
                     dataList.add(hsaList.get(i));
@@ -260,7 +272,7 @@ public class FilteringDlg extends CaveSWTDialog {
                 /* Highlight any hsa ids that were in the pc_options hsa list. */
                 if ((pcOptions.getHsaList() != null)
                         && (pcOptions.getHsaList().size() > 0)) {
-                    java.util.List<Integer> al = new ArrayList<>();
+                    ArrayList<Integer> al = new ArrayList<Integer>();
                     for (int i = 0; i < pcOptions.getHsaList().size(); i++) {
                         for (int j = 0; j < dataList.getItemCount(); j++) {
                             if (hsaList.get(j).equalsIgnoreCase(
@@ -281,7 +293,7 @@ public class FilteringDlg extends CaveSWTDialog {
             } else if (dialogType == DialogType.TYPE_SOURCE) {
                 PointControlPeTs pcPeTs = pdcManager.getPCPeTsData();
                 HydroDataCache cache = HydroDataCache.getInstance();
-                java.util.List<String> items = new ArrayList<>();
+                ArrayList<String> items = new ArrayList<String>();
                 boolean peIsPrimary = false;
                 boolean includeInTsList = false;
                 StringBuilder buf = new StringBuilder();
@@ -293,7 +305,7 @@ public class FilteringDlg extends CaveSWTDialog {
                 }
 
                 if (queryMode == 0) { // Ad Hoc Mode
-                    java.util.List<String[]> peTsBuf = pcPeTs.getOrgBuf();
+                    ArrayList<String[]> peTsBuf = pcPeTs.getOrgBuf();
                     for (int i = 0; i < peTsBuf.size(); i++) {
 
                         buf.setLength(0);
@@ -330,6 +342,9 @@ public class FilteringDlg extends CaveSWTDialog {
                                  * and the type source is a P typesource, then
                                  * consider it.
                                  */
+                                // if
+                                // (pcOptions.getElementType().equals(AdHocDataElementType.OTHER_AD_HOC_TYPE)
+                                // &&
                                 if ((pcOptions.getElementType() == 4)
                                         && (pcOptions.getProcessSelected() == 1)) {
 
@@ -367,9 +382,9 @@ public class FilteringDlg extends CaveSWTDialog {
                     dataList.setItems(pcPeTs.getAdhocTypeSourceBuffer());
                 } else { // Time Step mode
                     String where = " where ts like 'R%%' or ts like 'P%%' order by 1";
-                    java.util.List<Object[]> rs = dataManager.getUnique("ts",
+                    ArrayList<Object[]> rs = dataManager.getUnique("ts",
                             "ingestFilter", where);
-                    java.util.List<String> tsList = new ArrayList<>();
+                    ArrayList<String> tsList = new ArrayList<String>();
 
                     // add all of the hard_coded_type_sources
                     for (String ts : HARD_CODED_TYPE_SOURCES) {
@@ -379,11 +394,11 @@ public class FilteringDlg extends CaveSWTDialog {
                     if ((rs != null) && (rs.size() > 0)) {
                         for (Object[] oa : rs) {
                             String ts = (String) oa[0];
-                            /*
-                             * determine if this TS should be added to the list
-                             * of type sources we don't want to add a
-                             * type/source that was already hardcoded
-                             */
+
+                            // determine if this TS should be added to the list
+                            // of type sources
+                            // we don't want to add a type/source that was
+                            // already hardcoded
                             if (!tsList.contains(ts)) {
                                 tsList.add(ts);
                             }
@@ -412,7 +427,7 @@ public class FilteringDlg extends CaveSWTDialog {
                  * source list.
                  */
                 if (pcOptions.getTypeSourceChosenList() != null) {
-                    java.util.List<Integer> al = new ArrayList<>();
+                    ArrayList<Integer> al = new ArrayList<Integer>();
                     for (int i = 0; i < pcOptions.getTypeSourceChosenList()
                             .size(); i++) {
                         for (int j = 0; j < dataList.getItemCount(); j++) {
@@ -446,10 +461,10 @@ public class FilteringDlg extends CaveSWTDialog {
                 .getInstance();
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         int[] selectionIndices = dataList.getSelectionIndices();
-        java.util.List<String> tsList = new ArrayList<>();
+        ArrayList<String> tsList = new ArrayList<String>();
         String ts;
         if (selectionIndices.length > 0) {
-            java.util.List<String> al = new ArrayList<>();
+            ArrayList<String> al = new ArrayList<String>();
             for (int i = 0; i < selectionIndices.length; i++) {
                 al.add(dataList.getItem(selectionIndices[i]));
             }

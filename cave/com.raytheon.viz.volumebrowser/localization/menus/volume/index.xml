@@ -28,7 +28,7 @@
 	<substitute key="MMMmodel2" value="HiResW-NMM-West" />
 	<substitute key="RAP13model" value="RAP13" />
 	<substitute key="RAPmodel" value="RAP40" />
-	<substitute key="SREFmodel" value="SREF212" />
+	<substitute key="SREFmodel" value="SREF40" />
 	
     <include installTo="menu:volume?after=VolumeBundles" 
              fileName="menus/volume/baseFamilies.xml">

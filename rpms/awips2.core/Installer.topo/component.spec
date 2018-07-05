@@ -50,9 +50,9 @@ TOPO_TO_COPY=\
    'defaultTopo.h5' \
    'akTopo.dat.gz' \
    'caribTopo.dat.gz' \
+   'modelStaticTopo.h5' \
    'pacTopo.dat.gz' \
    'staticTopo.h5' \
-   'modelStaticTopo.h5' \
    'usTopo.dat.gz' \
    'worldTopo.dat.gz' \
 )

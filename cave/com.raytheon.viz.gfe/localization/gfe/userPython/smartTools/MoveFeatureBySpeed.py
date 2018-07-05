@@ -32,6 +32,12 @@
 # Last Updated:            Tue 10 Jun 8
 # last Submitted to str:   Tue 10 Jun 8
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 import LogStream, time
 ToolType = "numeric"
 WeatherElementEdited = "variableElement"

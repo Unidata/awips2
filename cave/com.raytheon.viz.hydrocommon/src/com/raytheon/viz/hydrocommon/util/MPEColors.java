@@ -22,10 +22,12 @@ package com.raytheon.viz.hydrocommon.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.raytheon.uf.common.mpe.constants.AppsDefaultsContants;
+import com.raytheon.uf.common.mpe.util.AppsDefaultsConversionWrapper;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 
 /**
- * TODO Add Description
+ * Defines the color combinations used in the MPE legends.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -34,337 +36,254 @@ import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
  * Nov 11, 2008            randerso     Initial creation
  * Aug 08, 2009 2675       mpduff       Added Radar Coverage.
  * Apr 04, 2012 8672       lbousaidi    changed color scale for 24h 
- * 										gridded precip.
+ *                                      gridded precip.
+ * Oct 06, 2017 6407       bkowal       Cleanup. Updates to support GOES-R SATPRE.
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
 
 public class MPEColors {
-    static final String height_colors[] = { "GRAY30", "BLACK", "ORANGE",
+    private static final String height_colors[] = { "GRAY30", "BLACK", "ORANGE",
             "YELLOW", "GREENYELLOW", "YELLOWGREEN", "GREEN", "TURQUOISE4",
             "TURQUOISE3", "TURQUOISE2", "DEEPSKYBLUE1", "DEEPSKYBLUE2",
             "DODGERBLUE1", "BLUE", "PURPLE2", "PURPLE3", "PURPLE4", "WHITE" };
 
-    static final double height_levels[] = { -9999.0, -8888.0, 0.0, 250., 500.,
-            750., 1000., 1500., 2000., 2500., 3000., 3500., 4000., 5000.,
+    private static final double height_levels[] = { -9999.0, -8888.0, 0.0, 250.,
+            500., 750., 1000., 1500., 2000., 2500., 3000., 3500., 4000., 5000.,
             6000., 7000., 8000., 10000. };
 
-    static final String index_colors[] = { "GRAY30", "BLACK", "YELLOW",
+    private static final String index_colors[] = { "GRAY30", "BLACK", "YELLOW",
             "GREENYELLOW", "YELLOWGREEN", "GREEN", "TURQUOISE4", "TURQUOISE3",
-            "TURQUOISE2", "DEEPSKYBLUE1", "DEEPSKYBLUE2", "DODGERBLUE1",
-            "BLUE", "PURPLE2", "PURPLE3", "PURPLE4", "WHITE", "ORANGE" };
+            "TURQUOISE2", "DEEPSKYBLUE1", "DEEPSKYBLUE2", "DODGERBLUE1", "BLUE",
+            "PURPLE2", "PURPLE3", "PURPLE4", "WHITE", "ORANGE" };
 
-    static final double index_levels[] = { -9999.0, -8888.0, 1.0, 2.0, 3.0,
-            4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0,
-            16.0 };
+    private static final double index_levels[] = { -9999.0, -8888.0, 1.0, 2.0,
+            3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0,
+            15.0, 16.0 };
 
-    static final String locbias_colors[] = { "GRAY30", "GRAY20", "RED",
+    private static final String locbias_colors[] = { "GRAY30", "GRAY20", "RED",
             "DODGERBLUE1", "CYAN", "DARKGREEN", "GREEN", "GREENYELLOW",
             "YELLOW", "GOLD2", "DARKORANGE1", "RED", "RED3", "RED4" };
 
-    static final double locbias_levels[] = { -9999.0, 0.0, 0.05, 0.4, 0.6, 0.8,
-            1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0 };
+    private static final double locbias_levels[] = { -9999.0, 0.0, 0.05, 0.4,
+            0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.5, 3.0 };
 
-    static final String locspan_colors[] = { "GRAY30", "GRAY20", "RED",
+    private static final String locspan_colors[] = { "GRAY30", "GRAY20", "RED",
             "DODGERBLUE1", "CYAN", "DARKGREEN", "GREEN", "GREENYELLOW",
             "YELLOW", "GOLD2", "DARKORANGE1", "RED", "WHITE" };
 
-    static final double locspan_levels[] = { -9999.0, 0.0, 0.05, 1.0, 2.0, 3.0,
-            4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 };
+    private static final double locspan_levels[] = { -9999.0, 0.0, 0.05, 1.0,
+            2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0 };
 
-    static final String precip_colors[] = { "GRAY30", "GRAY20", "GRAY10",
-            "DODGERBLUE1", "CYAN", "DARKGREEN", "GREEN", "GREENYELLOW",
-            "YELLOW", "GOLD2", "DARKORANGE1", "RED", "RED3", "RED4",
-            "MAGENTA1", "DARKORCHID", "WHITE" };
+    private static final String precip_colors[] = { "GRAY30", "GRAY20",
+            "GRAY10", "DODGERBLUE1", "CYAN", "DARKGREEN", "GREEN",
+            "GREENYELLOW", "YELLOW", "GOLD2", "DARKORANGE1", "RED", "RED3",
+            "RED4", "MAGENTA1", "DARKORCHID", "WHITE" };
 
-    static final double precip_levels[] = { -9999.0, -8888.0, 0.00, 0.01, 0.10,
-            0.20, 0.30, 0.40, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75, 2.00, 2.50,
-            3.00 };
-    
- 
-    static final String precip_bias_colors[] ={"DarkGray", "Gray", "Light Gray", "DarkBlue", 
-    	"Blue", "DarkCyan", "Cyan",  "DarkGreen", "Green",
-        "Yellow", "Orange", "Red", "Dark Red", "Magenta", "White" };
+    private static final double precip_levels[] = { -9999.0, -8888.0, 0.00,
+            0.01, 0.10, 0.20, 0.30, 0.40, 0.50, 0.75, 1.00, 1.25, 1.50, 1.75,
+            2.00, 2.50, 3.00 };
 
-    static final double precip_bias_levels[] ={ 0.0, 0.05, 0.1, .2, .4, 0.8, 1.2, 2.0, 3.0, 4.0, 5.0, 8.0, 16.0, 32.0, 100.0};
+    private static final String precip_bias_colors[] = { "DarkGray", "Gray",
+            "Light Gray", "DarkBlue", "Blue", "DarkCyan", "Cyan", "DarkGreen",
+            "Green", "Yellow", "Orange", "Red", "Dark Red", "Magenta",
+            "White" };
 
-    
+    private static final double precip_bias_levels[] = { 0.0, 0.05, 0.1, .2, .4,
+            0.8, 1.2, 2.0, 3.0, 4.0, 5.0, 8.0, 16.0, 32.0, 100.0 };
 
-    static final String precip_diff_colors[] = 
-    	{
-    	"GRAY30", "GRAY30",
-    	
-    	"MAGENTA1", "MEDIUMORCHID", "DARKORCHID",
-    	"MEDIUMBLUE", "BLUE", "DODGERBLUE", "DARKTURQUOISE",
-    	
-    	"CYAN",
-        
-    	"BLACK", "BLACK",
-        "GREEN", "GREENYELLOW","YELLOW",
-        
-        "DARKORANGE1",
-        "ORANGERED", "RED2", "RED3",
-         
-         };
+    private static final String precip_diff_colors[] = { "GRAY30", "GRAY30",
 
-    static final double precip_diff_levels[] =
-    	
-    	 { -9999.0, -8888.0,
-    	
-    	-10.0, -0.75, -0.5, 
-    	-.25,-0.1, -0.08, -0.06, -0.03,
-    	
-    	-0.01, //CYAN
-    	
-    	0.0, 0.01,
-    	
-    	0.03,
-    	
-    	0.06, 0.08,
-    	0.1,0.25, 0.50
-    	
-    	};
+            "MAGENTA1", "MEDIUMORCHID", "DARKORCHID", "MEDIUMBLUE", "BLUE",
+            "DODGERBLUE", "DARKTURQUOISE",
 
-    static final String precip_ratio_colors[] =     	
-    { 
-        	"GRAY30", "GRAY30",
-        	
-        	"MAGENTA1", "MEDIUMORCHID", "DARKORCHID",
-            "BLUE", "DODGERBLUE", "DARKTURQUOISE",
-        	
-        	"CYAN", "BLACK",
-            "GREEN", "GREENYELLOW","YELLOW",
-            
-            "DARKORANGE1",
-            "ORANGERED", "RED2", "RED3",  	
+            "CYAN",
+
+            "BLACK", "BLACK", "GREEN", "GREENYELLOW", "YELLOW",
+
+            "DARKORANGE1", "ORANGERED", "RED2", "RED3",
+
     };
 
-    static final double precip_ratio_levels[] =
-    	
-    	{
-    	
-    	-9999.0, -8888.0, 
-    	0.0, 0.1, 0.2, 0.3,
-    	
-    	0.5, 0.6, 0.75, 
-    	
-    	0.95, 1.05, //between this number shows up as black	
-    	1.5, 2.0, 4.0,
-    	
-    	6.0,
-    	8.0, 16.0
-    	
-    	};
-    
-    /*
-     * static final String precip_ratio_colors[] =     	
-    { 
-        	"GRAY30", "GRAY30",
-        	
-        	"MAGENTA1", "MEDIUMORCHID", "DARKORCHID",
-        	"MEDIUMBLUE", "BLUE", "DODGERBLUE", "DARKTURQUOISE",
-        	
-        	"CYAN", "BLACK",
-            "GREEN", "GREENYELLOW","YELLOW",
-            
-            "DARKORANGE1",
-            "ORANGERED", "RED2", "RED3",  	
-    };
+    private static final double precip_diff_levels[] =
 
-    static final double precip_ratio_levels[] =
-    	
-    	{
-    	
-    	-9999.0, -8888.0, 
-    	0.1, 0.2, 0.3, 0.4,
-    	
-    	0.5, 0.6, 0.75, 0.85, 
-    	
-    	0.95, 1.05, //between this number shows up as black	
-    	1.5, 2.0, 4.0,
-    	
-    	6.0,
-    	8.0, 16.0
-    	
-    	};
+            { -9999.0, -8888.0,
 
-     * 
-     * 
-     */
+                    -10.0, -0.75, -0.5, -.25, -0.1, -0.08, -0.06, -0.03,
 
-    static final String prism_colors[] = { "GRAY30", "GRAY20", "GRAY10",
+                    -0.01, // CYAN
+
+                    0.0, 0.01,
+
+                    0.03,
+
+                    0.06, 0.08, 0.1, 0.25, 0.50
+
+            };
+
+    private static final String precip_ratio_colors[] = { "GRAY30", "GRAY30",
+
+            "MAGENTA1", "MEDIUMORCHID", "DARKORCHID", "BLUE", "DODGERBLUE",
+            "DARKTURQUOISE",
+
+            "CYAN", "BLACK", "GREEN", "GREENYELLOW", "YELLOW",
+
+            "DARKORANGE1", "ORANGERED", "RED2", "RED3", };
+
+    private static final double precip_ratio_levels[] =
+
+            {
+
+                    -9999.0, -8888.0, 0.0, 0.1, 0.2, 0.3,
+
+                    0.5, 0.6, 0.75,
+
+                    0.95, 1.05, // between this number shows up as black
+                    1.5, 2.0, 4.0,
+
+                    6.0, 8.0, 16.0
+
+            };
+
+    private static final String prism_colors[] = { "GRAY30", "GRAY20", "GRAY10",
             "DODGERBLUE1", "CYAN", "DARKGREEN", "GREEN", "GREENYELLOW",
-            "YELLOW", "GOLD2", "DARKORANGE1", "RED", "RED3", "RED4",
-            "MAGENTA1", "DARKORCHID", "WHITE" };
+            "YELLOW", "GOLD2", "DARKORANGE1", "RED", "RED3", "RED4", "MAGENTA1",
+            "DARKORCHID", "WHITE" };
 
-    static final double prism_levels[] = { -9999.0, 0.0, 0.05, 0.1, 0.2, 0.3,
-            0.4, 0.5, 0.75, 1.0, 1.25, 1.50, 2.0, 2.5, 3.0, 4.0, 5.0 };
+    private static final double prism_levels[] = { -9999.0, 0.0, 0.05, 0.1, 0.2,
+            0.3, 0.4, 0.5, 0.75, 1.0, 1.25, 1.50, 2.0, 2.5, 3.0, 4.0, 5.0 };
 
-    static final String max_temp_prism_colors[] = { "GRAY30", "GRAY20",
+    private static final String max_temp_prism_colors[] = { "GRAY30", "GRAY20",
             "PURPLE", "BLUE", "CYAN", "DARKGREEN", "GREEN", "GREENYELLOW",
             "YELLOW", "GOLD2", "DARKORANGE1", "RED", "RED3", "RED4" };
 
-    static final double max_temp_prism_levels[] = { -9999.0, 0.0, 0.05, 10.0,
-            20.0, 30.0, 40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0 };
+    private static final double max_temp_prism_levels[] = { -9999.0, 0.0, 0.05,
+            10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0 };
 
-    static final String min_temp_prism_colors[] = { "GRAY30", "GRAY20",
+    private static final String min_temp_prism_colors[] = { "GRAY30", "GRAY20",
             "PURPLE", "BLUE", "CYAN", "DARKGREEN", "GREEN", "GREENYELLOW",
             "YELLOW", "GOLD2", "DARKORANGE1", "RED", "RED3", "RED4" };
 
-    static final double min_temp_prism_levels[] = { -9999.0, 0.0, 0.05, 10.0,
-            20.0, 30.0, 40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0 };
+    private static final double min_temp_prism_levels[] = { -9999.0, 0.0, 0.05,
+            10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 65.0, 70.0, 75.0, 80.0, 90.0 };
 
-    static final String radclim_colors[] = { "GRAY30", "BLACK", "RED" };
+    private static final String radclim_colors[] = { "GRAY30", "BLACK", "RED" };
 
-    static final double radclim_levels[] = { -9999.0, 0.0, 1.0 };
+    private static final double radclim_levels[] = { -9999.0, 0.0, 1.0 };
 
-    static final String radCov_colors[] = { "GRAY30", "BLACK", "RED" };
+    private static final String radCov_colors[] = { "GRAY30", "BLACK", "RED" };
 
-    static final double radCov_levels[] = { -9999.0, 0.0, 1.0 };
+    private static final double radCov_levels[] = { -9999.0, 0.0, 1.0 };
 
     /* Define the color sets for the DailyQC data. */
 
     /* 6h gridded precip */
 
-    static final String gridded_precip_colors_6hr[] = { "GRAY69", "GRAY10",
-            "GRAY30", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
-            "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
-            "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
+    private static final String gridded_precip_colors_6hr[] = { "GRAY69",
+            "GRAY10", "GRAY30", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN",
+            "GREEN1", "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3",
+            "GOLD3", "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
 
-    static final double gridded_precip_levels_6hr[] = { -9999.0, 0.0, 0.01,
-            0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.3, 1.6, 2.0, 2.3, 2.5, 2.8, 3.0,
-            3.5, 4.0 };
-
-    /*
-     * { 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3,
-     * 1.4, 1.5 };
-     */
+    private static final double gridded_precip_levels_6hr[] = { -9999.0, 0.0,
+            0.01, 0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.3, 1.6, 2.0, 2.3, 2.5, 2.8,
+            3.0, 3.5, 4.0 };
 
     /* 24h gridded precip */
-    static final String gridded_precip_colors_24hr [] = { "GRAY10", "GRAY69", "GRAY43",
-            "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1", "GREEN4", "MAGENTA1", "MAGENTA3",
-    	    "BLUE1", "BLUE3", "GOLD3", "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
-
-    static final double gridded_precip_levels_24hr [] = {0.0, 0.01, 0.1, 0.2,
-    	   0.3, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0};
-
-    /*
-     * { 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3,
-     * 1.4, 1.5 };
-     */
-
-    /* 6hr mean precip */
-
-    static final String mean_precip_colors_6hr[] = { "GRAY69", "GRAY10",
-            "GRAY30", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
+    private static final String gridded_precip_colors_24hr[] = { "GRAY10",
+            "GRAY69", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
             "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
             "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
 
-    static final double mean_precip_levels_6hr[] = { -9999.0, 0.0, 0.01, 0.1,
-            0.2, 0.3, 0.5, 0.7, 1.0, 1.3, 1.6, 2.0, 2.3, 2.5, 2.8, 3.0, 3.5,
-            4.0 };
-
-    /* 24h mean precip */
-
-    static final String mean_precip_colors_24hr[] = { "GRAY69", "GRAY10",
-            "GRAY30", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
-            "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
-            "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
-
-    static final double mean_precip_levels_24hr[] = { -9999.0, 0.0, 0.01, 0.1,
+    private static final double gridded_precip_levels_24hr[] = { 0.0, 0.01, 0.1,
             0.2, 0.3, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5, 5.0, 5.5,
             6.0 };
 
+    /* 6hr mean precip */
+
+    private static final String mean_precip_colors_6hr[] = { "GRAY69", "GRAY10",
+            "GRAY30", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
+            "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
+            "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
+
+    private static final double mean_precip_levels_6hr[] = { -9999.0, 0.0, 0.01,
+            0.1, 0.2, 0.3, 0.5, 0.7, 1.0, 1.3, 1.6, 2.0, 2.3, 2.5, 2.8, 3.0,
+            3.5, 4.0 };
+
+    /* 24h mean precip */
+
+    private static final String mean_precip_colors_24hr[] = { "GRAY69",
+            "GRAY10", "GRAY30", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN",
+            "GREEN1", "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3",
+            "GOLD3", "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
+
+    private static final double mean_precip_levels_24hr[] = { -9999.0, 0.0,
+            0.01, 0.1, 0.2, 0.3, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0, 4.5,
+            5.0, 5.5, 6.0 };
+
     /* 6hr gridded freezing level */
 
-    static final String gridded_freezing_colors_6hr[] = { "GRAY69", "GRAY10",
-            "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1", "GREEN4",
-            "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3", "YELLOW1",
-            "ORANGE1", "RED1", "RED3", "WHITE" };
+    private static final String gridded_freezing_colors_6hr[] = { "GRAY69",
+            "GRAY10", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
+            "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
+            "YELLOW1", "ORANGE1", "RED1", "RED3", "WHITE" };
 
-    static final double gridded_freezing_levels_6hr[] = { -99.0, 0.0, 1.0, 2.0,
-            3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0,
-            15.0 };
+    private static final double gridded_freezing_levels_6hr[] = { -99.0, 0.0,
+            1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0,
+            14.0, 15.0 };
 
     /* 6hr mean freezing level */
 
-    static final String mean_freezing_colors_6hr[] = { "GRAY69", "GRAY10",
-            "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1", "GREEN4",
-            "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3", "YELLOW1",
-            "ORANGE1", "RED1", "RED3", "GRAY100" };
+    private static final String mean_freezing_colors_6hr[] = { "GRAY69",
+            "GRAY10", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
+            "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
+            "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
 
-    static final double mean_freezing_levels_6hr[] = { -99.0, 0.0, 1.0, 2.0,
-            3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0,
-            15.0 };
+    private static final double mean_freezing_levels_6hr[] = { -99.0, 0.0, 1.0,
+            2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0,
+            14.0, 15.0 };
 
     /* 6hr gridded temperature */
 
-    static final String gridded_temperature_colors_6hr[] = { "GRAY74",
+    private static final String gridded_temperature_colors_6hr[] = { "GRAY74",
             "GRAY10", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
             "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
             "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
 
-    /*
-     * { "GRAY74", "GRAY43", "MAGENTA4", "MAGENTA3", "MAGENTA2", "BLUEVIOLET",
-     * "DARKVIOLET", "BLUE4", "BLUE3", "BLUE2", "CYAN3", "LIGHTSKYBLUE",
-     * "GREEN4", "LIMEGREEN", "GREEN2", "GREENYELLOW", "YELLOW", "YELLOW2",
-     * "GOLD", "GOLD2", "ORANGE", "ORANGE2", "ORANGE3", "RED3", "RED2",
-     * "BROWN1", "PINK2", "LIGHTPINK", "WHITE" };
-     */
-
-    /*
-     * { "GRAY74", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1", "GREEN4",
-     * "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3", "YELLOW1", "ORANGE1",
-     * "RED1", "RED3", "GRAY100" };
-     */
-
-    static final double gridded_temperature_levels_6hr[] = { -9999.0, -30.0,
-            -20.0, -10.0, 0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0,
-            90.0, 100.0, 110.0, 120.0 };
-
-    /*
-     * { -15.0, -10.0, -5.0, 0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0, 35.0, 40.0,
-     * 45.0, 50.0, 55.0, 60.0 };
-     */
-
-    /*
-     * { -20.0, -15.0, -10.0, -5.0, 0.0, 5.0, 10.0, 15.0, 20.0, 25.0, 30.0,
-     * 35.0, 40.0, 45.0, 50.0, 55.0, 60.0, 65.0, 70.0, 75.0, 80.0, 85.0, 90.0,
-     * 95.0, 100.0, 105.0, 110.0, 115.0, 120.0 };
-     */
+    private static final double gridded_temperature_levels_6hr[] = { -9999.0,
+            -30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0,
+            80.0, 90.0, 100.0, 110.0, 120.0 };
 
     /* 24h max, min temperature */
 
-    static final String gridded_temperature_colors_max[] = { "GRAY74",
+    private static final String gridded_temperature_colors_max[] = { "GRAY74",
             "GRAY10", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
             "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
             "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
 
-    static final String gridded_temperature_colors_min[] = { "GRAY74",
+    private static final String gridded_temperature_colors_min[] = { "GRAY74",
             "GRAY10", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
             "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
             "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
 
-    static final double gridded_temperature_levels_max[] = { -9999.0, -30.0,
-            -20.0, -10.0, 0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0,
-            90.0, 100.0, 110.0, 120.0 };
+    private static final double gridded_temperature_levels_max[] = { -9999.0,
+            -30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0,
+            80.0, 90.0, 100.0, 110.0, 120.0 };
 
-    static final double gridded_temperature_levels_min[] = { -9999.0, -30.0,
-            -20.0, -10.0, 0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0,
-            90.0, 100.0, 110.0, 120.0 };
+    private static final double gridded_temperature_levels_min[] = { -9999.0,
+            -30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0,
+            80.0, 90.0, 100.0, 110.0, 120.0 };
 
     /* 6hr mean temperature */
 
-    static final String mean_temperature_colors_6hr[] = { "GRAY10", "GRAY74",
-            "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1", "GREEN4",
-            "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3", "YELLOW1",
-            "ORANGE1", "RED1", "RED3", "GRAY100" };
+    private static final String mean_temperature_colors_6hr[] = { "GRAY10",
+            "GRAY74", "GRAY43", "DARKKHAKI", "LIGHTSEAGREEN", "GREEN1",
+            "GREEN4", "MAGENTA1", "MAGENTA3", "BLUE1", "BLUE3", "GOLD3",
+            "YELLOW1", "ORANGE1", "RED1", "RED3", "GRAY100" };
 
-    static final double mean_temperature_levels_6hr[] = { -9999.0, -30.0,
-            -20.0, -10.0, 0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0,
-            90.0, 100.0, 110.0, 120.0 };
+    private static final double mean_temperature_levels_6hr[] = { -9999.0,
+            -30.0, -20.0, -10.0, 0.0, 10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0,
+            80.0, 90.0, 100.0, 110.0, 120.0 };
 
     /**
      * Returns the list of default color sets for MPE
@@ -373,90 +292,92 @@ public class MPEColors {
      */
     public static List<NamedColorUseSet> build_mpe_colors() {
         NamedColorUseSet pColorUseSet = null;
-        List<NamedColorUseSet> pColorSetGroup = new ArrayList<NamedColorUseSet>();
+        List<NamedColorUseSet> pColorSetGroup = new ArrayList<>();
 
         /* Create a color use group for each of the MPE products. */
 
-        
-       /* PRECIP_BIAS */
+        /* PRECIP_BIAS */
         pColorUseSet = new NamedColorUseSet("PRECIP_BIAS", "Precip Bias",
-                precip_bias_levels, precip_bias_colors, "GRAY30", "GRAY10", 3600);
+                precip_bias_levels, precip_bias_colors, "GRAY30", "GRAY10",
+                3600);
         pColorSetGroup.add(pColorUseSet);
-       
-        
 
         pColorUseSet = new NamedColorUseSet("PRECIP_DIFF", "Precip Difference",
-                precip_diff_levels, precip_diff_colors, "GRAY30", "GRAY30", 3600);
+                precip_diff_levels, precip_diff_colors, "GRAY30", "GRAY30",
+                3600);
         pColorSetGroup.add(pColorUseSet);
-        
+
         pColorUseSet = new NamedColorUseSet("PRECIP_RATIO", "Precip Ratio",
-                precip_ratio_levels, precip_ratio_colors, "GRAY30", "GRAY30", 3600);
+                precip_ratio_levels, precip_ratio_colors, "GRAY30", "GRAY30",
+                3600);
         pColorSetGroup.add(pColorUseSet);
-        
-               
-        pColorUseSet = new NamedColorUseSet("PRECIP_ACCUM", "Precip Accumulated",
-                precip_levels, precip_colors, "GRAY30", "GRAY30", 3600);
+
+        pColorUseSet = new NamedColorUseSet("PRECIP_ACCUM",
+                "Precip Accumulated", precip_levels, precip_colors, "GRAY30",
+                "GRAY30", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-        
-        
+
         /* Radar Mosaic */
         pColorUseSet = new NamedColorUseSet("RMOSAIC", "Radar Mosaic",
                 precip_levels, precip_colors, "GRAY30", "GRAY30", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-  
+
         /* DP Radar Mosaic */
         pColorUseSet = new NamedColorUseSet("RDMOSAIC", "DP Radar Mosaic",
                 precip_levels, precip_colors, "GRAY30", "GRAY30", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-        
-        
-        pColorUseSet = new NamedColorUseSet("AVGRDMOSAIC", "DP Avg Radar Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorUseSet = new NamedColorUseSet("AVGRDMOSAIC",
+                "DP Avg Radar Mosaic", precip_levels, precip_colors, "GRAY30",
+                "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-        
-        
-        pColorUseSet = new NamedColorUseSet("MAXRDMOSAIC", "DP Max Radar Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorUseSet = new NamedColorUseSet("MAXRDMOSAIC",
+                "DP Max Radar Mosaic", precip_levels, precip_colors, "GRAY30",
+                "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-        
-        pColorUseSet = new NamedColorUseSet("BDMOSAIC", "DP Field Bias Radar Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorUseSet = new NamedColorUseSet("BDMOSAIC",
+                "DP Field Bias Radar Mosaic", precip_levels, precip_colors,
+                "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-        
-        
-        pColorUseSet = new NamedColorUseSet("LDMOSAIC", "DP Local Bias Radar Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorUseSet = new NamedColorUseSet("LDMOSAIC",
+                "DP Local Bias Radar Mosaic", precip_levels, precip_colors,
+                "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-        
-        pColorUseSet = new NamedColorUseSet("MDMOSAIC", "DP Field Bias Multisensor Radar Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorUseSet = new NamedColorUseSet("MDMOSAIC",
+                "DP Field Bias Multisensor Radar Mosaic", precip_levels,
+                precip_colors, "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-        
-        pColorUseSet = new NamedColorUseSet("MLDMOSAIC", "DP Local Bias Multisensor Radar Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorUseSet = new NamedColorUseSet("MLDMOSAIC",
+                "DP Local Bias Multisensor Radar Mosaic", precip_levels,
+                precip_colors, "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-        
-        
-        pColorUseSet = new NamedColorUseSet("SRDMOSAIC", "DP Satellite Radar Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorUseSet = new NamedColorUseSet("SRDMOSAIC",
+                "DP Satellite Radar Mosaic", precip_levels, precip_colors,
+                "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-        
-        pColorUseSet = new NamedColorUseSet("SRDGMOSAIC", "DP Satellite Radar Gage Mosaic",
-                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
+
+        pColorUseSet = new NamedColorUseSet("SRDGMOSAIC",
+                "DP Satellite Radar Gage Mosaic", precip_levels, precip_colors,
+                "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
-  
-        
+
         /* Radar Mosaic */
         pColorUseSet = new NamedColorUseSet("RMOSAIC", "Radar Mosaic",
                 precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
@@ -503,6 +424,17 @@ public class MPEColors {
 
         pColorSetGroup.add(pColorUseSet);
 
+        if (Boolean.TRUE
+                .equals(AppsDefaultsConversionWrapper.getPropertyAsBoolean(
+                        AppsDefaultsContants.APPS_DEFAULTS_USE_GOESR_PRECIP))) {
+            /* Satellite Precip [GOES-R] */
+            pColorUseSet = new NamedColorUseSet("GOESRSATPRE",
+                    "Satellite Precip [GOES-R]", precip_levels, precip_colors,
+                    "GRAY30", "GRAY10", 3600);
+
+            pColorSetGroup.add(pColorUseSet);
+        }
+
         /* Local Bias Satellite Precip */
         pColorUseSet = new NamedColorUseSet("LSATPRE",
                 "Local Bias Satellite Precip", precip_levels, precip_colors,
@@ -524,9 +456,8 @@ public class MPEColors {
         pColorSetGroup.add(pColorUseSet);
 
         /* P3 Local Bias Mosaic */
-        pColorUseSet = new NamedColorUseSet("P3LMOSAIC",
-                "P3 Local Bias Mosaic", precip_levels, precip_colors, "GRAY30",
-                "GRAY10", 3600);
+        pColorUseSet = new NamedColorUseSet("P3LMOSAIC", "P3 Local Bias Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -631,8 +562,8 @@ public class MPEColors {
 
         /* RFC Field Bias Mosaic */
         pColorUseSet = new NamedColorUseSet("RFCBMOSAIC",
-                "RFC Field Bias Mosaic", precip_levels, precip_colors,
-                "GRAY30", "GRAY10", 3600);
+                "RFC Field Bias Mosaic", precip_levels, precip_colors, "GRAY30",
+                "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -644,9 +575,8 @@ public class MPEColors {
         pColorSetGroup.add(pColorUseSet);
 
         /* Satellite Gage Mosaic */
-        pColorUseSet = new NamedColorUseSet("SGMOSAIC",
-                "Satellite Gage Mosaic", precip_levels, precip_colors,
-                "GRAY30", "GRAY10", 3600);
+        pColorUseSet = new NamedColorUseSet("SGMOSAIC", "Satellite Gage Mosaic",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -658,9 +588,8 @@ public class MPEColors {
         pColorSetGroup.add(pColorUseSet);
 
         /* Satellite Radar Gage Mosaic */
-        pColorUseSet = new NamedColorUseSet("SRGMOSAIC",
-                "Satellite Radar Gage", precip_levels, precip_colors, "GRAY30",
-                "GRAY10", 3600);
+        pColorUseSet = new NamedColorUseSet("SRGMOSAIC", "Satellite Radar Gage",
+                precip_levels, precip_colors, "GRAY30", "GRAY10", 3600);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -682,7 +611,7 @@ public class MPEColors {
 
         pColorUseSet = new NamedColorUseSet("6hGRID_PRECIP",
                 "6hr Gridded Precip", gridded_precip_levels_6hr,
-                gridded_precip_colors_6hr, "GRAY30", "GRAY10", 21600);
+                gridded_precip_colors_6hr, "GRAY30", "GRAY10", 21_600);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -690,7 +619,7 @@ public class MPEColors {
 
         pColorUseSet = new NamedColorUseSet("24hGRID_PRECIP",
                 "24hr Gridded Precip", gridded_precip_levels_24hr,
-                gridded_precip_colors_24hr, "GRAY30", "GRAY10", 86400);
+                gridded_precip_colors_24hr, "GRAY30", "GRAY10", 86_400);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -698,7 +627,7 @@ public class MPEColors {
 
         pColorUseSet = new NamedColorUseSet("sixhGRID_TEMP",
                 "6hr Gridded Temperature", gridded_temperature_levels_6hr,
-                gridded_temperature_colors_6hr, "GRAY30", "GRAY10", 21600);
+                gridded_temperature_colors_6hr, "GRAY30", "GRAY10", 21_600);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -706,13 +635,13 @@ public class MPEColors {
 
         pColorUseSet = new NamedColorUseSet("maxGRID_TEMP",
                 "Max Gridded Temperature", gridded_temperature_levels_max,
-                gridded_temperature_colors_max, "GRAY30", "GRAY10", 86400);
+                gridded_temperature_colors_max, "GRAY30", "GRAY10", 86_400);
 
         pColorSetGroup.add(pColorUseSet);
 
         pColorUseSet = new NamedColorUseSet("minGRID_TEMP",
                 "Min Gridded Temperature", gridded_temperature_levels_min,
-                gridded_temperature_colors_min, "GRAY30", "GRAY10", 86400);
+                gridded_temperature_colors_min, "GRAY30", "GRAY10", 86_400);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -720,7 +649,7 @@ public class MPEColors {
 
         pColorUseSet = new NamedColorUseSet("6hGRID_FREEZL",
                 "6hr Gridded Freezing Level", gridded_freezing_levels_6hr,
-                gridded_freezing_colors_6hr, "GRAY30", "GRAY10", 21600);
+                gridded_freezing_colors_6hr, "GRAY30", "GRAY10", 21_600);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -728,7 +657,7 @@ public class MPEColors {
 
         pColorUseSet = new NamedColorUseSet("6hMAREA_PRECIP",
                 "6hr Mean Area Precip", mean_precip_levels_6hr,
-                mean_precip_colors_6hr, "GRAY30", "GRAY10", 21600);
+                mean_precip_colors_6hr, "GRAY30", "GRAY10", 21_600);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -736,7 +665,7 @@ public class MPEColors {
 
         pColorUseSet = new NamedColorUseSet("24hMAREA_PRECIP",
                 "24hr Mean Area Precip", mean_precip_levels_24hr,
-                mean_precip_colors_24hr, "GRAY30", "GRAY10", 86400);
+                mean_precip_colors_24hr, "GRAY30", "GRAY10", 86_400);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -744,7 +673,7 @@ public class MPEColors {
 
         pColorUseSet = new NamedColorUseSet("sixhMAREA_TEMP",
                 "6hr Mean Area Temperature", mean_temperature_levels_6hr,
-                mean_temperature_colors_6hr, "GRAY30", "GRAY10", 21600);
+                mean_temperature_colors_6hr, "GRAY30", "GRAY10", 21_600);
 
         pColorSetGroup.add(pColorUseSet);
 
@@ -752,7 +681,7 @@ public class MPEColors {
 
         pColorUseSet = new NamedColorUseSet("6hMAREA_FREEZL",
                 "6hr Mean Area Freezing Level", mean_freezing_levels_6hr,
-                mean_freezing_colors_6hr, "GRAY30", "GRAY10", 21600);
+                mean_freezing_colors_6hr, "GRAY30", "GRAY10", 21_600);
 
         pColorSetGroup.add(pColorUseSet);
 

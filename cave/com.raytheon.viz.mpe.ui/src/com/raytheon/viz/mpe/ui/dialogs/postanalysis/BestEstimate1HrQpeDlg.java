@@ -31,6 +31,8 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Shell;
 
+import com.raytheon.uf.common.mpe.constants.FilePermissionConstants;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.xmrg.XmrgFile;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 
@@ -46,27 +48,31 @@ import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
  * Jun 12, 2011            lvenable     Initial creation
  * Nov 2015      DR 18xxx  pstilles     fixed problem with qpe grid written to file
  *                                      reported by OHRFC
+ * Aug 07, 2017 6334       bkowal       Directories are now created with 770 permissions and files 660.
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  */
 
 public class BestEstimate1HrQpeDlg extends BasePostAnalysisDlg {
 
-    private static final int HOURS_PER_DAY = 24;
     /**
      * File combo box.
      */
     private Combo fileCbo = null;
+
     private String selectedFileName = null;
 
     private List<String> xmrgFileList = null;
+
     private PostAnalysisManager paMgr = null;
+
     private String qpeDirectory = null;
+
     private String adjustedDirectory = null;
 
     private double[][] biasRatioGrid = null;
+
     private double[][] disaggGrid = null;
 
     /**
@@ -167,9 +173,10 @@ public class BestEstimate1HrQpeDlg extends BasePostAnalysisDlg {
             file.setHeader(paMgr.getXmrgHeader());
 
             try {
-                file.save(destinationFilePath);
-                System.out.println(header + "Saved xmrg file to "
-                        + destinationFilePath);
+                file.save(destinationFilePath,
+                        FilePermissionConstants.POSIX_FILE_SET);
+                System.out.println(
+                        header + "Saved xmrg file to " + destinationFilePath);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -264,7 +271,8 @@ public class BestEstimate1HrQpeDlg extends BasePostAnalysisDlg {
             for (int row = 0; row < rowCount; row++) {
                 for (int col = 0; col < colCount; col++) {
                     double biasValue = biasGrid[col][row];
-                    double disaggValue = disaggGrid[col][row] / HOURS_PER_DAY;
+                    double disaggValue = disaggGrid[col][row]
+                            / TimeUtil.HOURS_PER_DAY;
 
                     if (biasValue > 0.0) {
                         adjustedGrid[row][col] *= biasValue;
@@ -282,12 +290,6 @@ public class BestEstimate1HrQpeDlg extends BasePostAnalysisDlg {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.mpe.ui.dialogs.postanalysis.BasePostAnalysisDlg#
-     * getNumberOfColorLegends()
-     */
     @Override
     protected int getNumberOfColorLegends() {
         return 1;

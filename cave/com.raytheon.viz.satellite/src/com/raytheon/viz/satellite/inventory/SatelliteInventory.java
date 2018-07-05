@@ -34,12 +34,15 @@ import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.derivparam.inv.AbstractInventory;
 import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.common.derivparam.library.DerivParamField;
 import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.common.derivparam.tree.LatLonDataLevelNode.LatOrLon;
+import com.raytheon.uf.common.derivparam.tree.ValidTimeDataLevelNode;
 import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
@@ -70,14 +73,15 @@ import com.raytheon.viz.alerts.observers.ProductAlertObserver;
  * May 06, 2014  3117     bsteffen    Update for new data.
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * Apr 06, 2014  #17215   D. Friedman Use ReentrantLock
+ * Jul 17, 2017  6345     bsteffen    Add support for latitude, longitude, validTime
+ * 
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-public class SatelliteInventory extends AbstractInventory implements
-        IAlertObserver {
+public class SatelliteInventory extends AbstractInventory
+        implements IAlertObserver {
 
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SatelliteInventory.class);
@@ -99,9 +103,21 @@ public class SatelliteInventory extends AbstractInventory implements
     }
 
     @Override
-    public List<DataTime> timeAgnosticQuery(Map<String, RequestConstraint> query) {
-        /* Returning null means no data will be time agnostic. */
-        return null;
+    public List<DataTime> timeAgnosticQuery(
+            Map<String, RequestConstraint> query) throws DataCubeException {
+        Map<String, RequestConstraint> newQuery = new HashMap<>(query);
+        newQuery.remove(PHYSICALELEMENT);
+        TimeQueryRequest req = new TimeQueryRequest();
+        req.setPluginName(SATELLITE);
+        req.setQueryTerms(newQuery);
+
+        try {
+            @SuppressWarnings("unchecked")
+            List<DataTime> result = (List<DataTime>) RequestRouter.route(req);
+            return result;
+        } catch (Exception e) {
+            throw new DataCubeException(e);
+        }
     }
 
     @Override
@@ -157,11 +173,11 @@ public class SatelliteInventory extends AbstractInventory implements
 
             LevelNode levelNode = paramNode.getChildNode(levelId);
             if (levelNode == null) {
-                Map<String, RequestConstraint> requestConstraints = new HashMap<String, RequestConstraint>();
-                requestConstraints.put(SECTOR_ID, new RequestConstraint(
-                        sectorID));
-                requestConstraints.put(PHYSICALELEMENT, new RequestConstraint(
-                        physicalElement));
+                Map<String, RequestConstraint> requestConstraints = new HashMap<>();
+                requestConstraints.put(SECTOR_ID,
+                        new RequestConstraint(sectorID));
+                requestConstraints.put(PHYSICALELEMENT,
+                        new RequestConstraint(physicalElement));
                 requestConstraints.put(PluginDataObject.PLUGIN_NAME_ID,
                         new RequestConstraint(SATELLITE));
                 levelNode = new SatelliteRequestableLevelNode(coverages,
@@ -190,9 +206,9 @@ public class SatelliteInventory extends AbstractInventory implements
 
     @Override
     protected AbstractDerivedDataNode getImportNode(
-            AbstractRequestableNode nodeToImport,
-            String nodeToImportSourceName, SourceNode destSourceNode,
-            DerivParamDesc desc, DerivParamMethod method, Level level) {
+            AbstractRequestableNode nodeToImport, String nodeToImportSourceName,
+            SourceNode destSourceNode, DerivParamDesc desc,
+            DerivParamMethod method, Level level) {
         /* Returning null means import is not supported. */
         return null;
     }
@@ -200,7 +216,16 @@ public class SatelliteInventory extends AbstractInventory implements
     @Override
     protected Object resolvePluginStaticData(SourceNode sNode,
             DerivParamField field, Level level) {
-        /* Returning null means static data is not supported. */
+        String param = field.getParam();
+        if (LatOrLon.LATITUDE.toString().toLowerCase().equals(param)) {
+            return new SatLatLonDataLevelNode(sNode.getValue(),
+                    LatOrLon.LATITUDE, level);
+        } else if (LatOrLon.LONGITUDE.toString().toLowerCase().equals(param)) {
+            return new SatLatLonDataLevelNode(sNode.getValue(),
+                    LatOrLon.LONGITUDE, level);
+        } else if ("validTime".equals(param)) {
+            return new ValidTimeDataLevelNode(this, sNode.getValue(), level);
+        }
         return null;
     }
 

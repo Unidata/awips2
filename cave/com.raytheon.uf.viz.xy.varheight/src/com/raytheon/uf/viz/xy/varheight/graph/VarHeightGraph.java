@@ -47,10 +47,10 @@ import com.raytheon.uf.viz.xy.graph.axis.LinearAxisPlacer;
 import com.raytheon.uf.viz.xy.graph.axis.LogarithmicAxisPlacer;
 import com.raytheon.uf.viz.xy.graph.labeling.IGraphLabel;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScale.ScaleType;
 import com.raytheon.uf.viz.xy.varheight.display.VarHeightDescriptor;
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResource;
-import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.slice.request.HeightScale.ScaleType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

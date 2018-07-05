@@ -25,68 +25,84 @@
 #    SmartScript -- library of methods for Smart Tools and Procedures
 #
 # Author: hansen
-# ----------------------------------------------------------------------------
+# SOFTWARE HISTORY
 #
-#     SOFTWARE HISTORY
-#
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    01/09/13        DR15626       J. Zeng        Add methods
-#                                                   enableISCsend
-#                                                   clientISCSendStatus
-#                                                   manualSendISC_autoMode
-#                                                   manualSendISC_manualMode
-#    01/30/13        1559          dgilling       Fix TypeError in
-#                                                 getGridCellSwath().
-#    Mar 13, 2013    1791          bsteffen       Implement bulk getGrids to
-#                                                 improve performance.
-#    Mar 13, 2013    1793          bsteffen       Performance improvements for
-#                                                 TCMWindTool
-#    Apr 24, 2013    1947          randerso       Fix UVToMagDir to work with scalar arguments
-#                                                 Cleaned up some constants
-#    Jun 21, 2013    14983         ryu            Fixed encodeEditArea() to evaluate query
-#                                                 when necessary
-#    Aug 14, 2013     1571         randerso       Fixed encodeEditArea() to return astype(numpy.bool8)
-#                                                 so mask can be used with advanced indexing
-#                                                 (e.g. grid[mask] = value)
-#    Oct 07, 2013    2424          randerso       remove use of pytz
-#    Oct 29, 2013    2476          njensen        Improved getting wx/discrete keys in _getGridResults
-#    Oct 31, 2013    2508          randerso       Change to use DiscreteGridSlice.getKeys()
-#    Nov 07, 2013    2476          dgilling       Fix _getGridsResult() for retrieving 
-#                                                 Wx/Discrete in First mode.
-#    Dec 23, 2013    16893         ryu            Added unloadWEs() method (created by njensen)
-#    Apr 29, 2014    3097          randerso       Fixed getGrids() to return non-scalar grids as tuples in all cases
-#    Nov 26, 2014    #633          zhao           Corrected a type error in loadParm() 
-#    Dec 01, 2014    3875          randerso       Added gmTime() and localTime() functions which are exact equivalents
-#                                                 to those in the python time module.
-#                                                 Added getTimeZoneStr and getTzInfo which return the site's local time
-#                                                 zone as a string or as an object respectively
-#                                                 Fixed createTimeRange to correctly return time ranges relative to local
-#                                                 time regardless of setting of os.environ['TZ']
-#    Jan 13, 2015    3955          randerso       Added optional parameter to availableParms to specify desired databases.
-#                                                 Fixed createGrid to accept a DatabaseID for model
-#    Apr 23, 2015    4259          njensen        Updated for new JEP API
-#    Jul 17, 2015    4575          njensen        callSmartTool() and callProcedure() send HashMap for varDict
-#    Aug 13, 2015    4704          randerso       Added NumpyJavaEnforcer support in createGrids and decodeEditArea
-#                                                 additional code cleanup
-#    Aug 26, 2015    4809          randerso       Added option group parameter to editAreaList()
-#    Aug 26, 2015    4804          dgilling       Added callTextFormatter().
-#    Aug 27, 2015    4805          dgilling       Added saveCombinationsFile().
-#    Aug 27, 2015    4806          dgilling       Added transmitTextProduct().
-#    Sep 16, 2015    4871          randerso       Return modified varDict from called Tool/Procedure
-#
-#    Sep 11, 2015    4858          dgilling       Remove notification processing from publishElements.
-#    Jan 20, 2016    4751          randerso       Fix type of mask returned from getComposite() to work with numpy 1.9.2
-#    Jan 28, 2016    5129          dgilling       Support changes to IFPClient.
-#    Feb 22, 2016    5374          randerso       Added support for sendWFOMessage
-#    Apr 05, 2016    5539          randerso       Added exception when attempting create more than 256 Wx keys
-#    05/06/2016      18967         ryu            Fix issue of contours plotted over ProposedWatches grid
-#                                                 when ViewWCL is run.
-#    Aug 22, 2016    18605         ryu            Retrieve operational text product in test mode.
-#    Sep 28, 2016    19293         randerso       Added loadCombinationsFile method. Moved CombinationsFileUtil to 
-#                                                 common.
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Jan 09, 2013  15626    J. Zeng   Add methods
+#                                    enableISCsend
+#                                    clientISCSendStatus
+#                                    manualSendISC_autoMode
+#                                    manualSendISC_manualMode
+# Jan 30, 2013  1559     dgilling  Fix TypeError in getGridCellSwath().
+# Mar 13, 2013  1791     bsteffen  Implement bulk getGrids to improve
+#                                  performance.
+# Mar 13, 2013  1793     bsteffen  Performance improvements for TCMWindTool
+# Apr 24, 2013  1947     randerso  Fix UVToMagDir to work with scalar arguments
+#                                  Cleaned up some constants
+# Jun 21, 2013  14983    ryu       Fixed encodeEditArea() to evaluate query
+#                                  when necessary
+# Aug 14, 2013  1571     randerso  Fixed encodeEditArea() to return
+#                                  astype(numpy.bool8) so mask can be used with
+#                                  advanced indexing (e.g. grid[mask] = value)
+# Oct 07, 2013  2424     randerso  remove use of pytz
+# Oct 29, 2013  2476     njensen   Improved getting wx/discrete keys in 
+#                                  _getGridResults
+# Oct 31, 2013  2508     randerso  Change to use DiscreteGridSlice.getKeys()
+# Nov 07, 2013  2476     dgilling  Fix _getGridsResult() for retrieving 
+#                                  Wx/Discrete in First mode.
+# Dec 23, 2013  16893    ryu       Added unloadWEs() method (created by njensen)
+# Apr 29, 2014  3097     randerso  Fixed getGrids() to return non-scalar grids
+#                                  as tuples in all cases
+# Nov 26, 2014  633      zhao      Corrected a type error in loadParm() 
+# Dec 01, 2014  3875     randerso  Added gmTime() and localTime() functions
+#                                  which are exact equivalents to those in the
+#                                  python time module. Added getTimeZoneStr and
+#                                  getTzInfo which return the site's local time
+#                                  zone as a string or as an object respectively
+#                                  Fixed createTimeRange to correctly return
+#                                  time ranges relative to local time regardless
+#                                  of setting of os.environ['TZ']
+# Jan 13, 2015    3955   randerso  Added optional parameter to availableParms to
+#                                  specify desired databases.
+#                                  Fixed createGrid to accept a DatabaseID for
+#                                  model
+# Apr 23, 2015    4259   njensen   Updated for new JEP API
+# Jul 17, 2015    4575   njensen   callSmartTool() and callProcedure() send
+#                                  HashMap for varDict
+# Aug 13, 2015    4704   randerso  Added NumpyJavaEnforcer support in
+#                                  createGrids and decodeEditArea.
+#                                  Additional code cleanup
+# Aug 26, 2015    4809   randerso  Added option group parameter to
+#                                  editAreaList()
+# Aug 26, 2015    4804   dgilling  Added callTextFormatter().
+# Aug 27, 2015    4805   dgilling  Added saveCombinationsFile().
+# Aug 27, 2015    4806   dgilling  Added transmitTextProduct().
+# Sep 16, 2015    4871   randerso  Return modified varDict from called
+#                                  Tool/Procedure
+# Sep 11, 2015    4858   dgilling  Remove notification processing from
+#                                  publishElements.
+# Jan 20, 2016    4751   randerso  Fix type of mask returned from getComposite()
+#                                  to work with numpy 1.9.2
+# Jan 28, 2016    5129   dgilling  Support changes to IFPClient.
+# Feb 22, 2016    5374   randerso  Added support for sendWFOMessage
+# Apr 05, 2016    5539   randerso  Added exception when attempting create more
+#                                  than 256 Wx keys
+# May 06, 2016    18967  ryu       Fix issue of contours plotted over
+#                                  ProposedWatches grid when ViewWCL is run.
+# Aug 22, 2016    18605  ryu       Retrieve operational text product in test
+#                                  mode.
+# Sep 28, 2016    19293  randerso  Added loadCombinationsFile method. Moved
+#                                  CombinationsFileUtil to common.
+# Oct 31, 2016    5979   njensen   Cast to primitives for compatibility
+# Feb 06, 2017    5959   randerso  Removed Java .toString() calls 
 #
 ########################################################################
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 import types, string, time, sys
 from math import *
 from numpy import *
@@ -139,7 +155,7 @@ class SmartScript(BaseTool.BaseTool):
         #self.__pythonGrids = []
         self.__accessTime = 0
         self.__gridLoc = self.__parmMgr.compositeGridLocation()
-        self.__gridShape = (self.__gridLoc.getNy().intValue(), self.__gridLoc.getNx().intValue())
+        self.__gridShape = (int(self.__gridLoc.getNy()), int(self.__gridLoc.getNx()))
         self.__topoGrid = None
         self.__toolType = "numeric"
         self._empty = self.empty()
@@ -1707,7 +1723,7 @@ class SmartScript(BaseTool.BaseTool):
             if colorTable:
                 from com.raytheon.uf.viz.core.drawables import ColorMapLoader
                 colorMap = ColorMapLoader.loadColorMap(colorTable)
-                elemType = parm.getGridInfo().getGridType().toString()
+                elemType = str(parm.getGridInfo().getGridType())
                 if ('DISCRETE' == elemType):
                     from com.raytheon.viz.gfe.rsc import DiscreteDisplayUtil
                     DiscreteDisplayUtil.deleteParmColorMap(parm)
@@ -1764,7 +1780,7 @@ class SmartScript(BaseTool.BaseTool):
         gridLoc = self.getGridLoc()
         latLonGrid = gridLoc.getLatLonGrid()
 
-        latLonGrid = numpy.reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
+        latLonGrid = numpy.reshape(latLonGrid, (2, int(gridLoc.getNy()), int(gridLoc.getNx())), order='F')
         return latLonGrid[1], latLonGrid[0]
 
 
@@ -2051,13 +2067,13 @@ class SmartScript(BaseTool.BaseTool):
                 pa = []
                 jsa = prefs.getFloatArray(itemName)
                 for i in jsa:
-                    pa.append(i.floatValue())
+                    pa.append(float(i))
                 return pa
             elif prefs.isIntArray(itemName):
                 pa = []
                 jsa = prefs.getIntArray(itemName)
                 for i in jsa:
-                    pa.append(i.intValue())
+                    pa.append(int(i))
                 return pa
             else:
                 return default
@@ -2235,8 +2251,8 @@ class SmartScript(BaseTool.BaseTool):
         from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DBit
         from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, ReferenceID
         gridLoc = self.getGridLoc()
-        nx = gridLoc.getNx().intValue()
-        ny = gridLoc.getNy().intValue()
+        nx = int(gridLoc.getNx())
+        ny = int(gridLoc.getNy())
         
         # force mask to boolean if it's not
         mask = NumpyJavaEnforcer.checkdTypes(mask, bool)

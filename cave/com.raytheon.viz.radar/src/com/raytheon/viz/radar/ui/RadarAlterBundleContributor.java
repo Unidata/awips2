@@ -31,13 +31,13 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.localization.LocalizationConstants;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.procedures.AlterBundleContributorAdapter;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.core.rsc.BestResResourceData;
+import com.raytheon.uf.viz.core.rsc.groups.BestResResourceData;
+import com.raytheon.uf.viz.d2d.core.procedures.AlterBundleContributorAdapter;
 import com.raytheon.viz.radar.rsc.RadarResourceData;
 
 /**

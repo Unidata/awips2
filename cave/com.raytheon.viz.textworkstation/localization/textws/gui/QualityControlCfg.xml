@@ -74,6 +74,10 @@
             <value>Flood Statement</value>
         </item>
         <item>
+            <key>FA.Y</key>
+            <value>Flood Advisory</value>
+        </item>
+        <item>
             <key>SMW</key>
             <value>Special Marine Warning</value>
         </item>
@@ -84,6 +88,30 @@
         <item>
             <key>TOR</key>
             <value>Tornado Warning</value>
+        </item>
+        <item>
+            <key>DSW</key>
+            <value>Dust Storm Warning</value>
+        </item>
+        <item>
+            <key>SQW</key>
+            <value>Snow Squall Warning</value>
+        </item>
+        <item>
+            <key>DS.W</key>
+            <value>Dust Storm Warning</value>
+        </item>
+        <item>
+            <key>DS.Y</key>
+            <value>Dust Advisory</value>
+        </item>
+        <item>
+            <key>SQ.W</key>
+            <value>Snow Squall Warning</value>
+        </item>
+        <item>
+            <key>FA.Y</key>
+            <value>Flood Advisory</value>
         </item>
     </productTypeMap>
     <followupNNN>
@@ -110,6 +138,18 @@
         <item>
             <key>FA.W</key>
             <value>FLS</value>
+        </item>
+        <item>
+            <key>DS.W</key>
+            <value>DSW</value>
+        </item>
+        <item>
+            <key>DS.Y</key>
+            <value>DSW</value>
+        </item>
+        <item>
+            <key>SQ.W</key>
+            <value>SQW</value>
         </item>
     </followupNNN>
     <nnnOfIdent>
@@ -141,6 +181,18 @@
             <key>EW.W</key>
             <value>EWW</value>
         </item>
+        <item>
+            <key>DS.W</key>
+            <value>DSW</value>
+        </item>
+        <item>
+            <key>DS.Y</key>
+            <value>DSW</value>
+        </item>
+        <item>
+            <key>SQ.W</key>
+            <value>SQW</value>
+        </item>
     </nnnOfIdent>
     <SegmentedNNN>WCN</SegmentedNNN>
     <SegmentedNNN>SLS</SegmentedNNN>
@@ -148,11 +200,17 @@
     <SegmentedNNN>FFS</SegmentedNNN>
     <SegmentedNNN>FLS</SegmentedNNN>
     <SegmentedNNN>MWS</SegmentedNNN>
+    <SegmentedNNN>SQW</SegmentedNNN>
+    <SegmentedNNN>DSW</SegmentedNNN>
     <bulletTypeMap>
         <item>
             <key>FA.Y</key>
             <value>FLOOD ADVISORY</value>
             <value>HYDROLOGIC ADVISORY</value>
+        </item>
+        <item>
+            <key>DS.Y</key>
+            <value>Dust Advisory</value>
         </item>
     </bulletTypeMap>
 </qualityControlCfg>

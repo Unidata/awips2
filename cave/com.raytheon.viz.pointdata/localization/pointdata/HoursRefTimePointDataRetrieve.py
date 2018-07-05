@@ -35,6 +35,10 @@ import PointDataView, PointDataContainer, NoDataException, RefTimePointDataRetri
 # 
 #
     
+##
+# This is a base file that is not intended to be overridden.
+##
+
 class HoursRefTimePointDataRetrieve(RefTimePointDataRetrieve.RefTimePointDataRetrieve):    
 
     def __init__(self, pluginName, site, parameters, keyId='forecastHr', refTime=None, constraint={}, maxSize=99):

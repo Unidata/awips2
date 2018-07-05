@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -24,9 +24,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
-import com.raytheon.edex.plugin.gfe.server.GridParmManager;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
-import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
@@ -34,34 +32,36 @@ import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 
 /**
  * IFP Database, originally C++ <--> Python bridge, ported to Java
- * 
+ *
  * <pre>
+ *
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 7, 2008				njensen	    Initial creation
- * Jun 13, 2013     #2044   randerso    Refactored to use IFPServer
- * Jul 28, 2014   RM 15655  ryu         Negate raising exception for empty db in constructor
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 07, 2008           njensen   Initial creation
+ * Jun 13, 2013  2044     randerso  Refactored to use IFPServer
+ * Jul 28, 2014  15655    ryu       Negate raising exception for empty db in
+ *                                  constructor
+ * Sep 12, 2016  5861     randerso  Remove references to IFPServerConfigManager
+ *                                  which was largely redundant with IFPServer.
+ *
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
 public class IFPDB {
 
     private final DatabaseID dbid;
 
-    private final GridParmManager gridParmMgr;
-
-    private final LockManager lockMgr;
+    private final IFPServer ifpServer;
 
     private List<String> keys;
 
     /**
      * Constructor
-     * 
+     *
      * @param db
      *            Database ID in string form
      * @throws GfeException
@@ -72,14 +72,14 @@ public class IFPDB {
             throw new GfeException("Invalid databaseID: " + db);
         }
 
-        IFPServer ifpServer = IFPServer.getActiveServer(dbid.getSiteId());
+        this.ifpServer = IFPServer.getActiveServer(dbid.getSiteId());
         if (ifpServer == null) {
-            throw new GfeException("No active IFPServer for site: "
-                    + dbid.getSiteId());
+            throw new GfeException(
+                    "No active IFPServer for site: " + dbid.getSiteId());
         }
-        this.gridParmMgr = ifpServer.getGridParmMgr();
-        this.lockMgr = ifpServer.getLockMgr();
-        ServerResponse<List<ParmID>> sr = gridParmMgr.getParmList(dbid);
+
+        ServerResponse<List<ParmID>> sr = ifpServer.getGridParmMgr()
+                .getParmList(dbid);
 
         if (sr.isOkay()) {
             List<ParmID> list = sr.getPayload();
@@ -94,7 +94,7 @@ public class IFPDB {
 
     /**
      * Returns a list of available parms corresponding to the DatabaseID
-     * 
+     *
      * @return the list of available parms
      */
     public List<String> getKeys() {
@@ -103,7 +103,7 @@ public class IFPDB {
 
     /**
      * Returns an IFPWE from the database
-     * 
+     *
      * @param parmName
      *            the name of the parm
      * @return IFPWE instance for parm
@@ -115,7 +115,7 @@ public class IFPDB {
 
     /**
      * Returns an IFPWE from the database
-     * 
+     *
      * @param parmName
      * @param userName
      * @return IFPWE instance for parmName
@@ -126,12 +126,12 @@ public class IFPDB {
         String level = split[1];
 
         ParmID pid = new ParmID(param, dbid, level);
-        return new IFPWE(pid, userName, gridParmMgr, lockMgr);
+        return new IFPWE(pid, userName, ifpServer);
     }
 
     /**
      * Returns the time of the database
-     * 
+     *
      * @return the model time
      */
     public Date getModelTime() {
@@ -140,7 +140,7 @@ public class IFPDB {
 
     /**
      * Returns the short model name of the database
-     * 
+     *
      * @return the short model name
      */
     public String getShortModelIdentifier() {
@@ -149,7 +149,7 @@ public class IFPDB {
 
     /**
      * Returns the name of the database
-     * 
+     *
      * @return the model name
      */
     public String getModelIdentifier() {

@@ -1,11 +1,14 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix;
 
-import gov.noaa.gsd.viz.ensemble.util.RequestableResourceMetadata;
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -13,6 +16,7 @@ import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
@@ -25,13 +29,17 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.grid.rsc.GridLoadProperties;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.core.rsc.groups.BestResResourceData;
 import com.raytheon.viz.grid.rsc.GridResourceData;
 import com.raytheon.viz.ui.BundleLoader;
 import com.raytheon.viz.ui.BundleLoader.BundleInfoType;
+
+import gov.noaa.gsd.viz.ensemble.util.RequestableResourceMetadata;
 
 /**
  * This is the data model class which represents a model family.
@@ -53,6 +61,7 @@ import com.raytheon.viz.ui.BundleLoader.BundleInfoType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2015  12302      polster     Initial creation
+ * Dec 01, 2017  41520      polster     Added method to convert bundles from Map to Matrix
  * 
  * </pre>
  * 
@@ -100,8 +109,8 @@ public class ModelFamily {
             throw new IOException("Model family file name cannot be null.");
         }
 
-        currFile = PathManagerFactory.getPathManager().getStaticFile(
-                xmlFileName);
+        currFile = PathManagerFactory.getPathManager()
+                .getStaticFile(xmlFileName);
         if (currFile == null) {
             throw new IOException("No model family file found: " + xmlFileName);
         }
@@ -109,15 +118,59 @@ public class ModelFamily {
         variablesMap = new HashMap<String, String>();
         variablesMap = findVariables(currFile);
 
-        bundle = BundleLoader.getBundle(xmlFileName, variablesMap,
-                BundleInfoType.FILE_LOCATION);
+        currFile = convertToMatrixDescriptor(currFile.getAbsolutePath());
+
+        String xmlContents = getContents(currFile);
+
+        bundle = BundleLoader.getBundle(xmlContents, variablesMap,
+                BundleInfoType.XML);
 
         fieldPlanePairs = extractFieldPlanePairs();
         if (fieldPlanePairs == null || fieldPlanePairs.size() == 0) {
             throw new VizException(
                     "Invalid model family: There are no field/plane pairs.");
         }
+    }
 
+    private String getContents(File f) {
+        StringBuilder contentBuilder = new StringBuilder();
+
+        try (Stream<String> stream = Files.lines(Paths.get(f.getAbsolutePath()),
+                StandardCharsets.UTF_8)) {
+            stream.forEach(s -> contentBuilder.append(s).append("\n"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return contentBuilder.toString();
+    }
+
+    /**
+     * Need to take an incoming display bundle and convert all of the
+     * occurrences of mapDescriptor with matrixDescriptor.
+     * 
+     * @param path
+     *            Path to the location of the display bundle xml file
+     * @return Returns the converted file
+     * @throws IOException
+     */
+    private File convertToMatrixDescriptor(String path) throws IOException {
+
+        File convertedFile = File.createTempFile("a2bundle-", ".xml");
+        Path pathToXml = Paths.get(path);
+
+        byte[] byteFile = Files.readAllBytes(pathToXml);
+
+        String textFromFile = new String(byteFile, StandardCharsets.UTF_8);
+
+        textFromFile = textFromFile.replaceAll("mapDescriptor",
+                "matrixDescriptor");
+
+        // write back data to file
+        Files.write(convertedFile.toPath(),
+                textFromFile.getBytes(StandardCharsets.UTF_8),
+                StandardOpenOption.CREATE);
+
+        return convertedFile;
     }
 
     /**
@@ -144,6 +197,8 @@ public class ModelFamily {
      * Creates a bundle from the raw model family XML file and then extracts the
      * field/plane pairs.
      * 
+     * TODO: For the 17.3.1 delivery ignore BestResResource types.
+     * 
      * @return the set of field/plane pairs in the convenience class
      *         <code>ElementSet</code>
      */
@@ -156,8 +211,8 @@ public class ModelFamily {
             return null;
         else {
             fieldPlanePairs = new FieldPlanePairSet(this);
-            fieldPlanePairs.setFileName(currFamilyDefinition
-                    .getFamilyFileName());
+            fieldPlanePairs
+                    .setFileName(currFamilyDefinition.getFamilyFileName());
 
             AbstractRenderableDisplay[] displays = bundle.getDisplays();
             for (AbstractRenderableDisplay display : displays) {
@@ -165,15 +220,19 @@ public class ModelFamily {
                         .getResourceList();
                 for (int i = 0; i < rscList.size(); i++) {
                     ResourcePair rp = rscList.get(i);
-                    if (rp != null && rp.getResourceData() != null) {
+                    if (rp != null && rp.getResourceData() != null && ((rp
+                            .getResourceData() instanceof BestResResourceData) == false)) {
                         if (rp.getResourceData() instanceof AbstractRequestableResourceData) {
 
-                            DisplayType displayType = getDisplayType(rp
-                                    .getLoadProperties());
+                            DisplayType displayType = getDisplayType(
+                                    rp.getLoadProperties());
 
                             ResourceProperties rscProps = rp.getProperties();
                             AbstractRequestableResourceData ard = (AbstractRequestableResourceData) rp
                                     .getResourceData();
+                            if (ard instanceof BestResResourceData) {
+                                continue;
+                            }
                             RequestableResourceMetadata rrd = new RequestableResourceMetadata(
                                     ard);
                             fieldAbbrev = rrd.getFieldAbbrev();
@@ -245,7 +304,8 @@ public class ModelFamily {
      * @return tne variables map of name/value pairs
      * @throws IOException
      */
-    private Map<String, String> findVariables(File currFile) throws IOException {
+    private Map<String, String> findVariables(File currFile)
+            throws IOException {
 
         /*
          * Search for string pattern: ${variable}
@@ -347,10 +407,11 @@ public class ModelFamily {
                             while (iter.hasNext()) {
                                 key = iter.next();
                                 RequestConstraint rc = map.get(key);
-                                if (key.equals(GridConstants.PARAMETER_ABBREVIATION)) {
+                                if (key.equals(
+                                        GridConstants.PARAMETER_ABBREVIATION)) {
                                     targetField = rc.getConstraintValue();
-                                } else if (key
-                                        .equals(GridConstants.MASTER_LEVEL_NAME)) {
+                                } else if (key.equals(
+                                        GridConstants.MASTER_LEVEL_NAME)) {
                                     targetPlane = rc.getConstraintValue();
                                 }
                             }

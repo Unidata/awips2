@@ -12,7 +12,7 @@ The major file systems on the Linux-OS EDEX Data Server are as follows:
 ### AWIPS File Systems
 
 * **/awips2**. This file system is used to store baselined AWIPS software. 
-* **/awips2/data**.  Database files. 
+* **/awips2/database/data**.  Database files. 
 * **/awips2/edex/data/hdf5**. Contains the HDF5 component of the data store and shared static data and hydro apps. 
 * **/awips2/GFESuite**. Contains scripts and data relating to inter site coordination (ISC) and service backup.
 * **/awips2/edex/data/utility**. Contains localization store and EDEX configuration files. 

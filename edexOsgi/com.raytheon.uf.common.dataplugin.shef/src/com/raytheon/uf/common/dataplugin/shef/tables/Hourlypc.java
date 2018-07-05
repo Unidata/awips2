@@ -1,23 +1,25 @@
 /**
- * This software was developed and / or modified by Raytheon Company,
- * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
- * U.S. EXPORT CONTROLLED TECHNICAL DATA
- * This software product contains export-restricted data whose
- * export/transfer/disclosure is restricted by U.S. law. Dissemination
- * to non-U.S. persons whether in the United States or abroad requires
- * an export license or other authorization.
- * 
- * Contractor Name:        Raytheon Company
- * Contractor Address:     6825 Pine Street, Suite 340
- *                         Mail Stop B8
- *                         Omaha, NE 68106
- *                         402.291.0100
- * 
- * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
- * further licensing information.
- **/
+* This software was developed and / or modified by Raytheon Company,
+* pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+* 
+* U.S. EXPORT CONTROLLED TECHNICAL DATA
+* This software product contains export-restricted data whose
+* export/transfer/disclosure is restricted by U.S. law. Dissemination
+* to non-U.S. persons whether in the United States or abroad requires
+* an export license or other authorization.
+* 
+* Contractor Name:        Raytheon Company
+* Contractor Address:     6825 Pine Street, Suite 340
+*                         Mail Stop B8
+*                         Omaha, NE 68106
+*                         402.291.0100
+* 
+* See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+* further licensing information.
+**/
 package com.raytheon.uf.common.dataplugin.shef.tables;
+
+import java.io.Serializable;
 
 // default package
 // Generated Oct 17, 2008 2:22:17 PM by Hibernate Tools 3.2.2.GA
@@ -33,7 +35,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
@@ -46,9 +47,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
- * Aug 19, 2011 10672      jkorman     Move refactor to new project
- * Oct 07, 2013  2361      njensen     Removed XML annotations
- * Jun 22, 2016  4623      skorolev    Cleanup. Added @NamedQueries
+ * Aug 19, 2011      10672     jkorman Move refactor to new project
+ * Oct 07, 2013       2361     njensen Removed XML annotations
+ * Sep 13, 2016  5631      bkowal      Minor cleanup.
  * 
  * </pre>
  * 
@@ -67,9 +68,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
         @NamedQuery(name = Hourlypc.SELECT_HOURLYPC_FOR_OBSTIME, query = Hourlypc.SELECT_HOURLYPC_FOR_OBSTIME_HQL) })
 @Entity
 @Table(name = "hourlypc")
-@DynamicSerialize
-public class Hourlypc extends PersistableDataObject<HourlypcId> implements
-        java.io.Serializable, IHourlyTS {
+@com.raytheon.uf.common.serialization.annotations.DynamicSerialize
+public class Hourlypc extends PersistableDataObject<HourlypcId>
+        implements Serializable, IHourlyTS {
 
     // ------------Select records for ts, lid, between start and finish
 
@@ -117,7 +118,7 @@ public class Hourlypc extends PersistableDataObject<HourlypcId> implements
 
     public static final String SELECT_HOURLYPC_FOR_OBSTIME_HQL = "FROM Hourlypc hpc WHERE hpc.id.obsdate >= :start AND obsdate <= :finish ORDER BY hpc.id.lid ASC, hpc.id.ts ASC, hpc.id.obsdate ASC";
 
-    public static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     @DynamicSerializeElement
     private HourlypcId id;

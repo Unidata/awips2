@@ -43,6 +43,7 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * May 13, 2014 2536       bclement    Initial creation, moved from TimeTools
  * Nov 10, 2014 3549       njensen     Improve logging of findDataTime()
  * Mar 24, 2016 5501       tgurney     Add getAdjustedRefTime()
+ * Jan 16, 2018 17469      wkwock      Change adjustDayHourMinute() visibility to public
  * 
  * </pre>
  * 
@@ -179,9 +180,8 @@ public class WMOTimeParser {
 
                 refCal = adjustDayHourMinute(refCal, iDay, iHour, iMinute);
             } else {
-                throw new ParseException(
-                        "Invalid format - time does not match "
-                                + WMO_TIMESTAMP.pattern(), 0);
+                throw new ParseException("Invalid format - time does not match "
+                        + WMO_TIMESTAMP.pattern(), 0);
             }
         } catch (Exception e) {
             throw new DataFormatException("Unable to find current time for "
@@ -225,7 +225,7 @@ public class WMOTimeParser {
      * @param minute
      *            the new minute of the hour
      */
-    private static Calendar adjustDayHourMinute(Calendar cal, int wmoDay,
+    public static Calendar adjustDayHourMinute(Calendar cal, int wmoDay,
             int wmoHour, int wmoMinute) {
         if (cal != null) {
 

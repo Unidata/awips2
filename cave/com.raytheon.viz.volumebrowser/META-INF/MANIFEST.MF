@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Volume Browser Plug-in
 Bundle-SymbolicName: com.raytheon.viz.volumebrowser;singleton:=true
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: Raytheon
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Require-Bundle: org.eclipse.core.runtime,
  net.sf.swtaddons,
@@ -29,7 +29,9 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.viz.grid,
  com.raytheon.uf.viz.datacube,
- com.raytheon.uf.viz.core.grid;bundle-version="1.15.0"
+ com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
+ com.raytheon.uf.viz.core.rsc;bundle-version="1.16.1",
+ com.raytheon.uf.common.menus.vb
 Export-Package: com.raytheon.viz.volumebrowser,
  com.raytheon.viz.volumebrowser.datacatalog,
  com.raytheon.viz.volumebrowser.loader,
@@ -37,6 +39,5 @@ Export-Package: com.raytheon.viz.volumebrowser,
  com.raytheon.viz.volumebrowser.vbui,
  com.raytheon.viz.volumebrowser.xml
 Import-Package: com.raytheon.uf.common.inventory.exception,
- com.raytheon.viz.core.map,
- com.raytheon.viz.core.rsc
+ com.raytheon.viz.core.map
 Bundle-ClassPath: com.raytheon.viz.volumebrowser.jar

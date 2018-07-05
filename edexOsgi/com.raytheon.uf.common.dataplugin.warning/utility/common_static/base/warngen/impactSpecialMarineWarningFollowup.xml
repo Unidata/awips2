@@ -1,12 +1,19 @@
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
 <!-- Special Marine Warning Follow-Up Statement configuration -->
 <warngenConfig>
-<!-- Customized by        
+<!-- Customized by
      PHIL KURIMSKI WFO DTX   9-16-2013 OB13.5.2-4 FOR IMPACT BASED SMW WARNINGS
      Note: Volcano information will not show up in the GUI unless uncommented out
      Phil Kurimski   09-19-2013 added geospatialConfig.xml
      Phil Kurimski   06-26-2014 added DSS Events
      Phil Kurimski   02-18-2015 Updated CTA section
-     Evan Bookbinder 12/07/15 Updated CTA to remove ellipses in parseString to match product. 
+     Evan Bookbinder 12-07-2015 Updated CTA to remove ellipses in parseString to match product.
+     Phil Kurimski   01-30-2017 Added additional options to Basis (DCS 19347)
+     M. Rega         12-19-2017 Add includeMarineAreasInWatches (DR 20113)
 -->
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
@@ -67,6 +74,9 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <includedWatch>SV.A</includedWatch>
  </includedWatches>
  
+ <!-- Include references to marine zones for watches.  See marineZoneWording.xml. -->
+ <includeMarineAreasInWatches>true</includeMarineAreasInWatches>
+
  <!-- durations: the list of possible durations of the svs -->
  <!-- THIS REALLY SERVES NO PURPOSE BUT WILL CRASH WARNGEN IF REMVOED -->
  <defaultDuration>30</defaultDuration>
@@ -143,15 +153,20 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <bullets>
   <!-- Added Volcano Information. Sites can comment out if they wish. -->
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="warnBasis" bulletDefault="true" parseString="SOURCE...RADAR"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="warnBasis" parseString="SOURCE...RADAR"/>
   <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="warnBasis" parseString="SOURCE...MARINE WEATHER SPOTTER"/>
   <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="warnBasis" parseString="SOURCE...MARINER"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="warnBasis" parseString="SOURCE...PUBLIC"/>
+  <bullet bulletName="coastGuard" bulletText="Coast Guard reported" bulletGroup="warnBasis" parseString="SOURCE...COAST"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported" bulletGroup="warnBasis" parseString="SOURCE...LAW"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="warnBasis" parseString="SOURCE...EMERGENCY"/>
+  <bullet bulletName="ship" bulletText="Ship reported" bulletGroup="warnBasis" parseString="SOURCE...SHIP"/>
+  <bullet bulletName="buoy" bulletText="Buoy reported" bulletGroup="warnBasis" parseString="SOURCE...BOUY"/>
   <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="warnBasis" parseString="SOURCE...SATELLITE IMAGERY"/>
   <bullet bulletName="pilot" bulletText="Pilot reported" bulletGroup="warnBasis" parseString="SOURCE...PILOT"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="thunderstorm" bulletText="Thunderstorm" bulletGroup="eventType" bulletDefault="true" parseString="THUNDERSTORM"/>
+  <bullet bulletName="thunderstorm" bulletText="Thunderstorm" bulletGroup="eventType" parseString="THUNDERSTORM"/>
   <bullet bulletName="shower" bulletText="Shower" bulletGroup="eventType" parseString="SHOWER"/>
   <bullet bulletName="cloud" bulletText="Cloud" bulletGroup="eventType" parseString="CLOUD"/>
   <bullet bulletName="front" bulletText="Front" bulletGroup="eventType" parseString="FRONT"/>
@@ -161,7 +176,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****THREAT SECTION****..." bulletType="title"/>
   <bullet bulletText="  ****Wind Section****...(Choose 1 if applicable) " bulletType="title"/>
-  <bullet bulletName="34ktWind" bulletText="Strong winds 34 knots or greater" bulletGroup="windThreat" bulletDefault="true" parseString="WIND...&gt;34KTS"/>
+  <bullet bulletName="34ktWind" bulletText="Strong winds 34 knots or greater" bulletGroup="windThreat" parseString="WIND...&gt;34KTS"/>
   <bullet bulletName="40ktWind" bulletText="Strong winds to 40 knots" bulletGroup="windThreat" parseString="WIND...40KTS"/>
   <bullet bulletName="40ktplusWind" bulletText="Strong winds to nearly 50 knots" bulletGroup="windThreat" parseString="WIND...49KTS"/>
   <bullet bulletName="50ktWind" bulletText="Dangerous winds in excess of 50 knots" bulletGroup="windThreat" parseString="WIND...50KTS"/>
@@ -202,15 +217,20 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <bullets>
   <!-- Added Volcano Information. Sites can comment out if they wish. -->
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="warnBasis" bulletDefault="true" parseString="SOURCE...RADAR"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="warnBasis" parseString="SOURCE...RADAR"/>
   <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="warnBasis" parseString="SOURCE...MARINE WEATHER SPOTTER"/>
   <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="warnBasis" parseString="SOURCE...MARINER"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="warnBasis" parseString="SOURCE...PUBLIC"/>
+  <bullet bulletName="coastGuard" bulletText="Coast Guard reported" bulletGroup="warnBasis" parseString="SOURCE...COAST"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported" bulletGroup="warnBasis" parseString="SOURCE...LAW"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="warnBasis" parseString="SOURCE...EMERGENCY"/>
+  <bullet bulletName="ship" bulletText="Ship reported" bulletGroup="warnBasis" parseString="SOURCE...SHIP"/>
+  <bullet bulletName="buoy" bulletText="Buoy reported" bulletGroup="warnBasis" parseString="SOURCE...BOUY"/>
   <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="warnBasis" parseString="SOURCE...SATELLITE IMAGERY"/>
   <bullet bulletName="pilot" bulletText="Pilot reported" bulletGroup="warnBasis" parseString="SOURCE...PILOT"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="thunderstorm" bulletText="Thunderstorm" bulletGroup="eventType" bulletDefault="true" parseString="THUNDERSTORM"/>
+  <bullet bulletName="thunderstorm" bulletText="Thunderstorm" bulletGroup="eventType" parseString="THUNDERSTORM"/>
   <bullet bulletName="shower" bulletText="Shower" bulletGroup="eventType" parseString="SHOWER"/>
   <bullet bulletName="cloud" bulletText="Cloud" bulletGroup="eventType" parseString="CLOUD"/>
   <bullet bulletName="front" bulletText="Front" bulletGroup="eventType" parseString="FRONT"/>
@@ -220,7 +240,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="****THREAT SECTION****..." bulletType="title"/>
   <bullet bulletText="  ****Wind Section****...(Choose 1 if applicable) " bulletType="title"/>
-  <bullet bulletName="34ktWind" bulletText="Strong winds 34 knots or greater" bulletGroup="windThreat" bulletDefault="true" parseString="WIND...&gt;34KTS"/>
+  <bullet bulletName="34ktWind" bulletText="Strong winds 34 knots or greater" bulletGroup="windThreat" parseString="WIND...&gt;34KTS"/>
   <bullet bulletName="40ktWind" bulletText="Strong winds to 40 knots" bulletGroup="windThreat" parseString="WIND...40KTS"/>
   <bullet bulletName="40ktplusWind" bulletText="Strong winds to nearly 50 knots" bulletGroup="windThreat" parseString="WIND...49KTS"/>
   <bullet bulletName="50ktWind" bulletText="Dangerous winds in excess of 50 knots" bulletGroup="windThreat" parseString="WIND...50KTS"/>

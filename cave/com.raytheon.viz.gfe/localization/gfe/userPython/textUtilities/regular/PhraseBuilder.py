@@ -37,6 +37,10 @@
 # 07/15/2016    5749            randerso    Replace ellipses with commas
 # ----------------------------------------------------------------------------
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 import types
 import TimeDescriptor
 import ConfigVariables

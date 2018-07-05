@@ -18,6 +18,15 @@
   See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
   further_licensing_information.
 -->
+<!--  Tiffany Meyer 23 June 2017
+ renderingOrderId="IMAGE_WORLD" added to properties to ensure map overlays 
+ are not hidden below the grid
+-->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
   <displayList>
     <displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -25,7 +34,7 @@
         <resource>
           <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="true">
           </loadProperties>
-          <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false"
+          <properties renderingOrderId="IMAGE_WORLD" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false"
             isVisible="true" />
           <resourceData xsi:type="gridLightningResourceData" isUpdatingOnMetadataOnly="false"
             isRequeryNecessaryOnTimeMatch="true" handlingPositiveStrikes="true" handlingNegativeStrikes="true"

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -31,40 +32,37 @@ import org.osgi.framework.BundleContext;
 import org.osgi.service.event.Event;
 import org.osgi.service.event.EventHandler;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.dialogs.GFEConfigDialog;
 
 /**
  * The activator class controls the plug-in life cycle
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- *                                     Initial creation
- * Oct 30, 2012 1298       rferrel     Must be a blocking dialog.
- * Dec 09, 2013 #2367      dgilling    Remove shutdown of ProcedureJob and
- *                                     SmartToolJob.
- * Oct 28, 2015 #5054      randerso    Make GfeConfigDlg parented by workbench window if
- *                                     workbench is running.
- * Jan 15, 2016  5193      bsteffen    Add checkPreferenceStore.
- * Jan 26, 2015 #5054      randerso    If no workbench is running use null shell as parent,
- *                                     Results in display as parent for jface dialogs
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ *                                  Initial creation
+ * Oct 30, 2012  1298     rferrel   Must be a blocking dialog.
+ * Dec 09, 2013  2367     dgilling  Remove shutdown of ProcedureJob and
+ *                                  SmartToolJob.
+ * Oct 28, 2015  5054     randerso  Make GfeConfigDlg parented by workbench
+ *                                  window if workbench is running.
+ * Jan 15, 2016  5193     bsteffen  Add checkPreferenceStore.
+ * Jan 26, 2015  5054     randerso  If no workbench is running use null shell as
+ *                                  parent, Results in display as parent for
+ *                                  jface dialogs
+ * Apr 21, 2017  6239     randerso  Prevent UI deadlock if an async task calls
+ *                                  getPreferenceStore() while the dialog is
+ *                                  open.
+ *
  * </pre>
- * 
+ *
  * @author unknown
- * @version 1.0
  */
 public class Activator extends AbstractUIPlugin implements BundleActivator {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(Activator.class);
-
-    // The plug-in ID
+    /** The plug-in ID */
     public static final String PLUGIN_ID = "com.raytheon.viz.gfe";
 
     // The shared instance
@@ -82,24 +80,12 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
     public Activator() {
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.
-     * BundleContext )
-     */
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
         plugin = this;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.
-     * BundleContext )
-     */
     @Override
     public void stop(BundleContext context) throws Exception {
         plugin = null;
@@ -108,7 +94,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
 
     /**
      * Returns the shared instance
-     * 
+     *
      * @return the shared instance
      */
     public static Activator getDefault() {
@@ -125,7 +111,7 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
      * provides a mechanism to be notified when it is ready. If the preference
      * store is already initialized this method will return true and the event
      * handler is ignored.
-     * 
+     *
      * @param handler
      *            the handler that will be notified when the preferences are
      *            created, null is acceptable.
@@ -144,17 +130,31 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.plugin.AbstractUIPlugin#getPreferenceStore()
-     */
+    private PythonPreferenceStore awaitPrefs() {
+
+        /*
+         * Keep UI thread processing events while waiting for preferences to be
+         * set from the dialog
+         */
+        Display display = Display.getDefault();
+        while (pythonPrefs == null) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        return pythonPrefs;
+    }
+
     @Override
     public PythonPreferenceStore getPreferenceStore() {
+        if (pythonPrefs != null) {
+            return pythonPrefs;
+        }
+
+        /* Open the dialog if it's not already open */
         synchronized (this) {
             if (pythonPrefs == null) {
-                if ((cfgDlg == null) || (cfgDlg.getShell() == null)
-                        || cfgDlg.isDisposed()) {
+                if (cfgDlg == null) {
                     Shell shell = null;
                     if (PlatformUI.isWorkbenchRunning()) {
                         shell = PlatformUI.getWorkbench()
@@ -162,37 +162,35 @@ public class Activator extends AbstractUIPlugin implements BundleActivator {
                     }
 
                     cfgDlg = new GFEConfigDialog(shell);
-                    // Must keep as a blocking dialog for eclipse plugins to
-                    // work properly.
-                    cfgDlg.setBlockOnOpen(true);
+                    cfgDlg.setBlockOnOpen(false);
                     cfgDlg.open();
                 } else {
                     cfgDlg.bringToTop();
                 }
-
-                // this is necessary because we sometimes get in here
-                // recursively and only want to do this once
-                if (pythonPrefs == null) {
-                    String config = cfgDlg.getConfig();
-                    pythonPrefs = new PythonPreferenceStore(config);
-                    if (!preferenceListeners.isEmpty()) {
-                        Event event = new Event(config,
-                                Collections.<String, Object> emptyMap());
-                        for (EventHandler handler : preferenceListeners) {
-                            handler.handleEvent(event);
-                        }
-                        preferenceListeners.clear();
-                    }
-                    statusHandler.handle(Priority.EVENTA,
-                            "GFE started with configuration: " + config);
-                }
             }
         }
 
-        return pythonPrefs;
+        /* wait for dialog to set the preferences */
+        return awaitPrefs();
     }
 
+    /**
+     * Set the preference store
+     *
+     * @param prefs
+     */
     public void setPreferenceStore(PythonPreferenceStore prefs) {
-        this.pythonPrefs = prefs;
+        synchronized (this) {
+            this.pythonPrefs = prefs;
+            this.cfgDlg = null;
+            if (!preferenceListeners.isEmpty()) {
+                Event event = new Event("GfeConfig",
+                        Collections.<String, Object> emptyMap());
+                for (EventHandler handler : preferenceListeners) {
+                    handler.handleEvent(event);
+                }
+                preferenceListeners.clear();
+            }
+        }
     }
 }

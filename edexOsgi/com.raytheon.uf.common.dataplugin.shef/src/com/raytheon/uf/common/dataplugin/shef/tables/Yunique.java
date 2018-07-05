@@ -31,6 +31,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -49,6 +50,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 19, 2011      10672     jkorman Move refactor to new project
  * Oct 07, 2013       2361     njensen Removed XML annotations
  * May 23, 2016       5590     bkowal  Cleanup.
+ * Dec 18, 2017       6554     bkowal  Implemented {@link ICheckValue}.
  * 
  * </pre>
  * 
@@ -58,7 +60,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(name = "yunique")
 @DynamicSerialize
 public class Yunique extends PersistableDataObject<YuniqueId> implements
-        Serializable {
+        Serializable, ICheckValue {
 
     private static final long serialVersionUID = 1L;
 
@@ -187,4 +189,12 @@ public class Yunique extends PersistableDataObject<YuniqueId> implements
         this.postingtime = postingtime;
     }
 
+    @Transient
+    @Override
+    public String getCompareValue() {
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
+    }
 }

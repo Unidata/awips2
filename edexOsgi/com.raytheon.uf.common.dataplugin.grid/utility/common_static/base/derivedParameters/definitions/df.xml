@@ -18,15 +18,19 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="df" name="Duct Function">
     <Method name="LinTrans" levels="Layer">
-    	<Field abbreviation="PoT" level="800MB"/>
-    	<ConstantField value="1.0"/>
-    	<Field abbreviation="EPT" level="800MB"/>
-    	<ConstantField value="1.0"/>
-    	 <Field abbreviation="PoT" level="950MB"/>
-    	<ConstantField value="-1.0"/>
-    	 <Field abbreviation="PoT" level="400MB"/>
-    	<ConstantField value="-1.0"/>
+        <Field abbreviation="PoT" level="800MB" />
+        <ConstantField value="1.0" />
+        <Field abbreviation="EPT" level="800MB" />
+        <ConstantField value="1.0" />
+        <Field abbreviation="PoT" level="950MB" />
+        <ConstantField value="-1.0" />
+        <Field abbreviation="PoT" level="400MB" />
+        <ConstantField value="-1.0" />
     </Method>
 </DerivedParameter>

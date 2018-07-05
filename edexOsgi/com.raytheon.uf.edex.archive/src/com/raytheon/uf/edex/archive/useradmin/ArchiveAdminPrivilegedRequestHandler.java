@@ -21,50 +21,36 @@ package com.raytheon.uf.edex.archive.useradmin;
 
 import com.raytheon.uf.common.archive.request.ArchiveAdminAuthRequest;
 import com.raytheon.uf.common.auth.exception.AuthorizationException;
-import com.raytheon.uf.common.auth.user.IUser;
-import com.raytheon.uf.edex.auth.AuthManager;
 import com.raytheon.uf.edex.auth.AuthManagerFactory;
-import com.raytheon.uf.edex.auth.authorization.IAuthorizer;
+import com.raytheon.uf.edex.auth.IPermissionsManager;
 import com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler;
 import com.raytheon.uf.edex.auth.resp.AuthorizationResponse;
 
 /**
  * Handler for Archive Admin Privileged Requests.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 02, 2013  2326      rferrel     Initial creation.
- * May 28, 2014  3211      njensen     Use IAuthorizer instead of IRoleStorage
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Oct 02, 2013  2326     rferrel   Initial creation.
+ * May 28, 2014  3211     njensen   Use IAuthorizer instead of IRoleStorage
+ * Jul 17, 2017  6288     randerso  Changed to use new Roles/Permissions
+ *                                  framework
+ *
  * </pre>
- * 
+ *
  * @author rferrel
- * @version 1.0
  */
 
-public class ArchiveAdminPrivilegedRequestHandler extends
-        AbstractPrivilegedRequestHandler<ArchiveAdminAuthRequest> {
+public class ArchiveAdminPrivilegedRequestHandler
+        extends AbstractPrivilegedRequestHandler<ArchiveAdminAuthRequest> {
 
-    /**
-     * Application name. This must match the application tag in the user role
-     * file.
-     */
-    private static final String APPLICATION = "Data Archiving";
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
-     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
-     */
     @Override
-    public ArchiveAdminAuthRequest handleRequest(ArchiveAdminAuthRequest request)
-            throws Exception {
+    public ArchiveAdminAuthRequest handleRequest(
+            ArchiveAdminAuthRequest request) throws Exception {
         /*
          * If it reaches this point in the code, then the user is authorized, so
          * just return the request object with authorized set to true.
@@ -73,23 +59,14 @@ public class ArchiveAdminPrivilegedRequestHandler extends
         return request;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.auth.req.AbstractPrivilegedRequestHandler#authorized
-     * (com.raytheon.uf.common.auth.user.IUser,
-     * com.raytheon.uf.common.auth.req.AbstractPrivilegedRequest)
-     */
     @Override
-    public AuthorizationResponse authorized(IUser user,
-            ArchiveAdminAuthRequest request) throws AuthorizationException {
+    public AuthorizationResponse authorized(ArchiveAdminAuthRequest request)
+            throws AuthorizationException {
 
-        AuthManager manager = AuthManagerFactory.getInstance().getManager();
-        IAuthorizer auth = manager.getAuthorizer();
+        IPermissionsManager manager = AuthManagerFactory.getInstance()
+                .getPermissionsManager();
 
-        boolean authorized = auth.isAuthorized(request.getRoleId(), user
-                .uniqueId().toString(), APPLICATION);
+        boolean authorized = manager.isPermitted(request.getRoleId());
 
         if (authorized) {
             return new AuthorizationResponse(authorized);

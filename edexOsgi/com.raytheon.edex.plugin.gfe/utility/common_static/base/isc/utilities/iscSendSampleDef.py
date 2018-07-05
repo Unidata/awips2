@@ -8,6 +8,11 @@
 # Author: mathewson
 # ----------------------------------------------------------------------------
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 # The configuration interval file is an optional capability of ifpnetCDF.   
 # It can be used to select certain grids to be placed in the ifpnetCDF 
 # output file, rather than all grids in the inventory.  For example, you can 

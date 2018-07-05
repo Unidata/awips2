@@ -18,6 +18,12 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <pointSetProductDescriptions>
   <default>
     <matches>
@@ -79,7 +85,7 @@
 
     <triangulation type="delauney" maxRadius="7000"/>
 
-    
+
   </default>
 
   <!-- Temperature -->
@@ -188,7 +194,7 @@
         <pattern inputPattern="^([a-zA-Z]+).*" outputFormat="NOS-%S-FORECAST">
             <attribute name="title" />
         </pattern>
-    </datasetId> 
+    </datasetId>
 
     <dataTime>
       <formattedRefTime dateFormat="yyyyMMdd HH'Z'">
@@ -214,7 +220,7 @@
         <pattern inputPattern="^([a-zA-Z]+).*" outputFormat="NOS-%S-NOWCAST">
             <attribute name="title" />
         </pattern>
-    </datasetId> 
+    </datasetId>
 
     <dataTime>
       <epochOffsetRefTime epoch="2012-01-01 00:00:00" units="DAYS" roundTo="HOURS">

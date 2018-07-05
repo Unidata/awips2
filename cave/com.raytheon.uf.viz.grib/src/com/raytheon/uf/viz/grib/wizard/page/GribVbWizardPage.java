@@ -36,10 +36,10 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 
+import com.raytheon.uf.common.menus.vb.VbSource;
+import com.raytheon.uf.common.menus.vb.VbSourceList;
+import com.raytheon.uf.common.menus.vb.ViewMenu;
 import com.raytheon.uf.viz.grib.wizard.GribWizardData;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
-import com.raytheon.viz.volumebrowser.xml.VbSource;
-import com.raytheon.viz.volumebrowser.xml.VbSourceList;
 
 /**
  * 

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -35,19 +35,19 @@ import com.raytheon.viz.ui.widgets.duallist.DualListConfig;
 /**
  * Dialog to allow user to select the columns to be displayed and the order in
  * which to display them
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 30, 2012            randerso     Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -------------------------------
+ * Nov 30, 2012           randerso  Initial creation
+ * Feb 28, 2017  6121     randerso  Update DualListConfig settings
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class ColumnSelectDialog extends CaveJFACEDialog {
@@ -61,8 +61,9 @@ public class ColumnSelectDialog extends CaveJFACEDialog {
     protected ColumnSelectDialog(Shell parentShell, String[] available,
             String[] selected) {
         super(parentShell);
+        this.setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE);
         this.available = available;
-        this.selected = new ArrayList<String>(Arrays.asList(selected));
+        this.selected = new ArrayList<>(Arrays.asList(selected));
     }
 
     @Override
@@ -80,8 +81,8 @@ public class ColumnSelectDialog extends CaveJFACEDialog {
         config.setFullList(Arrays.asList(available));
         config.setSelectedListLabel("Displayed");
         config.setSelectedList(selected);
-        config.setListHeight(100);
-        config.setListWidth(100);
+        config.setListWidthInChars(15);
+        config.setVisibleItems(10);
         config.setShowUpDownBtns(true);
         dualList = new DualList(comp, SWT.NONE, config);
 

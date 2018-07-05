@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -49,11 +49,13 @@ import org.eclipse.swt.events.MenuAdapter;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -78,6 +80,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -116,7 +119,7 @@ import com.raytheon.viz.ui.statusline.StatusStore;
 
 /**
  * This class displays the GHG Monitor Dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -138,9 +141,11 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * Mar 03, 2016 #5316      randerso    Added code to keep Maps menu in sync with map changes
  * Aug 02, 2016 #5790      dgilling    Properly consolidate segments.
  * Nov 09, 2016 5995       tgurney     Add maximize and minimize buttons
+ * Feb 13, 2017 6118       mapeters    Re-layout status bar when filter text changes, use same
+ *                                     font for all of status bar
  *
  * </pre>
- * 
+ *
  * @author lvenable
  *
  */
@@ -285,7 +290,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent Shell.
      * @throws GhgMissingDataException
@@ -296,8 +301,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
                         | CAVE.DO_NOT_BLOCK);
 
         CAVEMode opMode = CAVEMode.getMode();
-        activeTableName = (opMode == CAVEMode.PRACTICE) ? ActiveTableMode.PRACTICE
-                : ActiveTableMode.OPERATIONAL;
+        activeTableName = (opMode == CAVEMode.PRACTICE)
+                ? ActiveTableMode.PRACTICE : ActiveTableMode.OPERATIONAL;
 
         // connection to ifpServer
         this.ifpClient = connectToIFPServer(
@@ -331,8 +336,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
             this.myWFO = sr2.getPayload();
             this.my4WFO = SiteMap.getInstance().getSite4LetterId(this.myWFO);
         } else {
-            throw new GhgMissingDataException(String.format(
-                    "Unable to retrieve site ID: %s", sr2.message()));
+            throw new GhgMissingDataException(String
+                    .format("Unable to retrieve site ID: %s", sr2.message()));
         }
 
         ServerResponse<GridLocation> sr3 = ifpClient.getDBGridLocation();
@@ -459,7 +464,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Create the File menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -488,8 +493,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
                 putSortingInConfig();
 
                 GhgConfigData.getInstance().save();
-                StatusStore.getStatusStore(STATUS_KEY).addMessage(
-                        "Saved configuration", Importance.REGULAR);
+                StatusStore.getStatusStore(STATUS_KEY)
+                        .addMessage("Saved configuration", Importance.REGULAR);
             }
         });
 
@@ -531,7 +536,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Create the Columns menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -583,7 +588,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Create the Filter menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -607,7 +612,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Create the Alerts menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -654,7 +659,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Create the Map menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -727,15 +732,15 @@ public class GhgMonitorDlg extends CaveSWTDialog
             @Override
             public void menuShown(MenuEvent e) {
                 String mapName = ghgSpatialViewer.getCurrentMap();
-                int zoomLevel = (int) Math.round(1.0 / ghgSpatialViewer
-                        .getZoomLevel());
+                int zoomLevel = (int) Math
+                        .round(1.0 / ghgSpatialViewer.getZoomLevel());
                 for (MenuItem item : mapMenu.getItems()) {
                     Object data = item.getData();
                     if (data instanceof String) {
                         item.setSelection(mapName.equals(data));
                     } else if (data instanceof ZoomLevel) {
-                        item.setSelection(zoomLevel == ((ZoomLevel) data)
-                                .getZoomLevel());
+                        item.setSelection(
+                                zoomLevel == ((ZoomLevel) data).getZoomLevel());
                     } else {
                         item.setSelection(ghgSpatialViewer.isLabelZones());
                     }
@@ -756,7 +761,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Create the Appearance menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -798,13 +803,13 @@ public class GhgMonitorDlg extends CaveSWTDialog
         // Identify TEST Events menu item
         identifyTestMI = new MenuItem(appearanceMenu, SWT.CHECK);
         identifyTestMI.setText("Identify TEST Events");
-        identifyTestMI.setSelection(GhgConfigData.getInstance()
-                .isIdentifyTestEvents());
+        identifyTestMI.setSelection(
+                GhgConfigData.getInstance().isIdentifyTestEvents());
         identifyTestMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                GhgConfigData.getInstance().setIdentifyTestEvents(
-                        identifyTestMI.getSelection());
+                GhgConfigData.getInstance()
+                        .setIdentifyTestEvents(identifyTestMI.getSelection());
             }
         });
     }
@@ -914,7 +919,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Update the column map to reflect the selected menu option.
-     * 
+     *
      * @param event
      *            Selection event.
      */
@@ -952,7 +957,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
             GhgConfigData configuration = GhgConfigData.getInstance();
             saveFilterDlg = new GhgSaveDeleteFilterDlg(getShell(),
                     configuration.getFilterNames(), true);
-            saveFilterDlg.setCloseCallback(new ICloseCallback() {
+            saveFilterDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -983,8 +988,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
                 throw new VizException("Illegal filter name :" + name);
             }
             configuration.getCurrentFilter().name = name;
-            configuration
-                    .addNamedFilter(name, configuration.getCurrentFilter());
+            configuration.addNamedFilter(name,
+                    configuration.getCurrentFilter());
             updateFilterMenu();
             filterDisplay.updateFilter(name);
         } catch (final VizException e) {
@@ -1001,7 +1006,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
             GhgConfigData configuration = GhgConfigData.getInstance();
             deleteFilterDlg = new GhgSaveDeleteFilterDlg(getShell(),
                     configuration.getFilterNames(), false);
-            deleteFilterDlg.setCloseCallback(new ICloseCallback() {
+            deleteFilterDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -1050,6 +1055,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         Composite statusComp = new Composite(sashForm, SWT.NONE);
         EdgeLayout el = new EdgeLayout();
+        el.verticalAlignment = EdgeLayout.VerticalAlignment.CENTER;
         statusComp.setLayout(el);
         statusComp.setLayoutData(gd);
         final StatBar statBar = StatusStore.getStatusStore(STATUS_KEY)
@@ -1067,10 +1073,10 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
         });
 
-        filterDisplay = new FilterDisplay();
+        filterDisplay = new FilterDisplay(statBar.getFont());
         filterDisplay.fill(statusComp);
-        filterDisplay.updateFilter(GhgConfigData.getInstance()
-                .getCurrentFilter().name);
+        filterDisplay.updateFilter(
+                GhgConfigData.getInstance().getCurrentFilter().name);
     }
 
     /**
@@ -1134,7 +1140,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
             filterDlg = new GhgFilterDlg(getShell(),
                     configuration.getCurrentFilter(), ifpClient, discreteDef,
                     my4WFO);
-            filterDlg.setCloseCallback(new ICloseCallback() {
+            filterDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -1156,7 +1162,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
             GhgConfigData configuration = GhgConfigData.getInstance();
             alertDlg = new GhgAlertDlg(getShell());
             alertDlg.setAlerts(configuration.getAlerts());
-            alertDlg.setCloseCallback(new ICloseCallback() {
+            alertDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -1181,7 +1187,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
     private void showFontDialog() {
         if (fontDlg == null) {
             fontDlg = new GhgFontDlg(getShell(), GhgConfigData.getInstance());
-            fontDlg.setCloseCallback(new ICloseCallback() {
+            fontDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -1203,7 +1209,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
     private void showColorDialog() {
         if (colorDlg == null) {
             colorDlg = new GhgColorDlg(getShell());
-            colorDlg.setCloseCallback(new ICloseCallback() {
+            colorDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -1233,21 +1239,19 @@ public class GhgMonitorDlg extends CaveSWTDialog
                                 ghgSpatialViewer.setHighlightedZones(
                                         GhgConfigData.getInstance()
                                                 .getMapSelectionsColors()
-                                                .getBackgroundRgb(), mapZones
-                                                .toArray(new String[mapZones
-                                                        .size()]));
+                                                .getBackgroundRgb(),
+                                        mapZones.toArray(
+                                                new String[mapZones.size()]));
                             }
 
                             if (!monitorZones.isEmpty()) {
-                                ghgSpatialViewer
-                                        .setHighlightedZones(
-                                                GhgConfigData
-                                                        .getInstance()
-                                                        .getMonitorSelectionsColors()
-                                                        .getBackgroundRgb(),
-                                                monitorZones
-                                                        .toArray(new String[monitorZones
-                                                                .size()]));
+                                ghgSpatialViewer.setHighlightedZones(
+                                        GhgConfigData.getInstance()
+                                                .getMonitorSelectionsColors()
+                                                .getBackgroundRgb(),
+                                        monitorZones
+                                                .toArray(new String[monitorZones
+                                                        .size()]));
                             }
                         }
                     }
@@ -1261,7 +1265,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
     /**
      * Gets the ActiveTable records and returns them as a List<GhgData>. The
      * list is based on the configuration selections.
-     * 
+     *
      * @return List<GhgData> list of GhgData objects
      */
     private List<GhgData> getTableData() {
@@ -1276,8 +1280,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
         List<ActiveTableRecord> activeTableList = sr.getPayload();
         List<GhgData> tableData = new ArrayList<>();
         for (ActiveTableRecord rec : activeTableList) {
-            GhgData data = new GhgData(rec, discreteDef.getHazardDescription(
-                    HAZARDS_PARM_NAME, rec.getPhensig()));
+            GhgData data = new GhgData(rec, discreteDef
+                    .getHazardDescription(HAZARDS_PARM_NAME, rec.getPhensig()));
             tableData.add(data);
         }
 
@@ -1368,7 +1372,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Do any alerting that is required, update the records
-     * 
+     *
      * @param dataList
      *            List<GhgData> list of data records
      */
@@ -1430,8 +1434,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
         if (filter.includePastEvents == false) {
             // 2 day threshold
             long pastThreshold = SimulatedTime.getSystemTime().getTime()
-                    .getTime()
-                    - (2 * 86400 * 1000);
+                    .getTime() - (2 * TimeUtil.MILLIS_PER_DAY);
             for (GhgData gd : dataList) {
                 if (gd.getEndDate().getTime() > pastThreshold) {
                     filteredList.add(gd);
@@ -1456,7 +1459,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
      * the "include alerts" flag accepts records at alert status, even if they
      * would otherwise be filtered out, and records need to be filtered out when
      * they are far past their expiration time.
-     * 
+     *
      * @param consolidatedList
      *            The records to filter
      * @return the filtered list.
@@ -1474,7 +1477,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Adds the descriptions for the hazards into the records.
-     * 
+     *
      * @param list
      *            List of records to add descriptions to
      */
@@ -1488,9 +1491,9 @@ public class GhgMonitorDlg extends CaveSWTDialog
     /**
      * consolidates the records in the given table to join those per the
      * displayFilter options. Returns the consolidated records.
-     * 
+     *
      * Ported from GHGMonitor.py _consolidate
-     * 
+     *
      * @param dataList
      *            List of GhgData objects
      */
@@ -1534,12 +1537,15 @@ public class GhgMonitorDlg extends CaveSWTDialog
                             && (filter.combineActions == false)) {
                         // don't combine this record
                         continue;
-                    } else if (((ACT_GROUP_ONE_STRING.indexOf(gd.getAction()) > -1) && (ACT_GROUP_ONE_STRING
-                            .indexOf(act) > -1))
-                            || ((ACT_GROUP_TWO_STRING.indexOf(gd.getAction()) > -1) && (ACT_GROUP_TWO_STRING
-                                    .indexOf(act) > -1))) {
-                        rec.setAction(addToList(gd.getAction(),
-                                rec.getAction(), true));
+                    } else if (((ACT_GROUP_ONE_STRING
+                            .indexOf(gd.getAction()) > -1)
+                            && (ACT_GROUP_ONE_STRING.indexOf(act) > -1))
+                            || ((ACT_GROUP_TWO_STRING
+                                    .indexOf(gd.getAction()) > -1)
+                                    && (ACT_GROUP_TWO_STRING
+                                            .indexOf(act) > -1))) {
+                        rec.setAction(addToList(gd.getAction(), rec.getAction(),
+                                true));
                     } else {
                         continue;
                     }
@@ -1549,7 +1555,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
                     rec.getCombinedList().add(gd);
 
                     // Combine GeoIDs
-                    rec.setGeoId(addToList(gd.getGeoId(), rec.getGeoId(), false));
+                    rec.setGeoId(
+                            addToList(gd.getGeoId(), rec.getGeoId(), false));
 
                     // Combine VTECstrs
                     if (rec.getVtecString().indexOf(gd.getVtecString()) == -1) {
@@ -1565,8 +1572,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
                     // Combine segments and segment text
                     if (MapUtils.isNotEmpty(gd.getSegmentTextMap())) {
-                        rec.setSegmentText(gd.getGeoId(),
-                                gd.getSegNum().get(0),
+                        rec.setSegmentText(gd.getGeoId(), gd.getSegNum().get(0),
                                 gd.getSegmentText(gd.getGeoId()));
                     }
 
@@ -1575,12 +1581,12 @@ public class GhgMonitorDlg extends CaveSWTDialog
                         rec.setAlert(gd.getAlert());
                     }
 
-                    rec.setAlertLevel1(rec.isAlertLevel1()
-                            && gd.isAlertLevel1());
-                    rec.setAlertLevel2(rec.isAlertLevel2()
-                            && gd.isAlertLevel2());
-                    rec.setAlertExpired(rec.isAlertExpired()
-                            && gd.isAlertExpired());
+                    rec.setAlertLevel1(
+                            rec.isAlertLevel1() && gd.isAlertLevel1());
+                    rec.setAlertLevel2(
+                            rec.isAlertLevel2() && gd.isAlertLevel2());
+                    rec.setAlertExpired(
+                            rec.isAlertExpired() && gd.isAlertExpired());
 
                     if (SelectionEnum.NoSelection != gd.getSelection()) {
                         rec.setSelection(gd.getSelection());
@@ -1599,7 +1605,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * compares two records for equality based on the fields given.
-     * 
+     *
      * @param rec1
      *            GhgData object
      * @param rec2
@@ -1623,7 +1629,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * compare the field in the provided GhgData objects.
-     * 
+     *
      * @param field
      *            The field to compare
      * @param rec1
@@ -1636,7 +1642,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
         boolean equal = true;
 
         if (field.equalsIgnoreCase("start")) {
-            if (rec1.getStartDate().getTime() != rec2.getStartDate().getTime()) {
+            if (rec1.getStartDate().getTime() != rec2.getStartDate()
+                    .getTime()) {
                 equal = false;
             }
         } else if (field.equalsIgnoreCase("end")) {
@@ -1656,7 +1663,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
                 equal = false;
             }
         } else if (field.equalsIgnoreCase("issueTime")) {
-            if (rec1.getIssueTime().getTime() != rec2.getIssueTime().getTime()) {
+            if (rec1.getIssueTime().getTime() != rec2.getIssueTime()
+                    .getTime()) {
                 equal = false;
             }
         } else if (field.equalsIgnoreCase("id")) {
@@ -1668,7 +1676,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
                 equal = false;
             }
         } else if (field.equalsIgnoreCase("purgeTime")) {
-            if (rec1.getPurgeDate().getTime() != rec2.getPurgeDate().getTime()) {
+            if (rec1.getPurgeDate().getTime() != rec2.getPurgeDate()
+                    .getTime()) {
                 equal = false;
             }
         } else if (field.equalsIgnoreCase("phensig")) {
@@ -1682,7 +1691,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     /**
      * Add an item to a comma separated list.
-     * 
+     *
      * @param item
      *            Item to add to the list
      * @param list
@@ -1720,7 +1729,7 @@ public class GhgMonitorDlg extends CaveSWTDialog
     /**
      * Call back executed when the user selects a saved filter from the Filter
      * menu.
-     * 
+     *
      * @param name
      *            the name of the filter
      */
@@ -1752,13 +1761,17 @@ public class GhgMonitorDlg extends CaveSWTDialog
      */
     private class FilterDisplay extends ContributionItem {
 
-        private Composite comp;
+        public Label filterText;
 
-        private Label filterText;
+        public Font font;
+
+        public FilterDisplay(Font font) {
+            this.font = font;
+        }
 
         @Override
         public void fill(Composite parent) {
-            comp = new Composite(parent, SWT.NONE);
+            Composite comp = new Composite(parent, SWT.NONE);
             EdgeLayoutData layoutData = new EdgeLayoutData();
             layoutData.edgeAffinity = EdgeAffinity.RIGHT;
             comp.setLayoutData(layoutData);
@@ -1766,16 +1779,18 @@ public class GhgMonitorDlg extends CaveSWTDialog
             comp.setLayout(new GridLayout(2, false));
 
             Label label = new Label(comp, SWT.NONE);
+            label.setFont(font);
             label.setText("Filter:");
 
             filterText = new Label(comp, SWT.BORDER);
-            filterText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true,
-                    true));
+            filterText.setFont(font);
+            filterText.setLayoutData(
+                    new GridData(SWT.FILL, SWT.CENTER, true, true));
         }
 
         /**
          * Update the filter name shown in the lower-right corner.
-         * 
+         *
          * @param text
          *            The text to set.
          */
@@ -1783,6 +1798,10 @@ public class GhgMonitorDlg extends CaveSWTDialog
             // Protect against late updates when Ghg Monitor is closing.
             if (!filterText.isDisposed()) {
                 filterText.setText(text);
+
+                // TODO: Replace with filterText.requestLayout() in Eclipse 4.6
+                filterText.getShell().layout(new Control[] { filterText },
+                        SWT.DEFER);
             }
         }
     }
@@ -1795,8 +1814,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
         GhgConfigData configuration = GhgConfigData.getInstance();
 
         ghgTableComp.updateDataColors();
-        ghgTableComp.updateTableFont(configuration.getCurrentFont()
-                .getFontData(getDisplay()));
+        ghgTableComp.updateTableFont(
+                configuration.getCurrentFont().getFontData(getDisplay()));
 
         GhgDataFilter filter = configuration.getCurrentFilter();
         if ((filter == null) || (filter.name == null)) {
@@ -1855,52 +1874,49 @@ public class GhgMonitorDlg extends CaveSWTDialog
         statusImportanceMap = new HashMap<>();
         GhgConfigData config = GhgConfigData.getInstance();
 
-        statusImportanceMap.put(
-                Importance.REGULAR,
-                new MessageImportance(RGBColors.getRGBColor("green"), RGBColors
-                        .getRGBColor("gray40"),
+        statusImportanceMap.put(Importance.REGULAR,
+                new MessageImportance(RGBColors.getRGBColor("green"),
+                        RGBColors.getRGBColor("gray40"),
                         RGBColors.getRGBColor("gray80"), true, DEFAULT_TIMEOUT,
                         null, null, null));
 
-        statusImportanceMap.put(Importance.SIGNIFICANT, new MessageImportance(
-                RGBColors.getRGBColor("yellow"),
-                RGBColors.getRGBColor("black"),
-                RGBColors.getRGBColor("gray80"), false, DEFAULT_TIMEOUT,
-                "Significant Messages", RGBColors.getRGBColor("black"),
-                new RGB(0xEB, 0xEB, 0x00)));
+        statusImportanceMap.put(Importance.SIGNIFICANT,
+                new MessageImportance(RGBColors.getRGBColor("yellow"),
+                        RGBColors.getRGBColor("black"),
+                        RGBColors.getRGBColor("gray80"), false, DEFAULT_TIMEOUT,
+                        "Significant Messages", RGBColors.getRGBColor("black"),
+                        new RGB(0xEB, 0xEB, 0x00)));
 
         statusImportanceMap.put(Importance.URGENT, new MessageImportance(
                 RGBColors.getRGBColor("red2"), RGBColors.getRGBColor("white"),
                 RGBColors.getRGBColor("gray40"), false, 0, "Urgent Messages",
                 RGBColors.getRGBColor("white"), RGBColors.getRGBColor("red2")));
 
-        statusImportanceMap.put(Importance.ALERT, new MessageImportance(
-                RGBColors.getRGBColor("orange"),
-                RGBColors.getRGBColor("black"),
-                RGBColors.getRGBColor("gray80"), false, DEFAULT_TIMEOUT, null,
-                null, null));
+        statusImportanceMap.put(Importance.ALERT,
+                new MessageImportance(RGBColors.getRGBColor("orange"),
+                        RGBColors.getRGBColor("black"),
+                        RGBColors.getRGBColor("gray80"), false, DEFAULT_TIMEOUT,
+                        null, null, null));
 
         GhgColorData alert1Colors = config.getAlertLvl1Colors();
         GhgColorData alert2Colors = config.getAlertLvl2Colors();
         GhgColorData expColors = config.getExpiredAlertColors();
 
-        statusImportanceMap.put(
-                Importance.ALERT1,
+        statusImportanceMap.put(Importance.ALERT1,
                 new MessageImportance(alert1Colors.getForegroundRgb(),
-                        alert1Colors.getBackgroundRgb(), RGBColors
-                                .getRGBColor("gray80"), false, DEFAULT_TIMEOUT,
-                        "Alert1 Purge Alert Messages", alert1Colors
-                                .getForegroundRgb(), alert1Colors
-                                .getBackgroundRgb()));
+                        alert1Colors.getBackgroundRgb(),
+                        RGBColors.getRGBColor("gray80"), false, DEFAULT_TIMEOUT,
+                        "Alert1 Purge Alert Messages",
+                        alert1Colors.getForegroundRgb(),
+                        alert1Colors.getBackgroundRgb()));
 
-        statusImportanceMap.put(
-                Importance.ALERT2,
+        statusImportanceMap.put(Importance.ALERT2,
                 new MessageImportance(alert2Colors.getForegroundRgb(),
-                        alert2Colors.getBackgroundRgb(), RGBColors
-                                .getRGBColor("gray80"), false, DEFAULT_TIMEOUT,
-                        "Alert2 Purge Alert Messages", alert2Colors
-                                .getForegroundRgb(), alert2Colors
-                                .getBackgroundRgb()));
+                        alert2Colors.getBackgroundRgb(),
+                        RGBColors.getRGBColor("gray80"), false, DEFAULT_TIMEOUT,
+                        "Alert2 Purge Alert Messages",
+                        alert2Colors.getForegroundRgb(),
+                        alert2Colors.getBackgroundRgb()));
 
         statusImportanceMap.put(Importance.EXPIRED, new MessageImportance(
                 expColors.getForegroundRgb(), expColors.getBackgroundRgb(),
@@ -1909,8 +1925,9 @@ public class GhgMonitorDlg extends CaveSWTDialog
                 expColors.getBackgroundRgb()));
 
         // Set the new status importance map
-        StatusStore.getStatusStore(
-                com.raytheon.viz.ghg.constants.StatusConstants.CATEGORY_GHG)
+        StatusStore
+                .getStatusStore(
+                        com.raytheon.viz.ghg.constants.StatusConstants.CATEGORY_GHG)
                 .setImportanceDict(statusImportanceMap);
     }
 
@@ -1954,18 +1971,23 @@ public class GhgMonitorDlg extends CaveSWTDialog
                             + sooner + " minutes. ");
                 }
             } else if (action.equals("CAN")) {
-                buffer.append("Event has been Cancelled. No further action required.");
+                buffer.append(
+                        "Event has been Cancelled. No further action required.");
             } else if (action.equals("EXP")) {
-                buffer.append("Event will be allowed to Expire. No further action required.");
+                buffer.append(
+                        "Event will be allowed to Expire. No further action required.");
             }
         } else if ((deltaMinP > 0) && (deltaMinE <= 0)) {
             // Not to purge time yet, after event ending time
             if (Arrays.asList(cancelExpire).contains(action) == false) {
-                buffer.append("Event has ended, but no EXP/CAN product has been issued. ");
+                buffer.append(
+                        "Event has ended, but no EXP/CAN product has been issued. ");
             } else if (action.equals("CAN")) {
-                buffer.append("Event was cancelled. No further action required.");
+                buffer.append(
+                        "Event was cancelled. No further action required.");
             } else if (action.equals("EXP")) {
-                buffer.append("Event was allowed to expire. No further action required.");
+                buffer.append(
+                        "Event was allowed to expire. No further action required.");
             }
         } else if ((deltaMinP <= 0) && (deltaMinE <= 0)) {
             // After purge time, after event ending time
@@ -1981,18 +2003,22 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
             if (within30) {
                 if (Arrays.asList(cancelExpire).contains(action) == false) {
-                    buffer.append("Event has ended, but no EXP/CAN product has been issued.");
+                    buffer.append(
+                            "Event has ended, but no EXP/CAN product has been issued.");
                 } else if (action.equals("CAN")) {
-                    buffer.append("Event was cancelled. No further action required.");
+                    buffer.append(
+                            "Event was cancelled. No further action required.");
                 } else if (action.equals("EXP")) {
-                    buffer.append("Event was allowed to expire. No further action required.");
+                    buffer.append(
+                            "Event was allowed to expire. No further action required.");
                 } else {
                     // outside of 30 minute window - ignore this situation
                     return;
                 }
             }
         } else if ((deltaMinP <= 0) && (deltaMinE > 0)) {
-            buffer.append("Event is ongoing, but no current product exists describing event. ");
+            buffer.append(
+                    "Event is ongoing, but no current product exists describing event. ");
         }
 
         buffer.append("  Event=" + rec.getPhenSig() + " " + headline);
@@ -2017,8 +2043,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
             needRefresh = true;
         } else {
             for (VTECChange change : msg.getChanges()) {
-                if (ArrayUtils.isEmpty(filter.wfos)
-                        || (Arrays.binarySearch(filter.wfos, change.getSite()) >= 0)) {
+                if (ArrayUtils.isEmpty(filter.wfos) || (Arrays
+                        .binarySearch(filter.wfos, change.getSite()) >= 0)) {
                     if (ArrayUtils.isEmpty(filter.phenSigs)
                             || (Arrays.binarySearch(filter.phenSigs,
                                     change.getPhensig()) >= 0)) {
@@ -2039,8 +2065,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
-        statusHandler.handle(Priority.VERBOSE, "Received " + messages.length
-                + " notification messages.");
+        statusHandler.handle(Priority.VERBOSE,
+                "Received " + messages.length + " notification messages.");
         for (NotificationMessage msg : messages) {
             try {
                 Object payload = msg.getMessagePayload();
@@ -2053,9 +2079,9 @@ public class GhgMonitorDlg extends CaveSWTDialog
                         }
                     });
                 } else {
-                    statusHandler.handle(Priority.VERBOSE, "Skipped a "
-                            + payload.getClass().getName()
-                            + " notification message");
+                    statusHandler.handle(Priority.VERBOSE,
+                            "Skipped a " + payload.getClass().getName()
+                                    + " notification message");
                 }
 
             } catch (NotificationException e) {
@@ -2153,8 +2179,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
 
             Collection<String> highlightedZones = tableEvent
                     .getHighlightedZones();
-            ghgSpatialViewer.setHighlightedZones(
-                    tableEvent.getSelectionColor(), highlightedZones
+            ghgSpatialViewer.setHighlightedZones(tableEvent.getSelectionColor(),
+                    highlightedZones
                             .toArray(new String[highlightedZones.size()]));
 
         } else if (event instanceof GhgMonitorZoneSelectionEvent) {
@@ -2164,8 +2190,8 @@ public class GhgMonitorDlg extends CaveSWTDialog
             for (GhgData data : dataList) {
                 if (highlightedZones.contains(data.getGeoId())) {
                     data.setSelection(SelectionEnum.MapSelection);
-                } else if (SelectionEnum.MapSelection.equals(data
-                        .getSelection()) || (highlightedZones.size() > 0)) {
+                } else if (SelectionEnum.MapSelection.equals(
+                        data.getSelection()) || (highlightedZones.size() > 0)) {
                     /*
                      * We may(?) get a zero-length map selection in response to
                      * selecting table records. In that case, we need to clear

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -69,11 +69,11 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
 /**
  * Resource for rendering lightning. For each specific data point a symbol is
  * rendered to indicate the location and type of lightning event.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer     Description
  * ------------- -------- ------------ -----------------------------------------
  * Aug 06, 2007  451      chammack     Initial Creation.
@@ -105,18 +105,19 @@ import com.raytheon.viz.lightning.cache.LightningFrameRetriever;
  * Apr 26, 2016  5597     bsteffen     Include update interval in legend.
  * May 19, 2016  3253     bsteffen     Use extra text for count display.
  * Jul 26, 2016  5759     njensen      Use IBulkPointsRenderingExtension
- * 
+ * Jun 20, 2017  DR20107  kingfield/meyer  Added GLM display functionality
+ *
  * </pre>
- * 
+ *
  * @author chammack
  */
-public class LightningResource extends
-        AbstractVizResource<LightningResourceData, IMapDescriptor> implements
-        IResourceDataChanged, IExtraTextGeneratingResource {
+public class LightningResource 
+        extends AbstractVizResource<LightningResourceData, IMapDescriptor>
+        implements IResourceDataChanged, IExtraTextGeneratingResource {
 
     private static final long MAX_RECORD_BIN_MILLIS = TimeUtil.MILLIS_PER_DAY;
 
-    private Map<DataTime, CacheObject<LightningFrameMetadata, LightningFrame>> cacheObjectMap;
+    private final Map<DataTime, CacheObject<LightningFrameMetadata, LightningFrame>> cacheObjectMap;
 
     private DataTime lastPaintedTime;
 
@@ -142,7 +143,7 @@ public class LightningResource extends
     /**
      * Map of DataTime (frame time) to points, organized by DisplayType
      */
-    private Map<DataTime, Map<DisplayType, IBulkPoints>> timePointsMap = new HashMap<>();
+    private final Map<DataTime, Map<DisplayType, IBulkPoints>> timePointsMap = new HashMap<>();
 
     public LightningResource(LightningResourceData resourceData,
             LoadProperties loadProperties) {
@@ -184,9 +185,9 @@ public class LightningResource extends
 
             @Override
             public void run() {
-                font.setMagnification(getCapability(
-                        MagnificationCapability.class).getMagnification()
-                        .floatValue());
+                font.setMagnification(
+                        getCapability(MagnificationCapability.class)
+                                .getMagnification().floatValue());
                 font.setScaleFont(false);
             }
 
@@ -198,14 +199,14 @@ public class LightningResource extends
     /**
      * Create a resource name string from resource data configuration. Includes
      * time interval, cloud flash, pos/neg, pulse and source name.
-     * 
+     *
      * @param resourceData
      * @return
      */
     public static String formatResourceName(LightningResourceData resourceData) {
         String rval = "";
-        int absTimeInterval = Math.abs(resourceData.getRepeatingBinOffset()
-                .getInterval());
+        int absTimeInterval = Math
+                .abs(resourceData.getRepeatingBinOffset().getInterval());
 
         int updateInterval = Math
                 .abs(resourceData.getBinOffset().getInterval());
@@ -221,6 +222,7 @@ public class LightningResource extends
         DisplayType displayType = resourceData.getDisplayType();
         if (!displayType.equals(DisplayType.UNDEFINED)) {
             rval += displayType.label + ' ';
+
         }
 
         String source = resourceData.getSource();
@@ -235,7 +237,7 @@ public class LightningResource extends
 
     /**
      * Format time interval to human readable display string
-     * 
+     *
      * @param time
      *            in seconds
      * @return
@@ -294,6 +296,11 @@ public class LightningResource extends
         CacheObject<LightningFrameMetadata, LightningFrame> cacheObject = cacheObjectMap
                 .get(paintTime);
 
+        // Kingfield/Meyer DEV - Initialize DisplayType variable (dt) to store
+        // display symbol when isHandlingNegativeStrikes() is initialized, the
+        // contents of this variable will be used to determine how to store the
+        // count
+        DisplayType dt = DisplayType.NEGATIVE;
         if (cacheObject != null) {
             synchronized (cacheObject.getMetadata()) {
                 LightningFrame bundle = cacheObject.getObjectAsync();
@@ -327,9 +334,20 @@ public class LightningResource extends
                                 clipExtent, currPosList);
                     }
                     if (resourceData.isHandlingNegativeStrikes()) {
+                        // Kingfield/Meyer DEV - Pull lightning source and if
+                        // GLM, modify display type
+                        if (bundle.getMetadata().getSource().equals("GLMfl")) {
+                            dt = DisplayType.GLM_FLASH;
+                        } else if (bundle.getMetadata().getSource()
+                                .equals("GLMgr")) {
+                            dt = DisplayType.GLM_GROUP;
+                        } else if (bundle.getMetadata().getSource()
+                                .equals("GLMev")) {
+                            dt = DisplayType.GLM_EVENT;
+                        }
                         negCount = drawPoints(target, paintTime, magnification,
-                                color, DisplayType.NEGATIVE, screenExtent,
-                                clipExtent, currNegList);
+                                color, dt, screenExtent, clipExtent,
+                                currNegList);
                     }
                     if (resourceData.isHandlingCloudFlashes()) {
                         cloudCount = drawPoints(target, paintTime,
@@ -344,26 +362,30 @@ public class LightningResource extends
                 }
             }
         }
-
         font.setMagnification(magnification);
 
         Map<DisplayType, Integer> counts = new EnumMap<>(DisplayType.class);
 
-        if (this.resourceData.isHandlingPositiveStrikes()) {
-            counts.put(DisplayType.POSITIVE, posCount);
+        // Kingfield/Meyer DEV - If DisplayType is from the GLM, pull negative
+        // count and assign to GLM DisplayType for annotation in upper-left
+        // corner of CAVE
+        if ((dt == DisplayType.GLM_FLASH) || (dt == DisplayType.GLM_EVENT)
+                || (dt == DisplayType.GLM_GROUP)) {
+            counts.put(dt, negCount);
+        } else {
+            if (this.resourceData.isHandlingPositiveStrikes()) {
+                counts.put(DisplayType.POSITIVE, posCount);
+            }
+            if (this.resourceData.isHandlingNegativeStrikes()) {
+                counts.put(DisplayType.NEGATIVE, negCount);
+            }
+            if (this.resourceData.isHandlingCloudFlashes()) {
+                counts.put(DisplayType.CLOUD_FLASH, cloudCount);
+            }
+            if (this.resourceData.isHandlingPulses()) {
+                counts.put(DisplayType.PULSE, pulseCount);
+            }
         }
-        if (this.resourceData.isHandlingNegativeStrikes()) {
-            counts.put(DisplayType.NEGATIVE, negCount);
-
-        }
-        if (this.resourceData.isHandlingCloudFlashes()) {
-            counts.put(DisplayType.CLOUD_FLASH, cloudCount);
-
-        }
-        if (this.resourceData.isHandlingPulses()) {
-            counts.put(DisplayType.PULSE, pulseCount);
-        }
-
         this.currCounts = counts;
 
     }
@@ -372,7 +394,7 @@ public class LightningResource extends
      * Draw points on target using provided styling. Points are filtered by the
      * clipping pane's extent for efficiency, and filtered by the screen's
      * extent to produce the count of points currently displayed.
-     * 
+     *
      * @param target
      * @param time
      * @param magnification
@@ -427,7 +449,7 @@ public class LightningResource extends
     /**
      * Gets the drawing PointStyle that should be used for a particular
      * DisplayType.
-     * 
+     *
      * @param type
      * @return
      */
@@ -441,6 +463,13 @@ public class LightningResource extends
             return PointStyle.POINT;
         case PULSE:
             return PointStyle.PIPE;
+        // Kingfield/Meyer DEV - Add point styles for the GLM
+        case GLM_FLASH:
+            return PointStyle.X;
+        case GLM_EVENT:
+            return PointStyle.SQUARE;
+        case GLM_GROUP:
+            return PointStyle.DISC;
         default:
             throw new IllegalArgumentException(
                     "PointStyle not supported for Display Type: " + type.label);
@@ -451,10 +480,10 @@ public class LightningResource extends
      * Disposes of an IBulkPoints from the timePointsMap at a specified time and
      * display type. If type is null, it will dispose of all IBulkPoints at the
      * specified time.
-     * 
+     *
      * This method assumes the timePointsMap is externally synchronized before
      * being called.
-     * 
+     *
      * @param time
      *            the DataTime to dispose an IBulkPoints for
      * @param type
@@ -486,7 +515,7 @@ public class LightningResource extends
 
     /**
      * convert list of world coordinates to pixel coordinates
-     * 
+     *
      * @param lonLats
      * @return
      */
@@ -568,7 +597,7 @@ public class LightningResource extends
     /**
      * Update lightning frames with data from record map. Must be ran as part of
      * an asynchronous job.
-     * 
+     *
      * @param recordMap
      */
     private void updateLightningFrames(
@@ -594,7 +623,7 @@ public class LightningResource extends
     /**
      * Get lightning frame from cache, creates a new cached object if none found
      * for time
-     * 
+     *
      * @param dt
      * @param retriever
      * @return
@@ -671,6 +700,17 @@ public class LightningResource extends
         if (currCounts.containsKey(DisplayType.PULSE)) {
             text.add(currCounts.get(DisplayType.PULSE) + " Pulses");
         }
+        // Kingfield/Meyer Dev - Assemble annotation text for GLM products
+        if (currCounts.containsKey(DisplayType.GLM_FLASH)) {
+            text.add(currCounts.get(DisplayType.GLM_FLASH) + " GLM Flashes");
+        }
+        if (currCounts.containsKey(DisplayType.GLM_EVENT)) {
+            text.add(currCounts.get(DisplayType.GLM_EVENT) + " GLM Events");
+        }
+        if (currCounts.containsKey(DisplayType.GLM_GROUP)) {
+            text.add(currCounts.get(DisplayType.GLM_GROUP) + " GLM Groups");
+        }
+
         return text.toArray(new String[0]);
     }
 

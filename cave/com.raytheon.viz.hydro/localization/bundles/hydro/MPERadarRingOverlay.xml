@@ -18,27 +18,34 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="mpeMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
-				<resource>
+    <displayList>
+        <displays xsi:type="mpeMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
                     <loadProperties loadWithoutData="true">
                         <capabilities>
                             <capability xsi:type="colorableCapability" colorAsString="#9b9b9b" />
-							<capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="1"/>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID"
+                                outlineOn="true" outlineWidth="1" />
                         </capabilities>
-						<resourceType>PLAN_VIEW</resourceType>
+                        <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-					<properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false" isVisible="true">
-						<pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>                    
-					</properties>
-					<resourceData xsi:type="mpeRadarRingOverlayResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<mapName>Radar Rings</mapName>
-					</resourceData>
-				</resource>
-			</descriptor>
-		</displays>
-	</displayList>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="true"
+                        isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+                    </properties>
+                    <resourceData xsi:type="mpeRadarRingOverlayResourceData"
+                        isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                        <mapName>Radar Rings</mapName>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

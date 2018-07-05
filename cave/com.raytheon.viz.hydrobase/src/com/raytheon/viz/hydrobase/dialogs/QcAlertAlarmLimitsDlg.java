@@ -84,6 +84,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Nov 26, 2013 15800       wkwock      Fix unhandled event loop 
  * Jan 07, 2013 16643       snaples     Fixed changeFormat to use string formatting instead of converting to Date.
  * Mar 31, 2014 #2970       lvenable    Put dispose checks in the runAsync calls.
+ * Mar 10, 2017 28419       gvalenzuela Fixed UELE when entering search text that dosn't match an existing station.
  * </pre>
  * 
  * @author lvenable
@@ -1060,6 +1061,11 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
     private void getSelectedLimit() {
         limitSelectedGroup.setText("Limits For Selected Item");
+
+        if (limitsList.getSelectionIndex() < 0) {
+            clearInformation();
+            return;
+        }
 
         if (currentlyDisplayingDefaultLimits()) {
             DataLimitData currData = QcAlertAlarmLimitsDataManager

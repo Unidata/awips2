@@ -22,7 +22,10 @@ package com.raytheon.viz.awipstools.ui.layer;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
@@ -50,7 +53,6 @@ import com.raytheon.uf.viz.core.drawables.IFont.Style;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
@@ -77,24 +79,23 @@ import com.vividsolutions.jts.geom.Point;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *  10-21-09     #717       bsteffen    Refactor to common MovableTool model
- *  15Mar2013	15693	mgamazaychikov	Added magnification capability.
+ *  15Mar2013   15693       mgamazay    Added magnification capability.
  *  07-21-14    #3412       mapeters    Updated deprecated drawCircle call.
  *  07-29-14    #3465       mapeters    Updated deprecated drawString() calls.
  *  08-13-14    #3467       mapeters    ringDialog notifies this of changes.
  *  05-11-2015  #5070       randerso    Adjust font sizes for dpi scaling
+ *  09-08-16    #5871       njensen     Don't recreate unchanged IWireframeShapes
  * 
  * </pre>
  * 
  * @author ebabin
- * @version 1.0
  */
 
 public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
-        implements IContextMenuContributor, IResourceDataChanged {
+        implements IContextMenuContributor {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RangeRingsLayer.class);
-
-    private IFont labelFont;
 
     protected static final UnitConverter NM_TO_METERS = NonSI.NAUTICAL_MILE
             .getConverterTo(SI.METER);
@@ -107,25 +108,25 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
 
     private static final int LABEL_INDEX = (NUM_VERTICES / 8) * 5;
 
-    private AbstractRightClickAction moveElementAction;
-
-    private ToolsDataManager dataManager = ToolsDataManager.getInstance();
-
     private static GeometryFactory gf = new GeometryFactory();
 
     private static GeodeticCalculator gc = new GeodeticCalculator();
 
     private static RangeRingDialog ringDialog = null;
 
+    private ToolsDataManager dataManager = ToolsDataManager.getInstance();
+
+    private AbstractRightClickAction moveElementAction;
+
+    private IFont labelFont;
+
+    private Map<RangeRing, IWireframeShape> shapeMap = new HashMap<>();
+
     public RangeRingsLayer(
             GenericToolsResourceData<RangeRingsLayer> resourceData,
-            LoadProperties loadProperties) throws VizException {
+            LoadProperties loadProperties) {
         super(resourceData, loadProperties);
-        if (ringDialog != null) {
-            ringDialog.addChangeListenerToResourceData(this);
-        }
         getCapabilities().addCapability(new OutlineCapability());
-        // add magnification capability
         getCapabilities().addCapability(new MagnificationCapability());
         moveElementAction = new AbstractRightClickAction() {
             @Override
@@ -134,12 +135,17 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
             }
         };
         moveElementAction.setText("Move Entire Element");
-        // displayDialog();
         resourceData.addChangeListener(this);
     }
 
     @Override
     protected void disposeInternal() {
+        synchronized (shapeMap) {
+            for (IWireframeShape shape : shapeMap.values()) {
+                shape.dispose();
+            }
+            shapeMap.clear();
+        }
         resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, false);
         super.disposeInternal();
         resourceData.removeChangeListener(this);
@@ -149,6 +155,9 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
+        if (ringDialog != null) {
+            ringDialog.addChangeListenerToResourceData(this);
+        }
         resourceData.addChangeListener(this);
         resetRings();
         displayDialog();
@@ -163,7 +172,6 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
     }
 
     public void displayDialog() {
-
         VizApp.runAsync(new Runnable() {
 
             @Override
@@ -179,7 +187,6 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
                         resourceData.addChangeListener(ringDialog);
                         ringDialog.open();
                     }
-
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
@@ -211,15 +218,39 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
             }
             String label = ring.getLabel();
             Coordinate center = ring.getCenterCoordinate();
-            IWireframeShape shape = target.createWireframeShape(false,
-                    descriptor);
+
+            boolean newShape = false;
+            IWireframeShape shape = null;
+            synchronized (shapeMap) {
+                // cleanup old shapes
+                Iterator<RangeRing> itr = shapeMap.keySet().iterator();
+                while (itr.hasNext()) {
+                    RangeRing rr = itr.next();
+                    if (!objects.contains(rr)) {
+                        IWireframeShape oldShape = shapeMap.get(rr);
+                        oldShape.dispose();
+                        itr.remove();
+                    }
+                }
+
+                // find existing shape or create a new one
+                shape = shapeMap.get(ring);
+                if (shape == null) {
+                    newShape = true;
+                    shape = target.createWireframeShape(false, descriptor);
+                    shapeMap.put(ring, shape);
+                }
+            }
+
             int[] radii = ring.getRadii();
-            List<DrawableString> strings = new ArrayList<DrawableString>();
+            List<DrawableString> strings = new ArrayList<>();
             for (int i = 0; i < radii.length; i++) {
                 int radius = radii[i];
                 if (radius != 0) {
                     Coordinate[] coords = getRing(center, radius);
-                    shape.addLineSegment(coords);
+                    if (newShape) {
+                        shape.addLineSegment(coords);
+                    }
                     if (label.contains(String.valueOf(i + 1))) {
                         double[] labelLoc = descriptor
                                 .worldToPixel(new double[] {
@@ -237,7 +268,6 @@ public class RangeRingsLayer extends AbstractMovableToolLayer<RangeRing>
             }
             target.drawStrings(strings);
             target.drawWireframeShape(shape, color, lineWidth, lineStyle);
-            shape.dispose();
             double radius = (MAGIC_CIRCLE_RADIUS * paintProps.getZoomLevel());
             double[] centerPixel = descriptor.worldToPixel(new double[] {
                     center.x, center.y });

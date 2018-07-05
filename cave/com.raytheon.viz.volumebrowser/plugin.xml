@@ -22,6 +22,7 @@
 <plugin>
    <extension-point id="com.raytheon.viz.volumebrowser.datacatalog" name="Volume Browser Data Catalog" schema="schema/com.raytheon.viz.volumebrowser.datacatalog.exsd"/>
    <extension-point id="com.raytheon.viz.volumebrowser.productcreator" name="Volume Browser Product Creator" schema="schema/com.raytheon.viz.volumebrowser.productcreator.exsd"/>
+   <extension-point id="com.raytheon.viz.volumebrowser.config.path" name="Volume Browser Config Path" schema="schema/com.raytheon.viz.volumebrowser.config.path.exsd"/>
    <extension
          point="org.eclipse.ui.commands">
       <command
@@ -45,10 +46,10 @@
             commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef">
       </handler>
    </extension>
-   <extension point="com.raytheon.uf.viz.core.alterBundle">
+   <extension point="com.raytheon.uf.viz.d2d.core.alterBundle">
           <alterBundle class="com.raytheon.viz.volumebrowser.ToolsAlterBundleContributor"/>
    </extension>
-   <extension point="com.raytheon.uf.viz.core.alterBundle">
+   <extension point="com.raytheon.uf.viz.d2d.core.alterBundle">
    	  <alterBundle class="com.raytheon.viz.volumebrowser.GridAlterBundleContributor"/>
    </extension>
    <extension
@@ -71,81 +72,16 @@
     <extension
          point="org.eclipse.ui.menus">
       <menuContribution
-            locationURI="menu:models?after=top">
-         <command
-               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-               label="Volume Browser">
-            <parameter
-                  name="viewType"
-                  value="PLANVIEW">
-            </parameter>
-         </command>
-	<!--
-         <command
-               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-               label="Cross Sections">
-            <parameter
-                  name="viewType"
-                  value="CROSSSECTION">
-            </parameter>
-         </command>
-         <command
-               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-               label="Time Series">
-            <parameter
-                  name="viewType"
-                  value="TIMESERIES">
-            </parameter>
-         </command>
-         <command
-               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-               label="Time Height">
-            <parameter
-                  name="viewType"
-                  value="TIMEHEIGHT">
-            </parameter>
-         </command>
-         <command
-               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-               label="Var vs. Height">
-            <parameter
-                  name="viewType"
-                  value="VARVSHGT">
-            </parameter>
-         </command>
-         <command
-               commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-               label="Model Soundings">
-            <parameter
-                  name="viewType"
-                  value="SOUNDING">
-            </parameter>
-         </command>
-	-->
-         <separator
-               name="afterVB"
-               visible="false">
-         </separator>
-         <separator
-               name="ensemble"
-               visible="true">
-         </separator>
-         <separator
-               name="VolumeBundles"
-               visible="true">
-         </separator>
-         <separator
-               name="ComparisonFamilies"
-               visible="true">
-         </separator>
-         <separator
-               name="SurfaceFamilies"
-               visible="false">
-         </separator>
-         <separator
-               name="StdEnvDataPackageFamilies"
-               visible="true">
-         </separator>
+            locationURI="menu:volume?after=top">
+             <command
+                   commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
+                   label="Volume Browser">
+             </command>
+             <separator name="afterVB" visible="false"/>
+             <separator name="VolumeBundles" visible="true"/>
+             <separator name="ComparisonFamilies" visible="true"/>
+             <separator name="SurfaceFamilies" visible="false"/>
+             <separator name="StdEnvDataPackageFamilies" visible="true"/>
       </menuContribution>
     </extension>
     <extension

@@ -25,8 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-import jep.JepException;
-
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
 import com.raytheon.uf.common.activetable.OperationalActiveTableRecord;
@@ -39,10 +37,11 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.activetable.ActiveTable;
 
+import jep.JepException;
+
 /**
- * Handler for
- * <code>MergeActiveTableRequest<code>s. This is the server-side portion of the
- * ingestAT/MergeVTEC applications.
+ * Handler for <code>MergeActiveTableRequest<code>s. This is the server-side
+ * portion of the ingestAT/MergeVTEC applications.
  * 
  * <pre>
  * 
@@ -58,11 +57,12 @@ import com.raytheon.uf.edex.activetable.ActiveTable;
  *                                       fields.
  * Apr 28, 2015  #4027     randerso      Expunged Calendar from ActiveTableRecord
  * Jun 27, 2016  #5707     nabowle       Removed geometry from ActiveTableRecord.
+ * Nov 02, 2016  #5979     njensen       Cast to Number where applicable
+ * Apr 14, 2017  #5979     njensen       Safer null check after cast
  * 
  * </pre>
  * 
  * @author wldougher
- * @version 1.0
  */
 
 public class MergeActiveTableHandler implements
@@ -126,7 +126,7 @@ public class MergeActiveTableHandler implements
     protected List<ActiveTableRecord> mapToRecords(
             Map<String, Object>[] activeTableMap, ActiveTableMode mode)
             throws Exception {
-        List<ActiveTableRecord> records = new ArrayList<ActiveTableRecord>(
+        List<ActiveTableRecord> records = new ArrayList<>(
                 activeTableMap.length);
         if (activeTableMap != null) {
             for (Map<String, Object> template : activeTableMap) {
@@ -139,7 +139,8 @@ public class MergeActiveTableHandler implements
 
                 try {
                     atr.setVtecstr(template.get("vtecstr").toString());
-                    Integer incomingEtn = (Integer) template.get("etn");
+                    Integer incomingEtn = ((Number) template.get("etn"))
+                            .intValue();
                     DecimalFormat formatter = new DecimalFormat("0000");
                     String paddedEtn = formatter.format(incomingEtn);
                     atr.setEtn(paddedEtn);
@@ -157,7 +158,7 @@ public class MergeActiveTableHandler implements
                     }
                     atr.setPhensig(template.get("phensig").toString());
                     atr.setAct(template.get("act").toString());
-                    atr.setSeg((Integer) template.get("seg"));
+                    atr.setSeg(((Number) template.get("seg")).intValue());
                     Date start = new Date(
                             ((Number) template.get("startTime")).longValue() * 1000L);
                     atr.setStartTime(start);
@@ -205,8 +206,14 @@ public class MergeActiveTableHandler implements
                             .get("immediateCause"));
                     atr.setLoc((String) template.get("loc"));
                     atr.setLocationID((String) template.get("locationid"));
-                    atr.setMotdir((Integer) template.get("motdir"));
-                    atr.setMotspd((Integer) template.get("motspd"));
+                    Number motDir = (Number) template.get("motdir");
+                    if (motDir != null) {
+                        atr.setMotdir(motDir.intValue());
+                    }
+                    Number motSpd = (Number) template.get("motspd");
+                    if (motSpd != null) {
+                        atr.setMotspd(motSpd.intValue());
+                    }
                     atr.setWmoid((String) template.get("wmoid"));
                     records.add(atr);
                 } catch (Exception e) {

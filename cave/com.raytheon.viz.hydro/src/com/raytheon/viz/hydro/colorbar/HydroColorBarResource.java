@@ -29,6 +29,9 @@ import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters.LabelEntry;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.DrawableColorMap;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
@@ -70,15 +73,20 @@ import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
  * Mar  3, 2014 2804       mschenke    Set back up clipping pane
  * Jul 30, 2014 3465       mapeters    Updated deprecated drawString() calls.
  * Aug 04, 2014 3489       mapeters    Updated deprecated getStringBounds() calls.
+ * Oct 20, 2017 20214      jdeng       Adjust color bar height
  * </pre>
  * 
  * @author mpduff
  * @version 1.0
  */
 
-public class HydroColorBarResource extends
-        AbstractVizResource<AbstractResourceData, IMapDescriptor> implements
-        IContextMenuContributor {
+public class HydroColorBarResource
+        extends AbstractVizResource<AbstractResourceData, IMapDescriptor>
+        implements IContextMenuContributor {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(HydroColorBarResource.class);
+
     /**
      * Class ID for equals method. Only one instance of this class at a time.
      */
@@ -111,7 +119,7 @@ public class HydroColorBarResource extends
             @Override
             public AbstractVizResource<?, ?> construct(
                     LoadProperties loadProperties, IDescriptor descriptor)
-                    throws VizException {
+                            throws VizException {
                 return null;
             }
 
@@ -151,7 +159,8 @@ public class HydroColorBarResource extends
             PaintProperties paintProps) throws VizException {
         IExtent screenExtent = paintProps.getView().getExtent();
 
-        scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
+        scale = (screenExtent.getHeight()
+                / paintProps.getCanvasBounds().height);
 
         DrawableString string = new DrawableString("0");
         textHeight = target.getStringsBounds(string).getHeight() * scale;
@@ -193,7 +202,7 @@ public class HydroColorBarResource extends
         PDCOptionData pcOptions = PDCOptionData.getInstance();
 
         double y1 = 0;
-        double cmapHeight = textHeight * 1.25;
+        double cmapHeight = textHeight;
         double legendHeight = cmapHeight + 2.0 * textSpace + 2.0 * padding;
 
         if ((pcOptions.getQueryMode() == 1)
@@ -203,8 +212,9 @@ public class HydroColorBarResource extends
             AbstractVizResource<?, ?> rsc = pdcManager.getMultiPointResource();
             ColorMapCapability cmapRsc = rsc
                     .getCapability(ColorMapCapability.class);
-            DrawableColorMap cmap = new DrawableColorMap(rsc.getCapability(
-                    ColorMapCapability.class).getColorMapParameters());
+            DrawableColorMap cmap = new DrawableColorMap(
+                    rsc.getCapability(ColorMapCapability.class)
+                            .getColorMapParameters());
             cmap.alpha = 1.0f;
 
             // The y value to use for drawing
@@ -220,10 +230,10 @@ public class HydroColorBarResource extends
             /* Draw the threshold values above the color bar */
             int offset = 0;
             offset = (int) (cmapRsc.getColorMapParameters().getLabels().get(1)
-                    .getLocation()
-                    * width / 2);
+                    .getLocation() * width / 2);
             List<DrawableString> strings = new ArrayList<DrawableString>();
-            for (LabelEntry entry : cmapRsc.getColorMapParameters().getLabels()) {
+            for (LabelEntry entry : cmapRsc.getColorMapParameters()
+                    .getLabels()) {
                 if (entry.getText().length() > 10) {
                     break;
                 } else {
@@ -240,8 +250,8 @@ public class HydroColorBarResource extends
 
             /* Draw the color ramp */
             y1 += textSpace;
-            cmap.extent = new PixelExtent(xMin, xMin + width, y1, y1
-                    + cmapHeight);
+            cmap.extent = new PixelExtent(xMin, xMin + width, y1,
+                    y1 + cmapHeight);
             target.drawColorRamp(cmap);
         } else {
             y1 = yMax - legendHeight;
@@ -250,8 +260,8 @@ public class HydroColorBarResource extends
 
         /* Draw the informative text below the color bar */
         y1 += cmapHeight;
-        DrawableString string = new DrawableString(getDataInfo(), new RGB(250,
-                250, 0));
+        DrawableString string = new DrawableString(getDataInfo(),
+                new RGB(250, 250, 0));
         string.setCoordinates(xMin + padding, y1);
         string.verticalAlignment = VerticalAlignment.TOP;
         target.drawStrings(string);
@@ -302,21 +312,17 @@ public class HydroColorBarResource extends
                         currentTime.set(Calendar.SECOND, 0);
 
                         if (pcOptions.getDurHours() == 1) {
-                            legendString = String
-                                    .format("%s over %d hour ending at latest hour (%s Z) ",
-                                            elementString, pcOptions
-                                                    .getDurHours(),
-                                            HydroConstants.DATE_FORMAT
-                                                    .format(currentTime
-                                                            .getTime()));
+                            legendString = String.format(
+                                    "%s over %d hour ending at latest hour (%s Z) ",
+                                    elementString, pcOptions.getDurHours(),
+                                    HydroConstants.DATE_FORMAT
+                                            .format(currentTime.getTime()));
                         } else {
-                            legendString = String
-                                    .format("%s over %d hours ending at latest hour (%s Z) ",
-                                            elementString, pcOptions
-                                                    .getDurHours(),
-                                            HydroConstants.DATE_FORMAT
-                                                    .format(currentTime
-                                                            .getTime()));
+                            legendString = String.format(
+                                    "%s over %d hours ending at latest hour (%s Z) ",
+                                    elementString, pcOptions.getDurHours(),
+                                    HydroConstants.DATE_FORMAT
+                                            .format(currentTime.getTime()));
                         }
                     } else { // not RAIN_AD_HOC_TYPE
                         // example River - Primary - Latest Value
@@ -326,7 +332,8 @@ public class HydroColorBarResource extends
                     }
                 } else if ((timeMode == TimeModeType.MINSELECT.getTimeMode())
                         || (timeMode == TimeModeType.MAXSELECT.getTimeMode())
-                        || (timeMode == TimeModeType.VALUE_CHANGE.getTimeMode())) {
+                        || (timeMode == TimeModeType.VALUE_CHANGE
+                                .getTimeMode())) {
                     if (elementType == AdHocDataElementType.RAIN_AD_HOC_TYPE
                             .getAdHocDataElementType()) {
                         // example RAIN - PC AND PP - value over 4 hours
@@ -354,16 +361,14 @@ public class HydroColorBarResource extends
                                 pcOptions.getDurHours(),
                                 pcOptions.getPcTimeStr());
                     } else { // not RAIN_AD_HOC_TYPE
-                        legendString = String.format(
-                                "%s within %d hours of %s", elementString,
-                                pcOptions.getDurHours(),
+                        legendString = String.format("%s within %d hours of %s",
+                                elementString, pcOptions.getDurHours(),
                                 pcOptions.getPcTimeStr());
                     }
                 }
             } else { // element out of range , happens upon startup
-                // printf("%s element out of range \n", header);
-                System.err
-                        .println("getPDCAdHocLegendString(): element out of range");
+                statusHandler.handle(Priority.ERROR,
+                        "getPDCAdHocLegendString(): element out of range");
                 legendString = "";
             }
         } else {

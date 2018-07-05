@@ -78,7 +78,6 @@
 		overwrite="${esb.overwrite}">
 			<fileset dir="${esb.directory}">
 				<exclude name="data/**" />
-				<exclude name="svcBackup/**" />
 				<exclude name="**/bin/setup.env" />
 				<exclude name="**/bin/linux-x86-32/**" />
 				<exclude name="**/bin/linux-x86-64/**" />				
@@ -87,6 +86,7 @@
 		
 		<!-- set executable permissions - start.sh. -->
 		<chmod file="${edex.root.directory}/bin/start.sh" perm="ugo+rx" />
+
 	</target>
 
 	<target name="deploy.esb-data">
@@ -94,6 +94,13 @@
 		overwrite="${esb.overwrite}">
 			<fileset dir="${esb.directory}" includes="data/**" />
 		</copy>
+		
+		<!-- update directory permissions. -->
+        <exec executable="chmod">
+            <arg value="-R"/> 
+            <arg value="775"/> 
+            <arg value="${edex.root.directory}/data"/> 
+        </exec>
 	</target>
 	
 	<taskdef resource="net/sf/antcontrib/antlib.xml" 

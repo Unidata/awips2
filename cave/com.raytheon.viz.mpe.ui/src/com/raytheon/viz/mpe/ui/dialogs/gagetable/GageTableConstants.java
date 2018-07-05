@@ -20,7 +20,7 @@
 package com.raytheon.viz.mpe.ui.dialogs.gagetable;
 
 /**
- * TODO Add Description
+ * Common constants used by the Gage Table dialogs.
  * 
  * <pre>
  * 
@@ -28,18 +28,21 @@ package com.raytheon.viz.mpe.ui.dialogs.gagetable;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 18, 2009 2476       mpduff      Initial creation
+ * Mar 01, 2017 6158       mpduff      Changed default width to 80.
+ * May 12, 2017 6283       bkowal      Added {@link #EDIT_GAGE_VALUE}.
  * 
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
 public class GageTableConstants {
+    public static final String EDIT_GAGE_VALUE = "Edit Gage Value";
+
     public static final String[] BASE_COLUMNS = { "LID", "Gage Value",
-            "Edit Gage Value", "Diff (Gage-Grid)", "Radar ID" };
+            EDIT_GAGE_VALUE, "Diff (Gage-Grid)", "Radar ID" };
 
     /** Default column width */
-    public static final int DEFAULT_WIDTH = 65;
+    public static final int DEFAULT_WIDTH = 80;
 
 }

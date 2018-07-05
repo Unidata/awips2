@@ -1,3 +1,8 @@
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
 <!-- Flash Flood Statement County-based configuration -->
 <!-- RECENT HISTORY:
      Modified by Evan Bookbinder  09-11-2012 Added settings for locations shapefile

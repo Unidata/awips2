@@ -18,6 +18,12 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <latLonGridCoverage>
     <name>181139001</name>
     <description>Latitude/Longitude Ocean grid with (1,1) at (1E,64E) and (180,139) at (1W,74S) I increasing Eastward, Equator at J=65 -Add one column</description>

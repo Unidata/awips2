@@ -18,6 +18,11 @@
 # further licensing information.
 ##
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 import TimeRange
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import GridParmInfo
 

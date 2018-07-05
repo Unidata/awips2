@@ -19,252 +19,86 @@
  **/
 package com.raytheon.viz.mpe.util;
 
-import java.io.File;
-import java.io.IOException;
-
+import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
-import javax.measure.unit.Unit;
-
-import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.xmrg.XmrgFile;
-import com.raytheon.viz.mpe.core.MPEDataManager;
 
 /**
- * TODO Add Description
+ * Reads the monthly temperature prism data from XMRG files.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    	Description
- * ------------ ---------- ----------- 	--------------------------
- * Feb 25, 2009            snaples     	Initial creation
- * Apr 16, 2012			   mgamazaychik	DR9602 - changed how max and min 
- * 										temperature data are read from PRISM  
+ * Date         Ticket#    Engineer     Description
+ * ------------ ---------- -----------  --------------------------
+ * Feb 25, 2009            snaples      Initial creation
+ * Apr 16, 2012            mgamazaychik DR9602 - changed how max and min 
+ *                         temperature data are read from PRISM
+ * Oct 03, 2017 6407       bkowal       Cleanup. Updated to extend {@link AbstractPrismDataReader}.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
-public class MeanMonthlyTemp {
-    int MaxX;
-
-    int MaxY;
-
-    int MinX;
-
-    int MinY;
-
-    private DailyQcUtils dqc = DailyQcUtils.getInstance();
-    
-    ColorMapParameters cmc = new ColorMapParameters();
+public class MeanMonthlyTemp extends AbstractPrismDataReader {
 
     private static MaxMin maxmin;
 
-    String mon_name[] = { "jan", "feb", "mar", "apr", "may", "jun", "jul",
-            "aug", "sep", "oct", "nov", "dec" };
-
     public MeanMonthlyTemp() {
-        // empty constructor
+        super(NonSI.FAHRENHEIT, NonSI.FAHRENHEIT.divide(10));
     }
 
-    public boolean read_mean_monthly_temp(String mpe_prism_dir,
+    /*
+     * TODO: Would it not be great if this method actually returned what it read
+     * so that it could be passed along as needed instead of populating static
+     * variables?
+     */
+    public MPEPrismDataLoadFailed read_mean_monthly_temp(String mpe_prism_dir,
             String mpe_rfc_name, int smonth, int emonth) {
-        System.out.println("Starting mmt: ");
-        if (dqc.init_maxmin == -1) {
-            maxmin = new MaxMin();
-            MaxX = MPEDataManager.getInstance().getHRAPExtent().width;
-            MaxY = MPEDataManager.getInstance().getHRAPExtent().height;
-            MinX = (int) MPEDataManager.getInstance().getHRAPExtent().getMinX();
-            MinY = (int) MPEDataManager.getInstance().getHRAPExtent().getMinY();
-
-            maxmin.maxi = -1;
-            maxmin.maxj = -1;
-            maxmin.max_lat = -1;
-            maxmin.max_lon = -1;
-            maxmin.total_lat = -1;
-            maxmin.total_lon = -1;
-            maxmin.delta_lat = -1;
-            maxmin.delta_lon = -1;
-
-            maxmin.maxvalue = new int[12][MaxY][MaxX];
-            maxmin.minvalue = new int[12][MaxY][MaxX];
-
-            Unit<?> displayUnit = Unit.ONE;
-            Unit<?> dataUnit = Unit.ONE;
-
-            displayUnit = NonSI.FAHRENHEIT;
-            dataUnit = NonSI.FAHRENHEIT.divide(10);
-            cmc.setDisplayUnit(displayUnit);
-            cmc.setDataUnit(dataUnit);
-
-            /* Read in the PRISM files. */
-            /* j increments latitude i increments longitude */
-
-            for (int k = 0; k < 12; k++) {
-                int ier = is_good(k, smonth, emonth);
-
-                if (ier == -1) {
-                    continue;
-                }
-
-                String mon = mon_name[k];
-
-                /* Create the max temp PRISM filename. */
-                String pfile = dqc.mpe_prism_dir + "/prism_max_temp_"
-                        + dqc.mpe_rfc_name + "_" + mon;
-
-                /* read in data file */
-                /* i is longitude j is latitude */
-                File pf = new File(pfile);
-                if (pf.exists() != true) {
-                    return false;
-                }
-                XmrgFile xmfile = new XmrgFile(pfile);
-                try {
-                    xmfile.load();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                short[] pdata = new short[(int) xmfile.getFile().length()];
-                if (xmfile.getHrapExtent() == null) {
-                    return false;
-                }
-                pdata = xmfile.getData();
-                if (pdata.length == 0) {
-                    System.out.println("Error reading " + pfile);
-                    return false;
-                }
-                /*
-                 * DR9602 - added to read max temps from PRISM properly
-                 */
-                int index=0;
-                for (int i = MaxY - 1; i >= 0; i--) {
-                    for (int j = 0; j < MaxX; j++) {
-                        float f = 0;                        
-                        short s = pdata[index];
-                        index++;
-                        if (s < 0) {
-                            if (s == -9999 || s == -999) {
-                                f = s;
-                            } else if (s == -8888 || s == -899) {
-                                f = s;
-                            } else {
-                                f = (float) cmc.getDataToDisplayConverter()
-                                        .convert(s);
-                            }
-                        } else {
-                            f = (float) cmc.getDataToDisplayConverter()
-                                    .convert(s);
-                        }
-                        float aa = (float) (Math.floor((f * 10)));
-                        int bb = (int) aa;
-                        maxmin.maxvalue[k][i][j] = bb;
-                    }
-                }
-            }
-            for (int k = 0; k < 12; k++) {
-                int ier = is_good(k, smonth, emonth);
-
-                if (ier == -1) {
-                    continue;
-                }
-
-                String mon = mon_name[k];
-
-                /* Create the min temp PRISM filename. */
-                String pfile = dqc.mpe_prism_dir + "/prism_min_temp_"
-                        + dqc.mpe_rfc_name + "_" + mon;
-
-                /* read in data file */
-                /* i is longitude j is latitude */
-                File pf = new File(pfile);
-                if (pf.exists() != true) {
-                    return false;
-                }
-                XmrgFile xmfile = new XmrgFile(pfile);
-                short[] pdata2 = new short[(int) xmfile.getFile().length()];
-                try {
-                    xmfile.load();
-                } catch (IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-                if (xmfile.getHrapExtent() == null) {
-                    return false;
-                }
-                pdata2 = xmfile.getData();
-                if (pdata2.length == 0) {
-                    System.out.println("Error reading " + pfile);
-                    return false;
-                }
-                /*
-                 * DR9602 - added to read min temps from PRISM properly
-                 */
-                int index=0;
-                for (int i = MaxY - 1; i >= 0; i--) {
-                    for (int j = 0; j < MaxX; j++) {
-                        float f = 0;                        
-                        short s = pdata2[index];
-                        index++;
-                        if (s < 0) {
-                            if (s == -9999 || s == -999) {
-                                f = s;
-                            } else if (s == -8888 || s == -899) {
-                                f = s;
-                            } else {
-                                f = (float) cmc.getDataToDisplayConverter()
-                                        .convert(s);
-                            }
-                        } else {
-                            f = (float) cmc.getDataToDisplayConverter()
-                                    .convert(s);
-                        }
-                        float aa = (float) (Math.floor((f * 10)));
-                        int bb = (int) aa;
-                        maxmin.minvalue[k][i][j] = bb;
-                    }
-                }
-            }
-
-            dqc.init_maxmin = 1;
+        if (dqc.init_maxmin) {
+            return null;
         }
-        dqc.maxmin_used = 1;
-        System.out.println("Finished mmt: ");
-        return true;
+
+        statusHandler.info("Loading temperature prism data ...");
+
+        maxmin = new MaxMin();
+        maxmin.maxvalue = new int[mon_name.length][MaxY][MaxX];
+        maxmin.minvalue = new int[mon_name.length][MaxY][MaxX];
+
+        /* Read in the PRISM files. */
+        /* j increments latitude i increments longitude */
+        for (int k = 0; k < mon_name.length; k++) {
+            if (!isWithinRange(k, smonth, emonth)) {
+                continue;
+            }
+
+            final String monAbbr = mon_name[k];
+            MPEPrismDataLoadFailed mpePrismDataLoadFailed = readPrismAndPopulateDestination(
+                    mpe_prism_dir, mpe_rfc_name, "prism_max_temp_", k, monAbbr,
+                    maxmin.maxvalue, dataToImage);
+            if (mpePrismDataLoadFailed != null) {
+                return mpePrismDataLoadFailed;
+            }
+            mpePrismDataLoadFailed = readPrismAndPopulateDestination(
+                    mpe_prism_dir, mpe_rfc_name, "prism_min_temp_", k, monAbbr,
+                    maxmin.minvalue, dataToImage);
+            if (mpePrismDataLoadFailed != null) {
+                return mpePrismDataLoadFailed;
+            }
+        }
+
+        dqc.init_maxmin = true;
+        dqc.maxmin_used = true;
+        statusHandler.info("Successfully loaded temperature prism data.");
+        return null;
     }
 
     public static class MaxMin {
 
-        Icoord coord[];
+        public int maxvalue[][][];
 
-        int maxvalue[][][];
+        public int minvalue[][][];
 
-        int minvalue[][][];
-
-        int maxi;
-
-        int maxj;
-
-        float max_lat;
-
-        float max_lon;
-
-        float total_lat;
-
-        float total_lon;
-
-        float delta_lat;
-
-        float delta_lon;
-    }
-
-    public class Icoord {
-        int x;
-
-        int y;
     }
 
     /**
@@ -279,23 +113,17 @@ public class MeanMonthlyTemp {
      *            the maxmin to set
      */
     public void setMaxmin(MaxMin maxmin) {
-        this.maxmin = maxmin;
+        MeanMonthlyTemp.maxmin = maxmin;
     }
 
-    public int is_good(int k, int smonth, int emonth) {
-        if ((smonth <= emonth) && (k >= smonth) && (k <= emonth)) {
-            return (1);
+    @Override
+    protected float handleNegativeValue(UnitConverter dataToImage,
+            short value) {
+        if (value == -9999 || value == -999 || value == -8888
+                || value == -899) {
+            return value;
+        } else {
+            return (float) dataToImage.convert(value);
         }
-        if (smonth > emonth) {
-            if (k <= emonth) {
-                return (1);
-            }
-
-            if (k >= smonth) {
-                return (1);
-            }
-        }
-        return (-1);
     }
-
 }

@@ -28,6 +28,11 @@
 #         Tom LeFebvre - 8/2/2002 - added adjustments for low, high humidity
 # ----------------------------------------------------------------------------
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 ToolType = "numeric"
 WeatherElementEdited = "HeatIndex"
 from numpy import *

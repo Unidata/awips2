@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.data.GridRequestableData;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.data.ImportRequestableData;
@@ -37,8 +36,6 @@ import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.parameter.Parameter;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.grid.data.TiltRequestableData.TiltCenterPoint;
-import com.raytheon.viz.grid.util.TiltRequest;
 
 /**
  * A PDO that extends GridRecord and wraps a AbstractRequestableData to allow
@@ -56,6 +53,8 @@ import com.raytheon.viz.grid.util.TiltRequest;
  * Mar 15, 2016  18657    MPorricelli  Do not process dependency of Import data
  *                                     to avoid coverage mismatch with base data
  * Apr 01, 2016  5439     bsteffen     Move import node to common.
+ * Apr 20, 2017  6046     bsteffen     Change grib to grid.
+ * Aug 15, 2017  6332     bsteffen     Move radar specific logic to extension
  * 
  * </pre>
  * 
@@ -73,8 +72,8 @@ public class RequestableDataRecord extends GridRecord {
         GridCoverage coverage = null;
         if (requester.getSpace() instanceof GridCoverage) {
             coverage = (GridCoverage) requester.getSpace();
-            Set<String> secondaryIds = new HashSet<String>();
-            for (GridRequestableData data : getGribRequests()) {
+            Set<String> secondaryIds = new HashSet<>();
+            for (GridRequestableData data : getGridRequests()) {
                 secondaryIds.add(data.getGridSource().getSecondaryId());
             }
             if (secondaryIds.size() == 1) {
@@ -89,11 +88,6 @@ public class RequestableDataRecord extends GridRecord {
 
         setParameter(parameter);
         setDataTime(requester.getDataTime());
-        try {
-            constructDataURI();
-        } catch (PluginException e) {
-            throw new VizException(e);
-        }
     }
 
     public RequestableDataRecord(GridRequestableData requester)
@@ -113,13 +107,7 @@ public class RequestableDataRecord extends GridRecord {
 
     public IDataRecord[] getDataRecord(Request request)
             throws DataCubeException {
-        Object obj = null;
-        if (request instanceof TiltRequest) {
-            obj = requester.getDataValue(new TiltCenterPoint(
-                    ((TiltRequest) request).getTiltLocation()));
-        } else {
-            obj = requester.getDataValue(request);
-        }
+        Object obj = requester.getDataValue(request);
         if (obj instanceof IDataRecord[]) {
             return (IDataRecord[]) obj;
         } else if (obj instanceof IDataRecord) {
@@ -155,20 +143,17 @@ public class RequestableDataRecord extends GridRecord {
             for (int i = 0; i < (nx * ny); i++) {
                 data[i] = ((Number) obj).floatValue();
             }
-            FloatDataRecord rec = new FloatDataRecord(this.getParameter()
-                    .getName(), this.getPluginName(), data, 2, new long[] { nx,
-                    ny });
+            FloatDataRecord rec = new FloatDataRecord(
+                    this.getParameter().getName(), this.getPluginName(), data,
+                    2, new long[] { nx, ny });
             return new IDataRecord[] { rec };
         }
         return null;
     }
 
-    /**
-     * @return
-     */
-    public Collection<GridRequestableData> getGribRequests() {
-        List<GridRequestableData> results = new ArrayList<GridRequestableData>();
-        List<AbstractRequestableData> list = new ArrayList<AbstractRequestableData>();
+    public Collection<GridRequestableData> getGridRequests() {
+        List<GridRequestableData> results = new ArrayList<>();
+        List<AbstractRequestableData> list = new ArrayList<>();
         list.add(requester);
         AbstractRequestableData current = null;
         for (int i = 0; i < list.size(); i++) {
@@ -177,7 +162,8 @@ public class RequestableDataRecord extends GridRecord {
                 results.add((GridRequestableData) current);
             } else {
                 for (AbstractRequestableData data : current.getDependencies()) {
-                    if (data != null && !(data instanceof ImportRequestableData)) {
+                    if (data != null
+                            && !(data instanceof ImportRequestableData)) {
                         list.add(data);
                     }
                 }

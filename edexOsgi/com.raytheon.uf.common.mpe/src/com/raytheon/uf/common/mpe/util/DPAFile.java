@@ -28,6 +28,10 @@ import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 
+import com.raytheon.uf.common.mpe.constants.DPAConstants;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+
 /**
  * Read the DPA file.
  * 
@@ -36,18 +40,19 @@ import java.nio.channels.FileChannel.MapMode;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 29, 2009            mpduff     Initial creation
+ * Jul 29, 2009 ?          mpduff      Initial creation
+ * Sep 16, 2016 5631       bkowal      Cleanup. Eliminated duplicated
+ *                                     DPA Constants.
  * 
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
 public class DPAFile {
-    private static final int NUM_DPA_COLS = 131;
 
-    private static final int NUM_DPA_ROWS = 131;
+    private static final IUFStatusHandler handler = UFStatus
+            .getHandler(DPAFile.class);
 
     private static final double radarZero = Math.pow(10.0, -98.0 / 10.0);
 
@@ -99,7 +104,11 @@ public class DPAFile {
      * 
      * @throws IOException
      */
-    public void load() throws Exception {
+    public void load() throws DPAException {
+        if (file == null) {
+            throw new DPAException("No DPA radar file has been specified.");
+        }
+
         FileInputStream fis;
         try {
             fis = new FileInputStream(file);
@@ -110,11 +119,11 @@ public class DPAFile {
 
             fis.close();
         } catch (FileNotFoundException e) {
-            System.out.println("Radar file not found " + e);
-            // throw e;
+            throw new DPAException("Unable to find DPA radar file: "
+                    + file.getAbsolutePath() + ".", e);
         } catch (IOException e) {
-            System.out.println("IO Error attempting to read radar file " + e);
-            // throw e;
+            throw new DPAException("Failed to read DPA radar file: "
+                    + file.getAbsolutePath() + ".", e);
         }
     }
 
@@ -129,15 +138,15 @@ public class DPAFile {
      * @throws IOException
      */
     private void readData(ByteBuffer byteBuf) throws IOException {
-        stage1i = new double[131][131];
-        stage1u = new double[131][131];
-        zeroData = new double[131][131];
+        stage1i = new double[DPAConstants.NUM_DPA_ROWS][DPAConstants.NUM_DPA_COLS];
+        stage1u = new double[DPAConstants.NUM_DPA_ROWS][DPAConstants.NUM_DPA_COLS];
+        zeroData = new double[DPAConstants.NUM_DPA_ROWS][DPAConstants.NUM_DPA_COLS];
 
         byteBuf.order(ByteOrder.LITTLE_ENDIAN);
         byteBuf.rewind();
 
-        for (int i = NUM_DPA_ROWS - 1; i >= 0; i--) {
-            for (int j = 0; j < NUM_DPA_COLS; j++) {
+        for (int i = DPAConstants.NUM_DPA_ROWS - 1; i >= 0; i--) {
+            for (int j = 0; j < DPAConstants.NUM_DPA_COLS; j++) {
                 float f = byteBuf.getFloat();
                 if (f > -99.) {
                     if (f == -98) {
@@ -150,9 +159,9 @@ public class DPAFile {
                     zeroData[i][j] = radarZero * 100;
                 } else {
                     // Set to missing for colorbar
-                    stage1i[i][j] = -9999;
-                    stage1u[i][j] = -9999;
-                    zeroData[i][j] = -9999;
+                    stage1i[i][j] = DPAConstants.DPA_MISSING;
+                    stage1u[i][j] = DPAConstants.DPA_MISSING;
+                    zeroData[i][j] = DPAConstants.DPA_MISSING;
                 }
             }
         }
@@ -171,7 +180,7 @@ public class DPAFile {
      * @return
      */
     public double[][] getStage1i() {
-        System.out.println("Getting Radar Data...");
+        handler.debug("Getting Radar Data...");
         return stage1i;
     }
 
@@ -181,7 +190,7 @@ public class DPAFile {
      * @return
      */
     public double[][] getStage1u() {
-        System.out.println("Getting Radar Data multiplied by MFB...");
+        handler.debug("Getting Radar Data multiplied by MFB...");
         return stage1u;
     }
 
@@ -201,7 +210,7 @@ public class DPAFile {
      *            The bias value to set
      */
     public void setBiasValue(double biasValue) {
-        System.out.println("Bias Value set to " + biasValue);
+        handler.debug("Bias Value set to " + biasValue);
         this.biasValue = biasValue;
     }
 }

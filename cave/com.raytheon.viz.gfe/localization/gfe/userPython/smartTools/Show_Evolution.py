@@ -40,6 +40,12 @@
 #    1/30/13         15536         ryu            Made necessary changes to get tool to run
 #
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 ToolType = "numeric"
 WeatherElementEdited = "None"
 ScreenList=["MaxT","MinT","MaxRH","MinRH","TdMrn","TdAft","T","Td","RH"]

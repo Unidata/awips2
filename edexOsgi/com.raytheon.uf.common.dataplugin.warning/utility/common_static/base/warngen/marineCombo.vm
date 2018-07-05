@@ -16,9 +16,13 @@
 ## this error just set your initial variables to null.
 #################################################################################
 ## If you have any questions contact: Phil Kurimski - WFO GRB
-#################################################################################
+###########################################################################
+## This is an absolute override file, indicating that a higher priority  ##
+## version of the file will completely replace a lower priority version  ##
+## of the file.                                                          ##
+###########################################################################
 ## Set all variables to null in case you have a CANCON segment
-#################################################################################
+###########################################################################
 #*
 #set ($saginawbay = "")
 #set ($huronnearshore = "")

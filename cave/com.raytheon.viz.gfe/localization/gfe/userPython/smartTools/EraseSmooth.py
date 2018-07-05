@@ -47,6 +47,20 @@
 #  2011-02-18 - version 1.1 - AWIPS-2 port
 #
 # ----------------------------------------------------------------------------
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls
+# 
+##
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 ToolType = "numeric"
 WeatherElementEdited = "variableElement"
 ScreenList=["SCALAR","VECTOR"]
@@ -103,7 +117,7 @@ class Tool (SmartScript.SmartScript):
         #  of vector need to be modified.  Use the doAnal routine
         #  to do the analysis.
         #
-        wxType=variableElement_GridInfo.getGridType().toString()
+        wxType=str(variableElement_GridInfo.getGridType())
         #
         #  For SCALAR elements - just use doAnal to do the analysis
         #

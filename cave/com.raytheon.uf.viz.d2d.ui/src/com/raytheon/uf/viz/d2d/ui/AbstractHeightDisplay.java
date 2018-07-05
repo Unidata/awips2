@@ -29,7 +29,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource.ResourceStatus;
-import com.raytheon.viz.core.slice.request.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 
 /**
  * Abstract display for displaying data over multiple heights up through the

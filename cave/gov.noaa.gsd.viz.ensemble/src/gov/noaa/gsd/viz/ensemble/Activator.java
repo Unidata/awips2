@@ -8,6 +8,22 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 
+/**
+ * 
+ * TODO Add Description
+ * 
+ * <pre>
+ *
+ * SOFTWARE HISTORY
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * Dec 1, 2014              polster     Initial creation
+ *
+ * </pre>
+ *
+ * @author polster
+ */
 public class Activator extends AbstractUIPlugin {
 
     public static final transient IUFStatusHandler statusHandler = UFStatus
@@ -32,6 +48,7 @@ public class Activator extends AbstractUIPlugin {
     @Override
     public void start(BundleContext context) throws Exception {
         super.start(context);
+
         plugin = this;
     }
 
@@ -54,5 +71,9 @@ public class Activator extends AbstractUIPlugin {
     public IPersistentPreferenceStore getPreferenceStore() {
         return prefs;
     }
+
+    // public static BundleContext getBundleContext() {
+    // return bundleContext;
+    // }
 
 }

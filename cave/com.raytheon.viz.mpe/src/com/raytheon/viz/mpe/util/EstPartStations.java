@@ -19,12 +19,13 @@
  **/
 package com.raytheon.viz.mpe.util;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 /**
- * TODO Add Description
+ * Used to estimate partial MPE stations. This routine will estimate 6 hourly
+ * periods when 24 hour rain exists.
  * 
  * <pre>
  * 
@@ -32,24 +33,23 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2009            snaples     Initial creation
+ * Mar 10, 2017  19625     snaples     Fixed erroneous estimates.
+ * Oct 03, 2017 6407       bkowal      Eliminated warnings.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class EstPartStations {
 
-    DailyQcUtils dqc = DailyQcUtils.getInstance();
-    
-    public void estimate_partial_stations(int j,
-            ArrayList<Station> precip_stations, int numPstations) {
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-        int dqc_neig = dqc.mpe_dqc_max_precip_neighbors;
-        int isom = dqc.isom;
-        int isohyets_used = dqc.isohyets_used;
-//        Pdata pdata[] = DailyQcUtils.pdata;
+    public void estimate_partial_stations(int j, List<Station> precip_stations,
+            int numPstations) {
+        int dqc_neig = DailyQcUtils.mpe_dqc_max_precip_neighbors;
+        int isom = DailyQcUtils.isom;
+        boolean isohyets_used = dqc.isohyets_used;
         int method = dqc.method;
         int m, k, i, l, ii;
         int dqc_min_good = dqc.mpe_dqc_min_good_stations;
@@ -67,37 +67,31 @@ public class EstPartStations {
         double padj;
         int max_stations = numPstations;
 
-        if (dqc.pdata[j].data_time == null) {
+        if (DailyQcUtils.pdata[j].data_time == null) {
             return;
         }
 
-        /* this routine will estimate 6 hourly periods when 24 hour rain exists */
-
         for (m = 0; m < max_stations; m++) {
-
             /* search for a good 6 hourly period */
-
             for (k = 0; k < 4; k++) {
 
-                if (dqc.pdata[j].stn[m].rrain[k].data >= 0
-                        && (dqc.pdata[j].stn[m].frain[k].qual == 0
-                                || dqc.pdata[j].stn[m].frain[k].qual == 8
-                                || dqc.pdata[j].stn[m].frain[k].qual == 3 || dqc.pdata[j].stn[m].frain[k].qual == 2)) {
+                if (DailyQcUtils.pdata[j].stn[m].rrain[k].data >= 0
+                        && (DailyQcUtils.pdata[j].stn[m].frain[k].qual == 0
+                                || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 8
+                                || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 3
+                                || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 2)) {
                     break;
                 }
-
             }
 
             if (k == 4) {
-
                 /* all 6 hourly periods missing or set bad */
                 /* need to re-estimate 24 hour data */
 
-                if (dqc.pdata[j].stn[m].frain[4].data >= 0
-                        && dqc.pdata[j].stn[m].frain[4].qual == 4) {
-
-                    dqc.pdata[j].stn[m].frain[4].qual = 0;
-                    dqc.pdata[j].stn[m].frain[4].data = -1;
+                if (DailyQcUtils.pdata[j].stn[m].frain[4].data >= 0
+                        && DailyQcUtils.pdata[j].stn[m].frain[4].qual == 4) {
+                    DailyQcUtils.pdata[j].stn[m].frain[4].qual = 0;
+                    DailyQcUtils.pdata[j].stn[m].frain[4].data = -1;
                 }
 
                 continue;
@@ -106,9 +100,9 @@ public class EstPartStations {
 
             /* dont estimate if 24 hour station available */
 
-            if (dqc.pdata[j].stn[m].frain[4].data >= 0
-                    && dqc.pdata[j].stn[m].frain[4].qual != 4
-                    && dqc.pdata[j].stn[m].frain[4].qual != 5) {
+            if (DailyQcUtils.pdata[j].stn[m].frain[4].data >= 0
+                    && DailyQcUtils.pdata[j].stn[m].frain[4].qual != 4
+                    && DailyQcUtils.pdata[j].stn[m].frain[4].qual != 5) {
                 continue;
             }
 
@@ -119,14 +113,13 @@ public class EstPartStations {
 
             /* get isohyet */
 
-            if (isohyets_used != 0) {
+            if (isohyets_used) {
                 isoh1 = precip_stations.get(m).isoh[isom];
             }
 
             /* first */
 
             for (k = 0; k < 4; k++) {
-
                 fdist = 0.0;
                 fdata = 0.0;
 
@@ -138,75 +131,72 @@ public class EstPartStations {
 
                     /* dont estimate unless good or forced good */
 
-                    if (dqc.pdata[j].stn[i].frain[k].qual != 0
-                            && dqc.pdata[j].stn[i].frain[k].qual != 8
-                            && dqc.pdata[j].stn[i].frain[k].qual != 3
-                            && dqc.pdata[j].stn[i].frain[k].qual != 6
-                            && dqc.pdata[j].stn[i].frain[k].qual != 2) {
+                    if (DailyQcUtils.pdata[j].stn[i].frain[k].qual != 0
+                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 8
+                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 3
+                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 6
+                            && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 2) {
                         continue;
                     }
 
                     /* dont use missing stations */
 
-                    if (dqc.pdata[j].stn[i].frain[k].data < 0) {
+                    if (DailyQcUtils.pdata[j].stn[i].frain[k].data < 0) {
                         continue;
                     }
 
                     lat = precip_stations.get(i).lat;
                     lon = precip_stations.get(i).lon;
 
-                    if (isohyets_used != 0) {
+                    if (isohyets_used) {
                         isoh = precip_stations.get(i).isoh[isom];
                     }
 
                     testdist = Math.pow((lat1 - lat), 2)
                             + Math.pow((lon1 - lon), 2);
-
                     if (testdist == 0.0) {
                         testdist = .000001;
                     }
 
                     if (method == 2 && isoh > 0 && isoh1 > 0) {
-                        padj = dqc.pdata[j].stn[i].frain[k].data * (isoh1 / isoh);
+                        padj = DailyQcUtils.pdata[j].stn[i].frain[k].data
+                                * (isoh1 / isoh);
                     } else {
-                        padj = dqc.pdata[j].stn[i].frain[k].data;
+                        padj = DailyQcUtils.pdata[j].stn[i].frain[k].data;
                     }
 
-                    fdist = 1 / testdist + fdist;
-                    fdata = padj / testdist + fdata;
+                    fdist += 1 / testdist;
+                    fdata += padj / testdist;
                     l++;
-
                 }
 
                 if (l < dqc_min_good) {
-
                     fdist = 0.0;
                     fdata = 0.0;
 
                     l = 0;
 
                     for (i = 0; i < max_stations; i++) {
-
                         if (i == m) {
                             continue;
                         }
 
-                        if (dqc.pdata[j].stn[i].frain[k].qual != 0
-                                && dqc.pdata[j].stn[i].frain[k].qual != 8
-                                && dqc.pdata[j].stn[i].frain[k].qual != 3
-                                && dqc.pdata[j].stn[i].frain[k].qual != 6
-                                && dqc.pdata[j].stn[i].frain[k].qual != 2) {
+                        if (DailyQcUtils.pdata[j].stn[i].frain[k].qual != 0
+                                && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 8
+                                && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 3
+                                && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 6
+                                && DailyQcUtils.pdata[j].stn[i].frain[k].qual != 2) {
                             continue;
                         }
 
-                        if (dqc.pdata[j].stn[i].frain[k].data < 0) {
+                        if (DailyQcUtils.pdata[j].stn[i].frain[k].data < 0) {
                             continue;
                         }
 
                         lat = precip_stations.get(i).lat;
                         lon = precip_stations.get(i).lon;
 
-                        if (isohyets_used != 0) {
+                        if (isohyets_used) {
                             isoh = precip_stations.get(i).isoh[isom];
                         }
 
@@ -218,13 +208,14 @@ public class EstPartStations {
                         }
 
                         if (method == 2 && isoh > 0 && isoh1 > 0) {
-                            padj = dqc.pdata[j].stn[i].frain[k].data * isoh1 / isoh;
+                            padj = DailyQcUtils.pdata[j].stn[i].frain[k].data
+                                    * isoh1 / isoh;
                         } else {
-                            padj = dqc.pdata[j].stn[i].frain[k].data;
+                            padj = DailyQcUtils.pdata[j].stn[i].frain[k].data;
                         }
 
-                        fdist = 1 / testdist + fdist;
-                        fdata = padj / testdist + fdata;
+                        fdist += 1 / testdist;
+                        fdata += padj / testdist;
                         l++;
                     }
 
@@ -248,32 +239,23 @@ public class EstPartStations {
             ftotal = 0;
 
             for (k = 0; k < 4; k++) {
-
-                if (dqc.pdata[j].stn[m].rrain[k].data >= 0
-                        && (dqc.pdata[j].stn[m].frain[k].qual == 0
-                                || dqc.pdata[j].stn[m].frain[k].qual == 8
-                                || dqc.pdata[j].stn[m].frain[k].qual == 3 || dqc.pdata[j].stn[m].frain[k].qual == 2)) {
-                    ftotal = ftotal + dqc.pdata[j].stn[m].rrain[k].data;
+                if (DailyQcUtils.pdata[j].stn[m].rrain[k].data >= 0
+                        && (DailyQcUtils.pdata[j].stn[m].frain[k].qual == 0
+                                || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 8
+                                || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 3
+                                || DailyQcUtils.pdata[j].stn[m].frain[k].qual == 2)) {
+                    ftotal = ftotal
+                            + DailyQcUtils.pdata[j].stn[m].rrain[k].data;
                 } else {
-
                     ftotal = ftotal + fvalue[k];
 
-                    /* if(dqc.pdata[j].stn[m].frain[k].qual != 1) { */
-
-                    dqc.pdata[j].stn[m].frain[k].data = (float) fvalue[k];
-                    dqc.pdata[j].stn[m].frain[k].qual = 5;
-
-                    /* } */
-
+                    DailyQcUtils.pdata[j].stn[m].frain[k].data = (float) fvalue[k];
+                    DailyQcUtils.pdata[j].stn[m].frain[k].qual = 5;
                 }
-
             }
 
-            dqc.pdata[j].stn[m].frain[k].data = (float) ftotal;
-            dqc.pdata[j].stn[m].frain[k].qual = 4;
-
+            DailyQcUtils.pdata[j].stn[m].frain[k].data = (float) ftotal;
+            DailyQcUtils.pdata[j].stn[m].frain[k].qual = 4;
         }
-
     }
-
 }

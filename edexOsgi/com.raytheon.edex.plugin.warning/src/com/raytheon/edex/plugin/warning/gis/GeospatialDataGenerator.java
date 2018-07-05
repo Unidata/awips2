@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -100,37 +100,46 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 /**
  * Saves off geospatial data from the maps database using the warngen
  * configurations to improve performance of various operations in warngen.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 18, 2011            rjpeter     Initial creation
- * Mar 29, 2012  #14691    Qinglu Lin  Added returned value of getFeArea() of 
- *                                     AreaConfiguration to areaFields List.
- * May  7, 2013  15690     Qinglu Lin  Added convertToMultiPolygon() and updated queryGeospatialData().
- * Oct 22, 2013  2361      njensen     Use JAXBManager for XML
- * Feb 07, 2014  16090  mgamazaychikov Changed visibility of some methods
- * Mar 19, 2014  2726      rjpeter     Made singleton instance.
- * Apr 29, 2014  3033      jsanchez    Properly handled site and back up site files.
- * Jul 15, 2014  3352      rferrel     Better logging and threading added.
- * Aug 21, 2014  3353      rferrel     Added getGeospatialTimeset and cluster locking of METADATA_FILE.
- *                                      generateGeoSpatialList now sends GenerateGeospatialDataResult.
- * Jun 26, 2015  17212     Qinglu Lin  Removed features whose geometry is empty in queryGeospatialData(),
- *                                     caught exception in updateFeatures() & topologySimplifyQueryResults(),
- *                                     and added composeMessage().
- * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
- * Dec  9, 2015 ASM# 18209 D. Friedman Support cwaStretch features outside CWA.
- * Jan 08, 2016  5237      tgurney     Replaced LocalizationFile with ILocalizationFile
- *                                     (and removed calls to deprecated methods found
- *                                     only on the former)
- * 
+ *
+ * Date          Ticket#  Engineer        Description
+ * ------------- -------- --------------- --------------------------------------
+ * Jul 18, 2011           rjpeter         Initial creation
+ * Mar 29, 2012  14691    Qinglu Lin      Added returned value of getFeArea() of
+ *                                        AreaConfiguration to areaFields List.
+ * May 07, 2013  15690    Qinglu Lin      Added convertToMultiPolygon() and
+ *                                        updated queryGeospatialData().
+ * Oct 22, 2013  2361     njensen         Use JAXBManager for XML
+ * Feb 07, 2014  16090    mgamazaychikov  Changed visibility of some methods
+ * Mar 19, 2014  2726     rjpeter         Made singleton instance.
+ * Apr 29, 2014  3033     jsanchez        Properly handled site and back up site
+ *                                        files.
+ * Jul 15, 2014  3352     rferrel         Better logging and threading added.
+ * Aug 21, 2014  3353     rferrel         Added getGeospatialTimeset and cluster
+ *                                        locking of METADATA_FILE.
+ *                                        generateGeoSpatialList now sends
+ *                                        GenerateGeospatialDataResult.
+ * Jun 26, 2015  17212    Qinglu Lin      Removed features whose geometry is
+ *                                        empty in queryGeospatialData(), caught
+ *                                        exception in updateFeatures() &
+ *                                        topologySimplifyQueryResults(), and
+ *                                        added composeMessage().
+ * Aug 05, 2015  4486     rjpeter         Changed Timestamp to Date.
+ * Dec 09, 2015  18209    D. Friedman     Support cwaStretch features outside
+ *                                        CWA.
+ * Jan 08, 2016  5237     tgurney         Replaced LocalizationFile with
+ *                                        ILocalizationFile (and removed calls
+ *                                        to deprecated methods found only on
+ *                                        the former)
+ * Aug 02, 2017  6362     randerso        Changed to support Alaska_Marine
+ *                                        geospatial config
+ *
  * </pre>
- * 
+ *
  * @author rjpeter
- * @version 1.0
  */
 
 public class GeospatialDataGenerator {
@@ -151,16 +160,16 @@ public class GeospatialDataGenerator {
      * Property in the warning.properties to determine the maximum number of
      * geometry threads.
      */
-    private final String THREAD_COUNT_PROPERTY = "geospatial.geometry.threads";
+    private static final String THREAD_COUNT_PROPERTY = "geospatial.geometry.threads";
 
     /** Default thread count must be a valid positive number string. */
-    private final String DEFAULT_THREAD_COUNT = "5";
+    private static final String DEFAULT_THREAD_COUNT = "5";
 
     /** Cluster task name. */
-    private final static String CLUSTER_NAME = "WarngenGeometryGenerator";
+    private static final String CLUSTER_NAME = "WarngenGeometryGenerator";
 
     /** Time out lock after one minute. */
-    private final static long TIME_OUT = TimeUtil.MILLIS_PER_MINUTE;
+    private static final long TIME_OUT = TimeUtil.MILLIS_PER_MINUTE;
 
     /** Task to update the lock time for the locked plugin cluster task. */
     private static final class LockUpdateTask extends TimerTask {
@@ -180,7 +189,7 @@ public class GeospatialDataGenerator {
 
     /**
      * Common format for cluster tasks details entry.
-     * 
+     *
      * @param site
      * @param fileName
      * @return details
@@ -192,15 +201,15 @@ public class GeospatialDataGenerator {
     /**
      * Lock cluster task for the site's metadata file and obtain the file's
      * geospatial time set.
-     * 
+     *
      * @param site
      * @return geospatialTimeSet
      */
     public static GeospatialTimeSet getGeospatialTimeset(String site) {
         String metadataDetails = getDetails(site,
                 GeospatialFactory.METADATA_FILE
-                        .substring(GeospatialFactory.METADATA_FILE
-                                .lastIndexOf(File.separator) + 1));
+                .substring(GeospatialFactory.METADATA_FILE
+                        .lastIndexOf(File.separator) + 1));
 
         ClusterTask ct = null;
         try {
@@ -226,7 +235,7 @@ public class GeospatialDataGenerator {
 
     /**
      * Parse property for thread count and return a fixed thread pool.
-     * 
+     *
      * @param propKey
      * @param defaultStr
      * @return pool
@@ -291,7 +300,7 @@ public class GeospatialDataGenerator {
     public Set<GeospatialMetadata> getMetaDataSet(List<String> sites,
             List<String> templates) {
 
-        Set<GeospatialMetadata> metaDataSet = new HashSet<GeospatialMetadata>();
+        Set<GeospatialMetadata> metaDataSet = new HashSet<>();
 
         for (String site : sites) {
             metaDataSet.clear();
@@ -304,12 +313,12 @@ public class GeospatialDataGenerator {
                             site, null);
                 } catch (Exception e) {
                     statusHandler
-                            .handle(Priority.ERROR,
-                                    "Error loading template ["
-                                            + templateName
-                                            + "] for site ["
-                                            + site
-                                            + "], skipping geometry generation for site/template.",
+                    .handle(Priority.ERROR,
+                            "Error loading template ["
+                                    + templateName
+                                    + "] for site ["
+                                    + site
+                                    + "], skipping geometry generation for site/template.",
                                     e);
                     continue;
                 }
@@ -326,7 +335,7 @@ public class GeospatialDataGenerator {
 
     public static List<String> getBackupSites(DialogConfiguration dialogConfig) {
         String[] CWAs = dialogConfig.getBackupCWAs().split(",");
-        List<String> rval = new ArrayList<String>(CWAs.length + 1);
+        List<String> rval = new ArrayList<>(CWAs.length + 1);
         for (String s : CWAs) {
             if (s.length() > 0) {
                 rval.add(StringUtil.parseBackupCWAs(s)[0]);
@@ -340,7 +349,7 @@ public class GeospatialDataGenerator {
                 .split(",");
         String[] otherProducts = dialogConfig.getOtherWarngenProducts().split(
                 ",");
-        List<String> rval = new ArrayList<String>(mainProducts.length
+        List<String> rval = new ArrayList<>(mainProducts.length
                 + otherProducts.length);
         for (String s : mainProducts) {
             if (s.length() > 0) {
@@ -409,9 +418,9 @@ public class GeospatialDataGenerator {
                             lastRunTime);
                 } catch (Exception e) {
                     statusHandler
-                            .handle(Priority.WARN,
-                                    "Failed to load area geometry files from disk.  Regenerating geometries.",
-                                    e);
+                    .handle(Priority.WARN,
+                            "Failed to load area geometry files from disk.  Regenerating geometries.",
+                            e);
                 }
 
                 if (dataSet == null) {
@@ -423,8 +432,8 @@ public class GeospatialDataGenerator {
                 }
             } else {
                 statusHandler
-                        .handle(Priority.INFO,
-                                "Geometry metadata has changed.  Regenerating geometries.");
+                .handle(Priority.INFO,
+                        "Geometry metadata has changed.  Regenerating geometries.");
             }
 
             if (generate) {
@@ -446,7 +455,7 @@ public class GeospatialDataGenerator {
                 }
 
                 areas = new GeospatialData[primaryAreas.length
-                        + (stretchAreas != null ? stretchAreas.length : 0)];
+                                           + (stretchAreas != null ? stretchAreas.length : 0)];
                 System.arraycopy(primaryAreas, 0, areas, 0, primaryAreas.length);
                 if (stretchAreas != null) {
                     System.arraycopy(stretchAreas, 0, areas, primaryAreas.length, stretchAreas.length);
@@ -533,7 +542,7 @@ public class GeospatialDataGenerator {
         GeospatialConfiguration geoConfig = template.getGeospatialConfig();
         AreaSourceConfiguration areaConfig = template.getHatchedAreaSource();
         rval.setAreaSource(geoConfig.getAreaSource());
-        List<String> areaFields = new ArrayList<String>();
+        List<String> areaFields = new ArrayList<>();
         areaFields.add(WarningConstants.GID);
         areaFields.add(areaConfig.getAreaField());
         areaFields.add(areaConfig.getFipsField());
@@ -601,7 +610,7 @@ public class GeospatialDataGenerator {
 
     private GeospatialData[][] queryGeospatialData(String site,
             GeospatialMetadata metaData) throws SpatialException,
-            InterruptedException, ExecutionException {
+    InterruptedException, ExecutionException {
         GeospatialData[] cwaStretchData = null;
         String areaSource = metaData.getAreaSource();
 
@@ -611,17 +620,17 @@ public class GeospatialDataGenerator {
                 areaFieldsArray, null, SearchMode.WITHIN);
 
         // clip against County Warning Area
-        if (!areaSource.equalsIgnoreCase(WarningConstants.MARINE)) {
+        if (!areaSource.toLowerCase().contains(WarningConstants.MARINE)) {
             String cwaSource = "cwa";
-            List<String> cwaAreaFields = new ArrayList<String>(Arrays.asList(
+            List<String> cwaAreaFields = new ArrayList<>(Arrays.asList(
                     "wfo", "gid"));
-            HashMap<String, RequestConstraint> cwaMap = new HashMap<String, RequestConstraint>(
+            HashMap<String, RequestConstraint> cwaMap = new HashMap<>(
                     2);
             cwaMap.put("wfo", new RequestConstraint(site, ConstraintType.LIKE));
             SpatialQueryResult[] cwaFeatures = SpatialQueryFactory.create()
                     .query(cwaSource,
                             cwaAreaFields.toArray(new String[cwaAreaFields
-                                    .size()]), null, cwaMap, SearchMode.WITHIN);
+                                                             .size()]), null, cwaMap, SearchMode.WITHIN);
             updateFeatures(features, cwaFeatures, areaSource);
 
             if (metaData.getCwaStretch() != null
@@ -632,15 +641,15 @@ public class GeospatialDataGenerator {
         }
 
         boolean emptyFeatureFound = false;
-        List<SpatialQueryResult> geomFeatures = new ArrayList<SpatialQueryResult>();
+        List<SpatialQueryResult> geomFeatures = new ArrayList<>();
         for (int i = 0; i < features.length; i++) {
             if (features[i].geometry.isEmpty()) {
                 // create log message for a feature that has empty geometry
                 emptyFeatureFound = true;
                 String message = composeMessage("Geometry for", areaSource,
                         features[i], "in features[" + i
-                                + "] is empty. Check out " + areaSource
-                                + " and CWA tables/shapefiles.");
+                        + "] is empty. Check out " + areaSource
+                        + " and CWA tables/shapefiles.");
                 statusHandler.handle(Priority.ERROR, message);
             } else {
                 geomFeatures.add(features[i]);
@@ -649,7 +658,7 @@ public class GeospatialDataGenerator {
         if (emptyFeatureFound) {
             // recreate features in which each feature has no-empty geometry
             features = geomFeatures.toArray(new SpatialQueryResult[geomFeatures
-                    .size()]);
+                                                                   .size()]);
         }
 
         topologySimplifyQueryResults(features, areaSource);
@@ -663,11 +672,11 @@ public class GeospatialDataGenerator {
     private SpatialQueryResult[] queryAreaFeatures(String areaSource, String site,
             ConstraintType siteConstraint, String[] areaFields,
             Geometry searchArea, SearchMode searchMode) throws SpatialException {
-        HashMap<String, RequestConstraint> map = new HashMap<String, RequestConstraint>(
+        HashMap<String, RequestConstraint> map = new HashMap<>(
                 2);
         if (site != null) {
             String name = "cwa";
-            if (areaSource.equalsIgnoreCase(WarningConstants.MARINE)) {
+            if (areaSource.toLowerCase().contains(WarningConstants.MARINE)) {
                 name = "wfo";
             }
             map.put(name, new RequestConstraint(site, ConstraintType.LIKE));
@@ -680,14 +689,14 @@ public class GeospatialDataGenerator {
     private GeospatialData[] queryCwaStretchGeospatialData(String site,
             String[] areaFields, SpatialQueryResult[] cwaFeatures,
             GeospatialMetadata metaData) throws SpatialException,
-            InterruptedException, ExecutionException {
+    InterruptedException, ExecutionException {
 
         /*
          * Get bounding box (in local projection) of CWA and add a margin
          * specified in kilometers by the cwaStretch value.
          */
         String areaSource = metaData.getAreaSource();
-        ArrayList<Geometry> cwaFeatureGeoms = new ArrayList<Geometry>(
+        ArrayList<Geometry> cwaFeatureGeoms = new ArrayList<>(
                 cwaFeatures.length);
         for (SpatialQueryResult sqr : cwaFeatures) {
             cwaFeatureGeoms.add(sqr.geometry);
@@ -708,17 +717,17 @@ public class GeospatialDataGenerator {
             stretchEnvelope = g;
         } catch (Exception e) {
             statusHandler
-                    .handle(Priority.ERROR,
-                            String.format(
-                                    "Error determining bound of CWA stretch area for site=%s, areaSource=%s",
-                                    site, areaSource), e);
+            .handle(Priority.ERROR,
+                    String.format(
+                            "Error determining bound of CWA stretch area for site=%s, areaSource=%s",
+                            site, areaSource), e);
             return null;
         }
 
         /* Get all CWA geometries in the margin, excluding the primary CWA. */
         String cwaSource = "cwa";
-        List<String> cwaAreaFields = new ArrayList<String>(Arrays.asList("wfo", "gid"));
-        HashMap<String, RequestConstraint> cwaMap = new HashMap<String, RequestConstraint>(2);
+        List<String> cwaAreaFields = new ArrayList<>(Arrays.asList("wfo", "gid"));
+        HashMap<String, RequestConstraint> cwaMap = new HashMap<>(2);
         cwaMap.put("wfo", new RequestConstraint(site, ConstraintType.NOT_EQUALS));
         SpatialQueryResult[] stretchCwaFeatures = SpatialQueryFactory
                 .create()
@@ -727,12 +736,12 @@ public class GeospatialDataGenerator {
                         stretchEnvelope, cwaMap, SearchMode.INTERSECTS);
 
         /* Group the geometries for each CWA together. */
-        HashMap<String, ArrayList<SpatialQueryResult>> stretchCwaFeaturesBySite = new HashMap<String, ArrayList<SpatialQueryResult>>();
+        HashMap<String, ArrayList<SpatialQueryResult>> stretchCwaFeaturesBySite = new HashMap<>();
         for (SpatialQueryResult sqr : stretchCwaFeatures) {
             String wfo = (String) sqr.attributes.get("wfo");
             ArrayList<SpatialQueryResult> features = stretchCwaFeaturesBySite.get(wfo);
             if (features == null) {
-                features = new ArrayList<SpatialQueryResult>();
+                features = new ArrayList<>();
                 stretchCwaFeaturesBySite.put(wfo, features);
             }
             features.add(sqr);
@@ -742,7 +751,7 @@ public class GeospatialDataGenerator {
          * For each non-primary CWA, query the area features that are inside the
          * margin.
          */
-        ArrayList<SpatialQueryResult> allFeatures = new ArrayList<SpatialQueryResult>();
+        ArrayList<SpatialQueryResult> allFeatures = new ArrayList<>();
         for (Entry<String, ArrayList<SpatialQueryResult>> entry : stretchCwaFeaturesBySite.entrySet()) {
             SpatialQueryResult[] features = queryAreaFeatures(areaSource,
                     entry.getKey(), ConstraintType.LIKE, areaFields,
@@ -780,7 +789,7 @@ public class GeospatialDataGenerator {
 
     /**
      * Queue request for each feature and wait for the results.
-     * 
+     *
      * @param features
      * @param cwaFeatures
      * @throws InterruptedException
@@ -788,15 +797,15 @@ public class GeospatialDataGenerator {
      */
     private void updateFeatures(SpatialQueryResult[] features,
             SpatialQueryResult[] cwaFeatures, String areaSource)
-            throws InterruptedException, ExecutionException {
-        List<Future<Geometry>> featureFutures = new ArrayList<Future<Geometry>>(
+                    throws InterruptedException, ExecutionException {
+        List<Future<Geometry>> featureFutures = new ArrayList<>(
                 features.length);
         Geometry[] cwaFeturesGeoms = new Geometry[cwaFeatures.length];
         for (int index = 0; index < cwaFeturesGeoms.length; ++index) {
             cwaFeturesGeoms[index] = cwaFeatures[index].geometry;
         }
         List<Future<Geometry>> geomFutures = null;
-        List<Callable<Geometry>> featuresCallable = new ArrayList<Callable<Geometry>>(
+        List<Callable<Geometry>> featuresCallable = new ArrayList<>(
                 featureFutures.size());
 
         // Queue all intersections.
@@ -820,7 +829,7 @@ public class GeospatialDataGenerator {
                 String message = composeMessage(
                         "Error while trying to get geometry for", areaSource,
                         features[index], "from element " + index
-                                + " of featureFutures.");
+                        + " of featureFutures.");
                 statusHandler.handle(Priority.ERROR, message);
                 throw e;
             }
@@ -829,14 +838,14 @@ public class GeospatialDataGenerator {
 
     /**
      * Get future's list for a feature's geometry.
-     * 
+     *
      * @param featureGeom
      * @param cwaFeaturesGeoms
      * @return geomFutures
      */
     private List<Future<Geometry>> submitGeomIntersection(Geometry featureGeom,
             Geometry[] cwaFeaturesGeoms) {
-        List<Future<Geometry>> geomFutures = new ArrayList<Future<Geometry>>(
+        List<Future<Geometry>> geomFutures = new ArrayList<>(
                 cwaFeaturesGeoms.length);
         for (Geometry cwaGeom : cwaFeaturesGeoms) {
             Callable<Geometry> callable = new GeomIntersectionCallable(
@@ -850,7 +859,7 @@ public class GeospatialDataGenerator {
     /**
      * Simplifies the overall geometries using a single collection to preserve
      * boundaries. Geometries are updated in place.
-     * 
+     *
      * @param results
      */
     private void topologySimplifyQueryResults(SpatialQueryResult[] results,
@@ -873,7 +882,7 @@ public class GeospatialDataGenerator {
     /**
      * Queries the time zone table. Updates the geoData inline with the results
      * of the time zone query.
-     * 
+     *
      * @param metaData
      * @param hull
      * @param geoData
@@ -928,7 +937,7 @@ public class GeospatialDataGenerator {
     }
 
     /**
-     * 
+     *
      * @param metaData
      * @param hull
      * @return
@@ -965,7 +974,7 @@ public class GeospatialDataGenerator {
      * Save data in the desired file and update the meta data file. Assumes
      * already have a cluster lock for the data file. A cluster lock is obtained
      * on the metadata file prior to updating it.
-     * 
+     *
      * @param site
      * @param times
      * @param curTime
@@ -977,13 +986,13 @@ public class GeospatialDataGenerator {
     private void persistGeoData(String site,
             Map<GeospatialMetadata, GeospatialTime> times,
             GeospatialTime curTime, GeospatialDataSet geoData)
-            throws SerializationException, LocalizationException, JAXBException {
+                    throws SerializationException, LocalizationException, JAXBException {
 
         String fileName = generateGeoDataFilename(curTime.getMetaData());
         String metadataDetails = getDetails(site,
                 GeospatialFactory.METADATA_FILE
-                        .substring(GeospatialFactory.METADATA_FILE
-                                .lastIndexOf(File.separator) + 1));
+                .substring(GeospatialFactory.METADATA_FILE
+                        .lastIndexOf(File.separator) + 1));
 
         ClusterTask ct = null;
         try {
@@ -1013,7 +1022,7 @@ public class GeospatialDataGenerator {
             times.put(curTime.getMetaData(), curTime);
 
             GeospatialTimeSet set = new GeospatialTimeSet();
-            set.setData(new ArrayList<GeospatialTime>(times.values()));
+            set.setData(new ArrayList<>(times.values()));
             String xml = jaxb.marshalToXml(set);
 
             lf = pathMgr.getLocalizationFile(context,

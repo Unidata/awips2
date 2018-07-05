@@ -36,22 +36,25 @@ import com.raytheon.viz.hydrocommon.util.MPEColors;
 import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
 
 /**
- * TODO Add Description
+ * Various utility methods used to retrieve color information from the Hydro
+ * color tables/schemas.
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 10, 2008            randerso    Initial creation
- * May 27, 2014  3133      njensen     Organized imports, fixed == to equals
+ * May 27, 2014 3133       njensen     Organized imports, fixed == to equals
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * Feb 12, 2016 5356       bsteffen    Fall back to using the provided
  *                                     colorsets when no values are found.
- * 
+ * Feb 28, 2017 6157       bkowal      Eliminated use of System err to report invalid
+ *                                     application-specified arguments.
+ * Mar 01, 2017 6160       bkowal      Alternatively use the "database color name" when
+ *                                     retrieving user and office level color information.
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
 
 public class GetColorValues {
@@ -79,7 +82,8 @@ public class GetColorValues {
      * If this fails, then an attempt is made to find the office color scheme
      * with the closest duration.<BR>
      * 
-     * If this fails, then the hard-coded color scheme for this product is used.<BR>
+     * If this fails, then the hard-coded color scheme for this product is used.
+     * <BR>
      * 
      * If no color set can be found for this product, then this application
      * returns a null value.<BR>
@@ -104,34 +108,73 @@ public class GetColorValues {
             final String application_name, final String coloruse_name,
             int duration, String threshold_unit,
             final List<NamedColorUseSet> pColorSetGroup) {
+        return get_colorvalues(user_id, application_name, coloruse_name, null,
+                duration, threshold_unit, pColorSetGroup);
+    }
+
+    /**
+     * Systematically tries to find the color scheme for a requested user id,
+     * application name, product, duration and threshold unit.<BR>
+     * 
+     * First, the ColorValue table is queried for the given user id, application
+     * name, product, duration, and threshold unit.<BR>
+     * 
+     * If this fails then an attempt is made to find the user color scheme with
+     * the closest duration.<BR>
+     * 
+     * If this fails, then the ColorValue table is queried to find a an office
+     * color set.<BR>
+     * 
+     * If this fails, then an attempt is made to find the office color scheme
+     * with the closest duration.<BR>
+     * 
+     * If this fails, then the hard-coded color scheme for this product is used.
+     * <BR>
+     * 
+     * If no color set can be found for this product, then this application
+     * returns a null value.<BR>
+     * 
+     * @param user_id
+     *            The userid. Cannot be null.
+     * @param application_name
+     *            The name of the application. Cannot be null.
+     * @param coloruse_name
+     *            The name of the product Cannot be null.
+     * @param displayString
+     *            The Display String for the product.
+     * @param duration
+     *            The duration in seconds.
+     * @param threshold_unit
+     *            The threshold unit, English or Metric. Must be "E" or "M"
+     * @param pColorSetGroup
+     *            Contains the default color sets and durations.
+     * 
+     * @return A list containing the color scheme retrieved for the specified
+     *         product. Returns null if no color set could be found.
+     */
+    public static List<Colorvalue> get_colorvalues(final String user_id,
+            final String application_name, final String coloruse_name,
+            final String displayString, int duration, String threshold_unit,
+            final List<NamedColorUseSet> pColorSetGroup) {
         final String method = "get_colorvalues()";
         List<Colorvalue> cvHead = null;
 
         // Check to make sure that all input parameters were supplied.
         if ((user_id == null) || user_id.isEmpty()) {
-            // TODO change these to use proper logging mechanism
-            System.err
-                    .println(String
-                            .format("\nIn routine 'get_colorvalues':\n"
-                                    + "An empty user id was passed into this routine.\n"));
+            throw new IllegalArgumentException(
+                    "Required 'user_id' argument cannot be NULL or empty.");
         } else if ((application_name == null) || application_name.isEmpty()) {
-            System.err
-                    .println(String
-                            .format("\nIn routine 'get_colorvalues':\n"
-                                    + "An empty application name was passed into this\n"
-                                    + "routine.\n"));
+            throw new IllegalArgumentException(
+                    "Required 'application_name' argument cannot be NULL or empty.");
         } else if ((coloruse_name == null) || coloruse_name.isEmpty()) {
-            System.err.println(String
-                    .format("\nIn routine 'get_colorvalues':\n"
-                            + "An empty color use name was passed into this\n"
-                            + "routine.\n"));
+            throw new IllegalArgumentException(
+                    "Required 'coloruse_name' argument cannot be NULL or empty.");
         } else if (!"E".equals(threshold_unit) && !"M".equals(threshold_unit)) {
-            System.err
-                    .println(String
-                            .format("\nIn routine 'get_colorvalues':\n"
-                                    + "An invalid threshold unit was passed into this\n"
-                                    + "routine. Must be 'E' for English or 'M' for\n"
-                                    + "Metric\n"));
+            /*
+             * TODO: make this argument an enum instead of a String.
+             */
+            throw new IllegalArgumentException(
+                    "Required 'threshold_unit' argument must be one of: { E, M }.");
         }
 
         // get color values from default setting in xml file.
@@ -143,34 +186,90 @@ public class GetColorValues {
             // Try to find a user defined color set.
             cvHead = getUserColorSet(user_id, application_name, coloruse_name,
                     duration, threshold_unit);
+            if (cvHead == null && displayString != null) {
+                /*
+                 * Attempt to find a user defined color set based on the display
+                 * String. TODO: determine if this is actually necessary during
+                 * a MPE Enhancement. It is possible that all queries should be
+                 * completed using the display string by default.
+                 */
+                final String dbColorName = lookupDBColorNameByDisplayName(
+                        displayString, pColorSetGroup);
+                if (dbColorName != null) {
+                    cvHead = getUserColorSet(user_id, application_name,
+                            dbColorName, duration, threshold_unit);
+                }
+            }
         }
 
         if (cvHead == null) {
-
             // Try to find an office-defined color set.
             cvHead = getUserColorSet(OFFICE_COLOR_SET_ID, application_name,
                     coloruse_name, duration, threshold_unit);
-
+            if (cvHead == null && displayString != null) {
+                /*
+                 * Attempt to find an office defined color set based on the
+                 * display String.
+                 */
+                final String dbColorName = lookupDBColorNameByDisplayName(
+                        displayString, pColorSetGroup);
+                if (dbColorName != null) {
+                    cvHead = getUserColorSet(OFFICE_COLOR_SET_ID,
+                            application_name, dbColorName, duration,
+                            threshold_unit);
+                }
+            }
             if (cvHead == null) {
-
                 // Try to find a default color set.
                 cvHead = getDefaultColorSet(application_name, coloruse_name,
                         threshold_unit, null);
                 if ((cvHead == null) || (cvHead.size() == 0)) {
-                    cvHead = getDefaultColorSet(application_name,
-                            coloruse_name, threshold_unit, pColorSetGroup);
+                    cvHead = getDefaultColorSet(application_name, coloruse_name,
+                            threshold_unit, pColorSetGroup);
                 }
                 if ((cvHead == null) || (cvHead.size() == 0)) {
-                    statusHandler.handle(Priority.PROBLEM, "ERROR in " + method
-                            + " Colors/levels not defined for application "
-                            + application_name + " use_name = " + coloruse_name
-                            + " user_id = " + user_id);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "ERROR in " + method
+                                    + " Colors/levels not defined for application "
+                                    + application_name + " use_name = "
+                                    + coloruse_name + " user_id = " + user_id);
                 }
             }
         }
 
         return cvHead;
+    }
 
+    /**
+     * Attempts to retrieve the "database color name" for the specified
+     * "display color name" from the specified {@link List} of
+     * {@link NamedColorUseSet}s.
+     * 
+     * @param colorDisplayName
+     *            the specified "display color name". Cannot be {@code null}.
+     * @param pColorSetGroup
+     *            the specified {@link List} of {@link NamedColorUseSet}s.
+     *            Cannot be {@code null}.
+     * @return the "database color name" if found; {@code null}, otherwise.
+     */
+    private static String lookupDBColorNameByDisplayName(
+            final String colorDisplayName,
+            final List<NamedColorUseSet> pColorSetGroup) {
+        if (colorDisplayName == null) {
+            throw new IllegalArgumentException(
+                    "Required argument 'colorDisplayName' cannot be NULL.");
+        }
+        if (pColorSetGroup == null) {
+            throw new IllegalArgumentException(
+                    "Required argument 'pColorSetGroup' cannot be NULL.");
+        }
+        for (NamedColorUseSet namedColorUseSet : pColorSetGroup) {
+            if (colorDisplayName.trim()
+                    .equals(namedColorUseSet.getColor_use_display_string())) {
+                return namedColorUseSet.getColor_use_db_name();
+            }
+        }
+        return null;
     }
 
     /**
@@ -255,11 +354,11 @@ public class GetColorValues {
                 // information.
                 for (ColorThreshold threshold : pColorSet.getThreshold_array()
                         .getThresholds()) {
-                    Colorvalue cvNode = new Colorvalue(new ColorvalueId(
-                            "default", application_name, coloruse_name,
-                            pColorSet.default_duration, threshold.getValue(),
-                            threshold_unit), new Colorname(
-                            threshold.getColorName()));
+                    Colorvalue cvNode = new Colorvalue(
+                            new ColorvalueId("default", application_name,
+                                    coloruse_name, pColorSet.default_duration,
+                                    threshold.getValue(), threshold_unit),
+                            new Colorname(threshold.getColorName()));
                     cvList.add(cvNode);
                 }
                 break;
@@ -292,13 +391,15 @@ public class GetColorValues {
 
         List<Colorvalue> cvHead = null;
 
-        String where_clause = String.format(" WHERE id.userid = '%s'"
-                + " AND id.applicationName = '%s'"
-                + " AND id.colorUseName = '%s'" + " AND id.duration = %d"
-                + " AND id.thresholdUnit = '%s' "
-                + " ORDER BY id.colorUseName , id.duration , "
-                + " id.thresholdValue ", user_id, application_name,
-                coloruse_name, duration, threshold_unit);
+        String where_clause = String.format(
+                " WHERE id.userid = '%s'" + " AND id.applicationName = '%s'"
+                        + " AND id.colorUseName = '%s'"
+                        + " AND id.duration = %d"
+                        + " AND id.thresholdUnit = '%s' "
+                        + " ORDER BY id.colorUseName , id.duration , "
+                        + " id.thresholdValue ",
+                user_id, application_name, coloruse_name, duration,
+                threshold_unit);
 
         cvHead = IHFSDbGenerated.GetColorValue(where_clause);
 
@@ -340,8 +441,8 @@ public class GetColorValues {
                         + " AND application_name = '%s'"
                         + " AND color_use_name = '%s'"
                         + " AND threshold_unit = '%s'"
-                        + " ORDER BY duration ASC", user_id, application_name,
-                coloruse_name, threshold_unit);
+                        + " ORDER BY duration ASC",
+                user_id, application_name, coloruse_name, threshold_unit);
 
         // Load the unique durations for the specified user_id,
         // application_name, color_use_name, and threshold_unit.

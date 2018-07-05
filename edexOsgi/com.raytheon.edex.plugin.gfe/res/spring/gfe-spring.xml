@@ -1,12 +1,14 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
     <bean class="com.raytheon.uf.common.logback.appender.ThreadBasedAppender" factory-method="registerThreadPattern">
         <constructor-arg value="smartInit" />
         <constructor-arg value="smartInit.*" />
     </bean>
-    
+
     <bean id="gfeSiteActivation" class="com.raytheon.edex.plugin.gfe.config.GFESiteActivation"
         depends-on="commonTimeRegistered, gfeDbRegistered, levelFactoryInitialized" />
 
@@ -16,7 +18,7 @@
             depends-on="smartInitQueue, gfeActivationAsyncIngest">
         <constructor-arg ref="gfeSiteActivation"/>
     </bean>
-    
+
     <bean id="gfeActivationAsyncIngest" factory-bean="contextManager" factory-method="registerAsyncStartupBean">
         <constructor-arg ref="gfeSiteActivation"/>
     </bean>
@@ -25,6 +27,7 @@
         <property name="pendingInitMinTimeMillis" value="120000"/>
         <property name="runningInitTimeOutMillis" value="600000"/>
         <property name="threadSleepInterval" value="30000"/>
+        <property name="threadCount" value="${smartinit.threads}"/>
     </bean>
 
     <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
@@ -35,20 +38,10 @@
     <bean id="vtecChangeListener" class="com.raytheon.edex.plugin.gfe.server.notify.VTECTableChangeListener"/>
 
     <camelContext id="gfe-camel-spring" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-        <!-- TODO: This can be switched back to original thread count and use a bean to
-             subtract one from the thread count once this issue has been fixed.
-             https://issues.apache.org/jira/browse/CAMEL-7540 -->
-        <endpoint id="smartInitLauncher" uri="quartz://smartInitThread?trigger.repeatCount=${smartinit.additional.threads}&amp;trigger.repeatInterval=1"/>
 
         <route id="smartInitTrigger">
             <from uri="timer://smartInitTimer?fixedRate=true&amp;period=30000"/>
             <bean ref="smartInitQueue" method="fireSmartInit"/>
-        </route>
-
-        <!-- Thread runs for life of context -->
-        <route id="smartInitThread">
-            <from ref="smartInitLauncher"/>
-            <bean ref="smartInitSrv" method="run"/>
         </route>
 
         <route id="gfeIngestNotification">

@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--
 COMMENT:
 // Super Tornado Icons defined by BRNSHR>60m/s, EHI>2.5, 1000-850MB LR>3C/KM,
@@ -12,7 +16,7 @@ abbreviation: |TORi2|
 Notused1: | | 
 Notused2: | | 
 
-functionName, levels: |Test, Layer|	
+functionName, levels: |Test, Layer|    
 varId, level: |gamma, 1000MB-850MB|
 const: |1.| 
 const: |-1.e37| 
@@ -25,16 +29,16 @@ varId: |BRNEHIi
 
 NEW FILE - TORi2.xml
 -->
-<DerivedParameter name="BRNSHR,EHI,0-2km LRate &gt; 3C/km" abbreviation="TORi2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="BRNSHR,EHI,0-2km LRate &gt; 3C/km" abbreviation="TORi2">
     <Method levels="Layer" name="Test">
-        <Field level="1000MB-850MB" abbreviation="gamma"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="-1.0E37"/>
-        <ConstantField value="0.003"/>
-        <ConstantField value="0.0"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="0.003"/>
-        <ConstantField value="1.0E37"/>
-        <Field abbreviation="BRNEHIi"/>
+        <Field level="1000MB-850MB" abbreviation="gamma" />
+        <ConstantField value="1.0" />
+        <ConstantField value="-1.0E37" />
+        <ConstantField value="0.003" />
+        <ConstantField value="0.0" />
+        <ConstantField value="1.0" />
+        <ConstantField value="0.003" />
+        <ConstantField value="1.0E37" />
+        <Field abbreviation="BRNEHIi" />
     </Method>
 </DerivedParameter>

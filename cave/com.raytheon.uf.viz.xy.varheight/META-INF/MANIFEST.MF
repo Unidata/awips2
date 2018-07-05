@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Varheight Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.xy.varheight;singleton:=true
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.geospatial,
@@ -17,9 +17,9 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.viz.ui,
  javax.measure,
  org.eclipse.core.runtime,
- com.raytheon.uf.viz.core.point;bundle-version="1.15.0"
-Import-Package: com.raytheon.viz.core.map,
- com.raytheon.viz.core.rsc
+ com.raytheon.uf.viz.core.point;bundle-version="1.15.0",
+ com.raytheon.uf.viz.core.rsc;bundle-version="1.16.1"
+Import-Package: com.raytheon.viz.core.map
 Export-Package: com.raytheon.uf.viz.xy.varheight,
  com.raytheon.uf.viz.xy.varheight.adapter,
  com.raytheon.uf.viz.xy.varheight.display,

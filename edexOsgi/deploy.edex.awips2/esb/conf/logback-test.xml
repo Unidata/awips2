@@ -1,4 +1,4 @@
-<configuration debug="true" scan="true">
+<configuration debug="true" scan="true" packagingData="true">
    <!-- 
       This is the default logging configuration file for all non-operational and
       development EDEX modes. This file will not be present on an operational system. 
@@ -10,7 +10,7 @@
    -->
 
    <include file="${edex.home}/conf/logback-edex-properties.xml"/>
-   <include file="${edex.home}/conf/logback-edex-appenders.xml" />
+   <include file="${edex.home}/conf/${LOG_APPENDERS_CONFIG}" />
    
    <include file="${edex.home}/conf/logback-edex-loggers.xml" />
    <include file="${edex.home}/conf/logback-edex-hibernate-logger.xml" />

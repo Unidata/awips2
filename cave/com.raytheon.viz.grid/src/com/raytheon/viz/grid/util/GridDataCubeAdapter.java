@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -64,7 +65,6 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.datastructure.VizDataCubeException;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.datacube.AbstractDataCubeAdapter;
@@ -88,6 +88,9 @@ import com.raytheon.viz.grid.record.RequestableDataRecord;
  * Jun 04, 2013  2041     bsteffen  Improve exception handing in grid resources.
  * Apr 04, 2014  2973     bsteffen  Use correct area for expanding subgrid
  *                                  requests.
+ * Nov 08, 2016  5976     bsteffen  Remove VizDataCubeException
+ * Apr 20, 2017  6046     bsteffen  Avoid using messageData for temporary
+ *                                  internal storage.
  * 
  * </pre>
  * 
@@ -97,11 +100,11 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridDataCubeAdapter.class);
 
+    private VizGridInventory gridInventory;
+
     public GridDataCubeAdapter() {
         super(new String[] { GridConstants.GRID });
     }
-
-    private VizGridInventory gridInventory;
 
     @Override
     public void initInventory() {
@@ -114,8 +117,8 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
             }
             VizGridInventory gridInventory = new VizGridInventory();
             try {
-                gridInventory.initTree(DerivedParameterGenerator
-                        .getDerParLibrary());
+                gridInventory
+                        .initTree(DerivedParameterGenerator.getDerParLibrary());
                 this.gridInventory = gridInventory;
                 DerivedGridDataAccessFactory daf = new DerivedGridDataAccessFactory(
                         gridInventory);
@@ -139,20 +142,31 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
     public IDataRecord[] getRecord(PluginDataObject obj, Request req,
             String dataset) throws DataCubeException {
         if (obj instanceof RequestableDataRecord) {
-            return super.getRecord(obj, req, dataset);
+            Map<PluginDataObject, IDataRecord[]> map = getRecordsAsMap(
+                    Arrays.asList(obj), req, dataset);
+            IDataRecord[] result = map.get(obj);
+            if (result == null) {
+                /*
+                 * This should never happen, but detecting it now makes it
+                 * easier to trace bugs.
+                 */
+                throw new DataCubeException(
+                        "Failed to get grid data for " + obj.getDataURI());
+            }
+            return result;
         }
         IDataRecord record = null;
-        if (GridPathProvider.STATIC_PARAMETERS.contains(((GridRecord) obj)
-                .getParameter().getAbbreviation())) {
+        if (GridPathProvider.STATIC_PARAMETERS.contains(
+                ((GridRecord) obj).getParameter().getAbbreviation())) {
             GridRecord gridRec = (GridRecord) obj;
-            IDataStore ds = DataStoreFactory.getDataStore(HDF5Util
-                    .findHDF5Location(obj));
+            IDataStore ds = DataStoreFactory
+                    .getDataStore(HDF5Util.findHDF5Location(obj));
             try {
                 record = ds.retrieve("/" + gridRec.getLocation().getId(),
                         gridRec.getParameter().getAbbreviation(), req);
             } catch (Exception e) {
-                throw new DataCubeException(
-                        "Error retrieving staticTopo data!", e);
+                throw new DataCubeException("Error retrieving staticTopo data!",
+                        e);
             }
         } else {
             record = CubeUtil.retrieveData(obj, obj.getPluginName(), req,
@@ -178,9 +192,8 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                     newRecs[i] = SliceUtil.slice((FloatDataRecord) recs[i],
                             sliceRequest);
                 } else {
-                    throw new VizDataCubeException(
-                            "Error processing slab of type"
-                                    + recs[i].getClass().getSimpleName());
+                    throw new VizException("Error processing slab of type "
+                            + recs[i].getClass().getSimpleName());
                 }
             }
             return newRecs;
@@ -195,9 +208,10 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
         Request sliceRequest;
         int[] minIndex;
         int[] maxIndex;
-        // We need to add a buffer region around all derived parameters
-        // so that parameters which rely on neighboring points are
-        // derived properly.
+        /*
+         * We need to add a buffer region around all derived parameters so that
+         * parameters which rely on neighboring points are derived properly.
+         */
         switch (req.getType()) {
         case POINT:
             Point[] points = req.getPoints();
@@ -275,8 +289,11 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
             break;
         case XLINE:
         case YLINE:
-            // TODO this is very inefficient, Should make a buffer
-            // around each line
+            /*
+             * This is not very efficient, it would be faster to make a buffer
+             * around each line, however no one is using line requests right now
+             * so there is no need to complicate the code.
+             */
             retrieveRequest = Request.ALL;
             sliceRequest = req;
             break;
@@ -287,29 +304,44 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
         return new Request[] { retrieveRequest, sliceRequest };
     }
 
+    @Override
+    public void getRecords(List<PluginDataObject> objs, Request req,
+            String dataset) throws DataCubeException {
+        Map<PluginDataObject, IDataRecord[]> map = getRecordsAsMap(objs, req,
+                dataset);
+        /*
+         * copy the map into the messageData since that is what the
+         * DataCubeContainer API calls for.
+         */
+        for (Entry<PluginDataObject, IDataRecord[]> entry : map.entrySet()) {
+            entry.getKey().setMessageData(entry.getValue());
+        }
+    }
+
     /**
      * Attempts to travel through all the derived levels and prefetch all the
      * grib records since a single bulk hdf5 read should be faster than lots of
      * little reads.
      */
-    @Override
-    public void getRecords(List<PluginDataObject> objs, Request req,
-            String dataset) throws DataCubeException {
-        Set<GridRequestableData> realData = new HashSet<GridRequestableData>();
+    private Map<PluginDataObject, IDataRecord[]> getRecordsAsMap(
+            List<PluginDataObject> objs, Request req, String dataset)
+            throws DataCubeException {
+        Set<GridRequestableData> realData = new HashSet<>();
         ISpatialObject area = null;
         for (PluginDataObject obj : objs) {
             if (area == null) {
                 area = ((ISpatialEnabled) obj).getSpatialObject();
             }
             if (obj instanceof RequestableDataRecord) {
-                realData.addAll(((RequestableDataRecord) obj).getGribRequests());
+                realData.addAll(
+                        ((RequestableDataRecord) obj).getGridRequests());
             }
         }
 
-        Map<String, List<GridRequestableData>> fileMap = new HashMap<String, List<GridRequestableData>>();
+        Map<String, List<GridRequestableData>> fileMap = new HashMap<>();
         for (GridRequestableData data : realData) {
-            if (GridPathProvider.STATIC_PARAMETERS.contains(data
-                    .getGridSource().getParameter().getAbbreviation())) {
+            if (GridPathProvider.STATIC_PARAMETERS.contains(
+                    data.getGridSource().getParameter().getAbbreviation())) {
                 continue;
             }
             GridRecord record = data.getGridSource();
@@ -317,7 +349,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
             if (file != null) {
                 List<GridRequestableData> list = fileMap.get(file);
                 if (list == null) {
-                    list = new LinkedList<GridRequestableData>();
+                    list = new LinkedList<>();
                     fileMap.put(file, list);
                 }
                 list.add(data);
@@ -331,11 +363,12 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
             request = requests[0];
         }
 
-        List<IDataRecord[]> references = new ArrayList<IDataRecord[]>(
-                realData.size());
+        List<IDataRecord[]> references = new ArrayList<>(realData.size());
         if (!realData.isEmpty()) {
-            // The values are held weakly in cache, so we hold them strongly
-            // here to prevent them from getting garbage collected to soon
+            /*
+             * The values are held weakly in cache, so we hold them strongly
+             * here to prevent them from getting garbage collected to soon
+             */
             for (Entry<String, List<GridRequestableData>> entry : fileMap
                     .entrySet()) {
                 List<GridRequestableData> list = entry.getValue();
@@ -347,14 +380,14 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                     }
                 }
 
-                if (list.size() > 0) {
-                    List<String> groups = new ArrayList<String>(list.size());
+                if (!list.isEmpty()) {
+                    List<String> groups = new ArrayList<>(list.size());
                     for (GridRequestableData data : list) {
                         groups.add(data.getGridSource().getDataURI());
                     }
 
-                    IDataStore ds = DataStoreFactory.getDataStore(new File(
-                            entry.getKey()));
+                    IDataStore ds = DataStoreFactory
+                            .getDataStore(new File(entry.getKey()));
                     try {
 
                         IDataRecord[] records = ds.retrieveGroups(
@@ -362,7 +395,8 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                                 request);
                         for (int i = 0; i < list.size(); i++) {
                             GridRequestableData data = list.get(i);
-                            IDataRecord[] value = new IDataRecord[] { records[i] };
+                            IDataRecord[] value = new IDataRecord[] {
+                                    records[i] };
                             references.add(value);
                             data.setDataValue(request, value);
                         }
@@ -372,6 +406,8 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                 }
             }
         }
+
+        Map<PluginDataObject, IDataRecord[]> map = new LinkedHashMap<>();
 
         for (PluginDataObject obj : objs) {
             IDataRecord[] records = null;
@@ -391,59 +427,40 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                 records = getRecord(obj, req, dataset);
             }
 
-            obj.setMessageData(records);
+            map.put(obj, records);
         }
 
         references.clear();
+        return map;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter#
-     * evaluateRequestConstraints(java.util.Map)
-     */
     @Override
     protected List<AbstractRequestableNode> evaluateRequestConstraints(
             Map<String, RequestConstraint> constraints) {
         return gridInventory.evaluateRequestConstraints(constraints);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter#timeAgnosticQuery
-     * (java.util.Map)
-     */
     @Override
     protected List<DataTime> timeAgnosticQuery(
-            Map<String, RequestConstraint> queryTerms) throws DataCubeException {
+            Map<String, RequestConstraint> queryTerms)
+            throws DataCubeException {
         return gridInventory.timeAgnosticQuery(queryTerms);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.derivparam.data.AbstractDataCubeAdapter#getData(java
-     * .util.Map, com.raytheon.uf.common.time.DataTime[], java.util.List)
-     */
     @Override
     protected List<PluginDataObject> getData(
             Map<String, RequestConstraint> constraints,
             DataTime[] selectedTimes, List<AbstractRequestableData> requesters)
             throws DataCubeException {
         try {
-            List<PluginDataObject> results = new ArrayList<PluginDataObject>(
-                    requesters.size());
+            List<PluginDataObject> results = new ArrayList<>(requesters.size());
             for (AbstractRequestableData requester : requesters) {
-                List<RequestableDataRecord> records = new ArrayList<RequestableDataRecord>();
+                List<RequestableDataRecord> records = new ArrayList<>();
                 if (requester.getDataTime() == null
                         || requester.getTimeAndSpace().isTimeAgnostic()) {
                     DataTime[] entryTime = selectedTimes;
                     if (entryTime != null && entryTime.length > 0) {
-                        List<DataTime> entryTimes = new ArrayList<DataTime>(
+                        List<DataTime> entryTimes = new ArrayList<>(
                                 Arrays.asList(entryTime));
                         for (DataTime time : entryTimes) {
                             RequestableDataRecord rec = new RequestableDataRecord(
@@ -478,7 +495,7 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
                     Collection<GridCoverage> coverages = CoverageUtils
                             .getInstance().getCoverages(requester.getSource());
                     if (coverages != null && !coverages.isEmpty()) {
-                        List<RequestableDataRecord> spaceRecords = new ArrayList<RequestableDataRecord>();
+                        List<RequestableDataRecord> spaceRecords = new ArrayList<>();
                         for (RequestableDataRecord record : records) {
                             for (GridCoverage coverage : coverages) {
                                 record = new RequestableDataRecord(record);
@@ -517,10 +534,12 @@ public class GridDataCubeAdapter extends AbstractDataCubeAdapter {
     @Override
     protected AvailabilityContainer createAvailabilityContainer(
             Map<String, RequestConstraint> constraints) {
-        // using a grid specific container which is able to merge constraints
-        // will result in faster database queries, however the extra processing
-        // time it takes to route the times to the correct nodes is larger than
-        // the time saved.
+        /*
+         * using a grid specific container which is able to merge constraints
+         * will result in faster database queries, however the extra processing
+         * time it takes to route the times to the correct nodes is larger than
+         * the time saved.
+         */
         return super.createAvailabilityContainer(constraints);
     }
 

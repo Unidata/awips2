@@ -1,9 +1,14 @@
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
 <!-- Burn Scar Flash Flood Warning configuration for County-based products-->
 <!-- This template can be used for any pre-defined polygon that a site needs
      to issue a FFW for outside of a dam break. -->
-<!-- Created by Phil Kurimski 02-07-2013 for OB13.2.1-5   
-     Phil Kurimski   09-19-2013 added geospatialConfig.xml       
-     Mike Dangelo 10-20-2015 standard CTAs   
+<!-- Created by Phil Kurimski 02-07-2013 for OB13.2.1-5
+     Phil Kurimski   09-19-2013 added geospatialConfig.xml
+     Mike Dangelo 10-20-2015 standard CTAs
 -->
 
 <warngenConfig>
@@ -162,7 +167,6 @@ turned on unless the corresponding .vm file is turned on in a given template's .
        template or listing the burn scars in a separate file and using the include command
        This can also be done for other flash flood areas that need a pre-defined polygon -->
 <include file="burnScarInfoBullet.xml"/>
-<!-- include file="burnScarInfoBullet.xml"/>  -->
 </bulletActionGroup>
 <bulletActionGroup action="EXT" phen="FF" sig="W">
  <bullets>
@@ -220,7 +224,6 @@ turned on unless the corresponding .vm file is turned on in a given template's .
        template or listing the burn scars in a separate file and using the include command
        This can also be done for other flash flood areas that need a pre-defined polygon -->
 <include file="burnScarInfoBullet.xml"/>
-<!-- include file="burnScarInfoBullet.xml"/>  -->
 </bulletActionGroup>
 <bulletActionGroup action="COR" phen="FF" sig="W">
  <bullets>
@@ -283,13 +286,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
        template or listing the burn scars in a separate file and using the include command
        This can also be done for other flash flood areas that need a pre-defined polygon -->
 <include file="burnScarInfoBullet.xml"/>
-<!-- include file="burnScarInfoBullet.xml"/>  -->
 </bulletActionGroup>
 </bulletActionGroups>
-
-<!-- The following are examples on how to include site burnscar locations in your template
-       You can choose to do this by editing the template and listing each dam in the
-       template or listing the dams in a separate file and using the include command -->
-<include file="burnScarInfoBullet.xml"/>  
  
 </warngenConfig>

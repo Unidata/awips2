@@ -50,7 +50,12 @@
 # Potentially this could eliminate the need for
 # different tables for day and night shifts.
 #
-#
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 ################################################################################################
 #
 #  Configuration Section

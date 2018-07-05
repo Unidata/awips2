@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -46,25 +46,29 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
 
 /**
  * This object contains general information needed to configure the IFP server.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 03/11/08     #1030      randerso    Initial port
- * 04/08/08     #875       bphillip    Changed exception handling
- * 06/24/08     #1160      randerso    Added a method to get the Topo dbId
- * 07/09/09     #2590      njensen     No longer singleton
- * 06/24/13     #2044      randerso    Renamed satdirs to satdata to match serverConfig.py
- * 08/14/2013   #1571      randerso    Changed to use ProjectionType enum
- * 03/05/2015   #4169      randerso    Changed model name mappings to return null if no mapping
- * 04/09/2015   #4383      dgilling    Support FireWx ISC.
- * 12/15/2015   #5166      kbisanz     Update logging to use SLF4J
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 11, 0008  1030     randerso  Initial port
+ * Apr 08, 0008  875      bphillip  Changed exception handling
+ * Jun 24, 0008  1160     randerso  Added a method to get the Topo dbId
+ * Jul 09, 0009  2590     njensen   No longer singleton
+ * Jun 24, 0013  2044     randerso  Renamed satdirs to satdata to match
+ *                                  serverConfig.py
+ * Aug 14, 2013  1571     randerso  Changed to use ProjectionType enum
+ * Mar 05, 2015  4169     randerso  Changed model name mappings to return null
+ *                                  if no mapping
+ * Apr 09, 2015  4383     dgilling  Support FireWx ISC.
+ * Dec 15, 2015  5166     kbisanz   Update logging to use SLF4J
+ * Sep 12, 2016  5861     randerso  Change getSiteID() to return a single value
+ *                                  instead of a list containing only one value.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 public class IFPServerConfig {
     private static final Logger theLogger = LoggerFactory
@@ -126,7 +130,7 @@ public class IFPServerConfig {
         return emptyProj;
     }
 
-    private List<String> _siteID;
+    private String _siteID;
 
     private List<String> _timeZones;
 
@@ -221,7 +225,7 @@ public class IFPServerConfig {
 
     /**
      * Returns the rpc port.
-     * 
+     *
      * @return
      */
     public long getRpcPort() {
@@ -230,7 +234,7 @@ public class IFPServerConfig {
 
     /**
      * Returns the protocol version
-     * 
+     *
      * @return
      */
     public long getProtocolVersion() {
@@ -239,7 +243,7 @@ public class IFPServerConfig {
 
     /**
      * Returns the allowed network nodes to access the server.
-     * 
+     *
      * @return
      */
     public List<String> getAllowedNodes() {
@@ -252,7 +256,7 @@ public class IFPServerConfig {
 
     /**
      * Returns the list of singleton databases. (The modeltime is not useful.)
-     * 
+     *
      * @return
      */
     public List<DatabaseID> getSingletonDatabases() {
@@ -261,7 +265,7 @@ public class IFPServerConfig {
 
     /**
      * Return the list of official databases. (The modeltime is not useful.)
-     * 
+     *
      * @return
      */
     public List<DatabaseID> getOfficialDatabases() {
@@ -271,9 +275,9 @@ public class IFPServerConfig {
     /**
      * Return number of desired database versions for the given database id. The
      * modelTime is ignored.
-     * 
+     *
      * Looks up the entry and returns the value. If not found, returns 2.
-     * 
+     *
      * @param id
      * @return
      */
@@ -285,12 +289,12 @@ public class IFPServerConfig {
 
     /**
      * Return the number of hours before purging "old" grids.
-     * 
+     *
      * The modelTime is ignored.
-     * 
+     *
      * Looks up the entry and returns the value. If not found, returns -1 to
      * indicate no purging.
-     * 
+     *
      * @param id
      * @return
      */
@@ -302,7 +306,7 @@ public class IFPServerConfig {
     /**
      * Returns a pointer to the GridDbConfig object for the given database. If
      * not defined, then returns NULL. (The modelTime is ignored.)
-     * 
+     *
      * @param id
      * @return
      */
@@ -313,10 +317,10 @@ public class IFPServerConfig {
     /**
      * Returns the known database configurations for the server. Note that the
      * modelTime is ignored.
-     * 
+     *
      * Go through the _gridDbConfig dictionaries and extract out the databaseid
      * which is a String, and then that is converted to a DatabaseID.
-     * 
+     *
      * @return
      */
     public List<DatabaseID> knownDBConfig() {
@@ -336,7 +340,7 @@ public class IFPServerConfig {
 
     /**
      * Returns list of d2d models to process.
-     * 
+     *
      * @return
      */
     public List<String> getD2dModels() {
@@ -346,7 +350,7 @@ public class IFPServerConfig {
     /**
      * Maps a d2dModelName to its gfeModelName. If no mapping exists an empty
      * string is returned.
-     * 
+     *
      * @param d2dModelName
      * @return
      */
@@ -358,7 +362,7 @@ public class IFPServerConfig {
     /**
      * Maps a gfedModelName to its d2dModelName. If no mapping exists an empty
      * string is returned.
-     * 
+     *
      * @param d2dModelName
      * @return
      */
@@ -369,7 +373,7 @@ public class IFPServerConfig {
 
     /**
      * Returns the weather visibilities.
-     * 
+     *
      * @return
      */
     public List<WeatherVisibility> getWeatherVisibilities() {
@@ -382,7 +386,7 @@ public class IFPServerConfig {
 
     /**
      * Returns the weather definition.
-     * 
+     *
      * @return
      */
     public WxDefinition getWxDefinition() {
@@ -391,7 +395,7 @@ public class IFPServerConfig {
 
     /**
      * Returns the discrete definition.
-     * 
+     *
      * @return
      */
     public DiscreteDefinition getDiscreteDefinition() {
@@ -403,17 +407,17 @@ public class IFPServerConfig {
     }
 
     /**
-     * Returns the list of site identifiers known by this server.
-     * 
-     * @return
+     * Returns the site identifiers known by this server.
+     *
+     * @return the site identifier
      */
-    public List<String> getSiteID() {
+    public String getSiteID() {
         return _siteID;
     }
 
     /**
      * Returns the list of timeZones associated with the known sites.
-     * 
+     *
      * @return
      */
     public List<String> getTimeZones() {
@@ -422,7 +426,7 @@ public class IFPServerConfig {
 
     /**
      * Returns true if topography data should show below zero values.
-     * 
+     *
      * @return
      */
     public boolean isTopoAllowedBelowZero() {
@@ -467,9 +471,9 @@ public class IFPServerConfig {
                 config.domain.latIntersect, config.domain.lonCenter,
                 config.domain.lonOrigin);
 
-        _domain = new GridLocation(config.siteID.get(0), dProj,
-                config.domain.gridSize, config.domain.domainOrigin,
-                config.domain.domainExtent, config.timeZone.get(0));
+        _domain = new GridLocation(config.siteID, dProj, config.domain.gridSize,
+                config.domain.domainOrigin, config.domain.domainExtent,
+                config.timeZone.get(0));
 
         // Assign the projection data in the config to private data
         _projectionData = config.projectionData;
@@ -506,8 +510,8 @@ public class IFPServerConfig {
             for (int j = 2; j < value.size(); j += 2) {
                 keyDefs.add(new DiscreteKeyDef(value.get(j), value.get(j + 1)));
             }
-            _discreteDefinition
-                    .addDefinition(key, overlaps, auxLength, keyDefs);
+            _discreteDefinition.addDefinition(key, overlaps, auxLength,
+                    keyDefs);
         }
 
         List<DatabaseID> singleton = new ArrayList<DatabaseID>();
@@ -518,8 +522,8 @@ public class IFPServerConfig {
                     + '_' + model.modelName + "_" + DatabaseID.NO_MODEL_TIME;
             DatabaseID id = new DatabaseID(tmp);
             if (!id.isValid()) {
-                theLogger.error("Invalid model definition in config file: "
-                        + tmp);
+                theLogger.error(
+                        "Invalid model definition in config file: " + tmp);
                 continue;
             }
 
@@ -536,8 +540,9 @@ public class IFPServerConfig {
             // get the correct ProjectionData object
             ProjectionData projData = getProjectionData(model.projectionID);
 
-            setGridDbConfig(id, new GridDbConfig(model, getWxDefinition(),
-                    projData, getDiscreteDefinition(), config.extraWEPrecision));
+            setGridDbConfig(id,
+                    new GridDbConfig(model, getWxDefinition(), projData,
+                            getDiscreteDefinition(), config.extraWEPrecision));
         }
 
         setSingletonDatabases(singleton);
@@ -556,9 +561,8 @@ public class IFPServerConfig {
             }
 
             // create DatabaseID from the key
-            DatabaseID dbid = new DatabaseID(_siteID.get(0),
-                    DatabaseID.DataType.GRID, "D2D", key,
-                    DatabaseID.NO_MODEL_TIME);
+            DatabaseID dbid = new DatabaseID(_siteID, DatabaseID.DataType.GRID,
+                    "D2D", key, DatabaseID.NO_MODEL_TIME);
             setDesiredDbVersions(dbid, versions);
         }
 
@@ -581,7 +585,7 @@ public class IFPServerConfig {
 
     /**
      * Set the singleton databases.
-     * 
+     *
      * @param ids
      */
     public void setSingletonDatabases(final List<DatabaseID> ids) {
@@ -593,7 +597,7 @@ public class IFPServerConfig {
 
     /**
      * Set the official databases.
-     * 
+     *
      * @param ids
      */
     public void setOfficialDatabases(final List<DatabaseID> ids) {
@@ -605,7 +609,7 @@ public class IFPServerConfig {
 
     /**
      * Sets desired database versions for the given id.
-     * 
+     *
      * @param id
      * @param nver
      */
@@ -615,7 +619,7 @@ public class IFPServerConfig {
 
     /**
      * Set the desired grid purging age in hours for the given id.
-     * 
+     *
      * @param id
      * @param purgeHours
      */
@@ -623,14 +627,15 @@ public class IFPServerConfig {
         _gridPurgeAge.put(convertToString(stripTime(id)), purgeHours);
     }
 
-    public void setGridDbConfig(final DatabaseID id, final GridDbConfig config) {
+    public void setGridDbConfig(final DatabaseID id,
+            final GridDbConfig config) {
         GridDbConfig newConfig = new GridDbConfig(config);
         _gridDbConfig.put(convertToString(stripTime(id)), newConfig);
     }
 
     /**
      * Sets the weather visibilities.
-     * 
+     *
      * @param vis
      */
     public void setWeatherVisibilities(final List<String> vis) {
@@ -652,22 +657,22 @@ public class IFPServerConfig {
         List<WeatherCoverage> coverages = new ArrayList<WeatherCoverage>(
                 type.coverages.size());
         for (DiscreteTerm cov : type.coverages) {
-            coverages.add(new WeatherCoverage(cov.getSymbol(), cov
-                    .getDescription()));
+            coverages.add(
+                    new WeatherCoverage(cov.getSymbol(), cov.getDescription()));
         }
 
         List<WeatherIntensity> intensities = new ArrayList<WeatherIntensity>(
                 type.intensities.size());
         for (DiscreteTerm inten : type.intensities) {
-            intensities.add(new WeatherIntensity(inten.getSymbol(), inten
-                    .getDescription()));
+            intensities.add(new WeatherIntensity(inten.getSymbol(),
+                    inten.getDescription()));
         }
 
         List<WeatherAttribute> attributes = new ArrayList<WeatherAttribute>(
                 type.attributes.size());
         for (DiscreteTerm attr : type.attributes) {
-            attributes.add(new WeatherAttribute(attr.getSymbol(), attr
-                    .getDescription()));
+            attributes.add(new WeatherAttribute(attr.getSymbol(),
+                    attr.getDescription()));
         }
 
         return new WeatherType(type.symbol, type.description, coverages,
@@ -692,7 +697,7 @@ public class IFPServerConfig {
     /**
      * Retrieves a list of GFE model names that are sources for a given smart
      * initialization module name.
-     * 
+     *
      * @param initModule
      *            The init module name.
      * @return the models to which the specified smart init module is mapped, or
@@ -704,7 +709,7 @@ public class IFPServerConfig {
 
     /**
      * Returns true if the model is to be skipped for this hour.
-     * 
+     *
      * @param baseModel
      * @param hour
      * @return
@@ -726,7 +731,7 @@ public class IFPServerConfig {
     /**
      * Given the model name, returns list of accumulative weather elements.
      * These weather elements do not contain the level information.
-     * 
+     *
      * @param baseModel
      * @return
      */
@@ -821,11 +826,11 @@ public class IFPServerConfig {
 
     /**
      * Gets my office type
-     * 
+     *
      * @return
      */
     public String officeType() {
-        int index = allSites().indexOf(this.getSiteID().get(0));
+        int index = allSites().indexOf(this.getSiteID());
         if (index != -1) {
             return officeTypes().get(index);
         }
@@ -842,7 +847,7 @@ public class IFPServerConfig {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#toString()
      */
     @Override

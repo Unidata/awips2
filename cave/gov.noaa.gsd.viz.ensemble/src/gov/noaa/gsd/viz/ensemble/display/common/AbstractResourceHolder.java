@@ -1,15 +1,17 @@
 package gov.noaa.gsd.viz.ensemble.display.common;
 
-import gov.noaa.gsd.viz.ensemble.display.rsc.GeneratedEnsembleGridResource;
-import gov.noaa.gsd.viz.ensemble.display.rsc.histogram.HistogramResource;
-import gov.noaa.gsd.viz.ensemble.display.rsc.timeseries.GeneratedTimeSeriesResource;
-
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IRefreshListener;
 import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator;
+
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
+import gov.noaa.gsd.viz.ensemble.display.rsc.GeneratedEnsembleGridResource;
+import gov.noaa.gsd.viz.ensemble.display.rsc.histogram.HistogramResource;
+import gov.noaa.gsd.viz.ensemble.display.rsc.timeseries.GeneratedTimeSeriesResource;
 
 /**
  * This class represents the abstract container which encapulates an
@@ -37,6 +39,8 @@ import com.raytheon.viz.grid.rsc.GridNameGenerator;
  * Nov 17, 2014    5056     polster     Initial creation
  * Jan 17, 2016    13211    polster     Renamed class from GenericResourceHolder
  *                                      to AbstractResourceHolder
+ * Dec 29, 2016    19325    jing        Deal with Image display type in equals()
+ * Jun 27  2017    19325    jing        Reinvestigate equals() and save as TODO
  * 
  * </pre>
  * 
@@ -45,51 +49,80 @@ import com.raytheon.viz.grid.rsc.GridNameGenerator;
  * @version 1.0
  */
 
-public abstract class AbstractResourceHolder extends
-        AbstractLegendComponentsProvider {
+public abstract class AbstractResourceHolder
+        extends AbstractLegendComponentsProvider
+        implements ITreeModelProvider, IRefreshListener {
 
     protected AbstractVizResource<?, ?> rsc;
 
-    protected boolean isSelected = false; // either selected or unselected
+    protected EnsembleMembersHolder parent = null;
 
-    protected boolean isGenerated = false; // either generated or a basic
-                                           // (normally loaded) resource
+    /*
+     * Resources are either normally loaded, or generated client-side as in
+     * calculated resources (mean, min, max, etc)
+     */
+    protected boolean isGenerated = false;
+
+    protected boolean isIndividualProduct = true;
 
     public static AbstractResourceHolder createResourceHolder(
-            AbstractVizResource<?, ?> rsc, boolean isSelected) {
+            AbstractVizResource<?, ?> rsc) {
 
         AbstractResourceHolder genericRsc = null;
 
         if (GeneratedEnsembleGridResource.class
                 .isAssignableFrom(rsc.getClass())) {
-            genericRsc = new GeneratedGridResourceHolder(rsc, isSelected);
-        } else if (GeneratedTimeSeriesResource.class.isAssignableFrom(rsc
-                .getClass())) {
-            genericRsc = new GeneratedTimeSeriesResourceHolder(rsc, isSelected);
+            genericRsc = new GeneratedGridResourceHolder(rsc);
+        } else if (GeneratedTimeSeriesResource.class
+                .isAssignableFrom(rsc.getClass())) {
+            genericRsc = new GeneratedTimeSeriesResourceHolder(rsc);
         } else if ((rsc instanceof AbstractVizResource<?, ?>)
                 && (rsc instanceof GridNameGenerator.IGridNameResource)) {
-            genericRsc = new GridResourceHolder(rsc, isSelected);
+            genericRsc = new GridResourceHolder(rsc);
         } else if (TimeSeriesResource.class.isAssignableFrom(rsc.getClass())) {
-            genericRsc = new TimeSeriesResourceHolder(rsc, isSelected);
+            genericRsc = new TimeSeriesResourceHolder(rsc);
         } else if (HistogramResource.class.isAssignableFrom(rsc.getClass())) {
-            genericRsc = new HistogramGridResourceHolder(rsc, isSelected);
+            genericRsc = new HistogramGridResourceHolder(rsc);
         } else if (rsc instanceof AbstractVizResource<?, ?>) {
-            genericRsc = new GenericResourceHolder(rsc, isSelected);
+            genericRsc = new GenericResourceHolder(rsc);
         }
         return genericRsc;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        boolean equals = false;
-        if (o instanceof AbstractResourceHolder) {
-            AbstractResourceHolder gr = (AbstractResourceHolder) o;
-            equals = this.getSpecificName().equals(gr.getSpecificName());
-        } else {
-            equals = false;
-        }
-        return equals;
-    }
+    /*
+     * TODO: This commented out equals method which follows is still needed for
+     * the Image product comparison. We will be putting this back in for the
+     * 17.3.1 release.
+     */
+    // @Override
+    // public boolean equals(Object o) {
+    // boolean equals = false;
+    // if (o instanceof AbstractResourceHolder) {
+    // AbstractResourceHolder gr = (AbstractResourceHolder) o;
+    // equals = this.getSpecificName().equals(gr.getSpecificName());
+    // // Catch image case that the two names are different.
+    // if (this.getRsc() == null || this.getRsc().getName() == null
+    // || gr.getRsc() == null || gr.getRsc().getName() == null) {
+    // if (gr.getRsc() == null) {
+    // System.out.println(
+    // ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> gr.getRsc() is
+    // null.");
+    // } else if (gr.getRsc().getName() == null) {
+    // System.out.println(
+    // ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+    // gr.getRsc().getName() is null.");
+    // }
+    // new Exception().printStackTrace();
+    //
+    // } else if (!this.getRsc().getName().equals(gr.getRsc().getName())) {
+    // equals = false;
+    // }
+    //
+    // } else {
+    // equals = false;
+    // }
+    // return equals;
+    // }
 
     public int hashCode() {
         return getSpecificName().hashCode();
@@ -99,11 +132,8 @@ public abstract class AbstractResourceHolder extends
 
     }
 
-    protected AbstractResourceHolder(AbstractVizResource<?, ?> rsc,
-            boolean isSelected) {
-
+    protected AbstractResourceHolder(AbstractVizResource<?, ?> rsc) {
         this.rsc = rsc;
-        this.isSelected = isSelected;
     }
 
     public AbstractVizResource<?, ?> getRsc() {
@@ -115,11 +145,11 @@ public abstract class AbstractResourceHolder extends
     }
 
     public boolean isSelected() {
-        return isSelected;
-    }
-
-    public void setSelected(boolean isSelected) {
-        this.isSelected = isSelected;
+        boolean is = false;
+        if (rsc != null) {
+            is = rsc.getProperties().isVisible();
+        }
+        return is;
     }
 
     public boolean isGenerated() {
@@ -217,8 +247,8 @@ public abstract class AbstractResourceHolder extends
                 return false;
             }
 
-            DataTime time = getDataTimeForResource(getRsc(), getRsc()
-                    .getDescriptor(), info);
+            DataTime time = getDataTimeForResource(getRsc(),
+                    getRsc().getDescriptor(), info);
 
             if (time == null) {
                 return false;
@@ -251,5 +281,30 @@ public abstract class AbstractResourceHolder extends
     }
 
     public abstract boolean requiresLoadCheck();
+
+    @Override
+    public void refresh() {
+        if (EnsembleTool.getInstance().getToolLayer() != null) {
+            EnsembleTool.getInstance().getToolLayer().updateElementInView(this);
+        }
+    }
+
+    @Override
+    public Object getParent() {
+        return parent;
+    }
+
+    @Override
+    public void setParent(EnsembleMembersHolder emh) {
+        parent = emh;
+    }
+
+    /**
+     * Is this an indivdual product or a group of products like an ensemble?
+     */
+    @Override
+    public boolean isIndivdualProduct() {
+        return isIndividualProduct;
+    }
 
 }

@@ -19,10 +19,8 @@
  **/
 package com.raytheon.uf.common.activetable;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
@@ -33,7 +31,6 @@ import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -45,32 +42,35 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  * <pre>
  *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 24, 2009            njensen     Initial creation
- * Feb 26, 2013 1447       dgilling    Implement equals().
- * May 10, 2013 1951       rjpeter     Added own id sequence tagging
- * Jul 16, 2013 2181       bsteffen    Convert geometry types to use hibernate-
- *                                     spatial
- * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
- * 04/28/2015   4027       randerso    Expunged Calendar from ActiveTableRecord
- * 05/22/2015   4522       randerso    Create proper primary key for ActiveTableRecord
- * 08/04/2015   4712       bphillip    Added parameter to PersistableDataObject
- * 03/17/2016   5426       randerso    Add issueYear to primary key
- * 06/27/2016   5707       nabowle     Remove Geometry field.
- * 08/03/2016   19213      ryu         Add pil to primary key
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 24, 2009           njensen   Initial creation
+ * Feb 26, 2013  1447     dgilling  Implement equals().
+ * May 10, 2013  1951     rjpeter   Added own id sequence tagging
+ * Jul 16, 2013  2181     bsteffen  Convert geometry types to use hibernate-
+ *                                  spatial
+ * Oct 16, 2014  3454     bphillip  Upgrading to Hibernate 4
+ * Apr 28, 2015  4027     randerso  Expunged Calendar from ActiveTableRecord
+ * May 22, 2015  4522     randerso  Create proper primary key for
+ *                                  ActiveTableRecord
+ * Aug 04, 2015  4712     bphillip  Added parameter to PersistableDataObject
+ * Mar 17, 2016  5426     randerso  Add issueYear to primary key
+ * Jun 27, 2016  5707     nabowle   Remove Geometry field.
+ * Aug 03, 2016  19213    ryu       Add pil to primary key
+ * Nov 03, 2016  5934     randerso  Moved transformFromWarnings method to
+ *                                  ActiveTableSrv
+ *
  * </pre>
  *
  * @author njensen
- * @version 1.0
  */
 @MappedSuperclass
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @DynamicSerialize
 // TODO: do we get anything from extending PersistableDataObject here?
-public abstract class ActiveTableRecord extends
-        PersistableDataObject<ActiveTableKey> {
+public abstract class ActiveTableRecord
+        extends PersistableDataObject<ActiveTableKey> {
     protected static final long serialVersionUID = 1L;
 
     @EmbeddedId
@@ -194,6 +194,9 @@ public abstract class ActiveTableRecord extends
     @DynamicSerializeElement
     protected Date floodEnd;
 
+    /**
+     * Constructor
+     */
     public ActiveTableRecord() {
         this.key = new ActiveTableKey();
     }
@@ -649,8 +652,8 @@ public abstract class ActiveTableRecord extends
      *            the issueTime to set
      */
     public void setIssueTime(Date issueTime) {
-        this.key.issueYear = TimeUtil.newGmtCalendar(issueTime).get(
-                Calendar.YEAR);
+        this.key.issueYear = TimeUtil.newGmtCalendar(issueTime)
+                .get(Calendar.YEAR);
         this.issueTime = issueTime;
     }
 
@@ -939,7 +942,7 @@ public abstract class ActiveTableRecord extends
         this.floodEnd = floodEnd;
     }
 
-    public Object internalClone(ActiveTableRecord atr) {
+    protected Object internalClone(ActiveTableRecord atr) {
         atr.setAct(this.getAct());
         atr.setCountyheader(this.getCountyheader());
         atr.setEndTime(this.getEndTime());
@@ -975,67 +978,5 @@ public abstract class ActiveTableRecord extends
         atr.setXxxid(this.getXxxid());
         atr.setUgcZone(this.getUgcZone());
         return atr;
-    }
-
-    public static List<ActiveTableRecord> transformFromWarnings(
-            List<AbstractWarningRecord> warnings, ActiveTableMode mode) {
-        List<ActiveTableRecord> list = new ArrayList<>();
-        for (AbstractWarningRecord wr : warnings) {
-            ActiveTableRecord atr = null;
-            if (mode.equals(ActiveTableMode.OPERATIONAL)) {
-                atr = new OperationalActiveTableRecord();
-            } else {
-                atr = new PracticeActiveTableRecord();
-            }
-            atr.setAct(wr.getAct());
-            atr.setCountyheader(wr.getCountyheader());
-            atr.setEndTime(calendarToDate(wr.getEndTime()));
-            atr.setEtn(wr.getEtn());
-            atr.setFloodBegin(calendarToDate(wr.getFloodBegin()));
-            atr.setFloodCrest(calendarToDate(wr.getFloodCrest()));
-            atr.setFloodEnd(calendarToDate(wr.getFloodEnd()));
-            atr.setFloodRecordStatus(wr.getFloodRecordStatus());
-            atr.setFloodSeverity(wr.getFloodSeverity());
-            atr.setForecaster(wr.getForecaster());
-            atr.setImmediateCause(wr.getImmediateCause());
-            atr.setIssueTime(calendarToDate(wr.getIssueTime()));
-            atr.setLoc(wr.getLoc());
-            atr.setLocationID(wr.getLocationID());
-            atr.setMotdir(wr.getMotdir());
-            atr.setMotspd(wr.getMotspd());
-            atr.setOfficeid(wr.getOfficeid());
-            atr.setOverviewText(wr.getOverviewText());
-            atr.setPhen(wr.getPhen());
-            atr.setPhensig(wr.getPhensig());
-            atr.setPil(wr.getPil());
-            atr.setProductClass(wr.getProductClass());
-            atr.setPurgeTime(calendarToDate(wr.getPurgeTime()));
-            atr.setRawmessage(wr.getRawmessage());
-            atr.setRegion(wr.getRegion());
-            atr.setSeg(wr.getSeg());
-            atr.setSegText(wr.getSegText());
-            atr.setSig(wr.getSig());
-            atr.setStartTime(calendarToDate(wr.getStartTime()));
-            atr.setUfn(wr.isUfn());
-            atr.setVtecstr(wr.getVtecstr());
-            atr.setWmoid(wr.getWmoid());
-            atr.setXxxid(wr.getXxxid());
-
-            for (String ugc : wr.getUgcZones()) {
-                ActiveTableRecord ugcRecord = (ActiveTableRecord) atr.clone();
-                ugcRecord.setUgcZone(ugc);
-                list.add(ugcRecord);
-            }
-        }
-
-        return list;
-    }
-
-    private static Date calendarToDate(Calendar calendar) {
-        Date date = null;
-        if (calendar != null) {
-            date = calendar.getTime();
-        }
-        return date;
     }
 }

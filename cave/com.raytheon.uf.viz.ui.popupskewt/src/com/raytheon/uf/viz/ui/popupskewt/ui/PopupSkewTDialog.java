@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,6 +26,7 @@ import javax.measure.unit.SI;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -47,20 +48,21 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * The Popup Skew T dialog
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Dec 14, 2009            randerso    Initial creation
- * Jul 19, 2013       2190 mschenke    Moved from skewt project to popup skewt to 
+ * Jul 19, 2013       2190 mschenke    Moved from skewt project to popup skewt to
  *                                     separate out from old deprecated skewt code
  * Aug 03, 2016       5585 tgurney     Fix left side cut-off
  * Aug 04, 2016       5798 tgurney     Add close button
- * 
+ * Feb 23, 2017       6115 tgurney     Make font smaller to prevent overlapping
+ *
  * </pre>
- * 
+ *
  * @author randerso
  */
 
@@ -68,8 +70,8 @@ public class PopupSkewTDialog extends CaveSWTDialog {
     private static final float[] PRESSURES = { 100, 200, 300, 400, 500, 600,
             700, 800, 900, 1000 };
 
-    private static final float[] TEMPS = { -70, -60, -50, -40, -30, -20, -10,
-            0, 10, 20, 30, 40 };
+    private static final float[] TEMPS = { -70, -60, -50, -40, -30, -20, -10, 0,
+            10, 20, 30, 40 };
 
     private static final UnitConverter CtoF = SI.CELSIUS
             .getConverterTo(NonSI.FAHRENHEIT);
@@ -98,6 +100,8 @@ public class PopupSkewTDialog extends CaveSWTDialog {
 
     private int dlgHeightAdjust;
 
+    private Font axisLabelFont;
+
     public PopupSkewTDialog(Shell parentShell) {
         super(parentShell, SWT.CLOSE | SWT.TITLE | SWT.RESIZE | SWT.MODELESS,
                 CAVE.DO_NOT_BLOCK);
@@ -113,16 +117,16 @@ public class PopupSkewTDialog extends CaveSWTDialog {
         dlgWidthAdjust = gc.textExtent(labelFormat).x;
         dlgHeightAdjust = gc.textExtent(labelFormat).y * 2;
         gc.dispose();
-
         Rectangle rectangle = new Rectangle(dlgWidthAdjust + 10, 20, 380, 240);
         world = new WGraphics(rectangle);
 
-        Coordinate lowerLeft = WxMath.getSkewTXY(
-                PRESSURES[PRESSURES.length - 1], TEMPS[0]);
+        Coordinate lowerLeft = WxMath
+                .getSkewTXY(PRESSURES[PRESSURES.length - 1], TEMPS[0]);
         Coordinate upperRight = WxMath.getSkewTXY(PRESSURES[0],
                 TEMPS[TEMPS.length - 1]);
         world.setWorldCoordinates(lowerLeft.x, upperRight.y, upperRight.x,
                 lowerLeft.y);
+
     }
 
     public void plotHeight(float height, float temp) {
@@ -145,13 +149,13 @@ public class PopupSkewTDialog extends CaveSWTDialog {
                         - sounding.get(i1).getGeoHeight();
                 float dz = height - sounding.get(i1).getGeoHeight();
                 pres = sounding.get(i1).getPressure()
-                        + (sounding.get(i2).getPressure() - sounding.get(i1)
-                                .getPressure()) * dz / lyrDz;
+                        + (sounding.get(i2).getPressure()
+                                - sounding.get(i1).getPressure()) * dz / lyrDz;
                 if (Float.isNaN(temp)) {
-                    temperature = sounding.get(i1).getTemperature()
-                            - 273.15f
-                            + (sounding.get(i2).getTemperature() - sounding
-                                    .get(i1).getTemperature()) * dz / lyrDz;
+                    temperature = sounding.get(i1).getTemperature() - 273.15f
+                            + (sounding.get(i2).getTemperature()
+                                    - sounding.get(i1).getTemperature()) * dz
+                                    / lyrDz;
                 } else {
                     temperature = temp;
                 }
@@ -199,7 +203,7 @@ public class PopupSkewTDialog extends CaveSWTDialog {
 
     /**
      * Map a pressure,temperature value to an x,y coordinate
-     * 
+     *
      * @param pressure
      * @param temperature
      * @return x,y coordinate
@@ -215,6 +219,7 @@ public class PopupSkewTDialog extends CaveSWTDialog {
         Display display = getDisplay();
         // paint background
         gc.setBackground(display.getSystemColor(SWT.COLOR_BLACK));
+        gc.setFont(axisLabelFont);
         Rectangle r = canvas.getClientArea();
         gc.fillRectangle(r);
 
@@ -369,6 +374,15 @@ public class PopupSkewTDialog extends CaveSWTDialog {
             label.setText(sounding.getName());
         }
 
+        axisLabelFont = new Font(shell.getDisplay(), "Sans", 8, SWT.NORMAL);
+
         shell.setLocation(0, 0);
+    }
+
+    @Override
+    protected void disposed() {
+        if (axisLabelFont != null) {
+            axisLabelFont.dispose();
+        }
     }
 }

@@ -18,6 +18,12 @@
 # further licensing information.
 ##
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
 import xml
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, SubElement

@@ -29,7 +29,6 @@ package com.raytheon.uf.common.hydro;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 26, 2016 5571       skorolev    Initial creation
- * Jul 01, 2016 4623       skorolev    Added PRECIP_TS_SINGLE
  * 
  * </pre>
  * 
@@ -57,8 +56,6 @@ public class CommonHydroConstants {
 
     public static final String SUM_PC_REPORTS_TOKEN = "sum_pc_reports";
 
-    public static final int PRECIP_TS_SINGLE = 0;
-
     public static final int PRECIP_NO_ACCUM = 1;
 
     public static final int REPORT_MISSING_BELOW_MIN_PERCENT = 4;
@@ -83,11 +80,11 @@ public class CommonHydroConstants {
 
     public static final int MISSING_VALUE = -9999;
 
-    public static final char OK_CHAR = ' ';
+    public static final String OK_CHAR = " ";
 
-    public static final char MISSING_CHAR = 'm';
+    public static final String MISSING_CHAR = "m";
 
-    public static final char REJECTED_CHAR = 'r';
+    public static final String REJECTED_CHAR = "r";
 
     public static final int LOCAL_5004_7AM_WINDOW = 0;
 
@@ -98,15 +95,7 @@ public class CommonHydroConstants {
     public static final int DEFAULT_QC_VALUE = 1879048191;
 
     public static final String IHFS = "ihfs";
-
+    
     public static final float MISSING_PRECIP = -9999f;
-
-    /* MPE missing representation */
-    public static final float MPE_MISSING = -999f;
-
-    /**
-     * Default value for summation of accumulated precipitation reports
-     */
-    public static final int DEFAULT_SUM_PC_REPORTS_VALUE = 0;
 
 }

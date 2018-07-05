@@ -73,7 +73,7 @@ For 64-bit RHEL/CentOS 6 and 7, download and run the script [install.sh --edex](
     chmod 755 ./install.sh
     sudo ./install.sh --edex
 
-This will install to `/awips2/edex`, `/awips2/data` and other directories.
+This will install to `/awips2/edex`, `/awips2/database/data` and other directories.
 
 > CentOS/RHEL 6 and 7 are the only supported operating systems for EDEX (Though you may have luck with Fedora Core 12 to 14 and Scientific Linux). Not supported for EDEX: Debian, Ubuntu, SUSE, Solaris, OS X, Fedora 15+, Windows
 

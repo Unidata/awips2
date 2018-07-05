@@ -31,8 +31,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.List;
 
+import com.raytheon.uf.common.menus.vb.ViewMenu;
 import com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.raytheon.viz.volumebrowser.xml.MenuContribution;
 
 /**

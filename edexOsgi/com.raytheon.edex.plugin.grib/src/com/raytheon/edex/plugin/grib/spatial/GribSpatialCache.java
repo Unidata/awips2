@@ -58,9 +58,6 @@ import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.awipstools.GetWfoCenterHandler;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
-import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
-import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
-import com.raytheon.uf.edex.database.cluster.ClusterTask;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -90,6 +87,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb 16, 2016  5237     bsteffen      Replace deprecated localization API.
  * Apr 11, 2016  5564     bsteffen      Move localization files to common_static
  * Apr 19, 2016  5572     bsteffen      Implement GribCoverageNameLookup
+ * Jan 19, 2017  3440     njensen       Remove unnecessary cluster locking
  * 
  * </pre>
  * 
@@ -526,7 +524,6 @@ public class GribSpatialCache implements GribCoverageNameLookup {
     private void initializeGrids(FileDataList fdl) {
         statusHandler.info("Initializing grib grid coverages");
         long startTime = System.currentTimeMillis();
-        ClusterTask ct = null;
         Map<Integer, Set<String>> gridNameMap = new HashMap<>();
         Map<String, GridCoverage> spatialNameMap = new HashMap<>();
         SubGridMapping subGridDefMap = new SubGridMapping();
@@ -541,64 +538,57 @@ public class GribSpatialCache implements GribCoverageNameLookup {
             return;
         }
 
-        do {
-            ct = ClusterLockUtils.lock("grib", "spatialCache", 120000, true);
-        } while (!LockState.SUCCESSFUL.equals(ct.getLockState()));
+        for (FileData fd : fdl.getCoverageFileList()) {
+            try {
+                GridCoverage grid = gridCovJaxb
+                        .unmarshalFromXmlFile(fd.getFilePath());
+                String name = grid.getName();
+                grid = insert(grid);
+                spatialNameMap.put(name, grid);
+                Set<String> names = gridNameMap.get(grid.getId());
+                if (names == null) {
+                    names = new HashSet<>();
+                    gridNameMap.put(grid.getId(), names);
+                }
+                names.add(name);
+            } catch (Exception e) {
+                // Log error but do not throw exception
+                statusHandler.error("Unable to read default grids file: "
+                        + fd.getFilePath(), e);
+            }
+        }
+        Coordinate defaultCenterPoint = null;
 
         try {
-            for (FileData fd : fdl.getCoverageFileList()) {
-                try {
-                    GridCoverage grid = gridCovJaxb.unmarshalFromXmlFile(fd
-                            .getFilePath());
-                    String name = grid.getName();
-                    grid = insert(grid);
-                    spatialNameMap.put(name, grid);
-                    Set<String> names = gridNameMap.get(grid.getId());
-                    if (names == null) {
-                        names = new HashSet<>();
-                        gridNameMap.put(grid.getId(), names);
-                    }
-                    names.add(name);
-                } catch (Exception e) {
-                    // Log error but do not throw exception
-                    statusHandler.error("Unable to read default grids file: "
-                            + fd.getFilePath(), e);
-                }
-            }
-            Coordinate defaultCenterPoint = null;
-
-            try {
-                defaultCenterPoint = getDefaultSubGridCenterPoint();
-            } catch (Exception e) {
-                statusHandler
-                        .error("Failed to generate sub grid definitions.  Unable to lookup WFO Center Point",
-                                e);
-            }
-            for (FileData fd : fdl.getSubGridFileList()) {
-                try {
-                    SubGridDef subGridDef = loadSubGridDef(subGridDefJaxb,
-                            fd.getFilePath(), defaultCenterPoint);
-
-                    if (subGridDef == null) {
-                        continue;
-                    }
-
-                    subGridDefMap.addSubGridDef(subGridDef);
-                } catch (Exception e) {
-                    // Log error but do not throw exception
-                    statusHandler.error("Unable to read default grids file: "
-                            + fd.getFilePath(), e);
-                }
-            }
-            this.gridNameMap = gridNameMap;
-            this.spatialNameMap = spatialNameMap;
-            this.subGridDefMap = subGridDefMap;
-            this.subGridCoverageMap.clear();
-            this.definedSubGridMap.clear();
-            this.fileDataList = fdl;
-        } finally {
-            ClusterLockUtils.unlock(ct, false);
+            defaultCenterPoint = getDefaultSubGridCenterPoint();
+        } catch (Exception e) {
+            statusHandler.error(
+                    "Failed to generate sub grid definitions.  Unable to lookup WFO Center Point",
+                    e);
         }
+        for (FileData fd : fdl.getSubGridFileList()) {
+            try {
+                SubGridDef subGridDef = loadSubGridDef(subGridDefJaxb,
+                        fd.getFilePath(), defaultCenterPoint);
+
+                if (subGridDef == null) {
+                    continue;
+                }
+
+                subGridDefMap.addSubGridDef(subGridDef);
+            } catch (Exception e) {
+                // Log error but do not throw exception
+                statusHandler.error("Unable to read default grids file: "
+                        + fd.getFilePath(), e);
+            }
+        }
+        this.gridNameMap = gridNameMap;
+        this.spatialNameMap = spatialNameMap;
+        this.subGridDefMap = subGridDefMap;
+        this.subGridCoverageMap.clear();
+        this.definedSubGridMap.clear();
+        this.fileDataList = fdl;
+
         long endTime = System.currentTimeMillis();
         statusHandler.info("Grib grid coverages initialized: "
                 + (endTime - startTime) + "ms");

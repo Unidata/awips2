@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -27,6 +27,7 @@ import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.vaa.VAARecord;
@@ -51,7 +52,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.point.display.SymbolLoader;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
@@ -63,26 +64,42 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Resource for Volcanic Ash Advisories data
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Nov 23, 2009  3268     jsanchez    Initial creation
- * Jun 06, 2014  2061     bsteffen    Remove unneccessary imports
- * Jul 29, 2014  3465     mapeters    Updated deprecated drawString() calls.
- * Nov 05, 2015  5070     randerso    Adjust font sizes for dpi scaling
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Nov 23, 2009  3268     jsanchez  Initial creation
+ * Jun 06, 2014  2061     bsteffen  Remove unneccessary imports
+ * Jul 29, 2014  3465     mapeters  Updated deprecated drawString() calls.
+ * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
+ * Sep 23, 2016  5887     mapeters  Added shapeMap to reuse wireframe shapes
+ *                                  across paint() calls
+ * Sep 27, 2016  5887     tgurney   Don't draw volcanoes outside clipping pane
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
  */
-public class VAAResource extends
-        AbstractVizResource<VAAResourceData, MapDescriptor> {
+public class VAAResource
+        extends AbstractVizResource<VAAResourceData, MapDescriptor> {
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(VAAResource.class);
+
+    private static final String ANAL00 = "ANAL00";
+
+    private static final String AREA = "AREA";
+
+    private static final char VOLCANO_SYMBOL = '\u00b1';
+
+    private static final double inset = 150.0;
+
+    private final Map<VAARecord, IWireframeShape> shapeMap = new HashMap<>();
+
+    private final Map<DataTime, Collection<VAARecord>> recordsToParse = new HashMap<>();
 
     protected DataTime displayedDataTime;
 
@@ -96,43 +113,10 @@ public class VAAResource extends
 
     private IFont font;
 
-    private static final String ANAL00 = "ANAL00";
-
-    private final static String AREA = "AREA";
-
-    private static final char VOLCANO_SYMBOL = '\u00b1';
-
-    private static final double inset = 150.0;
-
-    private Map<DataTime, Collection<VAARecord>> recordsToParse = new HashMap<DataTime, Collection<VAARecord>>();
-
     protected VAAResource(VAAResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
-        resourceData.addChangeListener(new IResourceDataChanged() {
-            @Override
-            public void resourceChanged(ChangeType type, Object object) {
-                if (type == ChangeType.DATA_UPDATE) {
-                    PluginDataObject[] pdo = (PluginDataObject[]) object;
-                    for (PluginDataObject p : pdo) {
-                        if (p instanceof VAARecord) {
-                            addRecord((VAARecord) p);
-                        }
-                    }
-                } else if (type == ChangeType.CAPABILITY) {
-                    if (object instanceof MagnificationCapability) {
-                        int mag = ((MagnificationCapability) object)
-                                .getMagnification().intValue();
-                        double newPlotWidth = actualPlotWidth * mag;
-                        if (plotWidth != newPlotWidth) {
-                            plotWidth = newPlotWidth;
-                        }
-                    }
-                }
-                issueRefresh();
-            }
-        });
-        this.dataTimes = new ArrayList<DataTime>();
+        this.dataTimes = new ArrayList<>();
     }
 
     @Override
@@ -161,11 +145,10 @@ public class VAAResource extends
             }
             double[] ml = { latlon.x, latlon.y };
             double[] pml = descriptor.worldToPixel(ml);
-            double scaleValue = (this.plotWidth / 2.0)
-                    / this.screenToWorldRatio;
-            PixelExtent interrogationExtent = new PixelExtent(pml[0]
-                    - scaleValue, pml[0] + scaleValue, pml[1] - scaleValue,
-                    pml[1] + scaleValue);
+            double scaleValue = this.plotWidth / 2.0 / this.screenToWorldRatio;
+            PixelExtent interrogationExtent = new PixelExtent(
+                    pml[0] - scaleValue, pml[0] + scaleValue,
+                    pml[1] - scaleValue, pml[1] + scaleValue);
             Envelope llExtent = descriptor.pixelToWorld(interrogationExtent);
 
             for (VAARecord record : records) {
@@ -180,10 +163,8 @@ public class VAAResource extends
                         Point point;
 
                         try {
-                            point = pixelPoly.getFactory()
-                                    .createPoint(
-                                            coord.asPixel(descriptor
-                                                    .getGridGeometry()));
+                            point = pixelPoly.getFactory().createPoint(coord
+                                    .asPixel(descriptor.getGridGeometry()));
                         } catch (Exception e) {
                             throw new VizException(
                                     "Error inspecting Volcanic Ash Advisories",
@@ -191,8 +172,8 @@ public class VAAResource extends
                         }
 
                         if (pixelPoly.contains(point)) {
-                            returnValue = record.getAnal00Hr() != null ? record
-                                    .getAnal00Hr() : "";
+                            returnValue = record.getAnal00Hr() != null
+                                    ? record.getAnal00Hr() : "";
                         }
                     }
                 }
@@ -214,29 +195,38 @@ public class VAAResource extends
 
     /**
      * Adds a new record to this resource
-     * 
-     * @param obj
+     *
+     * @param record
      */
-    protected void addRecord(VAARecord obj) {
-        DataTime dataTime = obj.getDataTime();
+    protected void addRecord(VAARecord record) {
+        DataTime dataTime = record.getDataTime();
         Collection<VAARecord> toParse = recordsToParse.get(dataTime);
         if (toParse == null) {
             dataTimes.add(dataTime);
             Collections.sort(this.dataTimes);
-            toParse = new ArrayList<VAARecord>();
+            toParse = new ArrayList<>();
             recordsToParse.put(dataTime, toParse);
         }
-        toParse.add(obj);
+        toParse.add(record);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
+    @Override
+    public void remove(DataTime dataTime) {
+        super.remove(dataTime);
+
+        Collection<VAARecord> toParse = recordsToParse.remove(dataTime);
+        if (toParse != null) {
+            for (VAARecord record : toParse) {
+                synchronized (shapeMap) {
+                    IWireframeShape shape = shapeMap.remove(record);
+                    if (shape != null) {
+                        shape.dispose();
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -266,8 +256,8 @@ public class VAAResource extends
         RGB color = getCapability(ColorableCapability.class).getColor();
         IExtent extent = paintProps.getView().getExtent();
         double scale[] = getScale(paintProps);
-        double[] loc = descriptor.worldToPixel(new double[] {
-                record.getLongitude(), record.getLatitude() });
+        double[] loc = descriptor.worldToPixel(
+                new double[] { record.getLongitude(), record.getLatitude() });
 
         double maxX = extent.getMaxX();
         double minX = extent.getMinX();
@@ -284,8 +274,8 @@ public class VAAResource extends
         minY = minY > 19999 ? 19999 : minY;
 
         PixelExtent correctedExtent = new PixelExtent(minX, maxX, minY, maxY);
-        target.clearClippingPlane();
-        if (correctedExtent.contains(loc)) {
+        if (correctedExtent.contains(loc)
+                && paintProps.getClippingPane().contains(loc)) {
             IImage image = symbolLoader.getImage(target, color, VOLCANO_SYMBOL);
             if (image != null) {
                 Coordinate ul = new Coordinate(loc[0], loc[1] - 6 * scale[1]);
@@ -298,36 +288,70 @@ public class VAAResource extends
                 target.drawRaster(image, imageExtent, paintProps);
                 DrawableString string = new DrawableString(volcanoName, color);
                 string.font = font;
-                string.setCoordinates(loc[0] + 30, loc[1]);
+                string.setCoordinates(loc[0] + 5 * scale[0], loc[1]);
                 string.verticalAlignment = VerticalAlignment.MIDDLE;
                 target.drawStrings(string);
             }
 
-            for (VAASubPart subPart : record.getSubParts()) {
-                if (subPart.getSubText() != null
-                        && subPart.getSubText().equals(ANAL00)) {
-                    Coordinate[] coordinates = CommonUtil
-                            .getCoordinates(subPart.getLocations());
-                    IWireframeShape shape = target.createWireframeShape(false,
-                            descriptor);
-                    shape.addLineSegment(coordinates);
-                    target.drawWireframeShape(shape, color, 0.5f);
-                    shape.dispose();
+            IWireframeShape shape;
+            synchronized (shapeMap) {
+                shape = shapeMap.get(record);
+                if (shape == null) {
+                    for (VAASubPart subPart : record.getSubParts()) {
+                        String subText = subPart.getSubText();
+                        if (subText != null && subText.equals(ANAL00)) {
+                            if (shape == null) {
+                                // Only create it if we find an ANAL00 subPart
+                                shape = target.createWireframeShape(false,
+                                        descriptor);
+                                shapeMap.put(record, shape);
+                            }
+                            Coordinate[] coordinates = CommonUtil
+                                    .getCoordinates(subPart.getLocations());
+                            shape.addLineSegment(coordinates);
+                        }
+                    }
                 }
             }
+
+            if (shape != null) {
+                target.drawWireframeShape(shape, color, 0.5f);
+            }
         } else {
-            double x = correctedExtent.getMinX();
+            target.clearClippingPlane();
+            double x = paintProps.getView().getExtent().getMinX();
             double y = correctedExtent.getMaxY()
-                    - (inset * paintProps.getZoomLevel());
+                    - inset * paintProps.getZoomLevel();
             String message = "Volcano " + volcanoName + " is off-screen";
             DrawableString string = new DrawableString(message, color);
             string.font = font;
             string.setCoordinates(x, y);
             string.verticalAlignment = VerticalAlignment.MIDDLE;
             target.drawStrings(string);
+            target.setupClippingPlane(paintProps.getClippingPane());
         }
-        target.setupClippingPlane(paintProps.getView().getExtent());
+    }
 
+    @Override
+    public void resourceDataChanged(ChangeType type, Object object) {
+        if (type == ChangeType.DATA_UPDATE) {
+            PluginDataObject[] pdo = (PluginDataObject[]) object;
+            for (PluginDataObject p : pdo) {
+                if (p instanceof VAARecord) {
+                    addRecord((VAARecord) p);
+                }
+            }
+        } else if (type == ChangeType.CAPABILITY) {
+            if (object instanceof MagnificationCapability) {
+                int mag = ((MagnificationCapability) object).getMagnification()
+                        .intValue();
+                double newPlotWidth = actualPlotWidth * mag;
+                if (plotWidth != newPlotWidth) {
+                    plotWidth = newPlotWidth;
+                }
+            }
+        }
+        issueRefresh();
     }
 
     @Override
@@ -335,6 +359,17 @@ public class VAAResource extends
         if (font != null) {
             font.dispose();
             font = null;
+        }
+
+        disposeShapes();
+    }
+
+    private void disposeShapes() {
+        synchronized (shapeMap) {
+            for (IWireframeShape shape : shapeMap.values()) {
+                shape.dispose();
+            }
+            shapeMap.clear();
         }
     }
 
@@ -355,7 +390,7 @@ public class VAAResource extends
     /**
      * Determine the appropriate scale to use on both axis for constant sized
      * objects
-     * 
+     *
      * @param paintProps
      * @return
      */
@@ -370,7 +405,7 @@ public class VAAResource extends
 
     /**
      * Parses the volcano name from the stationId
-     * 
+     *
      * @param stationId
      * @return volcano name
      */
@@ -387,5 +422,11 @@ public class VAAResource extends
             }
         }
         return returnValue;
+    }
+
+    @Override
+    public void project(CoordinateReferenceSystem crs) throws VizException {
+        disposeShapes();
+        issueRefresh();
     }
 }

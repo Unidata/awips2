@@ -29,13 +29,9 @@ import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.ITableLabelProvider;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 
@@ -52,12 +48,12 @@ import com.raytheon.uf.viz.points.ui.dialog.TriStateCellEditor.STATE;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 31, 2012 #875       rferrel     Initial creation
+ * Jul 31, 2012  875       rferrel     Initial creation
+ * Apr 18, 2017  6237      njensen     Use gif icons for checkboxes
  * 
  * </pre>
  * 
  * @author rferrel
- * @version 1.0
  */
 public class PointTreeLabelProvider implements ITableLabelProvider,
         ILabelProvider, IFontProvider {
@@ -85,7 +81,7 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
     Shell shell;
 
     public PointTreeLabelProvider() {
-        listeners = new ArrayList<ILabelProviderListener>();
+        listeners = new ArrayList<>();
         shell = Display.getCurrent().getActiveShell();
 
         // The FontRegistry will dispose of the font.
@@ -94,49 +90,22 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
         imageReg = new ImageRegistry();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.IBaseLabelProvider#addListener(org.eclipse.
-     * jface.viewers.ILabelProviderListener)
-     */
     @Override
     public void addListener(ILabelProviderListener listener) {
         listeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.IBaseLabelProvider#isLabelProperty(java.lang
-     * .Object, java.lang.String)
-     */
     @Override
     public boolean isLabelProperty(Object element, String property) {
         return false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.IBaseLabelProvider#removeListener(org.eclipse
-     * .jface.viewers.ILabelProviderListener)
-     */
     @Override
     public void removeListener(ILabelProviderListener listener) {
         listeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang
-     * .Object, int)
-     */
+    @Override
     public Image getColumnImage(Object element, int columnIndex) {
         if (Activator.getDefault() == null) {
             return null;
@@ -160,11 +129,9 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
                 break;
             case FALSE:
                 key = STATE.UNSELECTED;
-                ;
                 break;
             case UNKNOWN:
                 key = STATE.GRAYED;
-                ;
                 break;
             default:
                 Assert.isTrue(false);
@@ -177,7 +144,6 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
                 break;
             case FALSE:
                 key = STATE.UNSELECTED;
-                ;
                 break;
             case UNKNOWN:
                 key = STATE.GRAYED;
@@ -201,61 +167,24 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
         return image;
     }
 
+    /*
+     * TODO: The current implementation is using images in the plugin to provide
+     * the checkboxes on the table. These images were captured from a Linux
+     * theme and reused, therefore the PointsMgrDialog is not truly cross
+     * platform. It will not have the native look of other operating systems or
+     * themes. It should be possible to rewrite the PointsMgrDialog to use a
+     * TableEditor to create the same appearance of the dialog while using SWT
+     * Button widgets to make tri-state checkboxes and achieve native rendering.
+     */
     private Image createImage(Object key) {
-        Image image = null;
-        if (key instanceof STATE) {
-            image = makeImage((STATE) key);
-        } else {
-            image = PointUtils.getImage(key.toString());
-        }
-        return image;
-    }
-
-    private Image makeImage(STATE state) {
-        Shell s = new Shell(shell, SWT.NO_TRIM);
-        Button b = new Button(s, SWT.CHECK);
-        Point bsize = b.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-        b.setSize(bsize);
-        b.setLocation(0, 0);
-        s.setSize(bsize);
-        b.setBackground(imageBackground);
-        switch (state) {
-        case SELECTED:
-            b.setSelection(true);
-            b.setGrayed(false);
-            break;
-        case UNSELECTED:
-            b.setSelection(false);
-            b.setGrayed(false);
-            break;
-        case GRAYED:
-            b.setSelection(true);
-            b.setGrayed(true);
-            break;
-        default:
-            Assert.isTrue(false);
-        }
-        s.open();
-
-        GC gc = new GC(b);
-        Image image = new Image(shell.getDisplay(), bsize.x, bsize.y);
-        gc.copyArea(image, 0, 0);
-        gc.dispose();
-        s.close();
-        return image;
+        return PointUtils.getImage(key.toString());
     }
 
     public void setImageBackground(Color color) {
         imageBackground = color;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.ITableLabelProvider#getColumnText(java.lang
-     * .Object, int)
-     */
+    @Override
     public String getColumnText(Object element, int columnIndex) {
         IPointNode node = (IPointNode) element;
         String text = null;
@@ -305,21 +234,11 @@ public class PointTreeLabelProvider implements ITableLabelProvider,
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.viewers.ILabelProvider#getImage(java.lang.Object)
-     */
     @Override
     public Image getImage(Object element) {
         return getColumnImage(element, 0);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.viewers.ILabelProvider#getText(java.lang.Object)
-     */
     @Override
     public String getText(Object element) {
         return getColumnText(element, 0);

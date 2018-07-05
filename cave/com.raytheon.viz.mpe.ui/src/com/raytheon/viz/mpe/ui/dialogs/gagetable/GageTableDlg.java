@@ -23,9 +23,6 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -33,10 +30,9 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.io.File;
-import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,6 +71,8 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.xml.bind.JAXB;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.ui.PlatformUI;
 
@@ -115,13 +113,21 @@ import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
  * Jan 13, 2016 18092      snaples    Updated to have column adjustment by drag and drop.
  * Mar 10, 2016 18707       lbousaidi  revised the sorting so it doesn't always resort using LID
  * Mar 14, 2016 5467       bkowal     Replace deprecated localization file usage.
- * 
  * Mar 14, 2016 18723      snaples    Added prodContains method and updated columnselector to not allow use of any
  *                                    product that is not in the mpe_generate_list for Diff compare.
+ * Feb 21, 2017 6036       lvenable   Fixed spacing issues and removed the complex GridBag layout to use the
+ *                                    BorderLayout to simplify the code.
+ * Mar 01, 2017 6158       mpduff     Changed how sorting works.
+ * Mar 06, 2017 6144       mpduff     Fixed bug with undoing edits.
+ * May 12, 2017 6283       bkowal     Restored and correctly implemented column selection.
+ * May 18, 2017 6283       bkowal     Reset the selected columns in the {@link GageTableProductManager}
+ *                                    instance when the settings are read.
+ * Jun 22, 2017 6158       mpduff     Set sort settings on startup.
+ * Jul 14, 2017 6358       mpduff      Changed how settings are handled.
+ * Aug 07, 2017 6240       mpduff      Fix merge issues.
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
 public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
@@ -202,12 +208,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
      */
     private boolean ascending = true;
 
-    int sortColumnIndex = 0;
-
-    /**
-     * List of non-data columns.
-     */
-    private final List<String> baseColumns = new ArrayList<String>();
+    private int sortColumnIndex = 0;
 
     private JScrollPane scrollPane = null;
 
@@ -216,7 +217,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     /**
      * HashMap of edited gages.
      */
-    private final Map<String, GageTableRowData> editMap = new HashMap<String, GageTableRowData>();
+    private final Map<String, GageTableRowData> editMap = new HashMap<>();
 
     private MPEDisplayManager displayManager;
 
@@ -239,27 +240,17 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
 
         selectedGrid = appsDefaults.getToken("mpe_selected_grid_gagediff");
 
-        // Get a list of non-data column names
-        for (String colName : GageTableConstants.BASE_COLUMNS) {
-            baseColumns.add(colName);
-        }
         dataManager = GageTableDataManager.getInstance();
-
     }
 
     /**
      * Open the dialog.
      */
     public void open() {
-
-        readSettingsFile();
-
         displayManager = MPEDisplayManager.getCurrent();
         currentDate = displayManager.getCurrentEditDate();
 
         dataManager.setSelectedGrid(selectedGrid);
-
-        columnData = dataManager.getColumnDataList();
 
         /* Set the title bar */
         StringBuilder dateDisplayString = new StringBuilder();
@@ -278,11 +269,12 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
             }
         });
 
-        setPreferredSize(new Dimension(750, 500));
-        setMinimumSize(new Dimension(750, 500));
+        initialTableSort();
+
         pack();
 
-        sortTable();
+        setMinimumSize(
+                new Dimension(this.getBounds().width, this.getBounds().height));
 
         /*
          * Get the bounds of this window and calculate the location so it's
@@ -298,53 +290,26 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     /**
      * Sort the table.
      */
-    private void sortTable() {
-        // Sort the columns based on the settings
-        int one = -999;
-        int two = -999;
-        int three = -999;
-        int four = -999;
-        boolean oneAscending = false;
-        boolean twoAscending = false;
-        boolean threeAscending = false;
-        boolean fourAscending = false;
-
-        for (int i = 0; i < columnData.size(); i++) {
-
-            // First get the column sort order
-            GageTableColumn col = columnData.get(i);
-            if (col.getSortOrder() != -999) {
-                if (col.getSortOrder() == 0) {
-                    one = i;
-                    oneAscending = col.isAscending();
-                } else if (col.getSortOrder() == 1) {
-                    two = i;
-                    twoAscending = col.isAscending();
-                } else if (col.getSortOrder() == 2) {
-                    three = i;
-                    threeAscending = col.isAscending();
-                } else if (col.getSortOrder() == 3) {
-                    four = i;
-                    fourAscending = col.isAscending();
-                }
-            }
+    private void initialTableSort() {
+        GageTableSortSettings sortSettings = dataManager.getSortSettings();
+        List<String> columns = dataManager.getColumns();
+        if (sortSettings == null) {
+            sortSettings = new GageTableSortSettings();
         }
 
-        // sort the columns in order
-        if (four != -999) {
-            sortColumn(four, fourAscending);
-        }
+        List<String> sortColumns = sortSettings.getSortColumns();
+        List<String> copySortColumns = new ArrayList<>(sortColumns.size());
 
-        if (three != -999) {
-            sortColumn(three, threeAscending);
+        /*
+         * Need to copy and reverse the column sort order to replicate clicking
+         * the columns
+         */
+        for (int i = sortColumns.size() - 1; i >= 0; i--) {
+            copySortColumns.add(sortColumns.get(i));
         }
-
-        if (two != -999) {
-            sortColumn(two, twoAscending);
-        }
-
-        if (one != -999) {
-            sortColumn(one, oneAscending);
+        for (String colName : copySortColumns) {
+            boolean ascending = sortSettings.getSortDirections().get(colName);
+            sortColumn(columns.indexOf(colName), ascending);
         }
     }
 
@@ -358,7 +323,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
      */
     private void sortColumn(int index, boolean ascending) {
         GageTableDataManager dataManager = GageTableDataManager.getInstance();
-        GageTableSortSettings columnSettings = dataManager.getColumnSettings();
+        GageTableSortSettings columnSettings = dataManager.getSortSettings();
 
         if (columnSettings == null) {
             columnSettings = new GageTableSortSettings();
@@ -369,9 +334,9 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
 
         columnSettings = setSortColumns(columnSettings, vColIndex, ascending);
 
-        dataManager.setColumnSettings(columnSettings);
+        dataManager.setSortSettings(columnSettings);
 
-        sortAllRowsBy(tableModel, vColIndex, ascending);
+        sortAllRowsBy(table.getColumnModel(), vColIndex, ascending);
     }
 
     /**
@@ -379,7 +344,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
      */
     private void initializeComponents() {
         Container container = getContentPane();
-        container.setLayout(new GridBagLayout());
+        container.setLayout(new BorderLayout(10, 10));
 
         createFileMenu();
         createTopPanel(container);
@@ -402,6 +367,10 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
 
         JMenu fileMenu = new JMenu("File");
         fileMenu.setMnemonic('F');
+        JMenuItem columnSelectionMenuItem = new JMenuItem("Column Selection");
+        columnSelectionMenuItem.setMnemonic('C');
+        fileMenu.add(columnSelectionMenuItem);
+
         JMenuItem refreshMenuItem = new JMenuItem("Refresh");
         refreshMenuItem.setMnemonic('R');
         fileMenu.add(refreshMenuItem);
@@ -409,6 +378,9 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         JMenuItem saveSettingsMenuItem = new JMenuItem("Save Settings");
         saveSettingsMenuItem.setMnemonic('S');
         fileMenu.add(saveSettingsMenuItem);
+
+        columnSelectionMenuItem
+                .addActionListener(new ChangeColumnsDisplayedMenuListener());
 
         RefreshMenuListener RefreshMenuListener = new RefreshMenuListener();
         refreshMenuItem.addActionListener(RefreshMenuListener);
@@ -424,46 +396,31 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
 
     /**
      * Create the search text field and the grid selection combo box.
+     * 
+     * @param container
+     *            JPanel with a BorderLayout.
      */
     private void createTopPanel(Container container) {
-        searchTextField = new JTextField(5);
-        JPanel searchPanel = new JPanel();
-        JPanel gridPanel = new JPanel();
+        JPanel boxPanel = new JPanel();
+        boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.X_AXIS));
+
         JLabel searchLabel = new JLabel("Search for LID: ");
-        GridBagConstraints constraints = new GridBagConstraints();
+        searchTextField = new JTextField(5);
+        searchTextField.setMaximumSize(searchTextField.getPreferredSize());
 
         searchTextField.addKeyListener(new KeyActionListener());
 
-        // Create horizontal box container
-        Box box = new Box(BoxLayout.X_AXIS);
+        boxPanel.add(searchLabel);
+        boxPanel.add(searchTextField);
+        boxPanel.add(Box.createHorizontalStrut(30));
+        boxPanel.add(Box.createHorizontalGlue());
 
-        box.add(searchPanel);
-        searchPanel.add(searchLabel, BorderLayout.CENTER);
-        searchPanel.add(searchTextField, BorderLayout.CENTER);
-        searchPanel.setMinimumSize(new Dimension(170, 35));
-        searchPanel.setPreferredSize(new Dimension(170, 50));
-        searchPanel.setMaximumSize(new Dimension(170, 50));
+        JLabel gridLabel = new JLabel(
+                "Select Grid Field Compared With Gage:  ");
+        boxPanel.add(gridLabel);
+        boxPanel.add(gridCombo);
 
-        JLabel gridLabel = new JLabel("Select Grid Field Compared With Gage:  ");
-        gridPanel.add(gridLabel);
-        gridPanel.add(gridCombo);
-        gridPanel.setMinimumSize(new Dimension(600, 35));
-        gridPanel.setPreferredSize(new Dimension(600, 50));
-
-        box.add(gridPanel);
-
-        constraints.anchor = GridBagConstraints.FIRST_LINE_START;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.insets = new Insets(5, 5, 0, 0);
-
-        constraints.weightx = 0.0;
-        constraints.weighty = 0.0;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.gridwidth = 2;
-        constraints.gridheight = 1;
-
-        container.add(box, constraints);
+        container.add(boxPanel, BorderLayout.NORTH);
     }
 
     /**
@@ -474,8 +431,8 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
      * difference of gagevalue-gridvalue will be displayed in the
      * "Diff (Gage - Grid)" colunm. The default field "Best Estimate QPE" will
      * be used as the grid field if 1) token mpe_selected_grid_gagediff is NOT
-     * set AND 2)the "Best Estimate
-     * QPE" field IS included in mpe_generate_list token. Otherwise, "No field
+     * set AND 2)the "Best Estimate QPE
+     * " field IS included in mpe_generate_list token. Otherwise, "No field
      * selected" will be highlighted in the combobox list
      */
     private void populateGridCombo() {
@@ -483,8 +440,8 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         gridCombo.removeActionListener(gridComboListener);
         if (selectedGrid == null) {
             for (int i = 0; i < columnData.size(); i++) {
-                if (columnData.get(i).getPrefix()
-                        .equalsIgnoreCase(GageTableProductManager.MPE_BESTQPE)) {
+                if (columnData.get(i).getPrefix().equalsIgnoreCase(
+                        GageTableProductManager.MPE_BESTQPE)) {
                     selectedGrid = "BESTQPE";
                     break;
                 }
@@ -494,10 +451,11 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         int gridSelectionIndex = 0;
         for (int i = 0; i < columnData.size(); i++) {
             if (columnData.get(i).isDataColumn()) {
-                if(prodContains(columnData.get(i))){
+                if (prodContains(columnData.get(i))) {
                     gridCombo.addItem(columnData.get(i).getName());
-                    if (selectedGrid.equalsIgnoreCase(columnData.get(i)
-                        .getProductDescriptor().getProductFilenamePrefix())) {
+                    if (selectedGrid.equalsIgnoreCase(
+                            columnData.get(i).getProductDescriptor()
+                                    .getProductFilenamePrefix())) {
                         gridComboSelection = gridSelectionIndex;
                     }
                     gridSelectionIndex++;
@@ -506,7 +464,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                 }
             }
         }
-        
+
         gridCombo.addActionListener(gridComboListener);
         gridCombo.setSelectedIndex(gridComboSelection);
     }
@@ -514,39 +472,32 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     // Check to see if product is available for compare (Diff)
     private boolean prodContains(GageTableColumn gageTableColumn) {
         GageTableProductManager prodMgr = GageTableProductManager.getInstance();
-        List<GageTableColumn> availColumns = prodMgr.getAvailableGageTableColumnList();
-        for(int i = 0; i < availColumns.size(); i++){
-            if(availColumns.get(i).getProductDescriptor().getProductFilenamePrefix()
-                    .equals((gageTableColumn.getProductDescriptor().getProductFilenamePrefix()))){
-                    return true;
+        List<GageTableColumn> availColumns = prodMgr
+                .getAvailableGageTableColumnList();
+        for (int i = 0; i < availColumns.size(); i++) {
+            if (availColumns.get(i).getProductDescriptor()
+                    .getProductFilenamePrefix()
+                    .equals((gageTableColumn.getProductDescriptor()
+                            .getProductFilenamePrefix()))) {
+                return true;
             }
         }
-        
+
         return false;
     }
+
+    /**
+     * Create the Save and Cancel buttons at the bottom of the dialog.
+     * 
+     * @param container
+     *            JPanel with the BorderLayout
+     */
     private void createButtons(Container container) {
         JButton saveButton = new JButton("Save");
         JButton cancelButton = new JButton("Cancel");
 
-        GridBagConstraints constraints = new GridBagConstraints();
-
-        constraints.anchor = GridBagConstraints.LAST_LINE_START;
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.insets = new Insets(5, 5, 5, 5);
-
-        constraints.weightx = 0.0;
-        constraints.weighty = 0.0;
-        constraints.gridx = 0;
-        constraints.gridy = 3;
-
-        constraints.gridwidth = 1;
-        constraints.gridheight = 1;
-
-        container.add(saveButton, constraints);
-
-        constraints.anchor = GridBagConstraints.EAST;
-        constraints.gridx = 1;
-        container.add(cancelButton, constraints);
+        JPanel boxPanel = new JPanel();
+        boxPanel.setLayout(new BoxLayout(boxPanel, BoxLayout.X_AXIS));
 
         saveButton.addActionListener(new ActionListener() {
             @Override
@@ -562,6 +513,12 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                 confirmation();
             }
         });
+
+        boxPanel.add(saveButton);
+        boxPanel.add(Box.createHorizontalGlue());
+        boxPanel.add(cancelButton);
+
+        container.add(boxPanel, BorderLayout.SOUTH);
     }
 
     /**
@@ -581,29 +538,27 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         if (close) {
             tableModel = null;
             setVisible(false);
-            GageTableDataManager.setNull();
             dispose();
         }
     }
 
     /**
      * Create the JTable.
+     * 
+     * @param container
+     *            JPanel with the BorderLayout
      */
     private void createJTable(Container container) {
         gageTablePanel = new JPanel(new CardLayout());
         table = null;
-        table = new JTable();
-        tableModel = new GageTableModel();
+        table = new GageJTable();
+        tableModel = new GageTableModel(this);
         table.setModel(tableModel);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
         JTableHeader header = table.getTableHeader();
         header.addMouseListener(new ColumnHeaderListener());
 
-        // Disable autoCreateColumnsFromModel otherwise all the column
-        // customizations
-        // and adjustments will be lost when the model data is sorted
-        table.setAutoCreateColumnsFromModel(false);
         table.setColumnSelectionAllowed(false);
         table.setRowSelectionAllowed(true);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -613,38 +568,12 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         JLabel renderer = ((JLabel) table.getDefaultRenderer(Object.class));
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
 
-        int columnCount = table.getModel().getColumnCount();
-
-        ColumnHeaderToolTips tips = new ColumnHeaderToolTips();
-
-        for (int i = 0; i < columnCount; i++) {
-            TableColumn col = table.getColumnModel().getColumn(i);
-            col.setHeaderRenderer(new GageTableHeaderCellRenderer());
-            col.setMinWidth(25);
-            GageTableColumn c = columnData.get(i);
-            col.setPreferredWidth(c.getWidth());
-            tips.setToolTip(col, c.getToolTipText());
-        }
-
-        header.addMouseMotionListener(tips);
         table.getModel().addTableModelListener(new GageTableModelListener());
 
         scrollPane = new JScrollPane(table);
         gageTablePanel.add(scrollPane);
 
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.anchor = GridBagConstraints.LINE_START;
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.insets = new Insets(5, 5, 5, 5);
-
-        constraints.weightx = 1.0;
-        constraints.weighty = 1.0;
-        constraints.gridx = 0;
-        constraints.gridy = 2;
-        constraints.gridwidth = 2;
-        constraints.gridheight = 1;
-
-        container.add(gageTablePanel, constraints);
+        container.add(gageTablePanel, BorderLayout.CENTER);
     }
 
     /**
@@ -658,11 +587,48 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
      * @param ascending
      *            True sorts ascending, descending if false
      */
-    public void sortAllRowsBy(GageTableModel model, int colIndex,
+    private void sortAllRowsBy(TableColumnModel model, int colIndex,
             boolean ascending) {
-        Vector<Vector<String>> data = model.getDataVector();
-        Collections.sort(data, new ColumnSorter(colIndex, ascending));
-        model.setDataVector(data);
+        TableColumn tc = model.getColumn(colIndex);
+        int modelIdx = tc.getModelIndex();
+        Vector<Vector<String>> data = this.tableModel.getDataVector();
+        Collections.sort(data, new ColumnSorter(modelIdx, ascending));
+        tableModel.setDataVector(data);
+    }
+
+    public void refreshSort() {
+        GageTableDataManager dataManager = GageTableDataManager.getInstance();
+
+        GageTableSortSettings sortSettings = dataManager.getSortSettings();
+        if (sortSettings == null
+                || CollectionUtils.isEmpty(sortSettings.getSortColumns())) {
+            /*
+             * Revert to the default sort based on the first column.
+             */
+            sortColumnIndex = 0;
+            ascending = true;
+            sortAllRowsBy(table.getColumnModel(), sortColumnIndex, ascending);
+        } else {
+            /*
+             * Need to resort by all of the selected columns in order.
+             */
+            for (String sortColumn : sortSettings.getSortColumns()) {
+                int columnIndex = tableModel.getColumns().indexOf(sortColumn);
+                if (columnIndex < 0) {
+                    /*
+                     * Should be unlikely assuming that cleanup of the sort
+                     * columns has been implemented properly and is in use.
+                     */
+                    throw new IllegalStateException("A specified sort column: "
+                            + sortColumn + " is not currently displayed.");
+                }
+                sortColumnIndex = columnIndex;
+                ascending = Boolean.TRUE.equals(
+                        sortSettings.getSortDirections().get(sortColumn));
+                sortAllRowsBy(table.getColumnModel(), sortColumnIndex,
+                        ascending);
+            }
+        }
     }
 
     /**
@@ -682,8 +648,10 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
 
         JViewport viewport = (JViewport) table.getParent();
 
-        // This rectangle is relative to the table where the
-        // northwest corner of cell (0,0) is always (0,0).
+        /*
+         * This rectangle is relative to the table where the northwest corner of
+         * cell (0,0) is always (0,0).
+         */
         java.awt.Rectangle rect = table.getCellRect(rowIndex, vColIndex, true);
 
         // Scroll the area into view
@@ -691,79 +659,82 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     }
 
     /**
-     * Read the settings XML file. There is a single file for the site.
+     * Launch the item selection dialog.
      */
-    private void readSettingsFile() {
-        IPathManager pm = PathManagerFactory.getPathManager();
+    private void launchItemSelectionDlg() {
+        GageTableProductManager manager = GageTableProductManager.getInstance();
         GageTableDataManager dataManager = GageTableDataManager.getInstance();
-        GageTableProductManager prodManager = GageTableProductManager
-                .getInstance();
-        Map<String, GageTableColumn> columnMap = prodManager
+
+        List<GageTableColumn> availableProductColumnList = new ArrayList<>();
+        Map<String, GageTableColumn> prodMap = manager
                 .getGageTableProductColumnMap();
 
-        List<GageTableColumn> columnDataList = new ArrayList<GageTableColumn>();
-        try {
-            String path = pm.getFile(
-                    pm.getContext(LocalizationType.COMMON_STATIC,
-                            LocalizationLevel.SITE),
-                    "hydro" + File.separatorChar
-                            + "MPEGageTableDisplaySettings.xml")
-                    .getAbsolutePath();
-            File f = new File(path);
-            GageTableSettings settings = null;
+        Set<String> keySet = prodMap.keySet();
 
-            if (f.exists()) {
-                settings = JAXB.unmarshal(f, GageTableSettings.class);
-            } else {
-                settings = getDefaultSettings();
-            }
-            List<GageTableColumnData> columnSettingList = settings.getColumn();
-            Map<String, Integer> columnWidthMap = dataManager
-                    .getColumnWidthMap();
+        Iterator<String> iter = keySet.iterator();
 
-            for (GageTableColumnData c : columnSettingList) {
-                GageTableColumn column = null;
-                if (prodManager.lookupProductPrefix(c.getName()) != null) {
-                    GageTableProductDescriptor prodDesc = columnMap.get(
-                            prodManager.lookupProductPrefix(c.getName()))
-                            .getProductDescriptor();
-                    column = new GageTableColumn(prodDesc);
-                    column.setName(prodDesc.getProductName());
-                    column.setToolTipText(prodDesc.getProductDescription());
-                } else {
-                    // Non-data column, doesn't have a product descriptor
-                    column = new GageTableColumn(null);
-                    column.setName(c.getName());
-
-                    if (column.getName().equalsIgnoreCase("LID")) {
-                        column.setToolTipText("Location ID");
-                    } else if (column.getName().startsWith("Diff")) {
-                        column.setToolTipText("Difference between Gage Value and Grid Data");
-                    } else {
-                        column.setToolTipText(column.getName());
-                    }
-                }
-                column.setWidth(c.getWidth().intValue());
-                columnWidthMap.put(column.getName(), column.getWidth());
-
-                if (c.getSort() != null) {
-                    column.setSortOrder(c.getSort().getOrder().intValue());
-                    column.setAscending(c.getSort().isAscending());
-                }
-                if (baseColumns.contains(column.getName())) {
-                    column.setDataColumn(false);
-                } else {
-                    column.setDataColumn(true);
-                }
-
-                columnDataList.add(column);
-            }
-
-            dataManager.setColumnDataList(columnDataList);
-            dataManager.setColumnWidthMap(columnWidthMap);
-        } catch (Exception e) {
-            statusHandler.error("Failed to load MPE Settings.", e);
+        while (iter.hasNext()) {
+            availableProductColumnList.add(prodMap.get(iter.next()));
         }
+
+        List<String> availableListItems = new ArrayList<>();
+
+        // Add the non-data columns
+        String[] baseColumns = GageTableConstants.BASE_COLUMNS;
+        for (String s : baseColumns) {
+            availableListItems.add(s);
+        }
+
+        for (GageTableColumn c : availableProductColumnList) {
+            GageTableProductDescriptor desc = c.getProductDescriptor();
+            availableListItems.add(desc.getProductName());
+        }
+
+        List<GageTableColumn> selectedProductColumnList = manager
+                .getSelectedColumns();
+
+        String[] selectedListItems = new String[selectedProductColumnList
+                .size()];
+        for (int i = 0; i < selectedProductColumnList.size(); i++) {
+            selectedListItems[i] = selectedProductColumnList.get(i).getName();
+        }
+
+        // Launch the dialog
+        ItemsSelectionDialog dlg = new ItemsSelectionDialog(this,
+                "Gage Table Column Selector",
+                availableListItems
+                        .toArray(new String[availableListItems.size()]),
+                selectedListItems);
+
+        // Get the selected columns for display
+        String[] selectedColumns = dlg.getSelectedItems();
+
+        Map<String, GageTableColumn> colMap = manager
+                .getGageTableProductColumnMap();
+        List<GageTableColumn> colList = new ArrayList<GageTableColumn>();
+
+        for (int i = 0; i < selectedColumns.length; i++) {
+            String value = selectedColumns[i];
+            if (colMap.get(manager.lookupProductPrefix(value)) == null) {
+                GageTableColumn c = new GageTableColumn(null);
+                c.setDataColumn(false);
+                c.setName(value);
+                colList.add(c);
+            } else {
+                GageTableColumn col = colMap
+                        .get(manager.lookupProductPrefix(value));
+                col.setName(value);
+                col.setPrefix(manager.lookupProductPrefix(value));
+                colList.add(col);
+            }
+        }
+
+        manager.setSelectedColumns(colList);
+        dataManager.updateVisibleColumns(colList);
+
+        // Fire event to notify listeners of changes
+        GageTableUpdateEvent event = new GageTableUpdateEvent(this, true);
+        manager.fireUpdateEvent(event);
     }
 
     /**
@@ -772,9 +743,9 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     private void saveSettings() {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext lc = pm.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.SITE);
+                LocalizationLevel.USER);
         ILocalizationFile newXmlFile = pm.getLocalizationFile(lc, "hydro"
-                + File.separator + "MPEGageTableDisplaySettings.xml");
+                + IPathManager.SEPARATOR + "MPEGageTableDisplaySettings.xml");
 
         try (SaveableOutputStream os = newXmlFile.openOutputStream()) {
             JAXB.marshal(getSettingsXML(), os);
@@ -782,41 +753,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         } catch (Exception e) {
             statusHandler.error("Failed to save MPE Settings.", e);
         }
-    }
-
-    /**
-     * Gets the default settings and creates a settings object.
-     * 
-     * @return GageTableSettings data
-     */
-    private GageTableSettings getDefaultSettings() {
-        GageTableSettings settings = null;
-        GageTableProductManager prodManager = GageTableProductManager
-                .getInstance();
-
-        settings = new GageTableSettings();
-
-        // Get the non-data columns
-        String[] baseColumns = GageTableConstants.BASE_COLUMNS;
-        for (String s : baseColumns) {
-            GageTableColumnData col = new GageTableColumnData();
-            col.setName(s);
-            col.setWidth(BigInteger.valueOf(GageTableConstants.DEFAULT_WIDTH));
-            settings.getColumn().add(col);
-        }
-
-        // Get the data columns defined in Apps_defaults
-        List<GageTableColumn> colList = prodManager
-                .getAvailableGageTableColumnList();
-
-        for (GageTableColumn tableCol : colList) {
-            GageTableColumnData col = new GageTableColumnData();
-            col.setName(tableCol.getName());
-            col.setWidth(BigInteger.valueOf(GageTableConstants.DEFAULT_WIDTH));
-            settings.getColumn().add(col);
-        }
-
-        return settings;
     }
 
     /**
@@ -829,89 +765,68 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         GageTableSettings settingsElement = new GageTableSettings();
 
         // Get the column info to save to the file
-        GageTableSortSettings settings = dataMan.getColumnSettings();
-        int sortCol1 = -999;
-        int sortCol2 = -999;
-        int sortCol3 = -999;
-        int sortCol4 = -999;
-
-        if (settings != null) {
-            sortCol1 = settings.getSortCol1Index();
-            sortCol2 = settings.getSortCol2Index();
-            sortCol3 = settings.getSortCol3Index();
-            sortCol4 = settings.getSortCol4Index();
-        }
-        // Remove duplicate sort columns
-        if (sortCol2 == sortCol1) {
-            sortCol2 = -999;
-        }
-
-        if ((sortCol3 == sortCol2) || (sortCol3 == sortCol1)) {
-            sortCol3 = -999;
-        }
-
-        if ((sortCol4 == sortCol3) || (sortCol4 == sortCol2)
-                || (sortCol4 == sortCol1)) {
-            sortCol4 = -999;
-        }
-
+        GageTableSortSettings settings = dataMan.getSortSettings();
+        List<String> sortColumns = settings.getSortColumns();
         Enumeration<TableColumn> colEnum = table.getColumnModel().getColumns();
-        int index = 0;
+
         while (colEnum.hasMoreElements()) {
             TableColumn col = colEnum.nextElement();
             GageTableColumnData data = new GageTableColumnData();
             data.setName((String) col.getHeaderValue());
-            data.setWidth(BigInteger.valueOf(col.getWidth()));
+            data.setWidth(java.math.BigInteger.valueOf(col.getWidth()));
 
-            if ((sortCol1 != -999) && (sortCol1 == index)) {
+            if (sortColumns.contains(col.getHeaderValue())) {
                 GageTableSortType sort = new GageTableSortType();
-                sort.setOrder(BigInteger.ZERO);
-                if (settings.getAscending1() == 1) {
-                    sort.setAscending(true);
-                } else {
-                    sort.setAscending(false);
-                }
-                data.setSort(sort);
-            }
-
-            if ((sortCol2 != -999) && (sortCol2 == index)) {
-                GageTableSortType sort = new GageTableSortType();
-                sort.setOrder(BigInteger.valueOf(1));
-                if (settings.getAscending2() == 1) {
-                    sort.setAscending(true);
-                } else {
-                    sort.setAscending(false);
-                }
-                data.setSort(sort);
-            }
-
-            if ((sortCol3 != -999) && (sortCol3 == index)) {
-                GageTableSortType sort = new GageTableSortType();
-                sort.setOrder(BigInteger.valueOf(2));
-                if (settings.getAscending3() == 1) {
-                    sort.setAscending(true);
-                } else {
-                    sort.setAscending(false);
-                }
-                data.setSort(sort);
-            }
-
-            if ((sortCol4 != -999) && (sortCol4 == index)) {
-                GageTableSortType sort = new GageTableSortType();
-                sort.setOrder(BigInteger.valueOf(3));
-                if (settings.getAscending4() == 1) {
-                    sort.setAscending(true);
-                } else {
-                    sort.setAscending(false);
-                }
+                int sortOrder = sortColumns.indexOf(col.getHeaderValue());
+                sort.setOrder(java.math.BigInteger.valueOf(sortOrder));
+                boolean ascending = settings.getSortDirections()
+                        .get(col.getHeaderValue());
+                sort.setAscending(ascending);
                 data.setSort(sort);
             }
 
             settingsElement.getColumn().add(data);
-            index++;
         }
 
         return settingsElement;
+    }
+
+    private class GageJTable extends JTable {
+
+        private static final long serialVersionUID = 5664094340115122252L;
+
+        @Override
+        public void createDefaultColumnsFromModel() {
+            columnData = dataManager.getColumnDataList();
+
+            super.createDefaultColumnsFromModel();
+
+            final int columnCount = getModel().getColumnCount();
+
+            ColumnHeaderToolTips tips = new ColumnHeaderToolTips();
+
+            for (int i = 0; i < columnCount; i++) {
+                TableColumn col = table.getColumnModel().getColumn(i);
+                col.setHeaderRenderer(new GageTableHeaderCellRenderer());
+                col.setMinWidth(25);
+                GageTableColumn c = columnData.get(i);
+                col.setPreferredWidth(c.getWidth());
+                tips.setToolTip(col, c.getToolTipText());
+                if (getTableHeader() != null) {
+                    final MouseMotionListener[] mouseListeners = getTableHeader()
+                            .getMouseMotionListeners();
+                    if (mouseListeners != null && mouseListeners.length > 0) {
+                        for (MouseMotionListener mouseListener : mouseListeners) {
+                            if (mouseListener instanceof ColumnHeaderToolTips) {
+                                getTableHeader().removeMouseMotionListener(
+                                        mouseListener);
+                            }
+                        }
+                    }
+                    getTableHeader().addMouseMotionListener(tips);
+                }
+            }
+        }
     }
 
     /**
@@ -927,12 +842,21 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     }
 
     /**
+     * Action listener for the Change Columns Menu item.
+     */
+    private class ChangeColumnsDisplayedMenuListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            launchItemSelectionDlg();
+        }
+    }
+
+    /**
      * Action listener for the Grid Combo Box.
      */
     private class GridComboListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-
             if (gridCombo.getSelectedItem() == null) {
                 return;
             }
@@ -949,8 +873,8 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                 if (prod != null) {
                     if (prod.getProductName().equalsIgnoreCase(
                             (String) gridCombo.getSelectedItem())) {
-                        dataManager.setSelectedGrid(prod
-                                .getProductFilenamePrefix());
+                        dataManager.setSelectedGrid(
+                                prod.getProductFilenamePrefix());
                         break;
                     }
                 }
@@ -961,7 +885,8 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
              */
             dataManager.setSelectedGridIndex(gridComboSelection);
             tableModel.refreshTable();
-            sortAllRowsBy(tableModel, sortColumnIndex, ascending);
+            TableColumnModel colModel = table.getColumnModel();
+            sortAllRowsBy(colModel, sortColumnIndex, ascending);
             gridCombo.setSelectedIndex(dataManager.getSelectedGridIndex());
         }
     }
@@ -969,7 +894,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     /**
      * Key listener for the search text field.
      */
-    public class KeyActionListener extends KeyAdapter {
+    private class KeyActionListener extends KeyAdapter {
         @Override
         public void keyPressed(KeyEvent evt) {
 
@@ -1000,16 +925,20 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     /**
      * Column header listener for catching mouse clicks when sorting.
      */
-    public class ColumnHeaderListener extends MouseAdapter {
+    private class ColumnHeaderListener extends MouseAdapter {
 
         @Override
         public void mouseClicked(MouseEvent evt) {
+            handleMouseClick(evt);
+        }
+
+        void handleMouseClick(MouseEvent evt) {
             if ((evt.getButton() == MouseEvent.BUTTON1)
                     || (evt.getButton() == MouseEvent.BUTTON3)) {
                 GageTableDataManager dataManager = GageTableDataManager
                         .getInstance();
                 GageTableSortSettings columnSettings = dataManager
-                        .getColumnSettings();
+                        .getSortSettings();
 
                 if (columnSettings == null) {
                     columnSettings = new GageTableSortSettings();
@@ -1021,7 +950,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
 
                 /* Sort the opposite way this time */
                 ascending = !ascending;
-
                 // The index of the column whose header was clicked
                 sortColumnIndex = colModel.getColumnIndexAtX(evt.getX());
 
@@ -1030,12 +958,13 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                     return;
                 }
 
-                columnSettings = setSortColumns(columnSettings,
-                        sortColumnIndex, ascending);
+                columnSettings = setSortColumns(columnSettings, sortColumnIndex,
+                        ascending);
 
-                dataManager.setColumnSettings(columnSettings);
+                dataManager.setSortSettings(columnSettings);
 
-                sortAllRowsBy(tableModel, sortColumnIndex, ascending);
+                sortAllRowsBy(table.getColumnModel(), sortColumnIndex,
+                        ascending);
             }
         }
     }
@@ -1043,7 +972,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     /**
      * This comparator is used to sort vectors of data.
      */
-    public class ColumnSorter implements Comparator<Vector<String>> {
+    private class ColumnSorter implements Comparator<Vector<String>> {
         int colIndex;
 
         boolean ascending;
@@ -1055,7 +984,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
 
         @Override
         public int compare(Vector<String> v1, Vector<String> v2) {
-
             String o1 = v1.get(colIndex);
             String o2 = v2.get(colIndex);
             int response = 0;
@@ -1084,6 +1012,18 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                             response = -1;
                         } else if (o2.toString().trim().equalsIgnoreCase("M")) {
                             response = 1;
+                        } else {
+                            // Values
+                            if (NumberUtils.isNumber(o1)
+                                    && NumberUtils.isNumber(o2)) {
+                                double d1 = Double.parseDouble(o1);
+                                double d2 = Double.parseDouble(o2);
+                                if (d1 > d2) {
+                                    response = 1;
+                                } else {
+                                    response = -1;
+                                }
+                            }
                         }
                     }
                 } else {
@@ -1095,6 +1035,18 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                             response = 1;
                         } else if (o2.toString().trim().equalsIgnoreCase("M")) {
                             response = -1;
+                        } else {
+                            // Values
+                            if (NumberUtils.isNumber(o1)
+                                    && NumberUtils.isNumber(o2)) {
+                                double d1 = Double.parseDouble(o1);
+                                double d2 = Double.parseDouble(o2);
+                                if (d1 > d2) {
+                                    response = -1;
+                                } else {
+                                    response = 1;
+                                }
+                            }
                         }
                     }
                 }
@@ -1107,7 +1059,7 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
     /**
      * Controls the column header tool tips.
      */
-    public class ColumnHeaderToolTips extends MouseMotionAdapter {
+    private class ColumnHeaderToolTips extends MouseMotionAdapter {
         // Current column whose tooltip is being displayed.
         TableColumn curCol;
 
@@ -1173,46 +1125,37 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
 
                     GageTableRowData rowData = rowDataList.get(cellRow);
                     for (GageTableRowData row : rowDataList) {
-                        if (row.getGageData()
-                                .getId()
-                                .equalsIgnoreCase(
-                                        (String) tableModel.getValueAt(cellRow,
-                                                0))) {
+                        if (row.getGageData().getId().equalsIgnoreCase(
+                                (String) tableModel.getValueAt(cellRow, 0))) {
                             rowData = row;
                             break;
                         }
                     }
 
-                    // Update the edited row.
-                    // The custom cell editor makes sure that the value is
-                    // either a real number
-                    // or 'm' or 'M' or "".
-                    if (newValue.equals("")) {
+                    /*
+                     * Update the edited row. The custom cell editor makes sure
+                     * that the value is either a real number or 'm' or 'M' or
+                     * "".
+                     */
+
+                    if (newValue.isEmpty()) {
                         rowData.setValueEdited(false);
+                        editMap.remove(
+                                tableModel.getValueAt(e.getFirstRow(), 0));
                     } else {
                         if (newValue.equalsIgnoreCase("m")) {
                             rowData.setEditValue(-999.0);
                         } else {
-                            rowData.setEditValue(new Float(newValue)
-                                    .floatValue());
+                            rowData.setEditValue(
+                                    new Float(newValue).floatValue());
                         }
                         rowData.setValueEdited(true);
+                        int indexOf = rowDataList.indexOf(rowData);
+                        rowDataList.set(indexOf, rowData);
+                        editMap.put((String) tableModel
+                                .getValueAt(e.getFirstRow(), 0), rowData);
+                        dataChanged = true;
                     }
-                    int indexOf = rowDataList.indexOf(rowData);
-                    rowDataList.set(indexOf, rowData);
-                    editMap.put(
-                            (String) tableModel.getValueAt(e.getFirstRow(), 0),
-                            rowData);
-                    dataChanged = true;
-                }
-
-            } else {
-                Enumeration<TableColumn> colEnum = table.getColumnModel()
-                        .getColumns();
-                for (; colEnum.hasMoreElements();) {
-                    TableColumn tableColumn = colEnum.nextElement();
-                    tableColumn
-                            .setHeaderRenderer(new GageTableHeaderCellRenderer());
                 }
             }
         }
@@ -1231,14 +1174,14 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
                 String lid = iter.next();
                 MPEGageData gageData = editMap.get(lid).getGageData();
                 if (gageData.getId().startsWith("PSEUDO")) {
-                    gageData.setEdit(String.valueOf(editMap.get(lid)
-                            .getEditValue() * 25.4));
+                    gageData.setEdit(String
+                            .valueOf(editMap.get(lid).getEditValue() * 25.4));
                 } else {
                     if (editMap.get(lid).getEditValue() == -999) {
                         gageData.setEdit("M");
                     } else {
-                        gageData.setEdit(String.valueOf(editMap.get(lid)
-                                .getEditValue()));
+                        gageData.setEdit(String
+                                .valueOf(editMap.get(lid).getEditValue()));
                     }
                     gageData.setManedit(true);
                 }
@@ -1248,7 +1191,6 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
 
         setVisible(false);
         tableModel = null;
-        GageTableDataManager.setNull();
         dispose();
     }
 
@@ -1265,46 +1207,28 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
      *            The selected column index
      * @return
      */
-    private GageTableSortSettings setSortColumns(
-            GageTableSortSettings settings, int index, boolean ascending) {
+    private GageTableSortSettings setSortColumns(GageTableSortSettings settings,
+            int index, boolean ascending) {
+        TableColumnModel colModel = table.getColumnModel();
+        String colName = (String) colModel.getColumn(index).getHeaderValue();
 
-        int aPos = getSortClickPosition(settings, index);
-        if (4 == aPos || 0 == aPos) {
-
-            settings.setSortCol4Index(settings.getSortCol3Index());
-            settings.setSortCol3Index(settings.getSortCol2Index());
-            settings.setSortCol2Index(settings.getSortCol1Index());
-            settings.setSortCol1Index(index);
-        } else if (3 == aPos) {
-
-            settings.setSortCol3Index(settings.getSortCol2Index());
-            settings.setSortCol2Index(settings.getSortCol1Index());
-            settings.setSortCol1Index(index);
-
-        } else if (2 == aPos) {
-
-            settings.setSortCol2Index(settings.getSortCol1Index());
-            settings.setSortCol1Index(index);
-
+        settings.getSortDirections().put(colName, ascending);
+        List<String> sortCols = settings.getSortColumns();
+        if (sortCols.isEmpty()) {
+            sortCols.add(colName);
+            return settings;
         }
 
-        settings.setAscending4(settings.getAscending3());
-        settings.setAscending3(settings.getAscending2());
-        settings.setAscending2(settings.getAscending1());
-        if (ascending) {
-            settings.setAscending1(1);
-        } else {
-            settings.setAscending1(0);
-        }
+        if (!sortCols.get(0).equals(colName)) {
+            if (sortCols.contains(colName)) {
+                sortCols.remove(colName);
+            }
+            sortCols.add(0, colName);
+            if (sortCols.size() > 4) {
+                sortCols.remove(4);
+            }
 
-        if (settings.getSortCol1Index() == settings.getSortCol2Index()) {
-            settings.setSortCol3Index(settings.getSortCol2Index());
-            settings.setSortCol2Index(settings.getSortCol1Index());
-            settings.setAscending3(settings.getAscending2());
-            settings.setAscending2(settings.getAscending1());
-        } else if (settings.getSortCol1Index() == settings.getSortCol3Index()) {
-            settings.setSortCol3Index(settings.getSortCol2Index());
-            settings.setAscending3(settings.getAscending2());
+            settings.setSortColumns(sortCols);
         }
 
         return settings;
@@ -1328,57 +1252,14 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         // Fire event to notify listeners of changes
         GageTableUpdateEvent event = new GageTableUpdateEvent(this, true);
         GageTableProductManager.getInstance().fireUpdateEvent(event);
-        sortAllRowsBy(tableModel, sortColumnIndex, ascending);
+        sortAllRowsBy(table.getColumnModel(), sortColumnIndex, ascending);
     }
 
-    /**
-     * Get click position for sorting
-     * 
-     * @param settings
-     *            The GageTableColumnSettings
-     * @param index
-     *            The selected column index
-     * @return
-     * 
-     * 
-     **/
-    private int getSortClickPosition(GageTableSortSettings settings, int index) {
-
-        if (index == settings.getSortCol1Index()) {
-            return 1;
-        }
-
-        if (index == settings.getSortCol2Index()) {
-            return 2;
-        }
-
-        if (index == settings.getSortCol3Index()) {
-            return 3;
-        }
-
-        if (index == settings.getSortCol4Index()) {
-            return 4;
-        }
-        return 0;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.mpe.ui.IEditTimeChangedListener#editTimeChanged(java
-     * .util.Date, java.util.Date)
-     */
     @Override
     public void editTimeChanged(Date oldTime, Date newTime) {
         updateDate(newTime);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.awt.Window#dispose()
-     */
     @Override
     public void dispose() {
         if (displayManager != null) {
@@ -1386,5 +1267,4 @@ public class GageTableDlg extends JFrame implements IEditTimeChangedListener {
         }
         super.dispose();
     }
-
 }

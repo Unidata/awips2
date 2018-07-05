@@ -28,12 +28,12 @@ public enum ModelSources {
     ARW_WEST("ARWmodel2", "ARW West", "HiResW-ARW-West", false), //
     CANADIAN_NH("NO_VARIABLE_NEEDED", "Canadian-NH", "Canadian-NH", false), //
     CANADIAN_REG("NO_VARIABLE_NEEDED", "Canadian-Reg", "Canadian-Reg", false), //
-    DGEX("DGEXmodel", "DGEX", "DGEX185", true), //
+    DGEX("DGEXmodel", "DGEX", "DGEX", true), //
     ECMWF_HIRES("NO_VARIABLE_NEEDED", "ECMWF-HiRes", "ECMWF-HiRes", true), //
     GEM_NH("GEMNHmodel", "GEM-NHem", "Canadian-NH", false), //
     GEM_REG("GEMRegmodel", "GEM-Regional", "Canadian-Reg", false), //
-    GFS20("NO_VARIABLE_NEEDED", "GFS20", "GFS215", true), //
-    GFS40("NO_VARIABLE_NEEDED", "GFS40", "GFS212", true), //
+    GFS20("NO_VARIABLE_NEEDED", "GFS20", "GFS20", true), //
+    GFS40("NO_VARIABLE_NEEDED", "GFS40", "GFS40", true), //
     GFS_GLOBAL("GFSmodel", "GFS Global", "GFS229", true), //
     HRRR("NO_VARIABLE_NEEDED", "HRRR", "HRRR", true), //
     LAPS("NO_VARIABLE_NEEDED", "LAPS", "LAPS", true), //
@@ -45,9 +45,9 @@ public enum ModelSources {
     NAM_Nest("NAMNestmodel", "NAMNest 4km", "CR-NAMNest", false), //
     NMM_EAST("MMMmodel1", "HiResW-NMM-East", "HiResW-NMM-East", false), //
     NMM_WEST("MMMmodel2", "HiResW-NMM-West", "HiResW-NMM-West", false), //
-    RAP13("RAP13model", "RAP13", "RUC130", true), //
-    RAP40("RAPmodel", "RAP40", "RUC236", true), //
-    SREF("SREFmodel", "SREF", "SREF212", true);
+    RAP13("RAP13model", "RAP13", "RAP13", true), //
+    RAP40("RAPmodel", "RAP40", "RAP40", true), //
+    SREF("SREFmodel", "SREF", "SREF40", true);
 
     private String variableName = null;
 

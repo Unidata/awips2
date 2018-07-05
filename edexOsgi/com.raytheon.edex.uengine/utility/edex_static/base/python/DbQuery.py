@@ -18,7 +18,14 @@
 # further licensing information.
 ##
 
-from com.raytheon.edex.uengine.tasks.query import CatalogQuery
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Generalized query script for querying arbitrary rows out of any table in any database
@@ -33,6 +40,11 @@ from com.raytheon.edex.uengine.tasks.query import CatalogQuery
 #    08/07/08                      M. Duff        Added maxResults.
 #    
 # 
+
+
+
+from com.raytheon.edex.uengine.tasks.query import CatalogQuery
+
 
 class DbQuery():
     

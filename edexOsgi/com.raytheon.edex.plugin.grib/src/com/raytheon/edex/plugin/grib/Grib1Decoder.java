@@ -22,27 +22,13 @@ package com.raytheon.edex.plugin.grib;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import ucar.grib.NoValidGribException;
-import ucar.grib.NotSupportedException;
-import ucar.grib.grib1.Grib1BinaryDataSection;
-import ucar.grib.grib1.Grib1BitMapSection;
-import ucar.grib.grib1.Grib1Data;
-import ucar.grib.grib1.Grib1GDSVariables;
-import ucar.grib.grib1.Grib1GridDefinitionSection;
-import ucar.grib.grib1.Grib1Input;
-import ucar.grib.grib1.Grib1Pds;
-import ucar.grib.grib1.Grib1ProductDefinitionSection;
-import ucar.grib.grib1.Grib1Record;
-import ucar.grib.grib1.GribPDSParamTable;
-import ucar.grid.GridParameter;
-import ucar.unidata.io.RandomAccessFile;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
@@ -81,6 +67,26 @@ import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.common.util.GridUtil;
 import com.raytheon.uf.common.util.mapping.MultipleMappingException;
 
+import ucar.nc2.grib.GribData.InterpolationMethod;
+import ucar.nc2.grib.grib1.Grib1Gds;
+import ucar.nc2.grib.grib1.Grib1Gds.LambertConformal;
+import ucar.nc2.grib.grib1.Grib1Gds.LatLon;
+import ucar.nc2.grib.grib1.Grib1Gds.Mercator;
+import ucar.nc2.grib.grib1.Grib1Gds.PolarStereographic;
+import ucar.nc2.grib.grib1.Grib1ParamLevel;
+import ucar.nc2.grib.grib1.Grib1ParamTime;
+import ucar.nc2.grib.grib1.Grib1Parameter;
+import ucar.nc2.grib.grib1.Grib1Record;
+import ucar.nc2.grib.grib1.Grib1RecordScanner;
+import ucar.nc2.grib.grib1.Grib1SectionGridDefinition;
+import ucar.nc2.grib.grib1.Grib1SectionProductDefinition;
+import ucar.nc2.grib.grib1.tables.Grib1ParamTables;
+import ucar.nc2.time.CalendarDate;
+import ucar.nc2.time.CalendarPeriod.Field;
+import ucar.unidata.geoloc.Earth;
+import ucar.unidata.geoloc.EarthEllipsoid;
+import ucar.unidata.io.RandomAccessFile;
+
 /**
  * Grib decoder implementation for decoding grib version 1 files.
  * 
@@ -104,6 +110,7 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  *                                  filepath.
  * Apr 11, 2016  5564     bsteffen  Move localization files to common_static
  * Apr 19, 2016  5572     bsteffen  Move GribModelLookup to common
+ * Sep 11, 2017  6406     bsteffen  Upgrade ucar
  * 
  * 
  * </pre>
@@ -114,11 +121,30 @@ public class Grib1Decoder {
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Grib1Decoder.class);
 
+    /**
+     * http://www.nco.ncep.noaa.gov/pmb/docs/on388/tableb.html#FOS
+     * 
+     * Grib files using these coverages have an entire row of data that is
+     * located at the pole. Rather than sending the same value multiple times,
+     * they only send a single point. Since we must have a data value for each
+     * point, the value must be copied across the entire row.
+     */
+    private static Set<Integer> ROW_REDUCED_POLE_GIDS = new HashSet<>(
+            Arrays.asList(21, 22, 25, 61, 62));
+
+    /**
+     * @see ROW_REDUCED_POLE_GIDS
+     */
+    private static Set<Integer> COLUMN_REDUCED_POLE_GIDS = new HashSet<>(
+            Arrays.asList(23, 24, 26, 63, 64));
+
     /** Missing value string */
     private static final String MISSING = "Missing";
 
     /** Set of Time range types for accumulations and averages */
     private static final Set<Integer> AVG_ACCUM_LIST = new HashSet<>();
+
+    private static final Grib1ParamTables paramTables;
 
     static {
         AVG_ACCUM_LIST.add(3);
@@ -127,18 +153,24 @@ public class Grib1Decoder {
         AVG_ACCUM_LIST.add(7);
 
         IPathManager pm = PathManagerFactory.getPathManager();
-        String ucarUserFile = pm.getFile(
-                pm.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.BASE), "/grib/ucar/userTables.lst")
+        String ucarUserFile = pm
+                .getFile(
+                        pm.getContext(LocalizationType.COMMON_STATIC,
+                                LocalizationLevel.BASE),
+                        "/grib/ucar/userTables.lst")
                 .getPath();
+        Grib1ParamTables tables;
         try {
-            GribPDSParamTable.addParameterUserLookup(ucarUserFile);
+            Grib1ParamTables.Lookup lookup = new Grib1ParamTables.Lookup();
+            lookup.readLookupTable(ucarUserFile);
+            tables = new Grib1ParamTables(lookup, null);
         } catch (IOException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Error reading user parameter tables for ucar grib decoder",
-                            e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error reading user parameter tables for ucar grib decoder",
+                    e);
+            tables = new Grib1ParamTables(null, null);
         }
+        paramTables = tables;
     }
 
     /**
@@ -152,42 +184,44 @@ public class Grib1Decoder {
      */
     public GridRecord[] decode(GribDecodeMessage message) throws GribException {
         String fileName = message.getFileName();
-        RandomAccessFile raf = null;
-        try {
-            raf = new RandomAccessFile(fileName, "r");
+        try (RandomAccessFile raf = new RandomAccessFile(fileName, "r")) {
             raf.order(RandomAccessFile.BIG_ENDIAN);
             raf.seek(message.getStartPosition());
-            Grib1Input g1i = new Grib1Input(raf);
-            g1i.scan(false, true);
+            Grib1RecordScanner g1i = new Grib1RecordScanner(raf);
 
-            ArrayList<Grib1Record> records = g1i.getRecords();
             List<GridRecord> gribRecords = new ArrayList<>();
-            for (int i = 0; i < records.size(); i++) {
-                GridRecord rec = decodeRecord(records.get(i), raf, fileName);
+            while (g1i.hasNext()) {
+                Grib1Record grib1rec = g1i.next();
+                if (grib1rec == null) {
+                    /*
+                     * If the file is truncated or otherwise corrupt such that
+                     * the end section of the grib file is not found then the
+                     * scanner returns null despite the fact that hasNext()
+                     * returned true.
+                     */
+                    if (gribRecords.isEmpty()) {
+                        throw new GribException("Invalid grib1 message.");
+                    } else {
+                        /*
+                         * If some records were decoded, just log so they can be
+                         * processed normally.
+                         */
+                        statusHandler
+                                .error("Invalid grib1 message in " + fileName);
+                    }
+                }
+                GridRecord rec = decodeRecord(grib1rec, raf, fileName);
                 if (rec != null) {
                     gribRecords.add(rec);
                 }
             }
             return gribRecords.toArray(new GridRecord[] {});
         } catch (IOException e) {
-            throw new GribException("IO failure decoding grib1 file: ["
-                    + fileName + "]", e);
-        } catch (NoValidGribException e) {
             throw new GribException(
-                    "Invalid grib1 message: [" + fileName + "]", e);
+                    "IO failure decoding grib1 file: [" + fileName + "]", e);
         } catch (Exception e) {
-            throw new GribException("Unexpected error in grib1 file: ["
-                    + fileName + "]", e);
-        } finally {
-            if (raf != null) {
-                try {
-                    raf.close();
-                } catch (IOException e) {
-                    throw new GribException(
-                            "Failed to close RandomAccessFile for grib file: ["
-                                    + fileName + "]", e);
-                }
-            }
+            throw new GribException(
+                    "Unexpected error in grib1 file: [" + fileName + "]", e);
         }
     }
 
@@ -210,14 +244,13 @@ public class Grib1Decoder {
         GridRecord retVal = new GridRecord();
 
         // Extract the sections from the grib record
-        Grib1ProductDefinitionSection pds = rec.getPDS();
-        Grib1GridDefinitionSection gds = rec.getGDS();
-        Grib1Pds pdsVars = pds.getPdsVars();
-        Grib1GDSVariables gdsVars = gds.getGdsVars();
+        Grib1SectionProductDefinition pds = rec.getPDSsection();
+        Grib1SectionGridDefinition gds = rec.getGDSsection();
+        Grib1Gds gdsVars = gds.getGDS();
 
         // Initialize some common values
-        int centerid = pdsVars.getCenter();
-        int subcenterid = pdsVars.getSubCenter();
+        int centerid = pds.getCenter();
+        int subcenterid = pds.getSubCenter();
         String parameterAbbreviation = null;
         String parameterName = null;
         String parameterUnit = null;
@@ -225,7 +258,7 @@ public class Grib1Decoder {
         // Some centers use other center's parameter tables so we need to check
         // for that
         int[] tableValue = Grib1TableMap.getInstance().getTableAlias(centerid,
-                subcenterid, pdsVars.getParameterTableVersion());
+                subcenterid, pds.getTableVersion());
         int centerAlias = tableValue[0];
         int subcenterAlias = tableValue[1];
         int tableAlias = tableValue[2];
@@ -239,30 +272,30 @@ public class Grib1Decoder {
          */
         GribParameter parameter = GribTableLookup.getInstance()
                 .getGrib2Parameter(centerAlias, subcenterAlias, tableAlias,
-                        pdsVars.getParameterNumber());
+                        pds.getParameterNumber());
 
         if ((parameter == null) || parameter.getName().equals(MISSING)) {
-            try {
-                statusHandler
-                        .warn("Unable to map Grib 1 parameter to equivalent Grib 2 parameter for center ["
-                                + centerid
-                                + "] subcenter ["
-                                + subcenterid
-                                + "] table number ["
-                                + pdsVars.getParameterTableVersion()
-                                + "] parameter number ["
-                                + pdsVars.getParameterNumber()
-                                + "]  Using grib 1 parameter mapping");
-                GridParameter param = GribPDSParamTable.getParameterTable(
-                        centerid, subcenterid,
-                        pdsVars.getParameterTableVersion()).getParameter(
-                        pdsVars.getParameterNumber());
+            statusHandler
+                    .warn("Unable to map Grib 1 parameter to equivalent Grib 2 parameter for center ["
+                            + centerid + "] subcenter [" + subcenterid
+                            + "] table number [" + pds.getTableVersion()
+                            + "] parameter number [" + pds.getParameterNumber()
+                            + "]  Using grib 1 parameter mapping");
+            Grib1Parameter param = paramTables.getParameter(centerid,
+                    subcenterid, pds.getTableVersion(),
+                    pds.getParameterNumber());
+            if (param == null) {
+                param = paramTables.getParameter(centerAlias, subcenterAlias,
+                        tableAlias, pds.getParameterNumber());
+            }
+            if (param != null) {
                 parameterName = param.getDescription();
                 parameterAbbreviation = param.getName();
                 parameterUnit = param.getUnit();
-
-            } catch (NotSupportedException e) {
-                throw new GribException("Error getting grib 1 parameter", e);
+            } else {
+                parameterAbbreviation = MISSING;
+                parameterName = MISSING;
+                parameterUnit = MISSING;
             }
         } else {
             parameterName = parameter.getName();
@@ -275,14 +308,14 @@ public class Grib1Decoder {
         }
 
         // Gets the spatial information
-        int gridId = pdsVars.getGridId();
+        int gridId = pds.getGridDefinition();
 
         GridCoverage gridCoverage = null;
         if (gdsVars != null) {
             gridCoverage = getGridCoverage(gdsVars, gridId);
         } else {
-            gridCoverage = GribSpatialCache.getInstance().getGridByName(
-                    String.valueOf(gridId));
+            gridCoverage = GribSpatialCache.getInstance()
+                    .getGridByName(String.valueOf(gridId));
         }
 
         // Set up variables.
@@ -290,20 +323,25 @@ public class Grib1Decoder {
         int ny = new Integer(gridCoverage.getNy());
 
         retVal.setLocation(gridCoverage);
-        int genProcess = pdsVars.getGenProcessId();
+        int genProcess = pds.getGenProcess();
 
         retVal.addExtraAttribute("centerid", centerid);
         retVal.addExtraAttribute("subcenterid", subcenterid);
-        retVal.addExtraAttribute("genprocess", pdsVars.getGenProcessId());
+        retVal.addExtraAttribute("genprocess", pds.getGenProcess());
         retVal.addExtraAttribute("backGenprocess", 0);
 
-        // unidata does not handle isEnsemble call when
-        // octet size is less than 40.
-
-        if ((pdsVars.getLength() > 40) && pdsVars.isEnsemble()) {
-            // rcg: added code to get perturbation
-            int pos42 = pdsVars.getOctet(42);
-            int pos43 = pdsVars.getOctet(43);
+        if (pds.isEnsemble()) {
+            /*
+             * The pds methods getPerturbationType() and getPerturbationNumber()
+             * are not used because they perform additional mappings which do
+             * not give us the numbers we need for the GFS ensemble.
+             */
+            /*
+             * The variables are named after the grib positions which are
+             * 1-indexed, but retrieved from the array using 0-indexing.
+             */
+            int pos42 = pds.getRawBytes()[41];
+            int pos43 = pds.getRawBytes()[42];
             switch (pos42) {
             case 1:
                 retVal.setEnsembleId("ctl" + pos43);
@@ -312,7 +350,7 @@ public class Grib1Decoder {
                 retVal.setEnsembleId("n" + pos43);
                 break;
             case 3:
-                retVal.setEnsembleId("p" + pos43);
+                retVal.setEnsembleId("p" + (pos43));
                 break;
             case 4:
                 retVal.setEnsembleId("cls" + pos43);
@@ -330,35 +368,54 @@ public class Grib1Decoder {
                 gridCoverage, filePath));
 
         // Get the level information
+        Grib1ParamLevel paramLevel = new Grib1ParamLevel(null, pds);
         float[] levelMetadata = this.convertGrib1LevelInfo(
-                pdsVars.getLevelType1(), (float) pdsVars.getLevelValue1(),
-                (float) pdsVars.getLevelValue2());
+                paramLevel.getLevelType(), paramLevel.getValue1(),
+                paramLevel.getValue2());
         retVal.setLevel(getLevelInfo(centerid, subcenterid, levelMetadata[0],
                 levelMetadata[1], levelMetadata[2], levelMetadata[3],
                 levelMetadata[4], levelMetadata[5]));
 
         // Construct the DataTime
         GregorianCalendar refTime = new GregorianCalendar();
-        refTime.setTimeInMillis(pdsVars.getReferenceTime());
-        int forecastTime = convertToSeconds(pdsVars.getForecastTime(),
-                pdsVars.getTimeUnit());
-        int p1 = convertToSeconds(pdsVars.getP1(), pdsVars.getTimeUnit());
-        int p2 = convertToSeconds(pdsVars.getP2(), pdsVars.getTimeUnit());
-        DataTime dataTime = constructDataTime(
-                refTime,
-                forecastTime,
-                getTimeInformation(refTime, pdsVars.getTimeRangeIndicator(),
-                        p1, p2));
+        if (pds.getRawBytes()[15] >= 24) {
+            /*
+             * Byte 15 is the hour of the reference time and the ucar library
+             * only supports values 0-23 but we get data with a value of 24 (TP
+             * for QPE-RFC-STR). This data is probably invalid, but older
+             * versions of the decoder handled it so we must also handle it. The
+             * simplest way to handle it is to set the hour to 0 and then add 24
+             * hours to the resultant time.
+             */
+            byte[] rawPDS = pds.getRawBytes();
+            rawPDS = Arrays.copyOf(rawPDS, rawPDS.length);
+            int hours = rawPDS[15];
+            rawPDS[15] = 0;
+            CalendarDate refDate = new Grib1SectionProductDefinition(rawPDS)
+                    .getReferenceDate();
+            refDate = refDate.add(hours, Field.Hour);
+            refTime.setTimeInMillis(refDate.getMillis());
+        } else {
+            refTime.setTimeInMillis(pds.getReferenceDate().getMillis());
+        }
+        int p1 = convertToSeconds(pds.getTimeValue1(), pds.getTimeUnit());
+        int p2 = convertToSeconds(pds.getTimeValue2(), pds.getTimeUnit());
+        int forecastTime = convertToSeconds(
+                new Grib1ParamTime(null, pds).getForecastTime(),
+                pds.getTimeUnit());
+
+        DataTime dataTime = constructDataTime(refTime, forecastTime,
+                getTimeInformation(refTime, pds.getTimeRangeIndicator(), p1,
+                        p2));
 
         /*
          * Extract the data values from the file. The AVG_ACCUM_LIST is checked
          * to see if this is an accumulation or average grid being initialized.
          * A check is also made for thinned grids.
          */
-        Grib1Data gd = new Grib1Data(raf);
-        float[] data = null;
+        float[] data;
         try {
-            boolean bmsPresent = pdsVars.bmsExists();
+            boolean bmsPresent = pds.bmsExists();
             int scanMode;
             if (gdsVars != null) {
                 scanMode = gdsVars.getScanMode();
@@ -366,73 +423,81 @@ public class Grib1Decoder {
                 scanMode = gridCoverage.getScanMode();
             }
 
-            int timeRange = pdsVars.getTimeRangeIndicator();
+            int timeRange = pds.getTimeRangeIndicator();
 
             // Check for initialization of average or accumulation parameters
-            if ((AVG_ACCUM_LIST.contains(timeRange) && (dataTime
-                    .getValidPeriod().getDuration() == 0))) {
+            if ((AVG_ACCUM_LIST.contains(timeRange)
+                    && (dataTime.getValidPeriod().getDuration() == 0))) {
                 statusHandler.handle(Priority.EVENTA,
                         "Discarding empty accumulation grid");
                 return null;
-            } else if (((gdsVars != null) && gdsVars.isThin())
-                    || ((gdsVars == null) && ((gridCoverage instanceof LatLonGridCoverage) && ((LatLonGridCoverage) gridCoverage)
-                            .isThin()))) {
-                // Unfortunately the UCAR Decoder does Cubic Spline
-                // interpolation, however we want to do simpler linear
-                // interpolation like Awips 1.
-                raf.seek(rec.getDataOffset());
-                Grib1BitMapSection bms = null;
-                if (pdsVars.bmsExists()) {
-                    bms = new Grib1BitMapSection(raf);
-                }
-                if (gdsVars != null) {
-                    Grib1BinaryDataSection bds = new Grib1BinaryDataSection(
-                            raf, pdsVars.getDecimalScale(), bms,
-                            gdsVars.getScanMode(), gdsVars.getNx(),
-                            gdsVars.getNy());
-                    data = fillThinnedGrid(bds.getValues(),
-                            gdsVars.getParallels(), gdsVars.getNx(),
-                            gdsVars.getNy());
-                } else {
+            } else if (((gdsVars != null) && gdsVars.getNptsInLine() != null)
+                    || ((gdsVars == null)
+                            && ((gridCoverage instanceof LatLonGridCoverage)
+                                    && ((LatLonGridCoverage) gridCoverage)
+                                            .isThin()))) {
+                /*
+                 * A linear interpolation method is available but it is
+                 * different than fillThinnedGrid. The basic problem is
+                 * described in this bug:
+                 * https://github.com/Unidata/thredds/issues/82. That bug only
+                 * identifies the problem with cubicSpline interpolation, but
+                 * linear interpolation is making the same assumptions.
+                 * 
+                 * The problem is that the ucar interpolation method assumes the
+                 * data is cylindrical and it spaces the points evenly along the
+                 * cylinder, while fillThinedGrids only interpolates in the 2D
+                 * space of the grid.
+                 * 
+                 * For example if you have a row with only 2 data points then
+                 * fillThinnedGrid would place one point on the left and the
+                 * other on the right and the grid is filled by interpolating
+                 * between them. The ucar interpolation would place one point on
+                 * the left edge and the other in the center. The left half of
+                 * the data is generated by interpolating between the left edge
+                 * and the center. The right half the data is interpolated again
+                 * from the same two points. This makes sense if you picture the
+                 * grid folded into a cylinder because then the left edge is
+                 * right next to the right edge, so you can interpolate between
+                 * those points to fill the right half. If you have a worldwide
+                 * grid Lat/Lon then this treatment makes sense because the
+                 * projection is a cylinder.
+                 * 
+                 * We get thinned grids in "quadrant" form, using grids 37-44.
+                 * These grids are definitely not a cylinder so the ucar method
+                 * is wrong.
+                 */
+                data = rec.readDataRaw(raf, InterpolationMethod.none);
 
-                    Grib1BinaryDataSection bds = new Grib1BinaryDataSection(
-                            raf, pdsVars.getDecimalScale(), bms,
-                            gridCoverage.getScanMode(), nx, ny);
-                    data = fillThinnedGrid(bds.getValues(),
+                if (gdsVars != null) {
+                    data = fillThinnedGrid(data, gdsVars.getNptsInLine(),
+                            gdsVars.getNx(), gdsVars.getNy());
+                } else {
+                    data = fillThinnedGrid(data,
                             ((LatLonGridCoverage) gridCoverage).getParallels(),
                             nx, ny);
                 }
-
             } else {
-                if (gdsVars != null) {
-                    data = gd.getData(
-                            rec.getDataOffset() - gdsVars.getLength(),
-                            rec.getDataOffset(), pdsVars.getDecimalScale(),
-                            bmsPresent);
-                } else {
-                    data = gd.getData(rec.getDataOffset(),
-                            pdsVars.getDecimalScale(), bmsPresent);
-
-                    // Correct data count for pole data point.
-                    if ("row".equals(gridCoverage.getIncludePole())) {
-                        int newSize = nx * ny;
-                        float[] dataCopy = new float[newSize];
-                        for (int i = 0; i < dataCopy.length; i++) {
-                            if (i < data.length) {
-                                dataCopy[i] = data[i];
-                            }
+                data = rec.readData(raf);
+                // Correct data count for pole data point.
+                if (ROW_REDUCED_POLE_GIDS.contains(gridId)) {
+                    int newSize = nx * ny;
+                    float[] dataCopy = new float[newSize];
+                    for (int i = 0; i < dataCopy.length; i++) {
+                        if (i < data.length) {
+                            dataCopy[i] = data[i];
                         }
-                        data = dataCopy;
-                    } else if ("column".equals(gridCoverage.getIncludePole())) {
-                        int newSize = nx * ny;
-                        float[] dataCopy = new float[newSize];
-                        for (int i = 0; i < dataCopy.length; i++) {
-                            if (i < data.length) {
-                                dataCopy[i] = data[i];
-                            }
-                        }
-                        data = dataCopy;
                     }
+                    data = dataCopy;
+                } else if (COLUMN_REDUCED_POLE_GIDS.contains(gridId)) {
+                    int newSize = nx * ny;
+                    float[] dataCopy = new float[newSize];
+                    for (int i = 0; i < dataCopy.length; i++) {
+                        if (i < data.length) {
+                            dataCopy[i] = data[i];
+                        }
+                    }
+                    data = dataCopy;
                 }
 
             }
@@ -458,8 +523,8 @@ public class Grib1Decoder {
                 .getSubGridCoverage(modelName, gridCoverage);
 
         if (subCoverage != null) {
-            SubGrid subGrid = GribSpatialCache.getInstance().getSubGrid(
-                    modelName, gridCoverage);
+            SubGrid subGrid = GribSpatialCache.getInstance()
+                    .getSubGrid(modelName, gridCoverage);
             if ((subGrid.getNX() <= 0) || (subGrid.getNY() <= 0)) {
                 // subgrid does not cover enough of CWA
                 statusHandler.info("Discarding model [" + modelName
@@ -479,16 +544,16 @@ public class Grib1Decoder {
             retVal.setLocation(subCoverage);
         }
 
-        String newAbbr = GribParamTranslator.getInstance().translateParameter(
-                1, parameterAbbreviation, centerid, subcenterid, genProcess,
+        String newAbbr = GribParamTranslator.getInstance().translateParameter(1,
+                parameterAbbreviation, centerid, subcenterid, genProcess,
                 dataTime, gridCoverage);
 
         if (newAbbr == null) {
             if (!parameterName.equals(MISSING)
                     && (dataTime.getValidPeriod().getDuration() > 0)) {
-                parameterAbbreviation = parameterAbbreviation
-                        + String.valueOf(dataTime.getValidPeriod()
-                                .getDuration() / 3600000) + "hr";
+                parameterAbbreviation = parameterAbbreviation + String.valueOf(
+                        dataTime.getValidPeriod().getDuration() / 3_600_000)
+                        + "hr";
             }
         } else {
             parameterAbbreviation = newAbbr;
@@ -510,11 +575,6 @@ public class Grib1Decoder {
 
         retVal.setPersistenceTime(new Date());
         retVal.setDataTime(dataTime);
-        // if (gdsVars != null) {
-        // retVal.setResCompFlags(gdsVars.getResolution());
-        // } else {
-        // retVal.setResCompFlags(gridCoverage.getResolution());
-        // }
 
         // check if FLAG.FCST_USED needs to be removed
         checkForecastFlag(retVal.getDataTime(), centerid, subcenterid,
@@ -535,7 +595,8 @@ public class Grib1Decoder {
      *            The number of rows to map the data to
      * @return The 2-D array of data
      */
-    private float[][] resizeDataTo2D(float[] data, int columnCount, int rowCount) {
+    private float[][] resizeDataTo2D(float[] data, int columnCount,
+            int rowCount) {
         float[][] newGrid = new float[rowCount][columnCount];
 
         for (int row = 0; row < rowCount; row++) {
@@ -559,31 +620,40 @@ public class Grib1Decoder {
         for (int j = 0; j < ny; j++) {
             if (parallels[j] == 1) {
                 for (int i = 0; i < nx; i++) {
-                    outData[outIndex++] = inData[inIndex];
+                    outData[outIndex] = inData[inIndex];
+                    outIndex += 1;
                 }
                 inIndex++;
                 continue;
             }
             if (parallels[j] == nx) {
                 for (int i = 0; i < nx; i++) {
-                    outData[outIndex++] = inData[inIndex++];
+                    outData[outIndex] = inData[inIndex];
+                    outIndex += 1;
+                    inIndex += 1;
                 }
                 continue;
             }
             float trail = inData[inIndex];
             float dx = (parallels[j] - 1.0f) / (nx - 1.0f);
             float total = dx;
-            outData[outIndex++] = inData[inIndex++];
+            outData[outIndex] = inData[inIndex];
+            outIndex += 1;
+            inIndex += 1;
             for (int i = 2; i < nx; i++) {
                 if (total > 1) {
                     total -= 1;
-                    trail = inData[inIndex++];
+                    trail = inData[inIndex];
+                    inIndex += 1;
                 }
-                outData[outIndex++] = (inData[inIndex] * total)
+                outData[outIndex] = (inData[inIndex] * total)
                         + (trail * (1 - total));
+                outIndex += 1;
                 total += dx;
             }
-            outData[outIndex++] = inData[inIndex++];
+            outData[outIndex] = inData[inIndex];
+            outIndex += 1;
+            inIndex += 1;
         }
         return outData;
     }
@@ -599,7 +669,8 @@ public class Grib1Decoder {
      *            The number of columns in the 2-D data array
      * @return The 1-D array of data
      */
-    private float[] resizeDataTo1D(float[][] data, int rowCount, int columnCount) {
+    private float[] resizeDataTo1D(float[][] data, int rowCount,
+            int columnCount) {
         float[] newGrid = new float[rowCount * columnCount];
 
         for (int row = 0; row < rowCount; row++) {
@@ -691,7 +762,7 @@ public class Grib1Decoder {
             boolean bmsExists, int scanMode) {
         for (int i = 0; i < data.length; i++) {
             if (bmsExists && (data[i] == -9999)) {
-                data[i] = -999999;
+                data[i] = GridUtil.GRID_FILL_VALUE;
             }
         }
         switch (scanMode) {
@@ -767,129 +838,124 @@ public class Grib1Decoder {
      * @throws GribException
      *             If the spatial information cannot be determined correctly
      */
-    private GridCoverage getGridCoverage(Grib1GDSVariables gdsVars,
-            int gridNumber) throws GribException {
+    private GridCoverage getGridCoverage(Grib1Gds gdsVars, int gridNumber)
+            throws GribException {
         GridCoverage coverage = null;
 
-        int gridType = gdsVars.getGdtn();
-        switch (gridType) {
-        case 0: {
+        if (gdsVars instanceof LatLon) {
+            LatLon llVars = (LatLon) gdsVars;
             LatLonGridCoverage latLonCoverage = new LatLonGridCoverage();
             latLonCoverage.setNx(gdsVars.getNx());
             latLonCoverage.setNy(gdsVars.getNy());
-            double la1 = correctLat(gdsVars.getLa1());
-            double lo1 = correctLon(gdsVars.getLo1());
+            double la1 = correctLat(llVars.la1);
+            double lo1 = correctLon(llVars.lo1);
             latLonCoverage.setLa1(la1);
             latLonCoverage.setLo1(lo1);
-            if (gdsVars.getGridUnits().equals("degrees")) {
-                latLonCoverage.setSpacingUnit("degree");
-                latLonCoverage.setDx(gdsVars.getDx());
-                latLonCoverage.setDy(gdsVars.getDy());
-            } else {
-                latLonCoverage.setSpacingUnit("km");
-                latLonCoverage.setDx(gdsVars.getDx() / 1000);
-                latLonCoverage.setDy(gdsVars.getDy() / 1000);
-            }
+            latLonCoverage.setSpacingUnit("degree");
+            latLonCoverage.setDx(gdsVars.getDx());
+            latLonCoverage.setDy(gdsVars.getDy());
+
             if (latLonCoverage.getDy() == -9999) {
                 latLonCoverage.setDy(latLonCoverage.getDx());
+            } else if (latLonCoverage.getDy() < 0) {
+                latLonCoverage.setDy(-1.0 * latLonCoverage.getDy());
             }
             latLonCoverage.setFirstGridPointCorner(GribSpatialCache
                     .determineFirstGridPointCorner(gdsVars.getScanMode()));
             coverage = getGridFromCache(latLonCoverage, gridNumber);
-            break;
-        }
-        case 1: {
+        } else if (gdsVars instanceof Mercator) {
+            Mercator mercVars = (Mercator) gdsVars;
             MercatorGridCoverage mercator = new MercatorGridCoverage();
-            mercator.setMajorAxis(gdsVars.getMajorAxis() * 1000);
-            mercator.setMinorAxis(gdsVars.getMinorAxis() * 1000);
+            Earth earth = null;
+            /* http://www.nco.ncep.noaa.gov/pmb/docs/on388/table7.html */
+            if (gdsVars.getEarthShape() == 0) {
+                earth = new Earth(6367470.0);
+            } else {
+                earth = EarthEllipsoid.IAU;
+            }
+            mercator.setMajorAxis(earth.getMajor() * 1000);
+            mercator.setMinorAxis(earth.getMinor() * 1000);
             mercator.setNx(gdsVars.getNx());
             mercator.setNy(gdsVars.getNy());
-            double la1 = correctLat(gdsVars.getLa1());
-            double la2 = correctLat(gdsVars.getLa2());
-            double lo1 = correctLon(gdsVars.getLo1());
-            double lo2 = correctLon(gdsVars.getLo2());
+            double la1 = correctLat(mercVars.la1);
+            double la2 = correctLat(mercVars.la2);
+            double lo1 = correctLon(mercVars.lo1);
+            double lo2 = correctLon(mercVars.lo2);
             mercator.setLa1(la1);
             mercator.setLo1(lo1);
             mercator.setLa2(la2);
             mercator.setLo2(lo2);
-            mercator.setLatin(correctLat(gdsVars.getLatin1()));
-            if (gdsVars.getGridUnits().equals("degrees")) {
-                mercator.setSpacingUnit("degree");
-                mercator.setDx(gdsVars.getDx());
-                mercator.setDy(gdsVars.getDy());
-            } else {
-                mercator.setSpacingUnit("km");
-                mercator.setDx(gdsVars.getDx() / 1000);
-                mercator.setDy(gdsVars.getDy() / 1000);
-            }
+            mercator.setLatin(correctLat(mercVars.latin));
+            mercator.setSpacingUnit("km");
+            mercator.setDx(gdsVars.getDx());
+            mercator.setDy(gdsVars.getDy());
             mercator.setFirstGridPointCorner(GribSpatialCache
                     .determineFirstGridPointCorner(gdsVars.getScanMode()));
             coverage = getGridFromCache(mercator, gridNumber);
-            break;
-        }
-        case 3: {
+        } else if (gdsVars instanceof LambertConformal) {
+            LambertConformal lcVars = (LambertConformal) gdsVars;
+
             LambertConformalGridCoverage lambert = new LambertConformalGridCoverage();
-            lambert.setMajorAxis(gdsVars.getMajorAxis() * 1000);
-            lambert.setMinorAxis(gdsVars.getMinorAxis() * 1000);
+            Earth earth = null;
+            /* http://www.nco.ncep.noaa.gov/pmb/docs/on388/table7.html */
+            if (gdsVars.getEarthShape() == 0) {
+                earth = new Earth(6367470.0);
+            } else {
+                earth = EarthEllipsoid.IAU;
+            }
+            lambert.setMajorAxis(earth.getMajor() * 1000);
+            lambert.setMinorAxis(earth.getMinor() * 1000);
             lambert.setNx(gdsVars.getNx());
             lambert.setNy(gdsVars.getNy());
-            double la1 = correctLat(gdsVars.getLa1());
-            double lo1 = correctLon(gdsVars.getLo1());
+            double la1 = correctLat(lcVars.la1);
+            double lo1 = correctLon(lcVars.lo1);
 
             lambert.setLa1(la1);
             lambert.setLo1(lo1);
-            lambert.setLatin1(correctLat(gdsVars.getLatin1()));
-            lambert.setLatin2(correctLat(gdsVars.getLatin2()));
-            lambert.setLov(correctLon(gdsVars.getLoV()));
-            if (gdsVars.getGridUnits().equals("degrees")) {
-                lambert.setSpacingUnit("degree");
-                lambert.setDx(gdsVars.getDx());
-                lambert.setDy(gdsVars.getDy());
-            } else {
-                lambert.setSpacingUnit("km");
-                lambert.setDx(gdsVars.getDx() / 1000);
-                lambert.setDy(gdsVars.getDy() / 1000);
-            }
+            lambert.setLatin1(correctLat(lcVars.latin1));
+            lambert.setLatin2(correctLat(lcVars.latin2));
+            lambert.setLov(correctLon(((LambertConformal) gdsVars).lov));
+
+            lambert.setSpacingUnit("km");
+            lambert.setDx(gdsVars.getDx());
+            lambert.setDy(gdsVars.getDy());
             lambert.setFirstGridPointCorner(GribSpatialCache
                     .determineFirstGridPointCorner(gdsVars.getScanMode()));
             coverage = getGridFromCache(lambert, gridNumber);
 
-            break;
-        }
-        case 5: {
+        } else if (gdsVars instanceof PolarStereographic) {
+            PolarStereographic psVars = (PolarStereographic) gdsVars;
+
             PolarStereoGridCoverage polar = new PolarStereoGridCoverage();
-            polar.setMajorAxis(gdsVars.getMajorAxis() * 1000);
-            polar.setMinorAxis(gdsVars.getMinorAxis() * 1000);
+            Earth earth = null;
+            /* http://www.nco.ncep.noaa.gov/pmb/docs/on388/table7.html */
+            if (gdsVars.getEarthShape() == 0) {
+                earth = new Earth(6367470.0);
+            } else {
+                earth = EarthEllipsoid.IAU;
+            }
+            polar.setMajorAxis(earth.getMajor() * 1000);
+            polar.setMinorAxis(earth.getMinor() * 1000);
             polar.setNx(gdsVars.getNx());
             polar.setNy(gdsVars.getNy());
-            double la1 = correctLat(gdsVars.getLa1());
-            double lo1 = correctLon(gdsVars.getLo1());
+            double la1 = correctLat(psVars.la1);
+            double lo1 = correctLon(psVars.lo1);
             polar.setLa1(la1);
             polar.setLo1(lo1);
-            polar.setLov(correctLon(gdsVars.getLoV()));
-            if (gdsVars.getProjectionFlag() == 0) {
+            polar.setLov(correctLon(psVars.lov));
+            if (psVars.projCenterFlag == 0) {
                 // 0 is north pole
                 polar.setLad(60);
             } else {
                 // 1 is south pole
                 polar.setLad(-60);
             }
-            if (gdsVars.getGridUnits().equals("degrees")) {
-                polar.setSpacingUnit("degree");
-                polar.setDx(gdsVars.getDx());
-                polar.setDy(gdsVars.getDy());
-            } else {
-                polar.setSpacingUnit("km");
-                polar.setDx(gdsVars.getDx() / 1000);
-                polar.setDy(gdsVars.getDy() / 1000);
-            }
+            polar.setSpacingUnit("km");
+            polar.setDx(gdsVars.getDx());
+            polar.setDy(gdsVars.getDy());
             polar.setFirstGridPointCorner(GribSpatialCache
                     .determineFirstGridPointCorner(gdsVars.getScanMode()));
             coverage = getGridFromCache(polar, gridNumber);
-            break;
-        }
-        default:
-            break;
         }
 
         return coverage;
@@ -918,8 +984,8 @@ public class Grib1Decoder {
             // This code exists because 3hr probability products contain an
             // invalid lambert conformal grid coverage, but a valid
             // gridNumber(236), so the previous lookup fails but this succeeds.
-            grid = GribSpatialCache.getInstance().getGridByName(
-                    String.valueOf(gridNumber));
+            grid = GribSpatialCache.getInstance()
+                    .getGridByName(String.valueOf(gridNumber));
         }
         if (grid == null) {
             grid = GridCoverageLookup.getInstance().getCoverage(coverage, true);
@@ -939,8 +1005,8 @@ public class Grib1Decoder {
      */
     private String createModelName(int centerId, int subcenterId, int process,
             GridCoverage grid, String filePath) {
-        return GribModelLookup.getInstance().getModelName(centerId,
-                subcenterId, grid, process, null, filePath);
+        return GribModelLookup.getInstance().getModelName(centerId, subcenterId,
+                grid, process, null, filePath);
     }
 
     /**
@@ -954,8 +1020,8 @@ public class Grib1Decoder {
      * @param filePath
      * @param gridId
      */
-    private void checkForecastFlag(DataTime time, int centerId,
-            int subcenterId, int process, GridCoverage grid, String filePath) {
+    private void checkForecastFlag(DataTime time, int centerId, int subcenterId,
+            int process, GridCoverage grid, String filePath) {
         GridModel gridModel = GribModelLookup.getInstance().getModel(centerId,
                 subcenterId, grid, process, null, filePath);
         if ((gridModel != null)
@@ -1013,22 +1079,22 @@ public class Grib1Decoder {
             retVal = value * 3600;
             break;
         case 2:
-            retVal = value * 86400;
+            retVal = value * 86_400;
             break;
         case 3:
-            retVal = value * 2678400;
+            retVal = value * 2_678_400;
             break;
         case 4:
-            retVal = value * 977616000;
+            retVal = value * 977_616_000;
             break;
         case 5:
-            retVal = value * 10 * 977616000;
+            retVal = value * 10 * 977_616_000;
             break;
         case 6:
-            retVal = value * 30 * 977616000;
+            retVal = value * 30 * 977_616_000;
             break;
         case 7:
-            retVal = value * 100 * 977616000;
+            retVal = value * 100 * 977_616_000;
             break;
         case 10:
             retVal = value * 3 * 3600;
@@ -1055,7 +1121,8 @@ public class Grib1Decoder {
      *            The value of the level
      * @return The converted level type information
      */
-    private float[] convertGrib1LevelInfo(int ltype1, float lval1, float lval2) {
+    private float[] convertGrib1LevelInfo(int ltype1, float lval1,
+            float lval2) {
         float level1Type = ltype1;
         float level1Scale = 0;
         float level1Value = 0;
@@ -1158,7 +1225,7 @@ public class Grib1Decoder {
             level1Scale = 9;
             level1Value = lval1;
             if (((int) lval1 & 0x8000) != 0) {
-                level1Value = -1 * (lval1 % 32768);
+                level1Value = -1 * (lval1 % 32_768);
             }
             break;
         case 119:
@@ -1266,8 +1333,8 @@ public class Grib1Decoder {
         if ((scaleFactor1 == 0) || (value1 == 0)) {
             levelOneValue = value1;
         } else {
-            levelOneValue = new Double((float) (value1 * Math.pow(10,
-                    scaleFactor1 * -1)));
+            levelOneValue = new Double(
+                    (float) (value1 * Math.pow(10, scaleFactor1 * -1)));
         }
 
         levelTwoValue = levelOneValue;
@@ -1284,10 +1351,10 @@ public class Grib1Decoder {
                 levelTwoValue = (value2 * Math.pow(10, scaleFactor2 * -1));
             }
         }
-        if (levelName.equals("SFC") && (levelOneValue != 0)) {
+        if ("SFC".equals(levelName) && (levelOneValue != 0)) {
             levelOneValue = 0.0;
         }
-        if (levelName.equals("EATM")) {
+        if ("EATM".equals(levelName)) {
             levelOneValue = 0.0;
             levelTwoValue = Level.getInvalidLevelValue();
         }

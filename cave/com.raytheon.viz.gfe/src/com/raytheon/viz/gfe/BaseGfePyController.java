@@ -23,18 +23,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jep.JepException;
-import jep.NDArray;
-
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
+import com.raytheon.uf.common.python.PythonSharedModulesUtil;
 import com.raytheon.uf.common.python.controller.PythonScriptController;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.smartscript.FieldDefinition;
+
+import jep.JepConfig;
+import jep.JepException;
+import jep.NDArray;
 
 /**
  * Base controller for executing GFE python scripts (smart tools and procedures)
@@ -54,11 +56,11 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition;
  * Apr 23, 2015  4259      njensen     Updated for new JEP API
  * Jul 17, 2015  4575      njensen     Changed varDict from String to Map
  * Sep 16, 2015  4871      randerso    Return modified varDict from Tool/Procedure
+ * Dec 19, 2017  7149      njensen     Updated constructor to use JepConfig and shared modules
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
 
 public abstract class BaseGfePyController extends PythonScriptController {
@@ -85,7 +87,10 @@ public abstract class BaseGfePyController extends PythonScriptController {
     protected BaseGfePyController(String filePath, String anIncludePath,
             ClassLoader classLoader, DataManager dataManager,
             String aPythonClassName) throws JepException {
-        super(filePath, anIncludePath, classLoader, aPythonClassName);
+        super(new JepConfig().setIncludePath(anIncludePath)
+                .setClassLoader(classLoader)
+                .setSharedModules(PythonSharedModulesUtil.getSharedModules()),
+                filePath, aPythonClassName);
         dataMgr = dataManager;
     }
 
@@ -112,7 +117,7 @@ public abstract class BaseGfePyController extends PythonScriptController {
      * @throws JepException
      */
     protected Object getVariableList(String moduleName) throws JepException {
-        HashMap<String, Object> args = new HashMap<String, Object>(1);
+        HashMap<String, Object> args = new HashMap<>(1);
         args.put("name", moduleName);
         Object obj = execute("getVariableList", INTERFACE, args);
         return obj;

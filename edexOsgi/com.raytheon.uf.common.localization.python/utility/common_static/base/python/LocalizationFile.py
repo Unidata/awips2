@@ -30,6 +30,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    03/12/13                      mnash          Initial Creation.
 #    Apr 27, 2015     4259         njensen        Updated for new JEP API
+#    Aug 08, 2017     6379         njensen        Removed isProtected()
 #    
 # 
 #
@@ -105,12 +106,6 @@ class LocalizationFile(JUtil.JavaWrapperClass):
         @summary: Is this a directory.
         '''
         return self.jobj.isDirectory()
-    
-    def isProtected(self):
-        '''
-        @summary: Is this file protected.
-        '''
-        return self.jobj.isProtected()
     
     def __eq__(self, other):
         return self.jobj.equals(other.jobj)

@@ -17,6 +17,11 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 #-------------------------------------------------------------------------
 # File Name: PFM.py
 # Description: This product creates an AFM or PFM table containing 
@@ -1654,7 +1659,7 @@ Found description: """ + areaLabel)
         codes = {
          "AF":"Ashfall", "AS":"Air Stag", "BS":"Blowing Snow", 
          "BW":"Brisk Wind", "BZ":"Blizzard", "CF":"Coast Flood", 
-         "DS":"Dust Storm", "DU":"Blowing Dust", "EC":"Extreme Cold", 
+         "DU":"Blowing Dust", "EC":"Extreme Cold", 
          "EH":"Excess Heat", "FA":"Flood", "FF":"Flash Flood", 
          "FG":"Dense Fog", "FL": "Flood", "FR":"Frost", "FZ":"Freeze", 
          "HF":"Hurr Frc Wnd", "HI":"Inland Hurr", "HS":"Heavy Snow", 
@@ -1891,16 +1896,12 @@ Found description: """ + areaLabel)
             ('IS.W', allActions, 'WinterWx'),     # ICE STORM WARNING
             ('LE.W', allActions, 'WinterWx'),     # LAKE EFFECT SNOW WARNING
             ('WS.W', allActions, 'WinterWx'),     # WINTER STORM WARNING
-            ('ZR.Y', allActions, 'WinterWx'),     # FREEZING RAIN ADVISORY
-            ('LE.Y', allActions, 'WinterWx'),     # LAKE EFFECT SNOW ADVISORY
             ('WW.Y', allActions, 'WinterWx'),     # WINTER WEATHER ADVISORY
-            ('BZ.A', allActions, 'WinterWx'),     # BLIZZARD WATCH
-            ('LE.A', allActions, 'WinterWx'),     # LAKE EFFECT SNOW WATCH
             ('WS.A', allActions, 'WinterWx'),     # WINTER STORM WATCH
             ('WC.W', allActions, 'WindChill'),    # WIND CHILL WARNING
             ('WC.Y', allActions, 'WindChill'),    # WIND CHILL ADVISORY
             ('WC.A', allActions, 'WindChill'),    # WIND CHILL WATCH
-            ('DS.W', allActions, 'Dust'),         # DUST STORM WARNING
+            ('DU.W', allActions, 'Dust'),         # BLOWING DUST WARNING
             ('DU.Y', allActions, 'Dust'),         # BLOWING DUST ADVISORY
             ('EC.W', allActions, 'Cold'),         # EXTREME COLD WARNING
             ('EC.A', allActions, 'Cold'),         # EXTREME COLD WATCH

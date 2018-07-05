@@ -18,20 +18,24 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter name="" abbreviation="snoRat" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter name="" abbreviation="snoRat">
     <Method name="Test">
-        <Field abbreviation="ulSnoRat"/>
-        <ConstantField value="1"/>
-        <ConstantField value="-1e37"/>
-        <ConstantField value="5"/>
-        <ConstantField value="0"/>
-        <ConstantField value="1"/>
-        <ConstantField value="5"/>
-        <ConstantField value="10"/>
-        <ConstantField value="10"/>
-        <ConstantField value="1"/>
-        <ConstantField value="15"/>
-        <ConstantField value="1e36"/>
-        <ConstantField value="15"/>
+        <Field abbreviation="ulSnoRat" />
+        <ConstantField value="1" />
+        <ConstantField value="-1e37" />
+        <ConstantField value="5" />
+        <ConstantField value="0" />
+        <ConstantField value="1" />
+        <ConstantField value="5" />
+        <ConstantField value="10" />
+        <ConstantField value="10" />
+        <ConstantField value="1" />
+        <ConstantField value="15" />
+        <ConstantField value="1e36" />
+        <ConstantField value="15" />
     </Method>
 </DerivedParameter>

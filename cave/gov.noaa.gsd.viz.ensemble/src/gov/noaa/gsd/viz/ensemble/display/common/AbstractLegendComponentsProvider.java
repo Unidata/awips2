@@ -64,6 +64,8 @@ public abstract class AbstractLegendComponentsProvider {
 
     abstract public boolean isLoadedAtFrame();
 
+    abstract public boolean isIndivdualProduct();
+
     /*
      * An abstract place to put the SREF prettifier.
      */

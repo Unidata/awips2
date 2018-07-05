@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -28,6 +28,7 @@ import org.eclipse.swt.graphics.RGB;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.JetStreamData;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.bufrsigwx.common.SigWxCommon;
 import com.raytheon.uf.viz.core.DrawableString;
@@ -44,28 +45,28 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * Provides a resource that will display jet stream data for a given reference
  * time.
- * 
- * 
+ *
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *  09/24/2009             jsanchez    Initial creation.
  * Sep 28, 2009 3099       bsteffen    Updated to conform with common SigWxResource
- * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() and 
+ * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() and
  *                                     drawStrings() calls.
  * Aug 04, 2014 3489       mapeters    Updated deprecated getStringBounds() calls.
- * 
- * 
+ * Sep 12, 2016 5886       tgurney     Reuse wireframe shapes when possible
+ *
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
  */
 public class SigWxJetStreamResource extends SigWxResource {
 
-    private static UnitConverter meterToHft = SI.METER.getConverterTo(SI
-            .HECTO(NonSI.FOOT));
+    private static UnitConverter meterToHft = SI.METER
+            .getConverterTo(SI.HECTO(NonSI.FOOT));
 
     private static UnitConverter mpsToKnots = SI.METERS_PER_SECOND
             .getConverterTo(NonSI.KNOT);
@@ -87,6 +88,8 @@ public class SigWxJetStreamResource extends SigWxResource {
     private static final String BOT_HGT_STR = "isotach80Blo";
 
     private static final String TOP_HGT_STR = "isotach80Abv";
+
+    private IWireframeShape shape;
 
     protected SigWxJetStreamResource(SigWxResourceData resourceData,
             LoadProperties loadProperties) {
@@ -110,25 +113,31 @@ public class SigWxJetStreamResource extends SigWxResource {
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
-            PaintProperties paintProps, PointDataView pdv) throws VizException {
+            PaintProperties paintProps, PointDataContainer pdc)
+                    throws VizException {
+        if (isUpdateNeeded()) {
+            disposeShape();
+            shape = target.createWireframeShape(false, descriptor);
+        }
         RGB color = getCapability(ColorableCapability.class).getColor();
-
-        IWireframeShape shape = target.createWireframeShape(false, descriptor);
-        shape.addLineSegment(makeLine(pdv));
+        for (int i = 0; i < pdc.getCurrentSz(); i++) {
+            PointDataView pdv = pdc.readRandom(i);
+            if (isUpdateNeeded()) {
+                shape.addLineSegment(makeLine(pdv));
+            }
+            JetStreamData[] jetData = makeJetStreamData(pdv);
+            JetStreamData lastData = jetData[0];
+            for (JetStreamData data : jetData) {
+                paintJetStreamText(target, paintProps, color, data, lastData);
+                lastData = data;
+            }
+            // If there is only one jetData you can't make any error head
+            if (jetData.length > 1) {
+                paintArrowHead(target, color, jetData[jetData.length - 2],
+                        jetData[jetData.length - 1]);
+            }
+        }
         target.drawWireframeShape(shape, color, 1.5f);
-        shape.dispose();
-
-        JetStreamData[] jetData = makeJetStreamData(pdv);
-        JetStreamData lastData = jetData[0];
-        for (JetStreamData data : jetData) {
-            paintJetStreamText(target, paintProps, color, data, lastData);
-            lastData = data;
-        }
-        // If there is only one jetData you can't make any error head
-        if (jetData.length > 1) {
-            paintArrowHead(target, color, jetData[jetData.length - 2],
-                    jetData[jetData.length - 1]);
-        }
     }
 
     @Override
@@ -139,8 +148,8 @@ public class SigWxJetStreamResource extends SigWxResource {
         String result = "";
         double[] point = null;
         try {
-            point = descriptor.worldToPixel(new double[] { coord.asLatLon().x,
-                    coord.asLatLon().y, });
+            point = descriptor.worldToPixel(
+                    new double[] { coord.asLatLon().x, coord.asLatLon().y, });
         } catch (Exception e) {
             return "";
         }
@@ -171,9 +180,9 @@ public class SigWxJetStreamResource extends SigWxResource {
                         || data[j].getJetSpeed() == SigWxCommon.MISSING) {
                     continue;
                 }
-                double dist = distance(point, SigWxCommon.lonLatToWorldPixel(
-                        descriptor, data[j].getLongitude(), data[j]
-                                .getLatitude()));
+                double dist = distance(point,
+                        SigWxCommon.lonLatToWorldPixel(descriptor,
+                                data[j].getLongitude(), data[j].getLatitude()));
                 if (dist < bestDistance) {
                     bestIndex = j;
                     bestDistance = dist;
@@ -188,14 +197,12 @@ public class SigWxJetStreamResource extends SigWxResource {
 
                 if (speed != SigWxCommon.MISSING) {
                     result += SigWxCommon.format(mpsToKnots.convert(speed),
-                            format)
-                            + "kts ";
+                            format) + "kts ";
                 }
 
                 if (fltLvl != SigWxCommon.MISSING) {
-                    result += "FL"
-                            + SigWxCommon.format(meterToHft.convert(fltLvl),
-                                    format);
+                    result += "FL" + SigWxCommon
+                            .format(meterToHft.convert(fltLvl), format);
                 }
 
                 if (baseHgt != SigWxCommon.MISSING
@@ -203,9 +210,8 @@ public class SigWxJetStreamResource extends SigWxResource {
                     result += " DEPTH:"
                             + SigWxCommon.format(meterToHft.convert(baseHgt),
                                     format)
-                            + "/"
-                            + SigWxCommon.format(meterToHft.convert(topHgt),
-                                    format);
+                            + "/" + SigWxCommon
+                                    .format(meterToHft.convert(topHgt), format);
                 }
                 return result;
             }
@@ -227,17 +233,10 @@ public class SigWxJetStreamResource extends SigWxResource {
         JetStreamData[] data = new JetStreamData[numOfPoints];
 
         for (int i = 0; i < numOfPoints; i++) {
-            data[i] = new JetStreamData(hdf5Lons[i].floatValue(), hdf5Lats[i]
-                    .floatValue(), hdf5Speeds[i].floatValue(), hdf5Altitudes[i]
-                    .floatValue(), hdf5BotHgt[i].floatValue(), hdf5TopHgt[i]
-                    .floatValue()); // Should
-            // the
-            // hdf5BotHgt
-            // and
-            // hdf5TopHgt
-            // be
-            // used?
-
+            data[i] = new JetStreamData(hdf5Lons[i].floatValue(),
+                    hdf5Lats[i].floatValue(), hdf5Speeds[i].floatValue(),
+                    hdf5Altitudes[i].floatValue(), hdf5BotHgt[i].floatValue(),
+                    hdf5TopHgt[i].floatValue());
         }
         return data;
     }
@@ -250,8 +249,8 @@ public class SigWxJetStreamResource extends SigWxResource {
         Coordinate[] js = new Coordinate[numOfPoints];
 
         for (int i = 0; i < numOfPoints; i++) {
-            js[i] = new Coordinate(hdf5Lons[i].floatValue(), hdf5Lats[i]
-                    .floatValue());
+            js[i] = new Coordinate(hdf5Lons[i].floatValue(),
+                    hdf5Lats[i].floatValue());
         }
 
         return js;
@@ -260,7 +259,7 @@ public class SigWxJetStreamResource extends SigWxResource {
     /**
      * Calculates the direction of jet stream and passes the drawing to the
      * paintArrowhead method
-     * 
+     *
      * @param target
      * @param color
      *            the color of the arrow
@@ -272,18 +271,18 @@ public class SigWxJetStreamResource extends SigWxResource {
      */
     private void paintArrowHead(IGraphicsTarget target, RGB color,
             JetStreamData data1, JetStreamData data2) throws VizException {
-        double[] locPixA = SigWxCommon.lonLatToWorldPixel(descriptor, data1
-                .getLongitude(), data1.getLatitude());
-        double[] locPixB = SigWxCommon.lonLatToWorldPixel(descriptor, data2
-                .getLongitude(), data2.getLatitude());
-        double dir = Math.toDegrees(Math.atan2(locPixA[1] - locPixB[1],
-                locPixA[0] - locPixB[0]));
+        double[] locPixA = SigWxCommon.lonLatToWorldPixel(descriptor,
+                data1.getLongitude(), data1.getLatitude());
+        double[] locPixB = SigWxCommon.lonLatToWorldPixel(descriptor,
+                data2.getLongitude(), data2.getLatitude());
+        double dir = Math.toDegrees(
+                Math.atan2(locPixA[1] - locPixB[1], locPixA[0] - locPixB[0]));
         SigWxCommon.paintArrowHead(target, locPixB, 100.0, dir + 180, color);
     }
 
     /**
      * Draws the Jet Stream Data (flight level, jet speed, etc.) on CAVE
-     * 
+     *
      * @param target
      * @param color
      *            the color of the strings
@@ -299,8 +298,8 @@ public class SigWxJetStreamResource extends SigWxResource {
         if (lat == SigWxCommon.MISSING || lon == SigWxCommon.MISSING) {
             return;
         }
-        double[] locationPixel = SigWxCommon.lonLatToWorldPixel(descriptor,
-                lon, lat);
+        double[] locationPixel = SigWxCommon.lonLatToWorldPixel(descriptor, lon,
+                lat);
         HorizontalAlignment halignLevel = HorizontalAlignment.RIGHT;
         VerticalAlignment valignLevel = VerticalAlignment.BOTTOM;
         HorizontalAlignment halignSpeed = HorizontalAlignment.LEFT;
@@ -333,7 +332,8 @@ public class SigWxJetStreamResource extends SigWxResource {
         if (flightLevel != SigWxCommon.MISSING) {
             flightLevel = meterToHft.convert(flightLevel);
             String flightLevelStr = SigWxCommon.format(flightLevel, format);
-            if (baseHgt != SigWxCommon.MISSING && topHgt != SigWxCommon.MISSING) {
+            if (baseHgt != SigWxCommon.MISSING
+                    && topHgt != SigWxCommon.MISSING) {
                 baseHgt = meterToHft.convert(baseHgt);
                 topHgt = meterToHft.convert(topHgt);
                 String depthStr = SigWxCommon.format(baseHgt, format) + "/"
@@ -351,8 +351,8 @@ public class SigWxJetStreamResource extends SigWxResource {
                     tmpX -= width / 2;
                     halignLevel = HorizontalAlignment.CENTER;
                 }
-                DrawableString string = new DrawableString(new String[] {
-                        flightLevelStr, depthStr }, color);
+                DrawableString string = new DrawableString(
+                        new String[] { flightLevelStr, depthStr }, color);
                 string.font = font;
                 string.setCoordinates(tmpX, locationPixel[1]);
                 string.horizontalAlignment = halignLevel;
@@ -382,7 +382,7 @@ public class SigWxJetStreamResource extends SigWxResource {
 
     /**
      * Calculates the dot product of a and b
-     * 
+     *
      * @param a
      *            {x1, y1}
      * @param b
@@ -390,12 +390,12 @@ public class SigWxJetStreamResource extends SigWxResource {
      * @return the dot product of a and b
      */
     private double dotProduct(double[] a, double[] b) {
-        return (a[0] * b[0]) + (a[1] * b[1]);
+        return a[0] * b[0] + a[1] * b[1];
     }
 
     /**
      * Calculates the distance between a and b
-     * 
+     *
      * @param a
      *            {x1, y1}
      * @param b
@@ -411,13 +411,13 @@ public class SigWxJetStreamResource extends SigWxResource {
     /*
      * Calculates the distance of the cursor away from the line between a and b.
      * Note: This code was ported from SigWxDepict.C
-     * 
+     *
      * @param a the previous line coordinates
-     * 
+     *
      * @param b the current line coordinates
-     * 
+     *
      * @param p the coordinates of the cursor
-     * 
+     *
      * @return the distance of the cursor away from the line
      */
     private double distanceFromLine(double[] a, double[] b, double[] p) {
@@ -428,20 +428,20 @@ public class SigWxJetStreamResource extends SigWxResource {
         double[] fb = new double[] { dx, dy };
         double[] fp = new double[] { p[0] - a[0], p[1] - a[1] };
         double d = distance(fa, fb);
-        double m = (dotProduct(fb, fp) / (d * d));
+        double m = dotProduct(fb, fp) / (d * d);
         double[] projP = new double[] { fb[0] * m, fb[1] * m };
         double dA = distance(fa, projP);
         double dB = distance(fb, projP);
 
         if (dy == 0) {
-            if (((p[1] < a[1] && p[1] < b[1]) || (p[1] > a[1] && p[1] > b[1]))
+            if ((p[1] < a[1] && p[1] < b[1] || p[1] > a[1] && p[1] > b[1])
                     && Math.abs(p[1] - a[1]) > 4 && Math.abs(p[1] - b[1]) > 4) {
                 return MAX_VALUE;
             } else {
                 return Math.abs(p[1] - a[1]);
             }
         } else if (dx == 0) {
-            if (((p[0] < a[0] && p[0] < b[0]) || (p[0] > a[0] && p[0] > b[0]))
+            if ((p[0] < a[0] && p[0] < b[0] || p[0] > a[0] && p[0] > b[0])
                     && Math.abs(p[0] - a[0]) > 4 && Math.abs(p[0] - b[0]) > 4) {
                 return MAX_VALUE;
             } else {
@@ -456,9 +456,23 @@ public class SigWxJetStreamResource extends SigWxResource {
         return distance(projP, fp);
     }
 
+    @Override
     protected String[] getParameters() {
         return new String[] { LAT_STR, LON_STR, NUM_OF_POINTS_STR, SPD_STR,
                 ALT_STR, TOP_HGT_STR, BOT_HGT_STR };
+    }
+
+    private void disposeShape() {
+        if (shape != null) {
+            shape.dispose();
+            shape = null;
+        }
+    }
+
+    @Override
+    protected void disposeInternal() {
+        disposeShape();
+        super.disposeInternal();
     }
 
 }

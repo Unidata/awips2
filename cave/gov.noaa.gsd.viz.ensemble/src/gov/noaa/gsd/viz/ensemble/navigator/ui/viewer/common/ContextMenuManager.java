@@ -20,8 +20,6 @@
 
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
-
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,20 +32,19 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtension;
 import org.eclipse.core.runtime.IExtensionPoint;
 import org.eclipse.core.runtime.IExtensionRegistry;
-import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.wiring.BundleWiring;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.d2d.ui.actions.BlinkToggleAction;
-import com.raytheon.viz.ui.UiPlugin;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.EnableDisableAction;
 import com.raytheon.viz.ui.cmenu.ImagingAction;
@@ -55,6 +52,8 @@ import com.raytheon.viz.ui.cmenu.MoveDownAction;
 import com.raytheon.viz.ui.cmenu.MoveUpAction;
 import com.raytheon.viz.ui.cmenu.RemoveResourceAction;
 import com.raytheon.viz.ui.cmenu.RightClickSeparator;
+
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
 
 /**
  * Provide resource-based right click support. This solution was lifted from the
@@ -83,6 +82,9 @@ import com.raytheon.viz.ui.cmenu.RightClickSeparator;
  * @version 1
  */
 public class ContextMenuManager {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(ContextMenuManager.class);
 
     private static Map<Class<?>, Set<AbstractRightClickAction>> contextualItems;
 
@@ -145,20 +147,12 @@ public class ContextMenuManager {
                         contextualItems.put(c, actions);
 
                     } catch (CoreException e) {
-                        UiPlugin.getDefault()
-                                .getLog()
-                                .log(new Status(IStatus.ERROR,
-                                        UiPlugin.PLUGIN_ID,
-                                        "Error loading action class: "
-                                                + actionClass, e));
+                        statusHandler.error(
+                                "Error loading action class: " + actionClass,
+                                e);
                     } catch (Throwable e) {
-                        e.printStackTrace();
-                        UiPlugin.getDefault()
-                                .getLog()
-                                .log(new Status(IStatus.ERROR,
-                                        UiPlugin.PLUGIN_ID,
-                                        "Error loading interface class: "
-                                                + capInterface, e));
+                        statusHandler.error("Error loading interface class: "
+                                + capInterface, e);
                     }
                 }
             }
@@ -184,10 +178,8 @@ public class ContextMenuManager {
                 include = true;
 
             } else if (AbstractCapability.class.isAssignableFrom(c)
-                    && vr.getResource()
-                            .getCapabilities()
-                            .hasCapability(
-                                    (Class<? extends AbstractCapability>) c)) {
+                    && vr.getResource().getCapabilities().hasCapability(
+                            (Class<? extends AbstractCapability>) c)) {
                 if (!vr.getResource()
                         .getCapability((Class<? extends AbstractCapability>) c)
                         .isSuppressingMenuItems()) {
@@ -209,7 +201,8 @@ public class ContextMenuManager {
                      */
                     if (action instanceof EnableDisableAction
                             || action instanceof MoveUpAction
-                            || action instanceof MoveDownAction) {
+                            || action instanceof MoveDownAction
+                            || action instanceof RemoveResourceAction) {
                         continue;
                     }
 
@@ -218,7 +211,8 @@ public class ContextMenuManager {
                      * "Unload Display" and "Imaging..." actions for Matrix
                      * mode.
                      */
-                    if (EnsembleTool.getInstance().getToolMode() == EnsembleTool.EnsembleToolMode.MATRIX) {
+                    if (EnsembleTool.getInstance()
+                            .getToolMode() == EnsembleTool.EnsembleToolMode.MATRIX) {
                         if (action instanceof RemoveResourceAction
                                 || action instanceof ImagingAction) {
                             continue;
@@ -244,8 +238,8 @@ public class ContextMenuManager {
         }
     }
 
-    private static class MyComparator implements
-            Comparator<AbstractRightClickAction> {
+    private static class MyComparator
+            implements Comparator<AbstractRightClickAction> {
 
         public int compare(AbstractRightClickAction o1,
                 AbstractRightClickAction o2) {

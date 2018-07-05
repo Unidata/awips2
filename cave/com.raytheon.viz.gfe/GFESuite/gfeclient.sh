@@ -28,7 +28,10 @@
 # Dec 05, 2013  #2590     dgilling    Remove duplicated code and call to 
 #                                     cave.sh.
 # Sep 15, 2016  #18799    bhunderm    Correct "no more handles" issue.
-#
+# Jan 26, 2017  #6092     randerso    Updated for gfeClientServer  
+# Aug 17, 2017  #6092     randerso    Fix no_shader arg so it works
+#                                     Only use noredirect when running
+#                                     from command line  
 #
 
 
@@ -46,7 +49,22 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
-PROGRAM_NAME="gfeclient"
+OPTIONAL_ARGS=()
+#
+# if parent process is request JVM 
+#    set COMPONENT to gfeClientServer
+# else
+#    set COMPONENT to gfeclient
+#
+COMPONENT="gfeclient"
+ps -fp $PPID | grep -q "edex.run.mode=request"
+if [ $? == 0 ]
+then
+    COMPONENT="gfeClientServer"
+else
+    OPTIONAL_ARGS+=(-noredirect)
+fi
+export PROGRAM_NAME=${COMPONENT}
 
 # if display not set
 if [ -n "$DISPLAY" ]
@@ -60,17 +78,27 @@ else
         xvfb=$!
         export DISPLAY=":$$.0"
         #don't use shader when no display set 
-        SWITCHES="${SWITCHES} -no_shader"
+        OPTIONAL_ARGS+=(-no_shader)
 fi
 
 export IGNORE_NUM_CAVES=1
 export CAVE_LOG_DAYS_TO_KEEP=7
 
-source /awips2/cave/cave.sh -nosplash -noredirect -component gfeclient "$@" &
-wait $!
+trap killIt TERM
+
+function killIt() {
+    kill ${PID}
+}
+
+exec /awips2/cave/cave.sh -nosplash "${OPTIONAL_ARGS[@]}" -component ${COMPONENT} "$@" &
+PID=$!
+wait ${PID}
+exitCode=$?
 
 if [ -n "$xvfb" ]
 then
         echo "Killing Xvfb process id: $xvfb"
         kill $xvfb
 fi
+
+exit $exitCode

@@ -7,11 +7,13 @@ Bundle-Activator: com.raytheon.uf.viz.spellchecker.Activator
 Bundle-Vendor: RAYTHEON
 Require-Bundle: org.eclipse.ui,
  org.eclipse.core.runtime,
- com.raytheon.viz.core;bundle-version="1.11.26",
+ com.raytheon.uf.common.localization;bundle-version="1.15.1",
+ com.raytheon.uf.common.status;bundle-version="1.15.0",
+ com.raytheon.uf.viz.core;bundle-version="1.16.0",
  com.google.guava;bundle-version="11.0.2",
  org.eclipse.jdt.ui,
  com.raytheon.viz.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: org.eclipse.jdt.internal.ui.text.spelling,
  org.eclipse.jdt.ui,

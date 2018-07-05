@@ -18,16 +18,20 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="RMprop" name="Right Mover Propagation Vector">
     <Method name="Rotate" levels="0FHAG">
-    	<Field abbreviation="BlkShr" level="0-6kmAgl"/>
-    	<ConstantField value="0.0"/>
-    	<ConstantField value="7.5"/>
-    	<ConstantField value="-7.5"/>
-    	<ConstantField value="0.0"/>
+        <Field abbreviation="BlkShr" level="0-6kmAgl" />
+        <ConstantField value="0.0" />
+        <ConstantField value="7.5" />
+        <ConstantField value="-7.5" />
+        <ConstantField value="0.0" />
     </Method>
     <Method name="Divide" levels="Layer">
-    	<Field abbreviation="RMprop" level="0FHAG"/>
-    	<Field abbreviation="BlkMag" level="0-6kmAgl"/>
+        <Field abbreviation="RMprop" level="0FHAG" />
+        <Field abbreviation="BlkMag" level="0-6kmAgl" />
     </Method>
 </DerivedParameter>

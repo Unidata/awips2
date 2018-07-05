@@ -25,6 +25,10 @@
 #
 ##
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 #-------------------------------------------------------------------------
 # File Name: AFD.py
 # Description: This product creates a Area Forecast Discussion product.
@@ -1058,16 +1062,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('IS.W', allActions, 'WinterWx1'),     # ICE STORM WARNING
             ('LE.W', allActions, 'WinterWx2'),     # LAKE EFFECT SNOW WARNING
             ('WS.W', allActions, 'WinterWx3'),     # WINTER STORM WARNING
-            ('LE.Y', allActions, 'WinterWx4'),     # LAKE EFFECT SNOW ADVISORY
-            ('WW.Y', allActions, 'WinterWx5'),     # WINTER WEATHER ADVISORY
-            ('ZR.Y', allActions, 'WinterWx9'),     # FREEZING RAIN ADVISORY
-            ('BZ.A', allActions, 'WinterWx6'),     # BLIZZARD WATCH
-            ('LE.A', allActions, 'WinterWx7'),     # LAKE EFFECT SNOW WATCH
-            ('WS.A', allActions, 'WinterWx8'),     # WINTER STORM WATCH
+            ('WW.Y', allActions, 'WinterWx4'),     # WINTER WEATHER ADVISORY
+            ('WS.A', allActions, 'WinterWx5'),     # WINTER STORM WATCH
             ('WC.W', allActions, 'WindChill'),    # WIND CHILL WARNING
             ('WC.Y', allActions, 'WindChill1'),    # WIND CHILL ADVISORY
             ('WC.A', allActions, 'WindChill2'),    # WIND CHILL WATCH
-            ('DS.W', allActions, 'Dust'),         # DUST STORM WARNING
+            ('DU.W', allActions, 'Dust'),         # BLOWING DUST WARNING
             ('DU.Y', allActions, 'Dust1'),         # BLOWING DUST ADVISORY
             ('EC.W', allActions, 'Cold'),         # EXTREME COLD WARNING
             ('EC.A', allActions, 'Cold2'),         # EXTREME COLD WATCH

@@ -280,7 +280,7 @@ public class DistributionDisplay {
 
     }
 
-    synchronized public void setViewEditable(boolean enabled) {
+    synchronized public void setEditable(boolean enabled) {
         /**
          * TODO: Need to reflect the enabled/disabled state in the
          * look-and-feel.

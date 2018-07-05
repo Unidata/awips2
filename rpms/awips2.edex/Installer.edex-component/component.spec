@@ -4,6 +4,7 @@
 %define __prelink_undo_cmd %{nil}
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+# disable jar repacking
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
 
 Name: awips2-%{_component_name}
@@ -18,8 +19,16 @@ Distribution: N/A
 Vendor: %{_build_vendor}
 Packager: %{_build_site}
 
+#######################################################
+# Added since lib/plugins are exported in OSGI format
+#  and lib/dependencies are not resulting in yum being
+#  unable to find FOSS ogsi(*) requirements.
+#######################################################
+AutoReq: no
+
 provides: awips2-%{_component_name}
 requires: awips2
+requires: awips2-edex
 requires: awips2-edex-base
 requires: awips2-python
 requires: awips2-java
@@ -55,10 +64,7 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-%pre
 %post
-%preun
-%postun
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}

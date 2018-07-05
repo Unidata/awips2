@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gfe EDEX Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.gfe
-Bundle-Version: 1.15.1.qualifier
+Bundle-Version: 1.17.0.qualifier
 Bundle-ActivationPolicy: lazy
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174",
@@ -31,7 +31,9 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.gfe;bundle-version="1.12.1174"
  com.raytheon.uf.common.dataplugin.grid.derivparam;bundle-version="1.16.0",
  com.raytheon.uf.common.derivparam;bundle-version="1.14.1",
  com.raytheon.uf.common.inventory;bundle-version="1.14.0",
- org.slf4j;bundle-version="1.7.12"
+ org.slf4j;bundle-version="1.7.21",
+ org.apache.commons.collections;bundle-version="3.2.2",
+ com.raytheon.uf.common.protectedfiles
 Export-Package: com.raytheon.edex.plugin.gfe,
  com.raytheon.edex.plugin.gfe.config,
  com.raytheon.edex.plugin.gfe.db.dao,
@@ -46,7 +48,6 @@ Export-Package: com.raytheon.edex.plugin.gfe,
  com.raytheon.edex.plugin.gfe.textproducts,
  com.raytheon.edex.plugin.gfe.util
 Import-Package: com.raytheon.edex.db.dao,
- com.raytheon.edex.db.mapping,
  com.raytheon.edex.plugin,
  com.raytheon.edex.site,
  com.raytheon.uf.common.activetable,
@@ -68,4 +69,4 @@ Import-Package: com.raytheon.edex.db.dao,
  com.raytheon.uf.edex.activetable,
  com.raytheon.uf.edex.site,
  org.hibernate
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

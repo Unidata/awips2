@@ -1,3 +1,8 @@
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
 <!-- The following is an example on how to set up the bullets for a site
      specific burnscar location for CAN/EXP sections where you only want
      the name of the burn scar and not the scenarios -->

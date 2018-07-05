@@ -20,7 +20,6 @@
 package com.raytheon.viz.hydro.pointdatacontrol.data;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -37,10 +36,10 @@ import com.raytheon.viz.hydrocommon.pdc.PDCOptionData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 21, 2008            mpduff     Initial creation
- * Jul 28, 2016 4623       skorolev   Cleanup.
  * </pre>
  * 
  * @author mpduff
+ * @version 1.0
  */
 
 public class PointControlPeTs {
@@ -65,15 +64,15 @@ public class PointControlPeTs {
     private static String elementTypeText = null;
 
     /** Holds the PE followed by the TS */
-    private static List<String[]> orgBuf = null;
+    private static ArrayList<String[]> orgBuf = null;
 
-    private static List<String> riverBuf = new ArrayList<>();
+    private static ArrayList<String> riverBuf = new ArrayList<String>();
 
-    private static List<String> rainBuf = new ArrayList<>();
+    private static ArrayList<String> rainBuf = new ArrayList<String>();
 
-    private static List<String> snowBuf = new ArrayList<>();
+    private static ArrayList<String> snowBuf = new ArrayList<String>();
 
-    private static List<String> tempBuf = new ArrayList<>();
+    private static ArrayList<String> tempBuf = new ArrayList<String>();
 
     private static String otherBuf = null;
 
@@ -114,11 +113,19 @@ public class PointControlPeTs {
         }
 
         try {
-            List<String> result = dataManager.getTelmType(null);
+            ArrayList<String> result = dataManager.getTelmType(null);
             adhocDataSrcBuf = new String[result.toArray().length];
             adhocDataSrcBuf = result.toArray(new String[result.size()]);
 
+            // ArrayList<String[]> peTsList = dataManager.getPeTs();
             orgBuf = dataManager.getPeTs();
+            // orgBuf = peTsList;
+            // nitems = orgBuf.size();
+
+            // ArrayList<String> riverList = new ArrayList<String>();
+            // ArrayList<String> rainList = new ArrayList<String>();
+            // ArrayList<String> snowList = new ArrayList<String>();
+            // ArrayList<String> tempList = new ArrayList<String>();
 
             /* add pe = Primary and pe = "PC and PP" to physical element list */
             riverBuf.add("Primary");
@@ -173,11 +180,6 @@ public class PointControlPeTs {
         }
     }
 
-    /**
-     * Checks Shef Post Latest
-     * 
-     * @return
-     */
     public boolean checkShefPostLatest() {
         if (shefpost == null) {
             shefpost = AppsDefaults.getInstance().getToken("shef_post_latest");
@@ -298,7 +300,7 @@ public class PointControlPeTs {
     /**
      * @return the orgBuf
      */
-    public List<String[]> getOrgBuf() {
+    public ArrayList<String[]> getOrgBuf() {
         return orgBuf;
     }
 
@@ -306,14 +308,14 @@ public class PointControlPeTs {
      * @param orgBuf
      *            the orgBuf to set
      */
-    public void setOrgBuf(List<String[]> orgBuf) {
+    public void setOrgBuf(ArrayList<String[]> orgBuf) {
         PointControlPeTs.orgBuf = orgBuf;
     }
 
     /**
      * @return the riverBuf
      */
-    public List<String> getRiverBuf() {
+    public ArrayList<String> getRiverBuf() {
         return riverBuf;
     }
 
@@ -321,14 +323,14 @@ public class PointControlPeTs {
      * @param riverBuf
      *            the riverBuf to set
      */
-    public void setRiverBuf(List<String> riverBuf) {
+    public void setRiverBuf(ArrayList<String> riverBuf) {
         PointControlPeTs.riverBuf = riverBuf;
     }
 
     /**
      * @return the rainBuf
      */
-    public List<String> getRainBuf() {
+    public ArrayList<String> getRainBuf() {
         return rainBuf;
     }
 
@@ -336,14 +338,14 @@ public class PointControlPeTs {
      * @param rainBuf
      *            the rainBuf to set
      */
-    public void setRainBuf(List<String> rainBuf) {
+    public void setRainBuf(ArrayList<String> rainBuf) {
         PointControlPeTs.rainBuf = rainBuf;
     }
 
     /**
      * @return the snowBuf
      */
-    public List<String> getSnowBuf() {
+    public ArrayList<String> getSnowBuf() {
         return snowBuf;
     }
 
@@ -351,14 +353,14 @@ public class PointControlPeTs {
      * @param snowBuf
      *            the snowBuf to set
      */
-    public void setSnowBuf(List<String> snowBuf) {
+    public void setSnowBuf(ArrayList<String> snowBuf) {
         PointControlPeTs.snowBuf = snowBuf;
     }
 
     /**
      * @return the tempBuf
      */
-    public List<String> getTempBuf() {
+    public ArrayList<String> getTempBuf() {
         return tempBuf;
     }
 
@@ -366,7 +368,7 @@ public class PointControlPeTs {
      * @param tempBuf
      *            the tempBuf to set
      */
-    public void setTempBuf(List<String> tempBuf) {
+    public void setTempBuf(ArrayList<String> tempBuf) {
         PointControlPeTs.tempBuf = tempBuf;
     }
 

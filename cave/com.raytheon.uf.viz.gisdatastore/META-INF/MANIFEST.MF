@@ -2,22 +2,20 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Gisdatastore
 Bundle-SymbolicName: com.raytheon.uf.viz.gisdatastore;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.gisdatastore.Activator
 Bundle-Vendor: RAYTHEON
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- org.geotools,
- com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.status,
+Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.viz.core,
  com.raytheon.uf.viz.core.maps;bundle-version="1.0.0",
- com.raytheon.viz.core,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.util,
  com.raytheon.viz.ui
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.gisdatastore,
  com.raytheon.uf.viz.gisdatastore.rsc,
  com.raytheon.uf.viz.gisdatastore.ui
 Bundle-ClassPath: com.raytheon.uf.viz.gisdatastore.jar
+Import-Package: com.raytheon.viz.core

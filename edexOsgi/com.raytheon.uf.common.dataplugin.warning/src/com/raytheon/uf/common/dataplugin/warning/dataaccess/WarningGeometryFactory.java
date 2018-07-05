@@ -169,7 +169,7 @@ public class WarningGeometryFactory extends AbstractGeometryDatabaseFactory {
             String timeConstraint) {
         StringBuilder sqlQuery = new StringBuilder("select ").append(REF_TIME);
         for (String column : new String[] { FCST_TIME, RANGE_START, RANGE_END,
-                UTIL_FLAGS, "AsBinary(" + GEOM + ")", OFFICE_ID }) {
+                UTIL_FLAGS, "ST_AsBinary(" + GEOM + ")", OFFICE_ID }) {
             sqlQuery.append(", ").append(column);
         }
 

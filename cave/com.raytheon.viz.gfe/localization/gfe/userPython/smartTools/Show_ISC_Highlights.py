@@ -73,8 +73,14 @@
 #              modified ISC_Utility_Local with a list of neighboring
 #              sites (actually a list of edit areas for those sites),
 #              and to set the algorithm to Neighboring Points
-#
-# ============================================================================
+#----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
+#----------------------------------------------------------------------------
 #
 #  C O N F I G U R A T I O N   S E C T I O N
 #

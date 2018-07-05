@@ -1,40 +1,39 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.radar.interrogators;
 
 import java.io.File;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 
+import javax.measure.Measure;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.xml.bind.JAXB;
-
-import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
@@ -43,10 +42,14 @@ import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
 import com.raytheon.uf.common.dataplugin.radar.level3.DMDPacket.DMDAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.AreaComponent;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
-import com.raytheon.uf.common.geospatial.CRSCache;
-import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
 import com.raytheon.viz.radar.util.DmdAttribute;
 import com.raytheon.viz.radar.util.DmdModifier;
 import com.raytheon.viz.radar.util.GraphicDataUtil;
@@ -55,25 +58,50 @@ import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Interrogator class for Radar DMD sampling.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 04, 2010            mnash     Initial creation
- * MAR 05, 2013 15313      kshresth  Added sampling for DMD
- * 
+ * Oct 04, 2010            mnash       Initial creation
+ * Mar 05, 2013 15313      kshresth    Added sampling for DMD
+ * Sep 13, 2016 3239       nabowle     Use the Interrogatable API.
+ *
  * </pre>
- * 
+ *
  * @author mnash
- * @version 1.0
  */
 
-public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
-        IRadarInterrogator {
+public class RadarDMDInterrogator extends RadarGraphicInterrogator
+        implements IRadarInterrogator {
 
-    private Map<String, String> _dataMap = new HashMap<String, String>();
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(RadarDMDInterrogator.class);
+
+    public static final InterrogationKey<String> TVS_KEY = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> MESO_ID_KEY = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> LL_CONV_KEY = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> HT_MAX_ROT_VEL_KEY = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> MAX_ROT_VEL_KEY = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> BASE_GTG_VEL_DIFF_KEY = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> BASE_ROT_VEL_KEY = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> MSI_KEY = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> RANK_KEY = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> DEPTH_KEY = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> BASE_HEIGHT_KEY = new InterrogationKey<>();
+
+    private InterrogateMap _dataMap = new InterrogateMap();
 
     private DmdModifier modifier;
 
@@ -82,51 +110,20 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
         initializeStylePreferences();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.interrogators.IRadarInterrogator#sample(com.raytheon
-     * .edex.plugin.radar.RadarRecord, com.vividsolutions.jts.geom.Coordinate,
-     * com.raytheon.uf.viz.core.drawables.ColorMapParameters)
-     */
     @Override
-    public Map<String, String> sample(RadarRecord record, Coordinate latLon,
-            ColorMapParameters params) {
-        if (latLon == null) {
-            return null;
-        }
-        double[] input = { latLon.x, latLon.y }; // rr
-        double[] output = new double[2]; // rr
-        try {
-            MathTransform mt = CRSCache.getInstance().getTransformFromLatLon(
-                    record.getCRS());
-
-            mt.transform(input, 0, output, 0, 1);
-            _dataMap.put("crsLocation", output == null ? "-1,-1" : output[0]
-                    + "," + output[1]);
-        } catch (Exception e) {
-            return null;
-        }
-
-        _dataMap.put("ICAO", record.getIcao());
-        _dataMap.put("Mnemonic", record.getMnemonic());
-        addParameters(record, latLon, _dataMap);
+    public InterrogateMap sample(RadarRecord radarRecord, Coordinate latLon,
+            ColorMapParameters params, Set<InterrogationKey<?>> keys) {
+        sample(radarRecord, latLon, keys, _dataMap);
         return _dataMap;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.interrogators.IRadarInterrogator#addParameters
-     * (com.raytheon.uf.common.dataplugin.radar.RadarRecord,
-     * com.vividsolutions.jts.geom.Coordinate, java.util.Map)
-     */
     @Override
     public int addParameters(RadarRecord radarRecord, Coordinate latLon,
-            Map<String, String> dataMap) {
-        dataMap.put("Value", getDataValues(radarRecord, latLon));
+            InterrogateMap dataMap, Set<InterrogationKey<?>> keys) {
+        String stringValue = getDataValues(radarRecord, latLon, dataMap, keys);
+        if (keys.contains(RadarDefaultInterrogator.VALUE_STRING)) {
+            dataMap.put(RadarDefaultInterrogator.VALUE_STRING, stringValue);
+        }
         return 0;
     }
 
@@ -138,20 +135,25 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
 
         PathManager pm = (PathManager) PathManagerFactory.getPathManager();
 
-        LocalizationFile file = pm.getStaticLocalizationFile("styleRules"
-                + File.separator + "dmdModifier.xml");
+        ILocalizationFile file = pm.getStaticLocalizationFile(
+                "styleRules" + File.separator + "dmdModifier.xml");
 
         if (file.exists()) {
-            this.modifier = JAXB.unmarshal(file.getFile(), DmdModifier.class);
+            try (InputStream is = file.openInputStream()) {
+                this.modifier = JAXB.unmarshal(is, DmdModifier.class);
+            } catch (IOException | LocalizationException e) {
+                statusHandler.error("Unable to load style preferences.", e);
+            }
         }
 
     }
 
-    private String getDataValues(RadarRecord radarRecord, Coordinate latLon) {
-        StringBuffer rval = new StringBuffer();
+    private String getDataValues(RadarRecord radarRecord, Coordinate latLon,
+            InterrogateMap dataMap, Set<InterrogationKey<?>> keys) {
+        StringBuilder rval = new StringBuilder();
 
         // Remove the attributes with an order of -1 and reorder.
-        List<DmdAttribute> attributesCopy = new ArrayList<DmdAttribute>();
+        List<DmdAttribute> attributesCopy = new ArrayList<>();
         if (modifier == null) {
             return rval.toString();
         }
@@ -166,9 +168,6 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
         Coordinate c1 = new Coordinate(latLon.x + .025, latLon.y + .025);
         Coordinate c2 = new Coordinate(latLon.x - .025, latLon.y - .025);
         Envelope env = new Envelope(c1, c2);
-
-        UnitConverter metersPerSecondToKnots = SI.METERS_PER_SECOND
-                .getConverterTo(NonSI.KNOT);
 
         if (radarRecord.getProductCode() == 149) {
             for (RadarDataKey key : radarRecord.getSymbologyData().keySet()) {
@@ -193,50 +192,63 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
                                 for (DmdAttribute attribute : attributesCopy) {
                                     DmdStyleAttribute attributeValue = DmdStyleAttribute
                                             .valueOf(attribute.getValue());
-                                    NumberFormat formatter = new DecimalFormat(
-                                            formatDecimal(attribute
-                                                    .getDecimalPlaces()));
                                     switch (attributeValue) {
                                     case RADAR_NAME:
-                                        rval.append(radarRecord.getIcao() + " ");
+                                        rval.append(radarRecord.getIcao())
+                                                .append(" ");
                                         break;
                                     case MESO_ID:
                                         // Feature ID
-                                        String mid = currFeature
-                                                .getValue(DMDAttributeIDs.MESO_ID
+                                        String mid = currFeature.getValue(
+                                                DMDAttributeIDs.MESO_ID
                                                         .toString());
                                         if (!mid.isEmpty()) {
-                                            rval.append(mid + " ");
+                                            rval.append(mid).append(" ");
+                                            addValueToMap(dataMap, keys,
+                                                    MESO_ID_KEY, mid);
                                         }
                                         break;
                                     case LOCATION:
                                         // Range @ Azimuth
-                                        double range = Double
-                                                .parseDouble(currFeature
-                                                        .getValue(DMDAttributeIDs.BASE_RANGE
+                                        double range = Double.parseDouble(
+                                                currFeature.getValue(
+                                                        DMDAttributeIDs.BASE_RANGE
                                                                 .toString()));
                                         UnitConverter converter = SI.KILOMETER
-                                                .getConverterTo(NonSI.NAUTICAL_MILE);
-                                        int rangeNm = (int) Math
-                                                .round(converter.convert(range));
+                                                .getConverterTo(
+                                                        NonSI.NAUTICAL_MILE);
+                                        int rangeNm = (int) Math.round(
+                                                converter.convert(range));
                                         String rangeUnits = "nm";
-                                        String azimuth = currFeature
-                                                .getValue(DMDAttributeIDs.BASE_AZIMUTH
+                                        String azimuth = currFeature.getValue(
+                                                DMDAttributeIDs.BASE_AZIMUTH
                                                         .toString());
                                         // Get rid of decimal point
-                                        azimuth = azimuth.contains(".") ? azimuth
-                                                .split("\\.")[0] : azimuth;
+                                        azimuth = azimuth.contains(".")
+                                                ? azimuth.split("\\.")[0]
+                                                : azimuth;
                                         rval.append(String.format(
-                                                "%7.7s@%-3.3s", String.format(
-                                                        "%d%s", rangeNm,
-                                                        rangeUnits), azimuth)
-                                                + " ");
+                                                "%7.7s@%-3.3s",
+                                                String.format("%d%s", rangeNm,
+                                                        rangeUnits),
+                                                azimuth)).append(" ");
+                                        addValueToMap(dataMap, keys,
+                                                IRadarInterrogator.RANGE,
+                                                Measure.valueOf(rangeNm,
+                                                        NonSI.NAUTICAL_MILE));
+                                        addValueToMap(dataMap, keys,
+                                                IRadarInterrogator.AZIMUTH,
+                                                Measure.valueOf(
+                                                        Integer.parseInt(
+                                                                azimuth),
+                                                        NonSI.DEGREE_ANGLE));
                                         break;
                                     case BASE:
                                         // Base
                                         String baseOnLowestElev = currFeature
-                                                .getValue(DMDAttributeIDs.BASE_ON_LOWEST_ELEV
-                                                        .toString());
+                                                .getValue(
+                                                        DMDAttributeIDs.BASE_ON_LOWEST_ELEV
+                                                                .toString());
 
                                         String baseHeight = "";
                                         if (baseOnLowestElev
@@ -244,99 +256,121 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
                                             baseHeight += "<";
                                         }
 
-                                        baseHeight += GraphicDataUtil.setupConverter(currFeature,
-                                                DMDAttributeIDs.BASE_HEIGHT.toString(),
-                                                1, true);
-                                        rval.append(baseHeight+" ");
+                                        baseHeight += GraphicDataUtil
+                                                .setupConverter(currFeature,
+                                                        DMDAttributeIDs.BASE_HEIGHT
+                                                                .toString(),
+                                                        1, true);
+                                        rval.append(baseHeight).append(" ");
+                                        addValueToMap(dataMap, keys,
+                                                BASE_HEIGHT_KEY, baseHeight);
                                         break;
                                     case DEPTH:
                                         // Depth
                                         String depth = GraphicDataUtil
-                                        .setupConverter(currFeature,
-                                                DMDAttributeIDs.DEPTH
-                                                        .toString(),
-                                                1,true);
-                                    rval.append(depth + " ");
+                                                .setupConverter(currFeature,
+                                                        DMDAttributeIDs.DEPTH
+                                                                .toString(),
+                                                        1, true);
+                                        rval.append(depth).append(" ");
+                                        addValueToMap(dataMap, keys, DEPTH_KEY,
+                                                depth);
                                         break;
                                     case RANK:
                                         // Rank
-                                        String rank = currFeature
-                                               .getValue(DMDAttributeIDs.STRENGTH_RANK
-                                        		       .toString());
-                                        rval.append("r" + rank + " ");
+                                        String rank = currFeature.getValue(
+                                                DMDAttributeIDs.STRENGTH_RANK
+                                                        .toString());
+                                        rval.append("r").append(rank)
+                                                .append(" ");
+
+                                        addValueToMap(dataMap, keys, RANK_KEY,
+                                                rank);
                                         break;
                                     case MSI:
                                         // MSI
-                                    	String msi = GraphicDataUtil
-                                               .setupConverter(
-                                        	           currFeature,
-                                                       DMDAttributeIDs.MSI.toString(),
-                                                       1, true);
-                                            rval.append(msi + " ");
+                                        String msi = GraphicDataUtil
+                                                .setupConverter(currFeature,
+                                                        DMDAttributeIDs.MSI
+                                                                .toString(),
+                                                        1, true);
+                                        rval.append(msi).append(" ");
+                                        addValueToMap(dataMap, keys, MSI_KEY,
+                                                msi);
                                         break;
                                     case RV:
                                         // llrotv
                                         String llrotv = GraphicDataUtil
-                                                .setupConverter(
-                                                        currFeature,
+                                                .setupConverter(currFeature,
                                                         DMDAttributeIDs.BASE_ROTATIONAL_VEL
                                                                 .toString(),
                                                         1, true);
-                                            rval.append(llrotv + " ");
+                                        rval.append(llrotv).append(" ");
+
+                                        addValueToMap(dataMap, keys,
+                                                BASE_ROT_VEL_KEY, llrotv);
                                         break;
                                     case G2G:
                                         // llg2g
                                         String llg2g = GraphicDataUtil
-                                                .setupConverter(
-                                                        currFeature,
+                                                .setupConverter(currFeature,
                                                         DMDAttributeIDs.BASE_GTG_VEL_DIFF
                                                                 .toString(),
                                                         1, true);
-                                           rval.append(llg2g + " ");
+                                        rval.append(llg2g).append(" ");
+                                        addValueToMap(dataMap, keys,
+                                                BASE_GTG_VEL_DIFF_KEY, llg2g);
                                         break;
                                     case MRV:
                                         // mxrotv
                                         String mxrotv = GraphicDataUtil
-                                                .setupConverter(
-                                                        currFeature,
+                                                .setupConverter(currFeature,
                                                         DMDAttributeIDs.MAX_ROTATIONAL_VEL
                                                                 .toString(),
                                                         1, true);
-                                            rval.append(mxrotv + " ");
+                                        rval.append(mxrotv).append(" ");
+                                        addValueToMap(dataMap, keys,
+                                                MAX_ROT_VEL_KEY, mxrotv);
                                         break;
                                     case HMRV:
                                         // htmxrv
                                         String htmxrv = GraphicDataUtil
-                                                .setupConverter(
-                                                        currFeature,
+                                                .setupConverter(currFeature,
                                                         DMDAttributeIDs.HEIGHT_MAX_ROTATIONAL_VEL
                                                                 .toString(),
                                                         1, true);
-                                        rval.append(htmxrv + " ");
+                                        rval.append(htmxrv).append(" ");
+                                        addValueToMap(dataMap, keys,
+                                                HT_MAX_ROT_VEL_KEY, htmxrv);
                                         break;
                                     case LL_CONV:
                                         // Low-Level Convergence
-                                        String llcon = currFeature
-                                                .getValue(DMDAttributeIDs._0_2KM_ARL_CONVERGENCE
+                                        String llcon = currFeature.getValue(
+                                                DMDAttributeIDs._0_2KM_ARL_CONVERGENCE
                                                         .toString())
-                                                + currFeature
-                                                        .getUnits(DMDAttributeIDs._0_2KM_ARL_CONVERGENCE
+                                                + currFeature.getUnits(
+                                                        DMDAttributeIDs._0_2KM_ARL_CONVERGENCE
                                                                 .toString());
                                         if (!llcon.isEmpty()) {
-                                            rval.append(llcon + "-llconv ");
+                                            rval.append(llcon)
+                                                    .append("-llconv ");
+                                            addValueToMap(dataMap, keys,
+                                                    LL_CONV_KEY, llcon);
                                         }
                                         break;
 
                                     case TVS:
                                         // Low-Level Convergence
-                                        String tvs = currFeature
-                                                .getValue(DMDAttributeIDs.ASSOCIATED_TVS
+                                        String tvs = currFeature.getValue(
+                                                DMDAttributeIDs.ASSOCIATED_TVS
                                                         .toString())
-                                                + currFeature
-                                                        .getUnits(DMDAttributeIDs.ASSOCIATED_TVS
+                                                + currFeature.getUnits(
+                                                        DMDAttributeIDs.ASSOCIATED_TVS
                                                                 .toString());
                                         if (!tvs.isEmpty()) {
-                                            rval.append(tvs + "-tvs ");
+                                            rval.append(tvs).append("-tvs ");
+                                            addValueToMap(dataMap, keys,
+                                                    TVS_KEY, tvs);
                                         }
                                         break;
                                     default:
@@ -354,16 +388,41 @@ public class RadarDMDInterrogator extends RadarGraphicInterrogator implements
         return rval.toString();
     }
 
-    private String formatDecimal(int places) {
-        if (places == 0) {
-            return "#0";
-        }
-        StringBuffer decimalFormatter = new StringBuffer();
-        decimalFormatter.append("#0.0");
-        for (int i = 1; i < places; i++) {
-            decimalFormatter.append("0");
-        }
-        return decimalFormatter.toString();
+    @Override
+    public Set<InterrogationKey<?>> getInterrogationKeys() {
+        Set<InterrogationKey<?>> keys = super.getInterrogationKeys();
+        keys.add(BASE_GTG_VEL_DIFF_KEY);
+        keys.add(BASE_HEIGHT_KEY);
+        keys.add(BASE_ROT_VEL_KEY);
+        keys.add(DEPTH_KEY);
+        keys.add(HT_MAX_ROT_VEL_KEY);
+        keys.add(LL_CONV_KEY);
+        keys.add(MAX_ROT_VEL_KEY);
+        keys.add(MESO_ID_KEY);
+        keys.add(MSI_KEY);
+        keys.add(RANK_KEY);
+        keys.add(TVS_KEY);
+        return keys;
+    }
+
+    @Override
+    public Set<InterrogationKey<?>> getValueStringKeys() {
+        Set<InterrogationKey<?>> keys = super.getValueStringKeys();
+        keys.add(IRadarInterrogator.ICAO);
+        keys.add(IRadarInterrogator.RANGE);
+        keys.add(IRadarInterrogator.AZIMUTH);
+        keys.add(BASE_GTG_VEL_DIFF_KEY);
+        keys.add(BASE_HEIGHT_KEY);
+        keys.add(BASE_ROT_VEL_KEY);
+        keys.add(DEPTH_KEY);
+        keys.add(HT_MAX_ROT_VEL_KEY);
+        keys.add(LL_CONV_KEY);
+        keys.add(MAX_ROT_VEL_KEY);
+        keys.add(MESO_ID_KEY);
+        keys.add(MSI_KEY);
+        keys.add(RANK_KEY);
+        keys.add(TVS_KEY);
+        return keys;
     }
 
     private static enum DmdStyleAttribute {

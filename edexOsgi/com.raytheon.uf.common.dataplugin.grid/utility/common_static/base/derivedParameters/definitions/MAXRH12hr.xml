@@ -18,4 +18,12 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="MAXRH12hr" name="12-hour Maximum Rel Humidity" unit="%"/>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter abbreviation="MAXRH12hr" name="12-hour Maximum Rel Humidity" unit="%">
+    <Method name="Alias" levels="Surface" models="NationalBlend">
+        <Field abbreviation="MAXRH12hr" level="2FHAG"/>
+    </Method>
+</DerivedParameter>

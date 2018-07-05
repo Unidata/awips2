@@ -18,7 +18,14 @@
 # further licensing information.
 ##
 
-from com.raytheon.edex.uengine.tasks.vtec import VtecUpdateEvent
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Request of Vtec
@@ -31,6 +38,11 @@ from com.raytheon.edex.uengine.tasks.vtec import VtecUpdateEvent
 #    04/29/08        1100          bwoodle        Initial Creation.
 #    
 #
+
+
+
+from com.raytheon.edex.uengine.tasks.vtec import VtecUpdateEvent
+
 
 class VtecEventUpdate():
     def __init__(self):

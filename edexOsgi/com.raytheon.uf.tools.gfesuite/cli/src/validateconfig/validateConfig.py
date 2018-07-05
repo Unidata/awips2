@@ -40,8 +40,8 @@ import sys
 import traceback
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import ValidateConfigRequest
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
+from awips import ThriftClient
+from awips import UsageArgumentParser
 
 
 def validate_args():

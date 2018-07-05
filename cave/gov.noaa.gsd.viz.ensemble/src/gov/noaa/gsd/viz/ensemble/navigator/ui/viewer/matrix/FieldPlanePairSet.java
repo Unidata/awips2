@@ -90,7 +90,7 @@ public class FieldPlanePairSet {
         FieldPlanePairSet set = new FieldPlanePairSet(modelFamily);
         for (FieldPlanePair e : oneSet) {
             set.add(new FieldPlanePair(e.getFieldAbbrev(), e.getFieldLongName(), e
-                    .getPlane(), e.isVisible(), e.getDisplayType()));
+                    .getPlane(), e.isResourceVisible(), e.getDisplayType()));
         }
         return set;
     }

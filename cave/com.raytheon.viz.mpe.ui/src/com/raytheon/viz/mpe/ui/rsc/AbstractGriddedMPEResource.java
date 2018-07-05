@@ -27,13 +27,11 @@ import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
-
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.time.DataTime;
@@ -54,6 +52,7 @@ import com.raytheon.viz.mpe.MPEInterrogationConstants;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.DisplayMode;
 import com.raytheon.viz.mpe.ui.rsc.AbstractMPEGriddedResourceData.Frame;
+import com.raytheon.viz.mpe.util.MPEConversionUtils;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -67,26 +66,26 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Dec 06, 2012            mschenke    Initial creation.
  * Jul 02, 2013  2160      mpduff      Added convenience method getData(Date)
+ * Mar 01, 2017  6160      bkowal      Updates for {@link MPEDisplayManager#createColorMap(String, String, int, javax.measure.unit.Unit, javax.measure.unit.Unit)}.
+ * Mar 06, 2017  6150      bkowal      No longer limit sampling by the color scale. Eliminate color map unit converter deprecation warnings.
+ * Sep 28, 2017  6407      bkowal      Cleanup.
+ * Oct 03, 2017  6407      bkowal      Updated to use {@link MPEConversionUtils}.
+ * Oct 06, 2017  6407      bkowal      Cleanup. Updates to support GOES-R SATPRE.
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 
 public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedResourceData, F extends Frame>
-        extends AbstractVizResource<T, IMapDescriptor> implements
-        IResourceDataChanged, IMpeResource {
+        extends AbstractVizResource<T, IMapDescriptor>
+        implements IResourceDataChanged, IMpeResource {
 
     protected Rectangle displayExtent;
 
     protected GridGeometry2D gridGeometry;
 
-    protected Map<DataTime, F> frames = new HashMap<DataTime, F>();
-
-    /** Replace once resource can look up time for itself */
-    @Deprecated
-    private DataTime lastPainted;
+    protected Map<DataTime, F> frames = new HashMap<>();
 
     /**
      * @param resourceData
@@ -96,44 +95,31 @@ public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedRes
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         resourceData.addChangeListener(this);
-        dataTimes = new ArrayList<DataTime>();
+        dataTimes = new ArrayList<>();
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 MPEDisplayManager.createColorMap(resourceData.getCvUseString(),
+                        resourceData.getDisplayString(),
                         resourceData.getDurationInHours(),
                         resourceData.getDataUnits(),
                         resourceData.getDisplayUnits()));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#initInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         try {
             displayExtent = getHrapSubGridExtent();
-            gridGeometry = MapUtil.getGridGeometry(new HRAPSubGrid(
-                    displayExtent));
+            gridGeometry = MapUtil
+                    .getGridGeometry(new HRAPSubGrid(displayExtent));
         } catch (Exception e) {
-            throw new VizException("Error computing hrap extent coordinates");
+            throw new VizException("Error computing hrap extent coordinates.",
+                    e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        DataTime currTime = lastPainted = paintProps.getDataTime();
+        DataTime currTime = paintProps.getDataTime();
         if (currTime == null) {
             return;
         }
@@ -150,20 +136,15 @@ public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedRes
                 if (frame.contourDisplay == null) {
                     frame.contourDisplay = createFrameContour(frame);
                 }
-                frame.contourDisplay.setColor(getCapability(
-                        ColorableCapability.class).getColor());
-                frame.contourDisplay.setLineStyle(getCapability(
-                        OutlineCapability.class).getLineStyle());
+                frame.contourDisplay.setColor(
+                        getCapability(ColorableCapability.class).getColor());
+                frame.contourDisplay.setLineStyle(
+                        getCapability(OutlineCapability.class).getLineStyle());
                 frame.contourDisplay.paint(target, paintProps);
             }
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
-     */
     @Override
     protected void disposeInternal() {
         for (F frame : frames.values()) {
@@ -172,13 +153,6 @@ public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedRes
         frames.clear();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
-     * referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         super.project(crs);
@@ -205,13 +179,6 @@ public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedRes
         return frame;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Map<String, Object> values = interrogate(coord);
@@ -223,49 +190,49 @@ public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedRes
         return dataValueLabel;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
     @Override
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
         try {
-            Map<String, Object> values = new HashMap<String, Object>();
+            Map<String, Object> values = new HashMap<>();
 
             ColorMapParameters parameters = getCapability(
                     ColorMapCapability.class).getColorMapParameters();
-            DataMappingPreferences dm = parameters.getDataMapping();
             Unit<?> displayUnit = parameters.getDisplayUnit();
             values.put(MPEInterrogationConstants.INTERROGATE_UNIT, displayUnit);
+
+            Unit<?> dataUnit = getResourceData().getDataUnits();
 
             double displayValue = Double.NaN;
             String displayValueLabel = null;
             Coordinate gridCell = coord.asGridCell(gridGeometry,
                     PixelInCell.CELL_CORNER);
-            if (lastPainted != null && gridCell.x >= 0 && gridCell.y >= 0
+            final DataTime dataTime = getDescriptor().getTimeForResource(this);
+            if (dataTime != null && gridCell.x >= 0 && gridCell.y >= 0
                     && gridCell.x < displayExtent.width
                     && gridCell.y < displayExtent.height) {
                 int idx = ((int) gridCell.y) * displayExtent.width
                         + ((int) gridCell.x);
-                short dataValue = getData(lastPainted)[idx];
-                UnitConverter dataToImage = parameters
-                        .getDataToImageConverter();
-                double imageValue = dataToImage.convert(dataValue);
-                displayValueLabel = dm.getLabelValueForDataValue(imageValue);
-                if (displayValueLabel == null) {
-                    displayValue = parameters.getDataToDisplayConverter()
-                            .convert(dataValue);
-                    displayValueLabel = String.format("%.3f", displayValue);
-                    // This appears to be how A1 MPE works with widgets by
-                    // specifying string lengths, they format using %.3f but
-                    // only display 2 decimal places
-                    displayValueLabel = displayValueLabel.substring(0,
-                            displayValueLabel.length() - 1);
+                short dataValue = getData(dataTime)[idx];
+
+                UnitConverter dataToDisplay = MPEConversionUtils
+                        .constructConverter(dataUnit, displayUnit);
+                if (dataToDisplay == null) {
+                    statusHandler
+                            .error("Failed to construct a Unit Converter for: "
+                                    + dataUnit.toString() + " -> "
+                                    + displayUnit.toString());
+                    return values;
                 }
+                displayValue = dataToDisplay.convert(dataValue);
+                displayValueLabel = String.format("%.3f", displayValue);
+                /*
+                 * This appears to be how A1 MPE works with widgets by
+                 * specifying string lengths, they format using %.3f but only
+                 * display 2 decimal places
+                 */
+                displayValueLabel = displayValueLabel.substring(0,
+                        displayValueLabel.length() - 1);
             }
 
             values.put(MPEInterrogationConstants.INTERROGATE_VALUE,
@@ -286,17 +253,6 @@ public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedRes
      */
     public Rectangle getHrapExtent() {
         return new Rectangle(displayExtent);
-    }
-
-    /**
-     * Use {@link #getData(DataTime)} instead
-     * 
-     * @return
-     * @throws VizException
-     */
-    @Deprecated
-    public final short[] getData() throws VizException {
-        return getData(lastPainted);
     }
 
     /**

@@ -34,13 +34,13 @@ import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IBaseLinesContainer;
+import com.raytheon.uf.viz.d2d.core.procedures.IBaseLinesContainer;
 import com.raytheon.uf.viz.xy.crosssection.graph.CrossSectionGraph;
 import com.raytheon.uf.viz.xy.crosssection.rsc.AbstractCrossSectionResource;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.graph.XyGraphDescriptor;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
-import com.raytheon.viz.core.slice.request.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.vividsolutions.jts.geom.LineString;
 
 /**

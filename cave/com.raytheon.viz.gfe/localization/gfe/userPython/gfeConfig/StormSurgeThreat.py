@@ -1,3 +1,23 @@
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+
 # ----------------------------------------------------------------------------
 # This software is in the public domain, furnished "as is", without technical
 # support, and with no warranty, express or implied, as to its usefulness for
@@ -6,7 +26,21 @@
 # XXXStormSurgeThreat
 #
 # Author: M. Volkmer/P. Santos
+#
+# SOFTWARE HISTORY
+#  Date       Ticket#   Engineer    Description
+#  ---------- --------  ----------- --------------------------
+#  07/21/17   DCS19921  PSantos     Enable TCStormSurgeThreat Tool to Run
+#                                   with P-ETSS data  
 # ----------------------------------------------------------------------------
+
+##
+# This is a base file that is not intended to be overridden.
+#
+# This file can be imported to override configuration settings. Please see the
+# Configuration Guides->GFE Configuration section of the GFE Online Help for
+# guidance on creating a new configuration file.
+##
 
 from gfeConfig import *
 
@@ -35,7 +69,7 @@ Png_logo = 1
 Png_logoString = "Storm Surge Threat - NWS Miami FL"
 
 # Turn off Color Bar
-Png_omitColorBar = 0
+Png_omitColorBar = 1
 
 # COLOR TABLES
 StormSurgeThreat_defaultColorTable='GFE/gHLS_new'
@@ -55,9 +89,9 @@ Lakes_graphicColor = 'blue'
 # MAP BACKGROUNDS
 # MapBackgrounds_default = ['Counties','Marine_Zones_XXX','Interstates']
 MapBackgrounds_default = ['Zones_XXX','Marine_Zones_XXX','Interstates','States','Lakes']
-XXX_mask = "StormSurgeWW_EditArea"
+XXX_mask = "StormSurgeWW_EditArea_Local"
 
-DefaultSamples = ['XXXStormSurgeThreat']
+#DefaultSamples = ['XXXStormSurgeThreat']
 # Customize FONT SIZES here
 #TextFont0 =  "Bitstream Vera Sans Mono-bold-10"
 #TextFont1 =  "Bitstream Vera Sans Mono-bold-10"

@@ -34,8 +34,6 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Ingestfilter;
 import com.raytheon.uf.common.hydro.CommonHydroConstants;
 import com.raytheon.uf.common.hydro.data.PrecipModes;
 import com.raytheon.uf.common.hydro.data.PrecipTotal;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
@@ -56,6 +54,8 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  *                                     the requested data spans two days.
  * Jun 08, 2016 5571      njensen      Moved precip mode enums to PrecipModes
  * Jul 22, 2016 4623      skorolev     Relocated to common. Cleanup.
+ * Sep 12, 2016 5631      bkowal       Eliminate warnings. Removed dead code and
+ *                                     unused fields / imports.
  * 
  * </pre>
  * 
@@ -63,10 +63,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  */
 
 public final class PrecipUtil {
-
-    private static final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(PrecipUtil.class);
-
     /**
      * The static singleton instance.
      */
@@ -133,10 +129,9 @@ public final class PrecipUtil {
      * @return
      */
     public PrecipTotal getTotalHourlyPrecip(List<Hourlypc> hourlyPCList,
-            int[] pHourlyPCIdx, List<Hourlypp> hourlyPPList,
-            int[] pHourlyPPIdx, Date ending_time, int num_hours,
-            float min_percent, int settings, boolean advance, int[] pc_records,
-            int[] pp_records) {
+            int[] pHourlyPCIdx, List<Hourlypp> hourlyPPList, int[] pHourlyPPIdx,
+            Date ending_time, int num_hours, float min_percent, int settings,
+            boolean advance, int[] pc_records, int[] pp_records) {
 
         /*
          * Make local copies of the pHourlyPCIdx, and pHourlyPPIdx pointers. The
@@ -169,18 +164,24 @@ public final class PrecipUtil {
              * Check the settings flag to determine how to process these
              * precipitation reports.
              */
-            reportMissMinPercent = (settings & CommonHydroConstants.REPORT_MISSING_BELOW_MIN_PERCENT) != 0;
-            if ((settings & CommonHydroConstants.PRECIP_PE_BEST) == CommonHydroConstants.PRECIP_PE_BEST) {
+            reportMissMinPercent = (settings
+                    & CommonHydroConstants.REPORT_MISSING_BELOW_MIN_PERCENT) != 0;
+            if ((settings
+                    & CommonHydroConstants.PRECIP_PE_BEST) == CommonHydroConstants.PRECIP_PE_BEST) {
                 peMode = PrecipModes.PrecipPEmode.PrecipPEbest;
-            } else if ((settings & CommonHydroConstants.PRECIP_PP) == CommonHydroConstants.PRECIP_PP) {
+            } else if ((settings
+                    & CommonHydroConstants.PRECIP_PP) == CommonHydroConstants.PRECIP_PP) {
                 peMode = PrecipModes.PrecipPEmode.PrecipPEPP;
-            } else if ((settings & CommonHydroConstants.PRECIP_PC) == CommonHydroConstants.PRECIP_PC) {
+            } else if ((settings
+                    & CommonHydroConstants.PRECIP_PC) == CommonHydroConstants.PRECIP_PC) {
                 peMode = PrecipModes.PrecipPEmode.PrecipPEPC;
             }
 
-            if ((settings & CommonHydroConstants.PRECIP_TS_BEST) == CommonHydroConstants.PRECIP_TS_BEST) {
+            if ((settings
+                    & CommonHydroConstants.PRECIP_TS_BEST) == CommonHydroConstants.PRECIP_TS_BEST) {
                 tsMode = PrecipModes.PrecipTSmode.PrecipTSbest;
-            } else if ((settings & CommonHydroConstants.PRECIP_TS_RANK) == CommonHydroConstants.PRECIP_TS_RANK) {
+            } else if ((settings
+                    & CommonHydroConstants.PRECIP_TS_RANK) == CommonHydroConstants.PRECIP_TS_RANK) {
                 tsMode = PrecipModes.PrecipTSmode.PrecipTSrank;
             } else {
                 tsMode = PrecipModes.PrecipTSmode.PrecipTSsingle;
@@ -197,12 +198,12 @@ public final class PrecipUtil {
         List<Integer> pTsPc = new ArrayList<>();
         List<Integer> pTsPp = new ArrayList<>();
         Hourlypc pHourlyPC = null;
-        if (hourlyPCList!=null && pHourlyPCLoc < hourlyPCList.size()) {
+        if (hourlyPCList != null && pHourlyPCLoc < hourlyPCList.size()) {
             pHourlyPC = hourlyPCList.get(pHourlyPCLoc);
         }
 
         Hourlypp pHourlyPP = null;
-        if (hourlyPPList!=null && pHourlyPPLoc < hourlyPPList.size()) {
+        if (hourlyPPList != null && pHourlyPPLoc < hourlyPPList.size()) {
             pHourlyPP = hourlyPPList.get(pHourlyPPLoc);
         }
 
@@ -254,8 +255,10 @@ public final class PrecipUtil {
         String best_pc_ts = null;
         String best_pp_ts = null;
         int best_covered = (int) CommonHydroConstants.MISSING_PRECIP;
-        int[] best_pc_coverage = new int[] { (int) CommonHydroConstants.MISSING_PRECIP };
-        int[] best_pp_coverage = new int[] { (int) CommonHydroConstants.MISSING_PRECIP };
+        int[] best_pc_coverage = new int[] {
+                (int) CommonHydroConstants.MISSING_PRECIP };
+        int[] best_pp_coverage = new int[] {
+                (int) CommonHydroConstants.MISSING_PRECIP };
         int[] pc_seconds_covered = new int[] { 0 };
         int[] pp_seconds_covered = new int[] { 0 };
         char[] best_pc_qc = new char[] { 'Z' };
@@ -455,9 +458,12 @@ public final class PrecipUtil {
                 /* If there are PC and PP values, then use the PP value. */
                 if ((num_ts_pp > 0)
                         && ((best_pp_amount != CommonHydroConstants.MISSING_PRECIP)
-                                || (best_pp_qc[0] == 'M') || ((best_reported_missing[0]) && (best_pc_amount == CommonHydroConstants.MISSING_PRECIP)))
+                                || (best_pp_qc[0] == 'M')
+                                || ((best_reported_missing[0])
+                                        && (best_pc_amount == CommonHydroConstants.MISSING_PRECIP)))
                         && (((best_pp_qc[0] != 'L') && (best_pp_qc[0] != 'C'))
-                                || (best_pp_amount == best_pc_amount) || (best_pc_amount == CommonHydroConstants.MISSING_PRECIP)))
+                                || (best_pp_amount == best_pc_amount)
+                                || (best_pc_amount == CommonHydroConstants.MISSING_PRECIP)))
 
                 {
                     totalPrecip.value = best_pp_amount;
@@ -484,7 +490,8 @@ public final class PrecipUtil {
                  * If there are totals from PC and PP, then use the PC value.
                  */
                 if ((num_ts_pc > 0)
-                        && ((best_pc_amount != CommonHydroConstants.MISSING_PRECIP) || (best_pc_qc[0] == 'M'))) {
+                        && ((best_pc_amount != CommonHydroConstants.MISSING_PRECIP)
+                                || (best_pc_qc[0] == 'M'))) {
                     totalPrecip.value = best_pc_amount;
                     totalPrecip.setPe("PC");
                     totalPrecip.setTs(best_pc_ts);
@@ -526,8 +533,8 @@ public final class PrecipUtil {
         }
 
         if (totalPrecip.value != CommonHydroConstants.MISSING_PRECIP) {
-            totalPrecip.setHoursCovered((float) best_covered
-                    / TimeUtil.SECONDS_PER_HOUR);
+            totalPrecip.setHoursCovered(
+                    (float) best_covered / TimeUtil.SECONDS_PER_HOUR);
             totalPrecip.setPercentFilled((float) best_covered
                     / (num_hours * TimeUtil.SECONDS_PER_HOUR));
 
@@ -542,8 +549,8 @@ public final class PrecipUtil {
             if (reportMissMinPercent) {
                 if (totalPrecip.getPercentFilled() < min_percent) {
                     totalPrecip.value = CommonHydroConstants.MISSING_PRECIP;
-                    totalPrecip
-                            .setValueIndicator(CommonHydroConstants.REJECTED_CHAR);
+                    totalPrecip.setValueIndicator(
+                            CommonHydroConstants.REJECTED_CHAR);
                 }
             }
 
@@ -618,7 +625,8 @@ public final class PrecipUtil {
      * @return
      */
     public String buildTsClause(List<String> ts, String tsField) {
-        if (ts == null || ts.isEmpty() || tsField == null || tsField.isEmpty()) {
+        if (ts == null || ts.isEmpty() || tsField == null
+                || tsField.isEmpty()) {
             return "";
         }
         StringBuilder tsClause = new StringBuilder(tsField.trim() + " ");
@@ -669,7 +677,8 @@ public final class PrecipUtil {
             status = ingestPtr.getId().getPe().compareTo(pe);
 
             if ((status == 0) && (dur == ingestPtr.getId().getDur())
-                    && (extremum == ingestPtr.getId().getExtremum().charAt(0))) {
+                    && (extremum == ingestPtr.getId().getExtremum()
+                            .charAt(0))) {
 
                 if (ingestPtr.getId().getTs().equals(ts1)) {
                     rank1 = ingestPtr.getTsRank();
@@ -732,7 +741,8 @@ public final class PrecipUtil {
 
                 if (status == 0) {
                     status = compareTsRank(pHourlyTS.getTs(),
-                            pBestHourlyData.getTs(), pIngestHead, pe, 1001, 'Z');
+                            pBestHourlyData.getTs(), pIngestHead, pe, 1001,
+                            'Z');
                 } else {
                     status = compareTsRank(pHourlyTS.getTs(),
                             pBestHourlyData.getTs(), pIngestHead, pe, 0, 'Z');
@@ -763,8 +773,8 @@ public final class PrecipUtil {
      * @param pcQC
      * @return
      */
-    public float getTotalHourlyPC(List<Hourlypc> hourlyPCList,
-            int pHourlyPCIdx, Date endingTime, int numHours, int numPcRecords,
+    public float getTotalHourlyPC(List<Hourlypc> hourlyPCList, int pHourlyPCIdx,
+            Date endingTime, int numHours, int numPcRecords,
             int[] secondsCovered, char[] pcQC) {
         char shefQcChar;
         float total = CommonHydroConstants.MISSING_PRECIP;
@@ -935,7 +945,8 @@ public final class PrecipUtil {
         startValue = (short) CommonHydroConstants.MISSING_PRECIP;
 
         while ((pStartPCIdx < hourlyPCList.size())
-                && ((pStartPCIdx != pEndPCIdx) || (startHour < endHour) || (startHour == 24 && endHour == 1))) {
+                && ((pStartPCIdx != pEndPCIdx) || (startHour < endHour)
+                        || (startHour == 24 && endHour == 1))) {
             Hourlypc pStartPC = hourlyPCList.get(pStartPCIdx);
             startValue = getHourSlotValue(pStartPC, startHour);
 
@@ -971,7 +982,8 @@ public final class PrecipUtil {
         endValue = (short) CommonHydroConstants.MISSING_PRECIP;
 
         while ((pEndPCIdx > pStartPCIdx)
-                || ((pEndPCIdx == pStartPCIdx) && (endHour > startHour) || (startHour == 24 && endHour == 1))) {
+                || ((pEndPCIdx == pStartPCIdx) && (endHour > startHour)
+                        || (startHour == 24 && endHour == 1))) {
             Hourlypc pEndPC = hourlyPCList.get(pEndPCIdx);
             hourIndex = endHour - 1;
             endValue = getHourSlotValue(pEndPC, endHour);
@@ -1014,8 +1026,8 @@ public final class PrecipUtil {
         cal.add(Calendar.HOUR_OF_DAY, endHour);
         pcEndTimet = cal.getTime();
 
-        secondsCovered[0] = (int) ((pcEndTimet.getTime() - pcStartTimet
-                .getTime()) / TimeUtil.MILLIS_PER_SECOND);
+        secondsCovered[0] = (int) ((pcEndTimet.getTime()
+                - pcStartTimet.getTime()) / TimeUtil.MILLIS_PER_SECOND);
 
         /* The starting and ending values have been found. */
         total = endValue - startValue;
@@ -1037,8 +1049,8 @@ public final class PrecipUtil {
      * @param reportedMissing
      * @return
      */
-    public float getTotalHourlyPP(List<Hourlypp> hourlyPPList,
-            int pHourlyPPIdx, Date endingTime, int numHours, int numPpRecords,
+    public float getTotalHourlyPP(List<Hourlypp> hourlyPPList, int pHourlyPPIdx,
+            Date endingTime, int numHours, int numPpRecords,
             int[] secondsCovered, char[] ppQC, boolean[] reportedMissing) {
         /*
          * Concept of an exact match does not apply here. BAL August 23, 2004.
@@ -1088,11 +1100,6 @@ public final class PrecipUtil {
         numMinutes = numHours * TimeUtil.MINUTES_PER_HOUR;
 
         pMinutes = new short[numMinutes + 1];
-
-        if (pMinutes == null) {
-            /* Return a missing precipitation value. */
-            return CommonHydroConstants.MISSING_PRECIP;
-        }
 
         /*
          * Check the ending time. Is it exactly on the top of the hour?
@@ -1165,7 +1172,9 @@ public final class PrecipUtil {
                         ppQC[0] = shefQcChar;
 
                         if ((total == CommonHydroConstants.MISSING_PRECIP)
-                                && ((value == CommonHydroConstants.MISSING_PRECIP) || ((value < 0) && (shefQcChar == 'M')))) {
+                                && ((value == CommonHydroConstants.MISSING_PRECIP)
+                                        || ((value < 0)
+                                                && (shefQcChar == 'M')))) {
                             reportedMissing[0] = true;
                         } else if (value >= 0) {
 
@@ -1305,8 +1314,10 @@ public final class PrecipUtil {
 
         StringBuilder fromList = new StringBuilder(
                 " b.id.lid, b.id.ts, b.id.obsdate, %s, %s, b.hour1, ");
-        fromList.append("b.hour2, b.hour3, b.hour4, b.hour5, b.hour6, b.hour7, b.hour8, b.hour9, b.hour10, ");
-        fromList.append("b.hour11, b.hour12, b.hour13, b.hour14, b.hour15, b.hour16, b.hour17, b.hour18, ");
+        fromList.append(
+                "b.hour2, b.hour3, b.hour4, b.hour5, b.hour6, b.hour7, b.hour8, b.hour9, b.hour10, ");
+        fromList.append(
+                "b.hour11, b.hour12, b.hour13, b.hour14, b.hour15, b.hour16, b.hour17, b.hour18, ");
         fromList.append("b.hour19, b.hour20, b.hour21, b.hour22, b.hour23, ");
         if (selectAdditional != null
                 && selectAdditional.trim().startsWith(", ") == false) {
@@ -1368,8 +1379,9 @@ public final class PrecipUtil {
 
         return new StringBuilder("SELECT")
                 .append(String.format(fromList.toString(), minuteOffsetStr,
-                        hourlyQCStr)).append("WHERE")
-                .append(whereStr.toString()).append(orderBy).toString();
+                        hourlyQCStr))
+                .append("WHERE").append(whereStr.toString()).append(orderBy)
+                .toString();
     }
 
     /**

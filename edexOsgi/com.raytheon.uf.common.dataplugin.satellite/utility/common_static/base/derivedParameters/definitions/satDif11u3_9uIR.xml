@@ -18,9 +18,14 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="GenericPixel" name="11u-3.9u Satellite" abbreviation="satDif11u3_9uIR" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="GenericPixel" name="11u-3.9u Satellite" abbreviation="satDif11u3_9uIR"
+    xmlns:ns2="group">
     <Method name="satDif11u3_9uIR">
-        <Field abbreviation="Imager 11 micron IR" unit="IRPixel"/>
-        <Field abbreviation="Imager 3.9 micron IR" unit="IRPixel"/>
+        <Field abbreviation="Imager 11 micron IR" unit="IRPixel" />
+        <Field abbreviation="Imager 3.9 micron IR" unit="IRPixel" />
     </Method>
 </DerivedParameter>

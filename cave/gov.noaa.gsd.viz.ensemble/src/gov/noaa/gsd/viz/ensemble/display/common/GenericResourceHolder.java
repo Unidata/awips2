@@ -1,8 +1,8 @@
 package gov.noaa.gsd.viz.ensemble.display.common;
 
-import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
-
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+
+import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
 
 /**
  * This class is used to encapsulate visible resources in order to make it
@@ -38,21 +38,15 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 
 public class GenericResourceHolder extends AbstractResourceHolder {
 
-    protected GenericResourceHolder(AbstractVizResource<?, ?> rsc,
-            boolean isSelected) {
+    protected GenericResourceHolder(AbstractVizResource<?, ?> rsc) {
 
-        super(rsc, isSelected);
+        super(rsc);
         this.rsc = rsc;
     }
 
     @Override
     public boolean requiresLoadCheck() {
         return false;
-    }
-
-    @Override
-    public String getGroupName() {
-        return "";
     }
 
     @Override
@@ -118,6 +112,26 @@ public class GenericResourceHolder extends AbstractResourceHolder {
     @Override
     public Calculation getCalculation() {
         return null;
+    }
+
+    @Override
+    public String getGroupName() {
+        return "";
+    }
+
+    @Override
+    public boolean isEnsembleGroup() {
+        return false;
+    }
+
+    @Override
+    public AbstractResourceHolder[] getChildren() {
+        return null;
+    }
+
+    @Override
+    public boolean hasChildren() {
+        return false;
     }
 
 }

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,27 +34,28 @@ import java.util.regex.Pattern;
 
 import com.raytheon.viz.warngen.gis.AffectedAreas;
 import com.raytheon.viz.warngen.gis.AffectedAreasComparator;
-import com.raytheon.viz.warnings.DateUtil;
 
 /**
  * FIPS / UGC Header Utility. This is currently used by the Cave plugins Warngen
  * and Warnings.
- * 
+ *
  * <pre>
+ *
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * May 6, 2008				bwoodle	    Initial creation
- * Dec 28 2012  DR15599     mgamazaychikov  Updated method getListCounties to fix the problem
- * 											with generated list of counties.
- * Apr 25, 2013 1877        jsanchez    Sorted the UGC line for cancellations.
- * May 10, 2013 1951        rjpeter     Updated ugcZones references
- * May 31, 2013 DR 16237    D. Friedman Added getUgcFromFips.
- * Mar 17, 2014 DR 16309    Qinglu Lin  Changed parseCountyHeader() to parseHeader() and updated it..
+ *
+ * Date         Ticket#    Engineer    Description
+ * ------------ ---------- ----------- --------------------------
+ * May 06, 2008            bwoodle      Initial creation
+ * Dec 28 2012  DR15599 mgamazaychikov  Updated method getListCounties to fix the problem
+ *                                      with generated list of counties.
+ * Apr 25, 2013 1877       jsanchez     Sorted the UGC line for cancellations.
+ * May 10, 2013 1951       rjpeter      Updated ugcZones references
+ * May 31, 2013 DR 16237   D. Friedman  Added getUgcFromFips.
+ * Mar 17, 2014 DR 16309   Qinglu Lin   Changed parseCountyHeader() to parseHeader() and updated it.
+ *
  * </pre>
- * 
+ *
  * @author bwoodle
- * @version 1.0
  */
 
 public class FipsUtil {
@@ -95,7 +96,7 @@ public class FipsUtil {
      * This method creates a correctly formatted UGC Header based on the passed
      * AffectedAreas. The 6 digit datestamp at the end of the header is
      * determined based on the passed endtime.
-     * 
+     *
      * @param areas
      * @param endtime
      * @return
@@ -154,7 +155,7 @@ public class FipsUtil {
      * This method creates a correctly formatted UGC Header based on the passed
      * AffectedAreas. The 6 digit datestamp at the end of the header is
      * determined based on the passed endtime.
-     * 
+     *
      * @param areas
      * @param endtime
      * @return
@@ -201,7 +202,7 @@ public class FipsUtil {
                 if (!countyOrMarine.equals("Marine")) {
                     curState = range.substring(0, 2);
                 } else {
-                    curState = ""; 
+                    curState = "";
                 }
                 curList = new ArrayList<String>();
                 range = range.substring(3);
@@ -277,7 +278,7 @@ public class FipsUtil {
     /**
      * Private method to determine the UGC Header given an ArrayList of the
      * affected zones. This does not add the end time.
-     * 
+     *
      * @param counties
      * @return
      */
@@ -313,7 +314,7 @@ public class FipsUtil {
     /**
      * This returns a FIPS header consisting of the FIPS zones which are in
      * "oldFips" but not "newFips"
-     * 
+     *
      * @return Difference between zones in 2 FIPS headers
      */
     public static String getDifference(String oldFips, String newFips) {
@@ -347,7 +348,7 @@ public class FipsUtil {
     /**
      * Private utility method which will return an ArrayList of each zone
      * formatted from a FIPS Header.
-     * 
+     *
      * @param fips
      * @return
      */
@@ -420,7 +421,7 @@ public class FipsUtil {
 
     /**
      * Returns a state abbreviation given the FIPS code
-     * 
+     *
      * @return two letter state abbreviation
      */
     public static String getStateNameFromFips(String fips) {

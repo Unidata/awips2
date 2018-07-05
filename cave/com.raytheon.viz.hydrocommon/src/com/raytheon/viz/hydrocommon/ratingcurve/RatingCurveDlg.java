@@ -32,6 +32,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.TimeZone;
 
 import org.eclipse.swt.SWT;
@@ -81,6 +82,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 15 Jul 2013  2088        rferrel     Make dialog non-blocking.
  * 23 Oct 2015  14375       xwei        Fixed rating curve saving error. Fixed import rating curve format error.
  * 27 Apr 2016  5483        randerso    Fix GUI sizing issues
+ * 10/02/2017   DR20030     qzhu        Fix problems of importing rating curve
+ * 11/07/2017   DR19987     jdeng       Can't Insert a Point in the Middle of Rating Curve Table
  * </pre>
  * 
  * @author lvenable
@@ -510,8 +513,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
         shiftListLbl.setLayoutData(gd);
 
         // Create Shift Data List
-        shiftDataList = new List(shiftComp, SWT.BORDER | SWT.SINGLE
-                | SWT.V_SCROLL);
+        shiftDataList = new List(shiftComp,
+                SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
         shiftDataList.setFont(controlFont);
 
         GC gc = new GC(shiftDataList);
@@ -605,8 +608,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 final String tokenizedDir = "whfs_import_dir";
-                String importRating = AppsDefaults.getInstance().getToken(
-                        tokenizedDir);
+                String importRating = AppsDefaults.getInstance()
+                        .getToken(tokenizedDir);
                 FileDialog fd = new FileDialog(shell, SWT.OPEN);
                 fd.setFilterPath(importRating);
                 String[] filterExt = { "*." + extension };
@@ -629,11 +632,11 @@ public class RatingCurveDlg extends CaveSWTDialog {
         curveClearAllBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                MessageBox messageDialog = new MessageBox(shell, SWT.OK
-                        | SWT.CANCEL);
+                MessageBox messageDialog = new MessageBox(shell,
+                        SWT.OK | SWT.CANCEL);
                 messageDialog.setText("Clear Confirmation");
-                messageDialog.setMessage("This will clear the list for " + lid
-                        + ".");
+                messageDialog.setMessage(
+                        "This will clear the list for " + lid + ".");
                 int response = messageDialog.open();
 
                 if (response == SWT.OK) {
@@ -673,8 +676,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (noShiftCurveDataList.getSelectionIndex() != -1) {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                            | SWT.OK | SWT.CANCEL);
+                    MessageBox mb = new MessageBox(shell,
+                            SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
                     mb.setText("Remove Base Rating Point Confirmation");
                     mb.setMessage("This will remove the highlighted pair.");
                     int response = mb.open();
@@ -708,9 +711,9 @@ public class RatingCurveDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (verifyDouble(stageTF) && verifyInt(dischargeTF)) {
-                    RatingCurveData rcd = new RatingCurveData(new Double(
-                            stageTF.getText().trim()), new Double(dischargeTF
-                            .getText().trim()));
+                    RatingCurveData rcd = new RatingCurveData(
+                            new Double(stageTF.getText().trim()),
+                            new Double(dischargeTF.getText().trim()));
                     insertBaseCurvePoint(rcd);
                 }
             }
@@ -750,6 +753,16 @@ public class RatingCurveDlg extends CaveSWTDialog {
             }
 
             noShiftCurveArray.add(rcd);
+
+            Comparator<RatingCurveData> comparator = new Comparator<RatingCurveData>() {
+
+                @Override
+                public int compare(RatingCurveData o1, RatingCurveData o2) {
+                    return Double.compare(o1.getStage(), o2.getStage());
+                }
+            };
+            noShiftCurveArray.sort(comparator);
+
             if (!addedPoints.contains(rcd)) {
                 addedPoints.add(rcd);
             } else {
@@ -757,14 +770,16 @@ public class RatingCurveDlg extends CaveSWTDialog {
                 addedPoints.add(rcd);
             }
 
+            addedPoints.sort(comparator);
+
             remakeRatingCurveDataList();
 
             if (getEditingShiftData() != null) {
                 if (getEditingShiftData().isActive()) {
                     int index = shiftDataList.getSelectionIndex();
                     generateShiftList(shiftData.get(index));
-                    ratingCurveCanvas.updateCurveData(shiftCurveArray,
-                            floodDbl, recordDbl, shiftAmount);
+                    ratingCurveCanvas.updateCurveData(shiftCurveArray, floodDbl,
+                            recordDbl, shiftAmount);
                 } else {
                     ratingCurveCanvas.updateCurveData(noShiftCurveArray,
                             floodDbl, recordDbl, shiftAmount);
@@ -807,8 +822,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
         gd.heightHint = trim.height;
         shiftCurveDataList.setLayoutData(gd);
         shiftCurveDataList.deselectAll();
-        shiftCurveDataList.setForeground(Display.getCurrent().getSystemColor(
-                SWT.COLOR_DARK_GRAY));
+        shiftCurveDataList.setForeground(
+                Display.getCurrent().getSystemColor(SWT.COLOR_DARK_GRAY));
         shiftCurveDataList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -821,8 +836,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
         ratingLbl.setText(ratingLblText);
         ratingLbl.setLayoutData(gd);
 
-        noShiftCurveDataList = new List(rightComp, SWT.BORDER | SWT.SINGLE
-                | SWT.V_SCROLL);
+        noShiftCurveDataList = new List(rightComp,
+                SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
         noShiftCurveDataList.setFont(controlFont);
 
         trim = shiftCurveDataList.computeTrim(0, 0, textWidth,
@@ -837,7 +852,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
                 RatingCurveData data = noShiftCurveArray
                         .get(noShiftCurveDataList.getSelectionIndex());
                 stageTF.setText(String.format("%7.2f", data.getStage()));
-                dischargeTF.setText(String.format("%7.1f", data.getDischarge()));
+                dischargeTF
+                        .setText(String.format("%7.1f", data.getDischarge()));
             }
         });
 
@@ -988,8 +1004,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
     private String getShiftListLabel() {
         String format = "%10S %10S %10S";
 
-        String labelStr = String
-                .format(format, "Shift Date", "Value", "Active");
+        String labelStr = String.format(format, "Shift Date", "Value",
+                "Active");
 
         return labelStr;
     }
@@ -1098,8 +1114,9 @@ public class RatingCurveDlg extends CaveSWTDialog {
 
             // remake the rating curve with shift data
             for (RatingCurveData curve : noShiftCurveArray) {
-                RatingCurveData curve2 = new RatingCurveData(curve.getStage()
-                        + rcsd.getValue(), curve.getDischarge());
+                RatingCurveData curve2 = new RatingCurveData(
+                        curve.getStage() + rcsd.getValue(),
+                        curve.getDischarge());
                 shiftCurveArray.add(curve2);
                 shiftCurveDataList.add(curve2.toString());
             }
@@ -1127,10 +1144,11 @@ public class RatingCurveDlg extends CaveSWTDialog {
         if (file.exists()) {
             // if they choose to import entire directory
             if (file.isDirectory()) {
-                MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                        | SWT.OK | SWT.CANCEL);
+                MessageBox mb = new MessageBox(shell,
+                        SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
                 mb.setText("Directory Chosen!");
-                mb.setMessage("Cannot open a directory, choose a rating curve. EX: 'NBD1.rating'");
+                mb.setMessage(
+                        "Cannot open a directory, choose a rating curve. EX: 'NBD1.rating'");
                 mb.open();
             }
             // if they choose just the file to import
@@ -1144,10 +1162,11 @@ public class RatingCurveDlg extends CaveSWTDialog {
                                 ve);
                     }
                 } else {
-                    MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION
-                            | SWT.OK | SWT.CANCEL);
+                    MessageBox mb = new MessageBox(shell,
+                            SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
                     mb.setText("Invalid File format Chosen!");
-                    mb.setMessage("Cannot open this file format, choose rating curve. EX: 'NBD1.rating'");
+                    mb.setMessage(
+                            "Cannot open this file format, choose rating curve. EX: 'NBD1.rating'");
                     mb.open();
                 }
             }
@@ -1173,7 +1192,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
 
             // Read File Line By Line
             while ((strLine = br.readLine()) != null) {
-                String[] line = strLine.trim().split(" ");
+                String[] line = strLine.trim().split("\t");
                 // should be ordered stage, flow separated by a space
                 if (line.length == 2) {
                     rci.add(new Double(line[0]), new Double(line[1]));
@@ -1326,8 +1345,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
                 RatingCurveShiftData currentShift = shiftData.get(0);
                 if (currentShift.isActive()) {
                     generateShiftList(currentShift);
-                    ratingCurveCanvas.updateCurveData(shiftCurveArray,
-                            floodDbl, recordDbl, currentShift.getValue());
+                    ratingCurveCanvas.updateCurveData(shiftCurveArray, floodDbl,
+                            recordDbl, currentShift.getValue());
                 } else {
                     ratingCurveCanvas.updateCurveData(noShiftCurveArray,
                             floodDbl, recordDbl, 0);
@@ -1349,15 +1368,15 @@ public class RatingCurveDlg extends CaveSWTDialog {
     private void removeShift() {
         if (shiftDataList.getItemCount() > 0
                 && shiftDataList.getSelectionCount() > 0) {
-            MessageBox messageDialog = new MessageBox(shell, SWT.OK
-                    | SWT.CANCEL);
+            MessageBox messageDialog = new MessageBox(shell,
+                    SWT.OK | SWT.CANCEL);
             messageDialog.setText("Shift Remove Confirmation");
             messageDialog.setMessage("This will remove the highlighted shift.");
             int response = messageDialog.open();
 
             if (response == SWT.OK) {
-                String selection = shiftDataList.getItem(shiftDataList
-                        .getSelectionIndex());
+                String selection = shiftDataList
+                        .getItem(shiftDataList.getSelectionIndex());
                 for (RatingCurveShiftData sd : shiftData) {
                     if (getShiftListString(sd).equals(selection)) {
                         removedCurveShifts.add(sd);
@@ -1420,8 +1439,8 @@ public class RatingCurveDlg extends CaveSWTDialog {
      */
     private void error(String message, Text field) {
 
-        MessageBox mb = new MessageBox(shell, SWT.ICON_QUESTION | SWT.OK
-                | SWT.CANCEL);
+        MessageBox mb = new MessageBox(shell,
+                SWT.ICON_QUESTION | SWT.OK | SWT.CANCEL);
         mb.setText("Failed Validation");
         mb.setMessage(message);
 

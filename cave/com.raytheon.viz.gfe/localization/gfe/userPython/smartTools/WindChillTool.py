@@ -26,6 +26,12 @@
 #
 # Author: Dankers, WFO Boulder, August 2001
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 WeatherElementEdited = "WindChill"
 ToolType = "numeric"
 from numpy import *

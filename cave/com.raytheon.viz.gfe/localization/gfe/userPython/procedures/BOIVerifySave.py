@@ -32,6 +32,12 @@
 #    11/21/13        16770         ryu            Change name of temporary files
 #                                                 for dual domain.
 #=============================================================================
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 #
 #  Do not show this in any menu.  Should only be run via runProcedure after
 #  putting the model to save in /tmp/<siteId>_FILE

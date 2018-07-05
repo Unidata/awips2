@@ -29,10 +29,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.viz.core.slice.request.HeightScale;
+import com.raytheon.uf.common.menus.vb.ViewMenu;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.LeftRightMenu;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * Clone dialog.

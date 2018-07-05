@@ -46,7 +46,7 @@ The contents of the base version of the radar distribution file:
     
     <requestPatterns xmlns:ns2="group">
         <regex>^SDUS[234578]. .*</regex>
-        <regex>^RadarServer.*</regex>
+        <regex>^Level3.*</regex>
     </requestPatterns>
 
 Looking at the base radar.xml distribution file in the previous example, there are two regular expressions.  The first regular expression matches the standard WMO ID of radar products.   Via the edexBridge the LDM will place a message in the external.dropbox QPID queue, indicating a radar product has arrived.  EDEX will then take the message containing the radar WMO ID and compare it against the regular expressions in radar.xml.  If a match is found, EDEX places a message in the QPID queue Ingest.radar.  The radar decoder will then consume the message and process the radar data accordingly. 

@@ -1,7 +1,12 @@
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
  <!--
  CREATED 2-29-2012 BY EVAN BOOKBINDER
  How often do you get to write awesome software on a leap day?
- 
+
  Take LSR data imported by the LSR2WARNGEN local app via the 
  importLSR2DB.sh script and create pointSource objects for
  WarnGen usage

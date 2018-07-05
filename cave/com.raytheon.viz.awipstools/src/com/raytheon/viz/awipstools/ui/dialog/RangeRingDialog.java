@@ -30,7 +30,6 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.VerifyEvent;
@@ -87,11 +86,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      Verify listeners for radius, latitude and longitude fields.
  *  08-20-12     #3467      mapeters   Added addChangeListenerToResourceData  and 
  *                                     removeChangeListenerFromResourceData functions.
+ *  09-08-16     #5871      njensen    Visible checkbox takes effect immediately
  * 
  * </pre>
  * 
  * @author ebabin
- * @version 1.0
  */
 public class RangeRingDialog extends CaveJFACEDialog implements
         IResourceDataChanged, IPointChangedListener {
@@ -345,6 +344,8 @@ public class RangeRingDialog extends CaveJFACEDialog implements
                     MovableRingRow row = (MovableRingRow) w.getData();
                     if (row.ring != null) {
                         row.ring.setVisible(row.enabled.getSelection());
+                        resourceData.fireChangeListeners(ChangeType.DATA_UPDATE,
+                                null);
                     }
                 }
             });
@@ -447,10 +448,10 @@ public class RangeRingDialog extends CaveJFACEDialog implements
             .getInstance();
 
     /** List of Fixed rings in the display. */
-    private Collection<FixedRingRow> fixedRings = new ArrayList<FixedRingRow>();
+    private Collection<FixedRingRow> fixedRings = new ArrayList<>();
 
     /** List of movable rings in the display. */
-    private Collection<MovableRingRow> movableRings = new ArrayList<MovableRingRow>();
+    private Collection<MovableRingRow> movableRings = new ArrayList<>();
 
     /** The minimum width for movable ring rows. */
     private int rowIdWidth = SWT.DEFAULT;
@@ -473,16 +474,11 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         resourceData.addChangeListener(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets
-     * .Composite)
-     */
+    @Override
     public Control createDialogArea(Composite parent) {
         Composite topComposite = (Composite) super.createDialogArea(parent);
         getShell().addShellListener(new ShellAdapter() {
+            @Override
             public void shellClosed(ShellEvent e) {
                 resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, false);
             }
@@ -575,6 +571,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         Button delete = new Button(createComposite, SWT.PUSH);
         delete.setText("Delete");
         delete.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 deleteMovableRing();
             }
@@ -589,7 +586,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         MenuItem mi0 = new MenuItem(menu, SWT.PUSH);
         mi0.setText("Select One");
 
-        ArrayList<String> items = new ArrayList<String>();
+        java.util.List<String> items = new ArrayList<>();
 
         // Determine rings to place at the top of the menu.
         Collection<RangeRing> rangeRings = toolsDataManager.getRangeRings();
@@ -744,15 +741,11 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         int height = convertHeightInCharsToPixels(1);
         final FixedRingRow row = new FixedRingRow();
         row.enabled = new Button(fixedRingsComposite, SWT.CHECK);
-        row.enabled.addSelectionListener(new SelectionListener() {
-            @Override
-            public void widgetDefaultSelected(SelectionEvent e) {
-                widgetSelected(e);
-            }
-
+        row.enabled.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 row.ring.setVisible(row.enabled.getSelection());
+                resourceData.fireChangeListeners(ChangeType.DATA_UPDATE, null);
             }
         });
 
@@ -885,7 +878,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
      * Save users range rings to the manager and notify others of the change.
      */
     private void saveChanges() {
-        Collection<RangeRing> rangeRings = new ArrayList<RangeRing>();
+        Collection<RangeRing> rangeRings = new ArrayList<>();
         for (FixedRingRow row : fixedRings) {
             boolean enabled = row.enabled.getSelection();
             String id = row.id.getText();
@@ -923,13 +916,6 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         // override, so can add calculate as default button.
@@ -938,11 +924,13 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         Button okButton = createButton(parent, SWT.OK, "OK", false);
 
         cancelButton.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 close();
             }
         });
         applyButton.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 if (verifyRings()) {
                     saveChanges();
@@ -952,6 +940,7 @@ public class RangeRingDialog extends CaveJFACEDialog implements
             }
         });
         okButton.addListener(SWT.Selection, new Listener() {
+            @Override
             public void handleEvent(Event event) {
                 if (verifyRings()) {
                     saveChanges();
@@ -963,14 +952,6 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (object instanceof Boolean) {
@@ -1016,11 +997,6 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#close()
-     */
     @Override
     public boolean close() {
         // passing true tells the resource that editable should be turned off
@@ -1029,11 +1005,6 @@ public class RangeRingDialog extends CaveJFACEDialog implements
         return super.close();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.points.IPointChangedListener#pointChanged()
-     */
     @Override
     public void pointChanged() {
         VizApp.runAsync(new Runnable() {

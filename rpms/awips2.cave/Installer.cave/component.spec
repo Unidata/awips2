@@ -17,6 +17,7 @@
 %define __prelink_undo_cmd %{nil}
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+# disable jar repacking
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
 
 Name: %{_component_name}
@@ -128,26 +129,30 @@ cd ${RPM_BUILD_ROOT}/awips2
 unzip %{_component_zip_file_name}
 rm -f %{_component_zip_file_name}
 
-%pre
-
-%post
-# We need to create a link to the python shared library if it does not exist.
-pushd . > /dev/null 2>&1
-if [ -d /awips2/python/lib ]; then
-   cd /awips2/python/lib
-   if [ -L libpython.so ]; then
-      # Ensure that we are pointing to the correct shared library.
-      rm -f libpython.so
-   fi
-      
-   if [ -f libpython2.7.so.1.0 ]; then
-      ln -s libpython2.7.so.1.0 libpython.so
-   fi
+mkdir -p ${RPM_BUILD_ROOT}/awips2/cave/etc
+if [ $? -ne 0 ]; then
+   exit 1
 fi
-popd > /dev/null 2>&1
 
+# Relocate any localization files
 pushd . > /dev/null 2>&1
-cd /awips2/cave/plugins
+cd ${RPM_BUILD_ROOT}/awips2/cave/plugins
+for localizationDirectory in `find . -maxdepth 2 -name localization -type d`;
+do
+   # copy the contents of the localization directory to the
+   # etc directory.
+   cp -rf ${localizationDirectory}/* ${RPM_BUILD_ROOT}/awips2/cave/etc
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+
+   # remove the localization directory.
+   rm -rf ${localizationDirectory}
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+done
+
 # Forcefully unzip: org.eclipse.swt.gtk.linux.x86_64_*.jar
 if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
    mkdir org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}
@@ -180,7 +185,7 @@ fi
 
 # Delete configuration information because it references the jar files that
 # were just deleted.
-rm -rf /awips2/cave/configuration/org.eclipse.osgi
+rm -rf /awips2/cave/configuration/org.eclipse.osgi ${RPM_BUILD_ROOT}/awips2/cave/configuration/org.eclipse.osgi
 
 popd > /dev/null 2>&1
 
@@ -201,9 +206,33 @@ fi
 
 chown -R awips:fxalpha /awips2/cave
 
-%preun
 %postun
 rm -rf /awips2/cave
+
+%pre
+
+%post
+# We need to create a link to the python shared library if it does not exist.
+pushd . > /dev/null 2>&1
+if [ -d /awips2/python/lib ]; then
+   cd /awips2/python/lib
+   if [ -L libpython.so ]; then
+      # Ensure that we are pointing to the correct shared library.
+      rm -f libpython.so
+   fi
+      
+   if [ -f libpython2.7.so.1.0 ]; then
+      ln -s libpython2.7.so.1.0 libpython.so
+   fi
+fi
+popd > /dev/null 2>&1
+
+%preun
+
+# Check and remove the cave configuration directory so that file change warnings do not show up on un-install.
+if [ -d /awips2/cave/configuration ]; then
+   rm -rf /awips2/cave/configuration/ > /dev/null 2>&1
+fi
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
@@ -215,7 +244,9 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/cave/artifacts.xml 
 /awips2/cave/cave.ini
 %dir /awips2/cave/configuration
-/awips2/cave/configuration/*
+%dir /awips2/cave/etc
+/awips2/cave/etc/*
+%config(missingok) /awips2/cave/configuration/*
 %dir /awips2/cave/features
 /awips2/cave/features/*
 %dir /awips2/cave/p2
@@ -226,5 +257,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/cave/readme
 /awips2/cave/readme/*
 /awips2/cave/.eclipseproduct
+ 
 %defattr(755,awips,fxalpha,755)
 /awips2/cave/cave

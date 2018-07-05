@@ -1,10 +1,5 @@
 package gov.noaa.gsd.viz.ensemble.display.rsc.timeseries;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleResourceManager;
-import gov.noaa.gsd.viz.ensemble.display.calculate.EnsembleCalculator;
-import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,6 +21,11 @@ import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResource;
 import com.raytheon.uf.viz.xy.timeseries.rsc.TimeSeriesResourceData;
 import com.raytheon.viz.core.graphing.xy.XYDataList;
 
+import gov.noaa.gsd.viz.ensemble.control.EnsembleResourceIngester;
+import gov.noaa.gsd.viz.ensemble.display.calculate.EnsembleCalculator;
+import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
+
 /**
  * Uses cached data of loaded members in the time series display, generates an
  * new data and construct a resource for it.
@@ -42,7 +42,7 @@ import com.raytheon.viz.core.graphing.xy.XYDataList;
  * Feb, 2014     5056       jing       Initial creation
  * 
  * 
- * </pre>
+ *          </pre>
  */
 public class GeneratedTimeSeriesResourceData extends TimeSeriesResourceData
         implements IInitListener {
@@ -133,12 +133,8 @@ public class GeneratedTimeSeriesResourceData extends TimeSeriesResourceData
         if (level != null && !level.equals("") && unit != null
                 && !unit.equals("")) {
             // Same level and unit case
-            dataHolders = EnsembleResourceManager
-                    .getInstance()
-                    .getResourceList(toolLayer)
-                    .getUserLoadedRscs(
-                            (IDescriptor) new TimeSeriesDescriptor(), true,
-                            level, unit);
+            dataHolders = toolLayer.getResourceList().getUserLoadedRscs(
+                    TimeSeriesDescriptor.class, true, level, unit);
 
             // TODO: Reserved for future use.
 
@@ -160,11 +156,8 @@ public class GeneratedTimeSeriesResourceData extends TimeSeriesResourceData
             // ResourceManager.getInstance().getResourceList(editor)
             // .getUserLoadedRscs((IDescriptor)new TimeSeriesDescriptor(),
             // false);
-            dataHolders = EnsembleResourceManager
-                    .getInstance()
-                    .getResourceList(toolLayer)
-                    .getUserLoadedRscs(
-                            (IDescriptor) new TimeSeriesDescriptor(), true);
+            dataHolders = toolLayer.getResourceList()
+                    .getUserLoadedRscs(TimeSeriesDescriptor.class, true);
         }
 
     }
@@ -184,14 +177,14 @@ public class GeneratedTimeSeriesResourceData extends TimeSeriesResourceData
         this.unit = rscs.get(0).getUnits();
 
         this.setCoordinate(rscs.get(0).getResourceData().getCoordinate());
-        this.setCombineOperation(rscs.get(0).getResourceData()
-                .getCombineOperation());
+        this.setCombineOperation(
+                rscs.get(0).getResourceData().getCombineOperation());
         this.setFrozenTime(rscs.get(0).getResourceData().getFrozenTime());
 
         this.setLevelKey(rscs.get(0).getResourceData().getLevelKey());
 
-        this.setPointCoordinate(rscs.get(0).getResourceData()
-                .getPointCoordinate());
+        this.setPointCoordinate(
+                rscs.get(0).getResourceData().getPointCoordinate());
         this.setPointLetter(rscs.get(0).getResourceData().getPointLetter());
 
         this.setYParameter(rscs.get(0).getResourceData().getYParameter());
@@ -304,8 +297,8 @@ public class GeneratedTimeSeriesResourceData extends TimeSeriesResourceData
     @Override
     public void inited(AbstractVizResource<?, ?> rsc) {
 
-        EnsembleResourceManager.getInstance().registerGenerated(
-                (AbstractVizResource<?, ?>) resource);
+        EnsembleResourceIngester.getInstance()
+                .register((AbstractVizResource<?, ?>) resource);
 
     }
 }

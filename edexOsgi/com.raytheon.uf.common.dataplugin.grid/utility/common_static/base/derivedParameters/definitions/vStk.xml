@@ -18,17 +18,21 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="vWStk" name="V Stack" unit="m/s">
-   <Method name="Union" levels="0-3kmAgl">
-    	<Field abbreviation="vW" level="0FHAG"/>
-        <Field abbreviation="vW" level="0.5kmAgl"/>
-        <Field abbreviation="vW" level="1kmAgl"/>
-        <Field abbreviation="vW" level="1.5kmAgl"/>
-        <Field abbreviation="vW" level="2kmAgl"/>
-        <Field abbreviation="vW" level="2.5kmAgl"/>
-        <Field abbreviation="vW" level="3kmAgl"/>
+    <Method name="Union" levels="0-3kmAgl">
+        <Field abbreviation="vW" level="0FHAG" />
+        <Field abbreviation="vW" level="0.5kmAgl" />
+        <Field abbreviation="vW" level="1kmAgl" />
+        <Field abbreviation="vW" level="1.5kmAgl" />
+        <Field abbreviation="vW" level="2kmAgl" />
+        <Field abbreviation="vW" level="2.5kmAgl" />
+        <Field abbreviation="vW" level="3kmAgl" />
     </Method>
     <Method name="Union" levels="C,FHAG">
-    	<Field abbreviation="vW"/>
+        <Field abbreviation="vW" />
     </Method>
 </DerivedParameter>

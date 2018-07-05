@@ -22,6 +22,7 @@
 <plugin>
    <extension-point id="com.raytheon.uf.viz.d2d.core.timeMatchingConfigurationFactory" name="com.raytheon.uf.viz.d2d.core.timeMatchingConfigurationFactory" schema="schema/timeMatchingConfigurationFactory.exsd"/>
    <extension-point id="com.raytheon.uf.viz.d2d.core.cloudHeightAlgorithm" name="com.raytheon.uf.viz.d2d.core.cloudHeightAlgorithm" schema="schema/cloudHeightAlgorithm.exsd"/>
+   <extension-point id="alterBundle" name="alterBundle" schema="schema/alterBundle.exsd"/>
 
    <extension point="org.eclipse.ui.themes">
     <themeElementCategory 

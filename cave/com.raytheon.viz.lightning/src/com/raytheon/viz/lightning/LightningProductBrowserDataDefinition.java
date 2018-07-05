@@ -1,186 +1,131 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.lightning;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.eclipse.jface.preference.IPreferenceStore;
+
+import com.raytheon.uf.common.dataplugin.binlightning.LightningConstants;
 import com.raytheon.uf.common.time.BinOffset;
-import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.uf.viz.productbrowser.AbstractRequestableProductBrowserDataDefinition;
-import com.raytheon.uf.viz.productbrowser.ProductBrowserLabel;
-import com.raytheon.uf.viz.productbrowser.ProductBrowserPreference;
+import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
+import com.raytheon.uf.viz.productbrowser.Activator;
+import com.raytheon.uf.viz.productbrowser.datalisting.DataListingProductBrowserDefinition;
 
 /**
- * TODO Add Description
- * 
+ * Product browser implementation for lightning
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 12, 2010            mnash     Initial creation
- * 
+ * Oct 12, 2010            mnash       Initial creation
+ * Oct 26, 2017 6402       mapeters    Support multiple sources, refactored to
+ *                                     extend DataListingProductBrowserDefinition
+ *
  * </pre>
- * 
+ *
  * @author mnash
- * @version 1.0
  */
 
-public class LightningProductBrowserDataDefinition extends
-        AbstractRequestableProductBrowserDataDefinition<LightningResourceData> {
-
-    private static final int[] offsets = new int[] { 3600, 900, 300, 60 };
-
-    private static final String[] types = new String[] { "Positive",
-            "Negative", "Positive/Negative" };
-
-    private static int positiveOffset = 0;
-
-    private static int negativeOffset = 0;
-
-    private static String lightningType = "";
+public class LightningProductBrowserDataDefinition
+        extends DataListingProductBrowserDefinition {
 
     public LightningProductBrowserDataDefinition() {
-        productName = "binlightning";
-        displayName = "Lightning";
-        order = new String[] { "startTime", "type" };
-        order = getOrder();
-        loadProperties = new LoadProperties();
-        loadProperties.setResourceType(getResourceType());
+        this("Lightning");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.productbrowser.AbstractProductBrowserDataDefinition
-     * #populateData(java.lang.String[])
-     */
-    @Override
-    public List<ProductBrowserLabel> populateData(String[] selection) {
-        List<ProductBrowserLabel> labels = null;
-        if (order[selection.length - 1].equals("startTime")) {
-            String[] strings = new String[offsets.length];
-            for (int i = 0; i < offsets.length; i++) {
-                strings[i] = String.valueOf(offsets[i]);
-            }
+    public LightningProductBrowserDataDefinition(String displayName) {
+        super(displayName, new LightningDataListing(Arrays.asList(
+                LightningConstants.SOURCE, LightningDataListing.START_TIME,
+                LightningDataListing.TYPE)));
 
-            labels = formatData("startTime", strings);
-        } else if (order[selection.length - 1].equals("type")) {
-            labels = formatData("type", types);
-        }
-
-        for (ProductBrowserLabel label : labels) {
-            if (selection.length == order.length) {
-                label.setProduct(true);
-            } else {
-                label.setProduct(false);
+        /*
+         * TODO: The following code is only needed temporarily and should
+         * eventually be removed (see comment below).
+         */
+        String[] order = getOrderedKeys();
+        if (order.length == 2) {
+            /*
+             * Order previously only contained 2 keys (startTime and type), but
+             * a third key has been added (source). Old preference store values
+             * that only have the original 2 keys will prevent the source level
+             * from being shown in the product browser. To fix this, we prepend
+             * the source key to the old order, so that it contains all 3 keys.
+             *
+             * The first time this if-block is executed for a user, it will fix
+             * the invalid preference store value, so it will never be executed
+             * again. Once this has been done for all necessary users, this code
+             * can be removed.
+             */
+            List<String> newOrder = new ArrayList<>();
+            newOrder.add(LightningConstants.SOURCE);
+            for (String orderItem : order) {
+                newOrder.add(orderItem);
             }
+            order = newOrder.toArray(new String[0]);
+
+            // Persist the fixed order so we don't have to do this again
+            IPreferenceStore store = Activator.getDefault()
+                    .getPreferenceStore();
+            store.putValue(orderPreference.getLabel() + displayName,
+                    String.join(",", order));
+            orderPreference.setValue(order);
         }
-        return labels;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.productbrowser.
-     * AbstractRequestableProductBrowserDataDefinition
-     * #formatData(java.lang.String, java.lang.String[])
-     */
     @Override
-    public List<ProductBrowserLabel> formatData(String param,
-            String[] parameters) {
-        if ("startTime".equals(param)) {
-            List<ProductBrowserLabel> labels = new ArrayList<ProductBrowserLabel>();
-            for (int i = 0; i < offsets.length; i++) {
-                labels.add(new ProductBrowserLabel((offsets[i] / 60) + " min",
-                        "" + offsets[i]));
-            }
-            return labels;
-        } else if ("type".equals(param)) {
-            List<ProductBrowserLabel> labels = new ArrayList<ProductBrowserLabel>();
-            for (int i = 0; i < types.length; i++) {
-                labels.add(new ProductBrowserLabel(types[i], types[i]));
-            }
-            return labels;
-        }
-        return null;
-    }
+    protected AbstractResourceData createResourceData(
+            Map<String, String> keyVals) {
+        LightningResourceData resourceData = new LightningResourceData();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.productbrowser.AbstractProductBrowserDataDefinition
-     * #getResourceData()
-     */
-    @Override
-    public LightningResourceData getResourceData() {
-        resourceData = new LightningResourceData();
-        resourceData.setHandlingNegativeStrikes(("Negative"
-                .equals(lightningType) ? true : false)
-                || ("Positive/Negative".equals(lightningType) ? true : false));
-        resourceData.setHandlingPositiveStrikes(("Positive"
-                .equals(lightningType) ? true : false)
-                || ("Positive/Negative".equals(lightningType) ? true : false));
-        (resourceData).setBinOffset(new BinOffset(positiveOffset,
-                negativeOffset));
+        // Copy so we can safely modify
+        Map<String, String> keyValsCopy = new HashMap<>(keyVals);
+
+        // Remove non-metadataMap entries and handle them
+        String type = keyValsCopy.remove(LightningDataListing.TYPE);
+        boolean positiveNegative = LightningDataListing.POSITIVE_NEGATIVE
+                .equals(type);
+        resourceData.setHandlingPositiveStrikes(positiveNegative
+                || LightningDataListing.POSITIVE.equals(type));
+        resourceData.setHandlingNegativeStrikes(positiveNegative
+                || LightningDataListing.NEGATIVE.equals(type));
+        resourceData.setHandlingCloudFlashes(
+                LightningDataListing.CLOUD_FLASH.equals(type));
+        resourceData.setHandlingPulses(
+                LightningDataListing.PULSE.equals(type));
+
+        int negativeOffset = Integer
+                .valueOf(keyValsCopy.remove(LightningDataListing.START_TIME));
+        resourceData.setBinOffset(new BinOffset(0, negativeOffset));
+
+        // Create metadataMap from remaining keys
+        resourceData.setMetadataMap(
+                new HashMap<>(listing.getRequestConstraints(keyValsCopy)));
+
         return resourceData;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.productbrowser.AbstractProductBrowserDataDefinition
-     * #constructResource(java.lang.String[],
-     * com.raytheon.uf.viz.core.rsc.ResourceType)
-     */
-    @Override
-    public void constructResource(String[] selection, ResourceType type) {
-        String[] sel = new String[] { selection[0] };
-        int timeOffset = 0;
-        int posNegOffset = 0;
-        for (int i = 0; i < order.length; i++) {
-            if ("startTime".equals(order[i])) {
-                timeOffset = i;
-            } else if ("type".equals(order[i])) {
-                posNegOffset = i;
-            }
-        }
-        negativeOffset = Integer.parseInt(selection[timeOffset + 1]);
-        lightningType = selection[posNegOffset + 1];
-        super.constructResource(sel, type);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.productbrowser.xml.IProductBrowserPreferences#
-     * configurePreferences()
-     */
-    @Override
-    public List<ProductBrowserPreference> configurePreferences() {
-        return super.configurePreferences();
     }
 }

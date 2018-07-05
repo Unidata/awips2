@@ -34,12 +34,21 @@
 #                                  rferrel        Corrected log to alertviz.
 #    11/18/2014          #4953     randerso       Added check for empty unit string
 #    04/09/2015          #4383     dgilling       Added support for FireWx ISC.       
-#    Apr 23, 2015    4259          njensen        Updated for new JEP API       
+#    Apr 23, 2015        #4259     njensen        Updated for new JEP API       
 #    09/01/2015          16287     amoore         Additional validation of user input      
 #    05/24/2016          15633     bhunder        Modified so that a parm name could
 #                                                 contain your office type.
+#    09/12/2016          #5861     randerso       Change getSiteID() to return a single value
+#                                                 instead of a list containing only one value.
 #
 ########################################################################
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
 import types,re,configProps
 
 from java.util import ArrayList,LinkedHashMap
@@ -336,11 +345,11 @@ def parseGridLocation(domain):
                               li, lc, lo)
     return gloc
 
-def parse(site, databases, wxtypes, wxvisibilities, allSites, inProjections):
+def parse(siteId, databases, wxtypes, wxvisibilities, allSites, inProjections):
     from com.raytheon.edex.plugin.gfe.config import SimpleGridLocation
-    domain = parseGridLocation(allSites[site])
+    domain = parseGridLocation(allSites[siteId])
     for itm in databases:
-        parseDBItm(site, allSites[site], itm)
+        parseDBItm(siteId, allSites[siteId], itm)
 
     if type(wxtypes) != list:
         raise TypeError, "Format Error in WeatherTypes,  not a list: " \
@@ -375,11 +384,8 @@ def parse(site, databases, wxtypes, wxvisibilities, allSites, inProjections):
             ot = "wfo"  #assumes wfo if not present
         allOfficeTypes.add(ot)
     
-    siteId = ArrayList()
-    siteId.add(site)
-
     timeZone = ArrayList()
-    timeZone.add(allSites[site][3])
+    timeZone.add(allSites[siteId][3])
 
     return models, projections, vis, types, DiscreteDef, allSiteIDs, domain, siteId, timeZone, allOfficeTypes
 

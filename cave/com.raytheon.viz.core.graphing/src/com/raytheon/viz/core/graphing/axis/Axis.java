@@ -35,17 +35,16 @@ import com.raytheon.viz.core.graphing.DataAxisInfo;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * 30Oct2006	56			Phillippe	Initial Creation	
- * Oct 2007                 njensen     Major refactor
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- ------------------------------------
+ * Oct 30, 2006  56       Phillippe  Initial Creation
+ * Oct 2007               njensen    Major refactor
+ * Nov 08, 2016  5976     bsteffen   Remove IColorableResource interface
  * 
  * </pre>
  * 
  * @author bphillip
- * @version 1
  */
-
 public abstract class Axis implements IAxis {
 
     protected static final RGB DEFAULT_AXIS_COLOR = new RGB(190, 190, 190);
@@ -58,7 +57,7 @@ public abstract class Axis implements IAxis {
     protected Rectangle graphArea;
 
     /** The title of the axis * */
-    protected ArrayList<String> titles = new ArrayList<String>();
+    protected ArrayList<String> titles = new ArrayList<>();
 
     /** The orientation of the axis * */
     protected IAxis.Orientation orientation;
@@ -75,7 +74,7 @@ public abstract class Axis implements IAxis {
     /** The maximum value of the axis * */
     protected Double maxVal;
 
-    protected ArrayList<RGB> titleColors = new ArrayList<RGB>();
+    protected ArrayList<RGB> titleColors = new ArrayList<>();
 
     protected boolean drawLinesAtLabels = false;
 
@@ -118,11 +117,13 @@ public abstract class Axis implements IAxis {
      * @param max
      *            The maximum value of the axis
      */
+    @Override
     public void setRange(Double min, Double max) {
         minVal = min;
         maxVal = max;
     }
 
+    @Override
     public void addTitle(String aTitle, RGB aColor) {
         titles.add(aTitle);
         titleColors.add(aColor);
@@ -133,6 +134,7 @@ public abstract class Axis implements IAxis {
      * 
      * @return The minimum value of the axis
      */
+    @Override
     public Double getMinVal() {
         return minVal;
     }
@@ -142,107 +144,72 @@ public abstract class Axis implements IAxis {
      * 
      * @return The maximum value of the axis
      */
+    @Override
     public Double getMaxVal() {
         return maxVal;
     }
 
-    /**
-     * @return the titles
-     */
+    @Override
     public ArrayList<String> getTitles() {
         return titles;
     }
 
-    /**
-     * @return the orientation
-     */
+    @Override
     public IAxis.Orientation getOrientation() {
         return orientation;
     }
 
-    /**
-     * @param orientation
-     *            the orientation to set
-     */
+    @Override
     public void setOrientation(IAxis.Orientation orientation) {
         this.orientation = orientation;
     }
 
-    /**
-     * @return the drawLinesAtLabels
-     */
     public boolean isDrawLinesAtLabels() {
         return drawLinesAtLabels;
     }
 
-    /**
-     * @param drawLinesAtLabels
-     *            the drawLinesAtLabels to set
-     */
     public void setDrawLinesAtLabels(boolean drawLinesAtLabels) {
         this.drawLinesAtLabels = drawLinesAtLabels;
     }
 
-    /**
-     * @return the colors
-     */
     public ArrayList<RGB> getColors() {
         return titleColors;
     }
 
-    /**
-     * @return the info
-     */
+    @Override
     public DataAxisInfo getInfo() {
         return info;
     }
 
-    /**
-     * @param info
-     *            the info to set
-     */
+    @Override
     public void setInfo(DataAxisInfo info) {
         this.info = info;
     }
 
-    /**
-     * @return the showTitle
-     */
     public boolean isShowTitle() {
         return showTitle;
     }
 
-    /**
-     * @param showTitle
-     *            the showTitle to set
-     */
+
     public void setShowTitle(boolean showTitle) {
         this.showTitle = showTitle;
     }
 
-    /**
-     * @return the graphArea
-     */
+    @Override
     public Rectangle getGraphArea() {
         return graphArea;
     }
 
-    /**
-     * @return the labeling
-     */
+    @Override
     public AxisLabeling getLabeling() {
         return labeling;
     }
 
-    /**
-     * @param labeling
-     *            the labeling to set
-     */
+
     public void setLabeling(AxisLabeling labeling) {
         this.labeling = labeling;
     }
 
-    @Override
     public RGB getColor() {
         return color;
     }
@@ -252,9 +219,6 @@ public abstract class Axis implements IAxis {
         this.color = color;
     }
 
-    /**
-     * @return the titleColors
-     */
     public ArrayList<RGB> getTitleColors() {
         return titleColors;
     }
@@ -265,17 +229,10 @@ public abstract class Axis implements IAxis {
         this.titles = titles;
     }
 
-    /**
-     * @return the labelLineStyle
-     */
     public IGraphicsTarget.LineStyle getLabelLineStyle() {
         return labelLineStyle;
     }
 
-    /**
-     * @param labelLineStyle
-     *            the labelLineStyle to set
-     */
     public void setLabelLineStyle(IGraphicsTarget.LineStyle labelLineStyle) {
         this.labelLineStyle = labelLineStyle;
     }

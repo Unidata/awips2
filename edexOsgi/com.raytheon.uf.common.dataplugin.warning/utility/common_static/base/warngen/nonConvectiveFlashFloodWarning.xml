@@ -1,25 +1,33 @@
+<!--
+    This is an absolute override file, indicating that a higher priority
+    version of the file will completely replace a lower priority version
+    of the file.
+-->
 <!-- Flash Flood Warning configuration -->
 <warngenConfig>
-<!-- Customized by Phil Kurimski WFO DTX 08-18-2011  OB 11.0.8-4
-          Modified Evan Bookbinder       09-16-2011  OB 11.0.8-8
-          Modified Phil Kurimski         09-23-2011  OB 11.0.8-8
-          Modified Phil Kurimski         01-26-2012  OB 12.1.1-1 
-          Modified Qinglu Lin            04-04-2012 DR 14691. Added <feAreaField> tag.
-          Modified Phil Kurimski         04-27-2012  
-          Modified Evan Bookbinder       09-11-2012 Added settings for locations shapefile 
-          Modified Phil Kurimski         09-13-2012 Modified bulletGroup for Primary Cause in 
-                                                    NEW/COR        
-          Modified Evan Bookbinder       01-07-2013 LockedGroupsOnFollowup tag
-          Modified Phil Kurimski         02-05-2013 Reordered GUI selections to make more sense
-                                                    Added additional valid duration times
-          Modified Evan Bookbinder       06-26-2013 Added "U" Unknown severity          
-          Modified Phil Kurimski         09-19-2013 added geospatialConfig.xml
-          Modified Mike Rega             01-18-2014 added Alaska GP changes for 14.2.1   
-          Mike Dangelo - 1/23/2014 multiple changes to CTAs for FFW EMER    
-          Evan Bookbinder 10/24/2014 commented out AK additions from baseline and
+<!-- Modified by
+    Phil Kurimski WFO DTX 08-18-2011 OB 11.0.8-4
+    Evan Bookbinder       09-16-2011 OB 11.0.8-8
+    Phil Kurimski         09-23-2011 OB 11.0.8-8
+    Phil Kurimski         01-26-2012 OB 12.1.1-1 
+    Qinglu Lin            04-04-2012 DR 14691. Added <feAreaField> tag.
+    Phil Kurimski         04-27-2012
+    Evan Bookbinder       09-11-2012 Added settings for locations shapefile
+    Phil Kurimski         09-13-2012 Modified bulletGroup for Primary Cause in
+                                     NEW/COR
+    Evan Bookbinder       01-07-2013 LockedGroupsOnFollowup tag
+    Phil Kurimski         02-05-2013 Reordered GUI selections to make more sense
+                                     Added additional valid duration times
+    Evan Bookbinder       06-26-2013 Added "U" Unknown severity
+    Phil Kurimski         09-19-2013 added geospatialConfig.xml
+    Mike Rega             01-18-2014 added Alaska GP changes for 14.2.1
+    Mike Dangelo          01-23-2014 multiple changes to CTAs for FFW EMER
+    Evan Bookbinder       10-24-2014 commented out AK additions from baseline and
                                      corrected their bulletGroup="" settings
-          Mike Rega 10/27/2014 fixed EMER floodSeverity=3 error
-          Mike Dangelo                   10-20-2015 Standard CTAs                                  
+    Mike Rega             10-27-2014 fixed EMER floodSeverity=3 error
+    Mike Dangelo          10-20-2015 Standard CTAs
+    -                     02-21-2017 Removed bulletDefault="true" from "County dispatch" 
+                                     bullet in bullet Action Groups "EXT" and "COR". DCS20237
 -->
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
@@ -40,8 +48,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <unitSpeed>mph</unitSpeed>
 
  <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
- 	The various menu items are also the different maps
- 	that can be loaded with each template. -->
+    The various menu items are also the different maps
+    that can be loaded with each template. -->
  <maps>
    <map>County Names</map>
    <map>County Warning Areas</map>
@@ -49,7 +57,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  </maps>
  
  <!-- Followups: VTEC actions of allowable followups when this template is selected 
-	Each followup will become available when the appropriate time range permits. -->
+    Each followup will become available when the appropriate time range permits. -->
  <followups>
   <followup>NEW</followup>
   <followup>COR</followup>
@@ -205,7 +213,7 @@ Alaska end -->
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 Alaska end -->
   <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
-  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
+  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" parseString="COUNTY DISPATCH REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="corps" bulletText="Corps of Engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
   <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
@@ -288,7 +296,7 @@ Alaska end -->
   <bullet bulletName="volcanoLahar" bulletText="Volcano induced lahar/debris flow" bulletGroup="ic" parseString="VOLCANIC INDUCED DEBRIS FLOW" showString=".SM."/>
 Alaska end -->
   <bullet bulletText="****** REPORTED BY (choose 1) ******" bulletType="title"/>
-  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" bulletDefault="true" parseString="COUNTY DISPATCH REPORTED"/>
+  <bullet bulletName="county" bulletText="County dispatch" bulletGroup="reportedBy" parseString="COUNTY DISPATCH REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law enforcement" bulletGroup="reportedBy" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="corps" bulletText="Corps of Engineers" bulletGroup="reportedBy" parseString="CORPS OF ENGINEERS REPORTED"/>
   <bullet bulletName="damop" bulletText="Dam operator" bulletGroup="reportedBy" parseString="DAM OPERATORS REPORTED"/>
@@ -351,15 +359,14 @@ Alaska end -->
 </bulletActionGroups> 
 
  <pointSource variable="riverdrainages">
- 	<pointSource>ffmp_basins</pointSource>
+    <pointSource>ffmp_basins</pointSource>
     <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
- 	<pointField>streamname</pointField>
- 	<filter>
- 		<mapping key="cwa">
- 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
- 		</mapping>
- 	</filter>
- 	<withinPolygon>true</withinPolygon>
+    <pointField>streamname</pointField>
+    <filter>
+        <mapping key="cwa">
+            <constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
+        </mapping>
+    </filter>
+    <withinPolygon>true</withinPolygon>
  </pointSource>
- 
 </warngenConfig>

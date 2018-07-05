@@ -23,7 +23,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.nio.FloatBuffer;
 import java.text.DecimalFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,6 @@ import java.util.Map;
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
-
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
@@ -62,9 +60,6 @@ import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
-import com.raytheon.viz.mpe.ui.DisplayFieldData;
-import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.postanalysis.AsciiXmrgReader;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -79,20 +74,21 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 16, 2011            mpduff     Initial creation
+ * Mar 23, 2017 6145       bkowal     Ensure that only data values > 0.0 are rendered
+ *                                    based on the 0.0 legend segment color.
  * 
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
-public class PAAsciiXmrgResource extends
-        AbstractVizResource<PAAsciiXmrgResourceData, MapDescriptor> {
+public class PAAsciiXmrgResource
+        extends AbstractVizResource<PAAsciiXmrgResourceData, MapDescriptor> {
 
     private static final GeometryFactory gf = new GeometryFactory();
-    private static final String PRECIP_BIAS = "PRECIP_BIAS";
 
     private String filePath;
+
     private AsciiXmrgReader asciiXmrgReader = null;
 
     private HRAPSubGrid subGrid;
@@ -107,17 +103,11 @@ public class PAAsciiXmrgResource extends
 
     private boolean isInterpolated;
 
-    private GriddedContourDisplay contourDisplay;
-
     private GridGeometry2D gridGeometry;
 
     private FloatBuffer buf;
 
-    private FloatBuffer cbuf;
-
     private List<Colorvalue> colorSet;
-
-    private DisplayFieldData dataType;
 
     /** Array of ascii xmrg data values */
     private int[] data;
@@ -132,42 +122,34 @@ public class PAAsciiXmrgResource extends
 
     private Rectangle extent;
 
-    /** The date of the data */
-    private Date dataDate;
-
-    public PAAsciiXmrgResource(PAAsciiXmrgResourceData resourceData, String cvUse,
-            String filePath, List<Colorvalue> colorSet) {
+    public PAAsciiXmrgResource(PAAsciiXmrgResourceData resourceData,
+            String cvUse, String filePath, List<Colorvalue> colorSet) {
         super(resourceData, new LoadProperties());
-        
+
         this.colorSet = colorSet;
         this.cvUse = cvUse;
         this.filePath = filePath;
         this.resourceData = resourceData;
         this.isGridded = true;
-        
+
         asciiXmrgReader = new AsciiXmrgReader(filePath);
-         
+
         loadData();
     }
 
-    public PAAsciiXmrgResource(PAAsciiXmrgResourceData resourceData, String cvUse,
-            float[] floatData, List<Colorvalue> colorSet, Rectangle extent) {
+    public PAAsciiXmrgResource(PAAsciiXmrgResourceData resourceData,
+            String cvUse, float[] floatData, List<Colorvalue> colorSet,
+            Rectangle extent) {
         super(resourceData, new LoadProperties());
         this.colorSet = colorSet;
         this.cvUse = cvUse;
         this.resourceData = resourceData;
         this.floatData = floatData;
         this.extent = extent;
-        this.dataDate = MPEDisplayManager.getCurrent().getCurrentDisplayedDate();
         this.isGridded = false;
         loadData();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
-     */
     @Override
     protected void disposeInternal() {
         if (gridDisplay != null) {
@@ -176,14 +158,6 @@ public class PAAsciiXmrgResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -192,10 +166,12 @@ public class PAAsciiXmrgResource extends
         }
 
         if (gridDisplay == null) {
-            gridDisplay = new GriddedImageDisplay(buf, descriptor, gridGeometry);
+            gridDisplay = new GriddedImageDisplay(buf, descriptor,
+                    gridGeometry);
 
-            gridDisplay.setColorMapParameters(getCapability(
-                    ColorMapCapability.class).getColorMapParameters());
+            gridDisplay.setColorMapParameters(
+                    getCapability(ColorMapCapability.class)
+                            .getColorMapParameters());
         }
 
         GriddedImagePaintProperties giProps = new GriddedImagePaintProperties(
@@ -204,42 +180,23 @@ public class PAAsciiXmrgResource extends
         gridDisplay.paint(target, giProps);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#initInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        // TODO Auto-generated method stub
+        /* Do Nothing. */
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
-     * referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
-        // Delete the gridDisplay so it can be regenerated in the correct
-        // projection
+        /*
+         * Delete the gridDisplay so it can be regenerated in the correct
+         * projection.
+         */
         if (gridDisplay != null) {
             gridDisplay.dispose();
             gridDisplay = null;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
-     * .uf.common.geospatial.ReferencedCoordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Map<String, Object> Values = interrogate(coord);
@@ -251,13 +208,6 @@ public class PAAsciiXmrgResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.common.geospatial.ReferencedCoordinate)
-     */
     @Override
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
@@ -275,8 +225,9 @@ public class PAAsciiXmrgResource extends
         Map<String, Object> values = new HashMap<String, Object>();
 
         try {
-            Coordinate gridCell = coord.asGridCell(HRAP.getInstance()
-                    .getGridGeometry(), PixelInCell.CELL_CENTER);
+            Coordinate gridCell = coord.asGridCell(
+                    HRAP.getInstance().getGridGeometry(),
+                    PixelInCell.CELL_CENTER);
 
             Point p = new Point((int) gridCell.x, (int) gridCell.y);
 
@@ -293,31 +244,31 @@ public class PAAsciiXmrgResource extends
 
                 double value;
                 if (filePath != null) {
-                	
-                	AsciiXmrgReader reader = new AsciiXmrgReader(filePath);
-                	int result = reader.read();
-                	
-                	int[] readerData = reader.getData();
-                	
-                	this.extent = reader.getHrapExtent();
-                	
+
+                    AsciiXmrgReader reader = new AsciiXmrgReader(filePath);
+                    reader.read();
+
+                    int[] readerData = reader.getData();
+
+                    this.extent = reader.getHrapExtent();
+
                     int intValue = readerData[y * subGrid.getNx() + x];
-                    value = parameters.getDataToDisplayConverter().convert(intValue);
-                    
+                    value = parameters.getDataToDisplayConverter()
+                            .convert(intValue);
                 } else {
                     float f = floatData[y * subGrid.getNx() + x];
                     value = f;
                 }
 
-               DecimalFormat df = new DecimalFormat(
+                DecimalFormat df = new DecimalFormat(
                         parameters.getFormatString());
                 values.put("Value", df.format(value));
             }
 
             ISpatialQuery query = SpatialQueryFactory.create();
 
-            com.vividsolutions.jts.geom.Point point = gf.createPoint(coord
-                    .asLatLon());
+            com.vividsolutions.jts.geom.Point point = gf
+                    .createPoint(coord.asLatLon());
 
             SpatialQueryResult[] results = query.query("county",
                     new String[] { "countyname" }, point, null, false,
@@ -363,8 +314,7 @@ public class PAAsciiXmrgResource extends
 
         try {
             if (reload || (data == null)) {
-  
-            	cvt = parameters.getDataToImageConverter();
+                cvt = parameters.getDataToImageConverter();
                 data = asciiXmrgReader.getData();
             }
             buf = FloatBuffer.allocate(data.length);
@@ -380,7 +330,7 @@ public class PAAsciiXmrgResource extends
                         && (extent.height == coord.height)) {
                     extent = coord;
                 } else {
-                	asciiXmrgReader = null;
+                    asciiXmrgReader = null;
                     return;
                 }
             }
@@ -392,15 +342,11 @@ public class PAAsciiXmrgResource extends
 
             issueRefresh();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Failed to reload xmrg file: " + filePath + ".",
+                    e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getName()
-     */
     @Override
     public String getName() {
         // This is the name that shows up in the legend
@@ -408,8 +354,6 @@ public class PAAsciiXmrgResource extends
     }
 
     private void initColorMapParams() {
-    	
-    	
         ColorMap colorMap = new ColorMap(colorSet.size());
         DataMappingPreferences dmPref = new DataMappingPreferences();
         int i = 0;
@@ -421,6 +365,11 @@ public class PAAsciiXmrgResource extends
             DataMappingEntry entry = new DataMappingEntry();
             entry.setPixelValue((double) i);
             entry.setDisplayValue(cv.getId().getThresholdValue());
+            if (cv.getId().getThresholdValue() == 0.0) {
+                entry.setDisplayValue(0.001);
+                entry.setOperator("<");
+                entry.setLabel("0.0");
+            }
             dmPref.addEntry(entry);
 
             i++;
@@ -450,105 +399,87 @@ public class PAAsciiXmrgResource extends
 
         parameters.setDisplayUnit(displayUnit);
         parameters.setImageUnit(dmPref.getImageUnit(displayUnit));
-    	parameters.setDataUnit(dataUnit);
-    	
-    	 //Chip Change that was removed, at least temporarily
-    	//This change allow the displayUnit to be set differently for the bias map,
-    	//the problem is that the map ALSO displays precip
-       
-       //  if (cvUse.equals(PRECIP_BIAS))
-       // {
-       // 	dataUnit = displayUnit;
-       // 	parameters.setDataUnit(dataUnit);
-       // }
-       // else
-       // {
-       // 	parameters.setDataUnit(dataUnit);
-       // }
-  
+        parameters.setDataUnit(dataUnit);
+
         parameters.setColorMapMax(parameters.getColorMap().getSize() - 1);
         parameters.setColorMapMin(0);
         parameters.setDataMax(parameters.getColorMap().getSize() - 1);
         parameters.setDataMin(0);
         cvt = parameters.getDataToImageConverter();
-        
-        
     }
 
-    private void loadData() 
-    {
-    	
-    	initColorMapParams();
-    
-    	
-    	setData(asciiXmrgReader.getData());
-    	
-    	 try {
-             // Load the xmrg data
-             if (asciiXmrgReader != null) {
-            	 asciiXmrgReader.read();
-            
-            	 data = asciiXmrgReader.getData();
-                 buf = FloatBuffer.allocate(data.length);
-                 float f = 0.0f;
-                 String temps = "TEMP";
-                 int tempsval = cvUse.indexOf(temps);
-                 for (int intvalue : data) {
-                     if (intvalue < 0) {
-                         if ((intvalue == -9999) || (intvalue == -999) || (intvalue == -99)
-                                 || ((intvalue == -9) && (tempsval == -1))) {
-                             f = 0;
-                         } else if ((intvalue == -8888) || (intvalue == -899)) {
-                             f = 1;
-                         } else {
-                             f = (float) cvt.convert(intvalue);
-                         }
-                     } else {
-                         if ((intvalue < 30) && (intvalue > 24)) {
-                        	 intvalue = 26;
-                         }
-                         f = (float) cvt.convert(intvalue);           
-                     }
-                     buf.put(f);
-                 }
-                 buf.rewind();
-                 this.extent = asciiXmrgReader.getHrapExtent();
+    private void loadData() {
+        initColorMapParams();
 
-             } else {
-             // Load and array of floats    
-                 buf = FloatBuffer.allocate(floatData.length);
-                 for (float f : floatData) {
-                     if (f < 0) {
-                         f = -9999;
-                         buf.put(0.0f);
-                     } else {
-                         buf.put((float) Math.floor(cvt.convert(f)));
-                     }
-                 }
-             }
+        setData(asciiXmrgReader.getData());
 
-             if ((extent.x == 0) && (extent.y == 0)) {
-                 Rectangle coord = HRAPCoordinates.getHRAPCoordinates();
-                 if ((extent.width == coord.width)
-                         && (extent.height == coord.height)) {
-                     extent = coord;
-                 } else {
-                	 asciiXmrgReader = null;
-                     return;
-                 }
-             }
-             subGrid = new HRAPSubGrid(extent);
+        try {
+            // Load the xmrg data
+            if (asciiXmrgReader != null) {
+                asciiXmrgReader.read();
 
-             gridGeometry = MapUtil.getGridGeometry(subGrid);
+                data = asciiXmrgReader.getData();
+                buf = FloatBuffer.allocate(data.length);
+                float f = 0.0f;
+                String temps = "TEMP";
+                int tempsval = cvUse.indexOf(temps);
+                for (int intvalue : data) {
+                    if (intvalue < 0) {
+                        if ((intvalue == -9999) || (intvalue == -999)
+                                || (intvalue == -99)
+                                || ((intvalue == -9) && (tempsval == -1))) {
+                            f = 0;
+                        } else if ((intvalue == -8888) || (intvalue == -899)) {
+                            f = 1;
+                        } else {
+                            f = (float) cvt.convert(intvalue);
+                        }
+                    } else {
+                        if ((intvalue < 30) && (intvalue > 24)) {
+                            intvalue = 26;
+                        }
+                        f = (float) cvt.convert(intvalue);
+                    }
+                    buf.put(f);
+                }
+                buf.rewind();
+                this.extent = asciiXmrgReader.getHrapExtent();
 
-             project(gridGeometry.getCoordinateReferenceSystem());
-         } catch (Exception e) {
-             asciiXmrgReader = null;
-             e.printStackTrace();
-         }
-     }
-    
-  
+            } else {
+                // Load and array of floats
+                buf = FloatBuffer.allocate(floatData.length);
+                for (float f : floatData) {
+                    if (f < 0) {
+                        f = -9999;
+                        buf.put(0.0f);
+                    } else {
+                        buf.put((float) Math.floor(cvt.convert(f)));
+                    }
+                }
+            }
+
+            if ((extent.x == 0) && (extent.y == 0)) {
+                Rectangle coord = HRAPCoordinates.getHRAPCoordinates();
+                if ((extent.width == coord.width)
+                        && (extent.height == coord.height)) {
+                    extent = coord;
+                } else {
+                    asciiXmrgReader = null;
+                    return;
+                }
+            }
+            subGrid = new HRAPSubGrid(extent);
+
+            gridGeometry = MapUtil.getGridGeometry(subGrid);
+
+            project(gridGeometry.getCoordinateReferenceSystem());
+        } catch (Exception e) {
+            statusHandler.error("Failed to load xmrg file: " + filePath + ".",
+                    e);
+            asciiXmrgReader = null;
+        }
+    }
+
     /**
      * @return the data
      */

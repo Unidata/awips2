@@ -1,114 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cave-memory-settings>
-	<!-- The version should be incremented whenever
-		 the file layout changes. -->
-	<file-version>5.0</file-version>
-	
-	<!-- Example Entry ... See Below. -->
-	<!--
-	<memory-setting>
-		<command-line-args>
-			CURRENTLY, ONE OF: {-component, -perspective}
-			<first-arg>-component</first-arg>
-			THE ARGUMENT THAT CORRESPONDS TO THE FIRST ARGUMENT.
-			ALSO USED TO DETERMINE THE NAME OF THE ini FILE.
-			<second-arg>avnsetup</second-arg>
-		</command-line-args>
-		
-		<ini-substitutions>
-			<max-memory>
-				<value>1536M</value>
-			</max-memory>
-		</ini-substitutions>	
-	</memory-setting>
-	-->
-	
-	<default-memory-setting>
-		<default-max-memory>
-			<jvm-arg>-Xmx</jvm-arg>
-			<value>6144M</value>
-		</default-max-memory>
-	</default-memory-setting>
-	
-		<!-- 
-			Since this may be increased for GFE in the future,
-			the following memory setting will remain even though
-			it is the same as the default.
-		 -->
-		<memory-setting>
-			<command-line-args>
-				<first-arg>-perspective</first-arg>
-				<second-arg>GFE</second-arg>
-			</command-line-args>
-		
-			<ini-substitutions>
-				<max-memory>
-					<value>3072M</value>
-				</max-memory>
-			</ini-substitutions>
-		</memory-setting>
-	
-		<memory-setting>
-			<command-line-args>
-				<first-arg>-component</first-arg>
-				<second-arg>textws</second-arg>
-			</command-line-args>
-		
-			<ini-substitutions>
-				<max-memory>
-					<value>384M</value>
-				</max-memory>
-			</ini-substitutions>
-		</memory-setting>
-	
-		<memory-setting>
-			<command-line-args>
-				<first-arg>-component</first-arg>
-				<second-arg>avnmenu</second-arg>
-			</command-line-args>
-		
-			<ini-substitutions>
-				<max-memory>
-					<value>512M</value>
-				</max-memory>
-			</ini-substitutions>
-		</memory-setting>
-
-                <memory-setting>
-                        <command-line-args>
-                                <first-arg>-component</first-arg>
-                                <second-arg>gfeclient</second-arg>
-                        </command-line-args>
-
-                        <ini-substitutions>
-                                <max-memory>
-                                        <value>2048M</value>
-                                </max-memory>
-                        </ini-substitutions>
-                </memory-setting>
-	
-		<memory-setting>
-			<command-line-args>
-				<first-arg>-perspective</first-arg>
-				<second-arg>NCP</second-arg>
-			</command-line-args>
-		
-			<ini-substitutions>
-				<max-memory>
-					<value>2048M</value>
-				</max-memory>
-			</ini-substitutions>
-		</memory-setting>
-		
-		<memory-setting>
+    <!-- The version should be incremented whenever
+         the file layout changes. -->
+    <file-version>5.0</file-version>
+    
+    <!-- Example Entry ... See Below. -->
+    <!--
+    <memory-setting>
+        <command-line-args>
+            CURRENTLY, ONE OF: {-component, -perspective}
+            <first-arg>-component</first-arg>
+            THE ARGUMENT THAT CORRESPONDS TO THE FIRST ARGUMENT.
+            ALSO USED TO DETERMINE THE NAME OF THE ini FILE.
+            <second-arg>avnsetup</second-arg>
+        </command-line-args>
+        
+        <ini-substitutions>
+            <max-memory>
+                <value>1536M</value>
+            </max-memory>
+        </ini-substitutions>    
+    </memory-setting>
+    -->
+    
+    <default-memory-setting>
+        <default-max-memory>
+            <jvm-arg>-Xmx</jvm-arg>
+            <value>6144M</value>
+        </default-max-memory>
+    </default-memory-setting>
+    
+        <!-- 
+            Since this may be increased for GFE in the future,
+            the following memory setting will remain even though
+            it is the same as the default.
+         -->
+        <memory-setting>
             <command-line-args>
-                <first-arg>-component</first-arg>
-                <second-arg>activatesite</second-arg>
+                <first-arg>-perspective</first-arg>
+                <second-arg>GFE</second-arg>
             </command-line-args>
         
             <ini-substitutions>
                 <max-memory>
-                    <value>256M</value>
+                    <value>3072M</value>
+                </max-memory>
+            </ini-substitutions>
+        </memory-setting>
+    
+        <memory-setting>
+            <command-line-args>
+                <first-arg>-component</first-arg>
+                <second-arg>textws</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>384M</value>
+                </max-memory>
+            </ini-substitutions>
+        </memory-setting>
+    
+        <memory-setting>
+            <command-line-args>
+                <first-arg>-perspective</first-arg>
+                <second-arg>NCP</second-arg>
+            </command-line-args>
+        
+            <ini-substitutions>
+                <max-memory>
+                    <value>2048M</value>
                 </max-memory>
             </ini-substitutions>
         </memory-setting>
@@ -116,7 +77,7 @@
         <memory-setting>
             <command-line-args>
                 <first-arg>-component</first-arg>
-                <second-arg>avnsetup</second-arg>
+                <second-arg>activatesite</second-arg>
             </command-line-args>
         
             <ini-substitutions>
@@ -186,7 +147,7 @@
         
             <ini-substitutions>
                 <max-memory>
-                    <value>256M</value>
+                    <value>2048M</value>
                 </max-memory>
             </ini-substitutions>
         </memory-setting>
@@ -221,38 +182,38 @@
         <!-- site-type names need to be all lower case -->
         <site-type-override>
             <site-type>wfo</site-type>
-			<ini-substitutions>
-				<max-memory>
-					<value>6144M</value>
-				</max-memory>
-			</ini-substitutions>
+            <ini-substitutions>
+                <max-memory>
+                    <value>6144M</value>
+                </max-memory>
+            </ini-substitutions>
         </site-type-override>
 
         <site-type-override>
             <site-type>rfc</site-type>
-			<ini-substitutions>
-				<max-memory>
-					<value>2048M</value>
-				</max-memory>
-			</ini-substitutions>
+            <ini-substitutions>
+                <max-memory>
+                    <value>2048M</value>
+                </max-memory>
+            </ini-substitutions>
         </site-type-override>
 
         <site-type-override>
             <site-type>ncep</site-type>
-			<ini-substitutions>
-				<max-memory>
-					<value>3072M</value>
-				</max-memory>
-			</ini-substitutions>
+            <ini-substitutions>
+                <max-memory>
+                    <value>3072M</value>
+                </max-memory>
+            </ini-substitutions>
         </site-type-override>
 
         <site-type-override>
             <site-type>cwsu</site-type>
-			<ini-substitutions>
-				<max-memory>
-					<value>2560M</value>
-				</max-memory>
-			</ini-substitutions>
+            <ini-substitutions>
+                <max-memory>
+                    <value>2560M</value>
+                </max-memory>
+            </ini-substitutions>
         </site-type-override>
-	
+    
 </cave-memory-settings>

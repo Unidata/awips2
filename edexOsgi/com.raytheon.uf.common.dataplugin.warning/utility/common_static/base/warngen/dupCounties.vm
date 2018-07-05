@@ -1,3 +1,8 @@
+###########################################################################
+## This is an absolute override file, indicating that a higher priority  ##
+## version of the file will completely replace a lower priority version  ##
+## of the file.                                                          ##
+###########################################################################
 ### IF YOU HAVE DUPLICATE COUNTY NAMES IN YOUR CWA 
 ### (e.g. LINN KANSAS AND LINN MISSOURI) INCLUDE FIPS/ZONE CODES BELOW.
 ### FIPS CODES ARE IN A XXYYY NUMERIC FORMAT WHERE XX = STATE FIPS AND YYY = COUNTY FIPS

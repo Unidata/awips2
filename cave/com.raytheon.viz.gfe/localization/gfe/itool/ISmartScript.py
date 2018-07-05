@@ -27,6 +27,18 @@
 # Author: hansen
 # ----------------------------------------------------------------------------
 ########################################################################
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls
+# 
+##
+
+##
+# This is a base file that is not intended to be overridden.
+##
 
 import string, time
 import re, numpy
@@ -45,7 +57,7 @@ class ISmartScript(SmartScript.SmartScript):
 
     def getDataType(self, elementName):
         parm = self.__parmMgr.getParmInExpr(elementName, 1)
-        return parm.getGridInfo().getGridType().toString()
+        return str(parm.getGridInfo().getGridType())
 
     # This method was copied from gfe/ui/ZoneCombiner.py
     def writeActiveComboFile(self, list, comboFilename):

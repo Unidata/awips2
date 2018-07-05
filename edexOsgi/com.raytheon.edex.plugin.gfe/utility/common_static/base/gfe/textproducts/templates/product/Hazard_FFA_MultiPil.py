@@ -17,6 +17,11 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 ########################################################################
 # Hazard_FFA.py
 #
@@ -493,7 +498,12 @@ class TextProduct(GenericHazards.TextProduct):
             ctaBodyPhrase = ''
             if remainder is not None and \
               (canHazard or hazard['act'] != "NEW"):
-                if canHazard is None:
+                if hazard['act'] == "CON" or hazard['act'] == "EXT" or \
+                   hazard['act'] == "EXA" or hazard['act'] == "EXB":
+                    paras = self.convertSingleParas(remainder)
+                    pattern = re.compile("THE FLASH FLOOD WATCH FOR.*HAS BEEN CANCELLED.*", re.IGNORECASE)
+                    general = '\n\n'.join([p for p in paras if not pattern.match(p)])
+                elif canHazard is None:
                     general = remainder  #use all
                 else:
                     #frame the text, without the ctas

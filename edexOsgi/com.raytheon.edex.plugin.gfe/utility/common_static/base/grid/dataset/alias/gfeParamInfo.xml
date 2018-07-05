@@ -1,4 +1,30 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        This is an incremental override file, indicating that the files at
+        different localization levels will be combined. Since all the files in
+        the directory are read, for most custom additions a unique file should
+        be added to the directory instead of overriding a specific file.
+    -->
 <aliasList caseSensitive="true" namespace="gfeParamInfo">
     <alias base="MOSGuide-HI">mosGuideNDFD</alias>
     <alias base="AK-GFS22">gfs20km</alias>
@@ -51,6 +77,7 @@
     <alias base="AVN211">avn211</alias>
     <alias base="NAM40">NAM40</alias>
     <alias base="NAM20">NAM20</alias>
+    <alias base="NAM40">eta212</alias>
     <alias base="AVN203">avn203</alias>
     <alias base="MRF203">mrf203</alias>
     <alias base="MRF204">mrf204</alias>
@@ -135,7 +162,7 @@
     <alias base="ENSEMBLE42">ensembleNH</alias>
     <alias base="ENSEMBLE43">ensembleNH</alias>
     <alias base="ENSEMBLE44">ensembleNH</alias>
-    <alias base="SREF212">sref212</alias>
+    <alias base="SREF40">sref212</alias>
     <alias base="SREF216">sref216</alias>
     <alias base="SREF243">sref243</alias>
     <alias base="RTGSST">RTGSST235</alias>
@@ -159,6 +186,7 @@
     <alias base="CPCoutlook211">CPCoutlook211</alias>
     <alias base="SPCGuide">spcGuideNDFD</alias>
     <alias base="TPCWindProb">tpcWind231</alias>
+    <alias base="TPCWindProb_Prelim">tpcWind231</alias>
     <alias base="OPCWave182">opcWave182</alias>
     <alias base="MOSGuide">mosGuideNDFD</alias>
     <alias base="MOSGuide-AK">mosGuideNDFD_AK</alias>
@@ -166,6 +194,10 @@
     <alias base="TPCSurgeProb">TPCSurgeProb</alias>
     <alias base="TPCSurgeProb197">TPCSurgeProb</alias>
     <alias base="TPCSurgeProb-AK">TPCSurgeProb</alias>
+    <alias base="TPCSurgeProbLoRes">TPCSurgeProb</alias>
+    <alias base="P-ETSS">P-ETSS</alias>
+    <alias base="P-ETSS-LoRes">P-ETSS</alias>
+    <alias base="P-ETSS-AK">P-ETSS</alias>
     <alias base="ecmwf">ecmwf</alias>
     <alias base="ECMWFHiRes">ecmwf</alias>
     <alias base="ECMWF-HiRes">ecmwf</alias>
@@ -212,6 +244,7 @@
     <alias base="NAHwave4">NAHwave4</alias>
     <alias base="ETSS">ETSS</alias>
     <alias base="ETSS-AK">ETSS</alias>
+    <alias base="ETSS-HiRes">ETSS</alias>
     <alias base="nwpsCG1CAR">nwpsCG1</alias>
     <alias base="nwpsCG1GYX">nwpsCG1</alias>
     <alias base="nwpsCG1BOX">nwpsCG1</alias>

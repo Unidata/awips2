@@ -74,7 +74,7 @@ public class StaffGageAction extends AbstractHandler {
             StaffGageDlg staffGageDlg = dialogMap.get(lid);
             if (staffGageDlg == null) {
                 staffGageDlg = new StaffGageDlg(shell, lid);
-                staffGageDlg.setCloseCallback(new ICloseCallback() {
+                staffGageDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {

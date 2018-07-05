@@ -18,6 +18,10 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter  abbreviation="CURU" name="Cu Rule 0&gt;SKC,-1&gt;SCT,-4&lt;BKN,-6&lt;OVC">
     <Method name="Difference" levels="Layer">
         <Field abbreviation="T" level="850MB"/>

@@ -19,13 +19,13 @@
  **/
 package com.raytheon.viz.mpe.util;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
 
 /**
- * TODO Add Description
+ * Estimates the missing MPE temperature stations.
  * 
  * <pre>
  * 
@@ -33,25 +33,25 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 31, 2009            snaples     Initial creation
+ * Mar 10, 2017  19625     snaples     Fixed erroneous estimates.
+ * Oct 03, 2017  6407      bkowal      Eliminated warnings.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class EstMissingTStations {
 
-    DailyQcUtils dqc = DailyQcUtils.getInstance();
-    
     public void estimate_missing_tstations(int j,
-            ArrayList<Station> temperature_stations, int num_tstations,
+            List<Station> temperature_stations, int num_tstations,
             Tdata[] tdata) {
 
-        int isom = dqc.isom;
-        int maxmin_used = dqc.maxmin_used;
-        int mpe_dqc_max_temp_neighbors = dqc.mpe_dqc_max_temp_neighbors;
-        int mpe_dqc_min_good_stations = dqc.mpe_dqc_min_good_stations;
+        int isom = DailyQcUtils.isom;
+        final DailyQcUtils dqu = DailyQcUtils.getInstance();
+        boolean maxmin_used = dqu.maxmin_used;
+        int mpe_dqc_max_temp_neighbors = DailyQcUtils.mpe_dqc_max_temp_neighbors;
+        int mpe_dqc_min_good_stations = dqu.mpe_dqc_min_good_stations;
 
         int m, i, h, l, ii;
         double lat1 = 0., lon1 = 0., fdist, fdata, fval, lat, lon, distlon;
@@ -99,14 +99,15 @@ public class EstMissingTStations {
                 tdata[j].tstn[m].tlevel2[h].data = -99;
 
                 if ((h == 4 && temperature_stations.get(m).max[isom] <= -99)
-                        || (h == 5 && temperature_stations.get(m).min[isom] <= -99)) {
+                        || (h == 5 && temperature_stations
+                                .get(m).min[isom] <= -99)) {
                     continue;
                 }
 
                 /* Retrieve the climate information for this station. */
-                if (maxmin_used == 1) {
-                    temp_climo1 = (temperature_stations.get(m).max[isom] + temperature_stations
-                            .get(m).min[isom]) / 2;
+                if (maxmin_used) {
+                    temp_climo1 = (temperature_stations.get(m).max[isom]
+                            + temperature_stations.get(m).min[isom]) / 2;
                 }
 
                 lat1 = temperature_stations.get(m).lat;
@@ -137,7 +138,8 @@ public class EstMissingTStations {
                     }
 
                     if ((h == 4 && temperature_stations.get(i).max[isom] <= -99)
-                            || (h == 5 && temperature_stations.get(i).min[isom] <= -99)) {
+                            || (h == 5 && temperature_stations
+                                    .get(i).min[isom] <= -99)) {
                         continue;
                     }
 
@@ -170,20 +172,22 @@ public class EstMissingTStations {
 
                     if (h == 4) {
 
-                        temp = (temp + (temperature_stations.get(m).max[isom] - temperature_stations
-                                .get(i).max[isom])) * dist;
+                        temp = (temp + (temperature_stations.get(m).max[isom]
+                                - temperature_stations.get(i).max[isom]))
+                                * dist;
 
                     }
 
                     if (h == 5) {
 
-                        temp = (temp + (temperature_stations.get(m).min[isom] - temperature_stations
-                                .get(i).min[isom])) * dist;
+                        temp = (temp + (temperature_stations.get(m).min[isom]
+                                - temperature_stations.get(i).min[isom]))
+                                * dist;
                     }
 
-                    fdata = fdata + temp;
+                    fdata += temp;
 
-                    fdist = fdist + dist;
+                    fdist += dist;
 
                     l++;
 
@@ -219,8 +223,10 @@ public class EstMissingTStations {
                             continue;
                         }
 
-                        if ((h == 4 && temperature_stations.get(i).max[isom] <= -99)
-                                || (h == 5 && temperature_stations.get(i).min[isom] <= -99)) {
+                        if ((h == 4
+                                && temperature_stations.get(i).max[isom] <= -99)
+                                || (h == 5 && temperature_stations
+                                        .get(i).min[isom] <= -99)) {
                             continue;
                         }
 
@@ -236,12 +242,6 @@ public class EstMissingTStations {
                         dist = Math.pow((lat1 - lat), 2) + Math.pow(distlon, 2);
 
                         dist = Math.pow(dist, .5) * 60;
-
-                        // GeodeticCalculator gc = new GeodeticCalculator();
-                        // gc.setStartingGeographicPoint(lon1, lat1);
-                        // gc.setDestinationGeographicPoint(lon, lat);
-                        // dist = gc.getOrthodromicDistance();
-
                         if (dist == 0.0) {
                             dist = .0001;
                         }
@@ -257,20 +257,24 @@ public class EstMissingTStations {
 
                         if (h == 4) {
 
-                            temp = (temp + (temperature_stations.get(m).max[isom] - temperature_stations
-                                    .get(i).max[isom])) * dist;
+                            temp = (temp + (temperature_stations
+                                    .get(m).max[isom]
+                                    - temperature_stations.get(i).max[isom]))
+                                    * dist;
 
                         }
 
                         if (h == 5) {
 
-                            temp = (temp + (temperature_stations.get(m).min[isom] - temperature_stations
-                                    .get(i).min[isom])) * dist;
+                            temp = (temp + (temperature_stations
+                                    .get(m).min[isom]
+                                    - temperature_stations.get(i).min[isom]))
+                                    * dist;
                         }
 
-                        fdata = fdata + temp;
+                        fdata += temp;
 
-                        fdist = fdist + dist;
+                        fdist += dist;
 
                         l++;
 
@@ -286,12 +290,6 @@ public class EstMissingTStations {
 
                 tdata[j].tstn[m].tlevel2[h].data = (float) fval;
                 tdata[j].tstn[m].tlevel2[h].qual = 5;
-
-                /*
-                 * logMessage("estimate %s %d %d\n",tstation[m].hb5,h,
-                 * tdata[j].stn[m].tlevel2[h].data);
-                 */
-
             }
 
             for (h = 0; h < 4; h++) {
@@ -316,7 +314,8 @@ public class EstMissingTStations {
                         && (tdata[j].tstn[m].tlevel2[h].qual == 0
                                 || tdata[j].tstn[m].tlevel2[h].qual == 8
                                 || tdata[j].tstn[m].tlevel2[h].qual == 6
-                                || tdata[j].tstn[m].tlevel2[h].qual == 3 || tdata[j].tstn[m].tlevel2[h].qual == 2)) {
+                                || tdata[j].tstn[m].tlevel2[h].qual == 3
+                                || tdata[j].tstn[m].tlevel2[h].qual == 2)) {
                     continue;
                 }
 
@@ -362,9 +361,9 @@ public class EstMissingTStations {
                     }
 
                     /* Retrieve the climate information for this station. */
-                    if (maxmin_used == 1) {
-                        temp_climo = (temperature_stations.get(i).max[isom] + temperature_stations
-                                .get(i).min[isom]) / 2;
+                    if (maxmin_used) {
+                        temp_climo = (temperature_stations.get(i).max[isom]
+                                + temperature_stations.get(i).min[isom]) / 2;
                     }
 
                     lat = temperature_stations.get(i).lat;
@@ -376,11 +375,6 @@ public class EstMissingTStations {
 
                     dist = Math.pow(dist, .5) * 60;
 
-                    // GeodeticCalculator gc = new GeodeticCalculator();
-                    // gc.setStartingGeographicPoint(lon1, lat1);
-                    // gc.setDestinationGeographicPoint(lon, lat);
-                    // dist = gc.getOrthodromicDistance();
-
                     if (dist == 0.0) {
                         dist = .0001;
                     }
@@ -388,19 +382,19 @@ public class EstMissingTStations {
                     df = 50 * Math.abs(temperature_stations.get(m).elev
                             - temperature_stations.get(i).elev) / 5280;
 
-                    dist = dist + df;
+                    dist += df;
 
                     dist = 1 / dist;
 
-                    if ((maxmin_used == 1) && (temp_climo1 > -99)
+                    if ((maxmin_used) && (temp_climo1 > -99)
                             && (temp_climo > -99)) {
-                        fdata = fdata + tdata[j].tstn[i].tlevel2[h].a * dist
+                        fdata += tdata[j].tstn[i].tlevel2[h].a * dist
                                 * (temp_climo1 / temp_climo);
                     } else {
-                        fdata = fdata + tdata[j].tstn[i].tlevel2[h].a * dist;
+                        fdata += tdata[j].tstn[i].tlevel2[h].a * dist;
                     }
 
-                    fdist = fdist + dist;
+                    fdist += dist;
 
                     l++;
 
@@ -442,9 +436,10 @@ public class EstMissingTStations {
                         }
 
                         /* Retrieve the climate information for this station. */
-                        if (maxmin_used == 1) {
-                            temp_climo = (temperature_stations.get(i).max[isom] + temperature_stations
-                                    .get(i).min[isom]) / 2;
+                        if (maxmin_used) {
+                            temp_climo = (temperature_stations.get(i).max[isom]
+                                    + temperature_stations.get(i).min[isom])
+                                    / 2;
                         }
 
                         lat = temperature_stations.get(i).lat;
@@ -455,11 +450,6 @@ public class EstMissingTStations {
 
                         dist = Math.pow((lat1 - lat), 2) + Math.pow(distlon, 2);
 
-                        // GeodeticCalculator gc = new GeodeticCalculator();
-                        // gc.setStartingGeographicPoint(lon1, lat1);
-                        // gc.setDestinationGeographicPoint(lon, lat);
-                        // dist = gc.getOrthodromicDistance();
-
                         if (dist == 0.0) {
                             dist = .0001;
                         }
@@ -467,20 +457,19 @@ public class EstMissingTStations {
                         df = 50 * Math.abs(temperature_stations.get(m).elev
                                 - temperature_stations.get(i).elev) / 5280;
 
-                        dist = dist + df;
+                        dist += df;
 
                         dist = 1 / dist;
 
-                        if ((maxmin_used == 1) && (temp_climo1 > -99)
+                        if ((maxmin_used) && (temp_climo1 > -99)
                                 && (temp_climo > -99)) {
-                            fdata = fdata + tdata[j].tstn[i].tlevel2[h].a
-                                    * dist * (temp_climo1 / temp_climo);
+                            fdata += tdata[j].tstn[i].tlevel2[h].a * dist
+                                    * (temp_climo1 / temp_climo);
                         } else {
-                            fdata = fdata + tdata[j].tstn[i].tlevel2[h].a
-                                    * dist;
+                            fdata += tdata[j].tstn[i].tlevel2[h].a * dist;
                         }
 
-                        fdist = fdist + dist;
+                        fdist += dist;
 
                         l++;
 
@@ -494,8 +483,8 @@ public class EstMissingTStations {
 
                     a = (float) (fdata / fdist);
 
-                    b = a
-                            * (tdata[j].tstn[m].tlevel2[4].data - tdata[j].tstn[m].tlevel2[5].data)
+                    b = a * (tdata[j].tstn[m].tlevel2[4].data
+                            - tdata[j].tstn[m].tlevel2[5].data)
                             + tdata[j].tstn[m].tlevel2[5].data;
 
                     tdata[j].tstn[m].tlevel2[h].data = b;

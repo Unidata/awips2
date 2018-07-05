@@ -4,7 +4,7 @@ Bundle-Name: VAA Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.vaa;singleton:=true
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.vaa,
  com.raytheon.uf.viz.vaa.rsc,

@@ -18,8 +18,12 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="WSc2" name="Prob SFC wind speed &gt; 34 kt" unit="%">
-	<Method name="Alias" levels="Surface">
-		<Field abbreviation="WSc2" level="10FHAG"/>
-	</Method>
+    <Method name="Alias" levels="Surface">
+        <Field abbreviation="WSc2" level="10FHAG" />
+    </Method>
 </DerivedParameter>

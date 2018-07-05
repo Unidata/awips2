@@ -54,6 +54,19 @@
 #          08/27/04 - Version 1.2.  Fix handling of Query edit areas
 #          07/21/10 - Ajust only magnitude when vector mode is set to BOTH
 # ----------------------------------------------------------------------------
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls
+# 
+##
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 ToolType = "numeric"
 WeatherElementEdited = "variableElement"
@@ -153,7 +166,7 @@ class Tool (SmartScript.SmartScript):
         vect=varDict["Vectors:"]
         action=varDict["Action:"]
    
-        if variableElement_GridInfo.getGridType().toString() != 'VECTOR':
+        if str(variableElement_GridInfo.getGridType()) != 'VECTOR':
            
            if (action=="Add"):
               newval=variableElement+(self.deltagrid*deltavalue)

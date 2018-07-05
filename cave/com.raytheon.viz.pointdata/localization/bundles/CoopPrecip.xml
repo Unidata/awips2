@@ -18,36 +18,45 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor" currentAnimationMode="Temporal">
-				<resource>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
                     <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="Coop Precip"
-						plotModelFile="coopPrecipDesign.svg" spiFile="basemaps/coopPrecip.spi"
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="textPoints" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="nnnid">
-								<constraint constraintValue="RTP" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-						<plotInfoRetriever xsi:type="coopPrecipPlotInfoRetriever"/>
-					</resourceData>
-				</resource>
-			</descriptor>
-		</displays>
-	</displayList>
+                        <capabilities>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="Coop Precip" plotModelFile="coopPrecipDesign.svg"
+                        spiFile="basemaps/coopPrecip.spi" retrieveData="false"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true">
+                        <binOffset posOffset="1800" negOffset="1800"
+                            virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="textPoints"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="nnnid">
+                                <constraint constraintValue="RTP"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                        <plotInfoRetriever xsi:type="coopPrecipPlotInfoRetriever" />
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

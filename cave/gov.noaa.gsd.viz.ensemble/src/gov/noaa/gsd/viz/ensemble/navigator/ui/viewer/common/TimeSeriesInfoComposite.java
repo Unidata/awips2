@@ -1,8 +1,5 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common;
 
-import gov.noaa.gsd.viz.ensemble.util.GlobalColor;
-import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -11,10 +8,13 @@ import org.eclipse.swt.widgets.Label;
 
 import com.raytheon.uf.viz.core.VizApp;
 
+import gov.noaa.gsd.viz.ensemble.util.GlobalColor;
+import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
+
 /***
  * 
- * This composite contains the meta-data associated with resources
- * loaded into the time series (plume) editor. 
+ * This composite contains the meta-data associated with resources loaded into
+ * the time series (plume) editor.
  * 
  * <pre>
  *
@@ -23,6 +23,7 @@ import com.raytheon.uf.viz.core.VizApp;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 16, 2015  12565      polster     Initial creation
+ * Dec 14, 2016   19443     polster     added isWidgetReady method
  *
  * </pre>
  *
@@ -50,22 +51,22 @@ public class TimeSeriesInfoComposite extends Composite {
         setLayout(timeSeriesInfoComposite_gl);
 
         timeSeriesPointLabelLbl = new Label(this, SWT.BORDER);
-        timeSeriesPointLabelLbl.setFont(SWTResourceManager.getFont("Dialog",
-                10, SWT.NORMAL));
-        timeSeriesPointLabelLbl.setLayoutData(new GridData(SWT.FILL,
-                SWT.CENTER, false, false, 1, 1));
+        timeSeriesPointLabelLbl
+                .setFont(SWTResourceManager.getFont("Dialog", 10, SWT.NORMAL));
+        timeSeriesPointLabelLbl.setLayoutData(
+                new GridData(SWT.FILL, SWT.CENTER, false, false, 1, 1));
         timeSeriesPointLabelLbl.setText("  Location: ");
 
         timeSeriesPointValueLbl = new Label(this, SWT.BORDER);
-        timeSeriesPointValueLbl.setFont(SWTResourceManager.getFont("Dialog",
-                10, SWT.NORMAL));
+        timeSeriesPointValueLbl
+                .setFont(SWTResourceManager.getFont("Dialog", 10, SWT.NORMAL));
         timeSeriesPointValueLbl.setAlignment(SWT.CENTER);
-        timeSeriesPointValueLbl.setForeground(SWTResourceManager.getColor(0, 0,
-                0));
-        timeSeriesPointValueLbl.setBackground(GlobalColor
-                .get(GlobalColor.PALE_EXTRA_LIGHT_AZURE));
-        GridData timeSeriesPointValueLbl_gd = new GridData(SWT.FILL,
-                SWT.CENTER, true, false, 2, 1);
+        timeSeriesPointValueLbl
+                .setForeground(SWTResourceManager.getColor(0, 0, 0));
+        timeSeriesPointValueLbl.setBackground(
+                GlobalColor.get(GlobalColor.PALE_EXTRA_LIGHT_AZURE));
+        GridData timeSeriesPointValueLbl_gd = new GridData(SWT.FILL, SWT.CENTER,
+                true, false, 2, 1);
         timeSeriesPointValueLbl.setLayoutData(timeSeriesPointValueLbl_gd);
 
         // need to fill some space
@@ -83,25 +84,41 @@ public class TimeSeriesInfoComposite extends Composite {
         }
     }
 
-    public void setViewEditable(final boolean enabled) {
+    public void setEditable(final boolean enabled) {
 
         VizApp.runSync(new Runnable() {
 
             @Override
             public void run() {
 
-                if (enabled) {
-                    timeSeriesPointValueLbl.setBackground(GlobalColor
-                            .get(GlobalColor.PALE_EXTRA_LIGHT_AZURE));
-                } else {
-                    timeSeriesPointValueLbl.setBackground(GlobalColor
-                            .get(GlobalColor.LIGHT_GRAY));
+                if (isWidgetReady()) {
+                    if (enabled) {
+                        timeSeriesPointValueLbl.setBackground(GlobalColor
+                                .get(GlobalColor.PALE_EXTRA_LIGHT_AZURE));
+                    } else {
+                        timeSeriesPointValueLbl.setBackground(
+                                GlobalColor.get(GlobalColor.LIGHT_GRAY));
+                    }
+                    timeSeriesPointLabelLbl.setEnabled(enabled);
+                    timeSeriesPointValueLbl.setEnabled(enabled);
                 }
-                timeSeriesPointLabelLbl.setEnabled(enabled);
-                timeSeriesPointValueLbl.setEnabled(enabled);
             }
         });
 
+    }
+
+    private boolean isWidgetReady() {
+        boolean isReady = false;
+
+        if (timeSeriesPointValueLbl != null
+                && !timeSeriesPointValueLbl.isDisposed()
+
+                && timeSeriesPointLabelLbl != null
+                && !timeSeriesPointLabelLbl.isDisposed()) {
+
+            isReady = true;
+        }
+        return isReady;
     }
 
 }

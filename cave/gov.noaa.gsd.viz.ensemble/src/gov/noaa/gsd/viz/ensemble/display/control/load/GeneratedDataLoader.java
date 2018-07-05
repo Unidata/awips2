@@ -1,16 +1,5 @@
 package gov.noaa.gsd.viz.ensemble.display.control.load;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleResourceManager;
-import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
-import gov.noaa.gsd.viz.ensemble.display.calculate.EnsembleCalculator;
-import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
-import gov.noaa.gsd.viz.ensemble.display.common.TimeSeriesResourceHolder;
-import gov.noaa.gsd.viz.ensemble.display.rsc.GeneratedEnsembleGridResourceData;
-import gov.noaa.gsd.viz.ensemble.display.rsc.histogram.HistogramResource;
-import gov.noaa.gsd.viz.ensemble.display.rsc.histogram.HistogramResourceData;
-import gov.noaa.gsd.viz.ensemble.display.rsc.timeseries.GeneratedTimeSeriesResourceData;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,15 +13,26 @@ import org.eclipse.core.runtime.jobs.Job;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.xy.timeseries.display.TimeSeriesDescriptor;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.editor.AbstractEditor;
+
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
+import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
+import gov.noaa.gsd.viz.ensemble.display.calculate.EnsembleCalculator;
+import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
+import gov.noaa.gsd.viz.ensemble.display.common.TimeSeriesResourceHolder;
+import gov.noaa.gsd.viz.ensemble.display.rsc.GeneratedEnsembleGridResourceData;
+import gov.noaa.gsd.viz.ensemble.display.rsc.histogram.HistogramResource;
+import gov.noaa.gsd.viz.ensemble.display.rsc.histogram.HistogramResourceData;
+import gov.noaa.gsd.viz.ensemble.display.rsc.timeseries.GeneratedTimeSeriesResourceData;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
 
 /**
  * Loads the generated ensemble resource(s) into active or specified display
@@ -51,8 +51,10 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * ------------ ---------- ----------- --------------------------
  * Jan 2014        5056      jing    Initial creation
  * Jan 15 2016     12301     jing    Added distribution feature
+ * Dec 29 2016     19325     jing    Deal with Image when loading
+ * Mar 17 2017     19325     jing    Resource group behavior added
  * 
- * </pre>
+ *          </pre>
  */
 
 public class GeneratedDataLoader {
@@ -88,7 +90,7 @@ public class GeneratedDataLoader {
      */
     public void loadToMapEditor(final EnsembleCalculator calculator) {
 
-        if (!(toolLayer.getEditor().getActiveDisplayPane().getDescriptor() instanceof IMapDescriptor)) {
+        if (!(toolLayer.getDescriptor() instanceof IMapDescriptor)) {
             return;
         }
 
@@ -117,18 +119,9 @@ public class GeneratedDataLoader {
                          **/
                         // Same level and unit case
                         Map<String, List<AbstractResourceHolder>> dataHolders = new ConcurrentHashMap<>();
-                        try {
-                            dataHolders = EnsembleResourceManager
-                                    .getInstance()
-                                    .getResourceList(toolLayer)
-                                    .getUserLoadedRscs(
-                                            (IDescriptor) new MapDescriptor(),
-                                            true, level, unit);
-                        } catch (VizException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    e.getLocalizedMessage(), e);
-                            continue;
-                        }
+                        dataHolders = toolLayer.getResourceList()
+                                .getUserLoadedRscs(MapDescriptor.class, true,
+                                        level, unit);
                         if (!dataHolders.isEmpty()) {
                             LoadGeneratedResourceToMapEditorJob ccj = new LoadGeneratedResourceToMapEditorJob(
                                     "Load Generated Resource To Map Editor",
@@ -151,7 +144,7 @@ public class GeneratedDataLoader {
      */
     public void loadToTimeSeriesEditor(final EnsembleCalculator calculator) {
 
-        if (!(toolLayer.getEditor().getActiveDisplayPane().getDescriptor() instanceof TimeSeriesDescriptor))
+        if (!(toolLayer.getDescriptor() instanceof TimeSeriesDescriptor))
             return;
 
         searchLoadedResourcesTimeSeriesEditor();
@@ -191,9 +184,9 @@ public class GeneratedDataLoader {
      * @param calculator
      */
     public void load(final EnsembleCalculator calculator) {
-        if (toolLayer.getEditor().getActiveDisplayPane().getDescriptor() instanceof TimeSeriesDescriptor) {
+        if (toolLayer.getDescriptor() instanceof TimeSeriesDescriptor) {
             loadToTimeSeriesEditor(calculator);
-        } else if (toolLayer.getEditor().getActiveDisplayPane().getDescriptor() instanceof IMapDescriptor) {
+        } else if (toolLayer.getDescriptor() instanceof IMapDescriptor) {
             loadToMapEditor(calculator);
         }
     }
@@ -205,7 +198,7 @@ public class GeneratedDataLoader {
      */
     public void loadOverlay(final Calculation overlay) {
 
-        if (!(toolLayer.getEditor().getActiveDisplayPane().getDescriptor() instanceof IMapDescriptor)) {
+        if (!(toolLayer.getDescriptor() instanceof IMapDescriptor)) {
             return;
         }
         searchLoadedResourcesMapEditor();
@@ -232,18 +225,9 @@ public class GeneratedDataLoader {
                          **/
                         // Same level and unit case
                         Map<String, List<AbstractResourceHolder>> dataHolders = new ConcurrentHashMap<>();
-                        try {
-                            dataHolders = EnsembleResourceManager
-                                    .getInstance()
-                                    .getResourceList(toolLayer)
-                                    .getUserLoadedRscs(
-                                            (IDescriptor) new MapDescriptor(),
-                                            true, level, unit);
-                        } catch (VizException e) {
-                            statusHandler.handle(Priority.PROBLEM,
-                                    e.getLocalizedMessage(), e);
-                            continue;
-                        }
+                        dataHolders = toolLayer.getResourceList()
+                                .getUserLoadedRscs(MapDescriptor.class, true,
+                                        level, unit);
                         if (!dataHolders.isEmpty()) {
                             LoadOverlayJob ccj = new LoadOverlayJob(
                                     "Load Overlay Resource", overlay, level,
@@ -344,12 +328,8 @@ public class GeneratedDataLoader {
         units.clear();
         levels.clear();
 
-        if (EnsembleResourceManager.getInstance().getResourceList(toolLayer) == null) {
-            return;
-        }
-
-        List<AbstractResourceHolder> rscs = EnsembleResourceManager
-                .getInstance().getResourceList(toolLayer).getUserLoadedRscs();
+        List<AbstractResourceHolder> rscs = toolLayer.getResourceList()
+                .getUserLoadedRscs();
 
         if (rscs == null || rscs.isEmpty()) {
             return;
@@ -358,6 +338,9 @@ public class GeneratedDataLoader {
         // Search levels and units in the current loaded resource
         for (AbstractResourceHolder gr : rscs) {
 
+            if (gr.isIndivdualProduct() == false) {
+                continue;
+            }
             // TODO: How about resource with other descriptors?
             if (gr.getSpecificName() == null || gr.getSpecificName().equals(""))
                 continue;
@@ -383,12 +366,8 @@ public class GeneratedDataLoader {
         levels.clear();
         units.clear();
 
-        if (EnsembleResourceManager.getInstance().getResourceList(toolLayer) == null) {
-            return;
-        }
-
-        List<AbstractResourceHolder> rscs = EnsembleResourceManager
-                .getInstance().getResourceList(toolLayer).getUserLoadedRscs();
+        List<AbstractResourceHolder> rscs = toolLayer.getResourceList()
+                .getUserLoadedRscs();
 
         if (rscs == null || rscs.isEmpty()) {
             return;
@@ -396,6 +375,10 @@ public class GeneratedDataLoader {
 
         // Search levels and units in the current loaded resource
         for (AbstractResourceHolder gr : rscs) {
+
+            if (gr.isIndivdualProduct() == false) {
+                continue;
+            }
 
             if (gr instanceof TimeSeriesResourceHolder) {
 
@@ -440,7 +423,7 @@ public class GeneratedDataLoader {
         protected IStatus run(IProgressMonitor monitor) {
             IStatus status = Status.CANCEL_STATUS;
 
-            if (!(toolLayer.getEditor().getActiveDisplayPane().getDescriptor() instanceof IMapDescriptor)) {
+            if (!(toolLayer.getDescriptor() instanceof IMapDescriptor)) {
                 return Status.CANCEL_STATUS;
             }
 
@@ -454,9 +437,8 @@ public class GeneratedDataLoader {
                 LoadProperties loadProperties = new LoadProperties();
 
                 try {
-                    resourceData
-                            .construct(loadProperties, toolLayer.getEditor()
-                                    .getActiveDisplayPane().getDescriptor());
+                    resourceData.construct(loadProperties,
+                            toolLayer.getDescriptor());
                     status = Status.OK_STATUS;
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
@@ -473,9 +455,8 @@ public class GeneratedDataLoader {
                 LoadProperties loadProperties = new LoadProperties();
 
                 try {
-                    resourceData
-                            .construct(loadProperties, toolLayer.getEditor()
-                                    .getActiveDisplayPane().getDescriptor());
+                    resourceData.construct(loadProperties,
+                            toolLayer.getDescriptor());
                     status = Status.OK_STATUS;
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
@@ -487,14 +468,13 @@ public class GeneratedDataLoader {
                 // HistogramResource
                 HistogramResourceData resourceData = new HistogramResourceData(
                         toolLayer, level, unit,
-                        HistogramResource.DisplayMode.GRAPHIC_HISTGRAM);
+                        HistogramResource.DisplayMode.GRAPHIC_HISTOGRAM);
 
                 LoadProperties loadProperties = new LoadProperties();
 
                 try {
-                    resourceData
-                            .construct(loadProperties, toolLayer.getEditor()
-                                    .getActiveDisplayPane().getDescriptor());
+                    resourceData.construct(loadProperties,
+                            toolLayer.getDescriptor());
                     status = Status.OK_STATUS;
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
@@ -502,7 +482,7 @@ public class GeneratedDataLoader {
                 }
 
             }
-            toolLayer.getEditor().refresh();
+            toolLayer.getResourceContainer().refresh();
 
             return status;
         }
@@ -520,7 +500,8 @@ public class GeneratedDataLoader {
         private String level = null;
 
         public LoadGeneratedResourceToMapEditorJob(String name,
-                final EnsembleCalculator calc, final String lev, final String un) {
+                final EnsembleCalculator calc, final String lev,
+                final String un) {
             super(name);
             calculator = calc;
             level = lev;
@@ -533,12 +514,14 @@ public class GeneratedDataLoader {
 
             AbstractEditor theEditor = (AbstractEditor) VizWorkbenchManager
                     .getInstance().getActiveEditor();
-            if (!(theEditor.getActiveDisplayPane().getDescriptor() instanceof IMapDescriptor)) {
+            if (!(theEditor.getActiveDisplayPane()
+                    .getDescriptor() instanceof IMapDescriptor)) {
                 return Status.CANCEL_STATUS;
             }
 
-            for (ResourcePair pair : theEditor.getActiveDisplayPane()
-                    .getDescriptor().getResourceList()) {
+            ResourceList rscList = EnsembleTool.getInstance()
+                    .getActiveResourceList();
+            for (ResourcePair pair : rscList) {
                 if (pair.getResourceData() instanceof GeneratedEnsembleGridResourceData) {
                     GeneratedEnsembleGridResourceData grd = (GeneratedEnsembleGridResourceData) pair
                             .getResourceData();
@@ -551,7 +534,9 @@ public class GeneratedDataLoader {
                     if (grd.getLevel().equals(level)
                             && grd.getUnit().equals(unit)) {
                         if (grd.getCalculator().getCalculation() == calculator
-                                .getCalculation()) {
+                                .getCalculation()
+                                && grd.getCalculator().isImage() == calculator
+                                        .isImage()) {
                             pair.getResource().unload();
                         }
                     }
@@ -560,14 +545,15 @@ public class GeneratedDataLoader {
             }
 
             GeneratedEnsembleGridResourceData ensembleData = new GeneratedEnsembleGridResourceData(
-                    toolLayer, calculator, theEditor.getActiveDisplayPane()
-                            .getDescriptor(), level, unit);
+                    toolLayer, calculator,
+                    theEditor.getActiveDisplayPane().getDescriptor(), level,
+                    unit);
 
             LoadProperties loadProperties = new LoadProperties();
 
             try {
-                ensembleData.construct(loadProperties, theEditor
-                        .getActiveDisplayPane().getDescriptor());
+                ensembleData.construct(loadProperties,
+                        theEditor.getActiveDisplayPane().getDescriptor());
                 status = Status.OK_STATUS;
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
@@ -592,7 +578,8 @@ public class GeneratedDataLoader {
         private String level = null;
 
         public LoadGeneratedResourceToTimeSeriesEditorJob(String name,
-                final EnsembleCalculator calc, final String lev, final String un) {
+                final EnsembleCalculator calc, final String lev,
+                final String un) {
             super(name);
             calculator = calc;
             level = lev;
@@ -604,13 +591,13 @@ public class GeneratedDataLoader {
             IStatus status = Status.CANCEL_STATUS;
             AbstractEditor theEditor = (AbstractEditor) VizWorkbenchManager
                     .getInstance().getActiveEditor();
-            if (!(theEditor.getActiveDisplayPane().getDescriptor() instanceof TimeSeriesDescriptor)) {
+            if (!(theEditor.getActiveDisplayPane()
+                    .getDescriptor() instanceof TimeSeriesDescriptor)) {
                 return status;
             }
-
-            for (ResourcePair pair : theEditor.getActiveDisplayPane()
-                    .getDescriptor().getResourceList()) {
-
+            ResourceList rscList = EnsembleTool.getInstance()
+                    .getActiveResourceList();
+            for (ResourcePair pair : rscList) {
                 /*
                  * If there is already a generated resource having the same
                  * calculation, level and unit then unload the existing
@@ -635,8 +622,8 @@ public class GeneratedDataLoader {
             LoadProperties loadProperties = new LoadProperties();
 
             try {
-                ensembleData.construct(loadProperties, theEditor
-                        .getActiveDisplayPane().getDescriptor());
+                ensembleData.construct(loadProperties,
+                        theEditor.getActiveDisplayPane().getDescriptor());
                 status = Status.OK_STATUS;
             } catch (VizException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),

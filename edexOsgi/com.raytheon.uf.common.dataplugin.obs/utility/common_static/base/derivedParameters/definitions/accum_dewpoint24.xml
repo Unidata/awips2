@@ -18,12 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="accum_dewpoint24" name="accum_dewpoint24" unit="F">
     <Method name="PointAccum">
-        <Field abbreviation="stationName"/>
-        <Field abbreviation="timeObs"/>
-        <Field abbreviation="dewpoint"/>
-        <ConstantField value="1440"/>
-        <ConstantField value="1440"/>
+        <Field abbreviation="stationName" />
+        <Field abbreviation="timeObs" />
+        <Field abbreviation="dewpoint" />
+        <ConstantField value="1440" />
+        <ConstantField value="1440" />
     </Method>
 </DerivedParameter>

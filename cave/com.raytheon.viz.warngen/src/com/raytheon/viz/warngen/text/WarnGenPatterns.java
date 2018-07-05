@@ -43,6 +43,7 @@ import java.util.regex.Pattern;
  * May 13, 2014  DR 17177  Qinglu Lin   Updated secondBullet().
  * May 29, 2015 4441       randerso     Made patterns case insensitive where necessary
  *                                      Renamed and changed from interface to class
+ * Sep 12, 2017  DR 20287  D. Friedman  Allow period at end of second bullet.
  * </pre>
  * 
  * @author jsanchez
@@ -95,7 +96,7 @@ public class WarnGenPatterns {
      */
     public static final Pattern secondBulletPtrn = Pattern
             .compile(
-                    "\\* UNTIL (\\d{3,4} (AM|PM)|NOON|MIDNIGHT) \\w{3,4}( \\w{6,9}){0,1}(\\/(\\d{3,4} (AM|PM)|NOON|MIDNIGHT) \\w{3,4}( \\w{6,9}){0,1}\\/){0,1}"
+                    "\\* UNTIL (\\d{3,4} (AM|PM)|NOON|MIDNIGHT) \\w{3,4}( \\w{6,9}){0,1}(\\/(\\d{3,4} (AM|PM)|NOON|MIDNIGHT) \\w{3,4}( \\w{6,9}){0,1}\\/){0,1}\\.{0,1}"
                             + NEWLINE, Pattern.MULTILINE
                             | Pattern.CASE_INSENSITIVE);
 

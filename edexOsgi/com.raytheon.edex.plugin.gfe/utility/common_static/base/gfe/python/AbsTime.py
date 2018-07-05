@@ -17,13 +17,6 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-from datetime import datetime, timedelta
-import calendar
-from java.util import Date 
-import JUtil
-
-import dateutil.tz
-GMT_ZONE = dateutil.tz.gettz('GMT')
 
 #
 # Provides a AWIPS I GFE partially-compatible wrapper to AbsTime
@@ -40,6 +33,22 @@ GMT_ZONE = dateutil.tz.gettz('GMT')
 #    12/01/2014       #3875        randerso       Set time zone on underlying datetime object to GMT
 # 
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
+from datetime import datetime, timedelta
+import calendar
+from java.util import Date 
+import JUtil
+
+import dateutil.tz
+GMT_ZONE = dateutil.tz.gettz('GMT')
+
+
 class AbsTime(datetime, JUtil.JavaWrapperClass):
     
     def __new__(self, arg):

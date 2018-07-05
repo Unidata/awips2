@@ -21,27 +21,30 @@ package com.raytheon.edex.plugin.gfe.smartinit;
 
 import java.util.Map;
 
-import jep.JepException;
-
 import com.raytheon.uf.common.python.PythonEval;
+import com.raytheon.uf.common.python.PythonSharedModulesUtil;
+
+import jep.JepConfig;
+import jep.JepException;
 
 /**
  * A wrapper for running smart init python
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Apr 28, 2008				njensen	    Initial creation
+ * Date         Ticket#     Engineer    Description
+ * ------------ ---------   ----------- --------------------------
+ * Apr 28, 2008             njensen     Initial creation
  * Oct 23, 2012      #1291  randerso    Changed to extend PythonEval instead 
  *                                      of PythonScript so it doesn't get run 
  *                                      causing it to load as module __main__ 
  *                                      instead of Init.
+ * Nov 01, 2016      #5979  njensen     Cast to Number where applicable
+ * Dec 19, 2017       7149  njensen     Use JepConfig and shared modules in constructor
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
 
 public class SmartInitScript extends PythonEval {
@@ -61,17 +64,17 @@ public class SmartInitScript extends PythonEval {
      */
     public SmartInitScript(String aFilePath, String anIncludePath,
             ClassLoader aClassLoader) throws JepException {
-        super(anIncludePath, aClassLoader);
+        super(new JepConfig().setIncludePath(anIncludePath)
+                .setClassLoader(aClassLoader)
+                .setSharedModules(PythonSharedModulesUtil.getSharedModules()));
         jep.eval("from Init import *");
     }
 
     /**
      * Runs the smart init with the specified arguments
      * 
-     * @param argNames
+     * @param args
      *            the arguments to pass the script
-     * @param argValues
-     *            the values of the arguments
      * @return
      * @throws JepException
      */
@@ -95,10 +98,10 @@ public class SmartInitScript extends PythonEval {
                 + "' in sys.path");
         int index;
         if (inList) {
-            index = (Integer) jep
-                    .getValue("sys.path.index('" + basePath + "')");
+            index = ((Number) jep
+                    .getValue("sys.path.index('" + basePath + "')")).intValue();
         } else {
-            index = (Integer) jep.getValue("len(sys.path)");
+            index = ((Number) jep.getValue("len(sys.path)")).intValue();
         }
         jep.eval("sys.path.insert(" + index + ", '" + sitePath + "')");
     }

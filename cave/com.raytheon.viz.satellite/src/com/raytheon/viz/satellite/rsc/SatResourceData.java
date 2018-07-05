@@ -66,6 +66,8 @@ import com.raytheon.viz.satellite.inventory.SatelliteDataCubeAdapter;
  *                                    multiple records per frame.
  * Jul 13, 2016  20487    jburks      Added variable to toggle the showing of incomplete
  *                                    frames
+ * Dec 11, 2017  DCS19856 jburks      Add boolean to track if product support incomplete frames toggling and fixed 
+ *                                    incomplete frames issue.
  * 
  * </pre>
  * 
@@ -82,6 +84,8 @@ public class SatResourceData extends AbstractRequestableResourceData {
 
     @XmlAttribute
     private boolean showIncompleteFrames = true;
+
+    private boolean isIncompleteFrameSelectableProduct = false;
 
     private Set<DataTime> previousTimes = new HashSet<>();
 
@@ -184,6 +188,7 @@ public class SatResourceData extends AbstractRequestableResourceData {
         }
         if (!isShowIncompleteFrames() && (updateData instanceof PluginDataObject
                 || updateData instanceof PluginDataObject[])) {
+
             if (previousTimes != null) {
                 List<DataTime> oldTimes = Arrays
                         .asList(previousTimes.toArray(new DataTime[0]));
@@ -219,7 +224,20 @@ public class SatResourceData extends AbstractRequestableResourceData {
                 }
             }
         }
-
+        Set<Integer> gids = new HashSet();
+        for (SatelliteRecord record : records) {
+            gids.add(record.getCoverage().getGid());
+        }
+        if (updateData instanceof SatelliteRecord) {
+            gids.add(((SatelliteRecord) updateData).getCoverage().getGid());
+        } else if (updateData instanceof PluginDataObject[]) {
+            for (PluginDataObject obj : (PluginDataObject[]) updateData) {
+                gids.add(((SatelliteRecord) obj).getCoverage().getGid());
+            }
+        }
+        if (gids.size() > 1) {
+            isIncompleteFrameSelectableProduct = true;
+        }
         super.update(updateData);
 
     }
@@ -260,11 +278,7 @@ public class SatResourceData extends AbstractRequestableResourceData {
     @Override
     protected DataTime[] getAvailableTimes(
             Map<String, RequestConstraint> constraintMap, BinOffset binOffset)
-                    throws VizException {
-        if (showIncompleteFrames == true) {
-
-            return super.getAvailableTimes(constraintMap, binOffset);
-        }
+            throws VizException {
         DbQueryRequest request = new DbQueryRequest(constraintMap);
         request.addRequestField(PluginDataObject.DATATIME_ID);
         /*
@@ -290,6 +304,16 @@ public class SatResourceData extends AbstractRequestableResourceData {
                 }
             }
         }
+        if (max > 1) {
+            isIncompleteFrameSelectableProduct = true;
+        } else {
+            // Hide the incomplete frames menu item
+            isIncompleteFrameSelectableProduct = false;
+        }
+        if (showIncompleteFrames == true) {
+            return super.getAvailableTimes(constraintMap, binOffset);
+        }
+        invalidateAvailableTimesCache();
         Set<DataTime> uniqueTimes = new HashSet<>(gidCounts.size(), 1.0f);
         for (Entry<DataTime, Integer> countEntry : gidCounts.entrySet()) {
             if (countEntry.getValue().intValue() == max) {
@@ -314,8 +338,18 @@ public class SatResourceData extends AbstractRequestableResourceData {
         this.showIncompleteFrames = showIncompleteFrames;
         if (previousValue != this.showIncompleteFrames) {
             invalidateAvailableTimesCache();
+            try {
+                this.getAvailableTimes(metadataMap, binOffset);
+            } catch (VizException e) {
+                // Ignore error
+            }
         }
 
+    }
+
+    public boolean isIncompleteFrameSelectableProduct() {
+
+        return isIncompleteFrameSelectableProduct;
     }
 
 }

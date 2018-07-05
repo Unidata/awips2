@@ -45,7 +45,7 @@ All of these services are started and stopped by a single program `edex`,
     edex setup
     
     [edex] EDEX IP and Hostname Setup
-     Checking /awips2/data/pg_hba.conf [OK]
+     Checking /awips2/database/data/pg_hba.conf [OK]
      Checking /awips2/edex/bin/setup.env [OK]
     
     [edit] Hostname edex.unidata.ucar.edu added to /awips2/ldm/etc/ldmd.conf

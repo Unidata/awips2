@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -18,57 +18,41 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="menuItem" menuText="Vorticity" key="AV"
-        indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Vort Adv" key="VAdv"
-        indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Pot Vorticity"
-        key="pV" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Vorticity" key="AV" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Vort Adv" key="VAdv" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Pot Vorticity" key="pV" indentText="false" />
     <contribute xsi:type="toolbarSubMenu" menuText="Pot Vorticity">
-        <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/common/derived/potVorticity.xml" />
+        <contribute xsi:type="subinclude" fileName="menus/volumebrowser/fields/common/derived/potVorticity.xml" />
     </contribute>
-
-    <contribute xsi:type="menuItem" menuText="Divergence"
-        key="wDiv" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Total Deformation"
-        key="Tdef" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Temp Adv" key="TAdv"
-        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Divergence" key="wDiv" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Total Deformation" key="Tdef" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Temp Adv" key="TAdv" indentText="false" />
     <contribute xsi:type="toolbarSubMenu" menuText="Temperature">
-        <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/common/derived/temperature.xml" />
+        <contribute xsi:type="subinclude" fileName="menus/volumebrowser/fields/common/derived/temperature.xml" />
     </contribute>
-
-    <contribute xsi:type="menuItem" menuText="Moisture Adv"
-        key="MAdv" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Moisture Adv" key="MAdv" indentText="false" />
     <contribute xsi:type="toolbarSubMenu" menuText="Moisture">
-        <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/common/derived/moisture.xml" />
+        <contribute xsi:type="subinclude" fileName="menus/volumebrowser/fields/common/derived/moisture.xml" />
     </contribute>
-
-    <contribute xsi:type="menuItem" menuText="Adiabatic Omega"
-        key="NetIO" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Adiabatic Omega" key="NetIO" indentText="false" />
     <contribute xsi:type="toolbarSubMenu" menuText="Isentropic">
-        <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/common/derived/isentropic.xml" />
+        <contribute xsi:type="subinclude" fileName="menus/volumebrowser/fields/common/derived/isentropic.xml" />
     </contribute>
-
-    <contribute xsi:type="menuItem" menuText="Geostrophic Wind"
-        key="geoW" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Geostrophic Wind" key="geoW" indentText="false" />
     <contribute xsi:type="toolbarSubMenu" menuText="Geostrophic">
-        <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/common/derived/geostrophic.xml" />
+        <contribute xsi:type="subinclude" fileName="menus/volumebrowser/fields/common/derived/geostrophic.xml" />
     </contribute>
-
     <contribute xsi:type="toolbarSubMenu" menuText="QG">
-        <contribute xsi:type="subinclude"
-            fileName="menus/volumebrowser/fields/common/derived/QG.xml" />
+        <contribute xsi:type="subinclude" fileName="menus/volumebrowser/fields/common/derived/QG.xml" />
     </contribute>
-
-    <contribute xsi:type="menuItem" menuText="Petterson Frontogen"
-        key="PFrnt" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Petterson Frontogen" key="PFrnt"
+        indentText="false" />
     <contribute xsi:type="toolbarSubMenu" menuText="Frontogenesis">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/common/derived/frontogenesis.xml" />

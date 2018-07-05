@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
 import com.raytheon.edex.plugin.gfe.isc.IscSendQueue;
 import com.raytheon.edex.plugin.gfe.isc.IscSendRecord;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
@@ -44,28 +43,33 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * GFE task for saving grids
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 06/30/08     #875       bphillip    Initial Creation
- * 01/29/09     #1271      njensen     Rewrote for thrift capabilities
- * 06/24/09                njensen     Added sending notifications
- * 09/22/09     #3058      rjpeter     Converted to IRequestHandler
- * 02/12/2013   #1597      randerso    Added logging to support GFE Performance investigation
- * 06/13/13     #2044      randerso    Refactored to use IFPServer
- * 04/03/2014   #2737      randerso    Changed to send ISC even when no grids are saved
- *                                     (i.e. on grid deletes)
- * 01/13/2015   #3955      randerso    Enabled sending ISC grids for Topo
- * 10/13/2015   #4961      randerso    Change modelName for NewTopo ISC.
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 30, 2008  875      bphillip  Initial Creation
+ * Jan 29, 2009  1271     njensen   Rewrote for thrift capabilities
+ * Jun 24, 2009           njensen   Added sending notifications
+ * Sep 22, 2009  3058     rjpeter   Converted to IRequestHandler
+ * Feb 12, 2013  1597     randerso  Added logging to support GFE Performance
+ *                                  investigation
+ * Jun 13, 2013  2044     randerso  Refactored to use IFPServer
+ * Apr 03, 2014  2737     randerso  Changed to send ISC even when no grids are
+ *                                  saved (i.e. on grid deletes)
+ * Jan 13, 2015  3955     randerso  Enabled sending ISC grids for Topo
+ * Oct 13, 2015  4961     randerso  Change modelName for NewTopo ISC.
+ * Sep 12, 2016  5861     randerso  Remove references to IFPServerConfigManager
+ *                                  which was largely redundant with IFPServer.
+ * Feb 02, 2017  3847     randerso  Converted ISCSendQueue to proper singleton
+ *
  * </pre>
- * 
+ *
  * @author bphillip
- * @version 1.0
  */
-public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
-        IRequestHandler<SaveGfeGridRequest> {
+public class SaveGfeGridHandler extends BaseGfeRequestHandler
+        implements IRequestHandler<SaveGfeGridRequest> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SaveGfeGridHandler.class);
 
@@ -78,14 +82,13 @@ public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
         ServerResponse<?> sr = null;
         List<SaveGridRequest> saveRequest = request.getSaveRequests();
         WsId workstationID = request.getWorkstationID();
-        String siteID = request.getSiteID();
         boolean clientSendStatus = request.isClientSendStatus();
 
         try {
             ITimer timer = TimeUtil.getTimer();
             timer.start();
-            sr = getIfpServer(request).getGridParmMgr().saveGridData(
-                    saveRequest, workstationID);
+            sr = getIfpServer(request).getGridParmMgr()
+                    .saveGridData(saveRequest, workstationID);
             timer.stop();
             perfLog.logDuration("Save Grids: GridParmManager.saveGridData",
                     timer.getElapsedTime());
@@ -94,21 +97,20 @@ public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
             // check for sending to ISC
             timer.reset();
             timer.start();
-            IFPServerConfig serverConfig = IFPServerConfigManager
-                    .getServerConfig(siteID);
+            IFPServerConfig serverConfig = getIfpServer(request).getConfig();
             String iscrta = serverConfig.iscRoutingTableAddress().get("ANCF");
             if (serverConfig.requestISC() && clientSendStatus
                     && (iscrta != null)) {
-                List<IscSendRecord> iscSendRequests = new ArrayList<IscSendRecord>(
+                List<IscSendRecord> iscSendRequests = new ArrayList<>(
                         saveRequest.size());
                 for (SaveGridRequest save : saveRequest) {
                     DatabaseID dbid = save.getParmId().getDbId();
 
                     // ensure Fcst database or Topo database
-                    if ((dbid.getModelName().equals("Fcst") && dbid.getDbType()
-                            .isEmpty())
-                            || (dbid.getModelName().equals("NewTerrain") && dbid
-                                    .getDbType().equals("EditTopo"))) {
+                    if (("Fcst".equals(dbid.getModelName())
+                            && dbid.getDbType().isEmpty())
+                            || ("NewTerrain".equals(dbid.getModelName())
+                                    && "EditTopo".equals(dbid.getDbType()))) {
                         IscSendRecord sendReq = new IscSendRecord(
                                 save.getParmId(),
                                 save.getReplacementTimeRange(), "",
@@ -116,7 +118,7 @@ public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
                         iscSendRequests.add(sendReq);
                     }
                 }
-                IscSendQueue.sendToQueue(iscSendRequests);
+                IscSendQueue.getInstance().sendToQueue(iscSendRequests);
 
                 timer.stop();
                 perfLog.logDuration("Save Grids: Queueing ISC send requests",
@@ -125,7 +127,7 @@ public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
 
         } catch (GfeException e) {
             statusHandler.error("Error getting discrete or wx definition", e);
-            sr = new ServerResponse<Object>();
+            sr = new ServerResponse<>();
             sr.addMessage("Error getting discrete or wx definition on server");
         }
 
@@ -133,8 +135,8 @@ public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
             try {
                 ITimer timer = TimeUtil.getTimer();
                 timer.start();
-                ServerResponse<?> notifyResponse = SendNotifications.send(sr
-                        .getNotifications());
+                ServerResponse<?> notifyResponse = SendNotifications
+                        .send(sr.getNotifications());
                 if (!notifyResponse.isOkay()) {
                     for (ServerMsg msg : notifyResponse.getMessages()) {
                         sr.addMessage(msg.getMessage());
@@ -145,8 +147,8 @@ public class SaveGfeGridHandler extends BaseGfeRequestHandler implements
                         timer.getElapsedTime());
             } catch (Exception e) {
                 statusHandler.error("Error sending save notification", e);
-                sr.addMessage("Error sending save notification - "
-                        + e.getMessage());
+                sr.addMessage(
+                        "Error sending save notification - " + e.getMessage());
             }
         }
 

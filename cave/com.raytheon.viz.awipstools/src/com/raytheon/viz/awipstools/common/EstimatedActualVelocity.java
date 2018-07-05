@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -27,6 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import javax.measure.Measure;
+import javax.measure.quantity.Angle;
+import javax.measure.quantity.Length;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -39,22 +45,26 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Calculates estimated actual velocity and formats this output.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 10/08/2010   5953       bgonzale    refactored EAV code out of layer class.
  * 05/02/2013   DR 14587   D. Friedman Use base velocity.
- * 
+ * 09/14/2016   3239       nabowle     Change getEAVValue parameters.
+ *
  * </pre>
- * 
+ *
  * @author mnash
- * @version 1.0
  */
 
 public class EstimatedActualVelocity {
+    public static final String RANGE = "Range";
+
+    public static final String AZIMUTH = "Azimuth";
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(EstimatedActualVelocity.class);
 
@@ -76,7 +86,7 @@ public class EstimatedActualVelocity {
 
     private static String BASE_VELOCITY_NUMERIC_VALUE_KEY = "baseVelocity-numericValue";
 
-    private List<EAVConfig> eavList = new ArrayList<EAVConfig>();
+    private List<EAVConfig> eavList = new ArrayList<>();
 
     private int _dirForward;
 
@@ -103,7 +113,7 @@ public class EstimatedActualVelocity {
     /**
      * Called from the calculate label function with both coordinates, thus
      * doing some math to figure out values to send and format the EAV labels
-     * 
+     *
      * @param startCoor
      * @param endCoor
      * @return
@@ -159,22 +169,33 @@ public class EstimatedActualVelocity {
                 + formatEAVData(cosAngle2, v2);
     }
 
-    public String getEAVValue(Coordinate coord, Map<String, Object> dataMap) {
-        try {
-            coord = xform(dataMap);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error parsing coordinate from data map.", e);
+    /**
+     * Get the formatted EAV Value.
+     *
+     * @param azimuth
+     * @param range
+     * @param mnemonic
+     * @param velocity
+     * @return
+     */
+    public String getEAVValue(Measure<? extends Number, Angle> azimuth,
+            Measure<? extends Number, Length> range, String mnemonic,
+            Measure<? extends Number, ?> velocity) {
+
+        if (velocity == null || range == null || azimuth == null
+                || !validMnemonic(mnemonic)) {
             return NO_DATA;
         }
 
-        if (coord == null) {
-            return NO_DATA;
-        }
+        double v = velocity.getValue().doubleValue();
+
+        double rangeVal = range.doubleValue(NonSI.NAUTICAL_MILE);
+        double azimuthVal = azimuth.doubleValue(SI.RADIAN);
+
+        Coordinate coord = new Coordinate(rangeVal, azimuthVal);
 
         double x2 = coord.x * Math.sin(coord.y);
         double y2 = coord.x * Math.cos(coord.y);
-        double v = getVals(dataMap);
 
         if (v > 1e36 || v == 0) {
             return NO_DATA;
@@ -187,7 +208,7 @@ public class EstimatedActualVelocity {
 
     /**
      * Gets the raw values for each coordinate
-     * 
+     *
      * @param coor
      * @return
      * @throws VizException
@@ -195,24 +216,29 @@ public class EstimatedActualVelocity {
     private double getVals(Map<String, Object> dataMap) {
         // first get numeric value at the referenced coordinate
         if (dataMap != null) {
-            if (dataMap.get("Mnemonic") != null
-                    && (dataMap.get("Mnemonic").equals("V")
-                            || dataMap.get("Mnemonic").equals("HV") || dataMap
-                            .get("Mnemonic").equals("SRM"))
-                    && (dataMap.get(BASE_VELOCITY_NUMERIC_VALUE_KEY) != null ||
-                            dataMap.get(NUMERIC_VALUE_KEY) != null)) {
-                String s = (String) dataMap.get(BASE_VELOCITY_NUMERIC_VALUE_KEY);
-                if (s == null)
+            String mnemonic = (String) dataMap.get("Mnemonic");
+            if (validMnemonic(mnemonic)
+                    && (dataMap.get(BASE_VELOCITY_NUMERIC_VALUE_KEY) != null
+                            || dataMap.get(NUMERIC_VALUE_KEY) != null)) {
+                String s = (String) dataMap
+                        .get(BASE_VELOCITY_NUMERIC_VALUE_KEY);
+                if (s == null) {
                     s = (String) dataMap.get(NUMERIC_VALUE_KEY);
+                }
                 return Double.parseDouble(s);
             }
         }
         return 0;
     }
 
+    private static boolean validMnemonic(String mnemonic) {
+        return mnemonic != null && ("V".equals(mnemonic)
+                || "HV".equals(mnemonic) || "SRM".equals(mnemonic));
+    }
+
     /**
      * Convert a coordinate from LatLon to AzimuthRange
-     * 
+     *
      * @param coor
      *            a LatLon coordinate
      * @return a rangeAzimuthCoord
@@ -220,15 +246,17 @@ public class EstimatedActualVelocity {
      */
     private Coordinate xform(Map<String, Object> dataMap) throws VizException {
         if (dataMap != null) {
-            if (dataMap.containsKey("Azimuth") && dataMap.containsKey("Range")) {
-                double azimuth = Double.parseDouble((String) dataMap
-                        .get("Azimuth"));
-                double range = Double.parseDouble(((String) dataMap
-                        .get("Range")).replace("nm", ""));
-                // At this point range is in nautical miles and azimuth is
-                // in degrees
-                // units of range don't seem to matter, azimuth must be
-                // radians.
+            if (dataMap.containsKey(AZIMUTH)
+                    && dataMap.containsKey(RANGE)) {
+                double azimuth = Double
+                        .parseDouble((String) dataMap.get(AZIMUTH));
+                double range = Double.parseDouble(
+                        ((String) dataMap.get(RANGE)).replace("nm", ""));
+                /*
+                 * At this point range is in nautical miles and azimuth is in
+                 * degrees units of range don't seem to matter, azimuth must be
+                 * radians.
+                 */
                 return new Coordinate(range, Math.toRadians(azimuth));
             }
         }
@@ -237,7 +265,7 @@ public class EstimatedActualVelocity {
 
     /**
      * Gets the file from localization.
-     * 
+     *
      * @return The file object, null if file does not exist
      * @throws IOException
      */
@@ -251,7 +279,8 @@ public class EstimatedActualVelocity {
                 return file;
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.handle(Priority.WARN,
+                    "Unable to retrieve " + EAV_CONFIG_FILE, e);
         }
 
         return null;
@@ -259,12 +288,12 @@ public class EstimatedActualVelocity {
 
     /**
      * Parses the eav config file, should be done only at construct time.
-     * 
+     *
      * <pre>
      * File format:
      *      angle    formatting prefix   rounding value
      * </pre>
-     * 
+     *
      * @throws IOException
      */
     private void parseEAVFile() throws IOException {
@@ -354,7 +383,7 @@ public class EstimatedActualVelocity {
 
     /**
      * Takes the values of each and determines what to output to the labels
-     * 
+     *
      * @param value
      * @param cosAngle
      * @return
@@ -407,17 +436,17 @@ public class EstimatedActualVelocity {
     }
 
     public static boolean hasEAV(Map<String, Object> m) {
-        return (m != null
-                && m.get("Mnemonic") != null
-                && (m.get("Mnemonic").equals("V")
-                        || m.get("Mnemonic").equals("HV") || m.get("Mnemonic")
-                        .equals("SRM")) && m.containsKey("numericValue")
-                && m.containsKey("Azimuth") && m.containsKey("Range"));
+        return (m != null && validMnemonic((String) m.get("Mnemonic"))
+                && m.containsKey("numericValue") && m.containsKey(AZIMUTH)
+                && m.containsKey(RANGE));
     }
 
-    public void setPrimaryEav(EstimatedActualVelocity eavOfPrimaryVelocityLayer) {
-        // uses these values from the primary eav, may need to calculate
-        // separately instead of reusing.
+    public void setPrimaryEav(
+            EstimatedActualVelocity eavOfPrimaryVelocityLayer) {
+        /*
+         * uses these values from the primary eav, may need to calculate
+         * separately instead of reusing.
+         */
         this._axisDx = eavOfPrimaryVelocityLayer._axisDx;
         this._axisDy = eavOfPrimaryVelocityLayer._axisDy;
         this._dirForward = eavOfPrimaryVelocityLayer._dirForward;
@@ -427,18 +456,8 @@ public class EstimatedActualVelocity {
     /**
      * Class for holding each line of the config file to determine the label
      * output
-     * 
-     * <pre>
-     * 
-     * SOFTWARE HISTORY
-     * Date         Ticket#    Engineer    Description
-     * ------------ ---------- ----------- --------------------------
-     * 
-     * 
-     * </pre>
-     * 
+     *
      * @author mnash
-     * @version 1.0
      */
     private class EAVConfig {
         private double cosAngle;

@@ -87,7 +87,7 @@ public class ImpactStatementAction extends AbstractHandler {
 
                 impactStatmentDlg = new ImpactStatementDlg(shell,
                         displayString.toString(), lid, false);
-                impactStatmentDlg.setCloseCallback(new ICloseCallback() {
+                impactStatmentDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {

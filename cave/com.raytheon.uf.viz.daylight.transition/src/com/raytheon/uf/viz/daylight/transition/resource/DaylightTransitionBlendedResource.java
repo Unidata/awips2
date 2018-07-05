@@ -26,7 +26,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
-import com.raytheon.viz.core.rsc.BlendedResource;
+import com.raytheon.uf.viz.core.rsc.groups.BlendedResource;
 
 /**
  * 

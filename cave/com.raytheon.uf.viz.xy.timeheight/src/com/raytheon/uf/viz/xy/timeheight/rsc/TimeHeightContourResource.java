@@ -43,11 +43,11 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData.CombineOperation;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.contours.ContourSupport;
 import com.raytheon.viz.core.contours.ContourSupport.ContourGroup;
-import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 
 /**
  * Resource for displaying cross sections as contours

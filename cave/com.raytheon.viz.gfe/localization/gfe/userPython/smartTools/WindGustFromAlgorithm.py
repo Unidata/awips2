@@ -37,6 +37,11 @@
 #    02/10/2016      5283          nabowle        Remove NGM support.
 # ----------------------------------------------------------------------------
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 ToolType = "numeric"
 WeatherElementEdited = "WindGust"
 from numpy import *

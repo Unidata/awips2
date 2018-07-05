@@ -18,15 +18,19 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="TQIND" name="TQ Index 12=Cold Pool 17=Embedded Convection" unit="C">
     <Method name="LinTrans" levels="Layer">
-        <ConstantField value="1.0"/>
-        <Field abbreviation="T" level="850MB"/>
-        <ConstantField value="1.0"/>
-        <Field abbreviation="DpT" level="850MB"/>
-        <ConstantField value="-1.7"/>
-        <Field abbreviation="T" level="700MB"/>
-        <ConstantField value="-0.3"/>
-        <ConstantField value="273.15"/>
-	</Method>
+        <ConstantField value="1.0" />
+        <Field abbreviation="T" level="850MB" />
+        <ConstantField value="1.0" />
+        <Field abbreviation="DpT" level="850MB" />
+        <ConstantField value="-1.7" />
+        <Field abbreviation="T" level="700MB" />
+        <ConstantField value="-0.3" />
+        <ConstantField value="273.15" />
+    </Method>
 </DerivedParameter>

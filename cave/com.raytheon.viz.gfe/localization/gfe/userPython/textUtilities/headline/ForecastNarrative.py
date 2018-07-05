@@ -29,6 +29,18 @@
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls 
+#
+##
+
+##
+# This is a base file that is not intended to be overridden.
+##
 
 import time, types
 import TextRules
@@ -1200,9 +1212,9 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # most of the time when we hit this except it will be because
             # a grid parm was requested that the server doesn't know about.
             # So we will not force an alert to be thrown here.
-            # self.log.exception("Could not retrieve GridParmInfo for " + str(parmID.toString()))
+            # self.log.exception("Could not retrieve GridParmInfo for " + str(parmID)
             gridParmInfo = GridParmInfo()
-        gridType = gridParmInfo.getGridType().toString()
+        gridType = str(gridParmInfo.getGridType())
         if gridType == "VECTOR":
             gridType = self.VECTOR()
         elif gridType == "SCALAR":

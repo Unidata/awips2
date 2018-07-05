@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -18,15 +18,24 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-   
-		<contribute xsi:type="menuItem" menuText="Mean Isotachs" key="wSpmean" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Mean Barbs" key="Windmean" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Wind Direction Spread" key="WDsprd"  indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Wind Speed Spread" key="wSpsprd" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Prob Wind Grtn 25kts" key="WSc1" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Prob Wind Grtn 34kts" key="WSc2" indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Prob Wind Grtn 48kts"	key="WSc3"  indentText="false" />
-		<contribute xsi:type="menuItem" menuText="Prob Wind Grtn 50kts" key="WSc4" indentText="false" />
-
+    <contribute xsi:type="menuItem" menuText="Mean Isotachs" key="wSpmean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Mean Barbs" key="Windmean" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Wind Direction Spread" key="WDsprd"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Wind Speed Spread" key="wSpsprd"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Wind Grtn 25kts" key="WSc1"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Wind Grtn 34kts" key="WSc2"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Wind Grtn 48kts" key="WSc3"
+        indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Wind Grtn 50kts" key="WSc4"
+        indentText="false" />
 </menuTemplate>

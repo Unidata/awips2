@@ -1,32 +1,32 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.radar.interrogators;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
+import javax.measure.Measure;
 import javax.measure.converter.UnitConverter;
+import javax.measure.quantity.Velocity;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
-
-import org.opengis.referencing.operation.MathTransform;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
@@ -36,85 +36,60 @@ import com.raytheon.uf.common.dataplugin.radar.level3.MBAPacket.MBAAttributeIDs;
 import com.raytheon.uf.common.dataplugin.radar.level3.MBAPacket.MBACategory;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.AreaComponent;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
-import com.raytheon.uf.common.geospatial.CRSCache;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
 import com.raytheon.viz.radar.ui.RadarDisplayControls;
 import com.raytheon.viz.radar.ui.RadarDisplayManager;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * Interrogator class for Radar GFM sampling.
- * 
+ * Interrogator class for Radar MBA sampling.
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 11/06/2014   DCS 16776  zwang       Initial creation
- * 
+ * Sep 13, 2016 3239       nabowle     Use the Interrogatable API.
+ *
  * </pre>
- * 
+ *
  * @author zwang
- * @version 1.0
  */
 
-public class RadarMBAInterrogator extends RadarGraphicInterrogator implements
-        IRadarInterrogator {
+public class RadarMBAInterrogator extends RadarGraphicInterrogator
+        implements IRadarInterrogator {
+
+    public static final InterrogationKey<Measure<? extends Number, Velocity>> MAX_SPEED = new InterrogationKey<>();
+
+    public static final InterrogationKey<Measure<? extends Number, Velocity>> STRENGTH = new InterrogationKey<>();
+
+    public static final InterrogationKey<String> CATEGORY = new InterrogationKey<>();
 
     public RadarMBAInterrogator() {
         super();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.interrogators.IRadarInterrogator#sample(com.raytheon
-     * .edex.plugin.radar.RadarRecord, com.vividsolutions.jts.geom.Coordinate,
-     * com.raytheon.uf.viz.core.drawables.ColorMapParameters)
-     */
     @Override
-    public Map<String, String> sample(RadarRecord record, Coordinate latLon,
-            ColorMapParameters params) {
-        Map<String, String> dataMap = new HashMap<String, String>();
-        if (latLon == null) {
-            return null;
-        }
-        double[] input = { latLon.x, latLon.y }; // rr
-        double[] output = new double[2]; // rr
-        try {
-            MathTransform mt = CRSCache.getInstance().getTransformFromLatLon(
-                    record.getCRS());
-
-            mt.transform(input, 0, output, 0, 1);
-            dataMap.put("crsLocation", output == null ? "-1,-1" : output[0]
-                    + "," + output[1]);
-        } catch (Exception e) {
-            return null;
-        }
-
-        dataMap.put("ICAO", record.getIcao());
-        dataMap.put("Mnemonic", record.getMnemonic());
-        addParameters(record, latLon, dataMap);
+    public InterrogateMap sample(RadarRecord radarRecord, Coordinate latLon,
+            ColorMapParameters params, Set<InterrogationKey<?>> keys) {
+        InterrogateMap dataMap = new InterrogateMap();
+        sample(radarRecord, latLon, keys, dataMap);
         return dataMap;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.interrogators.IRadarInterrogator#addParameters
-     * (com.raytheon.uf.common.dataplugin.radar.RadarRecord,
-     * com.vividsolutions.jts.geom.Coordinate, java.util.Map)
-     */
     @Override
     public int addParameters(RadarRecord radarRecord, Coordinate latLon,
-            Map<String, String> dataMap) {
-        dataMap.put("Value", getDataValues(radarRecord, latLon));
+            InterrogateMap dataMap, Set<InterrogationKey<?>> keys) {
+        String valueString = getDataValues(radarRecord, latLon, dataMap, keys);
+        addValueToMap(dataMap, keys, VALUE_STRING, valueString);
         return 0;
     }
 
-    private String getDataValues(RadarRecord radarRecord, Coordinate latLon) {
+    private String getDataValues(RadarRecord radarRecord, Coordinate latLon,
+            InterrogateMap dataMap, Set<InterrogationKey<?>> keys) {
         StringBuffer rval = new StringBuffer();
 
         Coordinate c1 = new Coordinate(latLon.x + .025, latLon.y + .025);
@@ -123,18 +98,18 @@ public class RadarMBAInterrogator extends RadarGraphicInterrogator implements
 
         UnitConverter metersPerSecondToKnots = SI.METERS_PER_SECOND
                 .getConverterTo(NonSI.KNOT);
-        
+
         // Determine if the feature should be sampled
-        RadarDisplayControls currentSettings = RadarDisplayManager
-                .getInstance().getCurrentSettings();
-        
+        RadarDisplayControls currentSettings = RadarDisplayManager.getInstance()
+                .getCurrentSettings();
+
         if (radarRecord.getProductCode() == 196) {
-        	
+
             for (RadarDataKey key : radarRecord.getSymbologyData().keySet()) {
-                
+
                 Coordinate currStorm = new Coordinate(key.getLon(),
                         key.getLat());
-                
+
                 if (env.contains(currStorm)) {
                     // Get the data for the select feature
                     RadarDataPoint currPoint = radarRecord.getSymbologyData()
@@ -144,59 +119,75 @@ public class RadarMBAInterrogator extends RadarGraphicInterrogator implements
                             .getDisplayGenericPointData();
 
                     for (Integer type : currPointData.keySet()) {
-                        for (GenericDataComponent currComp : currPointData.get(
-                                type).values()) {
+                        for (GenericDataComponent currComp : currPointData
+                                .get(type).values()) {
                             currFeature = (AreaComponent) currComp;
 
                             // Category: CATEGORY
-                            String category = currFeature
-                                    .getValue(MBAAttributeIDs.CATEGORY
-                                            .toString());
-                            
+                            String category = currFeature.getValue(
+                                    MBAAttributeIDs.CATEGORY.toString());
+
                             // if MBA is filtered out by category, do not sample
-                            int catValue = category.equals("") ? 0 : Integer
-                                    .parseInt(category);
-                            
+                            int catValue = category.equals("") ? 0
+                                    : Integer.parseInt(category);
+
                             // By default, do not show MBA Wind Shear
                             int minCat = 1;
-                            if (currentSettings.isMbaShowWindShear())
+                            if (currentSettings.isMbaShowWindShear()) {
                                 minCat = 0;
-                            
+                            }
+
                             if (catValue >= minCat) {
-                                
+
                                 // Microburst strength: DELTAV
-                                String strength = currFeature
-                                        .getValue(MBAAttributeIDs.DELTAV.toString());
-                                if ((strength != null) && (strength.length() > 0)) {
+                                String strength = currFeature.getValue(
+                                        MBAAttributeIDs.DELTAV.toString());
+                                if ((strength != null)
+                                        && (strength.length() > 0)) {
                                     double strengthValue = metersPerSecondToKnots
                                             .convert(new Double(strength));
-                                    strength = String.format("%dkts", (int) strengthValue);
+                                    strength = String.format("%dkts",
+                                            (int) strengthValue);
+                                    addValueToMap(dataMap, keys, STRENGTH,
+                                            Measure.valueOf(strengthValue,
+                                                    NonSI.KNOT));
                                 }
 
                                 // Maximum wind speed: MAXWINDSPEED
                                 String maxSpeed = currFeature
                                         .getValue(MBAAttributeIDs.MAXWINDSPEED
                                                 .toString());
-                                if ((maxSpeed != null) && (maxSpeed.length() > 0)) {
+                                if ((maxSpeed != null)
+                                        && (maxSpeed.length() > 0)) {
                                     double spdValue = metersPerSecondToKnots
                                             .convert(new Double(maxSpeed));
-                                    maxSpeed = String.format("%dkts", (int) spdValue);
+                                    maxSpeed = String.format("%dkts",
+                                            (int) spdValue);
+                                    addValueToMap(dataMap, keys, MAX_SPEED,
+                                            Measure.valueOf(spdValue,
+                                                    NonSI.KNOT));
                                 }
-                                
+
                                 // Maximum shear: MAXSHEAR
-                                String maxShear = currFeature
-                                        .getValue(MBAAttributeIDs.MAXSHEAR
-                                                .toString());
-                                if ((maxShear != null) && (maxShear.length() > 0)) {
+                                String maxShear = currFeature.getValue(
+                                        MBAAttributeIDs.MAXSHEAR.toString());
+                                if ((maxShear != null)
+                                        && (maxShear.length() > 0)) {
                                     double shearValue = new Double(maxShear);
-                                    maxShear = String.format("%.4f/s", shearValue);
+                                    maxShear = String.format("%.4f/s",
+                                            shearValue);
+                                    addValueToMap(dataMap, keys, SHEAR,
+                                            shearValue);
                                 }
-                                
-                                rval.append(MBACategory.getCatName(catValue));
+
+                                String catName = MBACategory
+                                        .getCatName(catValue);
+                                addValueToMap(dataMap, keys, CATEGORY, catName);
+
+                                rval.append(catName);
                                 rval.append(" " + maxShear);
                                 rval.append(" maxV " + maxSpeed);
                                 rval.append(" deltaV " + strength);
-
                             }
                         }
                     }
@@ -205,5 +196,24 @@ public class RadarMBAInterrogator extends RadarGraphicInterrogator implements
         }
         return rval.toString();
     }
-    
+
+    @Override
+    public Set<InterrogationKey<?>> getInterrogationKeys() {
+        Set<InterrogationKey<?>> keys = super.getInterrogationKeys();
+        keys.add(CATEGORY);
+        keys.add(MAX_SPEED);
+        keys.add(STRENGTH);
+        return keys;
+    }
+
+    @Override
+    public Set<InterrogationKey<?>> getValueStringKeys() {
+        Set<InterrogationKey<?>> keys = super.getValueStringKeys();
+        keys.add(SHEAR);
+        keys.add(CATEGORY);
+        keys.add(MAX_SPEED);
+        keys.add(STRENGTH);
+        return keys;
+    }
+
 }

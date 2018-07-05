@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,6 +26,7 @@ import java.util.List;
 
 import com.raytheon.edex.plugin.gfe.ifpAG.ASCIIGrid;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.request.GetASCIIGridsRequest;
@@ -46,31 +47,33 @@ import com.raytheon.uf.common.time.TimeRange;
 /**
  * Takes temporary grid in ASCII format, converts to GridSlice, and saves to
  * requested database.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer     Description
- * ------------ ---------- -----------  --------------------------
- * Apr 14, 2011 8983       dgilling     Initial creation
- * Jun 13, 2013 2044       randerso     Refactored to use IFPServer
- * Jan 08, 2016 5237       tgurney      Replace calls to deprecated methods of
- *                                      LocalizationFile + add desc in javadoc
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 14, 2011  8983     dgilling  Initial creation
+ * Jun 13, 2013  2044     randerso  Refactored to use IFPServer
+ * Jan 08, 2016  5237     tgurney   Replace calls to deprecated methods of
+ *                                  LocalizationFile + add desc in javadoc
+ * Sep 12, 2016  5861     randerso  Remove references to IFPServerConfigManager
+ *                                  which was largely redundant with IFPServer.
+ *
  * </pre>
- * 
+ *
  * @author dgilling
- * @version 1.0
  */
 
-public class GetASCIIGridsHandler extends BaseGfeRequestHandler implements
-        IRequestHandler<GetASCIIGridsRequest> {
+public class GetASCIIGridsHandler extends BaseGfeRequestHandler
+        implements IRequestHandler<GetASCIIGridsRequest> {
 
     @Override
     public ServerResponse<String> handleRequest(GetASCIIGridsRequest request)
             throws Exception {
-        GridParmManager gridParmMgr = getIfpServer(request).getGridParmMgr();
+        IFPServer ifpServer = getIfpServer(request);
+        GridParmManager gridParmMgr = ifpServer.getGridParmMgr();
 
         ServerResponse<String> sr = new ServerResponse<String>();
 
@@ -78,11 +81,12 @@ public class GetASCIIGridsHandler extends BaseGfeRequestHandler implements
         List<IGridSlice> gridSlices = getGridSlices(gridParmMgr,
                 request.getDatabaseIds(), request.getParmIds(),
                 request.getTimeRange());
-        ASCIIGrid aGrid = new ASCIIGrid(gridSlices,
-                request.getCoordConversionString(), request.getSiteID());
+        ASCIIGrid aGrid = new ASCIIGrid(ifpServer.getConfig(), gridSlices,
+                request.getCoordConversionString());
 
         ILocalizationFile tempFile = getTempFile(request.getWorkstationID());
-        try (SaveableOutputStream tempFileStream = tempFile.openOutputStream()) {
+        try (SaveableOutputStream tempFileStream = tempFile
+                .openOutputStream()) {
             aGrid.outputAsciiGridData(tempFileStream);
             tempFileStream.save();
         }

@@ -83,9 +83,9 @@ import com.raytheon.viz.hydrocommon.util.HydroDialogStatus;
  * Feb 11, 2014 #15829     lbousaidi   check for Missing before processing River Threat.     
  * Oct 05, 2015 #17978     lbousaidi   updated addStationEntry() to use StationEntryDetails.getPeDTsE()
  * May 23, 2016 #5590      bkowal      {@link Observation} relocated to common.
- * Jul 28, 2016  4623      skorolev    Cleanup.
  * Jan 09, 2017 19647      xwei        Fixed the "Ad Hoc Request Failed" error
  * Mar 08, 2017 19647      snaples     Fixed Class Cast exception when returning List to Arraylist.
+ * Jun 27, 2017 5770       bkowal      Fix merge issues.
  * 
  * </pre>
  * 
@@ -95,7 +95,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDialogStatus;
 public class PointDataControlManager extends Job {
     private static PointDataControlManager instance = null;
 
-    private List<String> responsibleHsa = new ArrayList<>();
+    private List<String> responsibleHsa = new ArrayList<String>();
 
     private PDCDataManager dataManager = null;
 
@@ -112,13 +112,13 @@ public class PointDataControlManager extends Job {
 
     private boolean dataRetrievalRequired = false;
 
-    private List<Observation> obsHeightList = new ArrayList<>();
+    private List<Observation> obsHeightList = new ArrayList<Observation>();
 
-    private List<Observation> obsDischargeList = new ArrayList<>();
+    private List<Observation> obsDischargeList = new ArrayList<Observation>();
 
-    private List<Observation> observationList = new ArrayList<>();
+    private List<Observation> observationList = new ArrayList<Observation>();
 
-    private List<Riverstatus> riverStatusList = new ArrayList<>();
+    private List<Riverstatus> riverStatusList = new ArrayList<Riverstatus>();
 
     private List<Curpc> pcList = null;
 
@@ -134,11 +134,11 @@ public class PointDataControlManager extends Job {
 
     private boolean updateFlag = false;
 
-    private List<MapUpdateListener> listenerList = new ArrayList<>();
+    private ArrayList<MapUpdateListener> listenerList = new ArrayList<MapUpdateListener>();
 
-    private List<StationDisplayListener> stationListenerList = new ArrayList<>();
+    private ArrayList<StationDisplayListener> stationListenerList = new ArrayList<StationDisplayListener>();
 
-    private List<PDCLocationShift> shiftList = null;
+    private ArrayList<PDCLocationShift> shiftList = null;
 
     private PointDataControlDlg pdcDialog = null;
 
@@ -158,7 +158,7 @@ public class PointDataControlManager extends Job {
 
     private MultiPointResource multiPointResource = null;
 
-    private Map<String, StationEntryDetails> stationEntryMap = new HashMap<>();
+    private Map<String, StationEntryDetails> stationEntryMap = new HashMap<String, StationEntryDetails>();
 
     private ColorMap colorMap = null;
 
@@ -175,10 +175,10 @@ public class PointDataControlManager extends Job {
     /* For Ad-Hoc Requests */
     private PointDataControlDerive derive = null;
 
-    private List<GageData> repList = null;
+    private ArrayList<GageData> repList = null;
 
     /* For Time Step Requests */
-    private List<GageData> reportList = null;
+    private ArrayList<GageData> reportList = null;
 
     private PointDataControlTimeStep pdcTimeStep = null;
 
@@ -229,11 +229,6 @@ public class PointDataControlManager extends Job {
         }
     }
 
-    /**
-     * Process Adhoc Request
-     * 
-     * @param updateData
-     */
     private void processAdhocRequest(boolean updateData) {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
 
@@ -245,8 +240,8 @@ public class PointDataControlManager extends Job {
         Date now = SimulatedTime.getSystemTime().getTime();
         if (!updateData) {
             if (firstGad) {
-                String minuteString = String.valueOf(PDCUtils
-                        .getRefreshMinutes());
+                String minuteString = String
+                        .valueOf(PDCUtils.getRefreshMinutes());
                 if ((minuteString != null) && (minuteString.length() > 0)) {
                     refreshMinutes = Integer.parseInt(minuteString);
                 }
@@ -272,7 +267,7 @@ public class PointDataControlManager extends Job {
 
         if (updateData) {
             this.derive = new PointDataControlDerive();
-            this.repList = new ArrayList<>();
+            this.repList = new ArrayList<GageData>();
             this.obs2ReportList = null;
             this.fcstReportList = null;
             /*
@@ -353,48 +348,30 @@ public class PointDataControlManager extends Job {
              * forecast, then loop thru the observed and forecast lists and
              * assign the appropriate value. otherwise simply copy the list.
              */
-            int newSize = 0;
 
-            if ((pcOptions.getElementType() == HydroConstants.AdHocDataElementType.RIVER_AD_HOC_TYPE
-                    .getAdHocDataElementType())
+            if ((pcOptions
+                    .getElementType() == HydroConstants.AdHocDataElementType.RIVER_AD_HOC_TYPE
+                            .getAdHocDataElementType())
                     && (pcOptions.getTimeMode() == TimeModeType.LATEST
                             .getTimeMode())) {
                 if (pcOptions.getStageBasis() == 0) { // BASIS_OBS
-                    repList = PDCFindBasis
+                    repList = (ArrayList<GageData>) PDCFindBasis
                             .copyReportList(obsReportList);
-                    
-                    if (obsReportList != null){      
-                    	newSize = obsReportList.size();
-                    }                                
-                    
                 } else if (pcOptions.getStageBasis() == 1) { // Forecast
-                    repList = PDCFindBasis
+                    repList = (ArrayList<GageData>) PDCFindBasis
                             .copyReportList(fcstReportList);
-                    
-                    if (fcstReportList != null){      
-                    	newSize = fcstReportList.size();
-                    }                                 
-                    
                 } else { // Both obs and fcst
-                    repList = PDCFindBasis.determineRsMofo(
-                            getObsReportList(),
-                            getFcstReportList());
-                    
-                    if (repList != null){      
-                        newSize = repList.size();
-                    }						   
+                    repList = (ArrayList<GageData>) PDCFindBasis
+                            .determineRsMofo(getObsReportList(),
+                                    getFcstReportList());
                 }
             } else {
-                repList = PDCFindBasis
-                        .copyReportList(obsReportList);
-                if (obsReportList != null) {	
-                	newSize = obsReportList.size();
-                }								
+                repList = (ArrayList<GageData>) PDCFindBasis
+                        .copyReportList(obsReportList);							
             }
 
-            if ( repList != null && newSize > 0 ) {                 
-            	
-                repList = repList.subList(0, newSize - 1);
+            if (repList != null) {
+                repList.trimToSize();
             }
 
             if (this.cancelJob) {
@@ -475,15 +452,10 @@ public class PointDataControlManager extends Job {
         setObsReportList(repList);
     }
 
-    /**
-     * PC Process One time
-     * 
-     * @param pcOptionsOnetime
-     * @return
-     */
-    public List<GageData> pcProcessOnetime(PDCRiverOptions pcOptionsOnetime) {
+    public ArrayList<GageData> pcProcessOnetime(
+            PDCRiverOptions pcOptionsOnetime) {
         final boolean oneTime = true;
-        List<GageData> repList = null;
+        ArrayList<GageData> repList = null;
         obs2ReportList = null;
         fcst2ReportList = null;
         PDCOptionData pcOptions = PDCOptionData.getInstance();
@@ -493,8 +465,9 @@ public class PointDataControlManager extends Job {
          * instructions.
          */
         PointDataControlDerive derive = new PointDataControlDerive();
-        if (pcOptionsOnetime.getElementType() == HydroConstants.AdHocDataElementType.RIVER_AD_HOC_TYPE
-                .getAdHocDataElementType()) {
+        if (pcOptionsOnetime
+                .getElementType() == HydroConstants.AdHocDataElementType.RIVER_AD_HOC_TYPE
+                        .getAdHocDataElementType()) {
             /*
              * get the data from the appropriate data set, whether it be from
              * the height, discharge, or riverstatus table. then process the
@@ -503,8 +476,9 @@ public class PointDataControlManager extends Job {
              */
             dataManager.getRiverData(pcOptionsOnetime);
             derive.deriveRiverReports(oneTime, pcOptionsOnetime);
-        } else if (pcOptionsOnetime.getElementType() == HydroConstants.AdHocDataElementType.RAIN_AD_HOC_TYPE
-                .getAdHocDataElementType()) {
+        } else if (pcOptionsOnetime
+                .getElementType() == HydroConstants.AdHocDataElementType.RAIN_AD_HOC_TYPE
+                        .getAdHocDataElementType()) {
             /*
              * any "rain" data other than PC, PP, or both, is treated like
              * generic data. then process the data to get a single value for
@@ -547,26 +521,26 @@ public class PointDataControlManager extends Job {
          * appropriate value. otherwise simply copy the list.
          */
 
-        if ((pcOptionsOnetime.getElementType() == HydroConstants.AdHocDataElementType.RIVER_AD_HOC_TYPE
-                .getAdHocDataElementType())
+        if ((pcOptionsOnetime
+                .getElementType() == HydroConstants.AdHocDataElementType.RIVER_AD_HOC_TYPE
+                        .getAdHocDataElementType())
                 && (pcOptionsOnetime.getTimeMode() == TimeModeType.LATEST
                         .getTimeMode())) {
             if ((pcOptionsOnetime.getStageBasis() == 0)
                     && (obsReportList != null)) { // BASIS_OBS
-                repList = PDCFindBasis
-                        .copyReportList((ArrayList<GageData>) obs2ReportList);
+                repList = (ArrayList<GageData>) PDCFindBasis
+                        .copyReportList(obs2ReportList);
             } else if ((pcOptionsOnetime.getStageBasis() == 1)
                     && (fcstReportList != null)) { // BASIS_FCST
-                repList = PDCFindBasis
-                        .copyReportList((ArrayList<GageData>) fcst2ReportList);
+                repList = (ArrayList<GageData>) PDCFindBasis
+                        .copyReportList(fcst2ReportList);
             } else {
-                repList = PDCFindBasis.determineRsMofo(
-                        (ArrayList<GageData>) obs2ReportList,
-                        (ArrayList<GageData>) fcst2ReportList);
+                repList = (ArrayList<GageData>) PDCFindBasis
+                        .determineRsMofo(obs2ReportList, fcst2ReportList);
             }
         } else {
-            repList = PDCFindBasis
-                    .copyReportList((ArrayList<GageData>) obs2ReportList);
+            repList = (ArrayList<GageData>) PDCFindBasis
+                    .copyReportList(obs2ReportList);
         }
 
         /*
@@ -717,7 +691,8 @@ public class PointDataControlManager extends Job {
      * 
      * @param pdcDialog
      */
-    public void setPointDataControlDialogInstance(PointDataControlDlg pdcDialog) {
+    public void setPointDataControlDialogInstance(
+            PointDataControlDlg pdcDialog) {
         this.pdcDialog = pdcDialog;
     }
 
@@ -731,9 +706,6 @@ public class PointDataControlManager extends Job {
         }
     }
 
-    /**
-     * Fires Map Draw Event
-     */
     private void fireMapDrawEvent() {
         if (this.cancelJob) {
             return;
@@ -844,9 +816,9 @@ public class PointDataControlManager extends Job {
         String codes = "IUCJHBTFQAKLDWMYZSRPX";
         char[] charCodeArray = codes.toCharArray();
 
-        int[] intCodeArray = { 0, 1, 15, 30, 1001, 1002, 1003, 1004, 1006,
-                1008, 1012, 1018, 2001, 2007, 3001, 4001, 5000, 5001, 5002,
-                5004, 5005 };
+        int[] intCodeArray = { 0, 1, 15, 30, 1001, 1002, 1003, 1004, 1006, 1008,
+                1012, 1018, 2001, 2007, 3001, 4001, 5000, 5001, 5002, 5004,
+                5005 };
 
         int i = 0;
 
@@ -857,7 +829,14 @@ public class PointDataControlManager extends Job {
             }
         }
 
+        if (code == '?') {
+            // System.err.println("getShefDurCodeFromIhfsDurCode(): unidentified
+            // dur code = "
+            // + intDuration);
+        }
+
         return Character.toString(code);
+
     }
 
     /**
@@ -1128,7 +1107,7 @@ public class PointDataControlManager extends Job {
      * Reset the StationEntryMap.
      */
     public void resetStationEntryDetailsMap() {
-        stationEntryMap = new HashMap<>();
+        stationEntryMap = new HashMap<String, StationEntryDetails>();
     }
 
     /**
@@ -1200,7 +1179,8 @@ public class PointDataControlManager extends Job {
      * @param damLocationResource
      *            the damLocationResource to set
      */
-    public void setDamLocationResource(DamLocationResource damLocationResource) {
+    public void setDamLocationResource(
+            DamLocationResource damLocationResource) {
         this.damLocationResource = damLocationResource;
     }
 
@@ -1243,8 +1223,8 @@ public class PointDataControlManager extends Job {
         } catch (Exception e) {
             e.printStackTrace();
 
-            return new Status(Status.ERROR, Activator.PLUGIN_ID, errorPrefix
-                    + "FAILED.", e);
+            return new Status(Status.ERROR, Activator.PLUGIN_ID,
+                    errorPrefix + "FAILED.", e);
         }
 
         if (this.cancelJob) {
@@ -1271,9 +1251,6 @@ public class PointDataControlManager extends Job {
         this.schedule();
     }
 
-    /**
-     * Cancels Running Jobs
-     */
     public void cancelRunningJobs() {
         if (this.getState() == Job.RUNNING) {
             this.cancelJob = true;

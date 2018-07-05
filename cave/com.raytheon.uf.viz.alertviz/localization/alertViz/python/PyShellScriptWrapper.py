@@ -32,8 +32,13 @@ import subprocess
 #    
 # 
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 class PyShellScriptWrapper(AlertVizProcessor.AlertVizProcessor):
-    
+
     def process(self, statusMessage, alertMetadata, globalConfiguration):
         scriptName = str(statusMessage.getDetails())
         #print "script name: " + scriptName

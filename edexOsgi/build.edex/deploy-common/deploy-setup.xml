@@ -1,5 +1,11 @@
 <project>
 	<target name="setup">
+
+		<tstamp>
+		<format property="TIMESTAMP_START" pattern="d-MMM-yyyy h:mm:ss a" locale="en,US" />
+		</tstamp>
+		<echo message="Deploy Started: ${TIMESTAMP_START}" />
+
 		<!-- read the properties -->
 		<property file="${basedir}/edex/common.properties" />
 		<property file="${basedir}/edex/developer.properties" />
@@ -32,7 +38,6 @@
 					</sequential>
 				</for>
 
-				<echo message="${optional.repositories}"/>
 				<for list="${optional.repositories}" param="repo.directory">
 					<sequential>
 						<if>
@@ -86,11 +91,13 @@
 
 		<echo message="AWIPS.BASELINE.DIRECTORY:${awips.baseline.directory}" />
 		<echo message="REPOSITORY.DIRECTORIES:${repository.directories}" />
+		<echo message="OPTIONAL.DIRECTORIES:${optional.directories}" />
 
 		<!-- construct the list of "basedirectories" -->
 		<propertyselector property="baseline.variables" delimiter="${path.separator}" match="dir.([0-9][0-9])" select="\1" casesensitive="true" />
 
 		<var name="basedirectories" value="${awips.baseline.directory}" />
+		<var name="optionaldirectories" value="" />
 
 		<for list="${baseline.variables}" param="index" delimiter="${path.separator}">
 			<sequential>
@@ -114,16 +121,33 @@
 						<if>
 							<available file="${optional.directory}" type="dir" />
 							<then>
-								<echo message="OPTIONAL.DIRECTORY:${optional.directory}" />
+							<echo level="info" />
+							<echo level="info" message="Checking ${optional.directory}" />
+							<first id="compiled">
+								<fileset dir="${optional.directory}" includes="**/*.class" />
+							</first>
 								<if>
-									<isset property="optionaldirectories"/>
+								<not>
+									<equals arg1="${toString:compiled}" arg2="" />
+								</not>
+								<then>
+									<echo level="info" message="     Class  file found at ${toString:compiled}" />
+									<var name="optionaldirectories" value="${optional.directory};${optionaldirectories}" />
+									<!-- If class file is found, check for directories that contain compiled libraries or features only-->
+									<for list="${wa.req.dirs}" param="wa.req.dir">
+									<sequential>
+									<if>
+										<available file="@{repo.directory}/@{wa.req.dir}" type="dir" />
 									<then>
-										<var name="optionaldirectories" value="${optional.directory};${optionaldirectories}" />
+										<var name="optionaldirectories" value="@{repo.directory}/@{wa.req.dir};${optionaldirectories}" />
 									</then>
-									<else>
-										<var name="optionaldirectories" value="${optional.directory}" />
+									</if>
+									</sequential>
+									</for>
+								</then>
+								<else>
+									<echo message="     No class files found in @{repo.directory}/${variable.name} - skipping." />
 									</else>
-
 								</if>
 							</then>
 						</if>

@@ -67,7 +67,7 @@ public class EnsSamplingInputAdapter<T extends EnsSamplingResource> extends
     @Override
     public boolean handleMouseMove(int x, int y) {
         /** Do nothing in graphics histogram case if isGraphicsSample is false */
-        if (((HistogramResource<?>) resource).getMode() == DisplayMode.GRAPHIC_HISTGRAM
+        if (((HistogramResource<?>) resource).getMode() == DisplayMode.GRAPHIC_HISTOGRAM
                 && !isGraphicsSample) {
             return false;
         }
@@ -95,7 +95,7 @@ public class EnsSamplingInputAdapter<T extends EnsSamplingResource> extends
     public boolean handleMouseUp(int x, int y, int mouseButton) {
 
         /** Only allow sampling if the graphics histogram is turned off. */
-        if (((HistogramResource<?>) resource).getMode() != DisplayMode.GRAPHIC_HISTGRAM) {
+        if (((HistogramResource<?>) resource).getMode() != DisplayMode.GRAPHIC_HISTOGRAM) {
             return handleMouseMove(x, y);
         }
         IDisplayPaneContainer container = resource.getResourceContainer();

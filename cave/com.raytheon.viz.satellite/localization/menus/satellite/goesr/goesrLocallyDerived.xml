@@ -22,31 +22,31 @@
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Moisture(11.2-12.3 u)" id="goesr-moisture">
         <substitute key="element" value="satMoisture"/>
-        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="colormap" value="Grid/Gridded Data"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Cloud Phase(8.5-11.2 u)" id="goesr-cloud-phase">
         <substitute key="element" value="satCloudPhase"/>
-        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="colormap" value="Grid/Gridded Data"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Fog (3.9-11.2 u)" id="goesr-fog">
         <substitute key="element" value="satFog"/>
-        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="colormap" value="Grid/Gridded Data"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Snow (0.64-1.61 u)" id="goesr-snow">
         <substitute key="element" value="satSnow"/>
-        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="colormap" value="Grid/Gridded Data"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Vegetation (0.64-0.87 u)" id="goesr-vegetation">
         <substitute key="element" value="satVegetation"/>
-        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="colormap" value="Grid/Gridded Data"/>
     </contribute>
     <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
                 menuText="Upper Level Info(11.2-6.19 u)" id="goesr-upper-level-info">
         <substitute key="element" value="satUpperLevelInfo"/>
-        <substitute key="colormap" value="Grid/gridded data"/>
+        <substitute key="colormap" value="Grid/Gridded Data"/>
     </contribute>
 </menuTemplate>

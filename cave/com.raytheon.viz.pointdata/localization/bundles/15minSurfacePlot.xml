@@ -18,35 +18,44 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
-				<resource>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
                     <loadProperties>
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="15Min METAR Plot"
-						plotModelFile="stdObsDesign.svg" spiFile="basemaps/MTR.spi"
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="450" negOffset="450" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="reportType">
-								<constraint constraintValue="METAR" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="pluginName">
-								<constraint constraintValue="obs" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-			</descriptor>
-		</displays>
-	</displayList>
+                        <capabilities>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="15Min METAR Plot" plotModelFile="stdObsDesign.svg"
+                        spiFile="basemaps/MTR.spi" retrieveData="false"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true">
+                        <binOffset posOffset="450" negOffset="450"
+                            virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="reportType">
+                                <constraint constraintValue="METAR"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="obs"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

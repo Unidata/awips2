@@ -1,9 +1,23 @@
 ##
+# This is a base file that is not intended to be overridden.
+#
+# This file can be subclassed to override behavior. Please see the 
+# Configuration Guides->Smart Initialization Configuration section of the GFE 
+# Online Help for guidance on creating a new smart init 
+##
 #
 # nwpsCG1.py - Joe Maloney 2016-07-08
 #
 #     Init module for all nwpsCG1 domains.  Can also be used for nwpsCG2-5.
 #
+# SOFTWARE HISTORY
+#  Date         Ticket#    Engineer    Description
+#  ------------ ---------- ----------- --------------------------
+#  07/08/2016               jmaloney   Initial creation
+#  12/06/2017   DCS20267    psantos    Add rip current guidance: rip current 
+#                                      prob, dune erosion prob and overwash prob.
+#
+##
 
 from Init import *
 import os
@@ -50,6 +64,27 @@ class nwpsCG1Forecaster(Forecaster):
         return period
 
 ##--------------------------------------------------------------------------
+##  Calculates Rip Current Probability from nwpsCG1 model.
+##--------------------------------------------------------------------------
+    def calcRipProb(self, ripcop_SFC):
+        grid = clip(ripcop_SFC, 0, 100)
+        return grid
+
+##--------------------------------------------------------------------------
+##  Calculates Dune Erosion Probability from nwpsCG1 model.
+##--------------------------------------------------------------------------
+    def calcErosionProb(self, erosnp_SFC):
+        grid = clip(erosnp_SFC, 0, 100)
+        return grid
+
+##--------------------------------------------------------------------------
+##  Calculates Dune Overwash Probability from nwpsCG1 model.
+##--------------------------------------------------------------------------
+    def calcOverwashProb(self, owashp_SFC):
+        grid = clip(owashp_SFC, 0, 100)
+        return grid
+
+##--------------------------------------------------------------------------
 ##  Notify user of receipt of nwpsCG1 data.
 ##--------------------------------------------------------------------------
     def notifyGFE(self, siteId):
@@ -61,13 +96,12 @@ class nwpsCG1Forecaster(Forecaster):
            pass
        if not os.path.isfile(chkfile):
            open(chkfile, 'a').close()
-           os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "WCOSS ' + siteId + 'SWAN WAVE GRIDS ARE NOW IN GFE"')
+           os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "WCOSS ' + siteId + ' SWAN WAVE GRIDS ARE NOW IN GFE"')
        filemodtime = os.stat(chkfile).st_mtime
        twominutesago = time.time() - 120
        if (twominutesago - filemodtime) > 0:
            os.utime(chkfile, None)
-           os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "WCOSS ' + siteId + 'SWAN WAVE GRIDS ARE NOW IN GFE"')
-
+           os.system('/awips2/GFESuite/bin/sendGfeMessage -s -m "WCOSS ' + siteId + ' SWAN WAVE GRIDS ARE NOW IN GFE"')
 
 def main():
     nwpsCG1Forecaster().run()

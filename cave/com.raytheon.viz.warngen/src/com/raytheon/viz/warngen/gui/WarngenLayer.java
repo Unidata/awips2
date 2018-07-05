@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -68,6 +69,7 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
+import com.raytheon.uf.common.dataplugin.warning.WarningConstants;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.BulletActionGroup;
@@ -114,6 +116,8 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -123,9 +127,9 @@ import com.raytheon.uf.viz.core.maps.MapManager;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
@@ -139,9 +143,7 @@ import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.DisplayType
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.LabelMode;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackUIManager;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.radar.RadarHelper;
-import com.raytheon.viz.warngen.WarngenException;
 import com.raytheon.viz.warngen.gis.PolygonUtil;
 import com.raytheon.viz.warngen.util.CurrentWarnings;
 import com.raytheon.viz.warngen.util.FipsUtil;
@@ -164,9 +166,9 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * Warngen drawing layer. Need to do EVERYTHING in stereographic over centoid of
  * cwa/wfo... Then when template gets ran, it should convert to lat/lon
  * coordinates
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -260,8 +262,8 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 05/08/2015  ASM #17310  D. Friedman Log input polygon when output of AreaHatcher is invalid.
  * 11/09/2015  DR 14905    Qinglu Lin  Added lastSelectedBackupSite and its accessors, and updated constructor.
  * 11/25/2015  DR 17464    Qinglu Lin  Updated two updateWarnedAreas(), updateWarnedAreaState(), createSquare(),redrawBoxFromTrack(),
- *                                     redrawBoxFromHatched(), createDamThreatArea(), createPolygonFromRecord(), addOrRemoveCounty().
- * 12/09/2015  ASM #18209  D. Friedman Support cwaStretch dam break polygons.
+ *                                     redrawBoxFromHatched(), createPresetThreatArea(), createPolygonFromRecord(), addOrRemoveCounty().
+ * 12/09/2015  ASM #18209  D. Friedman Support cwaStretch preset polygons.
  * 12/21/2015  DCS 17942   D. Friedman Support "extension area": polygon can extend past normal features into WFO's marine/land areas.
  *                                     Show preview of redrawn polygon when developer mode property is set.
  * 01/06/2016  ASM #18453  D. Friedman Cache extension areas so they are not regenerated on Restart or (limited) template changes.
@@ -270,13 +272,16 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 03/11/2016  ASM #18720  D. Friedman Improve warning message when extension area is not available.
  * 03/22/2016  DCS  18719  D. Friedman Add dynamic extension area option.
  * 07/21/2016  DR 18159    Qinglu Lin  Added third filterArea().
+ * 09/14/2016  3241        bsteffen    Update deprecated JTSCompiler method calls
+ * 12/08/2016  5941        bsteffen    Fix recycling of resource.
+ * 01/11/2017  6067        bsteffen    Fix errors on shutdown.
  * 06/25/2017              mjames@ucar Simple dialog.
+ * 08/29/2017  6328        randerso    Convert to use PresetInfoBullet
+ * 09/25/2017  6362        randerso    Changed to support Alaska_Marine geospatial config
  * </pre>
- * 
+ *
  * @author mschenke
- * @version 1.0
  */
-
 public class WarngenLayer extends AbstractStormTrackResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WarngenLayer.class);
@@ -284,22 +289,22 @@ public class WarngenLayer extends AbstractStormTrackResource {
     private static final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("WG:");
 
-    /*package*/ static final UnitConverter MILES_TO_METER = NonSI.MILE
+    protected static final UnitConverter MILES_TO_METER = NonSI.MILE
             .getConverterTo(SI.METER);
 
     private static final String EXTENSION_AREA_MAP_NAME = "WarnGen Extension Area";
 
-    String uniqueFip = null;
+    private String uniqueFip = null;
 
-    Map<String, Double> geomArea = new HashMap<String, Double>();
+    private Map<String, Double> geomArea = new HashMap<>();
 
-    Map<String, Point> geomCentroid = new HashMap<String, Point>();
+    private Map<String, Point> geomCentroid = new HashMap<>();
 
     /**
      * Geospatial data generator notifications caused by instance's actions.
-     * When notification arrives no futher work needs to be done.
+     * When notification arrives no further work needs to be done.
      */
-    private final Set<String> ignoreNotifications = new HashSet<String>();
+    private final Set<String> ignoreNotifications = new HashSet<>();
 
     /** String to display in the warning county. */
     private static final String WARNING_TEXT = "W";
@@ -310,30 +315,33 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private static final String LOCAL_PREP_GEOM = "localPreparedGeometry";
 
-        GeospatialData[] features;
+        private GeospatialData[] features;
 
-        GeospatialData[] cwaStretchFeatures; // contains all from 'features'
+        // contains all from 'features'
+        private GeospatialData[] cwaStretchFeatures;
 
-        MathTransform latLonToLocal;
+        private MathTransform latLonToLocal;
 
-        MathTransform localToLatLon;
+        private MathTransform localToLatLon;
 
-        IExtent localExtent;
+        private IExtent localExtent;
 
-        int nx, ny;
+        private int nx;
 
-        GeneralGridGeometry localGridGeometry;
+        private int ny;
+
+        private GeneralGridGeometry localGridGeometry;
 
         GeospatialData[] getFeatures(boolean cwaStretch) {
-            return cwaStretch && cwaStretchFeatures != null ?
-                    cwaStretchFeatures : features;
+            return cwaStretch && cwaStretchFeatures != null ? cwaStretchFeatures
+                    : features;
         }
     }
 
     private static class GeospatialDataAccessor {
-        GeospatialDataList geoData;
+        private GeospatialDataList geoData;
 
-        AreaSourceConfiguration areaConfig;
+        private AreaSourceConfiguration areaConfig;
 
         public GeospatialDataAccessor(GeospatialDataList geoData,
                 AreaSourceConfiguration areaConfig) {
@@ -352,7 +360,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         /**
          * Build the geometry area that intersects the cwa filter for the
          * polygon in local projection space
-         * 
+         *
          * @param polygon
          *            polygon to intersect with in lat/lon space
          * @return the warning area in screen projection
@@ -365,8 +373,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     PreparedGeometry prepGeom = (PreparedGeometry) r.attributes
                             .get(GeospatialDataList.LOCAL_PREP_GEOM);
                     try {
-                        Geometry intersection = GeometryUtil.intersection(
-                                polygon, prepGeom);
+                        Geometry intersection = GeometryUtil
+                                .intersection(polygon, prepGeom);
                         if (intersection.isEmpty()) {
                             continue;
                         }
@@ -376,8 +384,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             area = GeometryUtil.union(area, intersection);
                         }
                     } catch (Exception e) {
-                        // TODO handle exception correctly!!!
-                        e.printStackTrace();
+                        statusHandler.error("Exception while building area", e);
                     }
                 }
             }
@@ -386,7 +393,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         /**
          * Converts the lat lon geometry to screen space
-         * 
+         *
          * @param geom
          * @return
          */
@@ -396,7 +403,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         /**
          * Converts the screen geometry to a lat lon projection
-         * 
+         *
          * @param geom
          * @return
          */
@@ -427,7 +434,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
 
         private Set<String> getAllFipsInArea(Geometry warningArea) {
-            Set<String> fipsIds = new HashSet<String>();
+            Set<String> fipsIds = new HashSet<>();
             if (warningArea != null) {
                 for (int n = 0; n < warningArea.getNumGeometries(); ++n) {
                     Geometry area = warningArea.getGeometryN(n);
@@ -439,10 +446,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private boolean isEquivalentTo(GeospatialDataAccessor other) {
             return other != null && geoData == other.geoData
-                    && ((areaConfig.getFipsField() == null && other.areaConfig.getFipsField() == null)
+                    && ((areaConfig.getFipsField() == null
+                            && other.areaConfig.getFipsField() == null)
                             || (areaConfig.getFipsField() != null
-                                && areaConfig.getFipsField().equals(
-                                    other.areaConfig.getFipsField())));
+                                    && areaConfig.getFipsField().equals(
+                                            other.areaConfig.getFipsField())));
         }
 
     }
@@ -493,7 +501,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         public void loadCustomMaps(Collection<String> maps) {
             synchronized (this) {
-                mapsToLoad = new HashSet<String>(maps);
+                mapsToLoad = new HashSet<>(maps);
             }
 
             schedule();
@@ -527,7 +535,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
         private ExtensionAreaOptions extensionAreaOptions;
 
         private ExtensionAreaRecord lastExtensionAreaRecord;
+
         private HashSet<String> lastDynamicGIDs;
+
         private Geometry lastDynamicExtensionArea;
 
         public AreaHatcher(PolygonUtil polygonUtil) {
@@ -536,12 +546,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
             this.polygonUtil = polygonUtil;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
-         * IProgressMonitor)
-         */
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             Geometry warningArea;
@@ -571,48 +575,67 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             GeospatialDataAccessor extensionAreaGDA = ear.gda;
                             if (extensionAreaOptions.isDynamicArea()) {
                                 Geometry g;
-                                HashSet<String> gids = new HashSet<String>();
-                                gids.addAll(Arrays.asList(GeometryUtil.getGID(warningArea)));
-                                if (ear != lastExtensionAreaRecord ||
-                                        !gids.equals(lastDynamicGIDs)) {
-                                    ExtensionAreaGeometryTask task = new ExtensionAreaGeometryTask(extensionAreaOptions, geoAccessor, extensionAreaGDA);
-                                    g = task.buildExtensionArea(ear.extendedFeatures, gids);
+                                HashSet<String> gids = new HashSet<>();
+                                gids.addAll(Arrays.asList(
+                                        GeometryUtil.getGID(warningArea)));
+                                if (ear != lastExtensionAreaRecord
+                                        || !gids.equals(lastDynamicGIDs)) {
+                                    ExtensionAreaGeometryTask task = new ExtensionAreaGeometryTask(
+                                            extensionAreaOptions, geoAccessor,
+                                            extensionAreaGDA);
+                                    g = task.buildExtensionArea(
+                                            ear.extendedFeatures, gids);
                                     lastExtensionAreaRecord = ear;
                                     lastDynamicGIDs = gids;
                                     lastDynamicExtensionArea = g;
                                 } else {
                                     g = lastDynamicExtensionArea;
                                 }
-                                extensionArea = extensionAreaGDA.buildArea(warningPolygon, false); // never uses cwaStretch
+                                // never uses cwaStretch
+                                extensionArea = extensionAreaGDA
+                                        .buildArea(warningPolygon, false);
                                 if (extensionArea != null && g != null) {
-                                    extensionArea = GeometryUtil.intersection(extensionArea, g);
+                                    extensionArea = GeometryUtil
+                                            .intersection(extensionArea, g);
                                 }
-                                Geometry vis = extensionAreaGDA.buildArea(g, false);
+                                Geometry vis = extensionAreaGDA.buildArea(g,
+                                        false);
                                 setExtensionAreaVis(vis, extensionAreaOptions);
                                 issueRefresh();
                             } else {
                                 Geometry staticExtensionArea = ear.staticExtensionArea;
-                                extensionArea = extensionAreaGDA.buildArea(warningPolygon, false); // never uses cwaStretch
-                                if (extensionArea != null && staticExtensionArea != null)
-                                    extensionArea = GeometryUtil.intersection(extensionArea, staticExtensionArea);
+                                // never uses cwaStretch
+                                extensionArea = extensionAreaGDA
+                                        .buildArea(warningPolygon, false);
+                                if (extensionArea != null
+                                        && staticExtensionArea != null) {
+                                    extensionArea = GeometryUtil.intersection(
+                                            extensionArea, staticExtensionArea);
+                                }
                             }
                         } catch (Exception e) {
                             /*
-                             * This is DEBUG so as to not distract the user when the
-                             * result may not even be used. If there is an an attempt to
-                             * use the result, the error is reported with a higher
-                             * priority in getHatchedAreas().
+                             * This is DEBUG so as to not distract the user when
+                             * the result may not even be used. If there is an
+                             * an attempt to use the result, the error is
+                             * reported with a higher priority in
+                             * getHatchedAreas().
                              *
-                             * Also, use of the extension area may not be critical, so we
-                             * will attempt to continue without it.
+                             * Also, use of the extension area may not be
+                             * critical, so we will attempt to continue without
+                             * it.
                              */
                             extensionArea = null;
                             String baseMsg = "Could not use extension area to redraw the polygon";
-                            this.hatchException = new VizException(baseMsg + ". ", e);
-                            statusHandler.handle(Priority.DEBUG, String.format(
-                                    "%s: %s\n Input: %s\n Ext: %s\n", baseMsg,
-                                    e.getLocalizedMessage(), inputWarningPolygon,
-                                    extensionAreaOptions), e);
+                            this.hatchException = new VizException(
+                                    baseMsg + ". ", e);
+                            statusHandler.handle(Priority.DEBUG,
+                                    String.format(
+                                            "%s: %s\n Input: %s\n Ext: %s\n",
+                                            baseMsg, e.getLocalizedMessage(),
+                                            inputWarningPolygon,
+                                            extensionAreaOptions),
+                                    e);
                         }
                     }
 
@@ -622,8 +645,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             warningPolygon,
                             removeCounties(warningArea,
                                     state.getFipsOutsidePolygon()),
-                            extensionArea, oldWarningPolygon,
-                            cwaStretch);
+                            extensionArea, oldWarningPolygon, cwaStretch);
                     if (hatched != null) {
                         // DR 15559
                         Coordinate[] coords = hatched.getCoordinates();
@@ -686,10 +708,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                     adjustVertex_counter, inner_counter);
                         }
                         if (adjustmentMessage != null) {
-                            perfLog.logDuration("Vertex adjustments", System.currentTimeMillis() - tadj0);
+                            perfLog.logDuration("Vertex adjustments",
+                                    System.currentTimeMillis() - tadj0);
                             statusHandler.debug(adjustmentMessage);
                         }
-                        for (Coordinate c : outputHatchedArea.getCoordinates()) {
+                        for (Coordinate c : outputHatchedArea
+                                .getCoordinates()) {
                             if (Double.isNaN(c.x) || Double.isNaN(c.y)) {
                                 throw new IllegalStateException(
                                         "Invalid coordinate " + c);
@@ -697,10 +721,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         }
                         outputHatchedWarningArea = createWarnedArea(
                                 latLonToLocal(outputHatchedArea),
-                                latLonToLocal(warningArea),
-                                cwaStretch);
-                        if (! outputHatchedArea.isValid()) {
-                            statusHandler.debug(String.format("Input %s redrawn to invalid %s",
+                                latLonToLocal(warningArea), cwaStretch);
+                        if (!outputHatchedArea.isValid()) {
+                            statusHandler.debug(String.format(
+                                    "Input %s redrawn to invalid %s",
                                     inputWarningPolygon, outputHatchedArea));
                         }
                     }
@@ -721,7 +745,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             extensionAreaOptions, adjustmentMessage), e);
                     setOutputPolygon(null);
                 }
-                perfLog.logDuration("AreaHatcher total", System.currentTimeMillis() - t0);
+                perfLog.logDuration("AreaHatcher total",
+                        System.currentTimeMillis() - t0);
             }
 
             return Status.OK_STATUS;
@@ -736,9 +761,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 this.cwaStretch = isCwaStretch();
 
                 if (extensionAreaManager.isExtensionAreaActive()) {
-                    this.extensionAreaFuture = extensionAreaManager.getGeometryFuture();
+                    this.extensionAreaFuture = extensionAreaManager
+                            .getGeometryFuture();
                     this.extensionAreaOptions = ((ExtensionAreaOptions) extensionAreaManager
-                            .getObservableExtensionAreaOptions().getValue()).clone();
+                            .getObservableExtensionAreaOptions().getValue())
+                                    .clone();
                 } else {
                     this.extensionAreaFuture = null;
                 }
@@ -771,7 +798,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         : Priority.WARN;
                 String message = hatchException.getLocalizedMessage();
                 if (!(hatchException instanceof VizException)) {
-                    message = "Could not redraw box from warned area: " + message;
+                    message = "Could not redraw box from warned area: "
+                            + message;
                 }
                 statusHandler.handle(priority, message, hatchException);
             }
@@ -784,6 +812,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private void setOutputPolygon(final Polygon polygon) {
             VizApp.runAsync(new Runnable() {
+                @Override
                 public void run() {
                     outputPolygon = polygon;
                     issueRefresh();
@@ -792,12 +821,21 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
-    public class ExtensionAreaOptions implements Cloneable {
-        public static final double DEFAULT_SIMPLIFICATION_TOLERANCE = 1609.344; // 1 mile
-        public static final double MINIMUM_SIMPLIFICATION_TOLERANCE = 80.4672;  // 0.05 miles
+    public static class ExtensionAreaOptions implements Cloneable {
+        /** 1 statute mile in meters */
+        public static final double DEFAULT_SIMPLIFICATION_TOLERANCE = MILES_TO_METER
+                .convert(1.0);
+
+        /** 0.05 statute miles in meters */
+        public static final double MINIMUM_SIMPLIFICATION_TOLERANCE = MILES_TO_METER
+                .convert(0.05);
+
         private boolean enabled;
+
         private double distance = 0.0;
+
         private double simplificationTolerance = DEFAULT_SIMPLIFICATION_TOLERANCE;
+
         private boolean dynamicArea = false;
 
         public ExtensionAreaOptions() {
@@ -808,13 +846,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
             if (ea != null) {
                 // Relying on converters to return NaN for NaN input
                 this.distance = MILES_TO_METER.convert(ea.getDistance());
-                if (! (this.distance > 0)) {
+                if (!(this.distance > 0)) {
                     this.distance = 0.0;
                 }
-                double v = MILES_TO_METER.convert(ea.getSimplificationTolerance());
+                double v = MILES_TO_METER
+                        .convert(ea.getSimplificationTolerance());
                 if (Double.isNaN(v)) {
                     v = DEFAULT_SIMPLIFICATION_TOLERANCE;
-                } else if (! (v >= MINIMUM_SIMPLIFICATION_TOLERANCE)) {
+                } else if (!(v >= MINIMUM_SIMPLIFICATION_TOLERANCE)) {
                     v = MINIMUM_SIMPLIFICATION_TOLERANCE;
                 }
                 this.simplificationTolerance = v;
@@ -830,34 +869,42 @@ public class WarngenLayer extends AbstractStormTrackResource {
         public boolean isEnabled() {
             return enabled;
         }
+
         public void setEnabled(boolean enabled) {
             this.enabled = enabled;
         }
+
         public double getDistance() {
             return distance;
         }
+
         public void setDistance(double distance) {
             this.distance = distance;
         }
+
         public double getSimplificationTolerance() {
             return simplificationTolerance;
         }
+
         public void setSimplificationTolerance(double simplificationTolerance) {
             this.simplificationTolerance = simplificationTolerance;
         }
+
         public boolean isDynamicArea() {
             return dynamicArea;
         }
+
         public void setDynamicArea(boolean dynamicArea) {
             this.dynamicArea = dynamicArea;
         }
 
         @Override
         public String toString() {
-            return String.format("{ enb=%s dist=%s simp=%s dyn=%s }",
-                    enabled, distance, simplificationTolerance, dynamicArea);
+            return String.format("{ enb=%s dist=%s simp=%s dyn=%s }", enabled,
+                    distance, simplificationTolerance, dynamicArea);
         }
 
+        @Override
         public ExtensionAreaOptions clone() {
             try {
                 return (ExtensionAreaOptions) super.clone();
@@ -869,11 +916,18 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private static class ExtensionAreaRecord {
         private GeospatialDataAccessor primaryGDA;
+
         private GeospatialDataAccessor gda;
+
         private ExtensionAreaOptions options;
-        private Geometry[] extendedFeatures; // in local coordintes
+
+        // in local coordinates
+        private Geometry[] extendedFeatures;
+
         private Geometry staticExtensionArea;
+
         private Geometry staticExtensionAreaVis;
+
         public ExtensionAreaRecord(GeospatialDataAccessor primaryGDA,
                 GeospatialDataAccessor gda, ExtensionAreaOptions options,
                 Geometry[] extendedFeatures, Geometry staticExtensionArea,
@@ -889,14 +943,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private class ExtensionAreaManager extends Job implements IChangeListener {
         private ExtensionAreaOptions options = new ExtensionAreaOptions();
+
         private WritableValue observableOptions;
 
         private GeospatialDataAccessor primaryGDA;
-        private GeospatialDataAccessor gda;
 
         private FutureTask<ExtensionAreaRecord> geometryFuture;
 
-        private Map<String, ExtensionAreaRecord> cache = new HashMap<String, ExtensionAreaRecord>(3);
+        private Map<String, ExtensionAreaRecord> cache = new HashMap<>(3);
 
         public ExtensionAreaManager() {
             super("Generate extension area");
@@ -910,11 +964,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return options.isEnabled() && options.getDistance() > 0.0;
         }
 
-        public synchronized void setExtensionAreaConfig(ExtensionArea extensionAreaConfig) {
-            /* This could be called from a thread other than the main, before
+        public synchronized void setExtensionAreaConfig(
+                ExtensionArea extensionAreaConfig) {
+            /*
+             * This could be called from a thread other than the main, before
              * observable options has been initialized.
              */
-            ExtensionAreaOptions options = new ExtensionAreaOptions(extensionAreaConfig);
+            ExtensionAreaOptions options = new ExtensionAreaOptions(
+                    extensionAreaConfig);
             if (observableOptions != null) {
                 observableOptions.setValue(options);
             } else {
@@ -924,24 +981,28 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         private void realizeOptions(ExtensionAreaOptions options) {
             if (options == null) {
-                throw new NullPointerException("options must not be null");
+                throw new IllegalArgumentException("options must not be null");
             }
             boolean recreateArea = true;
             ExtensionAreaOptions oldOptions = this.options;
             if (oldOptions != null) {
                 if (primaryGDA != null && primaryGDA.isEquivalentTo(geoAccessor)
                         && oldOptions.getDistance() == options.getDistance()
-                        && oldOptions.getSimplificationTolerance() ==
-                                options.getSimplificationTolerance()) {
+                        && oldOptions.getSimplificationTolerance() == options
+                                .getSimplificationTolerance()) {
                     recreateArea = false;
-                    if (oldOptions.isDynamicArea() && !options.isDynamicArea()) {
+                    if (oldOptions.isDynamicArea()
+                            && !options.isDynamicArea()) {
                         // Restore static area visualization if already built
                         if (this.geometryFuture.isDone()) {
                             try {
-                                setExtensionAreaVis(this.geometryFuture.get().staticExtensionAreaVis);
-                            } catch (InterruptedException | ExecutionException e) {
+                                setExtensionAreaVis(this.geometryFuture
+                                        .get().staticExtensionAreaVis);
+                            } catch (InterruptedException
+                                    | ExecutionException e) {
                                 statusHandler.handle(Priority.WARN,
-                                        "Error showing static extension area", e);
+                                        "Error showing static extension area",
+                                        e);
                             }
                         }
                     }
@@ -954,7 +1015,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     geometryFuture = null;
                 }
                 setExtensionAreaVis(null);
-                gda = null;
+                GeospatialDataAccessor gda = null;
                 if (isExtensionAreaDefined() && checkExtensionAreaViable()) {
                     Exception error = null;
                     primaryGDA = geoAccessor;
@@ -964,8 +1025,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         error = e;
                     }
                     if (gda != null) {
-                        if (! useCachedArea(primaryGDA, gda, options)) {
-                            geometryFuture = new FutureTask<ExtensionAreaRecord>(
+                        if (!useCachedArea(primaryGDA, gda, options)) {
+                            geometryFuture = new FutureTask<>(
                                     new ExtensionAreaGeometryTask(options,
                                             primaryGDA, gda));
                             schedule();
@@ -991,11 +1052,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
             synchronized (cache) {
                 ear = cache.get(primaryGDA.areaConfig.getAreaSource());
             }
-            if (ear != null && ear.primaryGDA.isEquivalentTo(primaryGDA) &&
-                    ear.gda.isEquivalentTo(gda) &&
-                    ear.options.getDistance() == options.getDistance() &&
-                    ear.options.getSimplificationTolerance() == options.getSimplificationTolerance()) {
-                this.geometryFuture = new FutureTask<ExtensionAreaRecord>(new Runnable() {
+            if (ear != null && ear.primaryGDA.isEquivalentTo(primaryGDA)
+                    && ear.gda.isEquivalentTo(gda)
+                    && ear.options.getDistance() == options.getDistance()
+                    && ear.options.getSimplificationTolerance() == options
+                            .getSimplificationTolerance()) {
+                this.geometryFuture = new FutureTask<>(new Runnable() {
                     @Override
                     public void run() {
                         // do nothing
@@ -1008,10 +1070,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return false;
         }
 
-        private ExtensionAreaRecord cacheArea(
-                GeospatialDataAccessor primaryGDA, GeospatialDataAccessor gda,
-                ExtensionAreaOptions options, Geometry[] extendedFeatures,
-                Geometry staticArea, Geometry vis) {
+        private ExtensionAreaRecord cacheArea(GeospatialDataAccessor primaryGDA,
+                GeospatialDataAccessor gda, ExtensionAreaOptions options,
+                Geometry[] extendedFeatures, Geometry staticArea,
+                Geometry vis) {
             ExtensionAreaRecord r = new ExtensionAreaRecord(primaryGDA, gda,
                     options, extendedFeatures, staticArea, vis);
             synchronized (cache) {
@@ -1045,16 +1107,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
             if (searchGeospatialDataAccessor(geoFeatureType) != null) {
                 return true;
             }
-            // Test if there are areas of the given type for the CWA in the maps database.
-            HashMap<String, RequestConstraint> cwaMap = new HashMap<String, RequestConstraint>(2);
+            // Test if there are areas of the given type for the CWA in the maps
+            // database.
+            HashMap<String, RequestConstraint> cwaMap = new HashMap<>(2);
             cwaMap.put(geoFeatureType.cwaField, new RequestConstraint(
                     getLocalizedSite(), ConstraintType.LIKE));
 
             SpatialQueryResult[] r = null;
             try {
                 r = SpatialQueryFactory.create().query(geoFeatureType.tableName,
-                        "the_geom_0_064",
-                        new String[] { }, null, cwaMap,
+                        "the_geom_0_064", new String[] {}, null, cwaMap,
                         SearchMode.CLOSEST, 1);
             } catch (SpatialException e) {
                 /*
@@ -1074,26 +1136,30 @@ public class WarngenLayer extends AbstractStormTrackResource {
             } else {
                 statusHandler.handle(Priority.WARN,
                         String.format(
-                        "Polygon extension area is not available for this template because there are no %s areas for the %s CWA.",
-                        geoFeatureType.name().toLowerCase(), getLocalizedSite()));
+                                "Polygon extension area is not available for this template because there are no %s areas for the %s CWA.",
+                                geoFeatureType.name().toLowerCase(),
+                                getLocalizedSite()));
                 return false;
             }
         }
 
-        protected GeospatialDataAccessor getPolygonExtensionGDA() throws Exception {
+        protected GeospatialDataAccessor getPolygonExtensionGDA()
+                throws Exception {
             GeoFeatureType geoFeatureType = getDefaultExtensionAreaGeoType();
-            return geoFeatureType != null ? getGeospatialDataAcessor(geoFeatureType)
-                    : null;
+            return geoFeatureType != null
+                    ? getGeospatialDataAcessor(geoFeatureType) : null;
         }
 
         protected GeoFeatureType getDefaultExtensionAreaGeoType() {
             GeoFeatureType otherType = null;
-            AreaSourceConfiguration asc = getConfiguration().getHatchedAreaSource();
+            AreaSourceConfiguration asc = getConfiguration()
+                    .getHatchedAreaSource();
             if (asc != null) {
                 String areaSource = asc.getAreaSource().toLowerCase();
-                if (areaSource.contains("marinezones"))
+                if (areaSource.contains("marinezones")) {
                     otherType = GeoFeatureType.COUNTY;
-                else if (areaSource.contains("county") || areaSource.contains("zone")) {
+                } else if (areaSource.contains("county")
+                        || areaSource.contains("zone")) {
                     otherType = GeoFeatureType.MARINE;
                 } else {
                     otherType = GeoFeatureType.COUNTY;
@@ -1106,7 +1172,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         public synchronized void handleChange(ChangeEvent event) {
             ExtensionAreaOptions options = (ExtensionAreaOptions) ((WritableValue) event
                     .getObservable()).getValue();
-            realizeOptions(options != null ? options : new ExtensionAreaOptions());
+            realizeOptions(
+                    options != null ? options : new ExtensionAreaOptions());
         }
 
         public synchronized WritableValue getObservableExtensionAreaOptions() {
@@ -1122,15 +1189,20 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return extensionAreaManager.getObservableExtensionAreaOptions();
     }
 
-    private class ExtensionAreaGeometryTask implements Callable<ExtensionAreaRecord> {
-        ExtensionAreaOptions options;
-        GeospatialDataAccessor primaryGDA;
-        GeospatialDataAccessor extensionGDA;
+    private class ExtensionAreaGeometryTask
+            implements Callable<ExtensionAreaRecord> {
+        private ExtensionAreaOptions options;
+
+        private GeospatialDataAccessor primaryGDA;
+
+        private GeospatialDataAccessor extensionGDA;
 
         public ExtensionAreaGeometryTask(ExtensionAreaOptions options,
-                GeospatialDataAccessor primaryGDA, GeospatialDataAccessor extensionGDA) {
-            if (! (options.getDistance() > 0)) {
-                throw new IllegalArgumentException("Extension distance must be greater than zero.");
+                GeospatialDataAccessor primaryGDA,
+                GeospatialDataAccessor extensionGDA) {
+            if (!(options.getDistance() > 0)) {
+                throw new IllegalArgumentException(
+                        "Extension distance must be greater than zero.");
             }
             this.options = options;
             this.primaryGDA = primaryGDA;
@@ -1142,12 +1214,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return createExtensionAreaRecord();
         }
 
-        private ExtensionAreaRecord createExtensionAreaRecord() throws Exception {
+        private ExtensionAreaRecord createExtensionAreaRecord()
+                throws Exception {
             long t0 = System.currentTimeMillis();
             Geometry[] extendedFeatures = buildExtendedFeatures();
             Geometry staticArea = buildExtensionArea(extendedFeatures, null);
             Geometry vis = extensionGDA.buildArea(staticArea, false);
-            perfLog.logDuration("Extension area", System.currentTimeMillis() - t0);
+            perfLog.logDuration("Extension area",
+                    System.currentTimeMillis() - t0);
             ExtensionAreaRecord r = extensionAreaManager.cacheArea(primaryGDA,
                     extensionGDA, options, extendedFeatures, staticArea, vis);
             setExtensionAreaVis(vis);
@@ -1175,16 +1249,19 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return g;
         }
 
-        public Geometry buildExtensionArea(Geometry[] sourceFeatureGeometries, Set<String> gidFilter) {
+        public Geometry buildExtensionArea(Geometry[] sourceFeatureGeometries,
+                Set<String> gidFilter) {
             long t0 = System.currentTimeMillis();
             Geometry[] geomsToUse;
             if (gidFilter != null) {
-                ArrayList<Geometry> geoms = new ArrayList<Geometry>(sourceFeatureGeometries.length);
+                ArrayList<Geometry> geoms = new ArrayList<>(
+                        sourceFeatureGeometries.length);
                 for (Geometry g : sourceFeatureGeometries) {
-                        if (gidFilter.contains(GeometryUtil.getPrefix(g.getUserData()))) {
-                            geoms.add(g);
-                        }
+                    if (gidFilter.contains(
+                            GeometryUtil.getPrefix(g.getUserData()))) {
+                        geoms.add(g);
                     }
+                }
                 geomsToUse = geoms.toArray(new Geometry[geoms.size()]);
             } else {
                 geomsToUse = sourceFeatureGeometries;
@@ -1196,10 +1273,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return r;
         }
 
-        private Geometry simplifyAndExtendFeature(Geometry geom, double tolerance, double dist) {
-            ArrayList<Geometry> parts = new ArrayList<Geometry>();
+        private Geometry simplifyAndExtendFeature(Geometry geom,
+                double tolerance, double dist) {
+            ArrayList<Geometry> parts = new ArrayList<>();
             GeometryUtil.buildGeometryList(parts, geom);
-            ArrayList<Geometry> outParts = new ArrayList<Geometry>(parts.size());
+            ArrayList<Geometry> outParts = new ArrayList<>(parts.size());
             for (Geometry g : parts) {
                 g = extensionSimplify(g, tolerance);
                 if (dist > 0) {
@@ -1229,25 +1307,29 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 GeometryFactory gf = new GeometryFactory();
                 Geometry[] ga = new Geometry[BUFFER_GEOMETRY_BATCH_SIZE];
                 while (r.getNumGeometries() > BUFFER_GEOMETRY_BATCH_SIZE) {
-                    Geometry[] batches = new Geometry[
-                            (r.getNumGeometries() + (BUFFER_GEOMETRY_BATCH_SIZE - 1))
+                    Geometry[] batches = new Geometry[(r.getNumGeometries()
+                            + (BUFFER_GEOMETRY_BATCH_SIZE - 1))
                             / BUFFER_GEOMETRY_BATCH_SIZE];
                     int si = 0;
                     int bi = 0;
                     while (si < r.getNumGeometries()) {
                         int gai = 0;
                         while (si < r.getNumGeometries() && gai < ga.length) {
-                            ga[gai++] = r.getGeometryN(si++);
+                            ga[gai] = r.getGeometryN(si);
+                            gai++;
+                            si++;
                         }
-                        /* Note that ga is being reused every pass so the
-                         * GeometryCollection created here must not continue
-                         * to be referenced.
+                        /*
+                         * Note that ga is being reused every pass so the
+                         * GeometryCollection created here must not continue to
+                         * be referenced.
                          */
                         Geometry batch = gf.createGeometryCollection(
-                                gai == BUFFER_GEOMETRY_BATCH_SIZE ?
-                                ga : Arrays.copyOf(ga, gai));
+                                gai == BUFFER_GEOMETRY_BATCH_SIZE ? ga
+                                        : Arrays.copyOf(ga, gai));
                         batch = batch.buffer(0);
-                        batches[bi++] = batch;
+                        batches[bi] = batch;
+                        bi++;
                     }
                     r = gf.createGeometryCollection(batches);
                 }
@@ -1266,14 +1348,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
-    private static class GeomMetaDataUpdateNotificationObserver implements
-            INotificationObserver {
+    private static class GeomMetaDataUpdateNotificationObserver
+            implements INotificationObserver {
 
         private static final String SHAPEFILE_UPDATE_TOPIC = "edex.geospatialUpdate.msg";
 
         private static GeomMetaDataUpdateNotificationObserver instance = null;
 
-        static WarngenLayer warngenLayer;
+        private static WarngenLayer warngenLayer;
 
         private GeomMetaDataUpdateNotificationObserver() {
         }
@@ -1313,7 +1395,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             String curKey = result.getArea() + "."
                                     + result.getSite();
 
-                            if (warngenLayer.ignoreNotifications.remove(curKey) == false) {
+                            if (!warngenLayer.ignoreNotifications
+                                    .remove(curKey)) {
                                 siteMap.remove(curKey);
                                 initWarngen = true;
                             }
@@ -1335,15 +1418,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
-    private static Map<String, GeospatialDataList> siteMap = new HashMap<String, GeospatialDataList>();
+    private static Map<String, GeospatialDataList> siteMap = new HashMap<>();
 
-    private static Map<String, Geometry> timezoneMap = new HashMap<String, Geometry>();
+    private static Map<String, Geometry> timezoneMap = new HashMap<>();
 
     public static final String GID = "gid";
 
     public static final String AREA = "WARNGEN_AREA";
-
-    public static final String MARINE = "MarineZones";
 
     /** The color white to be used for the resource */
     private static final RGB WHITE = new RGB(255, 255, 255);
@@ -1432,11 +1513,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         // Load default template
         String defaultTemplate = dialogConfig.getDefaultTemplate();
-        if (defaultTemplate.equals("")) {
-            statusHandler.handle(Priority.SIGNIFICANT,
-                    "Default template is not defined in config.xml",
-                    new WarngenException(
-                            "Default Template is not defined in config.xml"));
+        if (defaultTemplate.isEmpty()) {
+            statusHandler
+                    .error("Default template is not defined in config.xml");
         } else {
             setTemplateName(defaultTemplate);
         }
@@ -1480,8 +1559,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         state.mode = StormTrackState.Mode.DRAG_ME;
         state.numDragMePoints = 2;
         state.pivotIndex = trackUtil.getCurrentFrame(info);
-        state.otherPivotIndex = displayState.pivotIndex > 0 ? 0 : trackUtil
-                .getFrameCount(info) - 1;
+        state.otherPivotIndex = displayState.pivotIndex > 0 ? 0
+                : trackUtil.getFrameCount(info) - 1;
         state.thingToDragTo = "storm";
         setSpeedAndAngle();
         setDuration();
@@ -1506,23 +1585,24 @@ public class WarngenLayer extends AbstractStormTrackResource {
             try {
                 // TODO: Check to see if feasible to try STIData first, might be
                 // too slow
-                displayState.setInitiallyMotionless(!configuration
-                        .isTrackEnabled());
+                displayState.setInitiallyMotionless(
+                        !configuration.isTrackEnabled());
                 if (!configuration.isTrackEnabled()) {
                     displayState.angle = 0;
                     displayState.speed = 0;
                 } else if (checkStormTrackData(data = ToolsDataManager
                         .getInstance().getStormTrackData())) {
                     displayState.angle = adjustAngle(data.getMotionDirection());
-                    displayState.speed = knotToMeterPerSec.convert(data
-                            .getMotionSpeed());
-                } else if (checkStormTrackData((data = RadarHelper
-                        .getSTIData(SiteMap.getInstance()
+                    displayState.speed = knotToMeterPerSec
+                            .convert(data.getMotionSpeed());
+                } else if (checkStormTrackData(
+                        (data = RadarHelper.getSTIData(SiteMap.getInstance()
                                 .getSite4LetterId(getLocalizedSite())
                                 .toLowerCase())))) {
-                    displayState.angle = adjustAngle(data.getMotionDirection() - 180);
-                    displayState.speed = knotToMeterPerSec.convert(data
-                            .getMotionSpeed());
+                    displayState.angle = adjustAngle(
+                            data.getMotionDirection() - 180);
+                    displayState.speed = knotToMeterPerSec
+                            .convert(data.getMotionSpeed());
                 } else {
                     displayState.angle = 60;
                     displayState.speed = 25;
@@ -1567,11 +1647,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         super.disposeInternal();
 
-        synchronized (WarngenLayer.class) {
-            dialog.close();
-            dialog = null;
-        }
-
         if (shadedCoveredArea != null) {
             shadedCoveredArea.dispose();
         }
@@ -1583,8 +1658,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         if (extensionAreaLayerAddRemoveListener != null) {
             ResourceList resourceList = getDescriptor().getResourceList();
-            resourceList.removePostAddListener(extensionAreaLayerAddRemoveListener);
-            resourceList.removePostRemoveListener(extensionAreaLayerAddRemoveListener);
+            resourceList
+                    .removePostAddListener(extensionAreaLayerAddRemoveListener);
+            resourceList.removePostRemoveListener(
+                    extensionAreaLayerAddRemoveListener);
         }
     }
 
@@ -1617,6 +1694,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         });
         manager = new WarngenUIManager(this);
         coveredAreaFrame = target.createWireframeShape(true, this.descriptor);
+        hasDrawnShaded = false;
         shadedCoveredArea = target.createShadedShape(true,
                 this.descriptor.getGridGeometry(), true);
         extensionAreaLayerAddRemoveListener = new ExtensionAreaLayerAddRemoveListener();
@@ -1630,7 +1708,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * container managed to get multiple warngen resources, possibly through
      * deserialization then this will return an initialized resource or the
      * first resource.
-     * 
+     *
      * @return
      */
     private WarngenLayer getLayerForContainer() {
@@ -1644,8 +1722,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 for (WarngenLayer other : otherwarngens) {
                     // grab the first layer, unless another layer exists and is
                     // already intialized
-                    if ((layer == null)
-                            || (other.getStatus() == ResourceStatus.INITIALIZED)) {
+                    if ((layer == null) || (other
+                            .getStatus() == ResourceStatus.INITIALIZED)) {
                         layer = other;
                     }
                 }
@@ -1658,8 +1736,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         if (displayState.lineOfStormsLength == -1) {
-            displayState.lineOfStormsLength = 50000 / ((paintProps.getView()
-                    .getExtent().getWidth() / paintProps.getCanvasBounds().width) * 10);
+            displayState.lineOfStormsLength = 50_000
+                    / ((paintProps.getView().getExtent().getWidth()
+                            / paintProps.getCanvasBounds().width) * 10);
         }
 
         super.paintInternal(target, paintProps);
@@ -1669,11 +1748,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
         // TODO: Issues with frameCount == 1? Could happen if we update on all
         // tilts where we had multiple frames then they went away.
         if ((displayState.mode == Mode.TRACK) && (lastMode == Mode.DRAG_ME)) {
-            if ((warningAction == null) || (warningAction == WarningAction.NEW)) {
+            if ((warningAction == null)
+                    || (warningAction == WarningAction.NEW)) {
                 // Initialize box
                 redrawBoxFromTrack();
-                if ((((configuration.isTrackEnabled() == false) || (configuration
-                        .getPathcastConfig() == null)) && (this.displayState.displayType != DisplayType.POLY))
+                if (((!configuration.isTrackEnabled()
+                        || (configuration.getPathcastConfig() == null))
+                        && (this.displayState.displayType != DisplayType.POLY))
                         || (frameCount == 1)) {
                     resetInitialFrame();
                 }
@@ -1682,8 +1763,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
         }
 
-        if (configuration.getEnableDamBreakThreat()
-                && (displayState.mode == Mode.NONE) && (lastMode == Mode.NONE)) {
+        if (configuration.getEnablePresetThreat()
+                && (displayState.mode == Mode.NONE)
+                && (lastMode == Mode.NONE)) {
             resetInitialFrame();
         }
 
@@ -1693,6 +1775,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
             if (state.geometryChanged) {
                 drawShadedPoly(state.getWarningArea());
                 state.geometryChanged = false;
+            }
+            if (!hasDrawnShaded && shouldDrawShaded) {
+                drawShadedPoly(state.getWarningArea());
             }
 
             if (hasDrawnShaded && shouldDrawShaded) {
@@ -1710,10 +1795,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     private static class PolygonStyle {
         public boolean show;
+
         public RGB color;
+
         public int lineWidth;
+
         public boolean showVertices;
-        public PolygonStyle(boolean show, RGB color, int lineWidth, boolean showVertices) {
+
+        public PolygonStyle(boolean show, RGB color, int lineWidth,
+                boolean showVertices) {
             this.show = show;
             this.color = color;
             this.lineWidth = lineWidth;
@@ -1722,15 +1812,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     private static final String OUTPUT_POLYGON = "Result";
+
     private static final String EDIT_POLYGON = "Edit";
 
     private Polygon outputPolygon = null;
-    private Map<String, PolygonStyle> polygonStyles = new HashMap<String, PolygonStyle>();
+
+    private Map<String, PolygonStyle> polygonStyles = new HashMap<>();
     {
-        polygonStyles.put(OUTPUT_POLYGON, new PolygonStyle(isWarngenDeveloperMode(),
-                new RGB(0, 128, 128), 5, true));
-        polygonStyles.put(EDIT_POLYGON, new PolygonStyle(true,
-                new RGB(255, 255, 255), 3, true));
+        polygonStyles.put(OUTPUT_POLYGON, new PolygonStyle(
+                isWarngenDeveloperMode(), new RGB(0, 128, 128), 5, true));
+        polygonStyles.put(EDIT_POLYGON,
+                new PolygonStyle(true, new RGB(255, 255, 255), 3, true));
     }
 
     private void paintPolygon(IGraphicsTarget target,
@@ -1742,15 +1834,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
         PolygonStyle editStyle = polygonStyles.get(EDIT_POLYGON);
         editStyle.color = getCapability(ColorableCapability.class).getColor();
-        editStyle.lineWidth = getCapability(OutlineCapability.class).getOutlineWidth();
+        editStyle.lineWidth = getCapability(OutlineCapability.class)
+                .getOutlineWidth();
         paintPolygon(target, paintProps, thePrimitivePolygon, editStyle);
     }
 
     private void paintPolygon(IGraphicsTarget target,
-            PaintProperties paintProps, Polygon thePrimitivePolygon, PolygonStyle style)
-            throws VizException {
-        if (!style.show)
+            PaintProperties paintProps, Polygon thePrimitivePolygon,
+            PolygonStyle style) throws VizException {
+        if (!style.show) {
             return;
+        }
         RGB color = style.color;
         float LINE_WIDTH = style.lineWidth;
         float zoomLevel = paintProps.getZoomLevel();
@@ -1764,8 +1858,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             double[] in1 = new double[2];
             double[] in2 = new double[2];
 
-            List<DrawableLine> lines = new ArrayList<DrawableLine>(
-                    (c.length - 1) * 2);
+            List<DrawableLine> lines = new ArrayList<>((c.length - 1) * 2);
             for (int i = 0; i < (c.length - 1); i++) {
                 in1[0] = c[i].x;
                 in1[1] = c[i].y;
@@ -1815,6 +1908,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     /**
      * @param target
      * @param paintProps
+     * @throws VizException
      */
     private void paintText(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
@@ -1829,9 +1923,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
         double minY = paintProps.getView().getExtent().getMinY();
         double maxY = paintProps.getView().getExtent().getMaxY();
         double boundary = 10 * ratio;
-        List<DrawableString> strings = new ArrayList<DrawableString>();
-        if ((state.warningTextLocations != null) && (state.warningTextLocations.size() > 0)) {
-            Iterator<Coordinate> coords = state.warningTextLocations.keySet().iterator();
+        List<DrawableString> strings = new ArrayList<>();
+        if ((state.warningTextLocations != null)
+                && (state.warningTextLocations.size() > 0)) {
+            Iterator<Coordinate> coords = state.warningTextLocations.keySet()
+                    .iterator();
             double[] in = new double[3];
             while (coords.hasNext()) {
                 Coordinate c = coords.next();
@@ -1850,9 +1946,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     out[1] = minY + boundary;
                 }
                 double[] world = this.descriptor.pixelToWorld(out);
-                // Check to see if text is still in the county and only paint if so.
-                if (GeometryUtil.contains(state.warningTextLocations.get(c), new GeometryFactory().createPoint(new Coordinate(world[0], world[1])))) {
-                    DrawableString string = new DrawableString(WARNING_TEXT, textColor);
+                // Check to see if text is still in the county and only paint if
+                // so.
+                if (GeometryUtil.contains(state.warningTextLocations.get(c),
+                        new GeometryFactory().createPoint(
+                                new Coordinate(world[0], world[1])))) {
+                    DrawableString string = new DrawableString(WARNING_TEXT,
+                            textColor);
                     string.magnification = magnification;
                     string.setCoordinates(out[0], out[1]);
                     string.horizontalAlignment = IGraphicsTarget.HorizontalAlignment.CENTER;
@@ -1866,9 +1966,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
             // set to true for debug and drawing coordinate order
             Coordinate[] coords = state.getWarningPolygon().getCoordinates();
             for (int i = 0; i < (coords.length - 1); ++i) {
-                double[] out = descriptor.worldToPixel(new double[] {
-                        coords[i].x, coords[i].y });
-                DrawableString string = new DrawableString("" + i, textColor);
+                double[] out = descriptor.worldToPixel(
+                        new double[] { coords[i].x, coords[i].y });
+                DrawableString string = new DrawableString(Integer.toString(i),
+                        textColor);
                 string.setCoordinates(out[0], out[1]);
                 strings.add(string);
             }
@@ -1894,6 +1995,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     public boolean isExtensionAreaVisible() {
+        if (observableExtensionAreaVisible == null) {
+            return isExtensionAreaActuallyVisible();
+        }
         return (Boolean) getObservableExtensionAreaVisible().getValue();
     }
 
@@ -1910,7 +2014,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     public void setExtensionAreaVisualized(boolean visible) {
         getObservableExtensionAreaVisible().setValue(visible);
         MapManager mapManager = MapManager.getInstance(getDescriptor());
-        if (! mapManager.isMapLoaded(EXTENSION_AREA_MAP_NAME)) {
+        if (!mapManager.isMapLoaded(EXTENSION_AREA_MAP_NAME)) {
             loadedExtensionAreaMap = true;
         }
         ResourcePair rp = mapManager.loadMapByName(EXTENSION_AREA_MAP_NAME);
@@ -1921,7 +2025,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     public void realizeExtensionAreaVisibility() {
-        VizApp.runSync(new Runnable() {
+        VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
                 boolean actuallyVisible = isExtensionAreaActuallyVisible();
@@ -1951,8 +2055,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
         if (config != null) {
             init(config);
-            displayState.setInitiallyMotionless((this.configuration
-                    .isTrackEnabled() == false)
+            displayState.setInitiallyMotionless(!this.configuration
+                    .isTrackEnabled()
                     || (this.configuration.getPathcastConfig() == null));
         }
     }
@@ -1987,9 +2091,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     config.getHatchedAreaSource());
 
             try {
-                areaHatcher = new AreaHatcher(new PolygonUtil(this, geoData.nx,
-                        geoData.ny, 20, geoData.localExtent,
-                        geoData.localToLatLon));
+                areaHatcher = new AreaHatcher(
+                        new PolygonUtil(this, geoData.nx, geoData.ny, 20,
+                                geoData.localExtent, geoData.localToLatLon));
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
@@ -1999,8 +2103,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
             createAreaAndCentroidMaps();
 
             this.configuration = config;
-            extensionAreaManager.setExtensionAreaConfig(config.getExtensionArea());
-        }// end synchronize
+            extensionAreaManager
+                    .setExtensionAreaConfig(config.getExtensionArea());
+        }
 
         perfLog.logDuration("Init warngen config",
                 System.currentTimeMillis() - t0);
@@ -2017,7 +2122,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * Adds geospatial data to siteMap and timezoneMap for the given template
      * configuration. This must not have any site effects on the currently
      * loaded template or the current product being edited.
-     * 
+     *
      * @param config
      */
     private void loadGeodataForConfiguration(WarngenConfiguration config) {
@@ -2027,9 +2132,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         synchronized (siteMap) {
 
-            for (String areaSource : metadataMap.keySet()) {
+            for (Entry<String, GeospatialMetadata> entry : metadataMap
+                    .entrySet()) {
+                String areaSource = entry.getKey();
                 String currKey = areaSource + "." + site;
-                GeospatialMetadata gmd = metadataMap.get(areaSource);
+                GeospatialMetadata gmd = entry.getValue();
                 GeospatialDataList gData = siteMap.get(currKey);
 
                 if (gData == null) {
@@ -2043,21 +2150,22 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         } else {
                             /*
                              * Add to list prior to opening the genDialog. That
-                             * way if the notfication arrives prior to or after
-                             * closing the genDialog the notfication will be
+                             * way if the notification arrives prior to or after
+                             * closing the genDialog the notification will be
                              * ignored.
                              */
                             ignoreNotifications.add(currKey);
                             GenerateGeoDataSetDialog genDialog = null;
 
-                            if (dialog != null && dialog.isDisposed() == false) {
+                            if (dialog != null && !dialog.isDisposed()) {
                                 genDialog = new GenerateGeoDataSetDialog(
                                         dialog.getShell(), site, gmd, true);
                             } else {
                                 genDialog = new GenerateGeoDataSetDialog(
                                         PlatformUI.getWorkbench()
                                                 .getActiveWorkbenchWindow()
-                                                .getShell(), site, gmd, false);
+                                                .getShell(),
+                                        site, gmd, false);
                             }
 
                             // Assume this is a blocking dialog.
@@ -2066,7 +2174,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                             if (o instanceof GeospatialDataSet) {
                                 dataSet = (GeospatialDataSet) genDialog
                                         .getReturnValue();
-                                updateGeoData(gData, dataSet, gmd, currKey, tq0);
+                                updateGeoData(gData, dataSet, gmd, currKey,
+                                        tq0);
                             } else if (o instanceof Exception) {
                                 Exception e = (Exception) o;
                                 statusHandler.handle(Priority.WARN,
@@ -2079,27 +2188,30 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     }
                 }
             }
-        }// end synchronize
+        }
     }
 
     private void updateGeoData(GeospatialDataList gData,
             GeospatialDataSet dataSet, GeospatialMetadata gmd, String currKey,
             long tq0) throws FactoryException, MismatchedDimensionException,
             TransformException {
-        GeospatialData[][] gdSets = GeospatialFactory.getGeoSpatialList(dataSet, gmd);
+        GeospatialData[][] gdSets = GeospatialFactory.getGeoSpatialList(dataSet,
+                gmd);
         GeospatialData[] allFeatures;
         gData.features = gdSets[0];
         allFeatures = gData.features;
 
         GeospatialData[] stretchFeatures = gdSets[1];
         if (stretchFeatures != null) {
-            allFeatures = Arrays.copyOf(gData.features, gData.features.length + stretchFeatures.length);
-            System.arraycopy(stretchFeatures, 0, allFeatures, gData.features.length, stretchFeatures.length);
+            allFeatures = Arrays.copyOf(gData.features,
+                    gData.features.length + stretchFeatures.length);
+            System.arraycopy(stretchFeatures, 0, allFeatures,
+                    gData.features.length, stretchFeatures.length);
             gData.cwaStretchFeatures = allFeatures;
         }
 
         // set the CountyUserData
-        List<Geometry> geoms = new ArrayList<Geometry>(allFeatures.length);
+        List<Geometry> geoms = new ArrayList<>(allFeatures.length);
         for (GeospatialData gd : allFeatures) {
             geoms.add(gd.geometry);
             CountyUserData cud = new CountyUserData(gd,
@@ -2107,20 +2219,21 @@ public class WarngenLayer extends AbstractStormTrackResource {
             GeometryUtil.setUserData(gd.geometry, cud);
         }
 
-        List<Geometry> locals = new ArrayList<Geometry>();
+        List<Geometry> locals = new ArrayList<>();
 
         Coordinate c = new GeometryFactory().buildGeometry(geoms).getCentroid()
                 .getCoordinate();
-        gData.latLonToLocal = MapUtil.getTransformFromLatLon(MapUtil
-                .constructStereographic(MapUtil.AWIPS_EARTH_RADIUS,
+        gData.latLonToLocal = MapUtil.getTransformFromLatLon(
+                MapUtil.constructStereographic(MapUtil.AWIPS_EARTH_RADIUS,
                         MapUtil.AWIPS_EARTH_RADIUS, c.y, c.x));
         gData.localToLatLon = gData.latLonToLocal.inverse();
         for (GeospatialData gd : allFeatures) {
             Geometry local = JTS.transform(gd.geometry, gData.latLonToLocal);
-            if (! local.isValid()) {
+            if (!local.isValid()) {
                 TopologyException topologyException = null;
                 try {
-                    CountyUserData userData = (CountyUserData) local.getUserData();
+                    CountyUserData userData = (CountyUserData) local
+                            .getUserData();
                     local = local.buffer(0.0);
                     GeometryUtil.setUserData(local, userData);
                 } catch (TopologyException e) {
@@ -2134,7 +2247,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         name = (String) gd.attributes.get("COUNTYNAME");
                     }
                     if (name != null) {
-                        ident = String.format("%s (gid=%s)", name, gd.attributes.get(WarngenLayer.GID));
+                        ident = String.format("%s (gid=%s)", name,
+                                gd.attributes.get(WarngenLayer.GID));
                     }
                 } catch (RuntimeException e) {
                     // ignore
@@ -2205,8 +2319,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         GeneralGridEnvelope range = new GeneralGridEnvelope(new int[] { 0, 0 },
                 new int[] { gData.nx, gData.ny }, false);
-        GeneralEnvelope ge = new GeneralEnvelope(new double[] {
-                gData.localExtent.getMinX(), gData.localExtent.getMaxY() },
+        GeneralEnvelope ge = new GeneralEnvelope(
+                new double[] { gData.localExtent.getMinX(),
+                        gData.localExtent.getMaxY() },
                 new double[] { gData.localExtent.getMaxX(),
                         gData.localExtent.getMinY() });
 
@@ -2220,10 +2335,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
         if (timezones != null) {
             for (GeospatialData timezone : timezones) {
                 if (timezone.attributes.containsKey(gmd.getTimeZoneField())) {
-                    String oneLetterTimezone = String
-                            .valueOf(timezone.attributes.get(gmd
-                                    .getTimeZoneField()));
-                    if (timezoneMap.containsKey(oneLetterTimezone) == false) {
+                    String oneLetterTimezone = String.valueOf(
+                            timezone.attributes.get(gmd.getTimeZoneField()));
+                    if (!timezoneMap.containsKey(oneLetterTimezone)) {
                         timezoneMap.put(oneLetterTimezone, timezone.geometry);
                     }
                 }
@@ -2262,7 +2376,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /**
      * Gets the polygon in lat/lon projection
-     * 
+     *
      * @return
      */
     public Polygon getPolygon() {
@@ -2275,7 +2389,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /**
      * Get the warning area in local projection
-     * 
+     *
      * @return
      */
     public Geometry getWarningArea() {
@@ -2304,7 +2418,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             Geometry oldArea = getWarningAreaFromPolygon(
                     state.getOldWarningPolygon(), record);
             if (oldArea.getUserData() instanceof Set) {
-                state.setFipsOutsidePolygon((Set<String>) oldArea.getUserData());
+                state.setFipsOutsidePolygon(
+                        (Set<String>) oldArea.getUserData());
             }
             state.setOldWarningArea(oldArea);
         } else {
@@ -2316,21 +2431,21 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     public Geometry getWarningAreaForGids(List<String> gids,
             Geometry warningArea) {
-        List<Geometry> areas = new ArrayList<Geometry>();
-        List<Geometry> allAreas = new ArrayList<Geometry>();
+        List<Geometry> areas = new ArrayList<>();
+        List<Geometry> allAreas = new ArrayList<>();
         GeometryUtil.buildGeometryList(allAreas, warningArea);
         for (Geometry g : allAreas) {
             if (gids.contains(GeometryUtil.getPrefix(g.getUserData()))) {
                 areas.add(g);
             }
         }
-        return new GeometryFactory().createGeometryCollection(areas
-                .toArray(new Geometry[areas.size()]));
+        return new GeometryFactory().createGeometryCollection(
+                areas.toArray(new Geometry[areas.size()]));
     }
 
     /**
      * Get the warning area from the record/polygon
-     * 
+     *
      * @param polygon
      *            polygon in lat/lon projection
      * @param record
@@ -2338,8 +2453,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
      */
     public Geometry getWarningAreaFromPolygon(Polygon polygon,
             AbstractWarningRecord record) {
-        Map<String, String[]> countyMap = FipsUtil.parseHeader(
-                record.getCountyheader(), "County");
+        Map<String, String[]> countyMap = FipsUtil
+                .parseHeader(record.getCountyheader(), "County");
         try {
             return getArea(polygon, countyMap);
         } catch (Exception e) {
@@ -2350,13 +2465,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     public enum GeoFeatureType {
         COUNTY("county", "FIPS", "cwa"), MARINE("marinezones", "ID", "wfo");
-        final private String tableName;
+        private final String tableName;
 
-        final private String fipsField;
+        private final String fipsField;
 
-        final private String cwaField;
+        private final String cwaField;
 
-        private GeoFeatureType(String tableName, String fipsField, String cwaField) {
+        private GeoFeatureType(String tableName, String fipsField,
+                String cwaField) {
             this.tableName = tableName;
             this.fipsField = fipsField;
             this.cwaField = cwaField;
@@ -2369,9 +2485,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
      */
     public Set<String> getUgcsForWatches(Polygon polygon, GeoFeatureType type)
             throws Exception {
-        Set<String> ugcs = new HashSet<String>();
+        Set<String> ugcs = new HashSet<>();
         GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
-        for (String fips : gda.getAllFipsInArea(gda.buildArea(polygon, isCwaStretch()))) {
+        for (String fips : gda
+                .getAllFipsInArea(gda.buildArea(polygon, isCwaStretch()))) {
             ugcs.add(FipsUtil.getUgcFromFips(fips));
         }
         return ugcs;
@@ -2380,7 +2497,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     public Set<String> getAllUgcs(GeoFeatureType type) throws Exception {
         // TODO: zig
         GeospatialDataAccessor gda = getGeospatialDataAcessor(type);
-        Set<String> ugcs = new HashSet<String>();
+        Set<String> ugcs = new HashSet<>();
         for (GeospatialData r : gda.geoData.getFeatures(isCwaStretch())) {
             ugcs.add(FipsUtil.getUgcFromFips(gda.getFips(r)));
         }
@@ -2408,8 +2525,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 throw new IllegalArgumentException(
                         "Unsupported geo feature type " + type);
             }
-            WarngenConfiguration config = WarngenConfiguration.loadConfig(
-                    templateName, getLocalizedSite(), null);
+            WarngenConfiguration config = WarngenConfiguration
+                    .loadConfig(templateName, getLocalizedSite(), null);
             loadGeodataForConfiguration(config);
             gdl = searchGeospatialDataAccessor(type);
         }
@@ -2421,7 +2538,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return new GeospatialDataAccessor(gdl, areaConfig);
     }
 
-    private GeospatialDataList searchGeospatialDataAccessor(GeoFeatureType type) {
+    private GeospatialDataList searchGeospatialDataAccessor(
+            GeoFeatureType type) {
         synchronized (siteMap) {
             for (Map.Entry<String, GeospatialDataList> entry : siteMap
                     .entrySet()) {
@@ -2439,7 +2557,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     /**
      * Given the intersection area and polygon, build the area for the county
      * map
-     * 
+     *
      * @param area
      * @param countyMap
      * @param includeAllEntries
@@ -2461,7 +2579,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Set<String> idsOutsidePolygon = null;
         Set<String> fipsOutsidePolygon = null;
         if (includeAllEntries) {
-            idsOutsidePolygon = new HashSet<String>();
+            idsOutsidePolygon = new HashSet<>();
             for (Map.Entry<String, String[]> entry : countyMap.entrySet()) {
                 String state = entry.getKey();
                 for (String id : entry.getValue()) {
@@ -2470,26 +2588,27 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
         }
 
-        List<Geometry> geoms = new ArrayList<Geometry>();
+        List<Geometry> geoms = new ArrayList<>();
         GeometryUtil.buildGeometryList(geoms, area);
-        List<Geometry> newList = new ArrayList<Geometry>();
+        List<Geometry> newList = new ArrayList<>();
         boolean isMarineZone = configuration.getGeospatialConfig()
-                .getAreaSource().equalsIgnoreCase(MARINE);
+                .getAreaSource().toLowerCase()
+                .contains(WarningConstants.MARINE);
         for (Geometry geom : geoms) {
             CountyUserData data = (CountyUserData) geom.getUserData();
 
             String fips = null;
             String[] ids = null;
             if (isMarineZone) {
-                fips = String.valueOf(data.entry.attributes.get(configuration
-                        .getHatchedAreaSource().getFipsField()));
+                fips = String.valueOf(data.entry.attributes.get(
+                        configuration.getHatchedAreaSource().getFipsField()));
                 if (countyMap.containsKey(fips.substring(0, 2))) {
                     ids = countyMap.get(fips.substring(0, 2));
                     for (String id : ids) {
                         if (fips.endsWith(id)) {
                             if (idsOutsidePolygon != null) {
-                                idsOutsidePolygon.remove(fips.substring(0, 2)
-                                        + '-' + id);
+                                idsOutsidePolygon.remove(
+                                        fips.substring(0, 2) + '-' + id);
                             }
                             newList.add(geom);
                             break;
@@ -2502,9 +2621,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 .getAreaNotationField()));
                 if (countyMap.containsKey(stateAbbr)) {
                     ids = countyMap.get(stateAbbr);
-                    fips = String.valueOf(data.entry.attributes
-                            .get(configuration.getHatchedAreaSource()
-                                    .getFipsField()));
+                    fips = String
+                            .valueOf(data.entry.attributes.get(configuration
+                                    .getHatchedAreaSource().getFipsField()));
                     for (String id : ids) {
                         if (fips.endsWith(id)) {
                             if (idsOutsidePolygon != null) {
@@ -2520,13 +2639,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         if (includeAllEntries && !idsOutsidePolygon.isEmpty()) {
             if (geoData != null) {
-                fipsOutsidePolygon = new HashSet<String>();
+                fipsOutsidePolygon = new HashSet<>();
                 for (GeospatialData f : getActiveFeatures()) {
                     CountyUserData data = (CountyUserData) f.geometry
                             .getUserData();
-                    String fips = String.valueOf(data.entry.attributes
-                            .get(configuration.getHatchedAreaSource()
-                                    .getFipsField()));
+                    String fips = String
+                            .valueOf(data.entry.attributes.get(configuration
+                                    .getHatchedAreaSource().getFipsField()));
                     String key;
                     if (isMarineZone) {
                         key = fips.substring(0, 2) + '-' + fips.substring(3);
@@ -2556,20 +2675,21 @@ public class WarngenLayer extends AbstractStormTrackResource {
     /**
      * Build the area for the county map given the polygon to intersect with in
      * lat/lon space, returns the warning area in local projection
-     * 
+     *
      * @param polygon
      * @param countyMap
      * @return
      */
     private Geometry getArea(Polygon polygon, Map<String, String[]> countyMap) {
-        return getArea(geoAccessor.buildArea(polygon, isCwaStretch()), countyMap, true);
+        return getArea(geoAccessor.buildArea(polygon, isCwaStretch()),
+                countyMap, true);
     }
 
     /**
      * Create the WarnGen dialog if it has not been created.
      */
     public void createDialog() {
-        if ((dialog == null) || (dialog.isDisposed() == true)) {
+        if ((dialog == null) || dialog.isDisposed()) {
             dialog = new WarngenDialog(PlatformUI.getWorkbench()
                     .getActiveWorkbenchWindow().getShell(), this);
             dialog.open();
@@ -2580,7 +2700,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             });
         } else {
-            showDialog(true);
+            showDialog(isEditable());
         }
     }
 
@@ -2588,7 +2708,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * Show the WarnGen dialog and move it to the front.
      */
     public void showDialog(boolean show) {
-        if ((dialog != null) && (dialog.isDisposed() == false)) {
+        if ((dialog != null) && !dialog.isDisposed()) {
             dialog.showDialog(show);
         }
     }
@@ -2600,7 +2720,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
     /**
      * @throws VizException
      */
-     public void updateWarnedAreas(boolean preservedSelection) throws VizException {
+    public void updateWarnedAreas(boolean preservedSelection)
+            throws VizException {
         if (getPolygon() == null) {
             return;
         }
@@ -2610,10 +2731,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Geometry warningArea = state.getWarningArea();
         Geometry warningPolygon = state.getWarningPolygon();
         Geometry newWarningArea = createWarnedArea(
-                latLonToLocal(warningPolygon), preservedSelection
-                        && (warningArea != null) ? latLonToLocal(warningArea)
-                        : null,
-                        isCwaStretch());
+                latLonToLocal(warningPolygon),
+                preservedSelection && (warningArea != null)
+                        ? latLonToLocal(warningArea) : null,
+                isCwaStretch());
         updateWarnedAreaState(newWarningArea);
 
         perfLog.logDuration("Determining hatchedArea",
@@ -2622,7 +2743,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /**
      * Creates a warning area based on the hatched area in local coordinates
-     * 
+     *
      * @param hatchedArea
      * @param preservedSelection
      *            if not null, the result contains all entities in this Geometry
@@ -2632,7 +2753,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
      */
     private Geometry createWarnedArea(Geometry hatchedArea,
             Geometry preservedSelection, boolean cwaStretch) {
-        Geometry oldWarningPolygon = latLonToLocal(state.getOldWarningPolygon());
+        Geometry oldWarningPolygon = latLonToLocal(
+                state.getOldWarningPolygon());
         Geometry oldWarningArea = latLonToLocal(state.getOldWarningArea());
         Geometry newHatchedArea = null;
         Geometry newUnfilteredArea = null;
@@ -2642,26 +2764,26 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         /*
          * The resultant warning area is constructed in one of two ways:
-         * 
+         *
          * 1. When preservedSelection is null:
-         * 
+         *
          * If at least one county in hatchedArea passes the inclusion filter,
          * the result contains only the counties in hatchedArea that pass the
          * inclusion filter. Otherwise, all counties in hatchedArea are
          * included.
-         * 
+         *
          * This behavior reflects A1 baseline template logic. The fallback can
          * be disabled by setting AreaSourceConfiguration.isInclusionFallback to
          * false.
-         * 
+         *
          * 2. When preservedSelection is not null:
-         * 
+         *
          * A county is included in the result if and only if it is contained in
          * preservedSelection. If the portion of the county in hatchedArea is
          * non-empty, it used. Otherwise, the hatched portion from
          * preservedSelection is used.
-         * 
-         * 
+         *
+         *
          * In both cases, when there is an old warning area in effect (i.e., for
          * followups), the intersection of hatchedArea and the old warning area
          * is used instead of hatchedArea.
@@ -2697,17 +2819,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
                          * despite being outside the new polygon.
                          */
                         if (selectedGeoms == null) {
-                            selectedGeoms = new ArrayList<Geometry>();
+                            selectedGeoms = new ArrayList<>();
                             GeometryUtil.buildGeometryList(selectedGeoms,
                                     preservedSelection);
                         }
                         intersection = null;
-                        String prefix = GeometryUtil.getPrefix(f.geometry
-                                .getUserData());
+                        String prefix = GeometryUtil
+                                .getPrefix(f.geometry.getUserData());
                         for (Geometry g : selectedGeoms) {
                             if (g.getUserData() != null) {
-                                if (prefix.equals(GeometryUtil.getPrefix(g
-                                        .getUserData()))) {
+                                if (prefix.equals(GeometryUtil
+                                        .getPrefix(g.getUserData()))) {
                                     intersection = intersection == null ? g
                                             : GeometryUtil.union(intersection,
                                                     g);
@@ -2723,6 +2845,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             } catch (RuntimeException e) {
                 continue;
+                // TODO: do we still need this now that we are on JTS 1.13?
                 // This is a workaround for JTS 1.7.1
             }
 
@@ -2734,10 +2857,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 } else {
                     boolean passed = filterArea(f, intersection, true);
                     useFilteredArea = useFilteredArea || passed;
-                    include = (passed || filterAreaSecondChance(f,
-                            intersection, true))
+                    include = (passed
+                            || filterAreaSecondChance(f, intersection, true))
                             && ((oldWarningPolygon == null)
-                                    || prepGeom.intersects(oldWarningPolygon) || isOldAreaOutsidePolygon(f));
+                                    || prepGeom.intersects(oldWarningPolygon)
+                                    || isOldAreaOutsidePolygon(f));
                     newUnfilteredArea = union(newUnfilteredArea, intersection);
                 }
                 if (include) {
@@ -2753,10 +2877,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
         }
 
-        newHatchedArea = useFilteredArea && (newHatchedArea != null) ? newHatchedArea
-                : useFallback ? newUnfilteredArea : null;
-        return newHatchedArea != null ? newHatchedArea : new GeometryFactory()
-                .createGeometryCollection(new Geometry[0]);
+        newHatchedArea = useFilteredArea && (newHatchedArea != null)
+                ? newHatchedArea : useFallback ? newUnfilteredArea : null;
+        return newHatchedArea != null ? newHatchedArea
+                : new GeometryFactory()
+                        .createGeometryCollection(new Geometry[0]);
     }
 
     private static Geometry union(Geometry a, Geometry b) {
@@ -2767,13 +2892,14 @@ public class WarngenLayer extends AbstractStormTrackResource {
         }
     }
 
-    private void updateWarnedAreaState(Geometry newHatchedArea) throws VizException {
+    private void updateWarnedAreaState(Geometry newHatchedArea)
+            throws VizException {
         try {
             // Ensure all geometries in local coords
             Geometry warningPolygon = latLonToLocal(state.getWarningPolygon());
             Geometry oldWarningArea = latLonToLocal(state.getOldWarningArea());
-            Geometry oldWarningPolygon = latLonToLocal(state
-                    .getOldWarningPolygon());
+            Geometry oldWarningPolygon = latLonToLocal(
+                    state.getOldWarningPolygon());
 
             // All area has been removed from the polygon...
             if (newHatchedArea.isEmpty()) {
@@ -2795,44 +2921,45 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 int areaPercent = -1;
                 try {
                     areaPercent = Double
-                            .valueOf(
-                                    ((oldWarningPolygon.intersection(
-                                            warningPolygon).getArea() / oldWarningArea
-                                            .getArea()) * 100)).intValue();
+                            .valueOf(((oldWarningPolygon
+                                    .intersection(warningPolygon).getArea()
+                                    / oldWarningArea.getArea()) * 100))
+                            .intValue();
                 } catch (Exception e) {
-                    statusHandler
-                            .handle(Priority.VERBOSE,
-                                    "Error determining amount of overlap with original polygon",
-                                    e);
+                    statusHandler.handle(Priority.VERBOSE,
+                            "Error determining amount of overlap with original polygon",
+                            e);
                     areaPercent = 100;
                 }
-                if ((oldWarningPolygon.intersects(warningPolygon) == false)
+                if (!oldWarningPolygon.intersects(warningPolygon)
                         && !state.isMarked()) {
                     // Snap back to polygon
-                    state.setWarningPolygon(localToLatLon((Polygon) oldWarningPolygon));
+                    state.setWarningPolygon(
+                            localToLatLon((Polygon) oldWarningPolygon));
                     newHatchedArea = (Geometry) oldWarningArea.clone();
-                } else if ((oldWarningPolygon.intersects(warningPolygon) == false)
+                } else if (!oldWarningPolygon.intersects(warningPolygon)
                         && (areaPercent < 10) && state.isMarked()) {
                     // snap back to last valid user selected area
-                    state.setWarningPolygon((Polygon) state
-                            .getMarkedWarningPolygon().clone());
+                    state.setWarningPolygon(
+                            (Polygon) state.getMarkedWarningPolygon().clone());
                     newHatchedArea = state.getMarkedWarningArea();
                     state.resetMarked();
                 } else if (warningPolygon != null) {
                     // want intersection of warningPolygon and oldWarningArea
-                    Set<String> selectedGids = new HashSet<String>(
+                    Set<String> selectedGids = new HashSet<>(
                             Arrays.asList(GeometryUtil.getGID(newHatchedArea)));
                     Geometry selectedArea = newHatchedArea;
                     newHatchedArea = GeometryUtil.intersection(warningPolygon,
                             oldWarningArea);
-                    Set<String> newGids = new HashSet<String>(
+                    Set<String> newGids = new HashSet<>(
                             Arrays.asList(GeometryUtil.getGID(newHatchedArea)));
                     if (!selectedGids.equals(newGids)) {
                         // Remove areas with gid in removedGids
-                        List<Geometry> areas = new ArrayList<Geometry>(
+                        List<Geometry> areas = new ArrayList<>(
                                 newHatchedArea.getNumGeometries());
-                        Set<String> seenGids = new HashSet<String>();
-                        for (int n = 0; n < newHatchedArea.getNumGeometries(); ++n) {
+                        Set<String> seenGids = new HashSet<>();
+                        for (int n = 0; n < newHatchedArea
+                                .getNumGeometries(); ++n) {
                             Geometry newArea = newHatchedArea.getGeometryN(n);
                             String[] gids = GeometryUtil.getGID(newArea);
                             boolean flag = false;
@@ -2849,7 +2976,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         }
                         selectedGids.removeAll(seenGids);
                         if (!selectedGids.isEmpty()) {
-                            for (int n = 0; n < selectedArea.getNumGeometries(); ++n) {
+                            for (int n = 0; n < selectedArea
+                                    .getNumGeometries(); ++n) {
                                 Geometry area = selectedArea.getGeometryN(n);
                                 String[] gids = GeometryUtil.getGID(area);
                                 boolean flag = false;
@@ -2864,8 +2992,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                                 }
                             }
                         }
-                        newHatchedArea = GeometryUtil.union(areas
-                                .toArray(new Geometry[0]));
+                        newHatchedArea = GeometryUtil
+                                .union(areas.toArray(new Geometry[0]));
                     }
                 }
             }
@@ -2877,18 +3005,19 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     initialWarning = true;
                 } else {
                     for (String followup : followUps) {
-                        if (followup.equals("NEW")) {
+                        if ("NEW".equals(followup)) {
                             initialWarning = true;
                             break;
                         }
                     }
                 }
                 if (initialWarning) {
-                    state.clear2(); // not to hatch polygon for initial warning
+                    // not to hatch polygon for initial warning
+                    state.clear2();
                 } else {
                     // Snap back for follow-ups
-                    state.setWarningPolygon((Polygon) state
-                            .getMarkedWarningPolygon().clone());
+                    state.setWarningPolygon(
+                            (Polygon) state.getMarkedWarningPolygon().clone());
                     state.resetMarked();
                     updateWarnedAreas();
                 }
@@ -2919,7 +3048,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     /**
      * Determine if the given area of the reference area passes the inclusion
      * filter. Subroutine of {@link #filterArea}.
-     * 
+     *
      * @param areaToConsider
      * @param wholeArea
      * @param areaInMetersSq
@@ -2929,10 +3058,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     private boolean filterCheck(Geometry areaToConsider, Geometry wholeArea,
             double areaInMetersSq) {
 
-        return filterCheck(
-                areaToConsider,
-                wholeArea,
-                areaInMetersSq,
+        return filterCheck(areaToConsider, wholeArea, areaInMetersSq,
                 getConfiguration().getHatchedAreaSource().getInclusionPercent(),
                 getConfiguration().getHatchedAreaSource().getInclusionArea(),
                 getConfiguration().getHatchedAreaSource().getInclusionAndOr());
@@ -2943,20 +3069,20 @@ public class WarngenLayer extends AbstractStormTrackResource {
             double inclusionArea, String inclusionAndOr) {
         double ratio = areaToConsider.getArea() / wholeArea.getArea();
         double ratioInPercent = ratio * 100.;
-        double areaInKmSqOfIntersection = meterSqToKmSq.convert(areaInMetersSq
-                * ratio);
+        double areaInKmSqOfIntersection = meterSqToKmSq
+                .convert(areaInMetersSq * ratio);
 
         boolean percentOk = ratioInPercent >= inclusionPercent;
         boolean areaOk = areaInKmSqOfIntersection > inclusionArea;
 
-        return inclusionAndOr.matches("AND") ? percentOk && areaOk : percentOk
-                || areaOk;
+        return inclusionAndOr.matches("AND") ? percentOk && areaOk
+                : percentOk || areaOk;
     }
 
     /**
      * Determine if a feature should be included based on how much of it is
      * hatched and the configured inclusion criteria.
-     * 
+     *
      * @param feature
      * @param featureAreaToConsider
      *            the portion of the feature that is hatched
@@ -2999,7 +3125,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
              * Second chance: If the county slipped by the filter in the initial
              * warning, allow it now as long as the hatched area is (nearly) the
              * same as the hatched area in the initial warning.
-             * 
+             *
              * This test assumes that the followup filter is not more permissive
              * that the initial warning filter. OTOH, if the followup filter is
              * more permissive, this test is not really necessary.
@@ -3008,14 +3134,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
             if (localCRS) {
                 oldWarningArea = latLonToLocal(oldWarningArea);
             }
-            List<Geometry> geoms = new ArrayList<Geometry>();
+            List<Geometry> geoms = new ArrayList<>();
             GeometryUtil.buildGeometryList(geoms, oldWarningArea);
             Geometry oldSelectedArea = null;
-            String prefix = GeometryUtil.getPrefix(feature.geometry
-                    .getUserData());
+            String prefix = GeometryUtil
+                    .getPrefix(feature.geometry.getUserData());
             for (Geometry g : geoms) {
                 if (g.getUserData() != null) {
-                    if (prefix.equals(GeometryUtil.getPrefix(g.getUserData()))) {
+                    if (prefix
+                            .equals(GeometryUtil.getPrefix(g.getUserData()))) {
                         oldSelectedArea = oldSelectedArea == null ? g
                                 : GeometryUtil.union(oldSelectedArea, g);
                     }
@@ -3046,7 +3173,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /**
      * Warned area to shade in lat/lon space
-     * 
+     *
      * @param poly
      * @throws VizException
      */
@@ -3056,8 +3183,10 @@ public class WarngenLayer extends AbstractStormTrackResource {
         if (poly != null) {
             JTSCompiler comp = new JTSCompiler(shadedCoveredArea, null,
                     descriptor);
-            comp.handle(state.getWarningArea(),
+            JTSGeometryData data = comp.createGeometryData();
+            data.setGeometryColor(
                     getCapability(ColorableCapability.class).getColor());
+            comp.handle(state.getWarningArea());
             hasDrawnShaded = true;
         } else {
             hasDrawnShaded = false;
@@ -3102,8 +3231,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return;
         }
         if ((warningAction == null) || (warningAction == WarningAction.NEW)) {
-            if (((configuration.isTrackEnabled() == false) || (configuration
-                    .getPathcastConfig() == null))
+            if ((!configuration.isTrackEnabled()
+                    || (configuration.getPathcastConfig() == null))
                     && !this.displayState.isNonstationary()
                     && (this.displayState.displayType != DisplayType.POLY)) {
                 createSquare();
@@ -3120,17 +3249,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Coordinate start = null;
         Coordinate end = null;
         if (displayState.timePoints != null) {
-            DataTime current = new DataTime(SimulatedTime.getSystemTime()
-                    .getTime());
-            StormTrackState.StormCoord lastStormCoord = displayState.timePoints[displayState.timePoints.length - 1];
+            DataTime current = new DataTime(
+                    SimulatedTime.getSystemTime().getTime());
+            StormTrackState.StormCoord lastStormCoord = displayState.timePoints[displayState.timePoints.length
+                    - 1];
             gc.setStartingGeographicPoint(lastStormCoord.coord.x,
                     lastStormCoord.coord.y);
 
             double angle = displayState.angle;
             double oppositeAngle = adjustAngle(angle + 180);
-            double distance = displayState.speed
-                    * trackUtil.timeBetweenDataTimes(lastStormCoord.time,
-                            current);
+            double distance = displayState.speed * trackUtil
+                    .timeBetweenDataTimes(lastStormCoord.time, current);
             gc.setStartingGeographicPoint(lastStormCoord.coord.x,
                     lastStormCoord.coord.y);
             if (current.greaterThan(lastStormCoord.time)) {
@@ -3184,16 +3313,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
             double shortDistance = 8000;
             gc.setStartingGeographicPoint(start.x, start.y);
             gc.setDestinationGeographicPoint(end.x, end.y);
-            double farDistance = displayState.futurePoints != null ? gc
-                    .getOrthodromicDistance() + (shortDistance * 1.8)
+            double farDistance = displayState.futurePoints != null
+                    ? gc.getOrthodromicDistance() + (shortDistance * 1.8)
                     : shortDistance;
             double angle = displayState.angle;
             Point2D startPoint = null;
-            ArrayList<Coordinate> linearRing = new ArrayList<Coordinate>();
+            ArrayList<Coordinate> linearRing = new ArrayList<>();
             GeodeticCalculator gc2 = new GeodeticCalculator();
 
-            Coordinate[] coords = getUIManager().figureLineFromPoint(
-                    displayState.dragMeLine, gf.createPoint(start))
+            Coordinate[] coords = getUIManager()
+                    .figureLineFromPoint(displayState.dragMeLine,
+                            gf.createPoint(start))
                     .getCoordinates();
             int size = coords.length;
             // Points ahead of track
@@ -3205,8 +3335,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     gc2.setDestinationGeographicPoint(coords[i + 1].x,
                             coords[i + 1].y);
                     gc.setDirection(adjustAngle(angle), farDistance);
-                    gc.setStartingGeographicPoint(gc
-                            .getDestinationGeographicPoint());
+                    gc.setStartingGeographicPoint(
+                            gc.getDestinationGeographicPoint());
                     gc.setDirection(adjustAngle(gc2.getAzimuth() - 180),
                             shortDistance * factor);
                 } else if (i == (size - 1)) {
@@ -3214,8 +3344,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     gc2.setDestinationGeographicPoint(coords[i - 1].x,
                             coords[i - 1].y);
                     gc.setDirection(adjustAngle(angle), farDistance);
-                    gc.setStartingGeographicPoint(gc
-                            .getDestinationGeographicPoint());
+                    gc.setStartingGeographicPoint(
+                            gc.getDestinationGeographicPoint());
                     gc.setDirection(adjustAngle(gc2.getAzimuth() - 180),
                             shortDistance * factor);
                 } else {
@@ -3237,8 +3367,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     gc2.setDestinationGeographicPoint(coords[i + 1].x,
                             coords[i + 1].y);
                     gc.setDirection(adjustAngle(angle - 180), shortDistance);
-                    gc.setStartingGeographicPoint(gc
-                            .getDestinationGeographicPoint());
+                    gc.setStartingGeographicPoint(
+                            gc.getDestinationGeographicPoint());
                     gc.setDirection(adjustAngle(gc2.getAzimuth() - 180),
                             shortDistance);
                 } else if (i == (size - 1)) {
@@ -3246,8 +3376,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     gc2.setDestinationGeographicPoint(coords[i - 1].x,
                             coords[i - 1].y);
                     gc.setDirection(adjustAngle(angle - 180), shortDistance);
-                    gc.setStartingGeographicPoint(gc
-                            .getDestinationGeographicPoint());
+                    gc.setStartingGeographicPoint(
+                            gc.getDestinationGeographicPoint());
                     gc.setDirection(adjustAngle(gc2.getAzimuth() - 180),
                             shortDistance);
                 } else {
@@ -3278,7 +3408,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             final int d1 = 10 * 1000;
             final int d2 = 15 * 1000;
 
-            double dist2 = 11000;
+            double dist2 = 11_000;
 
             final double hyp1 = Math.sqrt((d1 * d1) + (dist1 * dist1));
             final double hyp2 = Math.sqrt((d2 * d2) + (dist2 * dist2));
@@ -3323,7 +3453,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
      */
     public boolean redrawBoxFromHatched() {
         boolean result = true;
-        if (state.snappedToArea == false) {
+        if (!state.snappedToArea) {
             if ((state.getWarningArea() == null)
                     || state.getWarningArea().isEmpty()) {
                 return true;
@@ -3358,7 +3488,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     /*
                      * If redraw failed, do not allow this polygon to be used to
                      * generate a warning.
-                     * 
+                     *
                      * Note that this duplicates code from
                      * updateWarnedAreaState.
                      */
@@ -3379,8 +3509,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     result = false;
                 }
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error hatching polygon", e);
+                statusHandler.handle(Priority.PROBLEM, "Error hatching polygon",
+                        e);
                 result = false;
             }
             perfLog.logDuration("redrawBoxFromHatched",
@@ -3390,7 +3520,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
         return result;
     }
 
-    public void createDamThreatArea(Coordinate[] coordinates) {
+    public void createPresetThreatArea(Coordinate[] coordinates) {
         GeometryFactory gf = new GeometryFactory();
         LinearRing lr = gf.createLinearRing(coordinates);
         Coordinate pt = lr.getCentroid().getCoordinate();
@@ -3413,7 +3543,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
      * This method draws a polygon and storm track on the Warngen Layer. The
      * arguments involved are a geometry representing the LAT...LON line and the
      * individual elements of the TML line (if provided).
-     * 
+     *
      * @param g
      * @param motdir
      * @param motspd
@@ -3512,8 +3642,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
         Polygon warnPolygon = gf.createPolygon(lr, null);
         state.setWarningPolygon(warnPolygon);
-        state.setWarningArea(getWarningAreaFromPolygon(
-                state.getWarningPolygon(), record));
+        state.setWarningArea(
+                getWarningAreaFromPolygon(state.getWarningPolygon(), record));
         updateWarnedAreas(true);
     }
 
@@ -3521,8 +3651,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             AbstractWarningRecord record) throws VizException {
         setOldWarningPolygon(record);
         state.setWarningPolygon(getPolygon());
-        state.setWarningArea(getWarningAreaFromPolygon(
-                state.getWarningPolygon(), record));
+        state.setWarningArea(
+                getWarningAreaFromPolygon(state.getWarningPolygon(), record));
         updateWarnedAreas(true);
     }
 
@@ -3549,7 +3679,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     /**
      * Determines what the current coordinate for the drag me dot should be if
      * the frame is not on the same frame time the warning was originally issued
-     * 
+     *
      * @param frameTime
      * @param currentFrameTime
      * @param speed
@@ -3592,9 +3722,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return coordinate;
         }
         DataTime[] datatimes = trackUtil.getDataTimes(info);
-        double distance = displayState.speed
-                * trackUtil.timeBetweenDataTimes(datatimes[currentFrame],
-                        datatimes[frameCount - 1]);
+        double distance = displayState.speed * trackUtil.timeBetweenDataTimes(
+                datatimes[currentFrame], datatimes[frameCount - 1]);
         double angle = current ? adjustAngle(displayState.angle + 180)
                 : displayState.angle;
 
@@ -3610,15 +3739,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Coordinate[] cc = null;
         switch (stormTrackState.displayType) {
         case POINT:
-            cc = new Coordinate[] { stormTrackState.futurePoints == null ? stormTrackState.dragMePoint
-                    .getCoordinate() : stormTrackState.futurePoints[0].coord };
+            cc = new Coordinate[] { stormTrackState.futurePoints == null
+                    ? stormTrackState.dragMePoint.getCoordinate()
+                    : stormTrackState.futurePoints[0].coord };
             if ((warningAction == null) || (warningAction == WarningAction.NEW)
                     || (warningAction == WarningAction.CON)
                     || (warningAction == WarningAction.CAN)) {
                 Coordinate coord = new Coordinate(
                         stormTrackState.dragMePoint.getCoordinate());
-                DataTime currentDataTime = new DataTime(SimulatedTime
-                        .getSystemTime().getTime());
+                DataTime currentDataTime = new DataTime(
+                        SimulatedTime.getSystemTime().getTime());
                 if (stormTrackState.compuateCurrentStormCenter(coord,
                         currentDataTime)) {
                     cc = new Coordinate[] { coord };
@@ -3652,7 +3782,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                         && data.getPhen().equals(group.getPhen())
                         && data.getSig().equals(group.getSig())) {
                     configuration.setBullets(group.getBullets());
-                    configuration.setDamInfoBullets(group.getDamInfoBullets());
+                    configuration
+                            .setPresetInfoBullets(group.getPresetInfoBullets());
                     break;
                 }
             }
@@ -3670,7 +3801,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /**
      * Translate a single vertex point
-     * 
+     *
      * @param vertexId
      * @param delta
      */
@@ -3684,8 +3815,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return vertexId;
         }
         int rval = vertexId;
-        Object newArray = Array.newInstance(coords.getClass()
-                .getComponentType(), coords.length);
+        Object newArray = Array.newInstance(
+                coords.getClass().getComponentType(), coords.length);
         System.arraycopy(coords, 0, newArray, 0, coords.length);
         coords = (Coordinate[]) newArray;
         coords[coords.length - 1] = coords[0];
@@ -3699,8 +3830,9 @@ public class WarngenLayer extends AbstractStormTrackResource {
             }
             double[] a = container.translateInverseClick(coords[i]);
             double distance = new Coordinate(a[0], a[1]).distance(vc);
-            if ((distance < 5)
-                    && !(((i == (coords.length - 1)) && (vertexId == 0)) || ((i == 0) && (vertexId == (coords.length - 1))))) {
+            if ((distance < 5) && !(((i == (coords.length - 1))
+                    && (vertexId == 0))
+                    || ((i == 0) && (vertexId == (coords.length - 1))))) {
                 delete = i;
             }
         }
@@ -3717,13 +3849,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
             int ctr = 0;
             if ((delete == 0) || (delete == (coords.length - 1))) {
                 for (int i = 1; i < (coords.length - 1); i++) {
-                    newCoords[ctr++] = coords[i];
+                    newCoords[ctr] = coords[i];
+                    ctr++;
                 }
                 newCoords[newCoords.length - 1] = newCoords[0];
             } else {
                 for (int i = 0; i < (coords.length - 1); i++) {
                     if (i != delete) {
-                        newCoords[ctr++] = coords[i];
+                        newCoords[ctr] = coords[i];
+                        ctr++;
                     }
                 }
                 newCoords[newCoords.length - 1] = newCoords[0];
@@ -3751,12 +3885,11 @@ public class WarngenLayer extends AbstractStormTrackResource {
             boolean intersectFlag = false;
             for (int i = 0; i < ls.length; i++) {
                 for (int j = 0; j < ls.length; j++) {
-                    if ((i != j)
-                            && (ls[i].intersection(ls[j]) != null)
-                            && (ls[i].intersection(ls[j]).equals(
-                                    ls[i].getCoordinate(0)) == false)
-                            && (ls[i].intersection(ls[j]).equals(
-                                    ls[i].getCoordinate(1)) == false)) {
+                    if ((i != j) && (ls[i].intersection(ls[j]) != null)
+                            && (!ls[i].intersection(ls[j])
+                                    .equals(ls[i].getCoordinate(0)))
+                            && (!ls[i].intersection(ls[j])
+                                    .equals(ls[i].getCoordinate(1)))) {
                         intersectFlag = true;
                     }
                 }
@@ -3769,7 +3902,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             }
         } catch (Exception e) {
-
+            // ignore any exceptions
         }
 
         return rval;
@@ -3780,9 +3913,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         AbstractWarningRecord warnRec = cw.getNewestByTracking(data.getEtn(),
                 data.getPhen() + "." + data.getSig());
 
-        if ((warnRec == null)
-                || (GisUtil.equivalent(warnRec.getGeometry(),
-                        state.getWarningPolygon()) == false)) {
+        if ((warnRec == null) || !GisUtil.equivalent(warnRec.getGeometry(),
+                state.getWarningPolygon())) {
             return true;
         }
 
@@ -3792,16 +3924,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
         Geometry warnArea = getWarningAreaFromPolygon(
                 gf.createPolygon(gf.createLinearRing(coords), null), warnRec);
 
-        Set<String> warnAreaPrefixes = new HashSet<String>(
+        Set<String> warnAreaPrefixes = new HashSet<>(
                 Arrays.asList(GeometryUtil.getGID(state.getWarningArea())));
-        Set<String> recordPrefixes = new HashSet<String>(
+        Set<String> recordPrefixes = new HashSet<>(
                 Arrays.asList(GeometryUtil.getGID(warnArea)));
 
-        if (warnAreaPrefixes.equals(recordPrefixes) == false) {
-            return true;
-        }
-
-        return false;
+        return !warnAreaPrefixes.equals(recordPrefixes);
     }
 
     public boolean isModifiedVertexNeedsToBeUpdated() {
@@ -3815,7 +3943,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /**
      * Translate (move) a polygon
-     * 
+     *
      * @param delta
      */
     public void translatePolygon(Coordinate delta) {
@@ -3823,8 +3951,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
         if (!coords[0].equals(coords[coords.length - 1])) {
             int length = Array.getLength(coords);
             int newLength = length + 1;
-            Object newArray = Array.newInstance(coords.getClass()
-                    .getComponentType(), newLength);
+            Object newArray = Array.newInstance(
+                    coords.getClass().getComponentType(), newLength);
             System.arraycopy(coords, 0, newArray, 0, length);
             coords = (Coordinate[]) newArray;
             coords[coords.length - 1] = coords[0];
@@ -3842,13 +3970,6 @@ public class WarngenLayer extends AbstractStormTrackResource {
         state.setWarningPolygon(gf.createPolygon(ring, null));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.cmenu.IRightClickCapableResource#addContextMenuItems
-     * (org.eclipse.jface.action.IMenuManager)
-     */
     @Override
     public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
         super.addContextMenuItems(menuManager, x, y);
@@ -3879,7 +4000,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     /**
-     * 
+     *
      * @param coord
      */
     public void addOrRemoveCounty(Coordinate coord) {
@@ -3918,25 +4039,28 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     } else {
                         // add county
                         String featureFips = getFips(f);
-                        Collection<GeospatialData> dataWithFips = getDataWithFips(featureFips);
+                        Collection<GeospatialData> dataWithFips = getDataWithFips(
+                                featureFips);
                         if (oldWarningArea != null) {
                             // for a CON, prevents extra areas to be added
-                            Set<String> fipsIds = getAllFipsInArea(oldWarningArea);
-                            if ((fipsIds.contains(featureFips) == false)
-                                    || !((oldWarningPolygon.contains(point) == true) || isOldAreaOutsidePolygon(f))) {
+                            Set<String> fipsIds = getAllFipsInArea(
+                                    oldWarningArea);
+                            if (!fipsIds.contains(featureFips)
+                                    || !(oldWarningPolygon.contains(point)
+                                            || isOldAreaOutsidePolygon(f))) {
                                 break;
                             }
                         }
 
                         // Get intersecting parts for each geom with
                         // matching fips
-                        List<Geometry> fipsParts = new ArrayList<Geometry>(
+                        List<Geometry> fipsParts = new ArrayList<>(
                                 dataWithFips.size());
                         for (GeospatialData gd : dataWithFips) {
                             Geometry g = gd.geometry;
                             if (oldWarningArea != null) {
-                                g = GeometryUtil
-                                        .intersection(oldWarningArea, g);
+                                g = GeometryUtil.intersection(oldWarningArea,
+                                        g);
                             }
                             fipsParts.add(g);
                         }
@@ -3960,8 +4084,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             }
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, "Error toggling county: "
-                    + e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error toggling county: " + e.getLocalizedMessage(), e);
         }
     }
 
@@ -3987,18 +4111,19 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     Arrays.asList(gid), warningArea);
             boolean passed = filterArea(f, warningAreaForFeature, false);
             useFilteredArea = useFilteredArea || passed;
-            if (passed
-                    || filterAreaSecondChance(f, warningAreaForFeature, false)) {
+            if (passed || filterAreaSecondChance(f, warningAreaForFeature,
+                    false)) {
                 newHatchedArea = union(newHatchedArea, warningAreaForFeature);
             }
             newUnfilteredArea = union(newUnfilteredArea, warningAreaForFeature);
         }
 
-        newHatchedArea = useFilteredArea && (newHatchedArea != null) ? newHatchedArea
-                : useFallback ? newUnfilteredArea : null;
+        newHatchedArea = useFilteredArea && (newHatchedArea != null)
+                ? newHatchedArea : useFallback ? newUnfilteredArea : null;
 
-        return newHatchedArea != null ? newHatchedArea : new GeometryFactory()
-                .createGeometryCollection(new Geometry[0]);
+        return newHatchedArea != null ? newHatchedArea
+                : new GeometryFactory()
+                        .createGeometryCollection(new Geometry[0]);
     }
 
     private String getFips(GeospatialData data) {
@@ -4019,7 +4144,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     private Collection<GeospatialData> getDataWithFips(String fips) {
-        List<GeospatialData> data = new ArrayList<GeospatialData>();
+        List<GeospatialData> data = new ArrayList<>();
         for (GeospatialData d : getActiveFeatures()) {
             if (fips.equals(getFips(d))) {
                 data.add(d);
@@ -4033,7 +4158,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     private Geometry removeCounty(Geometry warningArea, String fipsToRemove) {
-        Set<String> set = new HashSet<String>();
+        Set<String> set = new HashSet<>();
         set.add(fipsToRemove);
         return removeCounties(warningArea, set);
     }
@@ -4043,17 +4168,16 @@ public class WarngenLayer extends AbstractStormTrackResource {
         if ((fipsToRemove == null) || fipsToRemove.isEmpty()) {
             return warningArea;
         }
-        List<Geometry> toKeep = new ArrayList<Geometry>(
-                warningArea.getNumGeometries());
+        List<Geometry> toKeep = new ArrayList<>(warningArea.getNumGeometries());
         for (int n = 0; n < warningArea.getNumGeometries(); ++n) {
             Geometry area = warningArea.getGeometryN(n);
             String areaFips = getFips(area);
-            if (fipsToRemove.contains(areaFips) == false) {
+            if (!fipsToRemove.contains(areaFips)) {
                 toKeep.add(area);
             }
         }
-        return warningArea.getFactory().createGeometryCollection(
-                toKeep.toArray(new Geometry[0]));
+        return warningArea.getFactory()
+                .createGeometryCollection(toKeep.toArray(new Geometry[0]));
     }
 
     private void createAreaAndCentroidMaps() {
@@ -4074,12 +4198,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
     private void populateStrings() {
         state.warningTextLocations.clear();
         Geometry warningArea = state.getWarningArea();
-        Set<String> prefixes = new HashSet<String>(Arrays.asList(GeometryUtil
-                .getGID(warningArea)));
+        Set<String> prefixes = new HashSet<>(
+                Arrays.asList(GeometryUtil.getGID(warningArea)));
 
         prefixes = removeDuplicateGid(prefixes);
 
-        Set<Integer> indexes = new HashSet<Integer>();
+        Set<Integer> indexes = new HashSet<>();
         String prefixM, prefixN;
         double areaM, areaN, maxArea = -1.0;
         int geomIndex = -1;
@@ -4133,8 +4257,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             // Use the controid of the hatched area in a county
             centroid = warningAreaM.getCentroid();
             populatePt = new Coordinate(centroid.getX(), centroid.getY());
-            populatePtGeom = PolygonUtil.createPolygonByPoints(gf,
-                    populatePt, shift);
+            populatePtGeom = PolygonUtil.createPolygonByPoints(gf, populatePt,
+                    shift);
             for (GeospatialData gd : getActiveFeatures()) {
                 geomN = gd.getGeometry();
                 CountyUserData cud = (CountyUserData) geomN.getUserData();
@@ -4175,13 +4299,13 @@ public class WarngenLayer extends AbstractStormTrackResource {
             AbstractWarningRecord featuredWarning = null;
             if (state.followupData != null) {
                 f = state.followupData;
-                featuredWarning = CurrentWarnings.getInstance(
-                        getLocalizedSite()).getNewestByTracking(f.getEtn(),
-                        f.getPhen() + "." + f.getSig());
+                featuredWarning = CurrentWarnings
+                        .getInstance(getLocalizedSite()).getNewestByTracking(
+                                f.getEtn(), f.getPhen() + "." + f.getSig());
             }
 
             FollowupData prev = null;
-            double minDistance = 61000;
+            double minDistance = 61_000;
             String closestItem = null;
 
             for (String item : dialog.updateListCbo.getItems()) {
@@ -4198,13 +4322,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
                     continue;
                 }
 
-                AbstractWarningRecord w = CurrentWarnings.getInstance(
-                        getLocalizedSite()).getNewestByTracking(s.getEtn(),
-                        s.getPhen() + "." + s.getSig());
+                AbstractWarningRecord w = CurrentWarnings
+                        .getInstance(getLocalizedSite()).getNewestByTracking(
+                                s.getEtn(), s.getPhen() + "." + s.getSig());
                 GeometryFactory gf = new GeometryFactory();
-                if ((featuredWarning != null)
-                        && featuredWarning.getGeometry().contains(
-                                gf.createPoint(c))) {
+                if ((featuredWarning != null) && featuredWarning.getGeometry()
+                        .contains(gf.createPoint(c))) {
                     if (isPolygonLocked()) {
                         // if a product is already featured,
                         // clicking only outside the polygon is allowed
@@ -4237,8 +4360,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 prev = s;
             }
             if (closestItem != null) {
-                dialog.updateListCbo.select(dialog.updateListCbo
-                        .indexOf(closestItem));
+                dialog.updateListCbo
+                        .select(dialog.updateListCbo.indexOf(closestItem));
                 // method takes about 2 seconds
                 dialog.updateListSelected();
                 issueRefresh();
@@ -4278,7 +4401,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 dialog.getDisplay().asyncExec(new Runnable() {
                     @Override
                     public void run() {
-                        if ((dlg.isDisposed() == false)
+                        if (!dlg.isDisposed()
                                 && (dlg.getShell().isVisible() != editable)) {
                             dlg.showDialog(editable);
                         }
@@ -4291,7 +4414,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /**
      * Converts the lat lon geometry to screen space
-     * 
+     *
      * @param geom
      * @return
      */
@@ -4301,7 +4424,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /**
      * Converts the screen geometry to a lat lon projection
-     * 
+     *
      * @param geom
      * @return
      */
@@ -4311,30 +4434,31 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /**
      * Converts the local geometry to a lat lon projection
-     * 
+     *
      * @param <T>
      * @param geom
      * @return
      */
     @SuppressWarnings("unchecked")
-    static public <T> T convertGeom(T geom, MathTransform transform) {
+    public static <T> T convertGeom(T geom, MathTransform transform) {
         if (geom == null) {
             return null;
         }
         try {
             if (geom instanceof Coordinate) {
-                return (T) JTS.transform(
-                        new GeometryFactory().createPoint((Coordinate) geom),
-                        transform).getCoordinate();
+                return (T) JTS
+                        .transform(new GeometryFactory()
+                                .createPoint((Coordinate) geom), transform)
+                        .getCoordinate();
             } else if (geom instanceof Geometry) {
                 return (T) JTS.transform((Geometry) geom, transform);
             } else {
-                throw new RuntimeException("Invalid type passed in: "
-                        + geom.getClass());
+                throw new RuntimeException(
+                        "Invalid type passed in: " + geom.getClass());
             }
         } catch (Exception e) {
-            throw new RuntimeException("Error transforming object, "
-                    + e.getLocalizedMessage(), e);
+            throw new RuntimeException(
+                    "Error transforming object, " + e.getLocalizedMessage(), e);
         }
     }
 
@@ -4356,8 +4480,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
             return prefixes;
         }
 
-        Map<String, Double> fipsSize = new HashMap<String, Double>();
-        Map<String, String> namePrefix = new HashMap<String, String>();
+        Map<String, Double> fipsSize = new HashMap<>();
+        Map<String, String> namePrefix = new HashMap<>();
         Iterator<String> iter = prefixes.iterator();
         String fips = null;
         String prefix = null;
@@ -4382,7 +4506,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             }
         }
-        return new HashSet<String>(namePrefix.values());
+        return new HashSet<>(namePrefix.values());
     }
 
     public void setUniqueFip() {
@@ -4400,7 +4524,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
     /**
      * Like buildArea, but does not take inclusion filters into account. Also
      * returns a Geometry in lat/lon space.
-     * 
+     *
      * @param inputArea
      * @return
      */
@@ -4425,6 +4549,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
                 }
             } catch (RuntimeException e) {
                 continue;
+                // TODO: do we still need this now that we are on JTS 1.13
                 // This is a workaround for JTS 1.7.1
             }
 
@@ -4438,7 +4563,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
 
     /**
      * Split the hatched area into four quadrants, and return the largest one.
-     * 
+     *
      * @param gf
      *            - factory to use to generate polygon
      * @param geom
@@ -4448,8 +4573,8 @@ public class WarngenLayer extends AbstractStormTrackResource {
      */
     private Geometry findLargestQuadrant(GeometryFactory gf, Geometry geom) {
         Geometry envelope = geom.getEnvelope();
-        Coordinate centroidCoord = GisUtil.d2dCoordinate(envelope.getCentroid()
-                .getCoordinate());
+        Coordinate centroidCoord = GisUtil
+                .d2dCoordinate(envelope.getCentroid().getCoordinate());
         Coordinate[] envCoords = envelope.getCoordinates();
         int size = 4;
         Geometry quadrants[] = new Geometry[size];
@@ -4460,15 +4585,15 @@ public class WarngenLayer extends AbstractStormTrackResource {
             quadrants[i] = PolygonUtil.createPolygonByPoints(gf, envCoords[i],
                     centroidCoord);
             try {
-                intersections[i] = GeometryUtil
-                        .intersection(quadrants[i], geom);
+                intersections[i] = GeometryUtil.intersection(quadrants[i],
+                        geom);
                 area = intersections[i].getArea();
                 if (area > largestArea) {
                     largestArea = area;
                     index = i;
                 }
             } catch (Exception e) {
-                ;
+                // ignore any exceptions
             }
         }
         if ((null != intersections[index]) && intersections[index].isValid()) {
@@ -4479,12 +4604,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     public void reset(String trackType) {
-        if (trackType.equals("oneStorm")) {
+        if ("oneStorm".equals(trackType)) {
             getStormTrackState().justSwitchedToOS = true;
             getStormTrackState().justSwitchedToLOS = false;
             StormTrackState.trackType = "oneStorm";
             getStormTrackState().angle = StormTrackState.oneStormAngle;
-        } else if (trackType.equals("lineOfStorms")) {
+        } else if ("lineOfStorms".equals(trackType)) {
             getStormTrackState().justSwitchedToOS = false;
             getStormTrackState().justSwitchedToLOS = true;
             StormTrackState.trackType = "lineOfStorms";
@@ -4496,12 +4621,12 @@ public class WarngenLayer extends AbstractStormTrackResource {
     }
 
     private boolean isCwaStretch() {
-        return dialog != null && dialog.isCwaStretchDamBulletSelected() &&
-                ! isBoxEditable();
+        return dialog != null && dialog.isCwaStretchPresetBulletSelected()
+                && !isBoxEditable();
     }
 
-    private static boolean warngenDeveloperMode =
-            Boolean.getBoolean("com.raytheon.viz.warngen.developerMode");
+    private static boolean warngenDeveloperMode = Boolean
+            .getBoolean("com.raytheon.viz.warngen.developerMode");
 
     public static boolean isWarngenDeveloperMode() {
         return warngenDeveloperMode;
@@ -4523,17 +4648,17 @@ public class WarngenLayer extends AbstractStormTrackResource {
         VizApp.runAsync(new Runnable() {
             @Override
             public void run() {
-                if (referenceOptions == null
-                        || (referenceOptions.isDynamicArea() &&
-                                extensionAreaManager.options.isDynamicArea())) {
+                if (referenceOptions == null || (referenceOptions
+                        .isDynamicArea()
+                        && extensionAreaManager.options.isDynamicArea())) {
                     getObservableExtensionAreaVis().setValue(extensionAreaVis);
                 }
             }
         });
     }
 
-    protected class ExtensionAreaLayerAddRemoveListener implements AddListener,
-            RemoveListener {
+    protected class ExtensionAreaLayerAddRemoveListener
+            implements AddListener, RemoveListener {
         @Override
         public void notifyRemove(ResourcePair rp) throws VizException {
             realizeExtensionAreaVisibility();

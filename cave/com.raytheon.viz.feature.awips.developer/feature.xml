@@ -94,6 +94,10 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.viz.hydro.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.viz.d2d.xy.feature"
          version="0.0.0"/>
 
@@ -115,10 +119,6 @@
 
    <includes
          id="com.raytheon.uf.viz.ncep.perspective.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.nwsauth.feature"
          version="0.0.0"/>
 
    <includes
@@ -158,7 +158,23 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.viz.registry.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.datadelivery.feature"
+         version="0.0.0"/>
+
+   <includes
          id="edu.wisc.ssec.cimss.viz.convectprob.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.d2d.damagepath.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.gsd.viz.hazards.feature"
          version="0.0.0"/>
 
    <includes
@@ -170,10 +186,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.grib.feature"
-         version="0.0.0"/>
-
-   <includes
          id="gov.noaa.gsd.viz.ensemble.feature"
          version="0.0.0"/>
 
@@ -182,19 +194,11 @@
          version="0.0.0"/>
 
    <includes
-         id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
+         id="gov.noaa.nws.mdl.viz.awipsref.feature"
          version="0.0.0"/>
 
    <includes
-         id="gov.noaa.nws.mdl.viz.awipsref.feature"
-         version="0.0.0"/>
-<!--
-   <includes
          id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"
-         version="0.0.0"/>
--->
-   <includes
-         id="com.raytheon.uf.viz.aviation.advisory.feature"
          version="0.0.0"/>
 
    <includes
@@ -203,6 +207,43 @@
 
    <includes
          id="com.raytheon.viz.gfe.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.bmh.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.server.edex.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.ocp.viz.firewx.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.warnings.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.vtec.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.ocp.viz.psh.feature"
+         version="0.0.0"/>
+   
+
+   <includes
+         id="gov.noaa.nws.ocp.viz.climate.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.ocp.viz.firewx.feature"
          version="0.0.0"/>
 
    <requires>

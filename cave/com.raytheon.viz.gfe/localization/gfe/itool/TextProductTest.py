@@ -183,12 +183,15 @@
 ##          At some point, we should make sure they run in PRACTICE mode as well
 ##             (for NGIT testing)
 
+##
+# This is a base file that is not intended to be overridden.
+##
 
 import sys, time, os, types, copy, inspect, errno
 import LogStream
 import AbsTime, TimeRange
 import numpy, cPickle
-import threading
+
 
 OUTPUT_DIR = "/tmp/products/autoTest"
 
@@ -283,6 +286,8 @@ from com.raytheon.viz.gfe.smarttool import TextFileUtil
 from com.raytheon.viz.gfe.dialogs.formatterlauncher import ConfigData
 ProductStateEnum = ConfigData.ProductStateEnum
 from com.raytheon.uf.common.activetable import ActiveTableMode
+from com.raytheon.uf.viz.core.notification.jobs import NotificationManagerJob
+from com.raytheon.viz.gfe.textformatter.test import AutoTestVTECNotificationListener
 
 class ProcessInfo:
     def __init__(self, entry, name, pid, script):
@@ -298,48 +303,6 @@ class ProcessInfo:
         return self.__pid
     def script(self):
         return self.__script
-    
-import dynamicserialize
-
-class NotifyTopicListener(threading.Thread):
-    
-    def __init__(self, hostname="localhost", portNumber=5672, callBack=None):
-        self.hostname = hostname
-        self.portNumber = portNumber
-        self.callBack = callBack
-        self.topicName = 'edex.alerts.vtec'
-        self.qs = None        
-        threading.Thread.__init__(self)
-            
-    def run(self):        
-        from awips import QpidSubscriber
-        
-        if self.qs is not None:
-            return
-         
-        self.qs = QpidSubscriber.QpidSubscriber(self.hostname, self.portNumber)        
-        self.qs.topicSubscribe(self.topicName, self.receivedMessage) 
-    
-    def receivedMessage(self, msg):
-        try:
-            obj = dynamicserialize.deserialize(msg)
-            if type(obj) is list:
-                msgList = obj
-            else:
-                msgList = [obj]
-                
-            for notification in msgList:
-                if self.callBack is not None:
-                    self.callBack(notification)
-                    
-        except:
-            import traceback
-            traceback.print_exc()
-
-    def stop(self):
-        if self.qs is not None:
-            self.qs.close()
-            self.qs = None     
 
 
 class ITool (ISmartScript.ISmartScript):
@@ -398,19 +361,8 @@ class ITool (ISmartScript.ISmartScript):
             if success is None:
                 return
 
-        # Start NotifyTopicListener
-        import re
-        from com.raytheon.uf.viz.core import VizApp
-        jmsConnectionString = VizApp.getJmsConnectionString()
-        m = re.match(r'.*tcp://([^:]+):(\d+)\?.*', jmsConnectionString)
-        if m is not None:
-            host = m.group(1)
-            port = int(m.group(2))
-        else:
-            raise Exception("Unable to parse jmsConnectionString: \"%s\"" % jmsConnectionString)
-            
-        self._notifyListener = NotifyTopicListener(hostname=host, portNumber=port, callBack=self.__processNotification)
-        self._notifyListener.start()
+        self.__listener =  AutoTestVTECNotificationListener()
+        NotificationManagerJob.addObserver('edex.alerts.vtec', self.__listener)
 
         # Run the test scripts
         for index in range(len(self._testScript)):
@@ -419,7 +371,7 @@ class ITool (ISmartScript.ISmartScript):
                 break
             time.sleep(2) # avoid some race conditions with fileChanges
 
-        self._notifyListener.stop()
+        NotificationManagerJob.removeObserver('edex.alerts.vtec', self.__listener)
         self._finished()
 
         
@@ -902,7 +854,7 @@ class ITool (ISmartScript.ISmartScript):
 
                 # wait until table has been modified or 5 seconds
                 t1 = time.time();
-                while not self.__vtecDecoderFinished:
+                while not self.__listener.isReceivedNotification():
                     time.sleep(0.1)
                     if time.time() - t1 > 20:
                         self.output("Vtec Decoder timed out!", self._outFile)
@@ -1091,20 +1043,11 @@ class ITool (ISmartScript.ISmartScript):
         commandString = "VTECDecoder -f " + file.name + " -d -g -a practice -h " + url.hostname
         if drtString is not None:
             commandString += " -z " + drtString
-        
-        # start notify listener to listen for vtec change 
-        self.__vtecDecoderFinished = False
-        self.__expectedPil = fcst.split("\n",2)[1]
+
+        expectedPil = fcst.split("\n",2)[1]
+        self.__listener.resetListener(expectedPil)
         os.system(commandString)
-    
-    def __processNotification(self, notification):
-        from dynamicserialize.dstypes.com.raytheon.uf.common.activetable import VTECTableChangeNotification
-        if type(notification) is VTECTableChangeNotification and str(notification.getMode()) == 'PRACTICE':
-            for change in notification.getChanges():
-                pil = change.getPil() + change.getXxxid()
-                if pil == self.__expectedPil:
-                    self.__vtecDecoderFinished = True
-                    break
+
 
 def main():
     os.environ["TZ"] = 'EST5EDT'

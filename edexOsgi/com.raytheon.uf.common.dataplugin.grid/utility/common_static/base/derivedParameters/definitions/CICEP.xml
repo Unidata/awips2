@@ -18,11 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="CICEP" name="Categorical Ice Pellets" unit="">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter abbreviation="CICEP" name="Categorical Ice Pellets"
+    unit="">
     <Method name="Alias">
-        <Field abbreviation="CICEP6hr"/>
+        <Field abbreviation="CICEP6hr" />
     </Method>
     <Method name="Alias">
-        <Field abbreviation="CICEP12hr"/>
+        <Field abbreviation="CICEP12hr" />
     </Method>
 </DerivedParameter>

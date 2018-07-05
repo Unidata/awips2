@@ -30,6 +30,7 @@
 #    ??/??/??                      wldougher      Initial Creation.
 #    02/22/13        1447          dgilling       Re-ported to better match
 #                                                 requestAT/sendAT.
+#    06/09/17        6312          dgilling       Fix exception handling.
 # 
 #
 
@@ -225,16 +226,16 @@ def merge(serverHost, serverPort, site, removeRemote, remoteATName,
       remoteATName, atName, inputIsGZIP, drt, makeBackups, xmlIncoming, 
       fromIngestAT)
     decoder = None
-    return
 
 def main():
     args = process_command_line()
     try:
         merge(**args)
-        sys.exit(0)
     except:
         log.exception("Caught Exception: ")
         sys.exit(1)
+
+
 
 if __name__ == "__main__":
     main()

@@ -18,29 +18,33 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!-- SPC method for models that only have surface T available.  -->
-<DerivedParameter name="Snow Ratio - SPCsurface" abbreviation="snoRatSPCsurface" xmlns:ns2="group">
+<DerivedParameter name="Snow Ratio - SPCsurface" abbreviation="snoRatSPCsurface">
     <Method levels="200MB" name="Difference">
-        <Field level="Surface" abbreviation="T"/>
-        <ConstantField value="273.15"/>
-    </Method>  
-    <Method levels="250MB" name="Poly">      
-        <ConstantField value="6"/>
-        <Field level="200MB" abbreviation="snoRatSPCsurface"/>
-        <ConstantField value="1"/>
-        <ConstantField value="100"/>
-        <ConstantField value="1"/>
-        <ConstantField value="1"/>
-    </Method>      
-    <Method levels="300MB" name="Divide">      
-        <ConstantField value="1000"/>
-        <Field level="250MB" abbreviation="snoRatSPCsurface"/>
-     </Method>
-     <Method levels="Surface" name="Test">      
-        <Field level="300MB" abbreviation="snoRatSPCsurface"/>
-        <ConstantField value="-1"/>
-        <ConstantField value="0."/>
-        <ConstantField value="40.0"/>
-        <ConstantField value="40.0"/>
-    </Method>       
+        <Field level="Surface" abbreviation="T" />
+        <ConstantField value="273.15" />
+    </Method>
+    <Method levels="250MB" name="Poly">
+        <ConstantField value="6" />
+        <Field level="200MB" abbreviation="snoRatSPCsurface" />
+        <ConstantField value="1" />
+        <ConstantField value="100" />
+        <ConstantField value="1" />
+        <ConstantField value="1" />
+    </Method>
+    <Method levels="300MB" name="Divide">
+        <ConstantField value="1000" />
+        <Field level="250MB" abbreviation="snoRatSPCsurface" />
+    </Method>
+    <Method levels="Surface" name="Test">
+        <Field level="300MB" abbreviation="snoRatSPCsurface" />
+        <ConstantField value="-1" />
+        <ConstantField value="0." />
+        <ConstantField value="40.0" />
+        <ConstantField value="40.0" />
+    </Method>
 </DerivedParameter>

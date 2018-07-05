@@ -28,17 +28,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import jep.JepException;
-import net.sf.cglib.beans.BeanMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.exception.DecoderException;
-import com.raytheon.edex.plugin.AbstractDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.time.DataTime;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
+
+import jep.JepException;
+import net.sf.cglib.beans.BeanMap;
 
 /**
  * Generic decoder for decoding in python
@@ -51,15 +53,19 @@ import com.vividsolutions.jts.io.WKTReader;
  * Nov 24, 2008           chammack    Camel Refactor
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Oct 03, 2013  2402     bsteffen    Make PythonDecoder more extendable.
+ * Nov 21, 2016  5959     njensen     Cleanup
+ * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
 
-public class PythonDecoder extends AbstractDecoder {
+public class PythonDecoder {
+    
+    protected static final Logger logger = LoggerFactory
+            .getLogger(PythonDecoder.class);
 
-    private static Map<Long, PythonScript> cachedInterpreters = new HashMap<Long, PythonScript>();
+    private static Map<Long, PythonScript> cachedInterpreters = new HashMap<>();
 
     private String recordClassname;
 
@@ -80,15 +86,14 @@ public class PythonDecoder extends AbstractDecoder {
     }
 
     public PluginDataObject[] decode(File file) throws Exception {
-        Map<String, Object> argMap = new HashMap<String, Object>(4);
+        Map<String, Object> argMap = new HashMap<>(4);
         argMap.put("filePath", file.getPath());
         return decode(argMap);
     }
 
     public PluginDataObject[] decode(Map<String, Object> args) throws Exception {
 
-        List<PluginDataObject> decodedObjects = new ArrayList<PluginDataObject>(
-                0);
+        List<PluginDataObject> decodedObjects = new ArrayList<>(0);
 
         PythonScript py = null;
         long id = Thread.currentThread().getId();
@@ -135,19 +140,19 @@ public class PythonDecoder extends AbstractDecoder {
             throws Exception {
         List<PluginDataObject> decodedObjects = null;
         if ((result == null) || result.isEmpty()) {
-            decodedObjects = new ArrayList<PluginDataObject>(0);
+            decodedObjects = new ArrayList<>(0);
         } else {
             if (result.get(0) instanceof Map) {
-                decodedObjects = new ArrayList<PluginDataObject>(result.size());
+                decodedObjects = new ArrayList<>(result.size());
                 if (this.recordClass == null) {
                     this.recordClass = Class.forName(this.recordClassname);
                 }
 
-                ArrayList<HashMap<String, Object>> resultList = (ArrayList<HashMap<String, Object>>) result;
+                List<Map<String, Object>> resultList = (List<Map<String, Object>>) result;
                 PluginDataObject record = (PluginDataObject) recordClass
                         .newInstance();
                 BeanMap bm = BeanMap.create(record);
-                for (HashMap<String, Object> map : resultList) {
+                for (Map<String, Object> map : resultList) {
                     record = (PluginDataObject) recordClass.newInstance();
                     bm.setBean(record);
                     try {

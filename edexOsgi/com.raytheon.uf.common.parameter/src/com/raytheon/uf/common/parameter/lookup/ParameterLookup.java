@@ -24,19 +24,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
-import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationFile;
-import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.parameter.Parameter;
-import com.raytheon.uf.common.parameter.ParameterList;
+import com.raytheon.uf.common.parameter.localization.ParameterLocalizationLookup;
+import com.raytheon.uf.common.parameter.localization.ParameterLocalizationLookup.ParameterLocalizationListener;
 import com.raytheon.uf.common.parameter.request.GetParameterRequest;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -50,16 +44,15 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 12, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -------------------------------------------
+ * Mar 12, 2012           bsteffen  Initial creation
+ * Oct 04, 2016  5890     bsteffen  Extract localization lookup to a new class
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-
 public class ParameterLookup {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ParameterLookup.class);
@@ -70,8 +63,12 @@ public class ParameterLookup {
         return instance;
     }
 
-    // Maps abbreviation to parameter, this is a mirror of what is in the
-    // database.
+    private ParameterLocalizationLookup localizationParameters = new ParameterLocalizationLookup();
+
+    /**
+     * Maps abbreviation to parameter, this is a mirror of what is in the
+     * database.
+     */
     private Map<String, Parameter> abbrevToParam;
 
     private ParameterLookup() {
@@ -85,62 +82,45 @@ public class ParameterLookup {
                 abbrevToParam.put(param.getAbbreviation(), param);
             }
         } catch (Exception e) {
-            // do not rethrow, the lookup is not broken at this point so if the
-            // problems persist then more exceptions will come from the actual
-            // lookup methods themselves.
+            /*
+             * do not rethrow, the lookup is not broken at this point so if the
+             * problems persist then more exceptions will come from the actual
+             * lookup methods themselves.
+             */
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred retrieving parameters from server.", e);
         }
-        Unmarshaller unmarshaller = null;
-        try {
-            JAXBContext context = JAXBContext.newInstance(ParameterList.class);
-            unmarshaller = context.createUnmarshaller();
-        } catch (JAXBException e) {
-            statusHandler
-                    .error("Error creating Context for parameter defintions, no parameter defintions will be used.",
-                            e);
-        }
-        if (unmarshaller != null) {
-            IPathManager pathMgr = PathManagerFactory.getPathManager();
+        localizationParameters.addListener(new ParameterLocalizationListener() {
 
-            LocalizationFile[] files = pathMgr.listStaticFiles("parameter"
-                    + IPathManager.SEPARATOR + "definition",
-                    new String[] { ".xml" }, true, true);
-
-            for (LocalizationFile file : files) {
-                if (file == null || !file.exists()
-                        || file.getFile().length() < 0) {
-                    continue;
-                }
-                Object obj = null;
-                try {
-                    obj = unmarshaller.unmarshal(file.getFile());
-                } catch (JAXBException e) {
-                    statusHandler.error("Error reading parameter defintions: "
-                            + file.getName() + " has been ignored.", e);
-                    continue;
-                }
-                if (obj instanceof ParameterList) {
-                    ParameterList list = (ParameterList) obj;
-                    if (list.getParameters() != null) {
-                        for (Parameter p : list.getParameters()) {
-                            getParameter(p, true);
-                        }
-                    }
-                } else {
-                    statusHandler.error("Error reading parameter definitions: "
-                            + file.getName() + " was a "
-                            + obj.getClass().getSimpleName()
-                            + " but was expecting "
-                            + ParameterList.class.getSimpleName());
-                }
+            @Override
+            public void parametersChanged() {
+                refreshParameterNames();
             }
-        }
+        });
+        refreshParameterNames();
     }
 
     private void initializeMaps() {
         abbrevToParam = Collections
                 .synchronizedMap(new HashMap<String, Parameter>());
+    }
+
+    /**
+     * Remove any parameters from the cache if the name does not match the name
+     * in localization. This assumes that the parameter name in the database may
+     * be changed if it doesn't match localization. This class does not actually
+     * cause the database to change. The parameter will be reloaded from the
+     * database next time it is needed.
+     */
+    private void refreshParameterNames() {
+        for (Parameter parameter : localizationParameters.getAllParameters()) {
+            Parameter cachedParameter = abbrevToParam
+                    .get(parameter.getAbbreviation());
+            if (cachedParameter != null
+                    && !cachedParameter.getName().equals(parameter.getName())) {
+                abbrevToParam.remove(parameter.getAbbreviation());
+            }
+        }
     }
 
     public Parameter getParameter(String abbreviation)
@@ -149,7 +129,7 @@ public class ParameterLookup {
         if (result != null) {
             return result;
         }
-        HashMap<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
+        Map<String, RequestConstraint> constraints = new HashMap<>();
         constraints.put("abbreviation", new RequestConstraint(abbreviation));
         DbQueryRequest query = new DbQueryRequest();
         query.setConstraints(constraints);
@@ -183,7 +163,7 @@ public class ParameterLookup {
             throws ParameterLookupException {
         RequestConstraint abbreviationConstraint = new RequestConstraint(null,
                 ConstraintType.IN);
-        Map<String, Parameter> result = new HashMap<String, Parameter>(
+        Map<String, Parameter> result = new HashMap<>(
                 abbreviations.size());
         for (String abbreviation : abbreviations) {
             Parameter param = abbrevToParam.get(abbreviation);
@@ -196,7 +176,7 @@ public class ParameterLookup {
             // everything was a cache hit.
             return result;
         }
-        HashMap<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>();
+        Map<String, RequestConstraint> constraints = new HashMap<>();
         constraints.put("abbreviation", abbreviationConstraint);
         DbQueryRequest query = new DbQueryRequest();
         query.setConstraints(constraints);

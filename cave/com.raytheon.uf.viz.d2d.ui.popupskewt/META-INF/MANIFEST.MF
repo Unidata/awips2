@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.ui.popupskewt;bundle-version="1.0.0",
  com.raytheon.viz.satellite;bundle-version="1.12.1174",
  com.raytheon.uf.viz.npp.viirs;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.viz.core
 Bundle-ClassPath: com.raytheon.uf.viz.d2d.ui.popupskewt.jar

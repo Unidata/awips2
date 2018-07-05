@@ -1,19 +1,24 @@
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
 <!-- Severe Thunderstorm Warning configuration -->
-<!-- MODIFIED 
+<!-- MODIFIED
      JAMIE FREDERICK WFO TSA 2-24-2011
      EVAN BOOKBINDER WFO EAX 3-23-2011 Initial re-write
                              4-13-2011 Merge in OB11.4 Coding Changes
                              9-17-2011 Merge in OB11.8.0-8 NEW XML SYNTAX CHANGES
      Mike Dangelo    WFO CTP 9-22-2011 to add in remarks and lines which will allow Zone-based products (Alaska TIM)
      Phil Kurimski   WFO DTX 2-28-2012 to fix parse string issues
-     Qinglu Lin              04-04-2012 DR 14691. Added <feAreaField> tag. 
-     Evan Bookbinder         09-11-2012 Added settings for locations shapefile 
-                                        Create new areaSource objects    
+     Qinglu Lin              04-04-2012 DR 14691. Added <feAreaField> tag.
+     Evan Bookbinder         09-11-2012 Added settings for locations shapefile
+                                        Create new areaSource objects
      Mike Dangelo            2-4-2013 Added commented bullet for METS DETECTED
      Phil Kurimski           09-16-2013 Fixed some spelling errors
      Phil Kurimski           09-19-2013 added geospatialConfig.xml
      Evan Bookbinder         09-05-2014 Fixed law enf CTA parse string
-     Evan Bookbinder         06-15-2015 Fixed incorrect softball/grapefruit hail sizes     
+     Evan Bookbinder         06-15-2015 Fixed incorrect softball/grapefruit hail sizes
 -->
 <warngenConfig>
 
@@ -41,7 +46,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <map>County Names</map>
   <map>County Warning Areas</map>
   </maps>
-  
+
  <!-- Followups: VTEC actions of allowable followups when this template is selected -->
  <followups>
   <followup>NEW</followup>
@@ -50,18 +55,18 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 
  <!-- Product ID: nnn id of the product --> 
  <productId>SVR</productId>
-  
+
  <!-- Phensigs: The list of phenomena and significance combinations that this template applies to -->
  <phensigs>
    <phensig>SV.W</phensig>
  </phensigs>
- 
+
  <!-- Enables/disables user from selecting the Restart button the GUI -->
  <enableRestart>true</enableRestart>
 
   <!-- Enable/disables the system to lock text based on various patterns -->
  <autoLockText>true</autoLockText>
- 
+
  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
  	included with the warning product include TO.A and/or SV.A, 
  	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
@@ -83,7 +88,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <duration>75</duration>
   <duration>90</duration>
  </durations>
- 
+
  <!-- bullets: User specified text generation options 
           - bulletName: an id that is passed to the template when a bullet
                       is selected. This should be unique
@@ -153,8 +158,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="COR" phen="SV" sig="W">
  <bullets>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
-  <!-- <bullet bulletName="meteorologists" bulletText="NWS Meteorologists detected" bulletGroup="warnBasis" bulletDefault="true" parseString="METEOROLOGISTS DETECTED"/> -->
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="warnBasis" bulletDefault="true" parseString="DOPPLER RADAR INDICATED"/>
+  <!-- <bullet bulletName="meteorologists" bulletText="NWS Meteorologists detected" bulletGroup="warnBasis" parseString="METEOROLOGISTS DETECTED"/> -->
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="warnBasis" parseString="DOPPLER RADAR INDICATED"/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="warnBasis" parseString="TRAINED WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="warnBasis" parseString="LOCAL LAW ENFORCEMENT REPORTED"/>
   <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="warnBasis" parseString="EMERGENCY MANAGEMENT REPORTED"/>
@@ -187,7 +192,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletName="torWatchCTA" bulletText="TOR SAFETY INFO Mandatory if SVR issued in TOR Watch" parseString="TORNADO WATCH IN EFFECT"/>
-  <bullet bulletName="genericCTA" bulletText="Generic threat - standard CTA" bulletDefault="true" parseString="SEVERE THUNDERSTORMS PRODUCE"/>
+  <bullet bulletName="genericCTA" bulletText="Generic threat - standard CTA" parseString="SEVERE THUNDERSTORMS PRODUCE"/>
   <bullet bulletName="canProduceTornadoesCTA" bulletText="Svr t-storms can produce tornadoes (no TOR watch in effect)" parseString="SOME WEAK ROTATION"/>
   <bullet bulletName="largeHailCTA" bulletText="Large Hail and Deadly Lightning" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DEADLY"/>
   <bullet bulletName="veryLargeHailCTA" bulletText="Large DESTRUCTIVE Hail" parseString="LARGE DESTRUCTIVE HAIL"/>

@@ -10,7 +10,7 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.localization,
  org.slf4j;bundle-version="1.7.12"
 Export-Package: com.raytheon.edex.services
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.message,
  com.raytheon.uf.common.message.response,
  com.raytheon.uf.common.python,

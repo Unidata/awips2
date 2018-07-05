@@ -27,6 +27,11 @@
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 import string, types
 
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import ParmID

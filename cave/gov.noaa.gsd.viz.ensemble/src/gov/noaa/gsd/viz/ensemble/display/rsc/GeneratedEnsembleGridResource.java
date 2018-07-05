@@ -1,22 +1,19 @@
 package gov.noaa.gsd.viz.ensemble.display.rsc;
 
-import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
-import gov.noaa.gsd.viz.ensemble.display.calculate.ERFCalculator;
-import gov.noaa.gsd.viz.ensemble.display.calculate.EnsembleCalculator;
-import gov.noaa.gsd.viz.ensemble.util.Utilities;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import org.eclipse.swt.graphics.RGB;
-
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.grid.util.GridLevelTranslator;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.parameter.Parameter;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.ParamLevelMatchCriteria;
 import com.raytheon.uf.common.style.level.Level;
 import com.raytheon.uf.common.style.level.SingleLevel;
@@ -29,15 +26,19 @@ import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
+import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
-import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
 import com.raytheon.viz.grid.rsc.general.GridResource;
 import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
+
+import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
+import gov.noaa.gsd.viz.ensemble.display.calculate.ERFCalculator;
+import gov.noaa.gsd.viz.ensemble.display.calculate.EnsembleCalculator;
 
 /**
  * Based on the loaded ensemble product(s) data generated new resource with a
@@ -56,15 +57,21 @@ import com.raytheon.viz.grid.xml.FieldDisplayTypesFactory;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jan 2014        5056     jing    Initial creation
+ * Jan 10, 2014    5056     jing       Initial creation
+ * Dec 26, 2016    19325    jing       Display and sample image
+ * Feb 17, 2017    19325    jing       Added ERF image capability
  * 
- * </pre>
+ *          </pre>
+ * 
  * @param <T>
  */
 @SuppressWarnings("rawtypes")
-public class GeneratedEnsembleGridResource extends
-        AbstractGridResource<GeneratedEnsembleGridResourceData> implements
-        IGridNameResource {
+public class GeneratedEnsembleGridResource
+        extends AbstractGridResource<GeneratedEnsembleGridResourceData>
+        implements IGridNameResource {
+
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GeneratedEnsembleGridResource.class);
 
     private Parameter parameter = null;
 
@@ -112,14 +119,6 @@ public class GeneratedEnsembleGridResource extends
                     .setNameGenerator(new GridNameGenerator());
         }
 
-        this.getProperties().setSystemResource(true);
-
-        // Set color
-        ColorableCapability colorable = (ColorableCapability) this
-                .getCapability(ColorableCapability.class);
-        RGB color = Utilities.getRandomNiceContrastColor();
-        colorable.setColor(color);
-
     };
 
     /**
@@ -136,10 +135,6 @@ public class GeneratedEnsembleGridResource extends
         super(resourceData, loadProperties);
 
         calculator = c;
-        ColorableCapability colorable = (ColorableCapability) this
-                .getCapability(ColorableCapability.class);
-        RGB color = Utilities.getRandomNiceContrastColor();
-        colorable.setColor(color);
 
     }
 
@@ -158,8 +153,9 @@ public class GeneratedEnsembleGridResource extends
             String paramAbbrev = parameter.getAbbreviation();
             ((DisplayTypeCapability) this
                     .getCapability(DisplayTypeCapability.class))
-                    .setAlternativeDisplayTypes(FieldDisplayTypesFactory
-                            .getInstance().getDisplayTypes(paramAbbrev));
+                            .setAlternativeDisplayTypes(
+                                    FieldDisplayTypesFactory.getInstance()
+                                            .getDisplayTypes(paramAbbrev));
         }
 
         super.initInternal(target);
@@ -189,17 +185,24 @@ public class GeneratedEnsembleGridResource extends
         if (resourceData == null) {
             rscName = super.getName();
         } else {
+            String image = "";
+            if (calculator.isImage()) {
+                image = " Img";
+            }
             AbstractNameGenerator generator = resourceData.getNameGenerator();
             if (calculation == Calculation.ENSEMBLE_RELATIVE_FREQUENCY) {
                 rscName = calculator.getName();
+                rscName += image;
             } else if (generator == null) {
 
                 rscName = (int) (randomRec.getLevel().getLevelonevalue())
                         + randomRec.getLevel().getMasterLevel().getName() + " "
-                        + calculation.getTitle() + " " + parameter.getName();
+                        + calculation.getTitle() + image + " "
+                        + parameter.getName();
             } else {
-                rscName = calculation.getTitle() + " "
+                rscName = calculation.getTitle() + image + " "
                         + generator.getName(this);
+
             }
             rscName = rscName.concat(" (" + this.getDisplayUnit() + ")");
         }
@@ -228,6 +231,22 @@ public class GeneratedEnsembleGridResource extends
 
         // If any member data is changed re-calculate and update display
 
+    }
+
+    @Override
+    public DataTime[] getDataTimes() {
+        /*
+         * Update the calculated data if need
+         */
+        if (super.getDataTimes() == null || super.getDataTimes().length == 0) {
+            try {
+                this.getResourceData().update();
+            } catch (VizException e) {
+                statusHandler.handle(Priority.ERROR, "Error Recalculating", e);
+            }
+        }
+
+        return super.getDataTimes();
     }
 
     public ArrayList<String> getModels() {
@@ -298,8 +317,8 @@ public class GeneratedEnsembleGridResource extends
         matchCriteria.setLevels(new ArrayList<Level>());
         matchCriteria.setCreatingEntityNames(new ArrayList<String>());
         String parameter = record.getParameter().getAbbreviation();
-        SingleLevel level = GridLevelTranslator.constructMatching(record
-                .getLevel());
+        SingleLevel level = GridLevelTranslator
+                .constructMatching(record.getLevel());
         String creatingEntity = record.getDatasetId();
         if (!matchCriteria.getParameterNames().contains(parameter)) {
             matchCriteria.getParameterNames().add(parameter);
@@ -313,17 +332,45 @@ public class GeneratedEnsembleGridResource extends
         paramLevelMatchCriteria = matchCriteria;
     }
 
-    /**
-     * Implement later(after image loading), see D2DGridResource Data
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.grid.rsc.general.AbstractGridResource#inspect(com.raytheon
-     *      .uf.common.geospatial.ReferencedCoordinate)
-     */
+    @Override
+    protected ColorMapParameters createColorMapParameters(GeneralGridData data)
+            throws VizException {
+        ColorMapParameters colorMapParam;
+        try {
+            colorMapParam = super.createColorMapParameters(data);
+        } catch (VizException e) {
+            throw new VizException("Unable to build colormap parameters", e);
+        }
+
+        // Set ERF image color bar labels
+        if (colorMapParam != null && parameter.getName().contains("ERF")) {
+            colorMapParam.setColorMapMin(-5);
+            colorMapParam.setColorMapMax(105);
+        }
+        return colorMapParam;
+    }
+
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
-        // TODO
-        return "Not implemented";
+
+        if (resourceData.isSampling()) {
+            if (getDisplayType() == DisplayType.ARROW) {
+                Map<String, Object> map = interrogate(coord);
+                if (map == null) {
+                    return "NO DATA";
+                }
+                double value = (Double) map.get(INTERROGATE_VALUE);
+                return sampleFormat.format(value) + map.get(INTERROGATE_UNIT);
+            } else if (getDisplayType() == DisplayType.CONTOUR) {
+                if (parameter != null) {
+                    return parameter.getAbbreviation() + "="
+                            + super.inspect(coord);
+                }
+            }
+        } else if (getDisplayType() != DisplayType.IMAGE) {
+            return null;
+        }
+        return super.inspect(coord);
     }
 
     @Override

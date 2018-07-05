@@ -18,10 +18,6 @@
 # further licensing information.
 ##
 
-import JUtil
-import DefaultEditAreaNaming
-from com.raytheon.edex.plugin.gfe.reference import DbShapeSource
-
 #
 # Python wrapper class for PostGIS table with interface like A1 ShapeFile.py
 #  
@@ -34,6 +30,17 @@ from com.raytheon.edex.plugin.gfe.reference import DbShapeSource
 #    
 # 
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
+import JUtil
+import DefaultEditAreaNaming
+from com.raytheon.edex.plugin.gfe.reference import DbShapeSource
+
 
 class ShapeTable(JUtil.JavaWrapperClass):
     def __init__(self, identifier):

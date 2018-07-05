@@ -17,6 +17,11 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 #-------------------------------------------------------------------------
 # Description: This product creates the Tabular State Forecast, which
 # consists of a 7-day forecast over multiple areas, with the following

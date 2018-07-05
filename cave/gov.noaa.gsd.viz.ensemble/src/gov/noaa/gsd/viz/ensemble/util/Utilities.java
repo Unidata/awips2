@@ -1,6 +1,13 @@
 package gov.noaa.gsd.viz.ensemble.util;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
@@ -8,6 +15,10 @@ import java.util.Set;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.RGB;
+import org.geotools.filter.expression.ThisPropertyAccessorFactory;
+
+import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.procedures.Bundle;
 
 /**
  * Generic Utilities class to contain a hodge-podge of utility capabilties.
@@ -18,7 +29,9 @@ import org.eclipse.swt.graphics.RGB;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 8, 2014     5056     polster     Initial creation
+ * Oct 08, 2014  5056       polster     Initial creation
+ * Nov 19, 2016  19443      polster     Add a dump bundle method
+ * Jan 10, 2018  20525      polster     High contrast color accessor now works
  * 
  * </pre>
  * 
@@ -26,6 +39,20 @@ import org.eclipse.swt.graphics.RGB;
  * @version 1.0
  */
 public class Utilities {
+
+    private static int NEXT_HUE_POSITION = 0;
+
+    private static final int DARKER_LUMINOSITY = 50;
+
+    private static final int MEDIUM_LUMINOSITY = 63;
+
+    private static final int LIGHTER_LUMINOSITY = 77;
+
+    private static final int NUM_HUES = 20;
+
+    private static final int HUE_MAX_IN_HSL = 359;
+
+    private static final int MAX_TINGE_CHANGE_AMOUNT = 12;
 
     private Utilities() {
         super();
@@ -55,47 +82,125 @@ public class Utilities {
     }
 
     /**
-     * generate a random color that is visbily not too dark nor light.
+     * This method returns a randmomly generated color that is guaranteed to be
+     * visually (color/hue) different between calls.
      * 
-     * @return
+     * @return RGB of the produced color
      */
-    public static RGB getRandomNiceContrastColor() {
+    synchronized public static RGB getRandomNiceContrastColor() {
 
-        final int darkestShadeLowerThreshold = 160;
-        final int darkestShadeUpperThreshold = 185;
-        final int lightestShadeLowerThreshold = 195;
-        final int lightestShadeUpperThreshold = 235;
+        HSLColor chosenColor = null;
 
-        /**
-         * For each of Red, Green, and Bluse components:
-         * 
-         * Find a random lower and upper thresholds to calculate the darkest and
-         * lightest possible values of the color's component.
+        RGB niceColor = null;
+
+        float hue = 0.0f; // 0 - 359 always separated by roughly 20
+        float saturation = 100.0f; // always 100%
+        float luminosity = 0.0f; // 50% (darker), 63% (medium), or 70% (lighter)
+
+        switch (NEXT_HUE_POSITION) {
+        case 0:
+            hue = 0.0f;
+            break;
+        case 1:
+            hue = 28.0f;
+            break;
+        case 2:
+            hue = 85.0f;
+            break;
+        case 3:
+            hue = 145.0f;
+            break;
+        case 4:
+            hue = 205.0f;
+            break;
+        case 5:
+            hue = 270.0f;
+            break;
+        case 6:
+            hue = 335.0f;
+            break;
+        case 7:
+            hue = 60.0f;
+            break;
+        case 8:
+            hue = 120.0f;
+            break;
+        case 9:
+            hue = 180.0f;
+            break;
+        case 10:
+            hue = 240.0f;
+            break;
+        case 11:
+            hue = 300.0f;
+            break;
+        case 12:
+            hue = (float) HUE_MAX_IN_HSL;
+            break;
+        case 13:
+            hue = 36.0f;
+            break;
+        case 14:
+            hue = 142.0f;
+            break;
+        case 15:
+            hue = 208.0f;
+            break;
+        case 16:
+            hue = 256.0f;
+            break;
+        case 17:
+            hue = 286.0f;
+            break;
+        case 18:
+            hue = 322.0f;
+            break;
+        case (NUM_HUES - 1):
+            hue = 195.0f;
+            break;
+        }
+
+        /*
+         * Randomize the hue +/- by some tinge factor. Increase the hue when the
+         * result isn't greater than the max hue. Otherwise decrease hue.
          */
-        Random rand = new Random();
-        final int r_darkestShade = Math.max(darkestShadeLowerThreshold,
-                rand.nextInt(darkestShadeUpperThreshold));
-        final int r_lightestShade = Math.max(lightestShadeLowerThreshold,
-                rand.nextInt(lightestShadeUpperThreshold));
-        final int g_darkestShade = Math.max(darkestShadeLowerThreshold,
-                rand.nextInt(darkestShadeUpperThreshold));
-        final int g_lightestShade = Math.max(lightestShadeLowerThreshold,
-                rand.nextInt(lightestShadeUpperThreshold));
-        final int b_darkestShade = Math.max(darkestShadeLowerThreshold,
-                rand.nextInt(darkestShadeUpperThreshold));
-        final int b_lightestShade = Math.max(lightestShadeLowerThreshold,
-                rand.nextInt(lightestShadeUpperThreshold));
+        Random rn = new Random();
+        int randomHueTinger = rn.nextInt(MAX_TINGE_CHANGE_AMOUNT + 1);
+        if (hue < (HUE_MAX_IN_HSL - MAX_TINGE_CHANGE_AMOUNT)) {
+            hue += randomHueTinger;
+        } else {
+            hue -= randomHueTinger;
+        }
 
-        /**
-         * Now use the thresholds to create the random color value for each rgb
-         * component.
+        /*
+         * bump the index for next time into this method to guarantee different
+         * color on subsequent calls
          */
-        int r = Math.min(r_darkestShade, rand.nextInt(r_lightestShade));
-        int g = Math.min(g_darkestShade, rand.nextInt(g_lightestShade));
-        int b = Math.min(b_darkestShade, rand.nextInt(b_lightestShade));
+        NEXT_HUE_POSITION++;
+        if (NEXT_HUE_POSITION == NUM_HUES) {
+            NEXT_HUE_POSITION = 0;
+        }
 
-        return new RGB(r, g, b);
+        int randomLuminosity = rn.nextInt(3);
+        switch (randomLuminosity) {
+        case 0:
+            luminosity = DARKER_LUMINOSITY;
+            break;
+        case 1:
+            luminosity = MEDIUM_LUMINOSITY;
+            break;
+        case 2:
+            luminosity = LIGHTER_LUMINOSITY;
+            break;
+        }
 
+        chosenColor = new HSLColor(hue, saturation, luminosity);
+
+        niceColor = new RGB(chosenColor.getRGB().getRed(),
+                chosenColor.getRGB().getGreen(),
+                chosenColor.getRGB().getBlue());
+
+        return niceColor;
     }
 
     /**
@@ -160,7 +265,7 @@ public class Utilities {
     public static RGB brighten(RGB c) {
 
         float[] hsb = c.getHSB();
-        hsb[2] = 0.75f;
+        hsb[2] = 1.0f;
         RGB nc = new RGB(hsb[0], hsb[1], hsb[2]);
         return nc;
     }
@@ -190,7 +295,6 @@ public class Utilities {
         return es;
     }
 
-    /* TODO: diagnostic only: uses standard-out file descriptor */
     public static void dumpMap(PrintStream out, Map<String, String> map,
             String keyDescr, String valueDescr) {
 
@@ -198,7 +302,8 @@ public class Utilities {
         String value = null;
 
         out.println("");
-        out.println("----------------------------------------------------------");
+        out.println(
+                "----------------------------------------------------------");
         Set<String> keySet = map.keySet();
         Iterator<String> variablesIter = keySet.iterator();
         while (variablesIter.hasNext()) {
@@ -207,7 +312,20 @@ public class Utilities {
             out.println(">>>>>>>>> " + keyDescr + " " + variable + " "
                     + valueDescr + ": " + value);
         }
-        out.println("----------------------------------------------------------");
+        out.println(
+                "----------------------------------------------------------");
+        out.println("");
+
+    }
+
+    public static void echo(PrintStream out, String str) {
+
+        out.println("");
+        out.println(
+                "----------------------------------------------------------");
+        out.println(">>>>>>>>>>>>>>>>>  " + str);
+        out.println(
+                "----------------------------------------------------------");
         out.println("");
 
     }
@@ -242,4 +360,49 @@ public class Utilities {
         return result;
     }
 
+    public static void dumpStackTrace(int traceCount, String header) {
+
+        Exception e = new Exception();
+        StackTraceElement[] traces = e.getStackTrace();
+        System.out.println(">>>>>>>>>>>>>>> " + header + " >>>>>> begin");
+        int count = 0;
+        for (StackTraceElement ste : traces) {
+            if (ste.toString().indexOf("dumpStackTrace") >= 0) {
+                continue;
+            }
+            System.out.println(">>>>> " + ste.toString());
+            count++;
+            if (count == traceCount)
+                break;
+        }
+        System.out.println(">>>>>>>>>>>>>>> " + header + " >>>>>> end");
+        System.out.println(
+                "__________________________________________________________________");
+
+    }
+
+    public static void dumpBundleToFile(Bundle b, String fileLocation,
+            String prefix) {
+        String bundleAsXML = null;
+        try {
+            bundleAsXML = b.toXML();
+        } catch (VizException e) {
+            return;
+        }
+
+        if (!fileLocation.endsWith(File.separator)) {
+            fileLocation.concat(File.separator);
+        }
+
+        if (bundleAsXML != null && bundleAsXML.length() > 0) {
+            Path outFile = Paths.get(fileLocation + prefix + "-bundle.xml");
+            Charset charset = Charset.forName("UTF-8");
+            try (BufferedWriter writer = Files.newBufferedWriter(outFile,
+                    charset)) {
+                writer.write(bundleAsXML, 0, bundleAsXML.length());
+            } catch (IOException x) {
+                /* ignore */
+            }
+        }
+    }
 }

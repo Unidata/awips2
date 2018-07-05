@@ -18,17 +18,21 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="GHxSM" name="Filtered-500km Hgt" unit="m">
-    <Method models="SREF212" name="Filter">
-        <Field abbreviation="GHmean"/>
-        <ConstantField value="250.0"/>
-        <Field abbreviation="dx"/>
-        <Field abbreviation="dy"/>
+    <Method models="SREF40" name="Filter">
+        <Field abbreviation="GHmean" />
+        <ConstantField value="250.0" />
+        <Field abbreviation="dx" />
+        <Field abbreviation="dy" />
     </Method>
     <Method name="Filter">
-		<Field abbreviation="GH"/>
-		<ConstantField value="500.0"/>
-		<Field abbreviation="dx"/>
-		<Field abbreviation="dy"/>
+        <Field abbreviation="GH" />
+        <ConstantField value="500.0" />
+        <Field abbreviation="dx" />
+        <Field abbreviation="dy" />
     </Method>
 </DerivedParameter>

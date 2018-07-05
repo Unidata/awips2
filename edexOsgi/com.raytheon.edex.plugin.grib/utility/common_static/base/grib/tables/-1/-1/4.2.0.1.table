@@ -68,6 +68,7 @@
  66:66:Snow Precipitation Rate:mm/s:SPRATE
  67:67:Freezing Rain Precipitation Rate:mm/s:FPRATE
  68:68:Ice Pellets Precipitation Rate:mm/s:IPRATE
+ 94:94:Relative Humidity With Respect to Ice:%:RHICE
 #69-191 Reserved
 #192-254 Reserved for Local Use
 192:192:Categorical Rain (yes=1; no=0):non-dim:CRAIN
@@ -86,7 +87,7 @@
 205:205:Total Column Integrated Snow:kg m-2:TCOLS
 206:206:Icing Potential:non-dim:TIPD
 207:207:Number concentration for ice particles:non-dim:NCIP
-208:208:Snow temperature:K:SNOT
+208:208:Snow temperature:K:SNO T
 209:209:Total column-integrated supercooled liquid water:kg m-2:TCLSW
 210:210:Total column-integrated melting ice:kg m-2:TCOLM
 211:211:Evaporation - Precipitation:cm/day  EMNP

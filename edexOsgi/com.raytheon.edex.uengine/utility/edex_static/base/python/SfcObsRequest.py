@@ -18,10 +18,14 @@
 # further licensing information.
 ##
 
-import PointDataQuery
-from java.util import ArrayList
-from com.raytheon.edex.plugin.sfcobs import SfcObsPointDataTransform
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Request of metar records (provides interface to pointdata)
@@ -37,6 +41,14 @@ from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 #    12/05/13        2537          bsteffen       Update package for the transform.
 # 
 #
+
+
+
+import PointDataQuery
+from java.util import ArrayList
+from com.raytheon.edex.plugin.sfcobs import SfcObsPointDataTransform
+from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+
 
 class SfcObsRequest(PointDataQuery.PointDataQuery):
     

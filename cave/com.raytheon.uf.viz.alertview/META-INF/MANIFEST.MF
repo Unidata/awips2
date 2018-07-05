@@ -4,7 +4,7 @@ Bundle-Name: AlertView
 Bundle-SymbolicName: com.raytheon.uf.viz.alertview;singleton:=true
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: com.raytheon.uf.viz.alertview
 Require-Bundle: org.eclipse.ui;bundle-version="3.8.2",
  org.eclipse.core.runtime;bundle-version="3.8.0",

@@ -41,7 +41,7 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroDataManager;
  * Sep 2, 2009  2259       mpduff      Initial creation
  * May 14, 2012 14965      wkwock      Fix crash in query for data
  * Jun 10, 2015 DCS15095   wkwock      Added edit/insert flood event feature.
- * 
+ * May 31, 2017 DR18902    JingtaoD    Hydrobase flood events not grouped properly
  * </pre>
  * 
  * @author mpduff
@@ -130,17 +130,18 @@ public class FloodReportDataManager extends HydroDataManager {
     }
 
     /**
-     * Get a list of lids from the floodts table.
+     * Get a list of lids from the locview joint floodts table order by basin,
+     * stream, lid.
      * 
      * @param where
      *            The where clause to constrain the query
      * @return ArrayList<String> of location ids
      */
-    public ArrayList<String> getLidList(String where) {
+    public ArrayList<String> getLidList(String getLidQuery) {
         ArrayList<String> lidList = new ArrayList<String>();
-        String query = "select distinct lid from floodts ";
-
-        ArrayList<Object[]> rs = runQuery(query + where);
+        String query1 = "select * from locview where lid IN ";
+        String query2 = " order by rb, stream, lid";
+        ArrayList<Object[]> rs = runQuery(query1 + getLidQuery + query2);
 
         if (rs.size() > 0) {
             for (Object[] oa : rs) {
@@ -164,7 +165,7 @@ public class FloodReportDataManager extends HydroDataManager {
 
         List<Object[]> rs = runQuery(query + where);
 
-        if (rs!=null) {
+        if (rs != null) {
             for (Object[] oa : rs) {
                 lidList.add((String) oa[0]);
             }
@@ -221,8 +222,8 @@ public class FloodReportDataManager extends HydroDataManager {
     public double getFloodStage(String lid) {
         double fs = -999;
 
-        List<Object[]> rs = runQuery("select fs from riverstat where lid = '"
-                + lid + "'");
+        List<Object[]> rs = runQuery(
+                "select fs from riverstat where lid = '" + lid + "'");
         if ((rs != null) && (rs.size() > 0) && rs.get(0)[0] != null) {
             fs = (Double) rs.get(0)[0];
         }
@@ -240,8 +241,8 @@ public class FloodReportDataManager extends HydroDataManager {
     public String getRiverBasin(String lid) {
         String basin = null;
 
-        List<Object[]> rs = runQuery("select rb from location where lid = '"
-                + lid + "'");
+        List<Object[]> rs = runQuery(
+                "select rb from location where lid = '" + lid + "'");
         if (rs != null) {
             basin = (String) rs.get(0)[0];
         }
@@ -259,8 +260,8 @@ public class FloodReportDataManager extends HydroDataManager {
     public String getState(String lid) {
         String state = null;
 
-        List<Object[]> rs = runQuery("select state from location where lid = '"
-                + lid + "'");
+        List<Object[]> rs = runQuery(
+                "select state from location where lid = '" + lid + "'");
         if (rs != null) {
             state = (String) rs.get(0)[0];
         }
@@ -278,8 +279,8 @@ public class FloodReportDataManager extends HydroDataManager {
     public String getRiver(String lid) {
         String river = null;
 
-        List<Object[]> rs = runQuery("select stream from riverstat where lid = '"
-                + lid + "'");
+        List<Object[]> rs = runQuery(
+                "select stream from riverstat where lid = '" + lid + "'");
         if (rs != null) {
             river = (String) rs.get(0)[0];
         }
@@ -297,12 +298,10 @@ public class FloodReportDataManager extends HydroDataManager {
     public int[] getFloodEventIds(String lid, String start, String end) {
         int[] id = null;
 
-        List<Object[]> rs = runQuery("select distinct flood_event_id from floodts where lid = '"
-                + lid
-                + "' and obstime >= '"
-                + start
-                + "' and obstime <= '"
-                + end + "'");
+        List<Object[]> rs = runQuery(
+                "select distinct flood_event_id from floodts where lid = '"
+                        + lid + "' and obstime >= '" + start
+                        + "' and obstime <= '" + end + "'");
 
         if ((rs != null) && (rs.size() > 0)) {
             id = new int[rs.size()];
@@ -599,7 +598,8 @@ public class FloodReportDataManager extends HydroDataManager {
         try {
             runStatement(query);
         } catch (VizException e) {
-            if (e.getCause().toString().indexOf("violates unique constraint") > 0) {
+            if (e.getCause().toString()
+                    .indexOf("violates unique constraint") > 0) {
                 status = -2;
             } else {
                 status = -1;

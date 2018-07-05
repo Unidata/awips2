@@ -92,11 +92,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Aug 06, 2013  3805     bsteffen    Add timing to logging.
  * Apr 29, 2015  4167     nabowle     Propagate exceptions from
  *                                    #initStopoData(GridCoverage)
+ * Nov 02, 2016  5979     njensen     Cast to Number where applicable
  *
  * </pre>
  *
  * @author bphillip
- * @version 1.0
  */
 public class StaticTopoData {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -278,23 +278,29 @@ public class StaticTopoData {
      */
     private void initSources() throws FactoryException,
             MismatchedDimensionException, TransformException {
-        topoSources = new ArrayList<TiledTopoSource>();
+        topoSources = new ArrayList<>();
         for (String topoData : TOPO_FILES) {
             for (String dataSet : TopoAttributes.attributeMap.keySet()) {
                 if (dataSet.startsWith(topoData)) {
                     // Gets the attributes for the data set
                     Map<String, Object> attributes = TopoAttributes
                             .getAttributes(dataSet);
-                    int nx = (Integer) attributes.get(TopoAttributes.NX);
-                    int ny = (Integer) attributes.get(TopoAttributes.NY);
-                    double llLat = MapUtil.correctLat((Float) attributes
-                            .get(TopoAttributes.LL_LAT));
-                    double llLon = MapUtil.correctLon((Float) attributes
-                            .get(TopoAttributes.LL_LON));
-                    double urLat = MapUtil.correctLat((Float) attributes
-                            .get(TopoAttributes.UR_LAT));
-                    double urLon = MapUtil.correctLon((Float) attributes
-                            .get(TopoAttributes.UR_LON));
+                    int nx = ((Number) attributes.get(TopoAttributes.NX))
+                            .intValue();
+                    int ny = ((Number) attributes.get(TopoAttributes.NY))
+                            .intValue();
+                    double llLat = MapUtil.correctLat(
+                            ((Number) attributes.get(TopoAttributes.LL_LAT))
+                                    .doubleValue());
+                    double llLon = MapUtil.correctLon(
+                            ((Number) attributes.get(TopoAttributes.LL_LON))
+                                    .doubleValue());
+                    double urLat = MapUtil.correctLat(
+                            ((Number) attributes.get(TopoAttributes.UR_LAT))
+                                    .doubleValue());
+                    double urLon = MapUtil.correctLon(
+                            ((Number) attributes.get(TopoAttributes.UR_LON))
+                                    .doubleValue());
 
                     // Create the CRS of the topo data
                     CoordinateReferenceSystem topoCrs = CRSCache
@@ -321,10 +327,10 @@ public class StaticTopoData {
      */
     private void splitPacific() throws Exception {
         Map<String, Object> pacAttributes = TopoAttributes.getAttributes("pac");
-        int nx = (Integer) pacAttributes.get(TopoAttributes.NX);
-        int ny = (Integer) pacAttributes.get(TopoAttributes.NY);
+        int nx = ((Number) pacAttributes.get(TopoAttributes.NX)).intValue();
+        int ny = ((Number) pacAttributes.get(TopoAttributes.NY)).intValue();
 
-        Map<String, Object> attributes = new HashMap<String, Object>();
+        Map<String, Object> attributes = new HashMap<>();
         attributes.putAll(pacAttributes);
         attributes.put(TopoAttributes.NX, nx / 2);
         attributes.put(TopoAttributes.UR_LON, new Float(180.0f));
@@ -339,7 +345,7 @@ public class StaticTopoData {
         sTopoDataStore.addDataRecord(attributeSet, sp);
         sTopoDataStore.store();
 
-        attributes = new HashMap<String, Object>();
+        attributes = new HashMap<>();
         attributes.putAll(pacAttributes);
         attributes.put(TopoAttributes.NX, nx / 2);
         attributes.put(TopoAttributes.LL_LON, new Float(-180.0f));
@@ -398,10 +404,8 @@ public class StaticTopoData {
      * from the static topo file and resampled according to the site location
      * information
      *
-     * @param modelName
-     *            The site for which to initalize the topo data
-     * @param config
-     *            The site's configuration information
+     * @param coverage
+     * 
      * @throws StorageException
      * @throws SerializationException
      *             If the topography data cannot be initialized for the given
@@ -432,13 +436,11 @@ public class StaticTopoData {
         long endTimeMillis = System.currentTimeMillis();
         if (storestatus.hasExceptions()) {
             throw storestatus.getExceptions()[0];
-        } else {
-            statusHandler.handle(
-                    Priority.INFO,
-                    "Stopo data successfully initialized for "
-                            + coverage.getName() + " in "
-                            + (endTimeMillis - startTimeMillis) + "ms");
         }
+
+        statusHandler.handle(Priority.INFO,
+                "Stopo data successfully initialized for " + coverage.getName()
+                        + " in " + (endTimeMillis - startTimeMillis) + "ms");
     }
 
     /**
@@ -502,8 +504,8 @@ public class StaticTopoData {
     /**
      * Retrieves the static topo data for the given site
      *
-     * @param modelName
-     *            The site for which to get the static topo data
+     * @param coverage
+     * 
      * @return The static topo data
      * @throws StorageException
      * @throws SerializationException
@@ -623,8 +625,8 @@ public class StaticTopoData {
     private void readTopoFile(String name) throws Exception {
 
         Map<String, Object> dataAttributes = TopoAttributes.getAttributes(name);
-        int nx = (Integer) dataAttributes.get(TopoAttributes.NX);
-        int ny = (Integer) dataAttributes.get(TopoAttributes.NY);
+        int nx = ((Number) dataAttributes.get(TopoAttributes.NX)).intValue();
+        int ny = ((Number) dataAttributes.get(TopoAttributes.NY)).intValue();
         long[] sizes = new long[] { nx, ny };
 
         // Store the data
@@ -634,51 +636,51 @@ public class StaticTopoData {
         sTopoDataStore.createDataset(dataRec);
 
         // Create the new input stream from which to read
-        FileInputStream in = new FileInputStream(FILE_PREFIX + name
-                + "Topo.dat");
+        try (FileInputStream in = new FileInputStream(
+                FILE_PREFIX + name + "Topo.dat")) {
 
-        // Create a byte buffer to store the read data
-        ByteBuffer bb = ByteBuffer.allocate(2);
-        bb.order(ByteOrder.BIG_ENDIAN);
+            // Create a byte buffer to store the read data
+            ByteBuffer bb = ByteBuffer.allocate(2);
+            bb.order(ByteOrder.BIG_ENDIAN);
 
-        byte[] bbuf = new byte[nx * 2];
-        int index = 0;
-        int rowIndex = 0;
+            byte[] bbuf = new byte[nx * 2];
+            int index = 0;
+            int rowIndex = 0;
 
-        // Create an array to hold the data read
-        float[] rawData = new float[nx];
+            // Create an array to hold the data read
+            float[] rawData = new float[nx];
 
-        sizes[1] = 1;
-        // Read in the data
-        while (in.available() > 0) {
-            if (in.read(bbuf) == -1) {
-                break;
-            }
-            for (int i = 0; i < nx * 2; i += 2) {
-                bb.clear();
-                bb.put(bbuf[i]);
-                bb.put(bbuf[i + 1]);
-                rawData[index] = bb.getShort(0);
+            sizes[1] = 1;
+            // Read in the data
+            while (in.available() > 0) {
+                if (in.read(bbuf) == -1) {
+                    break;
+                }
+                for (int i = 0; i < nx * 2; i += 2) {
+                    bb.clear();
+                    bb.put(bbuf[i]);
+                    bb.put(bbuf[i + 1]);
+                    rawData[index] = bb.getShort(0);
 
-                index++;
-                if (index == nx) {
-                    FloatDataRecord row = new FloatDataRecord(name, "/",
-                            rawData, 2, sizes);
-                    row.setMinIndex(new long[] { 0, rowIndex });
-                    sTopoDataStore.addDataRecord(row, sp);
-                    sTopoDataStore.store();
-                    index = 0;
-                    rowIndex++;
+                    index++;
+                    if (index == nx) {
+                        FloatDataRecord row = new FloatDataRecord(name, "/",
+                                rawData, 2, sizes);
+                        row.setMinIndex(new long[] { 0, rowIndex });
+                        sTopoDataStore.addDataRecord(row, sp);
+                        sTopoDataStore.store();
+                        index = 0;
+                        rowIndex++;
+                    }
                 }
             }
-        }
 
-        FloatDataRecord attributeSet = new FloatDataRecord("attr" + name, "/",
-                new float[] { 0 });
-        attributeSet.setDataAttributes(dataAttributes);
-        sTopoDataStore.addDataRecord(attributeSet, sp);
-        sTopoDataStore.store();
-        in.close();
+            FloatDataRecord attributeSet = new FloatDataRecord("attr" + name,
+                    "/", new float[] { 0 });
+            attributeSet.setDataAttributes(dataAttributes);
+            sTopoDataStore.addDataRecord(attributeSet, sp);
+            sTopoDataStore.store();
+        }
     }
 
     /**

@@ -29,13 +29,12 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Rawpc;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rawpp;
-import com.raytheon.uf.common.hydro.data.PrecipTotal;
-import com.raytheon.uf.common.hydro.data.PrecipTotal.DataErr;
 import com.raytheon.uf.common.hydro.util.DurationUtils;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.RawPrecipData;
+import com.raytheon.viz.hydrocommon.whfslib.PrecipUtil.DataErr;
 
 /**
  * Precipitation accumulation calculations are done here.
@@ -48,17 +47,15 @@ import com.raytheon.viz.hydrocommon.data.RawPrecipData;
  * Oct 11, 2009 2257       mpduff     Initial creation
  * Sep 29, 2010 4384       lbousaidi  Fixed bugs related to TS Lookup for PP and PC
  * May 26, 2016 5571       skorolev   {@link  DurationUtils} relocated to common. Cleanup.
- * Jul 25, 2016 4623       skorolev   Replaced TotalPrecip with PrecipTotal.
  * 
  * </pre>
  * 
  * @author mpduff
+ * @version 1.0
  */
 
 public class PrecipAccumulation {
     private static final String MIN_DUR_TOKEN = "hv_min_dur_filled";
-
-    private static final long MISSING_COVERAGE = -999;
 
     private double adjustedStartTimeHrs = HydroConstants.MISSING_VALUE;
 
@@ -90,16 +87,16 @@ public class PrecipAccumulation {
     private String bestPcTs = null;
 
     /** Best individual coverage */
-    private long pcCoverage = MISSING_COVERAGE;
+    private long pcCoverage = -999;
 
     /** Best PC coverage */
-    private long bestPcCoverage = MISSING_COVERAGE;
+    private long bestPcCoverage = -999;
 
     /** Best PP coverage */
-    private long bestPpCoverage = MISSING_COVERAGE;
+    private long bestPpCoverage = -999;
 
     /** Best total coverage */
-    private long bestCovered = MISSING_COVERAGE;
+    private long bestCovered = -999;
 
     /** Best individual amount */
     private double pcAmount;
@@ -140,7 +137,7 @@ public class PrecipAccumulation {
      * the values are always PrecipPEBest and PrecipTSSingle
      */
     private void sumItUp() {
-        PrecipTotal totalPrecip = null;
+        TotalPrecip totalPrecip = null;
         data = new PointPrecipData();
 
         if (minPercent == HydroConstants.MISSING_VALUE) {
@@ -181,7 +178,7 @@ public class PrecipAccumulation {
              * use the PC function if processing PC data. PC data is always
              * derived, so fix the indicator flag to 1
              */
-            totalPrecip = new PrecipTotal();
+            totalPrecip = new TotalPrecip();
 
             /* Get the algorithm to use for totaling PC precipitation amounts. */
             int sumPcReports = checkSumPcReports();
@@ -234,63 +231,63 @@ public class PrecipAccumulation {
                      */
                     if (bestPcCoverage > bestPpCoverage) {
                         totalPrecip.setValue((float) bestPcAmount);
-                        totalPrecip.setPe(HydroConstants.PC);
-                        totalPrecip.setTs(bestPcTs);
+                        totalPrecip.setPE(HydroConstants.PC);
+                        totalPrecip.setTS(bestPcTs);
                         bestCovered = bestPcCoverage;
 
                         /*
                          * The summed flag is not applicable to PC data.
                          */
-                        totalPrecip.setSummedFlag(false);
+                        totalPrecip.setSummed_flag(false);
                     } else {
                         totalPrecip.setValue((float) bestPpAmount);
-                        totalPrecip.setPe(HydroConstants.PP);
-                        totalPrecip.setTs(bestPpTs);
-                        totalPrecip.setSummedFlag(summedFlag);
+                        totalPrecip.setPE(HydroConstants.PP);
+                        totalPrecip.setTS(bestPpTs);
+                        totalPrecip.setSummed_flag(summedFlag);
                         Calendar c = TimeUtil.newGmtCalendar();
                         c.setTimeInMillis(bestMatchTime);
-                        totalPrecip.setMatchTime(c.getTime());
+                        totalPrecip.setMatch_time(c.getTime());
                         bestCovered = bestPpCoverage;
                     }
                 }
             } else if (rawData.getPpTsLookup().size() > 0) {
                 totalPrecip.setValue((float) bestPpAmount);
-                totalPrecip.setPe(HydroConstants.PP);
-                totalPrecip.setTs(bestPpTs);
-                totalPrecip.setSummedFlag(summedFlag);
+                totalPrecip.setPE(HydroConstants.PP);
+                totalPrecip.setTS(bestPpTs);
+                totalPrecip.setSummed_flag(summedFlag);
                 Calendar c = TimeUtil.newGmtCalendar();
                 c.setTimeInMillis(bestMatchTime);
-                totalPrecip.setMatchTime(c.getTime());
+                totalPrecip.setMatch_time(c.getTime());
                 bestCovered = bestPpCoverage;
             } else {
                 totalPrecip.setValue((float) bestPcAmount);
-                totalPrecip.setPe(HydroConstants.PC);
-                totalPrecip.setTs(bestPcTs);
-                totalPrecip.setSummedFlag(false);
+                totalPrecip.setPE(HydroConstants.PC);
+                totalPrecip.setTS(bestPcTs);
+                totalPrecip.setSummed_flag(false);
                 bestCovered = bestPcCoverage;
             }
 
             if (totalPrecip.getValue() != MISSING_PRECIP) {
-                totalPrecip.setHoursCovered(bestCovered
+                totalPrecip.setHours_covered(bestCovered
                         / HydroConstants.MILLIS_PER_HOUR);
-                totalPrecip.setPercentFilled(bestCovered
+                totalPrecip.setPercent_filled(bestCovered
                         / (endTime.getTimeInMillis() - beginTime
                                 .getTimeInMillis())
                         / HydroConstants.MILLIS_PER_HOUR);
             }
 
             /* Do no allow for a percent filled of greater than 100%. */
-            if (totalPrecip.getPercentFilled() > 1.0) {
-                totalPrecip.setPercentFilled(1.0f);
+            if (totalPrecip.getPercent_filled() > 1.0) {
+                totalPrecip.setPercent_filled(1.0f);
             }
 
-            totalPrecip.setValueIndicator(PointPrecipConstants.OK_CHAR);
+            totalPrecip.setValue_indicator(PointPrecipConstants.OK_CHAR);
 
             /* Set the QC and error flags. */
-            if (totalPrecip.getPercentFilled() < minPercent) {
+            if (totalPrecip.getPercent_filled() < minPercent) {
                 totalPrecip.setValue(MISSING_PRECIP);
                 totalPrecip
-                        .setValueIndicator(PointPrecipConstants.REJECTED_CHAR);
+                        .setValue_indicator(PointPrecipConstants.REJECTED_CHAR);
             }
 
             if ((totalPrecip.getValue() < 0)
@@ -300,7 +297,7 @@ public class PrecipAccumulation {
                 err.negdiff = true;
                 totalPrecip.setErr(err);
                 totalPrecip
-                        .setValueIndicator(PointPrecipConstants.MISSING_CHAR);
+                        .setValue_indicator(PointPrecipConstants.MISSING_CHAR);
             }
 
             // Set the data back into data
@@ -309,8 +306,8 @@ public class PrecipAccumulation {
             int[] summedFlag = data.getSummedFlag();
 
             amount[i] = totalPrecip.getValue();
-            hrfill[i] = totalPrecip.getHoursCovered();
-            if (totalPrecip.isSummedFlag()) {
+            hrfill[i] = totalPrecip.getHours_covered();
+            if (totalPrecip.isSummed_flag()) {
                 summedFlag[i] = 1;
             } else {
                 summedFlag[i] = 0;
@@ -331,8 +328,6 @@ public class PrecipAccumulation {
     }
 
     /**
-     * Gets Total RawPP
-     * 
      * @param ppGroup
      */
     private void getTotalRawPP(List<Rawpp> ppGroup) {
@@ -524,8 +519,6 @@ public class PrecipAccumulation {
     }
 
     /**
-     * Finds Duration Match
-     * 
      * @param ppGroup
      * @return
      */

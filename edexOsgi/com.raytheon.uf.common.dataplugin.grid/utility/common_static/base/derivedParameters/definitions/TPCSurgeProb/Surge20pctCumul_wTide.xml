@@ -18,10 +18,15 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="Surge20pctCumul_wTide" name="Psurge + Tide [NAVD88] height w/20% chance of being exceeded" unit="ft">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter abbreviation="Surge20pctCumul_wTide"
+    name="Psurge + Tide [NAVD88] height w/20% chance of being exceeded" unit="ft">
     <!-- This parameter provides a custom legend and parameter name for the cumulative surge that is coming from Psurge + Tide.
          This makes it possible to easily distinguish it from the cumulative surge from PHISH. -->
-    <Method models="TPCSurgeProb" name="Alias" levels="Surface">
-        <Field abbreviation="Surge20pctCumul"/>
+    <Method models="TPCSurgeProb P-ETSS P-ETSS-LoRes" name="Alias" levels="Surface">
+        <Field abbreviation="Surge20pctCumul" />
     </Method>
 </DerivedParameter>

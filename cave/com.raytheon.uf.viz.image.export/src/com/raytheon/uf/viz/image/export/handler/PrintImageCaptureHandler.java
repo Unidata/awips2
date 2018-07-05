@@ -26,6 +26,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ComponentColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -62,6 +64,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  *                                    and rotate if necessary
  * Jan 20, 2014  2312     bsteffen    Move to image export plugin.
  * Dec 4, 2014   DR16713  jgerth      Support for date and time in file name
+ * Mar 23, 2017  6117     bsteffen    Workaround crash when printing images.
  * 
  * </pre>
  * 
@@ -113,12 +116,14 @@ public class PrintImageCaptureHandler extends AbstractImageCaptureHandler {
 
         Display display = editor.getActiveDisplayPane().getDisplay();
         Printer printer = new Printer(printerData);
+        
+        List<Image> printerImages = new ArrayList<>();
         if (printer.startJob("CAVE")) {
             switch (pd.getScope()) {
             case PrinterData.ALL_PAGES: {
                 try {
                     for (BufferedImage bi : captureAllFrames(editor).values()) {
-                        printImage(printer, display, bi);
+                        printerImages.add(printImage(printer, display, bi));
                     }
                 } catch (VizException e) {
                     throw new ExecutionException(
@@ -130,7 +135,7 @@ public class PrintImageCaptureHandler extends AbstractImageCaptureHandler {
                 try {
                     for (BufferedImage bi : captureFrames(editor,
                             pd.getStartPage() - 1, pd.getEndPage()).values()) {
-                        printImage(printer, display, bi);
+                        printerImages.add(printImage(printer, display, bi));
                     }
                 } catch (VizException e) {
                     throw new ExecutionException(
@@ -140,7 +145,7 @@ public class PrintImageCaptureHandler extends AbstractImageCaptureHandler {
             }
             case PrinterData.SELECTION: {
                 BufferedImage bi = editor.screenshot();
-                printImage(printer, display, bi);
+                printerImages.add(printImage(printer, display, bi));
                 break;
             }
             }
@@ -148,11 +153,19 @@ public class PrintImageCaptureHandler extends AbstractImageCaptureHandler {
 
         }
         printer.dispose();
-
+        /*
+         * There is currently a bug in SWT/Cairo/GTK that causes the system to
+         * crash if the images are disposed before the printer so it is
+         * necessary to keep all the images until after the printer is disposed.
+         */
+        for(Image image : printerImages){
+            image.dispose();
+        }
+        
         return null;
     }
 
-    private void printImage(Printer printer, Display display, BufferedImage bi) {
+    private Image printImage(Printer printer, Display display, BufferedImage bi) {
         Point screenDPI = display.getDPI();
         Point printerDPI = printer.getDPI();
 
@@ -219,7 +232,7 @@ public class PrintImageCaptureHandler extends AbstractImageCaptureHandler {
             gc.dispose();
             printer.endPage();
         }
-        image.dispose();
+        return image;
 
     }
 

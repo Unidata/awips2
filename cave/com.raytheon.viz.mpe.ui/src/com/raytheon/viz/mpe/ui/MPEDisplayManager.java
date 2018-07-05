@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -33,12 +34,13 @@ import java.util.TimeZone;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
-
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.commands.State;
 import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PlatformUI;
@@ -53,7 +55,11 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
+import com.raytheon.uf.common.mpe.constants.AppsDefaultsContants;
+import com.raytheon.uf.common.mpe.util.AppsDefaultsConversionWrapper;
+import com.raytheon.uf.common.mpe.util.RFCSiteLookup;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.util.FileUtil;
@@ -71,6 +77,7 @@ import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
@@ -88,7 +95,11 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.ArealDisplay;
 import com.raytheon.viz.mpe.ui.rsc.MPEGageResource;
+import com.raytheon.viz.mpe.util.MPEConversionUtils;
+import com.raytheon.viz.mpe.ui.rsc.RFCQPEResource;
+import com.raytheon.viz.mpe.ui.rsc.RFCQPEResourceData;
 import com.raytheon.viz.ui.EditorUtil;
+import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 
 /**
@@ -114,11 +125,15 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Jul 29, 2015  17471     snaples      Updated editTime to ensure that it always references "GMT" timezone.
  * Sep 29, 2015  16790     snaples      Fixed issue with date not following the CAVE time when changed, and fixed time matching issue.
  * Dec 02, 2015  18104     snaples      Fixed issue of not unzooming when using Pan/Zoom tools.
+ * Mar 01, 2017  6160      bkowal       Updated {@link #createColorMap(String, String, int, Unit, Unit)} to require
+ *                                      displayString as a parameter.
+ * Mar 06, 2017  6161      mduff        Added getFieldData()
+ * Oct 06, 2017  6407      bkowal       Cleanup. Updates to support GOES-R SATPRE.
+ * Apr 10, 2017  17911     mgamazaychikov/wkwock   Add loadRFCQPEXmrg.
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 public class MPEDisplayManager {
 
@@ -137,15 +152,22 @@ public class MPEDisplayManager {
     /** Group Edit Flag **/
     private boolean groupedt = false;
 
-    private int dqcDays = Integer.parseInt(AppsDefaults.getInstance().getToken(
-            "mpe_dqc_num_days"));
+    private int dqcDays = Integer
+            .parseInt(AppsDefaults.getInstance().getToken("mpe_dqc_num_days"));
 
+    /** Neighboring RFCs to collaborate */
+    private final String COLLABORATION_LIST = "mpe_qpe_collaboration_list";
+
+    /** Display pane */
+    private IDisplayPane pane = null;
+
+    private List<RFCQPEResource> rfcQpeRscList = new ArrayList<>(); 
+    
     /** Radar Type for Radar Coverage Map Legend **/
-    public static enum AvailableRadarGridType
-    {
+    public static enum AvailableRadarGridType {
         DUAL_POL, SINGLE_POL, SINGLE_AND_DUAL_POL, MISSING
     };
-    
+
     /**
      * @return the qpf
      */
@@ -273,46 +295,70 @@ public class MPEDisplayManager {
         MissingNone, MissingReported, MissingAll
     }
 
-    private static final Map<IRenderableDisplay, MPEDisplayManager> instanceMap = new HashMap<IRenderableDisplay, MPEDisplayManager>();
+    private static final Map<IRenderableDisplay, MPEDisplayManager> instanceMap = new HashMap<>();
 
     /* Define the MPE product generation rules. */
-    public static final DisplayFieldData[] mpe_qpe_fields = {
-            DisplayFieldData.rMosaic, DisplayFieldData.avgrMosaic,
-            DisplayFieldData.maxrMosaic, DisplayFieldData.bMosaic,
-            DisplayFieldData.lMosaic, DisplayFieldData.gageOnly,
-            DisplayFieldData.mMosaic, DisplayFieldData.mlMosaic,
-            DisplayFieldData.satPre, DisplayFieldData.lsatPre,
-            DisplayFieldData.srMosaic, DisplayFieldData.sgMosaic,
-            DisplayFieldData.srgMosaic, DisplayFieldData.p3lMosaic,
-            DisplayFieldData.Xmrg, DisplayFieldData.rfcMosaic,
-            DisplayFieldData.rfcbMosaic, DisplayFieldData.rfcmMosaic,
-            DisplayFieldData.qmosaic, DisplayFieldData.lqmosaic,
-            DisplayFieldData.mlqmosaic,
-            
-            // Dual Pol fields
-            DisplayFieldData.rdMosaic, DisplayFieldData.avgrdMosaic,
-            DisplayFieldData.maxrdMosaic, DisplayFieldData.bdMosaic,
-            DisplayFieldData.ldMosaic,
-            DisplayFieldData.mdMosaic, DisplayFieldData.mldMosaic,
-            DisplayFieldData.srdMosaic, DisplayFieldData.srdgMosaic,
-            
-            DisplayFieldData.localField1,
-            DisplayFieldData.localField2, DisplayFieldData.localField3 };
+    public static final DisplayFieldData[] mpe_qpe_fields;
+    static {
+        List<DisplayFieldData> qpeDisplayFields = new LinkedList<>();
+        qpeDisplayFields.add(DisplayFieldData.rMosaic);
+        qpeDisplayFields.add(DisplayFieldData.avgrMosaic);
+        qpeDisplayFields.add(DisplayFieldData.maxrMosaic);
+        qpeDisplayFields.add(DisplayFieldData.bMosaic);
+        qpeDisplayFields.add(DisplayFieldData.lMosaic);
+        qpeDisplayFields.add(DisplayFieldData.gageOnly);
+        qpeDisplayFields.add(DisplayFieldData.mMosaic);
+        qpeDisplayFields.add(DisplayFieldData.mlMosaic);
+        qpeDisplayFields.add(DisplayFieldData.satPre);
+        if (Boolean.TRUE
+                .equals(AppsDefaultsConversionWrapper.getPropertyAsBoolean(
+                        AppsDefaultsContants.APPS_DEFAULTS_USE_GOESR_PRECIP))) {
+            qpeDisplayFields.add(DisplayFieldData.goesRSatPre);
+        }
+        qpeDisplayFields.add(DisplayFieldData.lsatPre);
+        qpeDisplayFields.add(DisplayFieldData.srMosaic);
+        qpeDisplayFields.add(DisplayFieldData.sgMosaic);
+        qpeDisplayFields.add(DisplayFieldData.srgMosaic);
+        qpeDisplayFields.add(DisplayFieldData.p3lMosaic);
+        qpeDisplayFields.add(DisplayFieldData.Xmrg);
+        qpeDisplayFields.add(DisplayFieldData.rfcMosaic);
+        qpeDisplayFields.add(DisplayFieldData.rfcbMosaic);
+        qpeDisplayFields.add(DisplayFieldData.rfcmMosaic);
+        qpeDisplayFields.add(DisplayFieldData.qmosaic);
+        qpeDisplayFields.add(DisplayFieldData.lqmosaic);
+        qpeDisplayFields.add(DisplayFieldData.mlqmosaic);
+
+        // Dual Pol fields
+        qpeDisplayFields.add(DisplayFieldData.rdMosaic);
+        qpeDisplayFields.add(DisplayFieldData.avgrdMosaic);
+        qpeDisplayFields.add(DisplayFieldData.maxrdMosaic);
+        qpeDisplayFields.add(DisplayFieldData.bdMosaic);
+        qpeDisplayFields.add(DisplayFieldData.ldMosaic);
+        qpeDisplayFields.add(DisplayFieldData.mdMosaic);
+        qpeDisplayFields.add(DisplayFieldData.mldMosaic);
+        qpeDisplayFields.add(DisplayFieldData.srdMosaic);
+        qpeDisplayFields.add(DisplayFieldData.srdgMosaic);
+
+        qpeDisplayFields.add(DisplayFieldData.localField1);
+        qpeDisplayFields.add(DisplayFieldData.localField2);
+        qpeDisplayFields.add(DisplayFieldData.localField3);
+        mpe_qpe_fields = qpeDisplayFields.toArray(new DisplayFieldData[0]);
+    }
 
     public static final String APPLICATION_NAME = "hmapmpe";
 
     private static final List<NamedColorUseSet> pColorSetGroup = MPEColors
             .build_mpe_colors();
 
-    private static final ICommandService service = (ICommandService) PlatformUI
-            .getWorkbench().getService(ICommandService.class);
+    private static final ICommandService service = PlatformUI.getWorkbench()
+            .getService(ICommandService.class);
 
     private static String fontId;
 
     private static GageColor gageColor;
 
     private static GageMissingOptions gageMissing;
-    
+
     private static IExtent defaultExtent;
 
     static {
@@ -330,7 +376,8 @@ public class MPEDisplayManager {
      * @param pane
      * @return
      */
-    public static synchronized MPEDisplayManager getInstance(IDisplayPane pane) {
+    public static synchronized MPEDisplayManager getInstance(
+            IDisplayPane pane) {
         if (pane == null) {
             IDisplayPaneContainer container = EditorUtil
                     .getActiveVizContainer();
@@ -427,9 +474,9 @@ public class MPEDisplayManager {
         return null;
     }
 
-    private final Set<IEditTimeChangedListener> timeChangedListeners = new LinkedHashSet<IEditTimeChangedListener>();
+    private final Set<IEditTimeChangedListener> timeChangedListeners = new LinkedHashSet<>();
 
-    private final Set<IDisplayFieldChangedListener> fieldChangedListeners = new LinkedHashSet<IDisplayFieldChangedListener>();
+    private final Set<IDisplayFieldChangedListener> fieldChangedListeners = new LinkedHashSet<>();
 
     private final IRenderableDisplay display;
 
@@ -442,7 +489,7 @@ public class MPEDisplayManager {
     private final MPEFieldResourceData fieldResourceData = new MPEFieldResourceData();
 
     private MPEFieldResource displayedFieldResource;
-    
+
     private ComparisonFields comparisonFields = new ComparisonFields();
 
     private Date editTime;
@@ -468,12 +515,12 @@ public class MPEDisplayManager {
         // token for default display
         String mdd = AppsDefaults.getInstance().getToken("mpe_def_display");
 
-        if(mdd != null){
+        if (mdd != null) {
             displayedField = DisplayFieldData.fromString(mdd);
         } else {
             displayedField = DisplayFieldData.fromString("MMOSAIC");
         }
-        
+
         ChangeTimeProvider.update(this);
 
         VizApp.runAsync(new Runnable() {
@@ -481,11 +528,13 @@ public class MPEDisplayManager {
             public void run() {
                 MPEDisplayManager.this.toggleDisplayMode(DisplayMode.Image);
                 if (defaultExtent == null) {
-                    IDisplayPaneContainer container = EditorUtil.getActiveVizContainer();
+                    IDisplayPaneContainer container = EditorUtil
+                            .getActiveVizContainer();
                     if (container != null) {
                         IDisplayPane pane = container.getActiveDisplayPane();
                         if (pane != null) {
-                            setDefaultExtent(pane.getRenderableDisplay().getExtent());
+                            setDefaultExtent(
+                                    pane.getRenderableDisplay().getExtent());
                         }
                     }
                 }
@@ -581,8 +630,7 @@ public class MPEDisplayManager {
      * @return the displayMode
      */
     public Set<DisplayMode> getDisplayMode() {
-        return new HashSet<MPEDisplayManager.DisplayMode>(
-                fieldResourceData.getDisplayModes());
+        return new HashSet<>(fieldResourceData.getDisplayModes());
     }
 
     /**
@@ -593,8 +641,8 @@ public class MPEDisplayManager {
         fieldResourceData.toggleDisplayMode(displayMode);
         display.refresh();
 
-        final ICommandService service = (ICommandService) PlatformUI
-                .getWorkbench().getService(ICommandService.class);
+        final ICommandService service = PlatformUI.getWorkbench()
+                .getService(ICommandService.class);
         service.refreshElements(MPECommandConstants.DISPLAY_MODE, null);
     }
 
@@ -677,8 +725,7 @@ public class MPEDisplayManager {
      * @return
      */
     public boolean setCurrentEditDate(Date newDate, boolean force) {
-
-        if (editTime.equals(newDate) == false) {
+        if (!editTime.equals(newDate)) {
             // new time, check for save
             if (!isDataSaved()) {
                 if (!okToProceed("Data Not Saved")) {
@@ -695,7 +742,7 @@ public class MPEDisplayManager {
         try {
             display.getDescriptor().redoTimeMatching();
         } catch (VizException e) {
-            Activator.statusHandler.handle(Priority.PROBLEM, 
+            Activator.statusHandler.handle(Priority.PROBLEM,
                     "Error in redoTimeMatching for MPEDisplayManager", e);
         }
         setCurrentDisplayedDate(newDate);
@@ -706,7 +753,7 @@ public class MPEDisplayManager {
         ChangeTimeProvider.update(this);
 
         try {
-            List<IEditTimeChangedListener> listeners = new ArrayList<IEditTimeChangedListener>();
+            List<IEditTimeChangedListener> listeners = new ArrayList<>();
             synchronized (timeChangedListeners) {
                 listeners.addAll(timeChangedListeners);
             }
@@ -756,23 +803,19 @@ public class MPEDisplayManager {
      */
     public void displayFieldData(DisplayFieldData fieldToDisplay,
             int accumulationHrs, ArealDisplay arealDisplay) {
-    	
         if (displayedField != fieldToDisplay || displayedFieldResource == null
                 || accumulationHrs != displayedAccumHrs
                 || arealDisplay != displayedArealDisplay) {
             DisplayFieldData oldField = displayedField;
             displayedField = fieldToDisplay;
-            
-            //check for comparisonFields
-            if  ( displayedField.isAComparisonField() )
-            {
-            	displayedField.setComparisonFields(comparisonFields);
+
+            // check for comparisonFields
+            if (displayedField.isAComparisonField()) {
+                displayedField.setComparisonFields(comparisonFields);
+            } else {
+                displayedField.setComparisonFields(null);
             }
-            else
-            {
-            	displayedField.setComparisonFields(null);
-            }
-            
+
             displayedAccumHrs = accumulationHrs;
             displayedArealDisplay = arealDisplay;
             ResourceList list = display.getDescriptor().getResourceList();
@@ -804,7 +847,7 @@ public class MPEDisplayManager {
             }
 
             if (oldField != fieldToDisplay) {
-                List<IDisplayFieldChangedListener> listeners = new ArrayList<IDisplayFieldChangedListener>();
+                List<IDisplayFieldChangedListener> listeners = new ArrayList<>();
                 synchronized (fieldChangedListeners) {
                     listeners.addAll(fieldChangedListeners);
                 }
@@ -815,6 +858,49 @@ public class MPEDisplayManager {
         }
 
         displayedFieldResource.issueRefresh();
+    }
+
+    /**
+     * Returns an {@link MPEFieldResource} for the provided
+     * {@link DisplayFieldData}.
+     * 
+     * @param fieldToDisplay
+     * @return MPEFieldResource
+     */
+    public MPEFieldResource getFieldData(DisplayFieldData fieldToDisplay) {
+        int accumulationHrs = 0;
+        ArealDisplay arealDisplay = ArealDisplay.GRID;
+
+        // check for comparisonFields
+        if (fieldToDisplay.isAComparisonField()) {
+            fieldToDisplay.setComparisonFields(comparisonFields);
+        } else {
+            fieldToDisplay.setComparisonFields(null);
+        }
+
+        MPEFieldResourceData fieldRscData = new MPEFieldResourceData();
+        fieldRscData.setFieldData(fieldToDisplay);
+        fieldRscData.setArealDisplay(arealDisplay);
+        fieldRscData.setAccumulationInterval(accumulationHrs);
+        // Add new resource
+        MPEFieldResource fieldRsc = new MPEFieldResource(fieldRscData,
+                new LoadProperties());
+        fieldRsc.setDescriptor((IMapDescriptor) display.getDescriptor());
+
+        IDisplayPaneContainer container = display.getContainer();
+        for (IDisplayPane pane : container.getDisplayPanes()) {
+            if (pane.getRenderableDisplay() == display) {
+                try {
+                    fieldRsc.init(pane.getTarget());
+                    break;
+                } catch (VizException e) {
+                    Activator.statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+            }
+        }
+
+        return fieldRsc;
     }
 
     // TODO: May make these on a per MPEMapRenderableDisplay basis or per window
@@ -843,16 +929,17 @@ public class MPEDisplayManager {
      * 
      * @param miss
      */
-    public static void setGageMissing(GageMissingOptions miss) {
+    public static synchronized void setGageMissing(GageMissingOptions miss) {
         gageMissing = miss;
-        updateCommandState(MPECommandConstants.GAGE_MISSING_OPTION, miss.name());
+        updateCommandState(MPECommandConstants.GAGE_MISSING_OPTION,
+                miss.name());
     }
 
     /**
      * 
      * @param gc
      */
-    public static void setGageColor(GageColor gc) {
+    public static synchronized void setGageColor(GageColor gc) {
         gageColor = gc;
         updateCommandState(MPECommandConstants.GAGE_COLOR, gc.name());
     }
@@ -992,10 +1079,10 @@ public class MPEDisplayManager {
         String dateFormatString = MPEDateFormatter.yyyyMMddHH;
         switch (fieldData) {
         case rfcMosaic:
-        	fileNamePrefix += "01";
+            fileNamePrefix += "01";
             break;
         case Xmrg:
-        	fileNamePrefix = fileNamePrefix.toLowerCase();
+            fileNamePrefix = fileNamePrefix.toLowerCase();
             dateFormatString = MPEDateFormatter.MMddyyyyHH;
             break;
         case Prism:
@@ -1019,7 +1106,7 @@ public class MPEDisplayManager {
         String fname = null;
         if (prismType != null) {
             // Load prism type
-            dateString= dateString.toLowerCase();
+            dateString = dateString.toLowerCase();
             String mpe_site_id = appsDefaults.getToken("mpe_site_id");
             fname = FileUtil.join(dirname, "prism_" + prismType + "_"
                     + mpe_site_id + "_" + dateString);
@@ -1034,31 +1121,37 @@ public class MPEDisplayManager {
      * parameters
      * 
      * @param cvUse
+     * @param displayString
      * @param durationInHrs
      * @param dataUnit
      * @param displayUnit
      * @return
      */
     public static ColorMapParameters createColorMap(String cvUse,
-            int durationInHrs, Unit<?> dataUnit, Unit<?> displayUnit) {
+            String displayString, int durationInHrs, Unit<?> dataUnit,
+            Unit<?> displayUnit) {
         if (durationInHrs == 0) {
             durationInHrs = 1;
         }
-        
+
         ColorMapParameters params = new ColorMapParameters();
         params.setFormatString("0.00");
         params.setDisplayUnit(displayUnit);
-        params.setDataUnit(dataUnit);
 
-        UnitConverter displayToData = params.getDisplayToDataConverter();
-        UnitConverter dataToDisplay = params.getDataToDisplayConverter();
+        UnitConverter displayToData = MPEConversionUtils
+                .constructConverter(displayUnit, dataUnit);
+        UnitConverter dataToDisplay = MPEConversionUtils
+                .constructConverter(dataUnit, displayUnit);
 
         DataMappingPreferences dm = new DataMappingPreferences();
 
-        Colorvalue[] colorSet = GetColorValues.get_colorvalues(
-                LocalizationManager.getContextName(LocalizationLevel.USER),
-                APPLICATION_NAME, cvUse, durationInHrs * 60 * 60, "E",
-                pColorSetGroup).toArray(new Colorvalue[0]);
+        Colorvalue[] colorSet = GetColorValues
+                .get_colorvalues(
+                        LocalizationManager
+                                .getContextName(LocalizationLevel.USER),
+                        APPLICATION_NAME, cvUse, displayString,
+                        durationInHrs * 60 * 60, "E", pColorSetGroup)
+                .toArray(new Colorvalue[0]);
 
         DisplayFieldData displayField = DisplayFieldData.fromString(cvUse);
 
@@ -1087,8 +1180,8 @@ public class MPEDisplayManager {
                 entry.setLabel("");
             } else {
                 // Convert display to data, cast to int, convert back to display
-                entry.setDisplayValue(dataToDisplay.convert((int) displayToData
-                        .convert(threshold)));
+                entry.setDisplayValue(dataToDisplay
+                        .convert((int) displayToData.convert(threshold)));
                 if (displayField != DisplayFieldData.Index) {
                     entry.setLabel(format.format(threshold));
                 }
@@ -1106,31 +1199,22 @@ public class MPEDisplayManager {
 
         params.setColorMap(new ColorMap(cvUse, red, green, blue));
         params.setDataMapping(dm);
-        params.setDataMin(0);
-        params.setDataMax(numColors - 1);
-        params.setColorMapMin(params.getDataMin());
-        params.setColorMapMax(params.getDataMax());
 
         // Check for Index parameter and set labels to radar sites
         // Determine and store radar type (S/D/M) for display in legend
-        // See getAvailableRadarGridType method in .../MPEGui/TEXT/drawMpeLegend.c
-        if (displayField == DisplayFieldData.Index)
-        {
+        // See getAvailableRadarGridType method in
+        // .../MPEGui/TEXT/drawMpeLegend.c
+        if (displayField == DisplayFieldData.Index) {
             MPERadarLoc[] radars = MPEDataManager.getInstance().getRadars()
                     .toArray(new MPERadarLoc[0]);
-            DataMappingEntry[] entries = dm.getEntries().toArray(
-                    new DataMappingEntry[0]);
-          
+            DataMappingEntry[] entries = dm.getEntries()
+                    .toArray(new DataMappingEntry[0]);
             int offset = 2;
-            for (int i = offset; i < entries.length; ++i)
-            {
+            for (int i = offset; i < entries.length; ++i) {
                 int radarIdx = i - offset;
-                if (radarIdx < radars.length)
-                {
+                if (radarIdx < radars.length) {
                     entries[i].setLabel(radars[radarIdx].getId());
-                }
-                else
-                {
+                } else {
                     entries[i].setLabel("");
                 }
             }
@@ -1148,8 +1232,8 @@ public class MPEDisplayManager {
      */
     public static void startLooping(IDisplayPaneContainer container, int hour) {
         LoopProperties loopProps = container.getLoopProperties();
-        int frameRate = Integer.parseInt(AppsDefaults.getInstance().getToken(
-                "hydroview_mpe_timelapse", "1000"));
+        int frameRate = Integer.parseInt(AppsDefaults.getInstance()
+                .getToken("hydroview_mpe_timelapse", "1000"));
         loopProps.setFwdFrameTime(frameRate);
         for (IDisplayPane pane : container.getDisplayPanes()) {
             MPEDisplayManager mgr = MPEDisplayManager.getInstance(pane);
@@ -1212,9 +1296,8 @@ public class MPEDisplayManager {
     public static boolean okToProceed(String message) {
         Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                 .getShell();
-
-        return MessageDialog.openConfirm(shell, message, message
-                + " - OK to Proceed?");
+        return MessageDialog.openConfirm(shell, message,
+                message + " - OK to Proceed?");
     }
 
     /**
@@ -1229,87 +1312,150 @@ public class MPEDisplayManager {
         }
     }
 
-	public ComparisonFields getComparisonFields() {
-		return comparisonFields;
-	}
+    public ComparisonFields getComparisonFields() {
+        return comparisonFields;
+    }
 
-	public void setComparisonFields(ComparisonFields comparisonFields) {
-		this.comparisonFields = comparisonFields;
-	}
-	
-	public  AvailableRadarGridType getAvailableRadarType(String radId) {
-		// get radar type (SINGLE_POL/DUAL_POL/MISSING)
-		// check for DAA radar in DAARadarResult table - if found then return "DUAL_POL"
-		// else check for DPA radar in RWRadarResult table - if found then return "SINGLE_POL"
-		// else return "MISSING" - this is the default value
-		AvailableRadarGridType type = AvailableRadarGridType.MISSING;
-	
-		Date dateTime = getCurrentDisplayedDate();
-		int available;
-		
-		boolean dualPolAvailable = false;
-		boolean singlePolAvailable = false;
-		
-		RadarDataManager radarDataManager = RadarDataManager.getInstance();
+    public void setComparisonFields(ComparisonFields comparisonFields) {
+        this.comparisonFields = comparisonFields;
+    }
 
-		try 
-		{
-			available = radarDataManager.getAvailableRadarDP(radId, dateTime);
+    public AvailableRadarGridType getAvailableRadarType(String radId) {
+        // get radar type (SINGLE_POL/DUAL_POL/MISSING)
+        // check for DAA radar in DAARadarResult table - if found then return
+        // "DUAL_POL"
+        // else check for DPA radar in RWRadarResult table - if found then
+        // return "SINGLE_POL"
+        // else return "MISSING" - this is the default value
+        AvailableRadarGridType type = AvailableRadarGridType.MISSING;
 
-			if(available == 0 || available == 2)
-			{
-				dualPolAvailable = true;
-			}
+        Date dateTime = getCurrentDisplayedDate();
+        int available;
 
-			available = radarDataManager.getAvailableRadarSP(radId, dateTime);
-			if(available == 0 || available == 2)
-			{
-				singlePolAvailable = true;
-			}
-		}
-		
-		catch (VizException e) 
-		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		if (singlePolAvailable)
-		{
-			if (dualPolAvailable)
-			{
-				type = AvailableRadarGridType.SINGLE_AND_DUAL_POL;
-			}
-			else
-			{
-				type = AvailableRadarGridType.SINGLE_POL;
-			}
-		}
-		
-		else if (dualPolAvailable)
-		{
-			type = AvailableRadarGridType.DUAL_POL;
-		}
-		
-		else
-		{
-			type = AvailableRadarGridType.MISSING;
-		}
-		
-		
-		return type;
-	}
+        boolean dualPolAvailable = false;
+        boolean singlePolAvailable = false;
+
+        RadarDataManager radarDataManager = RadarDataManager.getInstance();
+
+        try {
+            available = radarDataManager.getAvailableRadarDP(radId, dateTime);
+
+            if (available == 0 || available == 2) {
+                dualPolAvailable = true;
+            }
+
+            available = radarDataManager.getAvailableRadarSP(radId, dateTime);
+            if (available == 0 || available == 2) {
+                singlePolAvailable = true;
+            }
+        } catch (VizException e) {
+            UFStatus.getHandler(getClass())
+                    .error("Failed to determine the availability of radar: "
+                            + radId + ".", e);
+        }
+
+        if (singlePolAvailable) {
+            if (dualPolAvailable) {
+                type = AvailableRadarGridType.SINGLE_AND_DUAL_POL;
+            } else {
+                type = AvailableRadarGridType.SINGLE_POL;
+            }
+        } else if (dualPolAvailable) {
+            type = AvailableRadarGridType.DUAL_POL;
+        } else {
+            type = AvailableRadarGridType.MISSING;
+        }
+
+        return type;
+    }
 
     public int getDisplayedAccumHrs() {
-       
         return displayedAccumHrs;
     }
-    
+
     public static IExtent getDefaultExtent() {
         return defaultExtent;
     }
-    
+
     public static void setDefaultExtent(IExtent defaultExtent) {
         MPEDisplayManager.defaultExtent = defaultExtent;
+    }
+
+    public List<RFCQPEResource> getRfcQpeRscList() {
+        return rfcQpeRscList;
+    }
+    
+    public void loadRFCQPEData() {
+        List<String> rfcList = new ArrayList<>();
+        List<String> invalidRfcList = new ArrayList<>();
+        AppsDefaults appsDefaults = AppsDefaults.getInstance();
+        String rfcs = appsDefaults.getToken(COLLABORATION_LIST);
+        if (rfcs != null) {
+            String[] rfcStrs=rfcs.split("[,]");
+            for (String rfcStr:rfcStrs) {
+                // Validate the RFC list
+                String rfcName = rfcStr.trim();
+                if (!rfcName.isEmpty()) {
+                    if (RFCSiteLookup.RFCMAP.get(rfcName) == null) {
+                        invalidRfcList.add(rfcName);
+                    } else {
+                        rfcList.add(rfcName);
+                    }
+                }
+            }
+        }
+
+        if (!invalidRfcList.isEmpty()) {
+            MessageBox messageBox = new MessageBox(new Shell(), SWT.OK);
+            messageBox.setText("Invalid RFC Site Name");
+            String invalidRfcNames = "";
+            for (String rfcName : invalidRfcList) {
+                invalidRfcNames += rfcName + " ";
+            }
+            messageBox.setMessage("These RFC sites defined in the "
+                    + COLLABORATION_LIST + " token are invalid :"
+                    + invalidRfcNames + "\nPlease adjust the definition.");
+            messageBox.open();
+        }
+
+        if (rfcList.isEmpty()) {
+            MessageBox messageBox = new MessageBox(new Shell(), SWT.OK);
+            messageBox.setText("No RFC Site Defined");
+            messageBox.setMessage("Please add RFC sites(s) to token "
+                    + COLLABORATION_LIST);
+            messageBox.open();
+            return;
+        }
+
+        IEditorPart part = EditorUtil.getActiveEditor();
+        if (part instanceof AbstractEditor) {
+
+            AbstractEditor ae = ((AbstractEditor) part);
+            pane = ae.getActiveDisplayPane();
+
+            IDescriptor descriptor = pane.getDescriptor();
+            for (ResourcePair rp : pane.getDescriptor().getResourceList()) {
+                if (rp.getResource() instanceof RFCQPEResource) {
+                    RFCQPEResource rcs = (RFCQPEResource) rp.getResource();
+                    descriptor.getResourceList().remove(rp);
+                    rcs.dispose();
+                }
+            }
+            pane.refresh();
+            
+            for (String rfcSite : rfcList) {
+                ResourcePair rp = new ResourcePair();
+
+                RFCQPEResourceData rfcQpeResourceData = new RFCQPEResourceData(rfcSite);
+
+                rp.setResourceData(rfcQpeResourceData);
+                descriptor.getResourceList().add(rp);
+                descriptor.getResourceList().instantiateResources(descriptor,
+                        true);
+                RFCQPEResource rfcQpeRsc = (RFCQPEResource) rp.getResource();
+                rfcQpeRsc.getProperties().setMapLayer(true);
+                rfcQpeRscList.add(rfcQpeRsc);
+            }
+        }
     }
 }

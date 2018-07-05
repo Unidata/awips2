@@ -22,7 +22,7 @@ package com.raytheon.viz.radar;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 
-import com.raytheon.viz.core.rsc.AbstractSpatialEnabler;
+import com.raytheon.uf.viz.core.rsc.groups.AbstractSpatialEnabler;
 
 /**
  * @deprecated do not use this class, it only exists for XML compatibility.

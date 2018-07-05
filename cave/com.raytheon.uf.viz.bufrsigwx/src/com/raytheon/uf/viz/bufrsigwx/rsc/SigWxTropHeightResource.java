@@ -1,25 +1,23 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.viz.bufrsigwx.rsc;
-
-import java.util.Comparator;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
@@ -29,6 +27,7 @@ import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.bufrsigwx.TropHeightData;
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
+import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.bufrsigwx.common.SigWxCommon;
 import com.raytheon.uf.viz.core.DrawableString;
@@ -43,8 +42,8 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 /**
  * Provides a resource that will display troppopause height/locations data for a
  * given reference time.
- * 
- * 
+ *
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -52,16 +51,16 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
  *  09/25/2009             jsanchez    Initial creation.
  * Sep 28, 2009 3099       bsteffen    Updated to conform with common SigWxResource
  * Jul 29, 2014 #3465      mapeters    Updated deprecated drawStrings() calls.
- * 
+ * Sep 12, 2016 5886       tgurney     Update paintInternal() signature
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
  */
 public class SigWxTropHeightResource extends SigWxResource {
 
-    private static UnitConverter meterToHft = SI.METER.getConverterTo(SI
-            .HECTO(NonSI.FOOT));
+    private static UnitConverter meterToHft = SI.METER
+            .getConverterTo(SI.HECTO(NonSI.FOOT));
 
     private static final String format = "%3.0f";
 
@@ -101,42 +100,33 @@ public class SigWxTropHeightResource extends SigWxResource {
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
-            PaintProperties paintProps, PointDataView pdv) throws VizException {
-        RGB color = getCapability(ColorableCapability.class).getColor();
-        Number[] hdf5Lats = pdv.getNumberAllLevels(LAT_STR);
-        Number[] hdf5Lons = pdv.getNumberAllLevels(LON_STR);
-        Number[] hdf5Hgts = pdv.getNumberAllLevels(HGT_STR);
-        int numOfPoints = pdv.getInt(NUM_OF_POINTS_STR);
-        int tropType = pdv.getInt(TYPE_STR);
-        TropHeightData data;
-        for (int i = 0; i < numOfPoints; i++) {
-            if (hdf5Hgts[i].floatValue() != SigWxCommon.MISSING) {
-                data = new TropHeightData(hdf5Lons[i].floatValue(), hdf5Lats[i]
-                        .floatValue(), hdf5Hgts[i].floatValue(), tropType);
-                paintTropHeights(target, color, data);
+            PaintProperties paintProps, PointDataContainer pdc)
+                    throws VizException {
 
+        for (int i = 0; i < pdc.getCurrentSz(); i++) {
+            PointDataView pdv = pdc.readRandom(i);
+            RGB color = getCapability(ColorableCapability.class).getColor();
+            Number[] hdf5Lats = pdv.getNumberAllLevels(LAT_STR);
+            Number[] hdf5Lons = pdv.getNumberAllLevels(LON_STR);
+            Number[] hdf5Hgts = pdv.getNumberAllLevels(HGT_STR);
+            int numOfPoints = pdv.getInt(NUM_OF_POINTS_STR);
+            int tropType = pdv.getInt(TYPE_STR);
+            TropHeightData data;
+            for (int j = 0; j < numOfPoints; j++) {
+                if (hdf5Hgts[j].floatValue() != SigWxCommon.MISSING) {
+                    data = new TropHeightData(hdf5Lons[j].floatValue(),
+                            hdf5Lats[j].floatValue(), hdf5Hgts[j].floatValue(),
+                            tropType);
+                    paintTropHeights(target, color, data);
+
+                }
             }
-        }
-    }
-
-    public class TropHeightComparator implements Comparator<TropHeightData> {
-
-        public int compare(TropHeightData o1, TropHeightData o2) {
-            if (o1 == null && o2 == null) {
-                return 0;
-            } else if (o2 == null) {
-                return 1;
-            } else if (o1 == null) {
-                return -1;
-            }
-            return o1.getHeight().compareTo(o2.getHeight());
-
         }
     }
 
     /**
-     * Draws teh trop heights on CAVE
-     * 
+     * Draws the trop heights on CAVE
+     *
      * @param target
      * @param color
      * @param kind
@@ -150,8 +140,8 @@ public class SigWxTropHeightResource extends SigWxResource {
         if (lat == SigWxCommon.MISSING || lon == SigWxCommon.MISSING) {
             return;
         }
-        double[] locationPixel = SigWxCommon.lonLatToWorldPixel(descriptor,
-                lon, lat);
+        double[] locationPixel = SigWxCommon.lonLatToWorldPixel(descriptor, lon,
+                lat);
         double height = data.getHeight();
 
         height = meterToHft.convert(height);
@@ -172,6 +162,7 @@ public class SigWxTropHeightResource extends SigWxResource {
         target.drawStrings(string);
     }
 
+    @Override
     protected String[] getParameters() {
         return new String[] { LAT_STR, LON_STR, NUM_OF_POINTS_STR, HGT_STR,
                 TYPE_STR };

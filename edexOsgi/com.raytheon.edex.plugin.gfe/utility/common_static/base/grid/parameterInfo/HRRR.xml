@@ -1,4 +1,29 @@
 <?xml version='1.0' encoding='UTF-8'?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <gridParamInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <valtimeMINUSreftime>
     <!-- 15 minutes intervals-->
@@ -73,9 +98,9 @@
     <units>dBZ</units>
     <udunits>decibals</udunits>
     <uiname>Refc</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <valid_range>-32.5</valid_range>
+    <valid_range>94.5</valid_range>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>EA</levelsDesc>
     <levels>
@@ -88,9 +113,9 @@
     <units>dBZ</units>
     <udunits>decibals</udunits>
     <uiname>Refd</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>100000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <valid_range>-32.5</valid_range>
+    <valid_range>94.5</valid_range>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>FHAG 1000 4000 HYB 1 NTAT 0</levelsDesc>
     <levels>
@@ -100,7 +125,7 @@
       <level>NTAT</level>
     </levels>
   </gridParameterInfo>
-  
+
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>retop</short_name>
     <long_name>Echo top height of 18dBZ surface</long_name>
@@ -109,7 +134,7 @@
     <uiname>echoTop</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>CTL</levelsDesc>
     <levels>
@@ -124,7 +149,7 @@
     <uiname>LftInd</uiname>
     <valid_range>-20.0</valid_range>
     <valid_range>20.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>MB 0&gt;500</levelsDesc>
     <levels>
@@ -139,7 +164,7 @@
     <uiname>CAPE</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>6000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC BL 0&gt;90 0&gt;180 0&gt;255</levelsDesc>
     <levels>
@@ -153,7 +178,7 @@
     <short_name>staticSpacing</short_name>
     <long_name>Grid spacing</long_name>
     <units>m</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
@@ -164,7 +189,7 @@
     <uiname>totPrecip</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -179,7 +204,7 @@
     <uiname>waterEqvAccSnowDepth</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -194,7 +219,7 @@
     <uiname>FreezePcpProb</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -209,7 +234,7 @@
     <uiname>totalCldCvr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>EA</levelsDesc>
     <levels>
@@ -224,7 +249,7 @@
     <uiname>lowLvlCldFr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>LCY</levelsDesc>
     <levels>
@@ -239,7 +264,7 @@
     <uiname>midLvlCldFr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>MCY</levelsDesc>
     <levels>
@@ -254,7 +279,7 @@
     <uiname>highLvlCldFr</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>HCL</levelsDesc>
     <levels>
@@ -269,7 +294,7 @@
     <uiname>uWind</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>FHAG 10 FHAG 80 MB 1000 925 850 700 500</levelsDesc>
     <levels>
@@ -290,7 +315,7 @@
     <uiname>convInhib</uiname>
     <valid_range>-1000.0</valid_range>
     <valid_range>1000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC BL 0&gt;90 0&gt;255</levelsDesc>
     <levels>
@@ -307,7 +332,7 @@
     <uiname>PMSL</uiname>
     <valid_range>80000.0</valid_range>
     <valid_range>110000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>MSL</levelsDesc>
     <levels>
@@ -322,7 +347,7 @@
     <uiname>snowDepth</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>10.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -337,7 +362,7 @@
     <uiname>CategoricalIcePlt</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -350,7 +375,7 @@
     <units>%</units>
     <udunits>percent </udunits>
     <uiname>FrznPcpProb</uiname>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -365,7 +390,7 @@
     <uiname>CategoricalRain</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -380,7 +405,7 @@
     <uiname>CategoricalSnow</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -395,7 +420,7 @@
     <uiname>bestLftInd</uiname>
     <valid_range>-20.0</valid_range>
     <valid_range>50.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>BL 0&gt;180</levelsDesc>
     <levels>
@@ -406,7 +431,7 @@
     <short_name>staticTopo</short_name>
     <long_name>Topography</long_name>
     <units>m</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>wgs</short_name>
@@ -416,7 +441,7 @@
     <uiname>windGustSpeed</uiname>
     <valid_range>0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -431,7 +456,7 @@
     <uiname>maxWindSpeed</uiname>
     <valid_range>0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>10 FHAG</levelsDesc>
     <levels>
@@ -446,7 +471,7 @@
     <uiname>Td</uiname>
     <valid_range>180.0</valid_range>
     <valid_range>330.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>FHAG 2 MB 1000 0925 700 500</levelsDesc>
     <levels>
@@ -476,7 +501,7 @@
     <uiname>hel</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>FHAG 1000 3000</levelsDesc>
     <levels>
@@ -492,7 +517,7 @@
     <uiname>Vis</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>100000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -507,7 +532,7 @@
     <uiname>vWind</uiname>
     <valid_range>-150.0</valid_range>
     <valid_range>150.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>FHAG 10 FHAG 80 MB 1000 925 850 700 500</levelsDesc>
     <levels>
@@ -520,7 +545,7 @@
       <level>MB500</level>
     </levels>
   </gridParameterInfo>
-  
+
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>ws1hr</short_name>
     <long_name>Wind Speed</long_name>
@@ -529,7 +554,7 @@
     <uiname>windSpeed</uiname>
     <valid_range>0</valid_range>
     <valid_range>150</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>10 FHAG</levelsDesc>
     <levels>
@@ -545,7 +570,7 @@
     <uiname>T</uiname>
     <valid_range>180.0</valid_range>
     <valid_range>330.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>2 FHAG MB 1000 925 850 700 500</levelsDesc>
     <levels>
@@ -561,7 +586,7 @@
     <short_name>staticCoriolis</short_name>
     <long_name>Coriolis parameter</long_name>
     <units>s^-1</units>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
   </gridParameterInfo>
   <gridParameterInfo xsi:type="parameterInfo">
     <short_name>gh</short_name>
@@ -571,7 +596,7 @@
     <uiname>geoPotHt</uiname>
     <valid_range>-2000.0</valid_range>
     <valid_range>20000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC ADCL CBL CTL CLG MB 1000 500</levelsDesc>
     <levels>
@@ -592,7 +617,7 @@
     <uiname>atmP</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>110000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -605,7 +630,7 @@
     <units>(kg/m**2)/s</units>
     <valid_range>0.0</valid_range>
     <valid_range>0.10000000149</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -620,7 +645,7 @@
     <uiname>precipH2O</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>300.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>EA</levelsDesc>
     <levels>
@@ -635,7 +660,7 @@
     <uiname>CategoricalFrzRain</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>1.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>SFC</levelsDesc>
     <levels>
@@ -650,7 +675,7 @@
     <uiname>windDir</uiname>
     <valid_range>0.0</valid_range>
     <valid_range>360.0</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>1</n3D>
     <levelsDesc>FHAG 10</levelsDesc>
     <levels>
@@ -665,14 +690,14 @@
     <uiname>windSpeed</uiname>
     <valid_range>0</valid_range>
     <valid_range>150</valid_range>
-    <fillValue>-99999.0</fillValue>
+    <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
     <levelsDesc>10 FHAG</levelsDesc>
     <levels>
       <level>FHAG10</level>
     </levels>
   </gridParameterInfo>
-  <!-- Found these in grid_info and level entries tables. 
+  <!-- Found these in grid_info and level entries tables.
        For now ignore.
    -->
   <!-- USTM GHAG 0-6000 ? -->

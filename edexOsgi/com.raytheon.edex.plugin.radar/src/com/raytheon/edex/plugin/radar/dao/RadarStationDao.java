@@ -140,7 +140,7 @@ public class RadarStationDao extends CoreDao {
              * postGIS spatial queries
              */
             StringBuffer sql = new StringBuffer();
-            sql.append("SELECT wfo_id,rda_id FROM awips.radar_spatial WHERE the_geom && GeomFromText('POLYGON((");
+            sql.append("SELECT wfo_id,rda_id FROM awips.radar_spatial WHERE the_geom && ST_GeomFromText('POLYGON((");
 
             Coordinate currentCoord = null;
             for (int i = 0; i < coords.size(); i++) {

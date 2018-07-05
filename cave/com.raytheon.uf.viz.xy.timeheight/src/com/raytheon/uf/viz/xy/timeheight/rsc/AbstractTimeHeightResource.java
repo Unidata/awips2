@@ -53,6 +53,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData.CombineOperation;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.graph.labeling.DataTimeLabel;
@@ -60,15 +62,13 @@ import com.raytheon.uf.viz.xy.graph.labeling.DoubleLabel;
 import com.raytheon.uf.viz.xy.graph.labeling.IGraphLabel;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
 import com.raytheon.uf.viz.xy.map.rsc.IInsetMapResource;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
 import com.raytheon.viz.core.graphing.util.GraphPrefsFactory;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.map.GeoUtil;
-import com.raytheon.viz.core.rsc.ICombinedResourceData;
-import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
-import com.raytheon.viz.core.slice.request.HeightScale;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -90,6 +90,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 15, 2014  3535     njensen   Bigger inset map point
  * Aug 12, 2016  5822     bsteffen  add disposeRenderables for handling data
  *                                  refresh.
+ * May 02, 2017  6048     bsteffen  Fix NullPointerException
  * 
  * </pre>
  * 
@@ -188,13 +189,7 @@ public abstract class AbstractTimeHeightResource extends
             LoadProperties props, AbstractVarHeightAdapter<?> adapter) {
         super(data, props);
         this.adapter = adapter;
-        ICombinedResourceData combinedResourceData = null;
-
-        try {
-            combinedResourceData = getResourceData();
-        } catch (ClassCastException e) {
-            // do nothing
-        }
+        ICombinedResourceData combinedResourceData = getResourceData();
 
         if (combinedResourceData != null) {
             this.secondaryResource = (AbstractTimeHeightResource) combinedResourceData
@@ -231,8 +226,8 @@ public abstract class AbstractTimeHeightResource extends
         }
         if (prefs == null) {
             try {
-                prefs = GraphPrefsFactory.buildPreferences(
-                        resourceData.getParameter(), null);
+                prefs = GraphPrefsFactory
+                        .buildPreferences(resourceData.getParameter(), null);
             } catch (StyleException e) {
                 throw new VizException(e.getLocalizedMessage(), e);
             }
@@ -256,8 +251,8 @@ public abstract class AbstractTimeHeightResource extends
 
         DataTime[] myDataTimes = null;
         synchronized (this.dataTimes) {
-            myDataTimes = this.dataTimes.toArray(new DataTime[this.dataTimes
-                    .size()]);
+            myDataTimes = this.dataTimes
+                    .toArray(new DataTime[this.dataTimes.size()]);
         }
 
         IGraph graph = descriptor.getGraph(this);
@@ -275,21 +270,22 @@ public abstract class AbstractTimeHeightResource extends
                 List<XYData> dataList = adapter.loadData(myDataTime);
                 adapter.sortData(dataList);
                 adapter.convertData(dataList, getUnit());
-                columns[i] = InterpUtils.makeColumn(dataList, (int) geometry
-                        .getGridRange2D().getHeight(), graph, descriptor
-                        .getHeightScale().getMinVal() < descriptor
-                        .getHeightScale().getMaxVal(), Float.NaN);
+                columns[i] = InterpUtils.makeColumn(dataList,
+                        (int) geometry.getGridRange2D().getHeight(), graph,
+                        descriptor.getHeightScale().getMinVal() < descriptor
+                                .getHeightScale().getMaxVal(),
+                        Float.NaN);
                 times[i] = myDataTime.getValidTime().getTimeInMillis();
             } catch (VizException e) {
-                statusHandler.handle(
-                        Priority.PROBLEM,
+                statusHandler.handle(Priority.PROBLEM,
                         "Error loading Time Height Data for time "
                                 + myDataTime.getLegendString() + ": "
-                                + e.getLocalizedMessage(), e);
+                                + e.getLocalizedMessage(),
+                        e);
             }
         }
-        interpolatedData = InterpUtils.makeRows(columns, times, (int) geometry
-                .getGridRange2D().getWidth(), graph,
+        interpolatedData = InterpUtils.makeRows(columns, times,
+                (int) geometry.getGridRange2D().getWidth(), graph,
                 direction == TimeDirection.LEFT_TO_RIGHT, Float.NaN);
 
         // reset any cached images/contours
@@ -308,8 +304,8 @@ public abstract class AbstractTimeHeightResource extends
             throws VizException {
         // paint a point
         Coordinate point = resourceData.getPoint();
-        double[] pixels = insetMapDescriptor.worldToPixel(new double[] {
-                point.x, point.y });
+        double[] pixels = insetMapDescriptor
+                .worldToPixel(new double[] { point.x, point.y });
         target.drawPoint(pixels[0], pixels[1], 0.0,
                 getCapability(ColorableCapability.class).getColor(),
                 PointStyle.STAR, 1.5f);
@@ -354,16 +350,16 @@ public abstract class AbstractTimeHeightResource extends
 
             stnID = resourceData.getMetadataMap().get("location.stationId")
                     .getConstraintValue();
-            if (stnID == null)
+            if (stnID == null) {
                 stnID = "";
+            }
         }
-        if (stnID != "")
+        if (!"".equals(stnID)) {
             completeName += " " + stnID;
-
-        else {
+        } else {
             if (resourceData.getPointCoordinate() != null) {
-                String formattedPoint = GeoUtil.formatCoordinate(resourceData
-                        .getPointCoordinate());
+                String formattedPoint = GeoUtil
+                        .formatCoordinate(resourceData.getPointCoordinate());
                 completeName += " " + formattedPoint;
             }
         }
@@ -371,7 +367,8 @@ public abstract class AbstractTimeHeightResource extends
         String parameterName = resourceData.getParameterName();
 
         completeName += " " + parameterName;
-        if (getCapability(DisplayTypeCapability.class).getDisplayType() == DisplayType.IMAGE) {
+        if (getCapability(DisplayTypeCapability.class)
+                .getDisplayType() == DisplayType.IMAGE) {
             completeName += " Img";
         }
         completeName += " (" + getUnitString() + ")";
@@ -411,13 +408,13 @@ public abstract class AbstractTimeHeightResource extends
             // To be numerically accurate the grid geometry should be 1 grid
             // cell larger than the graph
             extent.scale(1.01);
-            GeneralEnvelope env = new GeneralEnvelope(new double[] {
-                    extent.getMinX(), extent.getMinY() }, new double[] {
-                    extent.getMaxX(), extent.getMaxY() });
+            GeneralEnvelope env = new GeneralEnvelope(
+                    new double[] { extent.getMinX(), extent.getMinY() },
+                    new double[] { extent.getMaxX(), extent.getMaxY() });
             env.setCoordinateReferenceSystem(descriptor.getGridGeometry()
                     .getCoordinateReferenceSystem());
-            GeneralGridEnvelope range = new GeneralGridEnvelope(new int[] { 0,
-                    0 }, new int[] { 100, 100 }, false);
+            GeneralGridEnvelope range = new GeneralGridEnvelope(
+                    new int[] { 0, 0 }, new int[] { 100, 100 }, false);
             geometry = new GridGeometry2D(range, env);
         }
         if (interpolatedData == null) {
@@ -434,7 +431,10 @@ public abstract class AbstractTimeHeightResource extends
                 dataTimes.add(pdoTime);
                 Collections.sort(dataTimes);
                 if (descriptor != null) {
-                    descriptor.getGraph(this).reconstruct();
+                    IGraph graph = descriptor.getGraph(this);
+                    if (graph != null) {
+                        graph.reconstruct();
+                    }
                 }
             }
         }
@@ -448,7 +448,10 @@ public abstract class AbstractTimeHeightResource extends
         }
         adapter.remove(dataTime);
         if (descriptor != null) {
-            descriptor.getGraph(this).reconstruct();
+            IGraph graph = descriptor.getGraph(this);
+            if (graph != null) {
+                graph.reconstruct();
+            }
         }
         // Should clear out cached images and such.
         loadDataJob.schedule();
@@ -504,7 +507,8 @@ public abstract class AbstractTimeHeightResource extends
             labels = new DataTimeLabel[dataTimes.size()];
             int i = 0;
             for (DataTime time : dataTimes) {
-                labels[i++] = new DataTimeLabel(time);
+                labels[i] = new DataTimeLabel(time);
+                i += 1;
             }
         }
         return labels;

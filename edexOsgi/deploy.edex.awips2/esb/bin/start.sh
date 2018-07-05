@@ -1,4 +1,23 @@
 #!/bin/bash
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
 # edex startup script
 
 # Verify awips2 RPMs are installed
@@ -29,23 +48,46 @@ fi
 path_to_script=`readlink -f $0`
 dir=$(dirname $path_to_script)
 export EDEX_HOME=$(dirname $dir)
-awips_home=$(dirname $EDEX_HOME)
-export HOSTNAME=`hostname`
-export SHORT_HOSTNAME=`hostname -s`
+AWIPS_HOME=$(dirname $EDEX_HOME)
 
 PYTHON_INSTALL="/awips2/python"
 JAVA_INSTALL="/awips2/java"
 PSQL_INSTALL="/awips2/psql"
 YAJSW_HOME="/awips2/yajsw"
 
+# Find the edex version
+rpm -q awips2-edex > /dev/null 2>&1
+RC=$?
+if [ ${RC} -ne 0 ]; then
+    version="Undefined"
+else
+    version=`rpm -q awips2-edex --qf %{VERSION}`
+fi
+export EDEX_VERSION=$version
+
 # Source The File With The Localization Information
 source ${dir}/setup.env
 
+export HOSTNAME=`hostname`
+export SHORT_HOSTNAME=`hostname -s`
+
 export JAVA_HOME="${JAVA_INSTALL}"
-export PATH=${PSQL_INSTALL}/bin:${JAVA_INSTALL}/bin:${PYTHON_INSTALL}/bin:/awips2/tools/bin:$PATH
+export PATH=${PSQL_INSTALL}/bin:${JAVA_INSTALL}/bin:${PYTHON_INSTALL}/bin:/awips2/tools/bin:/awips2/GFESuite/bin:$PATH
 export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib:${PSQL_INSTALL}/lib:$LD_LIBRARY_PATH
-export FXA_DATA=/awips2/fxa/data
+export FXA_DATA=$EDEX_HOME/data/fxa
 export ALLOW_ARCHIVE_DATA="false"
+
+# setup environment for HPE
+export AMQP_SPEC=$AWIPS_HOME/python/share/amqp/amqp.0-10.xml
+
+# get total memory on system in bytes
+MEM_IN_MEG=( `free -m | grep "Mem:"` )
+export MEM_IN_MEG=${MEM_IN_MEG[1]}
+HIGH_MEM=off
+
+if [ $MEM_IN_MEG -gt 12288 ]; then
+    HIGH_MEM=on
+fi
 
 #-------------------------------------------------------------------------
 #read and interpret the command line arguments
@@ -56,24 +98,35 @@ DEBUG_FLAG=off
 PROFILE_FLAG=off
 CONF_FILE="wrapper.conf"
 RUN_MODE=
+LOG_APPENDERS_CONFIG="logback-edex-appenders-developer.xml"
+EDEX_WRAPPER_LOGFILE_FORMAT=M
+
 for arg in $@
 do
   case $arg in
-    -b|-d|--debug|-db|-bd) DEBUG_FLAG=on;;
-    -p|--profiler) PROFILE_FLAG=on;;
-    -h|--highmem) ;;  # does nothing, only here to prevent issues if someone still uses -h
+    -b|-d|-debug|-db|-bd) DEBUG_FLAG=on;;
+    -p|-profiler) PROFILE_FLAG=on;;
+    -h|-highmem) HIGH_MEM=on;;
+    -noHighmem) HIGH_MEM=off;;
     -noConsole) CONSOLE_FLAG=off;;
     *) RUN_MODE=$arg;;
   esac
 done
 
 export EDEX_RUN_MODE=$RUN_MODE
+EDEX_WRAPPER_LOGFILE=${EDEX_HOME}/logs/edex-${EDEX_RUN_MODE}-YYYYMMDD.log
 
 if [ $CONSOLE_FLAG == "off" ]; then
-	CONSOLE_LOGLEVEL=NONE
+    CONSOLE_LOGLEVEL=NONE
+    LOG_APPENDERS_CONFIG="logback-edex-appenders.xml"
+    EDEX_WRAPPER_LOGFILE=${EDEX_HOME}/logs/edex-${EDEX_RUN_MODE}-wrapper-YYYYMMDD.log
+    EDEX_WRAPPER_LOGFILE_FORMAT=LTM
 fi
 
 export CONSOLE_LOGLEVEL
+export LOG_APPENDERS_CONFIG
+export EDEX_WRAPPER_LOGFILE
+export EDEX_WRAPPER_LOGFILE_FORMAT
 
 # source environment files
 . $EDEX_HOME/etc/default.sh
@@ -89,10 +142,10 @@ fi
 # enable core dumps
 #ulimit -c unlimited
 
-WRAPPER_ARGS=""
-if [ $DEBUG_FLAG == "on" ]; then
-   WRAPPER_ARGS="wrapper.java.debug.port=${EDEX_DEBUG_PORT}"
-   echo "To Debug ... Connect to Port: ${EDEX_DEBUG_PORT}."
+if [ $DEBUG_FLAG == "off" ]; then
+    export EDEX_DEBUG_PORT=-1
+else
+    echo "To Debug ... Connect to Port: ${EDEX_DEBUG_PORT}."
 fi
 
 #create tmp dir
@@ -105,6 +158,6 @@ if [ ${RC} -ne 0 ]; then
    exit 1
 fi
 
-YAJSW_JVM_ARGS="-Xmx32m -XX:ReservedCodeCacheSize=16m -Djava.io.tmpdir=${AWIPS2_TEMP}"
+YAJSW_JVM_ARGS="-Xmx32m -XX:ReservedCodeCacheSize=4m -Djava.io.tmpdir=${AWIPS2_TEMP}"
 
-java ${YAJSW_JVM_ARGS} -jar ${YAJSW_HOME}/wrapper.jar -c ${EDEX_HOME}/conf/${CONF_FILE} ${WRAPPER_ARGS}
+java ${YAJSW_JVM_ARGS} -jar ${YAJSW_HOME}/wrapper.jar -c ${EDEX_HOME}/conf/${CONF_FILE}

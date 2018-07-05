@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -25,8 +25,6 @@ import java.util.List;
 import org.eclipse.core.commands.Command;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -44,6 +42,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
+import com.raytheon.uf.common.menus.vb.ViewMenu;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -56,18 +55,17 @@ import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.points.data.Point;
-import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.slice.request.HeightScales;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScales;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.LeftRightMenu;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * Main Volume Browser dialog.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -75,20 +73,20 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Jul 21, 2012 #875       rferrel     Now uses points.
  * Sep 26, 2012 #1216      rferrel     Point Change listener added to update
  *                                      the Time Series Point menu.
- * Oct  2, 2012 #1234      rferrel     Time series Point menu accounts for 
+ * Oct  2, 2012 #1234      rferrel     Time series Point menu accounts for
  *                                      having no points.
  * Jun 23, 2014 #3162      lvenable    Added code to have the Volume Browser display the min/max
  *                                      buttons in the title bar on thin client.
  * Jan 12, 2016 #5055      randerso    Changed toolbar menus to split when dialog is resized.
  *                                      Other general GUI cleanup
- * 
+ * Dec 07, 2014 #6355      nabowle     Enable refreshing of menus.
+ *
  * </pre>
- * 
+ *
  * @author lvenable
- * @version 1.0
  */
-public class VolumeBrowserDlg extends CaveSWTDialog implements
-        IGlobalChangedListener {
+public class VolumeBrowserDlg extends CaveSWTDialog
+        implements IGlobalChangedListener {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(VolumeBrowserDlg.class);
@@ -131,31 +129,26 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
      */
     private DataListsProdTableComp listTableComp;
 
+    public static final String DIALOG_TITLE = "Volume Browser";
+
     private SpaceTimeMenu previousSpaceTimeMenu = null;
 
     private boolean initialized = false;
 
     private IPointChangedListener pointChangeListener;
 
-    private ViewMenu type = null;
+    private MenuItem refreshMI;
 
-    public ViewMenu getType() {
-		return type;
-	}
-
-	public void setType(ViewMenu type) {
-		this.type = type;
-	}
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent shell.
      */
-    public VolumeBrowserDlg(Shell parent, ViewMenu viewMenu) {
-        super(parent, SWT.SHELL_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
-                | CAVE.DO_NOT_BLOCK);
-        setType(viewMenu);
+    public VolumeBrowserDlg(Shell parent) {
+        super(parent, SWT.SHELL_TRIM | SWT.RESIZE,
+                CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
+        setText(DIALOG_TITLE);
 
         dialogSettings = new VolumeBrowserDialogSettings();
         VizGlobalsManager.addListener(VizConstants.LOADMODE_ID, this);
@@ -192,15 +185,31 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         // Initialize all of the controls and layouts
         initializeComponents();
 
-        shell.addControlListener(new ControlAdapter() {
-            @Override
-            public void controlResized(ControlEvent e) {
-
-                listTableComp.resizeToolbars();
-
-            }
-
-        });
+        /*
+         * Currently disabled. Switching between VB views and this resize
+         * handler conflict. Switching views calculates an optimal number of
+         * bars for a dialog thats <= 90% of a display, sets that size as the
+         * minimum dialog size, and resizes the dialog. That resize is caught by
+         * this handler, which appears to use the old size when redetermining
+         * the optimal number of bars, sometimes creating too many bars for the
+         * dialog making the selection box below them unusable.
+         *
+         * Disabling this handler does mean that the dialog will always have the
+         * number of bars chosen originally, rather than possibly decreasing to
+         * fewer if the newly-sized dialog would allow. However, because the
+         * minimum size was fixed by the mode, we do not lose any capability to
+         * handle increasing the number of bars to fit a smaller dialog.
+         *
+         * All attempts so far to fix interoperability between the two events
+         * have either failed, or failed horribly.
+         */
+        // shell.addControlListener(new ControlAdapter() {
+        // @Override
+        // public void controlResized(ControlEvent e) {
+        // listTableComp.resizeToolbars();
+        // }
+        //
+        // });
 
         parent.addDisposeListener(new DisposeListener() {
             @Override
@@ -249,7 +258,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
     /**
      * Create the File menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -281,6 +290,17 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
             }
         });
 
+        // Refresh
+        refreshMI = new MenuItem(fileMenu, SWT.NONE);
+        refreshMI.setText("Refresh Menus");
+        refreshMI.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                updateToolbarMenus();
+            }
+        });
+        refreshMI.setEnabled(false);
+
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
         // Exit menu item
@@ -296,7 +316,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
     /**
      * Create the Edit menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -418,7 +438,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
     /**
      * Create the Tools menu.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -443,23 +463,20 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         baselinesMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ICommandService service = (ICommandService) PlatformUI
-                        .getWorkbench().getActiveWorkbenchWindow()
+                ICommandService service = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow()
                         .getService(ICommandService.class);
                 Command c = service
                         .getCommand("com.raytheon.viz.awipstools.baselines");
                 if (c != null) {
-                    HashMap<String, Object> params = new HashMap<String, Object>();
+                    HashMap<String, Object> params = new HashMap<>();
                     ExecutionEvent exec = new ExecutionEvent(c, params, null,
                             null);
                     try {
                         c.executeWithChecks(exec);
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        // UFStatus.handle(Priority.PROBLEM,
-                        // Activator.PLUGIN_ID,
-                        // StatusConstants.CATEGORY_GFE, null,
-                        // "Error executing open python command", e);
+                        statusHandler.warn(
+                                "Unable to execute baselines command.", e);
                     }
                 }
             }
@@ -471,23 +488,20 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         pointsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ICommandService service = (ICommandService) PlatformUI
-                        .getWorkbench().getActiveWorkbenchWindow()
+                ICommandService service = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow()
                         .getService(ICommandService.class);
                 Command c = service
                         .getCommand("com.raytheon.viz.awipstools.points");
                 if (c != null) {
-                    HashMap<String, Object> params = new HashMap<String, Object>();
+                    HashMap<String, Object> params = new HashMap<>();
                     ExecutionEvent exec = new ExecutionEvent(c, params, null,
                             null);
                     try {
                         c.executeWithChecks(exec);
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        // UFStatus.handle(Priority.PROBLEM,
-                        // Activator.PLUGIN_ID,
-                        // StatusConstants.CATEGORY_GFE, null,
-                        // "Error executing open python command", e);
+                        statusHandler.warn("Unable to execute points command.",
+                                e);
                     }
                 }
             }
@@ -499,23 +513,20 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         chooseByIdMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ICommandService service = (ICommandService) PlatformUI
-                        .getWorkbench().getActiveWorkbenchWindow()
+                ICommandService service = PlatformUI.getWorkbench()
+                        .getActiveWorkbenchWindow()
                         .getService(ICommandService.class);
                 Command c = service
                         .getCommand("com.raytheon.viz.awipstools.choosebyid");
                 if (c != null) {
-                    HashMap<String, Object> params = new HashMap<String, Object>();
+                    HashMap<String, Object> params = new HashMap<>();
                     ExecutionEvent exec = new ExecutionEvent(c, params, null,
                             null);
                     try {
                         c.executeWithChecks(exec);
                     } catch (Exception e) {
-                        e.printStackTrace();
-                        // UFStatus.handle(Priority.PROBLEM,
-                        // Activator.PLUGIN_ID,
-                        // StatusConstants.CATEGORY_GFE, null,
-                        // "Error executing open python command", e);
+                        statusHandler.warn(
+                                "Unable to execute Choose By ID command.", e);
                     }
                 }
             }
@@ -525,7 +536,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
     /**
      * Create the "Settings" menu. The menu text on the menu bar reflects the
      * selected menu item.
-     * 
+     *
      * @param menuBar
      *            Menu bar.
      */
@@ -534,8 +545,8 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         // Create the "Settings" menu
         // -------------------------------------
         settingsMI = new MenuItem(menuBar, SWT.CASCADE);
-        settingsMI.setText(type.displayString);
-        settingsMI.setData(type);
+        settingsMI.setText(ViewMenu.PLANVIEW.getDisplayString());
+        settingsMI.setData(ViewMenu.PLANVIEW);
 
         // Create the "Settings" menu item
         Menu settingsMenu = new Menu(menuBar);
@@ -543,7 +554,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
         for (ViewMenu settingsItem : ViewMenu.values()) {
             final MenuItem menuItem = new MenuItem(settingsMenu, SWT.NONE);
-            menuItem.setText(settingsItem.displayString);
+            menuItem.setText(settingsItem.getDisplayString());
             menuItem.setData(settingsItem);
             menuItem.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -655,7 +666,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
 
     /**
      * Handle the menu item selected in the "Settings" menu.
-     * 
+     *
      * @param mi
      */
     private void settingMenuSelection(MenuItem mi) {
@@ -663,8 +674,8 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         settingsMI.setData(mi.getData());
 
         if (pointChangeListener != null) {
-            PointsDataManager.getInstance().removePointsChangedListener(
-                    pointChangeListener);
+            PointsDataManager.getInstance()
+                    .removePointsChangedListener(pointChangeListener);
             pointChangeListener = null;
         }
 
@@ -722,8 +733,8 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
                     });
                 }
             };
-            PointsDataManager.getInstance().addPointsChangedListener(
-                    pointChangeListener);
+            PointsDataManager.getInstance()
+                    .addPointsChangedListener(pointChangeListener);
         }
 
         dialogSettings.setViewSelection(currentSetting);
@@ -771,8 +782,8 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
             });
         }
 
-        dialogSettings.setSpaceTimeSelection((SpaceTimeMenu) spaceTimeMI
-                .getData());
+        dialogSettings
+                .setSpaceTimeSelection((SpaceTimeMenu) spaceTimeMI.getData());
     }
 
     /**
@@ -834,8 +845,8 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
             });
         }
 
-        dialogSettings.setTimeDirectionSelection((LeftRightMenu) leftRightMI
-                .getData());
+        dialogSettings.setTimeDirectionSelection(
+                (LeftRightMenu) leftRightMI.getData());
     }
 
     /**
@@ -864,7 +875,7 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
     /**
      * Place in a menu the children of a node. When a child of the node is a
      * group create a menu for it and populate it.
-     * 
+     *
      * @param pntsMenu
      *            - the menu to add items to
      * @param node
@@ -874,10 +885,11 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
     private IPointNode populatePointsMenu(Menu pntsMenu, IPointNode node) {
         IPointNode firstPoint = null;
         IPointNode point = null;
-        for (IPointNode child : PointsDataManager.getInstance().getChildren(
-                node)) {
+        for (IPointNode child : PointsDataManager.getInstance()
+                .getChildren(node)) {
             if (child.isGroup()) {
-                if (PointsDataManager.getInstance().getChildren(child).size() > 0) {
+                if (PointsDataManager.getInstance().getChildren(child)
+                        .size() > 0) {
                     MenuItem menuItem = new MenuItem(pntsMenu, SWT.CASCADE);
                     menuItem.setText(child.getName());
                     menuItem.setData(child);
@@ -912,13 +924,13 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
     /**
      * Update the menu text and the associated data of the menu item located in
      * the menu bar.
-     * 
+     *
      * @param mi
      *            Selection event's menu item.
      */
     private void updateMenu(MenuItem mi) {
         if (mi.getData() == null) {
-            System.out.println("Data is null");
+            statusHandler.warn("Data is null");
         }
 
         Menu menu = mi.getParent();
@@ -935,11 +947,13 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
     /**
      * Update the toolbar menus as they may have changed.
      */
-    private void updateToolbarMenus() {
+    protected void updateToolbarMenus() {
+        setText(DIALOG_TITLE);
+        refreshMI.setEnabled(false);
+
         shell.setMinimumSize(10, 10);
 
         ViewMenu setting = (ViewMenu) settingsMI.getData();
-        setText(setting.getDisplayString());
         SpaceTimeMenu spaceTime = null;
 
         if (spaceTimeMI != null) {
@@ -969,10 +983,12 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
     public void updateValue(IWorkbenchWindow window, Object value) {
         LoadMode mode = (LoadMode) value;
         if (initialized
-                && !(mode == LoadMode.PROG_LOOP || mode == LoadMode.FCST_TIME_MATCH)
-                && dialogSettings.getSpaceTimeSelection() == SpaceTimeMenu.SPACE) {
-            dialogSettings
-                    .setSpaceTimeSelection(VBMenuBarItemsMgr.SpaceTimeMenu.TIME);
+                && !(mode == LoadMode.PROG_LOOP
+                        || mode == LoadMode.FCST_TIME_MATCH)
+                && dialogSettings
+                        .getSpaceTimeSelection() == SpaceTimeMenu.SPACE) {
+            dialogSettings.setSpaceTimeSelection(
+                    VBMenuBarItemsMgr.SpaceTimeMenu.TIME);
             for (MenuItem item : menuBar.getItems()) {
                 Object menuSetting = item.getData();
                 if (menuSetting instanceof VBMenuBarItemsMgr.SpaceTimeMenu) {
@@ -986,4 +1002,10 @@ public class VolumeBrowserDlg extends CaveSWTDialog implements
         }
     }
 
+    public void updatesAvailable() {
+        VizApp.runAsync(() -> {
+            this.setText(DIALOG_TITLE + " * Refresh for Menu Updates *");
+            refreshMI.setEnabled(true);
+        });
+    }
 }

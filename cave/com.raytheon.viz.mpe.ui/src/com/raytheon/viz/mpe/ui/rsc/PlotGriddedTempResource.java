@@ -77,27 +77,28 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
- * TODO Add Description
+ * The MPE Gridded Temperature Resource.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 30, 2009  2524          snaples     Initial creation
- * Feb 29  2010  9909         lbousaidi	  changed the for loop for getting 
- * 										  the HRAP grid bin
- * Apr 17, 2012	 9602		mgamazaychikm	Changed the HRAP grid j index for loop
- * Nov 02, 2012  1302       djohnson    Remove target.setUseBuiltinColorbar().
+ * Jun 30, 2009  2524      snaples     Initial creation
+ * Feb 29  2010  9909      lbousaidi   changed the for loop for getting 
+ *                                     the HRAP grid bin
+ * Apr 17, 2012	 9602      mgamazaychikmChanged the HRAP grid j index for loop
+ * Nov 02, 2012  1302      djohnson    Remove target.setUseBuiltinColorbar().
+ * Feb 28, 2017  6157      bkowal      No longer alter the data when legend filtering
+ *                                     is enabled.
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
-public class PlotGriddedTempResource extends
-        AbstractVizResource<AbstractResourceData, MapDescriptor> implements
-        IMpeResource {
+public class PlotGriddedTempResource
+        extends AbstractVizResource<AbstractResourceData, MapDescriptor>
+        implements IMpeResource {
 
     private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
@@ -132,10 +133,6 @@ public class PlotGriddedTempResource extends
     private static final GeometryFactory gf = new GeometryFactory();
 
     private final List<Colorvalue> colorSet;
-
-    // Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
-
-    // Pcp pcp = DailyQcUtils.pcp;
 
     public PlotGriddedTempResource(MPEDisplayManager displayMgr,
             LoadProperties loadProperties, List<Colorvalue> colorSet) {
@@ -223,8 +220,8 @@ public class PlotGriddedTempResource extends
 
         cm.read_file(file, num, dqc.pcp);
 
-        buf = FloatBuffer.allocate(dqc.getHrap_grid().maxi
-                * dqc.getHrap_grid().maxj);
+        buf = FloatBuffer
+                .allocate(dqc.getHrap_grid().maxi * dqc.getHrap_grid().maxj);
 
         /* Get value in the HRAP grid bins. */
         for (j = dqc.getHrap_grid().maxj - 1; j >= 0; j--) {
@@ -258,17 +255,6 @@ public class PlotGriddedTempResource extends
                     f = fg;
                 } else {
                     f = 0f;
-                }
-                if (MPELegendResource.dVal != 0) {
-                    if (MPELegendResource.up == true) {
-                        if (f >= MPELegendResource.dVal) {
-                            f = (float) MPELegendResource.dVal;
-                        }
-                    } else {
-                        if (f < MPELegendResource.dVal) {
-                            f = 0f;
-                        }
-                    }
                 }
                 buf.put(f);
             }
@@ -310,13 +296,6 @@ public class PlotGriddedTempResource extends
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Map<String, Object> Values = interrogate(coord);
@@ -328,13 +307,6 @@ public class PlotGriddedTempResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
     @Override
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
@@ -345,8 +317,9 @@ public class PlotGriddedTempResource extends
         Map<String, Object> values = new HashMap<String, Object>();
 
         try {
-            Coordinate gridCell = coord.asGridCell(HRAP.getInstance()
-                    .getGridGeometry(), PixelInCell.CELL_CORNER);
+            Coordinate gridCell = coord.asGridCell(
+                    HRAP.getInstance().getGridGeometry(),
+                    PixelInCell.CELL_CORNER);
             Coordinate l = coord.asLatLon();
 
             Point p = new Point((int) gridCell.x, (int) gridCell.y);
@@ -375,8 +348,8 @@ public class PlotGriddedTempResource extends
 
             ISpatialQuery query = SpatialQueryFactory.create();
 
-            com.vividsolutions.jts.geom.Point point = gf.createPoint(coord
-                    .asLatLon());
+            com.vividsolutions.jts.geom.Point point = gf
+                    .createPoint(coord.asLatLon());
 
             SpatialQueryResult[] results = query.query("county",
                     new String[] { "countyname" }, point, null, false,
@@ -441,14 +414,14 @@ public class PlotGriddedTempResource extends
         this.target = target;
         time_pos = ddq.time_pos;
         plot_gridded_temp(ddq.prefix, time_pos);
-
     }
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
 
-        if (buf == null || dqc.grids_flag != 1 || displayMgr.isMaxmin() != true) {
+        if (buf == null || dqc.grids_flag != 1
+                || displayMgr.isMaxmin() != true) {
             return;
         }
 
@@ -457,8 +430,6 @@ public class PlotGriddedTempResource extends
         if (mode.contains(DisplayMode.Image)) {
             if (gridDisplay == null) {
                 gridDisplay = new GriddedImageDisplay2(buf, gridGeometry, this);
-                // gridDisplay.setColorMapParameters(getCapability(
-                // ColorMapCapability.class).getColorMapParameters());
             }
 
             GriddedImagePaintProperties giProps = new GriddedImagePaintProperties(
@@ -482,11 +453,6 @@ public class PlotGriddedTempResource extends
         first = 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         if (ddq.qcmode == "") {

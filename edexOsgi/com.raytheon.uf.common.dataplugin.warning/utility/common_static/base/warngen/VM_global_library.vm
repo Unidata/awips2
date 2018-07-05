@@ -39,6 +39,10 @@
 #####    Bookbinder        10-30-2015  Added several additional fe_area codes and cleaned up watch logic.
 #####    Evan Bookbinder   12-01-2015  Fixed single column output
 #####    Richard Barnhill   5-10-2016  Fixed "OF" to "of" to conform to mixed case
+#####    Evan Bookbinder    1-30-2017  Tornado/Severe Thunderstorm Watch capilization (DR19649)
+#####    Evan Bookbinder    1-30-2017  Added period after 2nd bullet (NWS Directives finally corrected) DR 19345
+#####    Evan Bookbinder    2-03-2017  Backed out obselete commaOrEllipses() macro here and in all templates
+#####    Evan Bookbinder    9-13-2017  Fixed WordWrap macro subsequent line spacing
 ##############################################################################################################
 #*
 Mile Marker Test Code                                     
@@ -58,18 +62,6 @@ $simplify is a boolean value (true or false)
          - false is a big list (MM 2...3...AND 4)   
 ###################################################################################################
 *#
-### AUTHOR: RON ANDERSON
-### PURPOSE: INSERT COMMA OR ELLIPSIS AS APPROPRIATE
-#macro(commaOrEllipsis)
-#if($mixedCaseEnabled)
-, ##
-#else
-...##
-#end
-#end
-########END MACRO
-
-
 ### AUTHORS: EVAN BOOKBINDER & MIKE DANGELO
 ### PURPOSE: OUTPUT MILE MARKER, ROAD, INTERSECTION INFO
 #macro(mmarkers $markers $id $name $type $simplify)
@@ -266,7 +258,7 @@ ${drainage.name}##
 #set($endTime = ${watch.endTime})
 #if(${watch.etn} != ${lastEtn})
 #set($lastTime = "#until(${endTime}, ${timeFormat}, ${secondtimezone}, ${watch})")
-A tornado watch${ALSO} remains in effect ${lastTime}##
+A Tornado Watch${ALSO} remains in effect ${lastTime}##
 #set($ALSO = " also")
 #else
 #if(!$foreach.hasNext() || ${watch.etn} != $etns.get(${count}))
@@ -325,7 +317,7 @@ until #formatTwoTimes($time1, $time2) for ##
 #set($endTime = ${watch.endTime})
 #if(${watch.etn} != ${lastEtn})
 #set($lastTime = "#until(${endTime}, ${timeFormat}, ${secondtimezone}, ${watch})")
-A severe thunderstorm watch${ALSO} remains in effect ${lastTime}##
+A Severe Thunderstorm Watch${ALSO} remains in effect ${lastTime}##
 #set($ALSO = " also")
 #else
 #if(!$foreach.hasNext() || ${watch.etn} != $etns.get(${count}))
@@ -438,7 +430,7 @@ south##
 #if(${AFcounter} == ${dirListSize})
 #set($afPhrase = "${afPhrase} and ")
 #else
-#set($afPhrase = "${afPhrase}#commaOrEllipsis()")
+#set($afPhrase = "${afPhrase}, ")
 #end
 #end
 #if((${dir} == "BB") || (${dir} == "bb"))
@@ -578,11 +570,14 @@ south##
 #end
 #if(${useCentral} && ${list.contains($directionSet, "CENTRAL")}) 
 #if(${list.contains($directionSet, "NORTH")} || ${list.contains($directionSet, "SOUTH")} || ${list.contains($directionSet, "EAST")} || ${list.contains($directionSet, "WEST")})
-#set($afPhrase = "${afPhrase} ")
+#set($afPhrase = "#capitalize(${afPhrase} 'NONE')")
+#set($afPhrase = "${afPhrase} central")
+#else
+#set($afPhrase = "central")
 #end
-#set($afPhrase = "${afPhrase}central")
 #elseif(${list.contains($directionSet, "NORTH")} || ${list.contains($directionSet, "SOUTH")} || ${list.contains($directionSet, "EAST")} || ${list.contains($directionSet, "WEST")})
 #set($afPhrase = "${afPhrase}ern")
+#set($afPhrase = "#capitalize(${afPhrase} 'NONE')")
 #end
 ######### End portion of county/zone/city code
 #if($addSpace && (${afPhrase.length()} > 0)) 
@@ -625,7 +620,7 @@ along a line extending from #outputLineOfStorms($used1, $nearText, $nearThreshol
 #set($used2 = [])
 #lineOfStorms($used2, $used, $points2, $threshold, $units)
 #if(${used1.size()} == ${used2.size()})
-#commaOrEllipsis()or along a line extending from #outputLineOfStorms($used2, $nearText, $nearThreshold, $overThreshold, $units)##
+, or along a line extending from #outputLineOfStorms($used2, $nearText, $nearThreshold, $overThreshold, $units)##
 #end
 #end
 #else
@@ -649,11 +644,11 @@ ${point1.roundedDistance} #capitalize($units "NONE") #direction(${point1.opposit
 ${location}##
 #if($point2 && $useSecondRef && ${point2.name} != ${point1.name})
 #if($point2.roundedDistance <= $overThreshold)
-#commaOrEllipsis()or ${overText} ##
+, or ${overText} ##
 #elseif($point2.roundedDistance <= $nearThreshold)
-#commaOrEllipsis()or ${nearText} ##
+, or ${nearText} ##
 #else
-#commaOrEllipsis()or ${point2.roundedDistance} #capitalize($units "NONE") #direction(${point2.oppositeRoundedAzimuth}) of ##
+, or ${point2.roundedDistance} #capitalize($units "NONE") #direction(${point2.oppositeRoundedAzimuth}) of ##
 #end
 #if(${point2.partOfArea}) 
 #set($location = "#areaFormat(${point2.partOfArea} true false false) ${point2.name}")
@@ -710,16 +705,22 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 ##### BEGIN NEW STATEMENT/ADVISORY COUNTY HEADLINE CODE ##########
 ## AUTHORED BY EVAN BOOKBINDER WFO EAX 8-18-11          ##########
 ## MODIFIED 9/2/15 TO WORKAROUND geospatial areas bug
+## MODIFIED 1/31/17 for new consolidated format to allow non-headline output of commas vs. ellipses
 ## not returning correct value to determine FIPS vs ZONE
 ## useCentralxxx = boolean to use the word CENTRAL in the County or State phrase
 ## useExtremexxx = boolean to use the word EXTREME in the county of State phrase
 ##################################################################
-#macro(headlineLocList $areas $useCentralCounty $useExtremeCounty $useCentralState $useExtremeState $capitalize)
+#macro(headlineLocList $areas $useCentralCounty $useExtremeCounty $useCentralState $useExtremeState $capitalize $commaOrDots)
 #### Determine capitalization flag
 #if(${capitalize})
 #set($capFlag = ${capitalize})
 #else
 #set($capFlag = "AS IS")
+#end
+#if(${commaOrDots})
+#set($commaFlag = ${commaOrDots})
+#else
+#set($commaFlag = "ELLIPSES")
 #end
 #set($countyCount = 0)
 #set($countyCounter = 0)
@@ -792,7 +793,11 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 #if(${itemCount} < ${numCounties} && (${prevCountyType} != ${area.areaNotation} || ((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)))
 #if(${countyCount} == 1)
 #if(${countyCounter} > 2)
+#if(${commaFlag} == "ELLIPSES")
 ...##
+#else
+, ##
+#end
 #end
 #if(${prevStateAbbrev} == "DC")
 #capitalize("the " ${capFlag})
@@ -844,7 +849,11 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 #elseif(${itemCount} == ${numCounties})
 #if(${countyCount} >= 1)
 #if(${countyCounter} > 2)
+#if(${commaFlag} == "ELLIPSES")
 ...##
+#else
+, ##
+#end
 #end
 #if(${prevStateAbbrev} == "DC")
 #capitalize("the " ${capFlag})
@@ -894,7 +903,11 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 #end
 #else
 #if(${countyCounter} > 1)
+#if(${commaFlag} == "ELLIPSES")
 ...##
+#else
+, ##
+#end
 #if(${numIndepCity} == 0)
 #capitalize(" and " ${capFlag})
 #end
@@ -921,7 +934,11 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 #else
 #if(${countyCounter} > 1)
 #if(${countyCounter} > 2)
+#if(${commaFlag} == "ELLIPSES")
 ...##
+#else
+, ##
+#end
 #end
 #if(${prevStateAbbrev} == "DC")
 #capitalize("the " ${capFlag})
@@ -960,7 +977,11 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 #set($indepCityCount= $indepCityCount + 1)
 #if(${indepCityCount} == 1 && ${countyCount} > 0)
 #if(${countyCounter} > 1) 
+#if(${commaFlag} == "ELLIPSES")
 ...##
+#else
+, ##
+#end
 #end
 #if(${countyCount} > 1 && ${prevStateAbbrev} != "DC")
 #capitalize("and " ${capFlag})
@@ -1029,9 +1050,17 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 #else
 ### CHANGE EB 3/30/15 FOR INDEPENDENT CITY PHRASING
 #if(${area.name.contains("City of")})
+#if(${commaFlag} == "ELLIPSES")
 #capitalize("...the " ${capFlag})
 #else
+#capitalize(", the " ${capFlag})
+#end
+#else
+#if(${commaFlag} == "ELLIPSES")
 ...##
+#else
+, ##
+#end
 #end
 ### END EB CHANGE 
 #if(${area.partOfArea})
@@ -1049,15 +1078,21 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 ##### BEGIN NEW STATEMENT/ADVISORY ZONE HEADLINE CODE     ##########
 ## AUTHORED BY EVAN BOOKBINDER WFO EAX 9-13-2012          ##########
 ## UPDATED FOR MIXED CASE 3-24-2015                       ###########
+## MODIFIED 1/31/17 for new consolidated format to allow non-headline output of commas vs. ellipses
 ## useCentralxxx = boolean to use the word CENTRAL in the Zone or State phrase
 ## useExtremexxx = boolean to use the word EXTREME in the county of State phrase
 ####################################################################
-#macro(zoneHeadlineLocList $areas $useCentralZone $useExtremeZone $useCentralState $useExtremeState $capitalize)
+#macro(zoneHeadlineLocList $areas $useCentralZone $useExtremeZone $useCentralState $useExtremeState $capitalize $commasOrDots)
 #### Determine capitalization flag
 #if(${capitalize})
 #set($capFlag = ${capitalize})
 #else
 #set($capFlag = "AS IS")
+#end
+#if(${commaOrDots})
+#set($commaFlag = ${commaOrDots})
+#else
+#set($commaFlag = "ELLIPSES")
 #end
 #set($zoneCount = 0)
 #set($zoneCounter = 0)
@@ -1115,7 +1150,11 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 #if(${itemCount} < ${numZones} && (((${prevState} != ${area.parentRegion} || ${prevPartOfState} != ${partOfState}) && ${useStates} == true)))
 #if(${zoneCount} == 1)
 #if(${zoneCounter} > 2)
+#if(${commaFlag} == "ELLIPSES")
 ...##
+#else
+, ##
+#end
 #end
 #if(${prevStateAbbrev} == "DC")
 #capitalize("the " ${capFlag})
@@ -1157,7 +1196,11 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 #elseif(${itemCount} == ${numZones})
 #if(${zoneCount} >= 1)
 #if(${zoneCounter} > 2)
+#if(${commaFlag} == "ELLIPSES")
 ...##
+#else
+, ##
+#end
 #end
 #if(${prevStateAbbrev} == "DC")
 #capitalize("the " ${capFlag})
@@ -1194,7 +1237,11 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 #end
 #else
 #if(${zoneCounter} > 1)
+#if(${commaFlag} == "ELLIPSES")
 #capitalize("...and " ${capFlag})
+#else
+#capitalize(", and " ${capFlag})
+#end
 #end
 #if(${area.stateabbr} == "DC")
 #capitalize("the " ${capFlag})
@@ -1219,7 +1266,11 @@ ${closestPoint.roundedDistance} #capitalize($units "NONE") #direction(${closestP
 #else
 #if(${zoneCounter} > 1)
 #if(${zoneCounter} > 2)
+#if(${commaFlag} == "ELLIPSES")
 ...##
+#else
+, ##
+#end
 #end
 #if(${prevStateAbbrev} == "DC")
 #capitalize("the " ${capFlag})
@@ -1402,11 +1453,17 @@ ${partOfArea}${area.name}...
 ########END MACRO
 
 ######### MACRO TO GENERATE SECOND BULLET (* Until XXXX AMPM TZ [DAY]) IN WARNINGS ##########
-#macro(secondBullet $dateUtil $expire $timeFormat $localtimezone $secondtimezone $duration $round)
+#### Extended macro to use in haz simp
+#macro(secondBullet $dateUtil $expire $timeFormat $localtimezone $secondtimezone $duration $round $leadIn)
 #if(${round})
 #set($interval = ${round})
 #else
 #set($interval = 15)
+#end
+#if(${leadIn})
+#set($leadInPhrase = ${leadIn})
+#else
+#set($leadInPhrase = "Until")
 #end
 #if(${duration} >= 360)
 #set($time1 = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.plain}, ${interval}, ${localtimezone})})
@@ -1418,7 +1475,7 @@ ${partOfArea}${area.name}...
 #else
 #set($time2 = ${dateUtil.formatUseNoonMidnight(${expire}, ${timeFormat.clock}, ${interval}, ${secondtimezone})})
 #end
-Until #formatTwoTimes(${time1}, ${time2})##
+${leadInPhrase} #formatTwoTimes(${time1}, ${time2}).##
 #end
 ########END MACRO
 
@@ -1441,7 +1498,13 @@ Until #formatTwoTimes(${time1}, ${time2})##
 ########END MACRO
 
 ######### MACRO TO GENERATE START OF THIRD BULLET
-#macro(thirdBullet $dateUtil $eventTime $timeFormat $localtimezone $secondtimezone)
+#### Extended macro to use in haz simp
+#macro(thirdBullet $dateUtil $eventTime $timeFormat $localtimezone $secondtimezone $leadIn)
+#if(${leadIn})
+#set($leadInPhrase = ${leadIn})
+#else
+#set($leadInPhrase = "At")
+#end
 #set($time = ${now})
 #if(${corToNewMarker})
 ##overload eventTime with global corCreateTime variable
@@ -1455,7 +1518,7 @@ Until #formatTwoTimes(${time1}, ${time2})##
 ###end
 #set($time1=${dateUtil.format(${time}, ${timeFormat.clock}, ${localtimezone})})
 #set($time2=${dateUtil.format(${time}, ${timeFormat.clock}, ${secondtimezone})})
-At #formatTwoTimes($time1 $time2)##
+${leadInPhrase} #formatTwoTimes($time1 $time2)##
 #end
 ########END MACRO
 
@@ -1498,7 +1561,7 @@ ${pathcastLead}
 #if ($count == $numCities - 1)
 #set($pathcastString = "${pathcastString} and ")
 #elseif($count < $numCities)
-#set($pathcastString = "${pathcastString}#commaOrEllipsis()")
+#set($pathcastString = "${pathcastString}, ")
 #end
 #end 
 #set($pathcastString = "#capitalize(${pathcastString}, 'FIRST') around ${dateUtil.format(${pc.time}, ${timeFormat.clock}, ${pc.timeZone})}.")
@@ -1523,7 +1586,7 @@ ${location}##
 #if($count == $numOtherPoints - 1)
  and ##
 #elseif($count < $numOtherPoints)
-#commaOrEllipsis()##
+, ##
 #else
 .
 #end
@@ -1531,15 +1594,15 @@ ${location}##
 #end
 #else
 #if($marineFlag == 1)
-${otherLead} will remain over mainly open waters.
+#capitalize(${otherLead}, 'FIRST') will remain over mainly open waters.
 #else
-${otherLead} will remain over ${noLocPhrase} of ##
+#capitalize(${otherLead}, 'FIRST') will remain over ${noLocPhrase} of ##
 #headlineLocList(${areas} true true true false)##
 ###NOW SEARCH FOR OTHER POINTS (PRESUMABLY 3s) AND LIST THEM HERE
 ### NEED TO CODE THIS ONCE SECTION IS ADDED
 #set($numOtherPoints = ${list.size($otherPoints)})
 #if($numOtherPoints > 0)
-#commaOrEllipsis()including the following locations: ##
+, including the following locations... ##
 #set($count = 0)
 #foreach(${loc} in ${otherPoints})
 #set($count = $count + 1)
@@ -1553,7 +1616,7 @@ ${location}##
 #if($count == $numOtherPoints - 1)
  and ##
 #elseif($count < $numOtherPoints)
-#commaOrEllipsis()##
+, ##
 #else
 .##
 #end
@@ -1571,14 +1634,18 @@ ${location}##
 ## FORCES INDENTED TEXT/LINE WRAPPING
 ## INPUT VARIABLES: inString - Input String
 ##                  indentChars - # of characters to indent on first line
-##                  indentCharsSub - # of chars to indent on subsequent lines                   
-#macro(wrapText $inString $indentChars $indentCharsSub)
+##                  indentCharsSub - # of chars to indent on subsequent lines
+##                  noFinalLineFeed - #Default is to apply final line feed. Anything here changes that                  
+#macro(wrapText $inString $indentChars $indentCharsSub $noFinalLineFeed)
 #set($defLineWrap = 69)
 #set($lineNum = 1)
 #set($applyIndent = 1)
 #set($charcount = 0)
+#set($wordcount = 0)
 #set($strArray = ${inString.split(" ")})
+#set($arrSize = ${list.size($strArray)})
 #foreach ($word in $strArray)
+#set($wordcount = $wordcount + 1)
 #if(($charcount + ${word.length()} + 1) > $defLineWrap)
 #set($lineNum = ${lineNum} + 1)
 #set($applyIndent = 1)
@@ -1600,13 +1667,17 @@ ${location}##
 #end
 #end
 #end
+#if($wordcount < $arrSize)
 ${word} ##
+#elseif(${noFinalLineFeed})
+${word}##
+#else
+${word}
+#end
 #set($charcount = $charcount + ${word.length()} + 1)
 #end
-
 #end
 ########END MACRO
-
 
 ## AUTHOR: EVAN BOOKBINDER 3/23/2015
 ## MIXED-CASE CAPITALIZATION SCRUB
@@ -1701,7 +1772,7 @@ ${bulletLead}
 #set($count = $count + 1)
 #if($count < $numMajorPoints)
 #if($columns == 0)
-#set($strOutput = "${location}#commaOrEllipsis()")
+#set($strOutput = "${location}, ")
 #else
 #set($strOutput = "${location}...")
 #end

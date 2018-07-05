@@ -78,7 +78,7 @@ public class ColorScaleMgrAction extends AbstractHandler {
             colorScaleDlg.setTitle("Hydroview Color Scale Manager - User: "
                     + username);
             colorScaleDlg.setColorManager(colorManager);
-            colorScaleDlg.setCloseCallback(new ICloseCallback() {
+            colorScaleDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {

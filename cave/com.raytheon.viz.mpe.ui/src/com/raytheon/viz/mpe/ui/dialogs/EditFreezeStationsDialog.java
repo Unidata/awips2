@@ -70,11 +70,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 07, 2009           snaples   Initial creation
  * Sep 21, 2016  5901     randerso  Fix dialog centering issue introduced in
  *                                  Eclipse 4
+ * Dec 15, 2017  6547     bkowal    Correctly recall the previous location of the dialog on the screen.
  *
  * </pre>
  *
  * @author snaples
- * @version 1.0
  */
 
 public class EditFreezeStationsDialog extends AbstractMPEDialog {
@@ -244,9 +244,8 @@ public class EditFreezeStationsDialog extends AbstractMPEDialog {
 
         shell.pack();
 
-        windowReplacementHelper.manageWindows(this);
-
         DialogUtil.centerOnParentShell(parent, shell);
+        windowReplacementHelper.manageWindows(this);
 
         shell.open();
 

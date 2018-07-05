@@ -33,7 +33,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.xy.crosssection.CrossSectionRotationsFile.RotationMode;
-import com.raytheon.viz.core.slice.request.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

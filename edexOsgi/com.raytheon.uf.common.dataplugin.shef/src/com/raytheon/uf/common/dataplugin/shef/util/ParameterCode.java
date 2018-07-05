@@ -51,11 +51,11 @@ import java.util.Map;
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2008            jelkins     Initial creation
  * Apr 29, 2014   3088     mpduff      Clean up/optimization.
+ * Dec 18, 2017   6554     bkowal      Fixed the code for {@link PhysicalElementCategory#WIND}.
  * 
  * </pre>
  * 
  * @author jelkins
- * @version 1.0
  */
 
 public class ParameterCode {
@@ -106,7 +106,7 @@ public class ParameterCode {
 
         TEMPERATURE("T"),
 
-        WIND("W"),
+        WIND("U"),
 
         /** Generation and generator data */
         GENERATION("V"),

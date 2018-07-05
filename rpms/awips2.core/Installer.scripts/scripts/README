@@ -1,3 +1,0 @@
-This directory contains system maintenance scripts. They can be run whenever
-EDEX is down. Ideally they should be run during every install or upgrade of
-EDEX.

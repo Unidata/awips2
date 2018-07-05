@@ -19,8 +19,16 @@
  **/
 package com.raytheon.viz.mpe.ui.dialogs.gagetable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableColumnData;
+import com.raytheon.viz.mpe.ui.dialogs.gagetable.xml.GageTableSortType;
+
 /**
- * TODO Add Description
+ * Sort Settings for the Gage Table.
  * 
  * <pre>
  *
@@ -29,95 +37,25 @@ package com.raytheon.viz.mpe.ui.dialogs.gagetable;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 15, 2009 2476       mpduff      Initial creation
+ * Mar 01, 2017 6158       mpduff      Changed how sorting works.
+ * Jun 22, 2017 6158       mpduff      Added setColumnData method.
+ * Jul 14, 2017 6358       mpduff      Changed sort direction.
  *
  * </pre>
  *
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 public class GageTableSortSettings {
-    private int ascending1 = 1;
-    private int ascending2 = -999;
-    private int ascending3 = -999;
-    private int ascending4 = -999;
-    private int sortCol1Index = 0;
-    private int sortCol2Index = -999;
-    private int sortCol3Index = -999;
-    private int sortCol4Index = -999;
     private int columnWidth = 100;
 
+    private List<String> sortColumns = new ArrayList<>(4);
+
+    private Map<String, Boolean> sortDirections = new HashMap<>();
+
     public GageTableSortSettings() {
-       // Empty constructor 
-    }
-    
-    public GageTableSortSettings(boolean ascending, int sortCol1Index,
-            int sortCol2Index, int sortCol3Index, int sortCol4Index) {
-        this.sortCol1Index = sortCol1Index;
-        this.sortCol2Index = sortCol2Index;
-        this.sortCol3Index = sortCol3Index;
-        this.sortCol4Index = sortCol4Index;
-        if (ascending) {
-            ascending1 = 1;
-        } else {
-            ascending1 = 0;
-        }
-    }
-
-    /**
-     * @return the sortCol1Index
-     */
-    public int getSortCol1Index() {
-        return sortCol1Index;
-    }
-
-    /**
-     * @param sortCol1Index the sortCol1Index to set
-     */
-    public void setSortCol1Index(int sortCol1Index) {
-        this.sortCol1Index = sortCol1Index;
-    }
-
-    /**
-     * @return the sortCol2Index
-     */
-    public int getSortCol2Index() {
-        return sortCol2Index;
-    }
-
-    /**
-     * @param sortCol2Index the sortCol2Index to set
-     */
-    public void setSortCol2Index(int sortCol2Index) {
-        this.sortCol2Index = sortCol2Index;
-    }
-
-    /**
-     * @return the sortCol3Index
-     */
-    public int getSortCol3Index() {
-        return sortCol3Index;
-    }
-
-    /**
-     * @param sortCol3Index the sortCol3Index to set
-     */
-    public void setSortCol3Index(int sortCol3Index) {
-        this.sortCol3Index = sortCol3Index;
-    }
-
-    /**
-     * @return the sortCol4Index
-     */
-    public int getSortCol4Index() {
-        return sortCol4Index;
-    }
-
-    /**
-     * @param sortCol4Index the sortCol4Index to set
-     */
-    public void setSortCol4Index(int sortCol4Index) {
-        this.sortCol4Index = sortCol4Index;
+        // Default constructor
     }
 
     /**
@@ -128,65 +66,48 @@ public class GageTableSortSettings {
     }
 
     /**
-     * @param columnWidth the columnWidth to set
+     * @param columnWidth
+     *            the columnWidth to set
      */
     public void setColumnWidth(int columnWidth) {
         this.columnWidth = columnWidth;
     }
 
-    /**
-     * @return the ascending1
-     */
-    public int getAscending1() {
-        return ascending1;
+    public List<String> getSortColumns() {
+        return this.sortColumns;
     }
 
-    /**
-     * @param ascending1 the ascending1 to set
-     */
-    public void setAscending1(int ascending1) {
-        this.ascending1 = ascending1;
+    public void setSortColumns(List<String> sortColumns) {
+        this.sortColumns = sortColumns;
     }
 
-    /**
-     * @return the ascending2
-     */
-    public int getAscending2() {
-        return ascending2;
+    public Map<String, Boolean> getSortDirections() {
+        return sortDirections;
     }
 
-    /**
-     * @param ascending2 the ascending2 to set
-     */
-    public void setAscending2(int ascending2) {
-        this.ascending2 = ascending2;
+    public void setSortDirections(Map<String, Boolean> sortDirections) {
+        this.sortDirections = sortDirections;
     }
 
-    /**
-     * @return the ascending3
-     */
-    public int getAscending3() {
-        return ascending3;
-    }
+    public void setColumnData(List<GageTableColumnData> columnSettingList) {
+        String[] sortColumnOrder = new String[4];
 
-    /**
-     * @param ascending3 the ascending3 to set
-     */
-    public void setAscending3(int ascending3) {
-        this.ascending3 = ascending3;
-    }
+        for (GageTableColumnData data : columnSettingList) {
+            GageTableSortType sortType = data.getSort();
+            if (sortType != null) {
+                String columnName = data.getName();
+                int sortOrder = sortType.getOrder().intValue();
+                sortColumnOrder[sortOrder] = columnName;
+                boolean ascending = sortType.isAscending();
+                sortDirections.put(columnName, ascending);
+            }
+        }
 
-    /**
-     * @return the ascending4
-     */
-    public int getAscending4() {
-        return ascending4;
-    }
-
-    /**
-     * @param ascending4 the ascending4 to set
-     */
-    public void setAscending4(int ascending4) {
-        this.ascending4 = ascending4;
+        sortColumns.clear();
+        for (String name : sortColumnOrder) {
+            if (name != null) {
+                sortColumns.add(name);
+            }
+        }
     }
 }

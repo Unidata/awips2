@@ -22,9 +22,9 @@ package com.raytheon.uf.viz.alertviz;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -68,11 +68,11 @@ import com.raytheon.uf.viz.alertviz.config.Source;
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Jan 11, 2016 5242       kbisanz     Replaced calls to deprecated ILocalizationFile methods
  * Feb 12, 2016 4834       bsteffen    Fix multiple saves of the customConfiguration.
+ * Jun 14, 2017 6297       bsteffen    Make listeners thread safe.
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 public class ConfigurationManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -134,8 +134,8 @@ public class ConfigurationManager {
     /** Initialize manager and load preferences */
     private ConfigurationManager() {
         // load all configurations
-        configurationMap = new HashMap<ConfigContext, Configuration>();
-        listeners = new HashSet<IConfigurationChangedListener>();
+        configurationMap = new HashMap<>();
+        listeners = new CopyOnWriteArraySet<>();
         current = null;
         try {
             context = JAXBContext.newInstance(Configuration.class,
@@ -144,13 +144,11 @@ public class ConfigurationManager {
             marshaller = context.createMarshaller();
             unmarshaller = context.createUnmarshaller();
         } catch (Exception e) {
-            Container
-                    .logInternal(
-                            Priority.ERROR,
-                            "ConfigurationManager: exception creating "
-                                    + "marshalling/unmarshalling objects for Configuration, "
-                                    + "ForcedConfiguration, Category, and Source.",
-                            e);
+            Container.logInternal(Priority.ERROR,
+                    "ConfigurationManager: exception creating "
+                            + "marshalling/unmarshalling objects for Configuration, "
+                            + "ForcedConfiguration, Category, and Source.",
+                    e);
             context = null;
             marshaller = null;
             unmarshaller = null;
@@ -183,7 +181,7 @@ public class ConfigurationManager {
             }
         } catch (NullPointerException ex) {
             statusHandler.handle(Priority.CRITICAL,
-                    "Unable to load configuration context " + context);
+                    "Unable to load configuration context " + context, ex);
         }
         return workstationContext;
     }
@@ -221,13 +219,13 @@ public class ConfigurationManager {
                      * that result. preserve locking from the base
                      * configuration.
                      */
-                    Configuration baseCustom = baseConfiguration.mergeUnder(
-                            custom, true);
+                    Configuration baseCustom = baseConfiguration
+                            .mergeUnder(custom, true);
                     currentConfig = baseCustom.overlayWith(currentConfig, true);
                 }
             }
             configurationMap.put(current, currentConfig);
-        } else if (DEFAULT_BASE_CONFIG.equals(current) == false) {
+        } else if (!DEFAULT_BASE_CONFIG.equals(current)) {
             current = DEFAULT_BASE_CONFIG;
             return getCurrentConfiguration();
         }
@@ -331,13 +329,15 @@ public class ConfigurationManager {
              * baseConfiguration.
              */
             if ((fileContext.getLocalizationLevel() != LocalizationLevel.BASE)
-                    || ((fileContext.getLocalizationLevel() == LocalizationLevel.BASE) && DEFAULT_BASE_CONFIG
-                            .getLocalizationFileName().equals(file.getPath()))) {
+                    || ((fileContext
+                            .getLocalizationLevel() == LocalizationLevel.BASE)
+                            && DEFAULT_BASE_CONFIG.getLocalizationFileName()
+                                    .equals(file.getPath()))) {
                 String fileName = file.getPath();
                 LocalizationContext locContext = file.getContext();
                 String name = fileName.substring(
                         fileName.lastIndexOf(IPathManager.SEPARATOR) + 1, // win32
-                        fileName.lastIndexOf("."));
+                        fileName.lastIndexOf('.'));
                 ConfigContext context = new ConfigContext(name, locContext);
                 configurationMap.put(context, null);
             }
@@ -400,11 +400,11 @@ public class ConfigurationManager {
                 EXTENSIONS, false, true);
         for (ILocalizationFile f : files) {
             // Merge other base files with the default.
-            if (!DEFAULT_BASE_CONFIG.getLocalizationFileName().equals(
-                    f.getPath())) {
+            if (!DEFAULT_BASE_CONFIG.getLocalizationFileName()
+                    .equals(f.getPath())) {
                 Configuration fileConfig = retrieveConfiguration(f);
-                Configuration mergeConfig = configuration.mergeUnder(
-                        fileConfig, true);
+                Configuration mergeConfig = configuration.mergeUnder(fileConfig,
+                        true);
                 configuration = mergeConfig.overlayWith(configuration, true);
             }
         }
@@ -430,8 +430,8 @@ public class ConfigurationManager {
         ILocalizationFile file = getLocalizationFile(cContext);
         try {
             // do not attempt to save to base
-            if (file != null
-                    && file.getContext().getLocalizationLevel() != LocalizationLevel.BASE) {
+            if (file != null && file.getContext()
+                    .getLocalizationLevel() != LocalizationLevel.BASE) {
                 serializeToFile(config, file);
             }
         } catch (SerializationException e) {
@@ -481,7 +481,8 @@ public class ConfigurationManager {
         } catch (LocalizationException | IOException | JAXBException e) {
             Container.logInternal(Priority.ERROR,
                     "ConfigurationManager: Exception unmarshalling from file: "
-                            + file.getPath(), e);
+                            + file.getPath(),
+                    e);
             throw new SerializationException(e);
         }
     }
@@ -533,8 +534,8 @@ public class ConfigurationManager {
                         .getCategories();
                 Category cat = (Category) obj;
                 if (isRemove) {
-                    customConfiguration.getCategories().remove(
-                            cat.getCategoryName());
+                    customConfiguration.getCategories()
+                            .remove(cat.getCategoryName());
                 } else {
                     categories.put(cat.getCategoryName(), cat);
                 }

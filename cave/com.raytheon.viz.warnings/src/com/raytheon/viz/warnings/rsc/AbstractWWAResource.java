@@ -1,5 +1,6 @@
 package com.raytheon.viz.warnings.rsc;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -50,7 +51,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.warnings.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -59,14 +59,14 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
 
 /**
- * 
+ *
  * Top level watches, warnings, and advisory resource that contains the code
  * that is shared by all below resources
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 3, 2011             jsanchez    Initial creation
@@ -85,16 +85,16 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Nov 11, 2013   2439     rferrel     Changes to prevent getting future warning when in DRT mode.
  * Dec  3, 2013   2576     jsanchez    Increased the font size of EMER.
  * Mar 10, 2014   2832     njensen     Moved duplicated subclass's disposeInternal() logic here
- * Aug 14, 2014   3523     mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ * Aug 14, 2014   3523     mapeters    Updated deprecated {@link DrawableString#textStyle}
  *                                     assignments.
  * Dec 5, 2014   DR14944   jgerth      Only set outline width when there is no existing capability
  * Oct 16, 2015   4971     bsteffen    Do not reverse order of text.
  * Nov 05, 2015   5070     randerso    Adjust font sizes for dpi scaling
- * 
+ * Aug 22, 2016   5842     dgilling    Remove dependency on viz.texteditor plugin.
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
  */
 public abstract class AbstractWWAResource extends
         AbstractVizResource<WWAResourceData, MapDescriptor> implements
@@ -157,14 +157,11 @@ public abstract class AbstractWWAResource extends
     private static final DataTime[] dataTimes = AbstractVizResource.TIME_AGNOSTIC
             .toArray(new DataTime[0]);
 
-    protected static final SimpleDateFormat DEFAULT_FORMAT = new SimpleDateFormat(
-            "HHmm'Z'");
+    protected static final String DEFAULT_FORMAT = "HHmm'Z'";
 
-    protected static final SimpleDateFormat LONG_FORMAT = new SimpleDateFormat(
-            "HH:mm'Z' EEE ddMMMyy");
+    protected static final String LONG_FORMAT = "HH:mm'Z' EEE ddMMMyy";
 
-    protected static final SimpleDateFormat DAY_FORMAT = new SimpleDateFormat(
-            "HH:mm'Z' EEE");
+    protected static final String DAY_FORMAT = "HH:mm'Z' EEE";
 
     protected List<AbstractWarningRecord> recordsToLoad;
 
@@ -178,20 +175,15 @@ public abstract class AbstractWWAResource extends
 
     public AbstractWWAResource(WWAResourceData data, LoadProperties props) {
         super(data, props);
-        this.recordsToLoad = new ArrayList<AbstractWarningRecord>();
+        this.recordsToLoad = new ArrayList<>();
         resourceData.addChangeListener(this);
         if (!hasCapability(OutlineCapability.class)) {
             getCapability(OutlineCapability.class).setOutlineWidth(2);
         }
         color = getCapability((ColorableCapability.class)).getColor();
-        this.entryMap = new ConcurrentHashMap<String, WarningEntry>();
+        this.entryMap = new ConcurrentHashMap<>();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getDataTimes()
-     */
     @Override
     public DataTime[] getDataTimes() {
         return dataTimes;
@@ -348,7 +340,7 @@ public abstract class AbstractWWAResource extends
             lastFrame = true;
         }
         synchronized (paintLock) {
-            HashMap<String, WarningEntry> candidates = new HashMap<String, WarningEntry>();
+            HashMap<String, WarningEntry> candidates = new HashMap<>();
             for (WarningEntry entry : entryMap.values()) {
                 if (matchesFrame(entry, paintProps.getDataTime(), framePeriod,
                         lastFrame)) {
@@ -501,7 +493,7 @@ public abstract class AbstractWWAResource extends
     }
 
     protected void cleanupData(DataTime paintTime, DataTime[] descFrameTimes) {
-        List<TimeRange> framePeriods = new ArrayList<TimeRange>(
+        List<TimeRange> framePeriods = new ArrayList<>(
                 descFrameTimes.length);
         for (int i = 0; i < descFrameTimes.length; i++) {
             if (i == descFrameTimes.length - 1) {
@@ -514,7 +506,7 @@ public abstract class AbstractWWAResource extends
         }
 
         int size = framePeriods.size();
-        List<String> toRemove = new ArrayList<String>();
+        List<String> toRemove = new ArrayList<>();
         for (String key : entryMap.keySet()) {
             WarningEntry entry = entryMap.get(key);
             boolean found = false;
@@ -554,7 +546,7 @@ public abstract class AbstractWWAResource extends
     }
 
     protected PluginDataObject[] sort(PluginDataObject[] pdos) {
-        ArrayList<AbstractWarningRecord> sortedWarnings = new ArrayList<AbstractWarningRecord>();
+        ArrayList<AbstractWarningRecord> sortedWarnings = new ArrayList<>();
         for (Object o : pdos) {
             if (((PluginDataObject) o) instanceof AbstractWarningRecord) {
                 AbstractWarningRecord record = (AbstractWarningRecord) o;
@@ -602,7 +594,6 @@ public abstract class AbstractWWAResource extends
     protected String[] getText(AbstractWarningRecord record, double mapWidth) {
         String vid = record.getPhensig();
         String phen = record.getPhen();
-        DateUtil du = new DateUtil();
         String[] textToPrint = new String[] { "", "", "", "" };
 
         textToPrint[0] = record.getProductClass();
@@ -614,24 +605,25 @@ public abstract class AbstractWWAResource extends
         textToPrint[0] += "." + record.getEtn();
         textToPrint[1] = record.getPil();
 
-        SimpleDateFormat startFormat = DEFAULT_FORMAT;
-        SimpleDateFormat endFormat = DEFAULT_FORMAT;
+        String startFormatString = DEFAULT_FORMAT;
+        String endFormatString = DEFAULT_FORMAT;
         if (mapWidth == 0) {
-            startFormat = LONG_FORMAT;
-            endFormat = DAY_FORMAT;
+            startFormatString = LONG_FORMAT;
+            endFormatString = DAY_FORMAT;
         } else if (mapWidth <= 200) {
-            startFormat = DAY_FORMAT;
-            endFormat = DAY_FORMAT;
+            startFormatString = DAY_FORMAT;
+            endFormatString = DAY_FORMAT;
         }
 
-        synchronized (startFormat) {
-            textToPrint[2] = "Valid "
-                    + du.format(record.getStartTime().getTime(), startFormat);
-        }
-        synchronized (endFormat) {
-            textToPrint[3] = "Thru "
-                    + du.format(record.getEndTime().getTime(), endFormat);
-        }
+        DateFormat startFormat = new SimpleDateFormat(startFormatString);
+        startFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        textToPrint[2] = "Valid "
+                + startFormat.format(record.getStartTime().getTime());
+
+        DateFormat endFormat = new SimpleDateFormat(endFormatString);
+        endFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
+        textToPrint[3] = "Thru "
+                + endFormat.format(record.getEndTime().getTime());
 
         return textToPrint;
     }
@@ -683,7 +675,7 @@ public abstract class AbstractWWAResource extends
     /**
      * Determine time range for the last frame. When in simulated time (DRT)
      * keep end of time range the start of the base time's next minute.
-     * 
+     *
      * @param baseTime
      * @return timeRange
      */

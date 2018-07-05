@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.measure.converter.UnitConverter;
 
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.Separator;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Event;
 import org.opengis.referencing.datum.PixelInCell;
@@ -76,6 +77,8 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.AvailableRadarGridType;
 import com.raytheon.viz.mpe.ui.MPEFontFactory;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
+import com.raytheon.viz.mpe.ui.actions.MPELegendOverride;
+import com.raytheon.viz.mpe.ui.actions.MPELegendOverride.OverrideType;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 import com.raytheon.viz.ui.cmenu.IContextMenuContributor;
 import com.raytheon.viz.ui.input.InputAdapter;
@@ -90,29 +93,29 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 19, 2008            randerso     Initial creation
- * Dec 02, 2009  3237      snaples      Added options for 6/24 hour
- *                                      display filtering.
+ * Nov 19, 2008            randerso    Initial creation
+ * Dec 02, 2009  3237      snaples     Added options for 6/24 hour
+ *                                     display filtering.
  * Feb 14, 2013 1616       bsteffen    Add option for interpolation of colormap
  *                                     parameters, disable colormap interpolation
  *                                     by default.
+ * Feb 28, 2017 6157       bkowal      Override legend colors when filtering is initiated
+ *                                     by the user.
+ * Mar 20, 2017 6157       bkowal      No longer cast the temperature value to an Integer.
+ * Mar 21, 2017 6157       bkowal      Always display the filtering menu items even if there
+ *                                     are other items in the context menu.
  * 
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
-public class MPELegendResource extends
-        AbstractLegendResource<GenericResourceData> implements IMpeResource,
-        IContextMenuContributor, ISamplingResource {
+public class MPELegendResource
+        extends AbstractLegendResource<GenericResourceData>
+        implements IMpeResource, IContextMenuContributor, ISamplingResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(MPELegendResource.class);
 
     public static double eVal = 0;
-
-    public static double dVal = 0;
-
-    public static boolean up = false;
 
     private ReferencedCoordinate sampleCoord = null;
 
@@ -179,11 +182,6 @@ public class MPELegendResource extends
         super(rscData, loadProps);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#dispose()
-     */
     @Override
     protected void disposeInternal() {
         IDisplayPaneContainer container = getResourceContainer();
@@ -193,17 +191,10 @@ public class MPELegendResource extends
         fontFactory.dispose();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#init(com.raytheon.uf
-     * .viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        displayMgr = MPEDisplayManager.getInstance(descriptor
-                .getRenderableDisplay());
+        displayMgr = MPEDisplayManager
+                .getInstance(descriptor.getRenderableDisplay());
         fontFactory = new MPEFontFactory(target, this);
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
@@ -211,13 +202,6 @@ public class MPELegendResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
-     * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -225,7 +209,8 @@ public class MPELegendResource extends
         font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
         IExtent screenExtent = paintProps.getView().getExtent();
 
-        scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
+        scale = (screenExtent.getHeight()
+                / paintProps.getCanvasBounds().height);
 
         DrawableString pa = new DrawableString("0", new RGB(255, 255, 255));
         pa.font = font;
@@ -275,8 +260,9 @@ public class MPELegendResource extends
                 legendHeight = cmapHeight + 2.0 * textSpace + 2.0 * padding;
                 double y1 = yMax - legendHeight;
 
-                DrawableColorMap cmap = new DrawableColorMap(rsc.getCapability(
-                        ColorMapCapability.class).getColorMapParameters());
+                DrawableColorMap cmap = new DrawableColorMap(
+                        rsc.getCapability(ColorMapCapability.class)
+                                .getColorMapParameters());
                 cmap.alpha = alpha;
                 IColorMap cm = cmap.getColorMapParams().getColorMap();
 
@@ -290,36 +276,29 @@ public class MPELegendResource extends
                 RGB productTypeTextColor = new RGB(0, 0, 0);
                 DrawableString strings = new DrawableString("", textColor);
                 strings.font = font;
-                
+
                 // Radar Coverage Map's type is called "Index"
-               
-                if (displayMgr.getDisplayFieldType().equals(DisplayFieldData.Index))
-                {
+
+                if (displayMgr.getDisplayFieldType()
+                        .equals(DisplayFieldData.Index)) {
                     offset = (int) (rsc.getCapability(ColorMapCapability.class)
                             .getColorMapParameters().getLabels().get(1)
-                            .getLocation()
-                            * width / 2);
+                            .getLocation() * width / 2);
                 }
 
                 int i = 0;
-                
-                
-                List<LabelEntry>  labelEntryList = rsc.getCapability(ColorMapCapability.class)
-                        .getColorMapParameters().getLabels();
-                
-                
-                for (LabelEntry entry :labelEntryList)
-                {
 
-                    if (entry.getText().length() > 10)
-                    {
+                List<LabelEntry> labelEntryList = rsc
+                        .getCapability(ColorMapCapability.class)
+                        .getColorMapParameters().getLabels();
+
+                for (LabelEntry entry : labelEntryList) {
+
+                    if (entry.getText().length() > 10) {
                         break;
-                    } 
-                    else
-                    {
+                    } else {
                         double cbarSize = (width / cm.getSize());
                         double xLoc = xMin + offset + (cbarSize * i);
-                    //    strings.setText(entry.getText(), textColor);
                         strings.setText(entry.getText(), textColor);
                         strings.horizontalAlignment = HorizontalAlignment.CENTER;
                         strings.verticalAlignment = VerticalAlignment.TOP;
@@ -329,63 +308,61 @@ public class MPELegendResource extends
                     i++;
                 }
 
-                //draw color bars
+                // draw color bars
                 y1 += textSpace;
-                cmap.extent = new PixelExtent(xMin, xMin + width, y1, y1
-                        + cmapHeight);
+                cmap.extent = new PixelExtent(xMin, xMin + width, y1,
+                        y1 + cmapHeight);
                 target.drawColorRamp(cmap);
-               
-                if (displayMgr.getDisplayFieldType().equals(DisplayFieldData.Index))
-                {
-                	//draw radar product type indicator (S,D, M) for Single Pol, Dual Pol, or Missing
-                	//this is drawn on top of the color bars
-                	AvailableRadarGridType availableRadarGridType = AvailableRadarGridType.MISSING;
-                	String typeString = null;
-                	
-                	int offsetRadarList = 2;
-                	for (int index = offsetRadarList; index < labelEntryList.size(); index++)
-                	{
-                		LabelEntry entry = labelEntryList.get(index);
-                		String radarId = entry.getText();
 
-                		if (radarId != "")
-                		{
-                			availableRadarGridType = displayMgr.getAvailableRadarType(radarId);
+                if (displayMgr.getDisplayFieldType()
+                        .equals(DisplayFieldData.Index)) {
+                    // draw radar product type indicator (S,D, M) for Single
+                    // Pol, Dual Pol, or Missing
+                    // this is drawn on top of the color bars
+                    AvailableRadarGridType availableRadarGridType = AvailableRadarGridType.MISSING;
+                    String typeString = null;
 
-                			if (availableRadarGridType.equals(AvailableRadarGridType.SINGLE_AND_DUAL_POL))
-                			{
-                				typeString = "SD";
-                			}
-                			else if (availableRadarGridType.equals(AvailableRadarGridType.DUAL_POL))
-                			{
-                				typeString = "D";
-                			}
-                			else if (availableRadarGridType.equals(AvailableRadarGridType.SINGLE_POL))
-                			{
-                				typeString = "S";
-                			}
-                			else //missing
-                			{
-                				typeString = "M";
-                			}
+                    int offsetRadarList = 2;
+                    for (int index = offsetRadarList; index < labelEntryList
+                            .size(); index++) {
+                        LabelEntry entry = labelEntryList.get(index);
+                        String radarId = entry.getText();
 
-                			//System.out.println("radarid = " + radarId + "   type = " + typeString);
+                        if (radarId != "") {
+                            availableRadarGridType = displayMgr
+                                    .getAvailableRadarType(radarId);
 
-                			double cbarSize = (width / cm.getSize());
-                			int offsetForTypeString = offset + (int)(2*cbarSize);
-                			double xLoc = xMin + offsetForTypeString + (cbarSize * (index - 2));
-                			strings.setText(typeString, productTypeTextColor);
-                			strings.horizontalAlignment = HorizontalAlignment.CENTER;
-                			strings.verticalAlignment = VerticalAlignment.TOP;
-                			strings.setCoordinates(xLoc, y1);
-                			target.drawStrings(strings);
-                		}
-                	}
+                            if (availableRadarGridType.equals(
+                                    AvailableRadarGridType.SINGLE_AND_DUAL_POL)) {
+                                typeString = "SD";
+                            } else if (availableRadarGridType
+                                    .equals(AvailableRadarGridType.DUAL_POL)) {
+                                typeString = "D";
+                            } else if (availableRadarGridType.equals(
+                                    AvailableRadarGridType.SINGLE_POL)) {
+                                typeString = "S";
+                            } else // missing
+                            {
+                                typeString = "M";
+                            }
+
+                            double cbarSize = (width / cm.getSize());
+                            int offsetForTypeString = offset
+                                    + (int) (2 * cbarSize);
+                            double xLoc = xMin + offsetForTypeString
+                                    + (cbarSize * (index - 2));
+                            strings.setText(typeString, productTypeTextColor);
+                            strings.horizontalAlignment = HorizontalAlignment.CENTER;
+                            strings.verticalAlignment = VerticalAlignment.TOP;
+                            strings.setCoordinates(xLoc, y1);
+                            target.drawStrings(strings);
+                        }
+                    }
 
                 }
-                
+
                 y1 += cmapHeight;
-                
+
                 int accum = 0;
                 if (rsc instanceof MPEFieldResource) {
                     // IMPEResource.getAccumulationInterval()?
@@ -395,11 +372,11 @@ public class MPELegendResource extends
 
                 String dateStr = legendFormat.format(paintProps.getFramesInfo()
                         .getTimeForResource(rsc).getRefTime()) + "Z";
-                
+
                 if (accum > 0) {
                     String qpeString = String.format(
-                            "%d hr Accumulated %s For %s Ending %s (in)",
-                            accum, rsc.getName(), rfc, dateStr);
+                            "%d hr Accumulated %s For %s Ending %s (in)", accum,
+                            rsc.getName(), rfc, dateStr);
 
                     double xLoc = xMin + padding;
                     strings.setText(qpeString, textColor);
@@ -408,8 +385,8 @@ public class MPELegendResource extends
                     strings.setCoordinates(xLoc, y1);
                     target.drawStrings(strings);
                 } else {
-                    String fieldString = String.format("%s site=%s %s",
-                            dateStr, rfc, rsc.getName());
+                    String fieldString = String.format("%s site=%s %s", dateStr,
+                            rfc, rsc.getName());
                     strings.setText(fieldString, textColor);
                     double xLoc = xMin + padding;
                     strings.horizontalAlignment = HorizontalAlignment.LEFT;
@@ -442,8 +419,9 @@ public class MPELegendResource extends
         strings.font = font;
         if (rsc != null) {
             if (rsc.getStatus().equals(ResourceStatus.INITIALIZED)) {
-                cmap = new DrawableColorMap(rsc.getCapability(
-                        ColorMapCapability.class).getColorMapParameters());
+                cmap = new DrawableColorMap(
+                        rsc.getCapability(ColorMapCapability.class)
+                                .getColorMapParameters());
                 cmap.alpha = alpha;
 
                 cmapSize = cmap.getColorMapParams().getColorMap().getSize();
@@ -474,8 +452,8 @@ public class MPELegendResource extends
                 }
 
                 y1 += textSpace;
-                cmap.extent = new PixelExtent(xMin, xMin + width, y1, y1
-                        + cmapHeight);
+                cmap.extent = new PixelExtent(xMin, xMin + width, y1,
+                        y1 + cmapHeight);
                 target.drawColorRamp(cmap);
                 y1 += cmapHeight;
                 strings.setText(rsc.getName(), textColor);
@@ -485,12 +463,13 @@ public class MPELegendResource extends
                 strings.setCoordinates(xLoc, y1);
                 target.drawStrings(strings);
             } else {
-                cmap = new DrawableColorMap(rsc.getCapability(
-                        ColorMapCapability.class).getColorMapParameters());
+                cmap = new DrawableColorMap(
+                        rsc.getCapability(ColorMapCapability.class)
+                                .getColorMapParameters());
                 // We are in Point mode of DQC
                 y1 += textSpace;
-                cmap.extent = new PixelExtent(xMin, xMin + width, y1, y1
-                        + cmapHeight);
+                cmap.extent = new PixelExtent(xMin, xMin + width, y1,
+                        y1 + cmapHeight);
                 y1 += cmapHeight;
                 strings.setText(DrawDQCStations.qcmode, textColor);
                 double xLoc = xMin + padding;
@@ -499,7 +478,6 @@ public class MPELegendResource extends
                 strings.setCoordinates(xLoc, y1);
                 target.drawStrings(strings);
             }
-            // textColor = null;
         } else {
             // No xmrg resource has been loaded, point data only.
             y1 += textSpace;
@@ -515,9 +493,8 @@ public class MPELegendResource extends
         return yMax - legendHeight;
     }
 
-    private double drawMpeInfo(IGraphicsTarget target, float alpha,
-            double xMin, double xMax, double yMax, double padding)
-            throws VizException {
+    private double drawMpeInfo(IGraphicsTarget target, float alpha, double xMin,
+            double xMax, double yMax, double padding) throws VizException {
         double legendHeight = 0;
         RGB textColor = new RGB(255, 255, 255);
         DrawableString strings = new DrawableString("", textColor);
@@ -525,12 +502,11 @@ public class MPELegendResource extends
         if (isSampling() && rsc != null
                 && rsc.getStatus() == ResourceStatus.INITIALIZED) {
             legendHeight = textSpace + 2 * padding;
-            width = (xMax - xMin)
-                    / 25
+            width = (xMax - xMin) / 25
                     * rsc.getCapability(ColorMapCapability.class)
                             .getColorMapParameters().getColorMap().getSize();
-            PixelExtent legendExtent = new PixelExtent(xMin, xMin + width, yMax
-                    - legendHeight, yMax);
+            PixelExtent legendExtent = new PixelExtent(xMin, xMin + width,
+                    yMax - legendHeight, yMax);
             target.drawShadedRect(legendExtent, new RGB(0, 0, 0), alpha, null);
 
             String hrapX = "9999";
@@ -656,13 +632,6 @@ public class MPELegendResource extends
         return yMax - legendHeight;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.common.geospatial.ReferencedCoordinate)
-     */
     @Override
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
@@ -671,8 +640,9 @@ public class MPELegendResource extends
             Coordinate latLon = coord.asLatLon();
 
             // Get hrap grid cell
-            Coordinate hrapCell = coord.asGridCell(HRAP.getInstance()
-                    .getGridGeometry(), PixelInCell.CELL_CENTER);
+            Coordinate hrapCell = coord.asGridCell(
+                    HRAP.getInstance().getGridGeometry(),
+                    PixelInCell.CELL_CENTER);
             values.put(MPEInterrogationConstants.INTERROGATE_GRID_CELL,
                     hrapCell);
 
@@ -703,7 +673,8 @@ public class MPELegendResource extends
 
             return values;
         } catch (Exception e) {
-            throw new VizException("Error interrogating MPE legend resource", e);
+            throw new VizException("Error interrogating MPE legend resource",
+                    e);
         }
     }
 
@@ -755,8 +726,8 @@ public class MPELegendResource extends
         float max = rsc.getCapability(ColorMapCapability.class)
                 .getColorMapParameters().getDataMax();
         double maxx = lastExtent.getMinX() + (cell * (max));
-        float fractionX = (float) ((coord[0] - lastExtent.getMinX()) / (maxx - lastExtent
-                .getMinX()));
+        float fractionX = (float) ((coord[0] - lastExtent.getMinX())
+                / (maxx - lastExtent.getMinX()));
         double val = (max) * fractionX;
         ColorMapParameters params = rsc.getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
@@ -775,18 +746,19 @@ public class MPELegendResource extends
             if (DrawDQCStations.grids_flag == 1
                     || DrawDQCStations.map_flag == 1) {
                 if (lastExtent != null) {
-                    if (menuManager.isEmpty()) {
-                        if (displayMgr.isQpf() == true) {
-                            mval = String.format("%2.1f in.", scaleVal);
-                        } else if (displayMgr.isMaxmin()) {
-                            mval = String.format("%3d F", (int) scaleVal);
-                        } else {
-                            mval = String.format("%5.2f ft.", scaleVal);
-                        }
-                        menuManager.add(new SetUPAction());
-                        menuManager.add(new SetDownAction());
-                        menuManager.add(new SetOffAction());
+                    if (!menuManager.isEmpty()) {
+                        menuManager.add(new Separator());
                     }
+                    if (displayMgr.isQpf() == true) {
+                        mval = String.format("%2.1f in.", scaleVal);
+                    } else if (displayMgr.isMaxmin()) {
+                        mval = String.format("%3d F", Math.round(scaleVal));
+                    } else {
+                        mval = String.format("%5.2f ft.", scaleVal);
+                    }
+                    menuManager.add(new SetUPAction());
+                    menuManager.add(new SetDownAction());
+                    menuManager.add(new SetOffAction());
                 }
             }
         }
@@ -801,10 +773,8 @@ public class MPELegendResource extends
 
         @Override
         public void run() {
-            dVal = eVal;
-            up = true;
-            DrawDQCStations.getInstance().reloadDQC();
-
+            DrawDQCStations.getInstance()
+                    .reloadDQC(new MPELegendOverride(OverrideType.UP, eVal));
         }
     }
 
@@ -812,14 +782,12 @@ public class MPELegendResource extends
 
         public SetDownAction() {
             super("Filter Down on Value: " + mval);
-
         }
 
         @Override
         public void run() {
-            dVal = eVal;
-            up = false;
-            DrawDQCStations.getInstance().reloadDQC();
+            DrawDQCStations.getInstance()
+                    .reloadDQC(new MPELegendOverride(OverrideType.DOWN, eVal));
         }
     }
 
@@ -827,52 +795,29 @@ public class MPELegendResource extends
 
         public SetOffAction() {
             super("Turn Filtering Off");
-
         }
 
         @Override
         public void run() {
-            ColorMapParameters cmc = rsc
-                    .getCapability(ColorMapCapability.class)
+            ColorMapParameters cmc = rsc.getCapability(ColorMapCapability.class)
                     .getColorMapParameters();
             cmc.setDataMax(cmc.getColorMap().getSize() - 1);
-            dVal = 0;
-            up = false;
-            DrawDQCStations.getInstance().reloadDQC();
+            DrawDQCStations.getInstance().reloadDQC(new MPELegendOverride());
 
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.sampling.ISamplingResource#isSampling()
-     */
     @Override
     public boolean isSampling() {
         return displayInfo;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.sampling.ISamplingResource#setSampling(boolean
-     * )
-     */
     @Override
     public void setSampling(boolean sampling) {
         displayInfo = sampling;
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.legend.ILegendDecorator#getLegendData(com.raytheon
-     * .uf.viz.core.drawables.IDescriptor)
-     */
     @Override
     public LegendEntry[] getLegendData(IDescriptor descriptor) {
         FramesInfo frameInfo = descriptor.getFramesInfo();
@@ -912,8 +857,9 @@ public class MPELegendResource extends
                     if (!vis) {
                         legend.color = new RGB(50, 50, 50);
                     } else {
-                        legend.color = rsc.getCapability(
-                                ColorableCapability.class).getColor();
+                        legend.color = rsc
+                                .getCapability(ColorableCapability.class)
+                                .getColor();
                     }
                     labels.add(legend);
                 }
@@ -927,5 +873,4 @@ public class MPELegendResource extends
         }
         return entries;
     }
-
 }

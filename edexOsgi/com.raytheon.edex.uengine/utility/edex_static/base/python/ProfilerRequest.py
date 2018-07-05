@@ -18,10 +18,14 @@
 # further licensing information.
 ##
 
-import PointDataQuery
-from java.util import ArrayList
-from com.raytheon.uf.common.dataplugin.profiler.dao import ProfilerDataTransform
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Request of metar records (provides interface to pointdata)
@@ -34,6 +38,14 @@ from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 #    08/19/09                      jkorman        Initial Creation - Recoded from ObsRequest.py
 #    
 # 
+
+
+
+import PointDataQuery
+from java.util import ArrayList
+from com.raytheon.uf.common.dataplugin.profiler.dao import ProfilerDataTransform
+from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+
 
 class ProfilerRequest(PointDataQuery.PointDataQuery):
     

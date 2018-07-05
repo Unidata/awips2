@@ -18,10 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <latLonGridCoverage>
     <name>108162005</name>
     <description>UKMet HiRes tile - Southern Hemisphere
-		Longitude range 341.25E - 70.416E </description>
+        Longitude range 341.25E - 70.416E </description>
     <la1>-89.721</la1>
     <lo1>341.25</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>

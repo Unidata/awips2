@@ -48,14 +48,16 @@ import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.ArraysUtil;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.common.util.header.WMOHeaderFinder;
+import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.plugin.satellite.gini.lookup.GeostationaryPosition;
 import com.raytheon.uf.edex.plugin.satellite.gini.lookup.GeostationaryPositionTable;
 import com.raytheon.uf.edex.plugin.satellite.gini.lookup.NumericLookupTable;
@@ -102,13 +104,12 @@ import com.raytheon.uf.edex.plugin.satellite.gini.lookup.NumericLookupTable;
  * Apr 15, 2014  4388     bsteffen    Set Fill Value.
  * Feb 18, 2016  4838     skorolev    Corrected image rotation for scanMode = 3.
  * Jun 23, 2016           mjames@ucar Handle pngg2gini'd FNEXRAD gini files.
+ * Dec 01, 2016  5970     njensen     Use WMO_HEADER_PATTERN instead of WMOHeaderFinder
  * Oct 20, 2017           mjames@ucar Decode Unidata PNG-compressed imagery.
- *
  * 
  * </pre>
  * 
  * @author bphillip
- * @version 1
  */
 public class GiniSatelliteDecoder {
 
@@ -186,7 +187,6 @@ public class GiniSatelliteDecoder {
      * @return
      * @throws SatelliteDecoderException
      */
-    @SuppressWarnings("unchecked")
     private <T> T createTable(SingleTypeJAXBManager<T> manager, String id)
             throws SatelliteDecoderException {
         T rval = null;
@@ -197,7 +197,7 @@ public class GiniSatelliteDecoder {
             LocalizationFile file = pathManager
                     .getStaticLocalizationFile(filename);
             if (file != null) {
-                rval = (T) manager.unmarshalFromInputStream(file
+                rval = manager.unmarshalFromInputStream(file
                         .openInputStream());
             }
             if (rval == null) {
@@ -330,7 +330,6 @@ public class GiniSatelliteDecoder {
                 // read the physical element
                 int physByte = byteBuffer.get(3);
                 if (entityByte == UCAR) physByte = (int) (UCAR_PRODUCT_OFFSET+byteBuffer.get(3));
-                
                 String physElem = physicalElementTable.lookup(physByte);
                 if (physElem == null) {
                     throw new UnrecognizedDataException(
@@ -452,9 +451,9 @@ public class GiniSatelliteDecoder {
                  * If not, load it now.
                  */
                 if (tempBytes == null) {
-			tempBytes = new byte[nx * ny];
-			f.seek(offsetOfDataInFile);
-			f.readFully(tempBytes, 0, tempBytes.length);
+                    tempBytes = new byte[nx * ny];
+                    f.seek(offsetOfDataInFile);
+                    f.readFully(tempBytes, 0, tempBytes.length);
                 }
 
                 /*
@@ -593,12 +592,14 @@ public class GiniSatelliteDecoder {
      * Verifies that this data is satellite imager and removes the WMO header
      * from the data and extracts the data from the file. Method expects that
      * the input data has been null checked prior to invocation.
-     * 
-     * @throws DecoderException
-     *             If WMO header is not found, or is incorrect.
+     *
      * @param messageData
      *            Contains the start of the satellite data file. On return, the
      *            position is set the beginning of the GINI header.
+     * 
+     * @throws DecoderException
+     *             If WMO header is not found, or is incorrect.
+     * 
      */
     private void removeWmoHeader(ByteBuffer messageData)
             throws SatelliteDecoderException {
@@ -610,7 +611,7 @@ public class GiniSatelliteDecoder {
             message[i] = (char) (messageData.get() & 0xFF);
         }
         String msgStr = new String(message);
-        Matcher matcher = WMOHeaderFinder.WMO_PATTERN.matcher(msgStr);
+        Matcher matcher = WMOHeader.WMO_HEADER_PATTERN.matcher(msgStr);
         if (matcher.find()) {
             int headerStart = matcher.start();
             if (SAT_HDR_TT.equals(msgStr
@@ -641,7 +642,7 @@ public class GiniSatelliteDecoder {
         Inflater decompressor = new Inflater();
         try {
             decompressor.setInput(messageData.array(), messageData.position(),
-		messageData.remaining());
+                    messageData.remaining());
             decompressor.inflate(placeholder);
         } catch (DataFormatException e) {
             compressed = false;

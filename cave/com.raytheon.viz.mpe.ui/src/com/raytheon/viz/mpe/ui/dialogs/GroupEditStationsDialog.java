@@ -22,7 +22,6 @@ package com.raytheon.viz.mpe.ui.dialogs;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -31,12 +30,13 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
-import com.raytheon.viz.mpe.ui.actions.GroupEditCalls;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * TODO Add Description
+ * The Group Edit Stations dialog. Allows for the selection of a Quality Code
+ * that can be applied to one or multiple stations just by clicking on the Map
+ * display.
  * 
  * <pre>
  * 
@@ -45,186 +45,164 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * ------------ ---------- ----------- --------------------------
  * Nov 14, 2008            snaples     Initial creation
  * May 06, 2011  #8994     jpiatt      Added zeroGageRdo.
+ * Aug 11, 2017  6148      bkowal      Cleanup. Utilize {@link IGroupEditHandler}.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class GroupEditStationsDialog extends CaveSWTDialog {
-    
+
     private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-	private Font font;
+    private Button verifiedCodeRdo;
 
-	private Button verifiedCodeRdo;
+    private Button questCodeRdo;
 
-	private Button questCodeRdo;
+    private Button screenCodeRdo;
 
-	private Button screenCodeRdo;
+    private Button badCodeRdo;
 
-	private Button badCodeRdo;
+    private Button zeroGageRdo;
 
-	private Button zeroGageRdo;
+    private Button okBtn;
 
-	private Button okBtn;
+    public static int group_qual = 8;
 
-	public static int group_qual = 8;
+    private final IGroupEditHandler handler;
 
-	int data = 0;
+    /**
+     * Constructor
+     * 
+     * @param parent
+     *            Parent shell
+     */
+    public GroupEditStationsDialog(Shell parent,
+            final IGroupEditHandler handler) {
+        super(parent);
+        setText("Group Edit Stations Popup");
+        this.handler = handler;
+    }
 
-	GroupEditCalls gec = new GroupEditCalls();
+    @Override
+    protected Layout constructShellLayout() {
+        GridLayout mainLayout = new GridLayout(1, true);
+        mainLayout.marginHeight = 1;
+        mainLayout.marginWidth = 1;
+        return mainLayout;
+    }
 
-	/**
-	 * Constructor
-	 * 
-	 * @param parent
-	 *            Parent shell
-	 */
-	public GroupEditStationsDialog(Shell parent, int dta) {
-		super(parent);
-		setText("Group Edit Stations Popup");
+    @Override
+    protected void disposed() {
+        MPEDisplayManager.getCurrent().setGroupedt(false);
+    }
 
-		data = dta;
-	}
+    @Override
+    protected void initializeComponents(Shell shell) {
+        // Initialize all of the controls and layouts
+        initializeComponents();
 
-	@Override
-	protected Layout constructShellLayout() {
-		GridLayout mainLayout = new GridLayout(1, true);
-		mainLayout.marginHeight = 1;
-		mainLayout.marginWidth = 1;
-		return mainLayout;
-	}
+        MPEDisplayManager.getCurrent().setGroupedt(true);
+    }
 
-	@Override
-	protected void disposed() {
-		MPEDisplayManager.getCurrent().setGroupedt(false);
-		font.dispose();
-	}
+    /**
+     * Initialize the dialog components.
+     */
+    private void initializeComponents() {
+        createGageFlagComp();
+        Button[] radios = { verifiedCodeRdo, questCodeRdo, screenCodeRdo,
+                badCodeRdo, zeroGageRdo };
+        for (int i = 0; i < 4; i++) {
 
-	@Override
-	protected void initializeComponents(Shell shell) {
-		font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
+            if (dqc.func[i] == group_qual) {
+                radios[i].setSelection(true);
+            } else {
+                radios[i].setSelection(false);
+            }
+        }
+        createOkButtonComp();
+    }
 
-		// Initialize all of the controls and layouts
-		initializeComponents();
+    /**
+     * Create the data options group and controls.
+     */
+    private void createGageFlagComp() {
+        // Create a container to hold the label and the combo box.
+        GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        Composite gageFlagComp = new Composite(shell, SWT.NONE);
+        GridLayout gageFlagCompLayout = new GridLayout(2, false);
+        gageFlagComp.setLayout(gageFlagCompLayout);
+        gageFlagComp.setLayoutData(gd);
 
-		MPEDisplayManager.getCurrent().setGroupedt(true);
-	}
+        verifiedCodeRdo = new Button(gageFlagComp, SWT.RADIO);
+        verifiedCodeRdo.setText("Verified");
+        verifiedCodeRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                change_group_qual(0);
+            }
+        });
 
-	/**
-	 * Initialize the dialog components.
-	 */
-	private void initializeComponents() {
-		createGageFlagComp();
-		Button[] radios = { verifiedCodeRdo, questCodeRdo, screenCodeRdo,
-				badCodeRdo, zeroGageRdo };
-		for (int i = 0; i < 4; i++) {
+        screenCodeRdo = new Button(gageFlagComp, SWT.RADIO);
+        screenCodeRdo.setText("Screened (Force)");
+        screenCodeRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                change_group_qual(1);
+            }
+        });
 
-			if (dqc.func[i] == group_qual) {
-				radios[i].setSelection(true);
-			} else {
-				radios[i].setSelection(false);
-			}
-		}
-		createOkButtonComp();
-	}
+        questCodeRdo = new Button(gageFlagComp, SWT.RADIO);
+        questCodeRdo.setText("Questionable");
+        questCodeRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                change_group_qual(2);
+            }
+        });
 
-	/**
-	 * Create the data options group and controls.
-	 */
-	private void createGageFlagComp() {
+        badCodeRdo = new Button(gageFlagComp, SWT.RADIO);
+        badCodeRdo.setText("Bad");
+        badCodeRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                change_group_qual(3);
+            }
+        });
 
-		// Create a container to hold the label and the combo box.
-		GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-		Composite gageFlagComp = new Composite(shell, SWT.NONE);
-		GridLayout gageFlagCompLayout = new GridLayout(2, false);
-		gageFlagComp.setLayout(gageFlagCompLayout);
-		gageFlagComp.setLayoutData(gd);
+        zeroGageRdo = new Button(gageFlagComp, SWT.RADIO);
+        zeroGageRdo.setText("Set Precipitation Value to 0.0");
+        zeroGageRdo.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                change_group_qual(4);
+            }
+        });
+    }
 
-		verifiedCodeRdo = new Button(gageFlagComp, SWT.RADIO);
-		verifiedCodeRdo.setText("Verified");
-		verifiedCodeRdo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				change_group_qual(0);
-			}
-		});
+    private void createOkButtonComp() {
+        // Create a container to hold the button.
+        GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+        Composite okBtnComp = new Composite(shell, SWT.NONE);
+        GridLayout okBtnCompLayout = new GridLayout(1, false);
+        okBtnComp.setLayout(okBtnCompLayout);
+        okBtnComp.setLayoutData(gd);
 
-		screenCodeRdo = new Button(gageFlagComp, SWT.RADIO);
-		screenCodeRdo.setText("Screened (Force)");
-		screenCodeRdo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				change_group_qual(1);
-			}
-		});
+        GridData bd = new GridData(110, 25);
+        okBtn = new Button(okBtnComp, SWT.PUSH);
+        okBtn.setText("OK");
+        okBtn.setLayoutData(bd);
+        okBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                handler.handleGroupEdit();
+                close();
+            }
+        });
+    }
 
-		questCodeRdo = new Button(gageFlagComp, SWT.RADIO);
-		questCodeRdo.setText("Questionable");
-		questCodeRdo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				change_group_qual(2);
-			}
-		});
-
-		badCodeRdo = new Button(gageFlagComp, SWT.RADIO);
-		badCodeRdo.setText("Bad");
-		badCodeRdo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				change_group_qual(3);
-			}
-		});
-
-		zeroGageRdo = new Button(gageFlagComp, SWT.RADIO);
-		zeroGageRdo.setText("Set Precipitation Value to 0.0");
-		zeroGageRdo.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				change_group_qual(4);
-			}
-		});
-	}
-
-	private void createOkButtonComp() {
-		// Create a container to hold the button.
-		GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-		Composite okBtnComp = new Composite(shell, SWT.NONE);
-		GridLayout okBtnCompLayout = new GridLayout(1, false);
-		okBtnComp.setLayout(okBtnCompLayout);
-		okBtnComp.setLayoutData(gd);
-
-		GridData bd = new GridData(110, 25);
-		okBtn = new Button(okBtnComp, SWT.PUSH);
-		okBtn.setText("OK");
-		okBtn.setLayoutData(bd);
-		okBtn.addSelectionListener(new SelectionAdapter() {
-
-			/*
-			 * (non-Javadoc)
-			 * 
-			 * @see
-			 * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-			 * .swt.events.SelectionEvent)
-			 */
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				System.out.println("Apply group data is : " + data);
-				if (data == 0) {
-					gec.apply_group();
-				} else if (data == 1) {
-					gec.apply_tgroup();
-				}
-				shell.dispose();
-			}
-		});
-	}
-
-	public void change_group_qual(int j) {
-		group_qual = dqc.func[j];
-	}
-
+    public void change_group_qual(int j) {
+        group_qual = dqc.func[j];
+    }
 }

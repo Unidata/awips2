@@ -170,6 +170,7 @@ import com.raytheon.viz.hydrocommon.util.DbUtils;
  *                                     handleSelection.
  * Oct 24, 2016  5955       randerso   Make graph scale better with DPI
  * Dec 12, 2016  6017       randerso   Fix y offset in displayed data
+ * July 18, 2017 18467      xwei       Fix IndexOutOfBoundsException error when moving points of a selected trace
  *
  * </pre>
  *
@@ -1672,16 +1673,23 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas
         } else if (dialog.isSelectMove() && traceSelected && !pointSelected) {
             // This catches the move event before point is selected
             if (!precipPE) {
-                List<Region> prl = pointList.get(selectedTraceId);
-                for (int i = 0; i < prl.size(); i++) {
-                    if (prl.get(i).contains(e.x, e.y)) {
-                        setCursor(northSouthCursor);
-                        break;
-                    } else {
-                        pointSelected = false;
-                        setCursor(null);
-                    }
-                }
+            	
+            	int selectedIndex = getIndex(pointList, e.x, e.y);                   
+            	
+                if (selectedIndex != -999) {                                         
+                	List<Region> prl = pointList.get(selectedIndex);                  
+                    
+                	for (int i = 0; i < prl.size(); i++) {
+                    	if (prl.get(i).contains(e.x, e.y)) {
+                        	setCursor(northSouthCursor);
+                        	break;
+                    	} else {
+                        	pointSelected = false;
+                        	setCursor(null);
+                    	}
+                	}
+                }                                                                     
+            	  
             } else {
                 List<Region> ppl = precipPointList.get(selectedTraceId);
                 for (int i = 0; i < ppl.size(); i++) {
@@ -1714,16 +1722,21 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas
                         }
                     }
                 } else {
-                    List<Region> prl = pointList.get(selectedTraceId);
-                    for (int i = 0; i < prl.size(); i++) {
-                        if (prl.get(i).contains(e.x, e.y)) {
-                            setCursor(handCursor);
-                            break;
-                        } else {
-                            pointSelected = false;
-                            setCursor(null);
-                        }
-                    }
+                	int selectedIndex = getIndex(pointList, e.x, e.y);                   
+                	
+                    if (selectedIndex != -999) {                                         
+                    	List<Region> prl = pointList.get(selectedIndex);                  
+                                     
+                    	for (int i = 0; i < prl.size(); i++) {
+                    		if (prl.get(i).contains(e.x, e.y)) {
+                    			setCursor(handCursor);
+                    			break;
+                    		} else {
+                    			pointSelected = false;
+                    			setCursor(null);
+                    		}
+                    	}
+                    }                                                                    
                 }
             }
         } else if (dialog.isSetMissing()) {
@@ -1746,16 +1759,22 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas
                         }
                     }
                 } else {
-                    List<Region> prl = pointList.get(selectedTraceId);
-                    for (int i = 0; i < prl.size(); i++) {
-                        if (prl.get(i).contains(e.x, e.y)) {
-                            setCursor(handCursor);
-                            break;
-                        } else {
-                            pointSelected = false;
-                            setCursor(null);
-                        }
-                    }
+                	
+                	int selectedIndex = getIndex(pointList, e.x, e.y);                   
+                	
+                    if (selectedIndex != -999) {                                         
+                    	List<Region> prl = pointList.get(selectedIndex);                  
+                                      
+                    	for (int i = 0; i < prl.size(); i++) {
+                    		if (prl.get(i).contains(e.x, e.y)) {
+                    			setCursor(handCursor);
+                    			break;
+                    		} else {
+                    			pointSelected = false;
+                    			setCursor(null);
+                    		}
+                    	}
+                    }                                                                    
                 }
             }
         } else {
@@ -1830,6 +1849,7 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas
                             }
                         } else {
                             int traceId = findTracePoint(e.x, e.y);
+                            
                             if (traceId >= 0) {
                                 setCursor(handCursor);
                                 selectableTrace = true;
@@ -1947,29 +1967,35 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas
         } else if (traceSelected && dialog.isSelectMove()) {
             // loop to see if a dot is selected
             if (precipPE) {
-                List<Region> prl = precipPointList.get(selectedTraceId);
-                for (int i = 0; i < prl.size(); i++) {
-                    if (prl.get(i).contains(e.x, e.y)) {
-                        setCursor(northSouthCursor);
-                        pointSelected = true;
-                        selectionIndex = i;
-                        break;
-                    } else {
-                        pointSelected = false;
-                    }
-                }
+                List<Region> prl = precipPointList.get(selectedTraceId);     
+                	for (int i = 0; i < prl.size(); i++) {
+                		if (prl.get(i).contains(e.x, e.y)) {
+                			setCursor(northSouthCursor);
+                			pointSelected = true;
+                			selectionIndex = i;
+                			break;
+                		} else {
+                			pointSelected = false;
+                		}
+                	}
             } else {
-                List<Region> prl = pointList.get(selectedTraceId);
-                for (int i = 0; i < prl.size(); i++) {
-                    if (prl.get(i).contains(e.x, e.y)) {
-                        setCursor(northSouthCursor);
-                        pointSelected = true;
-                        selectionIndex = i;
-                        break;
-                    } else {
-                        pointSelected = false;
-                    }
-                }
+            	
+            	int selectedIndex = getIndex(pointList, e.x, e.y);                   
+            	
+                if (selectedIndex != -999) {                                         
+                	List<Region> prl = pointList.get(selectedIndex);                  
+                                  
+                	for (int i = 0; i < prl.size(); i++) {
+                		if (prl.get(i).contains(e.x, e.y)) {
+                			setCursor(northSouthCursor);
+                			pointSelected = true;
+                			selectionIndex = i;
+                			break;
+                		} else {
+                			pointSelected = false;
+                		}
+                	}
+                }                                                                    
             }
         } else if (traceSelected && dialog.isDelete()) {
             if (precipPE) {
@@ -1982,15 +2008,21 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas
                     }
                 }
             } else {
-                List<Region> prl = pointList.get(selectedTraceId);
-                for (int i = 0; i < prl.size(); i++) {
-                    if (prl.get(i).contains(e.x, e.y)) {
-                        deleteIndex = i;
-                        deleteList.add(
-                                getZoomOffset(selectedTraceId) + deleteIndex);
-                        break;
-                    }
-                }
+                
+            	int selectedIndex = getIndex(pointList, e.x, e.y);                   
+            	
+                if (selectedIndex != -999) {                                         
+                	List<Region> prl = pointList.get(selectedIndex);                  
+                                  
+                	for (int i = 0; i < prl.size(); i++) {
+                		if (prl.get(i).contains(e.x, e.y)) {
+                			deleteIndex = i;
+                			deleteList.add(
+                					getZoomOffset(selectedTraceId) + deleteIndex);
+                			break;
+                		}
+                	}
+                }                                                                    
             }
             TraceData td = graphData.getTraceData(selectedTraceId);
 
@@ -2023,15 +2055,20 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas
                     }
                 }
             } else {
-                List<Region> prl = pointList.get(selectedTraceId);
-                for (int i = 0; i < prl.size(); i++) {
-                    if (prl.get(i).contains(e.x, e.y)) {
-                        setMissingIndex = i;
-                        setMissingList.add(getZoomOffset(selectedTraceId)
+                int selectedIndex = getIndex(pointList, e.x, e.y);                   
+            	
+                if (selectedIndex != -999) {                                         
+                	List<Region> prl = pointList.get(selectedIndex);                  
+                                  
+                	for (int i = 0; i < prl.size(); i++) {
+                		if (prl.get(i).contains(e.x, e.y)) {
+                			setMissingIndex = i;
+                			setMissingList.add(getZoomOffset(selectedTraceId)
                                 + setMissingIndex);
-                        break;
-                    }
-                }
+                			break;
+                		}
+                	}
+                }                                                                    
             }
 
             TraceData td = graphData.getTraceData(selectedTraceId);
@@ -2072,7 +2109,29 @@ public class TimeSeriesDisplayCanvas extends TimeSeriesGraphCanvas
             this.dialog.setSelectedCanvas(this);
         }
     }
-
+    
+    
+    /**
+     * Get Index by x and y coordinates 
+     *
+     * return index
+     *           
+     */
+    static private int getIndex( List<List<Region>> pointList, int x, int y ){
+    	
+    	for (int j = 0; j < pointList.size(); j++){                    
+        	
+    		List<Region> aPL = pointList.get(j);                      
+        	
+    		for (int i = 0; i < aPL.size(); i++) {
+            	if (aPL.get(i).contains(x, y)) {
+            		return j;           
+            	}
+        	}
+    	}    
+    	return -999;
+    }
+    
     /**
      * Handle the Mouse Up Events
      *

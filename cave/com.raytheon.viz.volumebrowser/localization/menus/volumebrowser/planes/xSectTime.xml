@@ -18,32 +18,27 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
     <!-- Lon and Lat menu items are dynamically generated from the scale, 
         but custom presets may be defined below. Examples are provided for the CONUS 
         mapScale. -->
-
     <!-- Lon Menu Item -->
     <contribute xsi:type="toolBarItem" toolItemName="Lon">
-
-        <contribute xsi:type="menuItem" menuText="128.00W"
-            key="Lon-128.0" mapScale="CONUS" />
-        <contribute xsi:type="menuItem" menuText=" 96.36W KOAX Omaha"
-            key="Lon-96.36" mapScale="WFO" />
-
+        <contribute xsi:type="menuItem" menuText="128.00W" key="Lon-128.0" mapScale="CONUS" />
+        <contribute xsi:type="menuItem" menuText=" 96.36W KOAX Omaha" key="Lon-96.36"
+            mapScale="WFO" />
     </contribute>
-
     <!-- Lat Menu Item -->
     <contribute xsi:type="toolBarItem" toolItemName="Lat">
-
-        <contribute xsi:type="menuItem" menuText=" 15.00N"
-            key="Lat15.0" mapScale="CONUS" />
-        <contribute xsi:type="menuItem" menuText=" 41.31N KOAX Omaha"
-            key="Lat41.31" mapScale="WFO" />
-
+        <contribute xsi:type="menuItem" menuText=" 15.00N" key="Lat15.0" mapScale="CONUS" />
+        <contribute xsi:type="menuItem" menuText=" 41.31N KOAX Omaha" key="Lat41.31"
+            mapScale="WFO" />
     </contribute>
-
     <!-- Specified Menu Item -->
     <contribute xsi:type="toolBarItem" toolItemName="Specified">
         <contribute xsi:type="menuItem" menuText="LineA" key="LineA" />

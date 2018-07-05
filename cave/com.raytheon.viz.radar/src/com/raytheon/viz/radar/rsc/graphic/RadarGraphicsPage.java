@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -59,6 +59,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedVector;
 import com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedVectorPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.AreaComponent;
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericDataComponent;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarRecordUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.ReferencedGeometry;
 import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
@@ -75,6 +76,8 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IRenderable;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.ICanvasRenderingExtension;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -82,7 +85,6 @@ import com.raytheon.uf.viz.core.point.display.PointWindDisplay;
 import com.raytheon.uf.viz.core.point.display.PointWindDisplay.DisplayType;
 import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension;
 import com.raytheon.uf.viz.core.point.drawables.ext.IPointImageExtension.PointImage;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.radar.RadarHelper;
 import com.raytheon.viz.radar.rsc.graphic.RadarGraphicFunctions.MesocycloneType;
 import com.raytheon.viz.radar.rsc.graphic.RadarGraphicFunctions.PlotObject;
@@ -97,14 +99,14 @@ import com.vividsolutions.jts.geom.LineString;
 
 /**
  * {@link IRenderable} for displaying a single "page" of radar symbology data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 08, 2009           chammack    Initial creation
- * Mar 05, 2013  DCS51    zwang       Handle GFM product 
+ * Mar 05, 2013  DCS51    zwang       Handle GFM product
  * Jun 24, 2013  16162    zwang       Remove "wind behind"
  * Nov 20, 2013  2488     randerso    Removed use of VeraMono font file
  * Jun 04, 2014  3232     bsteffen    Cleanup.
@@ -116,13 +118,13 @@ import com.vividsolutions.jts.geom.LineString;
  *                                    size must match the table outline
  * Feb 16, 2016  12021    wkwock      Fix mesocyclone zooming issue
  * Mar 08, 2016  5318     randerso    Fix hard coded scaling factors
- * 
+ * Aug 31, 2016  2671     tgurney     Factor out some logic to RadarRecordUtil
+ * Sep 14, 2016  3241     bsteffen    Update deprecated JTSCompiler method calls
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
-
 public class RadarGraphicsPage implements IRenderable {
     private static final int ORIGINAL_FONT_HEIGHT = 10;
 
@@ -219,11 +221,11 @@ public class RadarGraphicsPage implements IRenderable {
         this.compiler = new JTSCompiler(null, shape, descriptor);
         this.wireframeShape = shape;
         this.color = color;
-        this.localStringMap = new HashMap<Coordinate, String>();
-        this.screenGeometries = new ArrayList<Geometry>();
-        this.screenStringMap = new HashMap<Coordinate, String>();
+        this.localStringMap = new HashMap<>();
+        this.screenGeometries = new ArrayList<>();
+        this.screenStringMap = new HashMap<>();
         this.target = target;
-        this.plotObjects = new ArrayList<PlotObject>();
+        this.plotObjects = new ArrayList<>();
         stiStormsDisplayed = 0;
     }
 
@@ -235,16 +237,16 @@ public class RadarGraphicsPage implements IRenderable {
     /**
      * This method should only be used to display the Graphic Alphanumeric (the
      * data table) data
-     * 
+     *
      * @param sp
      * @param cs
      * @throws VizException
      */
     public void addSymbologyPacket(SymbologyPacket sp, CoordinateSystem cs)
             throws VizException {
-        List<ReferencedGeometry> localGeometries = new ArrayList<ReferencedGeometry>();
-        if ((sp instanceof UnlinkedVectorPacket)
-                || (sp instanceof UnlinkedContourVectorPacket)) {
+        List<ReferencedGeometry> localGeometries = new ArrayList<>();
+        if (sp instanceof UnlinkedVectorPacket
+                || sp instanceof UnlinkedContourVectorPacket) {
             List<UnlinkedVector> vectors = (List<UnlinkedVector>) RadarHelper
                     .getItems(sp);
 
@@ -252,10 +254,10 @@ public class RadarGraphicsPage implements IRenderable {
                 Coordinate coord1 = null;
                 Coordinate coord2 = null;
                 if (cs == CoordinateSystem.LOCAL) {
-                    coord1 = rectifyCoordinate(new Coordinate(vector.i1,
-                            vector.j1));
-                    coord2 = rectifyCoordinate(new Coordinate(vector.i2,
-                            vector.j2));
+                    coord1 = RadarRecordUtil.rectifyCoordinate(
+                            new Coordinate(vector.i1, vector.j1));
+                    coord2 = RadarRecordUtil.rectifyCoordinate(
+                            new Coordinate(vector.i2, vector.j2));
                 } else if (cs == CoordinateSystem.SCREEN) {
                     coord1 = new Coordinate(vector.i1, vector.j1);
                     coord2 = new Coordinate(vector.i2, vector.j2);
@@ -276,7 +278,8 @@ public class RadarGraphicsPage implements IRenderable {
             TextSymbolPacket tsp = (TextSymbolPacket) sp;
             if (cs == CoordinateSystem.LOCAL) {
                 ReferencedCoordinate rc = new ReferencedCoordinate(
-                        rectifyCoordinate(new Coordinate(tsp.getI(), tsp.getJ())),
+                        RadarRecordUtil.rectifyCoordinate(
+                                new Coordinate(tsp.getI(), tsp.getJ())),
                         this.gridGeometry, Type.GRID_CENTER);
 
                 Coordinate pixelCoord = null;
@@ -287,21 +290,22 @@ public class RadarGraphicsPage implements IRenderable {
                 }
                 this.localStringMap.put(pixelCoord, tsp.getTheText());
             } else if (cs == CoordinateSystem.SCREEN) {
-                this.screenStringMap.put(
-                        new Coordinate(tsp.getI(), tsp.getJ()),
+                this.screenStringMap.put(new Coordinate(tsp.getI(), tsp.getJ()),
                         tsp.getTheText());
             }
         }
 
+        JTSGeometryData jtsData = this.compiler.createGeometryData();
+        jtsData.setGeometryColor(color);
         for (ReferencedGeometry rg : localGeometries) {
-            this.compiler.handle(rg, color);
+            this.compiler.handle(rg, jtsData);
         }
 
     }
 
     /**
      * This is the main method for adding Radar data to the page.
-     * 
+     *
      * @param stormData
      *            The radar data for a specific lat/lon. The RadarRecord is
      *            responsible for grouping all related data based on geographic
@@ -318,16 +322,17 @@ public class RadarGraphicsPage implements IRenderable {
                 stiStormsDisplayed++;
             }
         } else {
-            List<PlotObject> images = new ArrayList<PlotObject>();
-            Map<Coordinate, String> localMap = new HashMap<Coordinate, String>();
-            Map<Coordinate, String> screenMap = new HashMap<Coordinate, String>();
+            List<PlotObject> images = new ArrayList<>();
+            Map<Coordinate, String> localMap = new HashMap<>();
+            Map<Coordinate, String> screenMap = new HashMap<>();
             List<PlotObject> temp;
 
             boolean displayStormID = true;
 
             PlotObject pObject;
             // Get an image for all Point based data
-            POINT: for (Integer type : stormData.getDisplayPointData().keySet()) {
+            POINT: for (Integer type : stormData.getDisplayPointData()
+                    .keySet()) {
                 for (SymbologyPoint currPoint : stormData.getDisplayPointData()
                         .get(type).values()) {
                     pObject = null;
@@ -342,16 +347,11 @@ public class RadarGraphicsPage implements IRenderable {
                     } else if (currPoint instanceof MesocyclonePoint) {
                         MesocyclonePoint mp = (MesocyclonePoint) currPoint;
                         try {
-                            pObject = RadarGraphicFunctions
-                                    .setMesocycloneInfo(
-                                            mp.i,
-                                            mp.j,
-                                            mp.getMesoCycloneRadius(),
-                                            target,
-                                            this.gridGeometry,
-                                            this.descriptor,
-                                            RadarGraphicFunctions.MesocycloneType.MESOCYCLONE,
-                                            color, LineStyle.SOLID);
+                            pObject = RadarGraphicFunctions.setMesocycloneInfo(
+                                    mp.i, mp.j, mp.getMesoCycloneRadius(),
+                                    target, this.gridGeometry, this.descriptor,
+                                    RadarGraphicFunctions.MesocycloneType.MESOCYCLONE,
+                                    color, LineStyle.SOLID);
                         } catch (TransformException e) {
                             statusHandler.error(e.getLocalizedMessage(), e);
                         } catch (FactoryException e) {
@@ -400,7 +400,8 @@ public class RadarGraphicsPage implements IRenderable {
                         TextSymbolPacket tsp = (TextSymbolPacket) currPacket;
                         if ("\" ".equals(tsp.getTheText())) {
                             if (RadarDisplayManager.getInstance()
-                                    .getCurrentSettings().getStiNumStorms() > stiStormsDisplayed) {
+                                    .getCurrentSettings()
+                                    .getStiNumStorms() > stiStormsDisplayed) {
                                 stiFound = true;
                                 addSTIImages(stormData);
                             } else {
@@ -420,7 +421,8 @@ public class RadarGraphicsPage implements IRenderable {
 
             }
 
-            for (Integer type : stormData.getDisplayGenericPointData().keySet()) {
+            for (Integer type : stormData.getDisplayGenericPointData()
+                    .keySet()) {
 
                 // DMD
                 if (type == 149) {
@@ -441,7 +443,7 @@ public class RadarGraphicsPage implements IRenderable {
                 }
                 // GFM
                 else if (type == 140) {
-                    List<PlotObject> gfmImages = new ArrayList<PlotObject>();
+                    List<PlotObject> gfmImages = new ArrayList<>();
 
                     // Handle each Feature in the GFM Packet
                     for (GenericDataComponent currComponent : stormData
@@ -485,13 +487,13 @@ public class RadarGraphicsPage implements IRenderable {
     /**
      * STI point will have a text packet for the current location, unlinked
      * vector for the full path, and SCIT packets for the past and forecast data
-     * 
+     *
      * @param packet
      * @throws VizException
      */
     private void addSTIImages(RadarDataPoint stiPoint) throws VizException {
-        List<PlotObject> images = new ArrayList<PlotObject>();
-        Map<Coordinate, String> localMap = new HashMap<Coordinate, String>();
+        List<PlotObject> images = new ArrayList<>();
+        Map<Coordinate, String> localMap = new HashMap<>();
 
         SCITDataPacket forecstData = null;
         SCITDataPacket pastData = null;
@@ -541,36 +543,36 @@ public class RadarGraphicsPage implements IRenderable {
         }
 
         // Get a hold of the current display settings
-        RadarDisplayControls displaySettings = RadarDisplayManager
-                .getInstance().getCurrentSettings();
+        RadarDisplayControls displaySettings = RadarDisplayManager.getInstance()
+                .getCurrentSettings();
 
         // Process current Location
         if (currLocation != null) {
-            images.addAll(RadarGraphicFunctions.createSCITDataCell(
-                    currLocation, this.target, this.gridGeometry,
-                    this.descriptor, color));
+            images.addAll(RadarGraphicFunctions.createSCITDataCell(currLocation,
+                    this.target, this.gridGeometry, this.descriptor, color));
         }
 
         // Process Past
         if (pastData != null) {
             if (displaySettings.getStiTrackType().equals(TrackTypes.PAST)
-                    || displaySettings.getStiTrackType().equals(
-                            TrackTypes.PAST_AND_FORECAST)) {
+                    || displaySettings.getStiTrackType()
+                            .equals(TrackTypes.PAST_AND_FORECAST)) {
                 // Display past locations
-                images.addAll(RadarGraphicFunctions.createSCITDataCell(
-                        pastData, this.target, this.gridGeometry,
-                        this.descriptor, color));
+                images.addAll(RadarGraphicFunctions.createSCITDataCell(pastData,
+                        this.target, this.gridGeometry, this.descriptor,
+                        color));
 
                 // Connect the dots
-                List<ReferencedGeometry> localGeometries = new ArrayList<ReferencedGeometry>();
+                List<ReferencedGeometry> localGeometries = new ArrayList<>();
 
                 for (SCITDataCell currCell : pastData.getPoints()) {
                     drawVectors(currCell.getVectors(), currLocation,
                             CoordinateSystem.LOCAL, localGeometries);
                 }
-
+                JTSGeometryData jtsData = this.compiler.createGeometryData();
+                jtsData.setGeometryColor(color);
                 for (ReferencedGeometry rg : localGeometries) {
-                    this.compiler.handle(rg, color);
+                    this.compiler.handle(rg, jtsData);
                 }
             }
         }
@@ -578,23 +580,24 @@ public class RadarGraphicsPage implements IRenderable {
         // Process Forecast
         if (forecstData != null) {
             if (displaySettings.getStiTrackType().equals(TrackTypes.FORECAST)
-                    || displaySettings.getStiTrackType().equals(
-                            TrackTypes.PAST_AND_FORECAST)) {
+                    || displaySettings.getStiTrackType()
+                            .equals(TrackTypes.PAST_AND_FORECAST)) {
                 // Display forecast locations
                 images.addAll(RadarGraphicFunctions.createSCITDataCell(
                         forecstData, this.target, this.gridGeometry,
                         this.descriptor, color));
 
                 // Connect the dots
-                List<ReferencedGeometry> localGeometries = new ArrayList<ReferencedGeometry>();
+                List<ReferencedGeometry> localGeometries = new ArrayList<>();
 
                 for (SCITDataCell currCell : forecstData.getPoints()) {
                     drawVectors(currCell.getVectors(), currLocation,
                             CoordinateSystem.LOCAL, localGeometries);
                 }
-
+                JTSGeometryData jtsData = this.compiler.createGeometryData();
+                jtsData.setGeometryColor(color);
                 for (ReferencedGeometry rg : localGeometries) {
-                    this.compiler.handle(rg, color);
+                    this.compiler.handle(rg, jtsData);
                 }
             }
         }
@@ -619,7 +622,8 @@ public class RadarGraphicsPage implements IRenderable {
     private void getImage(StormIDPoint id, Map<Coordinate, String> localMap,
             int xOffset, int yOffset) throws VizException {
         ReferencedCoordinate rc = new ReferencedCoordinate(
-                rectifyCoordinate(new Coordinate(id.getI(), id.getJ())),
+                RadarRecordUtil.rectifyCoordinate(
+                        new Coordinate(id.getI(), id.getJ())),
                 this.gridGeometry, Type.GRID_CENTER);
 
         Coordinate pixelCoord = null;
@@ -638,10 +642,11 @@ public class RadarGraphicsPage implements IRenderable {
 
     private void getImage(TextSymbolPacket tsp, CoordinateSystem cs,
             Map<Coordinate, String> localMap, Map<Coordinate, String> screenMap)
-            throws VizException {
+                    throws VizException {
         if (cs == CoordinateSystem.LOCAL) {
             ReferencedCoordinate rc = new ReferencedCoordinate(
-                    rectifyCoordinate(new Coordinate(tsp.getI(), tsp.getJ())),
+                    RadarRecordUtil.rectifyCoordinate(
+                            new Coordinate(tsp.getI(), tsp.getJ())),
                     this.gridGeometry, Type.GRID_CENTER);
 
             Coordinate pixelCoord = null;
@@ -668,11 +673,11 @@ public class RadarGraphicsPage implements IRenderable {
 
             AreaComponent currFeature = (AreaComponent) currPt;
 
-            String overlaps = currFeature
-                    .getValue(DMDAttributeIDs.OVERLAPS_LOWER_FEATURE.toString());
+            String overlaps = currFeature.getValue(
+                    DMDAttributeIDs.OVERLAPS_LOWER_FEATURE.toString());
 
-            String rank = currFeature.getValue(DMDAttributeIDs.STRENGTH_RANK
-                    .getName());
+            String rank = currFeature
+                    .getValue(DMDAttributeIDs.STRENGTH_RANK.getName());
             String rankType = currFeature
                     .getValue(DMDAttributeIDs.STRENGTH_RANK_TYPE.getName());
             int strengthRank = rank.equals("") ? 0 : Integer.parseInt(rank);
@@ -683,11 +688,12 @@ public class RadarGraphicsPage implements IRenderable {
                     .getValue(DMDAttributeIDs.DETECTION_STATUS.toString());
             boolean extrapolated = detectStatus.equalsIgnoreCase("EXT");
 
-            if ((currentSettings.isDmdShowOverlapping() || !overlaps
-                    .equalsIgnoreCase("Y"))
-                    && (strengthRank >= currentSettings
-                            .getDmdMinFeatureStrength())
-                    && (currentSettings.isDmdMdTvsShowExtrapolated() || !extrapolated)) {
+            if ((currentSettings.isDmdShowOverlapping()
+                    || !overlaps.equalsIgnoreCase("Y"))
+                    && strengthRank >= currentSettings
+                            .getDmdMinFeatureStrength()
+                    && (currentSettings.isDmdMdTvsShowExtrapolated()
+                            || !extrapolated)) {
                 float i = currFeature.getPoints().get(0).getCoordinate2();
                 float j = currFeature.getPoints().get(0).getCoordinate1();
 
@@ -704,16 +710,15 @@ public class RadarGraphicsPage implements IRenderable {
                 MesocycloneType iconType;
 
                 if (strengthRank >= 5) {
-                    String onLowestElev = currFeature
-                            .getValue(DMDAttributeIDs.BASE_ON_LOWEST_ELEV
-                                    .toString());
+                    String onLowestElev = currFeature.getValue(
+                            DMDAttributeIDs.BASE_ON_LOWEST_ELEV.toString());
                     String baseHeight = currFeature
                             .getValue(DMDAttributeIDs.BASE_HEIGHT.toString());
 
-                    if ((!onLowestElev.equals("") && onLowestElev
-                            .equalsIgnoreCase("Y"))
-                            || (!baseHeight.equals("") && (Double
-                                    .parseDouble(baseHeight) <= 1))) {
+                    if (!onLowestElev.equals("")
+                            && onLowestElev.equalsIgnoreCase("Y")
+                            || !baseHeight.equals("")
+                                    && Double.parseDouble(baseHeight) <= 1) {
                         iconType = MesocycloneType.MESOCYCLONE_WITH_SPIKES;
                     } else {
                         iconType = MesocycloneType.MESOCYCLONE;
@@ -725,30 +730,27 @@ public class RadarGraphicsPage implements IRenderable {
                 }
 
                 // Handle STI portion
-                List<PlotObject> images = new ArrayList<PlotObject>();
-                int numFcstPos = currFeature
-                        .getValueAsInt(DMDAttributeIDs.NUM_FCST_POSITIONS
-                                .toString());
-                int numPastPos = currFeature
-                        .getValueAsInt(DMDAttributeIDs.NUM_PAST_POSITIONS
-                                .toString());
+                List<PlotObject> images = new ArrayList<>();
+                int numFcstPos = currFeature.getValueAsInt(
+                        DMDAttributeIDs.NUM_FCST_POSITIONS.toString());
+                int numPastPos = currFeature.getValueAsInt(
+                        DMDAttributeIDs.NUM_PAST_POSITIONS.toString());
 
-                List<Coordinate> coords = new ArrayList<Coordinate>();
+                List<Coordinate> coords = new ArrayList<>();
 
-                Coordinate currLoc = new Coordinate(currFeature.getPoints()
-                        .get(0).getCoordinate2(), currFeature.getPoints()
-                        .get(0).getCoordinate1());
+                Coordinate currLoc = new Coordinate(
+                        currFeature.getPoints().get(0).getCoordinate2(),
+                        currFeature.getPoints().get(0).getCoordinate1());
 
                 float lat;
                 float lon;
                 float prevLat;
                 float prevLon;
                 // Forecast Positions
-                if ((numFcstPos > 0)
-                        && (currentSettings.getDmdTrackType().equals(
-                                TrackTypes.FORECAST) || currentSettings
-                                .getDmdTrackType().equals(
-                                        TrackTypes.PAST_AND_FORECAST))) {
+                if (numFcstPos > 0 && (currentSettings.getDmdTrackType()
+                        .equals(TrackTypes.FORECAST)
+                        || currentSettings.getDmdTrackType()
+                                .equals(TrackTypes.PAST_AND_FORECAST))) {
                     String fcstPosLat = currFeature
                             .getValue(DMDAttributeIDs.FCST_LAT.toString());
                     String fcstPosLon = currFeature
@@ -769,8 +771,8 @@ public class RadarGraphicsPage implements IRenderable {
 
                         images.add(RadarGraphicFunctions.createDMDSTIImage(
                                 stiRC, RadarGraphicFunctions.DMD_FCST_SYM,
-                                this.target, this.gridGeometry,
-                                this.descriptor, color));
+                                this.target, this.gridGeometry, this.descriptor,
+                                color));
 
                         // Connect the dots
                         if (k != 0) {
@@ -790,11 +792,10 @@ public class RadarGraphicsPage implements IRenderable {
                 }
 
                 // Past Positions
-                if ((numPastPos > 0)
-                        && (currentSettings.getDmdTrackType().equals(
-                                TrackTypes.PAST) || currentSettings
-                                .getDmdTrackType().equals(
-                                        TrackTypes.PAST_AND_FORECAST))) {
+                if (numPastPos > 0 && (currentSettings.getDmdTrackType()
+                        .equals(TrackTypes.PAST)
+                        || currentSettings.getDmdTrackType()
+                                .equals(TrackTypes.PAST_AND_FORECAST))) {
                     String pastPosLat = currFeature
                             .getValue(DMDAttributeIDs.PAST_LAT.toString());
                     String pastPosLon = currFeature
@@ -816,8 +817,8 @@ public class RadarGraphicsPage implements IRenderable {
 
                         images.add(RadarGraphicFunctions.createDMDSTIImage(
                                 stiRC, RadarGraphicFunctions.DMD_PAST_SYM,
-                                this.target, this.gridGeometry,
-                                this.descriptor, color));
+                                this.target, this.gridGeometry, this.descriptor,
+                                color));
 
                         // Connect the dots
                         if (k != 0) {
@@ -840,22 +841,24 @@ public class RadarGraphicsPage implements IRenderable {
                 this.plotObjects.addAll(images);
 
                 try {
-                    double radius = currFeature
-                            .getValueAsDouble(DMDAttributeIDs.BASE_DIAMETER
-                                    .toString()) / 2;
+                    double radius = currFeature.getValueAsDouble(
+                            DMDAttributeIDs.BASE_DIAMETER.toString()) / 2;
                     LineStyle lineStyle = LineStyle.SOLID;
-                    if (currFeature.getValue(DMDAttributeIDs.DETECTION_STATUS.toString()).equals("EXT")) {
+                    if (currFeature
+                            .getValue(
+                                    DMDAttributeIDs.DETECTION_STATUS.toString())
+                            .equals("EXT")) {
                         lineStyle = LineStyle.DASHED;
                     }
 
-                    image = RadarGraphicFunctions.setMesocycloneInfo(rc,
-                            radius, descriptor, iconType, color, lineStyle);
+                    image = RadarGraphicFunctions.setMesocycloneInfo(rc, radius,
+                            descriptor, iconType, color, lineStyle);
                     double radiusInPixels = RadarGraphicFunctions
                             .getRadiusInPixels(radius, rc.asLatLon().x,
                                     rc.asLatLon().y, descriptor, target);
 
-                    Coordinate coordID = rc.asPixel(this.descriptor
-                            .getGridGeometry());
+                    Coordinate coordID = rc
+                            .asPixel(this.descriptor.getGridGeometry());
                     coordID.x = coordID.x - radiusInPixels;
                     coordID.y = coordID.y - radiusInPixels;
 
@@ -879,7 +882,7 @@ public class RadarGraphicsPage implements IRenderable {
     // Handle GFM product
     private List<PlotObject> getGfmImage(GenericDataComponent currPt)
             throws VizException {
-        List<PlotObject> images = new ArrayList<PlotObject>();
+        List<PlotObject> images = new ArrayList<>();
 
         UnitConverter metersPerSecondToKnots = SI.METERS_PER_SECOND
                 .getConverterTo(NonSI.KNOT);
@@ -907,24 +910,24 @@ public class RadarGraphicsPage implements IRenderable {
         }
         // 11 parameters
         else {
-            propU = currFeature.getValue(GFMPacket.GFMAttributeIDs.PROPU
-                    .getName());
-            if ((propU != null) && (propU.length() > 0)) {
+            propU = currFeature
+                    .getValue(GFMPacket.GFMAttributeIDs.PROPU.getName());
+            if (propU != null && propU.length() > 0) {
                 pU = metersPerSecondToKnots.convert(new Double(propU));
             }
-            propV = currFeature.getValue(GFMPacket.GFMAttributeIDs.PROPV
-                    .getName());
-            if ((propV != null) && (propV.length() > 0)) {
+            propV = currFeature
+                    .getValue(GFMPacket.GFMAttributeIDs.PROPV.getName());
+            if (propV != null && propV.length() > 0) {
                 pV = metersPerSecondToKnots.convert(new Double(propV));
             }
-            windX = currFeature.getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDX
-                    .getName());
-            if ((windX != null) && (windX.length() > 0)) {
+            windX = currFeature
+                    .getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDX.getName());
+            if (windX != null && windX.length() > 0) {
                 wX = Float.parseFloat(windX);
             }
-            windY = currFeature.getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDY
-                    .getName());
-            if ((windY != null) && (windY.length() > 0)) {
+            windY = currFeature
+                    .getValue(GFMPacket.GFMAttributeIDs.WINDBEHINDY.getName());
+            if (windY != null && windY.length() > 0) {
                 wY = Float.parseFloat(windY);
             }
 
@@ -943,7 +946,7 @@ public class RadarGraphicsPage implements IRenderable {
             barb.setColor(this.color);
 
             // plot the wind arrow in the same length as 50 kts
-            double spd = Math.sqrt((pU * pU) + (pV * pV));
+            double spd = Math.sqrt(pU * pU + pV * pV);
             if (spd > 0) {
                 pU *= 50.0 / spd;
                 pV *= 50.0 / spd;
@@ -984,8 +987,8 @@ public class RadarGraphicsPage implements IRenderable {
 
                 // Connect the dots
                 if (isFcst) {
-                    gfmFcstWireframeShape.addLineSegment(new Coordinate[] {
-                            pos1, pos2 });
+                    gfmFcstWireframeShape
+                            .addLineSegment(new Coordinate[] { pos1, pos2 });
                 } else {
                     wireframeShape
                             .addLineSegment(new Coordinate[] { pos1, pos2 });
@@ -1007,8 +1010,8 @@ public class RadarGraphicsPage implements IRenderable {
         Coordinate point;
 
         // Determine if the feature should be rendered
-        RadarDisplayControls currentSettings = RadarDisplayManager
-                .getInstance().getCurrentSettings();
+        RadarDisplayControls currentSettings = RadarDisplayManager.getInstance()
+                .getCurrentSettings();
 
         AreaComponent currFeature = (AreaComponent) currPt;
         String cat = currFeature.getValue(MBAAttributeIDs.CATEGORY.getName());
@@ -1083,14 +1086,10 @@ public class RadarGraphicsPage implements IRenderable {
                 // 3D Correlated Shear - Extrapolated
                 if (RadarDisplayManager.getInstance().getCurrentSettings()
                         .isDmdMdTvsShowExtrapolated()) {
-                    images = RadarGraphicFunctions
-                            .createMesocycloneImage(
-                                    currPt,
-                                    target,
-                                    this.gridGeometry,
-                                    this.descriptor,
-                                    RadarGraphicFunctions.MesocycloneType.CORRELATED_SHEAR_EXTRAPOLATED,
-                                    color);
+                    images = RadarGraphicFunctions.createMesocycloneImage(
+                            currPt, target, this.gridGeometry, this.descriptor,
+                            RadarGraphicFunctions.MesocycloneType.CORRELATED_SHEAR_EXTRAPOLATED,
+                            color);
                 }
                 break;
             case 3:
@@ -1140,14 +1139,10 @@ public class RadarGraphicsPage implements IRenderable {
                 // Strength >= 5 AND Base Height <= 1km Above Ground Level
                 // OR Base on lowest Elevation
                 // Display: like Leg. Mesocyclone plus outward spikes
-                images = RadarGraphicFunctions
-                        .createMesocycloneImage(
-                                currPt,
-                                target,
-                                this.gridGeometry,
-                                this.descriptor,
-                                RadarGraphicFunctions.MesocycloneType.MESOCYCLONE_WITH_SPIKES,
-                                color);
+                images = RadarGraphicFunctions.createMesocycloneImage(currPt,
+                        target, this.gridGeometry, this.descriptor,
+                        RadarGraphicFunctions.MesocycloneType.MESOCYCLONE_WITH_SPIKES,
+                        color);
                 break;
             case 10:
                 // Strength >= 5 AND Base Height > 1km Above Ground Level
@@ -1178,15 +1173,6 @@ public class RadarGraphicsPage implements IRenderable {
         return images;
     }
 
-    public static Coordinate rectifyCoordinate(Coordinate c) {
-        c.x += RadarGraphicsDisplay.X_OFFSET;
-        c.y += RadarGraphicsDisplay.Y_OFFSET;
-        // Flip y to match geotools nomenclature
-        c.y = 4096 - c.y;
-
-        return c;
-    }
-
     /**
      * @return the magnification
      */
@@ -1199,7 +1185,7 @@ public class RadarGraphicsPage implements IRenderable {
      *            the magnification to set
      */
     public void setMagnification(double magnification) {
-        if ((this.magnification != magnification) && (this.font != null)) {
+        if (this.magnification != magnification && this.font != null) {
             font.setMagnification((float) magnification, false);
         }
 
@@ -1221,13 +1207,6 @@ public class RadarGraphicsPage implements IRenderable {
         this.color = color;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
-     * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-     */
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
@@ -1271,7 +1250,7 @@ public class RadarGraphicsPage implements IRenderable {
         double yScale = 1.0;
         double minx = Double.MAX_VALUE;
         double maxx = Double.MIN_VALUE;
-        if ((this.screenGeometries != null) && !this.screenGeometries.isEmpty()) {
+        if (this.screenGeometries != null && !this.screenGeometries.isEmpty()) {
             for (Geometry g : this.screenGeometries) {
                 for (Coordinate co : g.getCoordinates()) {
                     minx = Math.min(minx, co.x);
@@ -1297,37 +1276,37 @@ public class RadarGraphicsPage implements IRenderable {
                 font.setMagnification((float) (magnification * shrink), false);
             }
             xOffset = (paintProps.getCanvasBounds().width - width) / 2;
-            List<DrawableLine> lines = new ArrayList<DrawableLine>();
+            List<DrawableLine> lines = new ArrayList<>();
             for (Geometry g : this.screenGeometries) {
                 Coordinate[] coords = g.getCoordinates();
 
                 // offsets to make the table fit the screen
-                double x1 = ((coords[0].x - minx) * xScale) + xOffset;
-                double y1 = ((coords[0].y + 0.25) * yScale) + yOffset;
-                double x2 = ((coords[1].x - minx) * xScale) + xOffset;
-                double y2 = ((coords[1].y + 0.25) * yScale) + yOffset;
+                double x1 = (coords[0].x - minx) * xScale + xOffset;
+                double y1 = (coords[0].y + 0.25) * yScale + yOffset;
+                double x2 = (coords[1].x - minx) * xScale + xOffset;
+                double y2 = (coords[1].y + 0.25) * yScale + yOffset;
                 DrawableLine line = new DrawableLine();
                 line.addPoint(x1, y1);
                 line.addPoint(x2, y2);
                 line.basics.color = this.color;
                 lines.add(line);
             }
-            target.getExtension(ICanvasRenderingExtension.class).drawLines(
-                    paintProps, lines.toArray(new DrawableLine[0]));
+            target.getExtension(ICanvasRenderingExtension.class)
+                    .drawLines(paintProps, lines.toArray(new DrawableLine[0]));
         }
 
         // Only paint data table text if no configuration is specified or
         // if configuration says to show table.
-        if ((tableModifier == null)
-                || ((tableModifier != null) && tableModifier.isShowTable())) {
+        if (tableModifier == null
+                || tableModifier != null && tableModifier.isShowTable()) {
             // Paint the table data text.
-            if ((this.screenStringMap != null)
+            if (this.screenStringMap != null
                     && !this.screenStringMap.isEmpty()) {
                 for (Coordinate c : this.screenStringMap.keySet()) {
                     String str = this.screenStringMap.get(c);
 
-                    double x = ((c.x - minx) * xScale) + xOffset;
-                    double y = (c.y * yScale) + yOffset;
+                    double x = (c.x - minx) * xScale + xOffset;
+                    double y = c.y * yScale + yOffset;
                     DrawableString string = new DrawableString(str, this.color);
                     string.font = this.font;
                     string.setCoordinates(x, y);
@@ -1362,7 +1341,8 @@ public class RadarGraphicsPage implements IRenderable {
                 image.setSiteId(po.label);
                 // Place the label next to the image
                 adjustedCoord.x += pixels / 20;
-                DrawableString string = new DrawableString(po.label, this.color);
+                DrawableString string = new DrawableString(po.label,
+                        this.color);
                 string.font = this.font;
                 string.setCoordinates(adjustedCoord.x, adjustedCoord.y);
                 target.drawStrings(string);
@@ -1380,28 +1360,32 @@ public class RadarGraphicsPage implements IRenderable {
 
     /**
      * Convert the radius from kilometer to radius relative to pixel
-     * @param lat The latitude in decimal degrees between -90 and +90°
-     * @param lon The longitude in decimal degrees between -180 and +180°
-     * @param radius in kilometer
+     *
+     * @param lat
+     *            The latitude in decimal degrees between -90 and +90°
+     * @param lon
+     *            The longitude in decimal degrees between -180 and +180°
+     * @param radius
+     *            in kilometer
      * @return radius relative to pixel
      */
-    private double convertRadius(double lat, double lon, double radius){
+    private double convertRadius(double lat, double lon, double radius) {
         GeodeticCalculator gc = new GeodeticCalculator(descriptor.getCRS());
         gc.setStartingGeographicPoint(lat, lon);
-        gc.setDirection(90, radius * 1000); //convert to meter
+        gc.setDirection(90, radius * 1000); // convert to meter
 
-        
-        double[] p1 = descriptor.worldToPixel(new double[] {
-                gc.getStartingGeographicPoint().getX(),
-                gc.getStartingGeographicPoint().getY() });
-        double[] p2 = descriptor.worldToPixel(new double[] {
-                gc.getDestinationGeographicPoint().getX(),
-                gc.getDestinationGeographicPoint().getY() });
+        double[] p1 = descriptor.worldToPixel(
+                new double[] { gc.getStartingGeographicPoint().getX(),
+                        gc.getStartingGeographicPoint().getY() });
+        double[] p2 = descriptor.worldToPixel(
+                new double[] { gc.getDestinationGeographicPoint().getX(),
+                        gc.getDestinationGeographicPoint().getY() });
         return Math.abs(p1[0] - p2[0]);
     }
 
     /**
      * Draw mesocyclone symbols
+     *
      * @param target
      * @param paintProps
      * @param po
@@ -1410,55 +1394,54 @@ public class RadarGraphicsPage implements IRenderable {
     private void drawMesocyclone(IGraphicsTarget target,
             PaintProperties paintProps, PlotObject po) throws VizException {
         float width = 4;
-        if (po.type.equals(MesocycloneType.CORRELATED_SHEAR)
-                || po.type
-                        .equals(MesocycloneType.CORRELATED_SHEAR_EXTRAPOLATED)) {
+        if (po.type.equals(MesocycloneType.CORRELATED_SHEAR) || po.type
+                .equals(MesocycloneType.CORRELATED_SHEAR_EXTRAPOLATED)) {
             width = 1;
         }
 
         double radius = Math.abs(po.mesoRadius);
-        if (radius==0) {//In case, it's 0 for line radius=MIN_RADIUS_IN_PIXEL/radiusInPixel*radius;
+        if (radius == 0) {// In case, it's 0 for line
+                          // radius=MIN_RADIUS_IN_PIXEL/radiusInPixel*radius;
             radius = 0.01;
         }
-            
-        radius=convertRadius(po.lat,po.lon,radius);
 
-        double[] centerXy = this.descriptor.getRenderableDisplay()
-                .gridToScreen(new double[] { po.coord.x, po.coord.y, 0.0 },
-                        target);
+        radius = convertRadius(po.lat, po.lon, radius);
+
+        double[] centerXy = this.descriptor.getRenderableDisplay().gridToScreen(
+                new double[] { po.coord.x, po.coord.y, 0.0 }, target);
         double[] rightXy = this.descriptor.getRenderableDisplay().gridToScreen(
                 new double[] { po.coord.x + radius, po.coord.y, 0.0 }, target);
         double radiusInPixel = rightXy[0] - centerXy[0];
 
-        if (radiusInPixel<MIN_RADIUS_IN_PIXEL){
-            radius=MIN_RADIUS_IN_PIXEL/radiusInPixel*radius;
-            radiusInPixel=MIN_RADIUS_IN_PIXEL;
+        if (radiusInPixel < MIN_RADIUS_IN_PIXEL) {
+            radius = MIN_RADIUS_IN_PIXEL / radiusInPixel * radius;
+            radiusInPixel = MIN_RADIUS_IN_PIXEL;
         }
 
         DrawableCircle circle = new DrawableCircle();
         circle = new DrawableCircle();
-        circle.setCoordinates(po.coord.x,po.coord.y);
+        circle.setCoordinates(po.coord.x, po.coord.y);
         circle.radius = radius;
         circle.basics.color = po.color;
         circle.lineWidth = width;
-        circle.lineStyle=po.lineStyle;
+        circle.lineStyle = po.lineStyle;
         target.drawCircle(circle);
-        
+
         if (po.type.equals(MesocycloneType.MESOCYCLONE_WITH_SPIKES)) {
-            List<DrawableLine> lines = new ArrayList<DrawableLine>();
+            List<DrawableLine> lines = new ArrayList<>();
 
             DrawableLine topSpike = new DrawableLine();
             topSpike.addPoint(centerXy[0], centerXy[1] - radiusInPixel);
-            topSpike.addPoint(centerXy[0], centerXy[1] - radiusInPixel
-                    - SPIKE_SIZE);
+            topSpike.addPoint(centerXy[0],
+                    centerXy[1] - radiusInPixel - SPIKE_SIZE);
             topSpike.basics.color = po.color;
             topSpike.width = width;
             lines.add(topSpike);
 
             DrawableLine bottomSpike = new DrawableLine();
             bottomSpike.addPoint(centerXy[0], centerXy[1] + radiusInPixel);
-            bottomSpike.addPoint(centerXy[0], centerXy[1] + radiusInPixel
-                    + SPIKE_SIZE);
+            bottomSpike.addPoint(centerXy[0],
+                    centerXy[1] + radiusInPixel + SPIKE_SIZE);
             bottomSpike.basics.color = po.color;
             bottomSpike.width = width;
             lines.add(bottomSpike);
@@ -1478,9 +1461,9 @@ public class RadarGraphicsPage implements IRenderable {
             rightSpike.basics.color = po.color;
             rightSpike.width = width;
             lines.add(rightSpike);
-            target.getExtension(ICanvasRenderingExtension.class).drawLines(
-                    paintProps, lines.toArray(new DrawableLine[0]));
-            
+            target.getExtension(ICanvasRenderingExtension.class)
+                    .drawLines(paintProps, lines.toArray(new DrawableLine[0]));
+
         }
     }
 
@@ -1500,20 +1483,20 @@ public class RadarGraphicsPage implements IRenderable {
         int tableTop = startTableY - 1;
 
         // this.screenGeometries.clear();
-        List<Coordinate> coords = new ArrayList<Coordinate>();
+        List<Coordinate> coords = new ArrayList<>();
         LineString ls = null;
 
         int tableRight = tableLeft + columns[columns.length - 1];
 
-        int tableBottom = (ORIGINAL_FONT_HEIGHT * numberOfRows) + tableTop;
+        int tableBottom = ORIGINAL_FONT_HEIGHT * numberOfRows + tableTop;
 
         // Rows
         for (int i = tableTop; i <= tableBottom; i += ORIGINAL_FONT_HEIGHT) {
             coords.clear();
             coords.add(new Coordinate(tableLeft, i));
             coords.add(new Coordinate(tableRight, i));
-            ls = this.geomFactory.createLineString(coords
-                    .toArray(new Coordinate[coords.size()]));
+            ls = this.geomFactory.createLineString(
+                    coords.toArray(new Coordinate[coords.size()]));
             this.screenGeometries.add(ls);
         }
 
@@ -1522,15 +1505,15 @@ public class RadarGraphicsPage implements IRenderable {
             coords.clear();
             coords.add(new Coordinate(tableLeft + x, tableTop));
             coords.add(new Coordinate(tableLeft + x, tableBottom));
-            ls = this.geomFactory.createLineString(coords
-                    .toArray(new Coordinate[coords.size()]));
+            ls = this.geomFactory.createLineString(
+                    coords.toArray(new Coordinate[coords.size()]));
             this.screenGeometries.add(ls);
         }
     }
 
     /**
      * Draw vectors on the screen
-     * 
+     *
      * @param vectors
      * @param sp
      * @param cs
@@ -1539,7 +1522,7 @@ public class RadarGraphicsPage implements IRenderable {
     public void drawVectors(List<LinkedVector> vectors,
             TextSymbolPacket currStormLocation, CoordinateSystem cs,
             List<ReferencedGeometry> localGeometries) {
-        List<Coordinate> coords = new ArrayList<Coordinate>();
+        List<Coordinate> coords = new ArrayList<>();
         boolean addFirst = true;
         for (LinkedVector vector : vectors) {
             Coordinate coord1 = null;
@@ -1555,8 +1538,10 @@ public class RadarGraphicsPage implements IRenderable {
                     i = vector.i1;
                     j = vector.j1;
                 }
-                coord1 = rectifyCoordinate(new Coordinate(i, j));
-                coord2 = rectifyCoordinate(new Coordinate(vector.i2, vector.j2));
+                coord1 = RadarRecordUtil
+                        .rectifyCoordinate(new Coordinate(i, j));
+                coord2 = RadarRecordUtil.rectifyCoordinate(
+                        new Coordinate(vector.i2, vector.j2));
             } else if (cs == CoordinateSystem.SCREEN) {
                 coord1 = new Coordinate(vector.i1, vector.j1);
                 coord2 = new Coordinate(vector.i2, vector.j2);
@@ -1565,8 +1550,8 @@ public class RadarGraphicsPage implements IRenderable {
             coords.add(coord2);
         }
 
-        LineString ls = this.geomFactory.createLineString(coords
-                .toArray(new Coordinate[coords.size()]));
+        LineString ls = this.geomFactory.createLineString(
+                coords.toArray(new Coordinate[coords.size()]));
         if (cs == CoordinateSystem.LOCAL) {
             ReferencedGeometry rg = new ReferencedGeometry(ls,
                     this.gridGeometry, Type.GRID_CENTER);
@@ -1636,18 +1621,19 @@ public class RadarGraphicsPage implements IRenderable {
      * Need to convert x/y to lon/lat for GFM product
      */
     public ReferencedCoordinate referencedGfmCoord(double i, double j) {
-        return new ReferencedCoordinate(rectifyCoordinate(new Coordinate(i * 4,
-                j * 4)), this.gridGeometry, Type.GRID_CENTER);
+        return new ReferencedCoordinate(
+                RadarRecordUtil.rectifyCoordinate(new Coordinate(i * 4, j * 4)),
+                this.gridGeometry, Type.GRID_CENTER);
     }
 
     /**
      * Gets the nearest point from GFM front to wind behind point to plot front
      * movement arrow
-     * 
+     *
      * @param AreaComponent
      * @param Coordinate
      * @return Coordinate
-     * 
+     *
      */
     private Coordinate getPlotPoint(AreaComponent currFeature,
             Coordinate windBehind) {
@@ -1664,7 +1650,7 @@ public class RadarGraphicsPage implements IRenderable {
         for (int k = 0; k < numPoints; k++) {
             x2 = currFeature.getPoints().get(k).getCoordinate1();
             y2 = currFeature.getPoints().get(k).getCoordinate2();
-            dist = ((x2 - x1) * (x2 - x1)) + ((y2 - y1) * (y2 - y1));
+            dist = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
             if (dist < minDist) {
                 point.x = x2;
                 point.y = y2;

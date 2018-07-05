@@ -7,17 +7,23 @@
 #
 # Creates the following temporary difference elements:
 #   newTopoMinusTopo = NewTopo - Topo
-#   GMTEDminusGTOPO  = GMTED - GTOPO
-#   newEdits         = NewTopo - GMTED
+#   StdMinusGTOPO  = StdTopo - GTOPO
+#   newEdits         = NewTopo - StdTopo
 #   currentEdits     = Topo - GTOPO
 #
 # SOFTWARE HISTORY
 # Date         Ticket#    Engineer     Description
 # ------------ ---------- -----------  --------------------------
 # 10/13/2015    #4961     randerso     Initial creation
+# 07/18/2017    #6253     randerso     Renamed GMTED to StdTopo
 #
 # Author: randerso
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 MenuItems = ["Edit"]
 
@@ -45,7 +51,7 @@ class Procedure (SmartScript.SmartScript):
         newTopo = self.getGrids(newTerrainDbId, "NewTopo", "SFC", timeRange, mode="First")
         
         baseTerrainDbId = self.findDatabase("EditTopo_BaseTerrain")
-        gmted = self.getGrids(baseTerrainDbId, "GMTED", "SFC", timeRange, mode="First")
+        stdTopo = self.getGrids(baseTerrainDbId, "StdTopo", "SFC", timeRange, mode="First")
         gtopo = self.getGrids(baseTerrainDbId, "GTOPO", "SFC", timeRange, mode="First")
 
         topoDbId = self.findDatabase("EditTopo_Topo")
@@ -53,7 +59,7 @@ class Procedure (SmartScript.SmartScript):
 
         self.unloadWEs(newTerrainDbId, 
                        [("newTopoMinusTopo", "SFC"),
-                        ("GMTEDminusGTOPO", "SFC"),
+                        ("StdMinusGTOPO", "SFC"),
                         ("newEdits", "SFC"),
                         ("currentEdits", "SFC")])
 
@@ -64,19 +70,19 @@ class Procedure (SmartScript.SmartScript):
         self.createGrid(newTerrainDbId, "newTopoMinusTopo", "SCALAR", delta, TimeRange.allTimes(), 
                         "NewTopo - Topo", (0,60,60), 1, -maxDelta, maxDelta, "ft", defaultColorTable="GFE/Delta")
 
-        delta = gmted - gtopo
+        delta = stdTopo - gtopo
         maxVal = numpy.nanmax(delta)
         minVal = numpy.nanmin(delta)
         maxDelta = max(1.0, abs(maxVal), abs(minVal))
-        self.createGrid(newTerrainDbId, "GMTEDminusGTOPO", "SCALAR", delta, TimeRange.allTimes(), 
-                        "GMTED - GTOPO", (0,60,60), 1, -maxDelta, maxDelta, "ft", defaultColorTable="GFE/Delta")
+        self.createGrid(newTerrainDbId, "StdMinusGTOPO", "SCALAR", delta, TimeRange.allTimes(), 
+                        "StdTopo - GTOPO", (0,60,60), 1, -maxDelta, maxDelta, "ft", defaultColorTable="GFE/Delta")
 
-        delta = newTopo - gmted
+        delta = newTopo - stdTopo
         maxVal = numpy.nanmax(delta)
         minVal = numpy.nanmin(delta)
         maxDelta = max(1.0, abs(maxVal), abs(minVal))
         self.createGrid(newTerrainDbId, "newEdits", "SCALAR", delta, TimeRange.allTimes(), 
-                        "NewTopo - GMTED", (0,60,60), 1, -maxDelta, maxDelta, "ft", defaultColorTable="GFE/Delta")
+                        "NewTopo - StdTopo", (0,60,60), 1, -maxDelta, maxDelta, "ft", defaultColorTable="GFE/Delta")
 
         delta = topo - gtopo
         maxVal = numpy.nanmax(delta)

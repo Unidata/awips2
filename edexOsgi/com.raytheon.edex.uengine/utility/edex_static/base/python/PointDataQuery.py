@@ -18,9 +18,14 @@
 # further licensing information.
 ##
 
-from java.util import ArrayList
-from com.raytheon.uf.edex.pointdata import PointDataQuery as JavaPointDataQuery
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Query of point data
@@ -33,6 +38,13 @@ from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 #    04/15/09                      chammack       Initial Creation.
 #    
 # 
+
+
+
+from java.util import ArrayList
+from com.raytheon.uf.edex.pointdata import PointDataQuery as JavaPointDataQuery
+from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+
 
 class PointDataQuery():
     

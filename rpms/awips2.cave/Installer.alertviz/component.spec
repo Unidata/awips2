@@ -1,4 +1,6 @@
 %define __prelink_undo_cmd %{nil}
+# disable jar repacking
+%global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
 
@@ -21,6 +23,7 @@ Packager: %{_build_site}
 
 AutoReq: no
 Provides: awips2-alertviz
+Requires: awips2
 Requires: awips2-python
 Requires: awips2-java
 
@@ -117,6 +120,7 @@ if [ -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar ]; then
    rm -f org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
    mv org.eclipse.swt.gtk.linux.x86_64_%{_swt_version} \
       org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
+   chown -R awips.fxalpha org.eclipse.swt.gtk.linux.x86_64_%{_swt_version}.jar
 fi
 
 popd > /dev/null 2>&1
@@ -131,9 +135,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(644,awips,fxalpha,755)
 %dir /awips2/alertviz
 /awips2/alertviz/.eclipseproduct
-%docdir /awips2/alertviz/about_files
-%dir /awips2/alertviz/about_files
-/awips2/alertviz/about_files/*
 %doc /awips2/alertviz/about.html
 %dir /awips2/alertviz/alertvizEnvironment
 /awips2/alertviz/alertviz.ini

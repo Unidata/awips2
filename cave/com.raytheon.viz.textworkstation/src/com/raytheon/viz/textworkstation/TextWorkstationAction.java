@@ -56,7 +56,7 @@ public class TextWorkstationAction extends AbstractHandler {
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
         if ((textWorkstationDlg == null) || textWorkstationDlg.isDisposed()) {
             textWorkstationDlg = new TextWorkstationDlg(Display.getCurrent());
-            textWorkstationDlg.setCloseCallback(new ICloseCallback() {
+            textWorkstationDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {

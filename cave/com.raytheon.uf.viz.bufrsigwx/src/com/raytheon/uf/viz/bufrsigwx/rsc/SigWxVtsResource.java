@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,6 +21,7 @@ package com.raytheon.uf.viz.bufrsigwx.rsc;
 
 import org.eclipse.swt.graphics.RGB;
 
+import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -35,22 +36,22 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * 
+ *
  * Resource for SigWx VTS Data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 28, 2009 3099       bsteffen    Initial creation
  * Sep 28, 2009 3099       bsteffen    Updated to conform with common SigWxResource
  * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() calls.
- * 
+ * Sep 12, 2016 5886       tgurney     Update paintInternal() signature
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
- * @version 1.0
  */
 public class SigWxVtsResource extends SigWxResource {
 
@@ -86,42 +87,46 @@ public class SigWxVtsResource extends SigWxResource {
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
-            PaintProperties paintProps, PointDataView pdv) throws VizException {
+            PaintProperties paintProps, PointDataContainer pdc)
+                    throws VizException {
 
-        RGB color = getCapability(ColorableCapability.class).getColor();
+        for (int i = 0; i < pdc.getCurrentSz(); i++) {
+            PointDataView pdv = pdc.readRandom(i);
+            RGB color = getCapability(ColorableCapability.class).getColor();
 
-        String featureName = pdv.getString(P_FEATURE_NAME);
-        String text = "";
-        Number lat = pdv.getNumber(P_LATITUDE);
-        Number lon = pdv.getNumber(P_LONGITUDE);
-        int metFeature = pdv.getInt(P_MET_FEATURE);
-        int attribSig = pdv.getInt(P_ATTRIB_SIG);
-        double[] loc = descriptor.worldToPixel(new double[] {
-                lon.doubleValue(), lat.doubleValue() });
-        double scale[] = getScale(paintProps);
-        IImage image = null;
-        if (metFeature == 17) {
-            image = symbolLoader.getImage(target, color, VOLCANO_SYMBOL);
-        } else if (attribSig == 1) {
-            image = symbolLoader.getImage(target, color, STORM_SYMBOL);
+            String featureName = pdv.getString(P_FEATURE_NAME);
+            String text = "";
+            Number lat = pdv.getNumber(P_LATITUDE);
+            Number lon = pdv.getNumber(P_LONGITUDE);
+            int metFeature = pdv.getInt(P_MET_FEATURE);
+            int attribSig = pdv.getInt(P_ATTRIB_SIG);
+            double[] loc = descriptor.worldToPixel(
+                    new double[] { lon.doubleValue(), lat.doubleValue() });
+            double scale[] = getScale(paintProps);
+            IImage image = null;
+            if (metFeature == 17) {
+                image = symbolLoader.getImage(target, color, VOLCANO_SYMBOL);
+            } else if (attribSig == 1) {
+                image = symbolLoader.getImage(target, color, STORM_SYMBOL);
+            }
+            if (image != null) {
+                Coordinate ul = new Coordinate(loc[0], loc[1] - 6 * scale[1]);
+                Coordinate ur = new Coordinate(loc[0] + 12 * scale[0], ul.y);
+                Coordinate lr = new Coordinate(ur.x, loc[1] + 6 * scale[1]);
+                Coordinate ll = new Coordinate(loc[0], lr.y);
+                PixelCoverage extent = new PixelCoverage(ul, ur, lr, ll);
+                target.drawRaster(image, extent, paintProps);
+                loc[0] += 12 * scale[0];
+                text = "  " + featureName;
+            } else {
+                text = "???  " + featureName;
+            }
+            DrawableString string = new DrawableString(text, color);
+            string.font = font;
+            string.setCoordinates(loc[0], loc[1]);
+            string.verticalAlignment = VerticalAlignment.MIDDLE;
+            target.drawStrings(string);
         }
-        if (image != null) {
-            Coordinate ul = new Coordinate(loc[0], loc[1] - 6 * scale[1]);
-            Coordinate ur = new Coordinate(loc[0] + 12 * scale[0], ul.y);
-            Coordinate lr = new Coordinate(ur.x, loc[1] + 6 * scale[1]);
-            Coordinate ll = new Coordinate(loc[0], lr.y);
-            PixelCoverage extent = new PixelCoverage(ul, ur, lr, ll);
-            target.drawRaster(image, extent, paintProps);
-            loc[0] += 12 * scale[0];
-            text = "  " + featureName;
-        } else {
-            text = "???  " + featureName;
-        }
-        DrawableString string = new DrawableString(text, color);
-        string.font = font;
-        string.setCoordinates(loc[0], loc[1]);
-        string.verticalAlignment = VerticalAlignment.MIDDLE;
-        target.drawStrings(string);
     }
 
     @Override

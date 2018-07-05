@@ -20,8 +20,8 @@
 package com.raytheon.viz.mpe.util;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -41,26 +41,28 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Mar 10, 2009            snaples     Initial creation
  * Jan 11, 2016 5173       bkowal      Do not estimate a station that has been forced
  *                                     good. Eliminated warnings.
+ * Mar 10, 2017  19625     snaples     Fixed erroneous estimates.
+ * Oct 03, 2017  6407      bkowal      Eliminated warnings.
+ * Oct 04, 2017  19908     snaples     Added check for neighbors to not exceed station count.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class EstDailyStations {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(EstDailyStations.class);
     
-    DailyQcUtils dqc = DailyQcUtils.getInstance();
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     /* j is the day of the data. */
     public void estimate_daily_stations(int j,
-            ArrayList<Station> precip_stations, int numPstations) {
+            List<Station> precip_stations, int numPstations) {
 
         int dqc_neig = DailyQcUtils.mpe_dqc_max_precip_neighbors;
         int isom = DailyQcUtils.isom;
-        int isohyets_used = dqc.isohyets_used;
+        boolean isohyets_used = dqc.isohyets_used;
         int method = dqc.method;
         int m, k, i, l, ii;
         int dqc_min_good = dqc.mpe_dqc_min_good_stations;
@@ -91,6 +93,10 @@ public class EstDailyStations {
         }
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.setTime(DailyQcUtils.pdata[j].data_time);
+
+        if ( dqc_neig > max_stations){
+            dqc_neig = max_stations;
+        }
 
         /* this routine will estimate 6 hourly periods when 24 hour rain exists */
 
@@ -140,7 +146,7 @@ public class EstDailyStations {
 
             /* get isohyet */
 
-            if (isohyets_used != 0) {
+            if (isohyets_used) {
                 isoh1 = precip_stations.get(m).isoh[isom];
             }
 
@@ -174,7 +180,7 @@ public class EstDailyStations {
                     lat = precip_stations.get(i).lat;
                     lon = precip_stations.get(i).lon;
 
-                    if (isohyets_used != 0) {
+                    if (isohyets_used) {
                         isoh = precip_stations.get(i).isoh[isom];
                     }
 
@@ -196,8 +202,8 @@ public class EstDailyStations {
                         padj = DailyQcUtils.pdata[j].stn[i].frain[k].data;
                     }
 
-                    fdist = testdist + fdist;
-                    fdata = padj * testdist + fdata;
+                    fdist += testdist;
+                    fdata += padj * testdist;
                     l++;
 
                 }
@@ -247,7 +253,7 @@ public class EstDailyStations {
                         lat = precip_stations.get(i).lat;
                         lon = precip_stations.get(i).lon;
 
-                        if (isohyets_used != 0) {
+                        if (isohyets_used) {
                             isoh = precip_stations.get(i).isoh[isom];
                         }
 
@@ -267,8 +273,8 @@ public class EstDailyStations {
                             padj = DailyQcUtils.pdata[j].stn[i].frain[k].data;
                         }
 
-                        fdist = testdist + fdist;
-                        fdata = padj * testdist + fdata;
+                        fdist += testdist;
+                        fdata += padj * testdist;
                         l++;
                     }
 

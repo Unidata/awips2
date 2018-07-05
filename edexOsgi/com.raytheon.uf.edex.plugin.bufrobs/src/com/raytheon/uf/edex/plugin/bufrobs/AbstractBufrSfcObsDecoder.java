@@ -30,16 +30,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
 import javax.xml.bind.JAXBException;
-
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Variable;
 
 import com.raytheon.edex.plugin.sfcobs.SfcObsDao;
 import com.raytheon.edex.plugin.sfcobs.SfcObsPointDataTransform;
@@ -58,8 +55,6 @@ import com.raytheon.uf.common.nc.bufr.tables.TableEntry;
 import com.raytheon.uf.common.nc.bufr.tables.TranslationTable;
 import com.raytheon.uf.common.nc.bufr.tables.TranslationTable.TableType;
 import com.raytheon.uf.common.nc.bufr.tables.TranslationTableManager;
-import com.raytheon.uf.common.nc.bufr.time.BufrTimeFieldParser;
-import com.raytheon.uf.common.nc.bufr.time.TimeFieldParseException;
 import com.raytheon.uf.common.nc.bufr.util.BufrMapper;
 import com.raytheon.uf.common.nc.bufr.util.TranslationTableGenerator;
 import com.raytheon.uf.common.pointdata.ParameterDescription;
@@ -70,12 +65,17 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.units.UnitLookupException;
 import com.raytheon.uf.common.units.UnitMapper;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.decodertools.time.TimeTools;
 import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryKey;
 import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryParser;
+
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Variable;
 
 /**
  * Abstract class for decoding BUFR formatted sfcobs. Contains general methods
@@ -97,6 +97,7 @@ import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryParser;
  * Jul 23, 2014  3410     bclement  location changed to floats
  * Jul 11, 2016  5744     mapeters  Localization files moved from edex_static to
  *                                  common_static
+ * Sep 11, 2017  6406     bsteffen  Upgrade ucar
  * 
  * </pre>
  * 
@@ -104,7 +105,7 @@ import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryParser;
  */
 public abstract class AbstractBufrSfcObsDecoder {
 
-    public static final Set<String> DEFAULT_LOCATION_FIELDS = new HashSet<>(
+    protected static final Set<String> DEFAULT_LOCATION_FIELDS = new HashSet<>(
             Arrays.asList(SfcObsPointDataTransform.LATITUDE,
                     SfcObsPointDataTransform.LONGITUDE,
                     SfcObsPointDataTransform.STATION_ID,
@@ -115,13 +116,16 @@ public abstract class AbstractBufrSfcObsDecoder {
 
     public static final String UDUNITS_NAMESPACE = "udunits";
 
-    public static final String WMO_HEADER_ATTRIB = "WMO Header";
+    public static final String WMO_HEADER_ATTRIB = "WMO_Header";
 
     public static final String TIME_FIELD = "time";
 
-    public static final String WMO_BLOCK_FIELD = "WMO block number";
+    public static final String WMO_BLOCK_FIELD = "WMO_block_number";
 
     public static final String WMO_INDEX_FORMAT = "%02d%03d";
+
+    public static final Pattern PRECIP_TIME_PERIOD_FIELD = Pattern
+            .compile("Time_period_or_displacement(-\\d{1,2})?");
 
     protected static final IUFStatusHandler log = UFStatus
             .getHandler(AbstractBufrSfcObsDecoder.class);
@@ -202,8 +206,8 @@ public abstract class AbstractBufrSfcObsDecoder {
         while (hasMore) {
             try {
                 try {
-                    ObsCommon record = getNextRecord(parser, reportType,
-                            header, pointMap);
+                    ObsCommon record = getNextRecord(parser, reportType, header,
+                            pointMap);
                     if (record != null) {
                         rval.add(record);
                     } else {
@@ -220,8 +224,8 @@ public abstract class AbstractBufrSfcObsDecoder {
                 }
             } catch (IOException e) {
                 /* problem with the parser itself, give up on file */
-                throw new BufrObsDecodeException("Problem parsing BUFR file: "
-                        + parser.getFile(), e);
+                throw new BufrObsDecodeException(
+                        "Problem parsing BUFR file: " + parser.getFile(), e);
             }
         }
         return rval.toArray(new PluginDataObject[rval.size()]);
@@ -375,7 +379,7 @@ public abstract class AbstractBufrSfcObsDecoder {
      * @param parser
      * @throws BufrObsDecodeException
      */
-    abstract protected void processField(ObsCommon record, BufrParser parser)
+    protected abstract void processField(ObsCommon record, BufrParser parser)
             throws BufrObsDecodeException;
 
     /**
@@ -419,8 +423,8 @@ public abstract class AbstractBufrSfcObsDecoder {
                         LocalizationContext.LocalizationLevel.BASE);
                 String fileName = localizationTablesDirectory
                         + IPathManager.SEPARATOR + getTranslationFile(tableId);
-                ILocalizationFile tableFile = pathMgr.getLocalizationFile(
-                        commonStaticBase, fileName);
+                ILocalizationFile tableFile = pathMgr
+                        .getLocalizationFile(commonStaticBase, fileName);
                 if (tableFile == null) {
                     throw new BufrObsDecodeException(
                             "Unable to find localization file for BUFR translation table: "
@@ -429,14 +433,14 @@ public abstract class AbstractBufrSfcObsDecoder {
                 try {
                     TranslationTableManager instance = TranslationTableManager
                             .getInstance();
-                    rval = (TranslationTable) instance
-                            .unmarshalFromInputStream(tableFile
-                                    .openInputStream());
+                    rval = (TranslationTable) instance.unmarshalFromInputStream(
+                            tableFile.openInputStream());
                     translationMap.put(tableId, rval);
                 } catch (Exception e) {
                     throw new BufrObsDecodeException(
                             "Problem creating BUFR translation table: "
-                                    + tableId, e);
+                                    + tableId,
+                            e);
                 }
             }
         }
@@ -459,14 +463,14 @@ public abstract class AbstractBufrSfcObsDecoder {
      * 
      * @return
      */
-    abstract protected String getAliasMapFile();
+    protected abstract String getAliasMapFile();
 
     /**
      * Get obs-type specific category file name
      * 
      * @return
      */
-    abstract protected String getCategoryFile();
+    protected abstract String getCategoryFile();
 
     /**
      * Get obs-type specific parameter alias mapper
@@ -479,9 +483,8 @@ public abstract class AbstractBufrSfcObsDecoder {
             synchronized (mapperMutex) {
                 if (mapper == null) {
                     IPathManager pathMgr = PathManagerFactory.getPathManager();
-                    File aliasFile = pathMgr
-                            .getStaticFile(localizationAliasDirectory
-                                    + IPathManager.SEPARATOR
+                    File aliasFile = pathMgr.getStaticFile(
+                            localizationAliasDirectory + IPathManager.SEPARATOR
                                     + getAliasMapFile());
                     try {
                         mapper = new BufrMapper(Arrays.asList(aliasFile));
@@ -504,23 +507,50 @@ public abstract class AbstractBufrSfcObsDecoder {
      */
     private void setTime(ObsCommon record, BufrParser parser)
             throws BufrObsDecodeException {
-        BufrDataItem timeData = parser.scanForStructField(TIME_FIELD, false);
-        if (timeData == null) {
+        BufrDataItem yearData = parser.scanForStructField("Year", false);
+        if (yearData == null) {
             throw new MissingRequiredDataException(
-                    "Missing time field value in BUFR file: "
+                    "Missing year field value in BUFR file: "
                             + parser.getFile());
         }
-        try {
-            Variable var = timeData.getVariable();
-            Calendar cal = BufrTimeFieldParser.processTimeField(
-                    timeData.getValue(), var.getUnitsString());
-            record.setDataTime(new DataTime(cal));
-            record.setTimeObs(cal);
-            record.setRefHour(TimeTools.copyToNearestHour(cal));
-        } catch (TimeFieldParseException e) {
-            throw new BufrObsDecodeException("Problem parsing time field: "
-                    + e.getLocalizedMessage() + " in " + parser.getFile(), e);
+        BufrDataItem monthData = parser.scanForStructField("Month", false);
+        if (monthData == null) {
+            throw new MissingRequiredDataException(
+                    "Missing month field value in BUFR file: "
+                            + parser.getFile());
         }
+        BufrDataItem dayData = parser.scanForStructField("Day", false);
+        if (dayData == null) {
+            throw new MissingRequiredDataException(
+                    "Missing day field value in BUFR file: "
+                            + parser.getFile());
+        }
+        BufrDataItem hourData = parser.scanForStructField("Hour", false);
+        if (hourData == null) {
+            throw new MissingRequiredDataException(
+                    "Missing hour field value in BUFR file: "
+                            + parser.getFile());
+        }
+        BufrDataItem minData = parser.scanForStructField("Minute", false);
+        if (minData == null) {
+            throw new MissingRequiredDataException(
+                    "Missing minute field value in BUFR file: "
+                            + parser.getFile());
+        }
+
+        int year = ((Number) yearData.getValue()).intValue();
+        int month = ((Number) monthData.getValue()).intValue();
+        int day = ((Number) dayData.getValue()).intValue();
+        int hour = ((Number) hourData.getValue()).intValue();
+        int min = ((Number) minData.getValue()).intValue();
+
+        Calendar cal = TimeUtil.newGmtCalendar(year, month, day);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
+
+        record.setDataTime(new DataTime(cal));
+        record.setTimeObs(cal);
+        record.setRefHour(TimeTools.copyToNearestHour(cal));
     }
 
     /**
@@ -535,7 +565,8 @@ public abstract class AbstractBufrSfcObsDecoder {
             BufrParser parser, String baseName) throws BufrObsDecodeException {
         if (baseName.equalsIgnoreCase(SfcObsPointDataTransform.STATION_ID)) {
             location.setStationId(createStationId(parser));
-        } else if (baseName.equalsIgnoreCase(SfcObsPointDataTransform.LATITUDE)) {
+        } else if (baseName
+                .equalsIgnoreCase(SfcObsPointDataTransform.LATITUDE)) {
             Double lat = (Double) getFieldValue(parser, false);
             if (lat != null) {
                 location.assignLatitude(lat.floatValue());
@@ -674,7 +705,8 @@ public abstract class AbstractBufrSfcObsDecoder {
         } catch (UnitLookupException e) {
             throw new BufrObsDecodeException(
                     "Unable to convert units for field " + var.getFullName()
-                            + ": " + fieldUnits, e);
+                            + ": " + fieldUnits,
+                    e);
         }
         return results.iterator().next();
     }
@@ -770,10 +802,10 @@ public abstract class AbstractBufrSfcObsDecoder {
      */
     protected String lookupTableEntry(BufrParser parser, String baseName,
             int key) throws BufrObsDecodeException {
-        ParsedTableUnit tableUnit = ParsedTableUnit.parse(parser
-                .getFieldUnits());
-        TranslationTable transTable = getTranslationTable(tableUnit
-                .getTableId());
+        ParsedTableUnit tableUnit = ParsedTableUnit
+                .parse(parser.getFieldUnits());
+        TranslationTable transTable = getTranslationTable(
+                tableUnit.getTableId());
         TableType type = tableUnit.getType();
         if (!TableType.CODE.equals(type)) {
             log.warn("Unsupported table type for field " + baseName + ": "
@@ -898,15 +930,15 @@ public abstract class AbstractBufrSfcObsDecoder {
      * @param parser
      * @throws BufrObsDecodeException
      */
-    protected void processPrecip(ObsCommon record, BufrParser parser,
-            String precipTimePeriodField) throws BufrObsDecodeException {
+    protected void processPrecip(ObsCommon record, BufrParser parser)
+            throws BufrObsDecodeException {
         Number precip = getInUnits(parser, SI.MILLIMETER);
         if (precip == null) {
             /* missing value */
             return;
         }
-        BufrDataItem timeData = parser.scanForStructField(
-                precipTimePeriodField, false);
+        BufrDataItem timeData = parser
+                .scanForStructField(PRECIP_TIME_PERIOD_FIELD, false);
         if (timeData == null || timeData.getValue() == null) {
             log.error("Found precipitation field missing time data. Field: "
                     + parser.getFieldName() + ", Table: "
@@ -923,8 +955,9 @@ public abstract class AbstractBufrSfcObsDecoder {
             break;
         case 3:
             /* text synop obs doesn't have 3HR precip */
-            log.debug("Received precip period not supported by point data view: "
-                    + Math.abs(period.intValue()) + " HOUR");
+            log.debug(
+                    "Received precip period not supported by point data view: "
+                            + Math.abs(period.intValue()) + " HOUR");
             break;
         case 6:
             pdv.setFloat(SfcObsPointDataTransform.PRECIP6_HOUR,

@@ -18,11 +18,15 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter name="VWP Sample" abbreviation="vwpSample" xmlns:ns2="group">
     <Method levels="MB,FHAG" name="vwpSample" models="radarVWP">
-        <Field abbreviation="wSp"/>
-        <Field abbreviation="WD"/>
-        <Field abbreviation="wW"/>
-        <Field abbreviation="rms"/>
+        <Field abbreviation="wSp" />
+        <Field abbreviation="WD" />
+        <Field abbreviation="wW" />
+        <Field abbreviation="rms" />
     </Method>
 </DerivedParameter>

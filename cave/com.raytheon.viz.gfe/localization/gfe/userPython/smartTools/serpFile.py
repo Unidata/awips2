@@ -61,6 +61,12 @@
 #   2014/06/11 - Modified a couple of things to make it cleaner in A2
 #   2010/08/05 - updated to use ObjAnal utility
 #   2003/10/16 - original implementation based on serp tool
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 #=======================================================================
 #  START OF CONFIGURATION SECTION
 #

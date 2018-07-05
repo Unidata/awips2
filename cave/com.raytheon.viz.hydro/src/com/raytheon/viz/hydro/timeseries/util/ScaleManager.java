@@ -29,6 +29,7 @@ package com.raytheon.viz.hydro.timeseries.util;
  * ------------ ---------- ----------- --------------------------
  * Feb 11, 2010            mpduff      Initial creation
  * Apr 15, 2011  8963      jpiatt      Adjusted range for y-axis.
+ * Aug 25, 2017  19942     xwei        Corrected incorrect Y axis
  * 
  * </pre>
  * 
@@ -92,6 +93,8 @@ public class ScaleManager {
 			
 			if ((maxDataValue - minDataValue < 10) && (minDataValue > .5)) {
 			    minScaleValue = minDataValue - .5;
+			    int MinScaleValueInt = (int) minScaleValue; 
+			    minScaleValue = (double) MinScaleValueInt;  
 			}
 		}
 

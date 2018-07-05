@@ -46,6 +46,7 @@ import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.ui.actions.GageQcSelect;
+import com.raytheon.viz.mpe.ui.actions.GroupEditCalls;
 import com.raytheon.viz.mpe.ui.actions.OtherPrecipOptions;
 import com.raytheon.viz.mpe.ui.actions.OtherTempOptions;
 import com.raytheon.viz.mpe.ui.actions.SaveLevel2Data;
@@ -74,14 +75,16 @@ import com.raytheon.viz.ui.dialogs.DialogUtil;
  *                                  closing this dialog.
  * Sep 21, 2016  5901     randerso  Fix dialog centering issue introduced in
  *                                  Eclipse 4
+ * Mar 02, 2017  6164     bkowal    Updated to extend {@link AbstractDailyQCDialog}.
+ * Aug 11, 2017  6148     bkowal    Cleanup. Implement {@link IGroupEditHandler}.
  *
  * </pre>
  *
  * @author snaples
- * @version 1.0
  */
 
-public class QcTempOptionsDialog extends AbstractMPEDialog {
+public class QcTempOptionsDialog extends AbstractDailyQCDialog
+        implements IGroupEditHandler {
 
     public static Combo maxminTimeCbo;
 
@@ -140,10 +143,6 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
 
     OtherTempOptions oto = new OtherTempOptions();
 
-    // Tdata[] tdata = new Tdata[0];
-
-    // Ts[] ts;
-
     private int time_pos;
 
     public static Button[] tsbuttons = null;
@@ -176,16 +175,19 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
                 && DailyQcUtils.contour_flag == -1) {
             ik = 0;
         } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+                && DailyQcUtils.grids_flag == 1
+                && DailyQcUtils.map_flag == -1) {
             ik = 1;
         } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+                && DailyQcUtils.grids_flag == -1
+                && DailyQcUtils.map_flag == 1) {
             ik = 2;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+        } else if (DailyQcUtils.points_flag == 1 && DailyQcUtils.grids_flag == 1
+                && DailyQcUtils.map_flag == -1) {
             ik = 3;
         } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+                && DailyQcUtils.grids_flag == -1
+                && DailyQcUtils.map_flag == 1) {
             ik = 4;
         } else if (DailyQcUtils.points_flag == -1
                 && DailyQcUtils.contour_flag == 1) {
@@ -194,7 +196,8 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
                 && DailyQcUtils.contour_flag == 1) {
             ik = 6;
         } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1) {
+                && DailyQcUtils.grids_flag == -1
+                && DailyQcUtils.map_flag == -1) {
             ik = 7;
         }
         return ik;
@@ -285,6 +288,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         ddq = DrawDQCStations.getInstance();
         oto.chg_maxmin_time(maxminTimeCbo.getSelectionIndex() + 2);
         opo.send_expose();
+        listenToRevertDisplay(shell);
         while (!shell.isDisposed()) {
             if (dqc_good == 0) {
                 displayMgr.setMaxmin(false);
@@ -389,8 +393,8 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         dataOptionsGroup.setLayoutData(gd);
         final Shell shell = this.getParent();
         final Cursor prevCursor = shell.getCursor();
-        final Cursor waitCursor = Display.getDefault().getSystemCursor(
-                SWT.CURSOR_WAIT);
+        final Cursor waitCursor = Display.getDefault()
+                .getSystemCursor(SWT.CURSOR_WAIT);
 
         // Create a container to hold the label and the combo box.
         Composite maxmTimeComp = new Composite(dataOptionsGroup, SWT.NONE);
@@ -418,8 +422,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
                 oto.chg_maxmin_time(maxminTimeCbo.getSelectionIndex() + 2);
             }
         });
-        if (DailyQcUtils.qcDays == 1
-                && (dqc.curHr18_00 == 1
+        if (DailyQcUtils.qcDays == 1 && (dqc.curHr18_00 == 1
                 || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
             maxminTimeCbo.setEnabled(false);
         } else {
@@ -456,7 +459,8 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         GridData dd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
 
         String[] a = new String[dataSet.size()];
-        dataDispCbo = new Combo(dataOptionsGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
+        dataDispCbo = new Combo(dataOptionsGroup,
+                SWT.DROP_DOWN | SWT.READ_ONLY);
         dataDispCbo.setTextLimit(30);
         dataDispCbo.setLayoutData(dd);
         dataDispCbo.removeAll();
@@ -505,11 +509,12 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         groupEditBtn = new Button(renderComp, SWT.PUSH);
         groupEditBtn.setText("Group Edit");
         groupEditBtn.setLayoutData(bd);
+        final IGroupEditHandler handler = this;
         groupEditBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 GroupEditStationsDialog groupDialog = new GroupEditStationsDialog(
-                        shell, 1);
+                        shell, handler);
                 groupDialog.open();
             }
         });
@@ -613,19 +618,15 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         pointQualGroup.setLayoutData(gd);
 
-        int i;
-        // int qflag[] = dqc.qflag;
-
-        for (i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             DailyQcUtils.qflag[i] = 1;
         }
-
-        // qflag[5] = -1;
 
         boolean mpe_show_missing_gage_set = false;
         if (dqc.mpe_show_missing_gage.length() > 0) {
             if ((dqc.mpe_show_missing_gage.equalsIgnoreCase("All"))
-                    || (dqc.mpe_show_missing_gage.equalsIgnoreCase("Reported"))) {
+                    || (dqc.mpe_show_missing_gage
+                            .equalsIgnoreCase("Reported"))) {
                 mpe_show_missing_gage_set = true;
             } else {
                 mpe_show_missing_gage_set = false;
@@ -663,9 +664,10 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
         rtCkBxComp.setLayout(lrCkBxLo);
 
         String[] qbnames = { "Verified", "Screened", "Time Dist", "Manual",
-                "Questionable", "Partial", "Estimated", "Bad", "Missing", "All" };
+                "Questionable", "Partial", "Estimated", "Bad", "Missing",
+                "All" };
 
-        for (i = 0; i < qsbuttons.length / 2; i++) {
+        for (int i = 0; i < qsbuttons.length / 2; i++) {
             final Button b = new Button(ltCkBxComp, SWT.CHECK);
             b.setText(qbnames[i]);
             b.setData(i);
@@ -677,7 +679,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             });
             qsbuttons[i] = b;
         }
-        for (i = qsbuttons.length / 2; i < qsbuttons.length; i++) {
+        for (int i = qsbuttons.length / 2; i < qsbuttons.length; i++) {
             final Button b = new Button(rtCkBxComp, SWT.CHECK);
             b.setText(qbnames[i]);
             b.setData(i);
@@ -690,7 +692,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             qsbuttons[i] = b;
             qsbuttons[5].setEnabled(false);
         }
-        for (i = 0; i < 10; i++) {
+        for (int i = 0; i < 10; i++) {
             if (i == 5) {
                 continue;
             }
@@ -804,7 +806,7 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
 
         });
         pfvalueLabel
-        .setText(String.format("%3d", pntFilter.getSelection() - 50));
+                .setText(String.format("%3d", pntFilter.getSelection() - 50));
 
         /**
          * Point reverse filter scale
@@ -836,15 +838,15 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
             }
         });
         pntRevFilter
-        .addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
-            @Override
-            public void mouseUp(MouseEvent e) {
-                opo.refresh_exposure();
-            }
+                .addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
+                    @Override
+                    public void mouseUp(MouseEvent e) {
+                        opo.refresh_exposure();
+                    }
 
-        });
-        prvalueLabel.setText(String.format("%3d",
-                125 - pntRevFilter.getSelection()));
+                });
+        prvalueLabel.setText(
+                String.format("%3d", 125 - pntRevFilter.getSelection()));
 
         /**
          * Point elevation scale
@@ -913,12 +915,17 @@ public class QcTempOptionsDialog extends AbstractMPEDialog {
     public static void destroy(boolean t) {
         isOpen = t;
     }
-    
+
     public static boolean isOpen() {
-    	return isOpen;
+        return isOpen;
     }
 
     public static boolean isFinished() {
         return isfinished;
+    }
+
+    @Override
+    public void handleGroupEdit() {
+        new GroupEditCalls().apply_tgroup();
     }
 }

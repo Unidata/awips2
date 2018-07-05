@@ -24,19 +24,24 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.attribute.PosixFilePermission;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Set;
 import java.util.TimeZone;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
+
+import com.raytheon.uf.common.util.file.IOPermissionsHelper;
 
 /**
  * This class supports reading and writing of XMRG formatted files
@@ -49,11 +54,14 @@ import javax.xml.bind.annotation.XmlElement;
  * May 20, 2014 2913       bsteffen     Remove main
  * Aug 18, 2016 4619       bkowal       Made {@link #readData(ByteBuffer)} protected to
  *                                      allow for extensibility.
+ * Aug 23, 2016 5361       bkowal       Provided defaults for fields in the {@link XmrgHeader}
+ *                                      so that they would no longer need to be redeclared.
+ * Aug 07, 2017 6334       bkowal       Directories are now created with 770 permissions and files 660.
+ * JUN 20, 2017 17911      wkwock       Add method load(InputStream is).
  * 
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class XmrgFile {
@@ -97,29 +105,51 @@ public class XmrgFile {
         fis.close();
     }
 
-    public void save(String fileName) throws IOException {
-        save(new File(fileName));
+    public void load(InputStream is) throws IOException {
+        byte[] bytes=new byte[is.available()];
+        is.read(bytes, 0, is.available());
+        ByteBuffer byteBuf = ByteBuffer.wrap(bytes);
+
+        readExtent(byteBuf);
+        readHeader(byteBuf);
+        readData(byteBuf);
     }
 
-    public void save(File file) throws IOException {
-        FileOutputStream fos = new FileOutputStream(file);
-        FileChannel fc = fos.getChannel();
+    public void save(String fileName,
+            final Set<PosixFilePermission> posxFilePermissions)
+            throws IOException {
+        save(new File(fileName), posxFilePermissions);
+    }
 
-        int size = computeSize();
-        ByteBuffer byteBuf = ByteBuffer.allocate(size);
+    public void save(File file,
+            final Set<PosixFilePermission> posxFilePermissions)
+            throws IOException {
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            FileChannel fc = fos.getChannel();
 
-        writeExtent(byteBuf);
-        writeHeader(byteBuf);
-        writeData(byteBuf);
+            int size = computeSize();
+            ByteBuffer byteBuf = ByteBuffer.allocate(size);
 
-        byteBuf.rewind();
-        fc.write(byteBuf);
-        fos.close();
+            writeExtent(byteBuf);
+            writeHeader(byteBuf);
+            writeData(byteBuf);
+
+            byteBuf.rewind();
+            fc.write(byteBuf);
+        }
+
+        if (posxFilePermissions != null) {
+            /*
+             * Attempt to update the permissions of the newly written XMRG file.
+             */
+            IOPermissionsHelper.applyFilePermissions(file.toPath(),
+                    posxFilePermissions);
+        }
     }
 
     private int computeSize() {
-        return (16 + 8) + (66 + 8) + (2 * hrapExtent.width + 8)
-                * hrapExtent.height;
+        return (16 + 8) + (66 + 8)
+                + (2 * hrapExtent.width + 8) * hrapExtent.height;
     }
 
     public Rectangle getHrapExtent() {
@@ -332,19 +362,19 @@ public class XmrgFile {
     }
 
     public static class XmrgHeader {
-        private String operatingSystem;
+        private String operatingSystem = "LX";
 
-        private String userId;
+        private String userId = "SANmdY";
 
         private Date saveDate;
 
-        private String processFlag;
+        private String processFlag = "MPA01   ";
 
         private Date validDate;
 
-        private int maxValue;
+        private int maxValue = 32767;
 
-        private float versionNumber;
+        private float versionNumber = 1.0f;
 
         @Override
         public String toString() {

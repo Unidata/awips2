@@ -20,7 +20,6 @@
 package com.raytheon.viz.mpe.ui.dialogs;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
@@ -34,6 +33,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.viz.mpe.core.MPEDataManager;
@@ -53,9 +53,9 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  * ------------- -------- --------- --------------------------------------------
  * May 04, 2011  ?        lvenable  Initial creation
  * Apr 05, 2016  5504     bkowal    Fix GUI sizing issues.
- * Jul 27, 2016 4623       skorolev    Cleanup.
  * Sep 21, 2016  5901     randerso  Fix dialog centering issue introduced in
  *                                  Eclipse 4
+ * Oct 06, 2017  6407     bkowal    Cleanup. Updates to support GOES-R SATPRE.
  *
  * </pre>
  *
@@ -67,7 +67,7 @@ public class BadGagesDlg extends AbstractMPEDialog {
     /**
      * Gage list control.
      */
-    private org.eclipse.swt.widgets.List gageList;
+    private List gageList;
 
     /**
      * Dete selected items button.
@@ -77,7 +77,7 @@ public class BadGagesDlg extends AbstractMPEDialog {
     /**
      * List of gages to be permanently deleted.
      */
-    private List<String> deleteGages = new ArrayList<>();
+    private java.util.List<String> deleteGages = new ArrayList<>();
 
     /**
      * Constructor.
@@ -160,8 +160,8 @@ public class BadGagesDlg extends AbstractMPEDialog {
         listComp.setLayout(new GridLayout(1, false));
         listComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        gageList = new org.eclipse.swt.widgets.List(listComp, SWT.BORDER
-                | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
+        gageList = new List(listComp,
+                SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         GC gc = new GC(gageList);
         /*
@@ -204,8 +204,8 @@ public class BadGagesDlg extends AbstractMPEDialog {
     private void createBottomButtons() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
         buttonComp.setLayout(new GridLayout(2, true));
-        buttonComp.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT, true,
-                false));
+        buttonComp.setLayoutData(
+                new GridData(SWT.CENTER, SWT.DEFAULT, true, false));
 
         int minimumButtonWidth = buttonComp.getDisplay().getDPI().x;
 

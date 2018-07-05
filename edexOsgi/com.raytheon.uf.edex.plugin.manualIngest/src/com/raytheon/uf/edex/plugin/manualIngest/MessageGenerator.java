@@ -21,13 +21,14 @@ package com.raytheon.uf.edex.plugin.manualIngest;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFilePermission;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
@@ -37,10 +38,13 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.common.util.header.WMOHeaderFinder;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOTimeParser;
+import com.raytheon.uf.common.wmo.util.WMOHeaderFinder;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.distribution.DistributionPatterns;
+import com.raytheon.uf.common.util.file.IOPermissionsHelper;
+import com.raytheon.uf.common.util.file.Files;
 
 /**
  * A bean based on FileToString that will take a message generated from a file
@@ -58,46 +62,52 @@ import com.raytheon.uf.edex.distribution.DistributionPatterns;
  * Apr 17, 2014 2942       skorolev    Updated throw exception in sendFileToIngest.
  * May 14, 2014 2536       bclement    removed TimeTools usage
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
+ * May 04, 2017 6255       bkowal      Updated to use {@link IOPermissionsHelper} and {@link Files}.
  * 
  * </pre>
  * 
  * @author brockwoo
- * @version 1.0
  */
 
 public class MessageGenerator implements Processor {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(MessageGenerator.class);
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
+    private static final String MANUAL_DIR = "manual";
 
     private static String DIR = System.getProperty("data.archive.root")
-            + File.separator + "manual";
+            + File.separator + MANUAL_DIR;
+
+    private static final PosixFilePermission[] POSIX_FILE_PERMISSIONS = new PosixFilePermission[] {
+            PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE,
+            PosixFilePermission.GROUP_READ, PosixFilePermission.GROUP_WRITE };
+
+    private static final PosixFilePermission[] POSIX_DIRECTORY_PERMISSIONS = new PosixFilePermission[] {
+            PosixFilePermission.OWNER_READ, PosixFilePermission.OWNER_WRITE,
+            PosixFilePermission.OWNER_EXECUTE, PosixFilePermission.GROUP_READ,
+            PosixFilePermission.GROUP_WRITE,
+            PosixFilePermission.GROUP_EXECUTE };
+
+    private static final Set<PosixFilePermission> POSIX_FILE_SET = IOPermissionsHelper
+            .getPermissionsAsSet(POSIX_FILE_PERMISSIONS);
+
+    private static final FileAttribute<Set<PosixFilePermission>> POSIX_DIRECTORY_ATTRIBUTES = IOPermissionsHelper
+            .getPermissionsAsAttributes(POSIX_DIRECTORY_PERMISSIONS);
 
     private static MessageGenerator instance = new MessageGenerator();
 
     private String ingestRoute = null;
 
-    private final ThreadLocal<SimpleDateFormat> sdfs = new ThreadLocal<SimpleDateFormat>() {
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.ThreadLocal#initialValue()
-         */
-        @Override
-        protected SimpleDateFormat initialValue() {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd"
-                    + File.separatorChar + "HH");
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-            return sdf;
-        }
-
-    };
+    private final ThreadLocal<SimpleDateFormat> sdfs = TimeUtil
+            .buildThreadLocalSimpleDateFormat(
+                    "yyyyMMdd" + File.separatorChar + "HH",
+                    TimeUtil.GMT_TIME_ZONE);
 
     /**
      * Set of plugins that are not the primary decoder of the data. These are
      * secondary or additional information such as text, dhr, dpa, etc.
      */
-    private final Set<String> secondaryPlugins = new HashSet<String>();
+    private final Set<String> secondaryPlugins = new HashSet<>();
 
     public static MessageGenerator getInstance() {
         return instance;
@@ -124,11 +134,6 @@ public class MessageGenerator implements Processor {
         return this;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.apache.camel.Processor#process(org.apache.camel.Exchange)
-     */
     @Override
     public void process(Exchange arg0) throws Exception {
         File file = (File) arg0.getIn().getBody();
@@ -230,13 +235,31 @@ public class MessageGenerator implements Processor {
         File dir = new File(path.toString());
 
         if (!dir.exists()) {
-            dir.mkdirs();
+            Files.createDirectories(dir.toPath(), POSIX_DIRECTORY_ATTRIBUTES);
         }
 
         File newFile = new File(dir, inFile.getName());
 
         try {
             FileUtils.copyFile(inFile, newFile);
+
+            /*
+             * Attempt to adjust the file permissions to fulfill the security
+             * requirements. As of May 2017, all of the files that will be
+             * processed are provided by an external source.
+             */
+            try {
+                IOPermissionsHelper.applyFilePermissions(newFile.toPath(),
+                        POSIX_FILE_SET);
+            } catch (Exception e1) {
+                /*
+                 * Permission updates have failed. However, we still probably
+                 * want to keep the file so that it can successfully be ingested
+                 * and used?
+                 */
+                statusHandler.handle(Priority.WARN, e1.getMessage(), e1);
+            }
+
             statusHandler.handle(Priority.INFO,
                     "DataManual: " + inFile.getAbsolutePath());
         } catch (IOException e) {
@@ -295,8 +318,9 @@ public class MessageGenerator implements Processor {
                     archiveFile.getAbsolutePath());
         } catch (Exception e) {
             rval = false;
-            statusHandler.handle(Priority.ERROR, "Failed to insert file ["
-                    + inFile + "] into ingest stream", e);
+            statusHandler.handle(Priority.ERROR,
+                    "Failed to insert file [" + inFile + "] into ingest stream",
+                    e);
         }
 
         return rval;

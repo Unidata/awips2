@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.alertviz.ui.dialogs;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Vector;
@@ -76,13 +77,14 @@ import com.raytheon.uf.viz.alertviz.config.Source;
 import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
 import com.raytheon.uf.viz.alertviz.ui.audio.AlertAudioMgr;
 import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
+import com.raytheon.viz.ui.dialogs.DialogUtil;
 
 /**
  * This class displays the dialog showing all of the in-bound messages.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Oct 05, 2008           lvenable  Initial creation.
@@ -113,12 +115,13 @@ import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
  *                                  monitor containing cursor after caveData is
  *                                  cleared. Code cleanup.
  * Nov 02, 2016  5980     randerso  Fixed sizing when changing layout
- * 
+ * Feb 14, 2017  6029     randerso  Ensure AlertMessageDlg cannot be on top of
+ *                                  panels, cleanup
+ *
  * </pre>
- * 
+ *
  * @author lvenable
- * @version 1.0
- * 
+ *
  */
 public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         IAudioAction, ILocalizationFileObserver {
@@ -140,11 +143,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
      * The display control.
      */
     private Display display;
-
-    /**
-     * Return value when the shell is disposed.
-     */
-    private final Boolean returnValue = false;
 
     /**
      * Label used to move the dialog.
@@ -230,7 +228,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     /**
      * Message vector.
      */
-    private final Vector<StatusMessage> messageVec = new Vector<StatusMessage>();
+    private final Vector<StatusMessage> messageVec = new Vector<>();
 
     private static final String CATEGORY_MONITOR = "MONITOR";
 
@@ -240,7 +238,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Constructor.
-     * 
+     *
      * @param display
      *            Parent display.
      * @param audioCB
@@ -277,10 +275,9 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Open method used to display the dialog.
-     * 
-     * @return True/False.
+     *
      */
-    public Object open() {
+    public void open() {
         shell = new Shell(display, SWT.ON_TOP | SWT.NO_TRIM);
 
         shell.addDisposeListener(new DisposeListener() {
@@ -310,21 +307,15 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         // if previous size and location were not set
         if (rect.width == 0 || rect.height == 0) {
             // use default size and locate dialog on monitor containing cursor
-            Monitor[] monitors = display.getMonitors();
-
-            Point cursor = display.getCursorLocation();
-            for (int i = 0; i < monitors.length; i++) {
-                if (monitors[i].getBounds().contains(cursor)) {
-                    shellLoc.x = monitors[i].getBounds().x;
-                    shellLoc.y = monitors[i].getBounds().y;
-                    break;
-                }
-            }
+            Monitor monitor = DialogUtil.getCursorMonitor(display);
+            shellLoc.x = monitor.getClientArea().x;
+            shellLoc.y = monitor.getClientArea().y;
         }
         Point shellSize = shell.getSize();
         if (rect.width > shellSize.x && resizeLabel != null
-                && !resizeLabel.isDisposed())
+                && !resizeLabel.isDisposed()) {
             shellSize.x = rect.width;
+        }
 
         // force bar location to be within the display.
         Display d = shell.getDisplay();
@@ -350,8 +341,6 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         } else {
             enabled = true;
         }
-
-        return returnValue;
     }
 
     /**
@@ -397,7 +386,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
      * Register as a window.
      */
     public void registerAsWindow() {
-        IContextService svc = (IContextService) PlatformUI.getWorkbench()
+        IContextService svc = PlatformUI.getWorkbench()
                 .getService(IContextService.class);
         svc.registerShell(shell, IContextService.TYPE_WINDOW);
     }
@@ -421,7 +410,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
             glSize = 4 + monitorsCount;
         }
 
-        txtMsgCompArray = new ArrayList<TextMsgControlComp>();
+        txtMsgCompArray = new ArrayList<>();
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite mainComp = new Composite(shell, SWT.BORDER);
@@ -533,7 +522,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Create all of the text controls composites.
-     * 
+     *
      * @param parent
      *            Parent composite.
      */
@@ -559,7 +548,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Set maxLogSize
-     * 
+     *
      * @param maxLogSize
      */
     public void setMaxLogSize(final int maxLogSize) {
@@ -573,7 +562,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Mouse move callback.
-     * 
+     *
      * @param e
      *            Mouse event.
      */
@@ -582,10 +571,25 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
         if (mouseDownPt != null) {
             if ((Label) e.getSource() == moveLabel) {
                 if (moveDialog == true) {
-                    Point dialogLoc = shell.getLocation();
-                    dialogLoc.x = dialogLoc.x + (e.x - mouseDownPt.x);
-                    dialogLoc.y = dialogLoc.y + (e.y - mouseDownPt.y);
-                    shell.setLocation(dialogLoc);
+                    Rectangle dialogBounds = shell.getBounds();
+                    dialogBounds.x = dialogBounds.x + (e.x - mouseDownPt.x);
+                    dialogBounds.y = dialogBounds.y + (e.y - mouseDownPt.y);
+
+                    // don't allow the dialog to move over the top or bottom
+                    // panels
+                    Monitor m = DialogUtil.getCursorMonitor(display);
+                    Rectangle clientArea = m.getClientArea();
+                    if (dialogBounds.y < clientArea.y) {
+                        dialogBounds.y = clientArea.y;
+                    }
+
+                    if (dialogBounds.y + dialogBounds.height > clientArea.y
+                            + clientArea.height) {
+                        dialogBounds.y = clientArea.y + clientArea.height
+                                - dialogBounds.height;
+                    }
+
+                    shell.setLocation(dialogBounds.x, dialogBounds.y);
                 }
             } else if ((Label) e.getSource() == resizeLabel) {
                 if (resizeDialog == true) {
@@ -603,7 +607,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Mouse down event.
-     * 
+     *
      * @param e
      *            Mouse event.
      */
@@ -622,7 +626,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Mouse up event.
-     * 
+     *
      * @param e
      *            Mouse event.
      */
@@ -641,7 +645,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Mouse double click event (not used).
-     * 
+     *
      * @param e
      *            Mouse event.
      */
@@ -652,7 +656,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Method to show the dialog.
-     * 
+     *
      * @param showDialogFlag
      *            Flag indicating if the dialog should be shown.
      */
@@ -664,7 +668,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Check if the dialog is visible.
-     * 
+     *
      * @return True if the dialog is visible.
      */
     public boolean isVisible() {
@@ -696,7 +700,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Re-layout the message composites.
-     * 
+     *
      * @return true if AlertVizBar is enabled and visible
      */
     public boolean reLayout() {
@@ -769,13 +773,13 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Load the image (information) for moving the dialog.
-     * 
+     *
      * @return The "Info" image.
      */
     private String loadInfoImage() {
         IPathManager pm = PathManagerFactory.getPathManager();
-        String path = pm
-                .getFile(pm.getContext(LocalizationType.CAVE_STATIC,
+        String path = pm.getFile(
+                pm.getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.BASE),
                 "alertVizIcons" + File.separatorChar + "trans_i_small.gif")
                 .getAbsolutePath();
@@ -784,7 +788,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Load the image (handle) for moving the dialog.
-     * 
+     *
      * @return The "handle" image.
      */
     private String loadHandleImage() {
@@ -800,7 +804,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Load the image used for resizing the dialog.
-     * 
+     *
      * @return
      */
     private String loadResizeImage() {
@@ -816,7 +820,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Get the number of grid columns for the text composites.
-     * 
+     *
      * @return The number of grid columns.
      */
     private int getGridColumnCount() {
@@ -845,7 +849,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Get the number of text control composites.
-     * 
+     *
      * @return The number of text control composites.
      */
     private int getNumberOfTextControls() {
@@ -878,7 +882,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Get the prefix of the layoutMode
-     * 
+     *
      * @return String that is prefix
      */
     private String getModePrefix() {
@@ -909,13 +913,13 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Get the list of categories of the specified text composite.
-     * 
+     *
      * @param textBox
      *            Text box number.
      * @return String array of categories.
      */
     private Category[] getCategoryList(int textBox) {
-        ArrayList<String> strArrayList = new ArrayList<String>();
+        List<String> strArrayList = new ArrayList<>();
 
         Map<String, Category> catMap = configData.getCategories();
 
@@ -938,7 +942,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Handle the incoming message.
-     * 
+     *
      * @param statMsg
      *            Status message.
      * @param amd
@@ -975,7 +979,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Handle the incoming audio.
-     * 
+     *
      * @param cat
      *            Category information.
      * @param gConfig
@@ -1001,7 +1005,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Set the configuration data.
-     * 
+     *
      * @param configData
      *            Configuration data.
      */
@@ -1011,7 +1015,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Is the message dlg enabled
-     * 
+     *
      * @return true if dlg is enabled
      */
     public boolean isEnabled() {
@@ -1020,7 +1024,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * This method will display Alert Visualization Tips
-     * 
+     *
      */
 
     public void InfoPopUpText() {
@@ -1095,7 +1099,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
         // if tips window would be partially off screen it will be forced on
         // screen by eclipse/window manager
-        if (b.y < (m.getBounds().height - (b.y + b.height))) {
+        if (b.y < (m.getClientArea().height - (b.y + b.height))) {
             // space below alertviz bar > than space above so position below
             infoTextShell.setLocation(b.x, b.y + b.height);
         } else {
@@ -1109,7 +1113,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Load the image (information) for moving the dialog.
-     * 
+     *
      * @return The "Info" image.
      */
     private String loadAudioImage(boolean play) {
@@ -1125,7 +1129,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Load the image (information) for moving the dialog.
-     * 
+     *
      * @return The "Info" image.
      */
     private String loadErrorImage() {
@@ -1181,7 +1185,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Add a message to the text message log
-     * 
+     *
      * @param statMsg
      */
     public void sendToTextMsgLog(StatusMessage statMsg) {
@@ -1196,7 +1200,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Set background color of errorBtn
-     * 
+     *
      * @param background
      *            the background color
      */
@@ -1213,7 +1217,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     /**
      * Set each of the default or user-defined monitor images that have been
      * stored in the configuration file.
-     * 
+     *
      * @param mainComp
      */
     private void updateMonitorImagesLabels() {
@@ -1246,7 +1250,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     /**
      * Update the Monitor Image label background based upon the AlertMetadata
      * color set by the user.
-     * 
+     *
      * @param mess
      *            the status message.
      */
@@ -1259,7 +1263,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     private Map<String, AlertMonitor> createAlertMonitorMap() {
-        Map<String, AlertMonitor> map = new ConcurrentSkipListMap<String, AlertMonitor>();
+        Map<String, AlertMonitor> map = new ConcurrentSkipListMap<>();
         Map<String, Source> sources = configData.getSources();
 
         for (Source s : sources.values()) {
@@ -1277,7 +1281,7 @@ public class AlertMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Get the alert audio manager
-     * 
+     *
      * @return the alert audio manager
      */
     public AlertAudioMgr getAlertAudioManager() {

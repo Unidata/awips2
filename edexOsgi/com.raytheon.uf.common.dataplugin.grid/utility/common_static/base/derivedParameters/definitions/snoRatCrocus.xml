@@ -18,34 +18,37 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--     snow ratio used by the ECMWF model, divide density of water by crocus density for ratio -->
-<DerivedParameter name="Snow Ratio - Crocus/ECMWF" abbreviation="snoRatCrocus" xmlns:ns2="group">
+<DerivedParameter name="Snow Ratio - Crocus/ECMWF" abbreviation="snoRatCrocus">
     <Method levels="200MB" name="Difference">
-        <Field level="Surface" abbreviation="T"/>
-        <ConstantField value="273.15"/>
-    </Method>    
-    <Method levels="250MB" name="Poly">      
-        <ConstantField value="109"/>
-        <ConstantField value="1"/>
-        <ConstantField value="1"/>
-        <Field level="200MB" abbreviation="snoRatCrocus"/>
-        <ConstantField value="6"/>
-        <ConstantField value="1"/>
-        <ConstantField value="26"/>
-        <Field level="Surface" abbreviation="wSp"/> 
-        <ConstantField value="0.5"/>
+        <Field level="Surface" abbreviation="T" />
+        <ConstantField value="273.15" />
+    </Method>
+    <Method levels="250MB" name="Poly">
+        <ConstantField value="109" />
+        <ConstantField value="1" />
+        <ConstantField value="1" />
+        <Field level="200MB" abbreviation="snoRatCrocus" />
+        <ConstantField value="6" />
+        <ConstantField value="1" />
+        <ConstantField value="26" />
+        <Field level="Surface" abbreviation="wSp" />
+        <ConstantField value="0.5" />
     </Method>
 <!--     To convert Density to Snow Ratio: 1/(SR/998) -->
     <Method levels="300MB" name="Divide">
-        <ConstantField value="998.00"/>
-        <Field level="250MB" abbreviation="snoRatCrocus"/>        
-    </Method> 
-     <Method levels="Surface" name="Test">      
-        <Field level="300MB" abbreviation="snoRatCrocus"/>
-        <ConstantField value="-1"/>
-        <ConstantField value="0."/>
-        <ConstantField value="40.0"/>
-        <ConstantField value="40.0"/>
-    </Method>      
-    
+        <ConstantField value="998.00" />
+        <Field level="250MB" abbreviation="snoRatCrocus" />
+    </Method>
+    <Method levels="Surface" name="Test">
+        <Field level="300MB" abbreviation="snoRatCrocus" />
+        <ConstantField value="-1" />
+        <ConstantField value="0." />
+        <ConstantField value="40.0" />
+        <ConstantField value="40.0" />
+    </Method>
 </DerivedParameter>

@@ -71,11 +71,11 @@ import com.raytheon.viz.ghg.monitor.event.GhgMonitorTableSelectionEvent;
  * 27Aug2013    2301       dgilling    Fix Image loading for icons.
  * Dec 16, 2015 5184       dgilling    Remove viz.gfe dependencies.
  * Feb 05, 2016 #5316      randerso    Moved notification registration into GHGMonitorDlg
+ * Nov 01, 2016 5979       njensen     Cleanup
  * 
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  * 
  */
 public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
@@ -114,7 +114,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
     /**
      * Previous ArrayList of the rows of data in the table.
      */
-    private List<GhgTableRowData> lastGhgTableRowArray = new ArrayList<GhgTableRowData>();
+    private List<GhgTableRowData> lastGhgTableRowArray = new ArrayList<>();
 
     /**
      * The current selected column.
@@ -214,7 +214,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
      * Initialize the controls on the composite.
      */
     private void initializeComponents() {
-        ghgTableRowArray = new ArrayList<GhgTableRowData>();
+        ghgTableRowArray = new ArrayList<>();
 
         createTableAndColumns();
     }
@@ -279,7 +279,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
             }
         });
 
-        tableColumns = new ArrayList<TableColumn>();
+        tableColumns = new ArrayList<>();
 
         Set<String> keys = columnsMap.keySet();
 
@@ -403,15 +403,13 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
      * 
      * @param tc
      *            Column to be sorted.
-     * @param updateSortImage
-     *            Sort ascending/descending.
      */
     public void sortTableData(TableColumn tc) {
         int dir = ghgTable.getSortDirection();
 
         ghgTable.setSortDirection(dir);
 
-        selectedColumn = ((Integer) tc.getData()).intValue();
+        selectedColumn = ((Number) tc.getData()).intValue();
         Collections.sort(ghgTableRowArray);
         ghgTable.clearAll();
 
@@ -481,7 +479,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
      */
     @Override
     public List<Integer> getVisibleColumnIndexes() {
-        ArrayList<Integer> intArray = new ArrayList<Integer>();
+        ArrayList<Integer> intArray = new ArrayList<>();
         TableColumn tc;
         for (int i = 0; i < tableColumns.size(); i++) {
             tc = tableColumns.get(i);
@@ -580,7 +578,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
 
                 GhgMonitorTableSelectionEvent evt = new GhgMonitorTableSelectionEvent();
                 evt.setHighlightedZones(Arrays.asList(geoIdArray));
-                List<GhgData> dataList = new ArrayList<GhgData>(1);
+                List<GhgData> dataList = new ArrayList<>(1);
                 GhgData rowData = row.getGhgData();
                 rowData.setSelection(SelectionEnum.MonitorSelection);
                 dataList.add(rowData);
@@ -599,8 +597,8 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
 
     private void setSelection(Collection<String> highlightedZones) {
         ghgTable.deselectAll();
-        Set<String> idSet = new HashSet<String>();
-        List<GhgData> dataList = new ArrayList<GhgData>();
+        Set<String> idSet = new HashSet<>();
+        List<GhgData> dataList = new ArrayList<>();
 
         for (int i = 0; i < ghgTableRowArray.size(); i++) {
             GhgTableRowData row = ghgTableRowArray.get(i);
@@ -616,7 +614,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
                 row.setHighlight();
             }
 
-            List<String> idList = new ArrayList<String>();
+            List<String> idList = new ArrayList<>();
 
             for (String s : highlightedZones) {
                 if (row.getGhgData().getGeoId().contains(s)) {
@@ -663,7 +661,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
     public void setHighlight() {
 
         GhgMonitorTableSelectionEvent evt = new GhgMonitorTableSelectionEvent();
-        List<GhgData> dataList = new ArrayList<GhgData>(1);
+        List<GhgData> dataList = new ArrayList<>(1);
         StringBuilder geoIdBuffer = new StringBuilder();
         String sep = "";
         // Go through the list looking for map- or monitor-selected rows.
@@ -709,7 +707,7 @@ public class GhgTableComp extends Composite implements IGhgSelectedTableColumn {
      * @return the list of GhgDatas of the monitor selection row(s).
      */
     public List<GhgData> getMonitorSelectionData() {
-        List<GhgData> selectionData = new ArrayList<GhgData>();
+        List<GhgData> selectionData = new ArrayList<>();
         for (GhgTableRowData row : ghgTableRowArray) {
             if (row.isSelected()) {
                 selectionData.addAll(row.getGhgData().getCombinedList());

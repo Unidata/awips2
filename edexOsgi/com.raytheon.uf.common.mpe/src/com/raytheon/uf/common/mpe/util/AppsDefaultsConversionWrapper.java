@@ -24,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import com.raytheon.uf.common.mpe.constants.FilePermissionConstants;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 
 /**
@@ -44,6 +45,7 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
  * Jul 12, 2016 4619       bkowal      Relocated to common.
  * Aug 10, 2016 4619       bkowal      The parallel write flag is now a constant to
  *                                     ensure it is not accidentally overwritten.
+ * Aug 07, 2017 6334       bkowal      Directories are now created with 770 permissions and files 660.
  * 
  * </pre>
  * 
@@ -93,13 +95,15 @@ public final class AppsDefaultsConversionWrapper {
         Path directoryPath = Paths.get(directory);
         if (SUPPORT_PARALLEL_EXEC) {
             String destinationRoot = directoryPath.getParent().toString();
-            String destinationDirectory = directoryPath.getFileName()
-                    .toString() + PARALLEL_DIRECTORY;
+            String destinationDirectory = directoryPath.getFileName().toString()
+                    + PARALLEL_DIRECTORY;
             directoryPath = Paths.get(destinationRoot, destinationDirectory);
         }
         if (!Files.exists(directoryPath)) {
             try {
-                Files.createDirectories(directoryPath);
+                com.raytheon.uf.common.util.file.Files.createDirectories(
+                        directoryPath,
+                        FilePermissionConstants.POSIX_DIRECTORY_ATTRIBUTES);
             } catch (IOException e) {
                 throw new AppsDefaultsPathException(token, directoryPath, e);
             }
@@ -123,7 +127,7 @@ public final class AppsDefaultsConversionWrapper {
             return null;
         }
 
-        return AppsDefaults.getInstance().consideredTrue(tokenValue) ? Boolean.TRUE
-                : Boolean.FALSE;
+        return AppsDefaults.getInstance().consideredTrue(tokenValue)
+                ? Boolean.TRUE : Boolean.FALSE;
     }
 }

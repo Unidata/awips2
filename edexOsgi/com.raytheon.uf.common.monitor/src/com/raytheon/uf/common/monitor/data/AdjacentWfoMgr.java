@@ -229,10 +229,10 @@ public class AdjacentWfoMgr {
         ISpatialQuery sq = null;
         Geometry geo = null;
         WKBReader wkbReader = new WKBReader();
-        String sql = "select AsBinary("
+        String sql = "select ST_AsBinary("
                 + ScanUtils.getStandardResolutionLevel("cwa")
                 + ") from mapdata.cwa where cwa = '" + cwa + "'";
-        String msql = "select AsBinary("
+        String msql = "select ST_AsBinary("
                 + ScanUtils.getStandardResolutionLevel("marinezones")
                 + ") from mapdata.marinezones where wfo = '" + cwa + "'";
 

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -69,11 +69,11 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
  * Dialog that allows the user to edit the AWIPS header block.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * 9/13/07      368         lvenable    Initial creation.
@@ -85,31 +85,32 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 3/23/2009    1956        bwoodle     Change SiteNode and WMO ID retrieval for hazard prods.
  * 7/29/2009    2718        rjpeter     Updated interactions between dialogs.
  * Aug 28, 2009 2924        rjpeter     Updated to automate filling out of other fields based on input.
- * 04/14/2010   4734        mhuang      Corrected StdTextProduct import 
+ * 04/14/2010   4734        mhuang      Corrected StdTextProduct import
  *                                       dependency
  * 06/28/2010   4639        cjeanbap    Allow user to create a new text product.
- * 
+ *
  * 01/26/2012   14468       D.Friedman  Fix initial BBB field selection.
  * 05/30/2012   15046       D.Friedman  Always set addressee field to ALL.
  * 06/19/2012   14975       D.Friedman  Run callback when dialog is dismissed.
  * 07/26/2012   15171       rferrel     Disable editor's send and clear AFOS PIL fields when
  *                                      invalid product Id and user want to edit it anyway.
  * 09/20/2012   1196        rferrel     Changing dialogs being called to not block.
- * 11/26/2012	14526	mgamazaychikov	Added traverse listener for RETURN key
- * 10/07/2013	16664	mgamazaychikov	Added padProdDesignatorText method
- * 11/21/2013   16633   mgamazaychikov  Improved consistency between AFOS PIL and WMO Heading fields.
+ * 11/26/2012   14526       mgamazay    Added traverse listener for RETURN key
+ * 10/07/2013   16664       mgamazay    Added padProdDesignatorText method
+ * 11/21/2013   16633       mgamazay    Improved consistency between AFOS PIL and WMO Heading fields.
  * 08May2014    16041       kshrestha   Save unofficial text products from text editor.
  * 05Mar2015   RM 15025     kshrestha   Fix to maintain the headers that they are saved with
  * Aug 31, 2015 4749        njensen     Changed setCloseCallback to addCloseCallback
- * 03/01/2016  RM14803  mgamazaychikov  Added code to handle products without WMO header.
+ * 03/01/2016  RM14803      mgamazay    Added code to handle products without WMO header.
  * 08/25/2016   19250       Qinglu Lin  Log header block values.
- * 
+ * Aug 04, 2017 6364        tgurney     Disable addressee change for WarnGen products
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  */
-public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
-        IAfosIdSelectionCallback, IWmoIdSelectionCallback {
+public class AWIPSHeaderBlockDlg extends CaveSWTDialog
+        implements IAfosIdSelectionCallback, IWmoIdSelectionCallback {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AWIPSHeaderBlockDlg.class);
 
@@ -213,7 +214,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent shell.
      */
@@ -229,9 +230,10 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         shell.addDisposeListener(new DisposeListener() {
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                if (parentEditor != null)
-                    parentEditor.headerBlockDlgDismissed(Boolean.TRUE
-                            .equals(getReturnValue()));
+                if (parentEditor != null) {
+                    parentEditor.headerBlockDlgDismissed(
+                            Boolean.TRUE.equals(getReturnValue()));
+                }
             }
         });
 
@@ -366,11 +368,11 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
             bbbVerCboBx.setEnabled(false);
             parentEditor.setCurrentBbbId("NOR");
         } else {
-            String c0 = new Character(bbb.charAt(0)).toString();
-            if ((!c0.equals("N")) && (!c0.equals("")) && (!c0.equals(" "))) {
-                String c1 = new Character(bbb.charAt(1)).toString();
-                String c2 = new Character(bbb.charAt(2)).toString();
-                String c3 = new Character('x').toString();
+            String c0 = Character.toString(bbb.charAt(0));
+            if (!"N".equals(c0) && !"".equals(c0) && !" ".equals(c0)) {
+                String c1 = Character.toString(bbb.charAt(1));
+                String c2 = Character.toString(bbb.charAt(2));
+                String c3 = "x";
                 bbbCboBx.setText(c0 + c1 + c3);
                 bbbVerCboBx.setText(c2);
             } else {
@@ -385,9 +387,8 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
             public void modifyText(ModifyEvent event) {
                 if (bbbCboBx.getSelectionIndex() == -1) {
                     bbbVerCboBx.setEnabled(false);
-                } else if (!((new Character(bbbCboBx.getItem(
-                        bbbCboBx.getSelectionIndex()).charAt(0)).toString())
-                        .equals("N"))) {
+                } else if (bbbCboBx.getItem(bbbCboBx.getSelectionIndex())
+                        .charAt(0) != 'N') {
                     bbbVerCboBx.setEnabled(true);
                 } else {
                     bbbVerCboBx.setEnabled(false);
@@ -454,11 +455,11 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         StdTextProduct textProd = parentEditor.getStdTextProduct();
         if (textProd != null) {
             if (textProd.getSite() != null) {
-                String CCCcode = SiteMap.getInstance().getCCCFromXXXCode(
-                        textProd.getSite());
+                String CCCcode = SiteMap.getInstance()
+                        .getCCCFromXXXCode(textProd.getSite());
                 if (null == CCCcode && textProd.getCccid() != null) {
-                    CCCcode = SiteMap.getInstance().getCCCFromXXXCode(
-                            textProd.getCccid());
+                    CCCcode = SiteMap.getInstance()
+                            .getCCCFromXXXCode(textProd.getCccid());
                 }
                 if (null == CCCcode) {
                     wsfoIdTF.setText(textProd.getCccid());
@@ -466,8 +467,9 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                     if (textProd.getProdId().getWmoid().isEmpty()
                             && textProd.getProdId().getSite().isEmpty()) {
                         wsfoIdTF.setText(textProd.getCccid());
-                    } else
+                    } else {
                         wsfoIdTF.setText(CCCcode);
+                    }
                 }
             } else {
                 wsfoIdTF.setText(textProd.getCccid());
@@ -477,7 +479,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
             // Special case when a product does not have WMO header
             if (textProd.getWmoid() != null) {
-                if (textProd.getWmoid().equals("")) {
+                if (textProd.getWmoid().isEmpty()) {
                     lookupWmoIDs();
                 }
             }
@@ -525,7 +527,8 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         addresseeTF.addModifyListener(new ModifyListener() {
             @Override
             public void modifyText(ModifyEvent event) {
-                if (addresseeTF.getCaretOffset() == addresseeTF.getTextLimit()) {
+                if (addresseeTF.getCaretOffset() == addresseeTF
+                        .getTextLimit()) {
                     wmoTtaaiiTF.setFocus();
                 }
 
@@ -541,7 +544,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         zerosBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (zerosBtn.getSelection() == false) {
+                if (!zerosBtn.getSelection()) {
                     return;
                 }
 
@@ -550,6 +553,9 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                 addresseeTF.setText("000");
             }
         });
+        if (parentEditor.isWarnGen()) {
+            zerosBtn.setEnabled(false);
+        }
 
         // Create the "DEF" (predefined) button.
         defBtn = new Button(addresseeComp, SWT.TOGGLE);
@@ -557,7 +563,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         defBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (defBtn.getSelection() == false) {
+                if (!defBtn.getSelection()) {
                     return;
                 }
 
@@ -566,6 +572,9 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                 addresseeTF.setText("DEF");
             }
         });
+        if (parentEditor.isWarnGen()) {
+            defBtn.setEnabled(false);
+        }
 
         // Create the all button.
         allBtn = new Button(addresseeComp, SWT.TOGGLE);
@@ -573,7 +582,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         allBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (allBtn.getSelection() == false) {
+                if (!allBtn.getSelection()) {
                     return;
                 }
 
@@ -615,15 +624,16 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         prodDesignatorTF.addModifyListener(new ModifyListener() {
             @Override
             public void modifyText(ModifyEvent event) {
-                if (prodDesignatorTF.getText().equals("000")) {
+                if ("000".equals(prodDesignatorTF.getText())) {
                     TextEditorUtil.userInformation(shell,
                             "Product Designator cannot be 000");
                 } else {
                     lookupWmoIDs();
 
                     if (!isDisposed()) {
-                        if (prodDesignatorTF.getCaretOffset() == prodDesignatorTF
-                                .getTextLimit()) {
+                        if (prodDesignatorTF
+                                .getCaretOffset() == prodDesignatorTF
+                                        .getTextLimit()) {
                             addresseeTF.setFocus();
                         }
                     }
@@ -642,8 +652,8 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
     private void createBottomButtons() {
         // Create a composite that will center added controls/composites.
         Composite buttonArea = new Composite(shell, SWT.NONE);
-        buttonArea.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT, true,
-                false));
+        buttonArea.setLayoutData(
+                new GridData(SWT.CENTER, SWT.DEFAULT, true, false));
         buttonArea.setLayout(new GridLayout(1, false));
 
         // Create a composite to hold the enter and cancel buttons.
@@ -689,8 +699,8 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         logHeaderBlock("Enter button clicked. AWIPS Header Block values:");
 
-        boolean sendEnabled = true;
-        boolean unOfficialProd = false;
+        boolean sendEnabled = false;
+        boolean unOfficialProd = true;
         if (!isProductValid()) {
             // Notify the user that the product may not be valid.
             //
@@ -708,16 +718,12 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
             if (response == SWT.NO || parentEditor.isDisposed()) {
                 return;
             }
-            sendEnabled = false;
-            if (isAfosPilComplete()) {
-                unOfficialProd = true;
-            }
         }
 
         // call the set methods
         parentEditor.setCurrentWmoId(wmoTtaaiiTF.getText());
         parentEditor.setCurrentSiteId(ccccTF.getText());
-        if (sendEnabled || (sendEnabled == false && unOfficialProd == true)) {
+        if (sendEnabled || unOfficialProd) {
             parentEditor.setCurrentWsfoId(wsfoIdTF.getText());
             parentEditor.setCurrentProdCategory(prodCatTF.getText());
             parentEditor.setCurrentProdDesignator(prodDesignatorTF.getText());
@@ -736,7 +742,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
      * This is a convenience method that will center a label in a RowLayout.
      * When controls are placed in a RowLayout they are "aligned" at the top of
      * the cell.
-     * 
+     *
      * @param parentComp
      * @param labelText
      */
@@ -759,7 +765,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         String bbb = bbbCboBx.getText();
         String bbbVer = bbbVerCboBx.getText();
         if (bbb != null) {
-            if (bbb.equals("NOR")) {
+            if ("NOR".equals(bbb)) {
                 // Set the text in bbbId from bbb[0] + bbb[1] + bbbVer
                 parentEditor.setCurrentBbbId(bbb);
             } else if (bbb.length() > 0 && bbbVer.length() > 0) {
@@ -771,7 +777,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
     /**
      * Method to determine whether a product is valid
-     * 
+     *
      * @return indicator
      */
     private boolean isProductValid() {
@@ -779,7 +785,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         String nnn = prodCatTF.getText();
 
-        if (nnn.equals("WRK")) {
+        if ("WRK".equals(nnn)) {
             result = true;
         } else {
             String ccc = wsfoIdTF.getText();
@@ -810,19 +816,17 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                     if (response instanceof AfosWmoIdDataContainer) {
                         AfosWmoIdDataContainer container = (AfosWmoIdDataContainer) response;
                         if (container.getErrorMessage() != null) {
-                            statusHandler
-                                    .handle(Priority.PROBLEM,
-                                            "Error occurred looking up AFOS IDs\nMessage from server["
-                                                    + container
-                                                            .getErrorMessage()
-                                                    + "]");
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Error occurred looking up AFOS IDs\nMessage from server["
+                                            + container.getErrorMessage()
+                                            + "]");
                         }
 
                         java.util.List<AfosToAwips> list = container
                                 .getIdList();
 
                         if (list.size() > 1) {
-                            ArrayList<String> afosIds = new ArrayList<String>(
+                            ArrayList<String> afosIds = new ArrayList<>(
                                     list.size());
                             for (AfosToAwips id : list) {
                                 afosIds.add(id.getAfosid());
@@ -846,13 +850,10 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                             setAfosId("");
                         }
                     } else {
-                        statusHandler
-                                .handle(Priority.PROBLEM,
-                                        "Received unhandled AFOS Id lookup response from server. Received obj of type ["
-                                                + response.getClass()
-                                                + "], contents["
-                                                + response
-                                                + "]");
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Received unhandled AFOS Id lookup response from server. Received obj of type ["
+                                        + response.getClass() + "], contents["
+                                        + response + "]");
                     }
                 }
             } catch (VizException e) {
@@ -880,21 +881,19 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                     if (response instanceof AfosWmoIdDataContainer) {
                         AfosWmoIdDataContainer container = (AfosWmoIdDataContainer) response;
                         if (container.getErrorMessage() != null) {
-                            statusHandler
-                                    .handle(Priority.PROBLEM,
-                                            "Error occurred looking up WMO IDs\nMessage from server["
-                                                    + container
-                                                            .getErrorMessage()
-                                                    + "]");
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Error occurred looking up WMO IDs\nMessage from server["
+                                            + container.getErrorMessage()
+                                            + "]");
                         }
 
                         java.util.List<AfosToAwips> list = container
                                 .getIdList();
 
                         if (list.size() > 1) {
-                            ArrayList<String> ttaaiiIds = new ArrayList<String>(
+                            ArrayList<String> ttaaiiIds = new ArrayList<>(
                                     list.size());
-                            ArrayList<String> ccccIds = new ArrayList<String>(
+                            ArrayList<String> ccccIds = new ArrayList<>(
                                     list.size());
                             for (AfosToAwips id : list) {
                                 ttaaiiIds.add(id.getWmottaaii());
@@ -950,8 +949,8 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                     if (afosId.length() > 9) {
                         prodDesignatorTF.setText(afosId.substring(6, 9));
                     } else {
-                        prodDesignatorTF.setText(afosId.substring(6,
-                                afosId.length()));
+                        prodDesignatorTF
+                                .setText(afosId.substring(6, afosId.length()));
                     }
                 } else {
                     prodCatTF.setText(afosId.substring(3, afosId.length()));
@@ -973,7 +972,7 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
 
         if (prodCatTF.getCharCount() == prodCatTF.getTextLimit()
                 && prodDesignatorTF.getCharCount() > 0
-                && !prodDesignatorTF.getText().equals("000")) {
+                && !"000".equals(prodDesignatorTF.getText())) {
             enable = true;
         }
         enterBtn.setEnabled(enable);
@@ -1034,7 +1033,8 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
                         if (b == null) {
                             b = new StringBuilder(e.text);
                         }
-                        b.deleteCharAt(i - posMod++);
+                        b.deleteCharAt(i - posMod);
+                        posMod++;
                     }
                 }
 
@@ -1085,12 +1085,15 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
         // If the user changes the text in the addressee text field
         // then update the toggle buttons.
         String addressee = addresseeTF.getText();
-        if (zerosBtn != null)
+        if (zerosBtn != null) {
             zerosBtn.setSelection("000".equals(addressee));
-        if (defBtn != null)
+        }
+        if (defBtn != null) {
             defBtn.setSelection("DEF".equals(addressee));
-        if (allBtn != null)
+        }
+        if (allBtn != null) {
             allBtn.setSelection("ALL".equals(addressee));
+        }
     }
 
     /*
@@ -1140,14 +1143,16 @@ public class AWIPSHeaderBlockDlg extends CaveSWTDialog implements
     }
 
     private void logHeaderBlock(String s) {
-        statusHandler.handle(Priority.INFO, "Text " + parentEditor.getToken() + " AWIPSHeaderBlockDlg (UI Trace) - " + s
-                + "\n" + ttaaiiLbl.getText() + ": " + wmoTtaaiiTF.getText()
-                + "\n" + ccccLbl.getText() + ": " + ccccTF.getText()
-                + "\n" + bbbLbl.getText() + ": " + bbbCboBx.getText()
-                + "\n" + bbbVerLbl.getText() + ": " + bbbVerCboBx.getText()
-                + "\n" + wsfoIdLbl.getText() + ": " + wsfoIdTF.getText()
-                + "\n" + prodCatLbl.getText() + ": " + prodCatTF.getText()
-                + "\n" + prodDesignatorLbl.getText() + ": " + prodDesignatorTF.getText()
-                + "\n" + "Addressee: " + addresseeTF.getText());
+        statusHandler.handle(Priority.INFO, "Text " + parentEditor.getToken()
+                + " AWIPSHeaderBlockDlg (UI Trace) - " + s + "\n"
+                + ttaaiiLbl.getText() + ": " + wmoTtaaiiTF.getText() + "\n"
+                + ccccLbl.getText() + ": " + ccccTF.getText() + "\n"
+                + bbbLbl.getText() + ": " + bbbCboBx.getText() + "\n"
+                + bbbVerLbl.getText() + ": " + bbbVerCboBx.getText() + "\n"
+                + wsfoIdLbl.getText() + ": " + wsfoIdTF.getText() + "\n"
+                + prodCatLbl.getText() + ": " + prodCatTF.getText() + "\n"
+                + prodDesignatorLbl.getText() + ": "
+                + prodDesignatorTF.getText() + "\n" + "Addressee: "
+                + addresseeTF.getText());
     }
 }

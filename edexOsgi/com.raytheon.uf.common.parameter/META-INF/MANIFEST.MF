@@ -1,15 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Parameter
+Bundle-Name: Common Parameter Plugin
 Bundle-SymbolicName: com.raytheon.uf.common.parameter
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.dataplugin.persist,
  com.raytheon.uf.common.dataquery.requests,
  com.raytheon.uf.common.dataquery.responses,
  com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.localization.exception,
  com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.serialization.annotations,
  com.raytheon.uf.common.serialization.comm,
@@ -18,6 +19,7 @@ Import-Package: com.raytheon.uf.common.dataplugin.annotations,
  javax.measure.unit,
  javax.persistence
 Export-Package: com.raytheon.uf.common.parameter,
+ com.raytheon.uf.common.parameter.localization,
  com.raytheon.uf.common.parameter.lookup,
  com.raytheon.uf.common.parameter.mapping,
  com.raytheon.uf.common.parameter.request

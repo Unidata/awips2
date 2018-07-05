@@ -117,6 +117,7 @@ import com.raytheon.uf.edex.plugin.text.IcaoMap;
  *                                    IcaoMap} to determine site.
  * Jun 20, 2016  5679     rjpeter     Fix NPE.
  * Aug 28, 2016  5839     rferrel     Added past version.
+ * Nov 17, 2017  19846    hzhang      Fix SIOOBE.
  * 
  * </pre>
  * 
@@ -622,7 +623,7 @@ public class StdTextProductDao extends CoreDao {
                 }
                 for (char c : preferredAfosFirstLetter) {
                     for (String site : sites) {
-                        if (site.charAt(0) == c) {
+                        if (site != null && !site.isEmpty() && site.charAt(0) == c) {
                             results.add(site);
                         }
                     }

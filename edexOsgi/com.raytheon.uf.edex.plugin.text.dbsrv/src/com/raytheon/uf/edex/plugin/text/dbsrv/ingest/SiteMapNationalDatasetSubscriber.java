@@ -38,6 +38,8 @@ import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
 
 /**
@@ -54,6 +56,8 @@ import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
  * Jan 18, 2016 4562       tjensen     Moved from edex.plugin.text to 
  *                                     edex.plugin.text.dbsrv
+ * Apr 06, 2017 DR 19619   MPorricelli Have all edex servers made
+ *                                     aware of ndm textdb file change
  * 
  * </pre>
  * 
@@ -70,6 +74,12 @@ public class SiteMapNationalDatasetSubscriber implements
 
     private static final String NATIONAL_CATEGORY_TABLE_FILENAME = "textdb/national_category_table.template";
 
+    private String setDirtyURI;
+
+    public SiteMapNationalDatasetSubscriber(String setDirtyURI) {
+        this.setDirtyURI = setDirtyURI;
+    }
+
     /*
      * (non-Javadoc)
      * 
@@ -84,7 +94,17 @@ public class SiteMapNationalDatasetSubscriber implements
         } else if ("national_category_table.template".equals(fileName)) {
             saveNationalCategoryTable(file);
         }
-        SiteMap.getInstance().readFiles();
+        try {
+            if (setDirtyURI != null) {
+                EDEXUtil.getMessageProducer().sendAsyncUri(setDirtyURI, "");
+            } else {
+                setDirty();
+            }
+        } catch (EdexException e) {
+            statusHandler
+                    .error("Unable to notify that TextDB static files have changes",
+                            e);
+        }
     }
 
     private void saveNationalCategoryTable(File file) {
@@ -145,5 +165,9 @@ public class SiteMapNationalDatasetSubscriber implements
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         File outFile = pathMgr.getFile(lc, AFOS_LOOKUP_FILENAME);
         saveFile(file, outFile);
+    }
+
+    public void setDirty() {
+        SiteMap.getInstance().setDirty();
     }
 }

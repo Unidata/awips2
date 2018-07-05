@@ -36,7 +36,7 @@ SCHEMA=${2}
 TABLE=`echo "${3}" | tr '[:upper:]' '[:lower:]'`
 
 if [ -z $4 ] ; then
-    PGUSER=awips
+    PGUSER=awipsadmin
 else
     PGUSER=${4}
 fi
@@ -48,8 +48,8 @@ else
 fi
 
 if [ -z $6 ] ; then
-    PGBINDIR=/awips2/postgresql/bin/
-    PSQLBINDIR=/awips2/psql/bin/
+    PGBINDIR=''
+    PSQLBINDIR=''
 else
     PGBINDIR=${6}/postgresql/bin/
     PSQLBINDIR=${6}/psql/bin/

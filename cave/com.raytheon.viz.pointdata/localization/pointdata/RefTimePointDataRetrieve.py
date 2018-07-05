@@ -36,6 +36,10 @@ import PointDataView, PointDataContainer, NoDataException, PointDataRetrieve
 #                                                 record within a selected number of hours
 # 
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
     
 class RefTimePointDataRetrieve(PointDataRetrieve.PointDataRetrieve):    
 

@@ -23,7 +23,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.commands.ICommandService;
 
-import com.raytheon.viz.core.imagery.ImageCombiner;
+import com.raytheon.uf.viz.d2d.core.ImageCombiner;
 import com.raytheon.viz.ui.VizWorkbenchManager;
 import com.raytheon.viz.ui.tools.AbstractTool;
 

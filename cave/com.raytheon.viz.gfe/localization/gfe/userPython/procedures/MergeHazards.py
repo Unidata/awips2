@@ -36,10 +36,18 @@
 # Date         Ticket#    Engineer    Description
 # ------------ ---------- ----------- ------------------------------------------
 # Dec 23, 2013 16893      ryu         Check in njensen's change to removeTempHazards()
-#                                     to call SmartScript.unloadWEs().
-# Sep 19, 2016 19293      randerso    Changes for 2017 tropical season 
+#                                     to call SmartScript.unloadWEs()
+# Sep 19, 2016 19293      randerso    Changes for 2017 tropical season.
+# Jun 23, 2017 6138       dgilling    Changes for Winter Weather VTEC
+#                                     consolidation.
+# Oct 12, 2017 DR20389    swhite      Remove HTI/TCV Restrictions on CFW Hazards.
 #
 ########################################################################
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -64,7 +72,7 @@ from HazardUtils import LEVEL
 #  This dictionary defines which hazards cannot be combined with other
 #  Hazards.  The structure lists each hazard in the VTECTable followed
 #  by a list of VTEC codes that may not be combined with it at the same
-#  grid point.  For example  "DS.W" : ["DU.Y"] means that DS.W may not
+#  grid point.  For example  "DU.W" : ["DU.Y"] means that DU.W may not
 #  be combined with a DU.Y hazard at the same grid point.
 
 HazardsConflictDict = {
@@ -76,17 +84,13 @@ HazardsConflictDict = {
    "BH.S" : ["HU.A", "HU.W", "TR.A", "TR.W", "TY.A","TY.W", "SS.W", "SS.A"],
    "BW.Y" : ["GL.W", "SR.W", "HF.W", "TR.A", "TR.W", "HU.A", "HU.W", "HU.S",
              "SC.Y", "SW.Y", "SE.W", "RB.Y", "SI.Y"],
-   "BZ.A" : ["LE.A", "WS.A", "BZ.W", "IS.W", "LE.W", "WS.W",
-             "WW.Y", "LE.Y", "ZR.Y"],
-   "BZ.W" : ["BZ.A", "LE.A", "WS.A", "IS.W",
-             "LE.W", "WS.W",
-             "WW.Y", "LE.Y", "ZR.Y"],
-   "CF.A" : ["CF.W", "CF.Y", "HU.A", "TR.A", "TY.A", "HU.W", "TR.W", "SS.A", "SS.W"],
-   "CF.W" : ["CF.A", "CF.Y", "HU.W", "TR.W", "TY.W", "SS.A", "SS.W"],
-   "CF.Y" : ["CF.W", "CF.A", "HU.W", "TR.W", "TY.W,", "SS.A", "SS.W"],
-   "CF.S" : ["HU.A", "TR.A", "TY.A", "CF.Y", "CF.W", "CF.A", "SS.A", "SS.W"],
-   "DS.W" : ["DU.Y"],
-   "DU.Y" : ["DS.W"],
+   "BZ.W" : ["WS.A", "IS.W", "LE.W", "WS.W", "WW.Y"],
+   "CF.A" : ["CF.W", "CF.Y", "SS.A", "SS.W"],
+   "CF.W" : ["CF.A", "CF.Y", "SS.A", "SS.W"],
+   "CF.Y" : ["CF.W", "CF.A", "SS.A", "SS.W"],
+   "CF.S" : ["CF.Y", "CF.W", "CF.A", "SS.A", "SS.W"],
+   "DU.W" : ["DU.Y"],
+   "DU.Y" : ["DU.W"],
    "EC.A" : ["WC.A", "EC.W", "WC.W"],
    "EC.W" : ["EC.A", "WC.A", "WC.W", "WC.Y"],
    "EH.A" : ["EH.W", "HT.Y"],
@@ -118,23 +122,17 @@ HazardsConflictDict = {
              "HF.A", "SE.A", "TY.W"],
    "HT.Y" : ["EH.A", "EH.W"],
    "HU.A" : ["HF.W", "BW.Y", "TR.A", "HU.W", "HU.S",
-             "GL.A", "SR.A", "HF.A", "SE.A", "CF.S", "CF.A"],
+             "GL.A", "SR.A", "HF.A", "SE.A"],
    "HU.S" : ["TR.A", "TR.W", "HU.A", "HU.W", "TY.A", "TY.W"],
    "HU.W" : ["GL.W", "SR.W", "HF.W", "BW.Y", "TR.A", "TR.W", "HU.A", "SC.Y",
              "SW.Y", "SE.W", "RB.Y", "SI.Y", "GL.A", "SR.A", "HF.A", "SE.A",
-             "HU.S", "CF.W", "CF.A", "CF.Y", "CF.S", "SU.W", "SU.Y"],
+             "HU.S"],
    "HW.A" : ["HW.W", "WI.Y"],
    "HW.W" : ["HW.A", "LW.Y", "WI.Y"],
    "HZ.A" : ["FZ.W", "FR.Y", "FZ.A", "HZ.W"],
    "HZ.W" : ["FZ.A", "FR.Y", "HZ.A", "FZ.W"],
-   "IS.W" : ["BZ.A", "LE.A", "WS.A", "BZ.W", "WS.W", "LE.W",
-             "WW.Y", "LE.Y", "ZR.Y"],
-   "LE.A" : ["BZ.A", "WS.A", "BZ.W", "IS.W", "WS.W", "LE.W",
-             "WW.Y", "LE.Y", "ZR.Y"],
-   "LE.W" : ["BZ.A", "LE.A", "WS.A", "BZ.W", "IS.W", "WS.W",
-             "WW.Y", "LE.Y", "ZR.Y"],
-   "LE.Y" : ["BZ.A", "LE.A", "WS.A", "BZ.W", "IS.W", "LE.W", "WS.W",
-             "WW.Y", "ZR.Y"],
+   "IS.W" : ["WS.A", "BZ.W", "WS.W", "LE.W", "WW.Y"],
+   "LE.W" : ["WS.A", "BZ.W", "IS.W", "WS.W", "WW.Y"],
    "LO.Y" : [],
    "LS.A" : ["LS.W", "LS.Y", "LS.S"],
    "LS.S" : ["LS.A", "LS.Y", "LS.W"],
@@ -149,7 +147,7 @@ HazardsConflictDict = {
    "MS.Y" : [],
    "RB.Y" : ["GL.W", "SR.W", "HF.W", "BW.Y", "TR.W", "HU.W",
              "SE.W", "GL.A", "SR.A", "SE.A", "TY.W"],
-   "RP.S" : ["HU.A", "HU.W", "TR.A", "TR.W", "TY.A","TY.W", "SS.W", "SS.A"], 
+   "RP.S" : [],
    "SC.Y" : ["GL.W", "SR.W", "SR.A", "BW.Y", "TR.W", "HU.W",
              "SE.W", "SE.A", "HF.W", "GL.A", "TY.W"],
    "SE.A" : ["SR.W", "HF.W", "HF.A", "BW.Y", "TR.A", "TR.W", "HU.A", "HU.W",
@@ -165,9 +163,9 @@ HazardsConflictDict = {
    "SR.W" : ["GL.W", "HF.W", "BW.Y", "TR.W", "HU.W", "TY.W",
              "SC.Y", "SW.Y", "SE.W", "SE.A", "RB.Y", "SI.Y", "GL.A", "SR.A"],
    "SS.A" : ["CF.A", "CF.W", "CF.Y", "SS.W"],
-   "SS.W" : ["CF.A", "CF.W", "CF.Y", "SS.A", "SU.Y", "SU.W"],
-   "SU.W" : ["SU.Y", "HU.W", "TR.W", "TY.W", "SS.W"],
-   "SU.Y" : ["SU.W", "HU.W", "TR.W", "TY.W", "SS.W"],
+   "SS.W" : ["CF.A", "CF.W", "CF.Y", "SS.A"],
+   "SU.W" : ["SU.Y"],
+   "SU.Y" : ["SU.W"],
    "SV.A" : ["TO.A"],
    "SV.W" : [],
    "SW.Y" : ["GL.W", "SR.W", "HF.W", "BW.Y", "TR.W", "HU.W", "TY.W",
@@ -175,38 +173,32 @@ HazardsConflictDict = {
    "TO.A" : ["SV.A"],
    "TO.W" : [],
    "TR.A" : ["HF.W", "TR.W", "HU.A", "HU.S", "HU.W","TY.A", "TY.W",
-             "GL.A", "SR.A", "HF.A", "SE.A", "CF.A", "CF.S"],
+             "GL.A", "SR.A", "HF.A", "SE.A"],
    "TR.W" : ["GL.W", "SR.W", "HF.W", "BW.Y", "TR.A", "HU.W", "HU.S",
-             "SC.Y", "SW.Y", "SE.W", "RB.Y", "SI.Y", "CF.S", "TY.W",
-             "GL.A", "SR.A", "HF.A", "SE.A", "CF.W", "CF.A", "CF.Y",
-             "SU.W", "SU.Y"],
+             "SC.Y", "SW.Y", "SE.W", "RB.Y", "SI.Y", "TY.W",
+             "GL.A", "SR.A", "HF.A", "SE.A"],
    "TS.A" : ["TS.W", "TS.Y"],
    "TS.W" : ["TS.A", "TS.Y"],
    "TS.Y" : ["TS.A", "TS.W"],
-   "TY.A" : ["TR.A", "TY.W", "HU.S", "HF.W", "GL.A", "SR.A", "HF.A", "SE.A", "CF.A", "CF.S"],
-   "TY.W" : ["TY.A", "HU.S", "TR.A", "TR.W", "GL.A", "SR.A", "HF.A", "SE.A", "CF.A", "CF.S", "SU.Y",
-             "GL.W", "SR.W", "HF.W", "BW.Y","SC.Y", "SW.Y", "SE.W", "RB.Y", "SI.Y", "CF.W", "CF.Y", "SU.W"],
+   "TY.A" : ["TR.A", "TY.W", "HU.S", "HF.W", "GL.A", "SR.A", "HF.A", "SE.A"],
+   "TY.W" : ["TY.A", "HU.S", "TR.A", "TR.W", "GL.A", "SR.A", "HF.A", "SE.A"
+             "GL.W", "SR.W", "HF.W", "BW.Y","SC.Y", "SW.Y", "SE.W", "RB.Y", "SI.Y"],
    "UP.W" : ["TR.A", "TR.W", "HU.A", "HU.S", "HU.W", "UP.Y"],
    "UP.Y" : ["TR.A", "TR.W", "HU.A", "HU.S", "HU.W", "UP.W"],
    "WC.A" : ["WC.Y", "WC.W"],
    "WC.W" : ["WC.A", "WC.Y"],
    "WC.Y" : ["WC.A","WC.W"],
    "WI.Y" : ["HW.A", "HW.W", "LW.Y"],
-   "WS.A" : ["BZ.A", "LE.A", "BZ.W", "IS.W", "WS.W", "LE.W",
-             "WW.Y", "LE.Y", "ZR.Y"],
-   "WS.W" : ["BZ.A", "LE.A", "WS.A", "BZ.W", "IS.W", "LE.W",
-             "WW.Y", "LE.Y", "ZR.Y"],
-   "WW.Y" : ["BZ.A", "LE.A", "WS.A", "BZ.W", "IS.W", "WS.W", "LE.W",
-             "LE.Y", "ZR.Y"],
+   "WS.A" : ["BZ.W", "IS.W", "WS.W", "LE.W", "WW.Y"],
+   "WS.W" : ["WS.A", "BZ.W", "IS.W", "LE.W", "WW.Y"],
+   "WW.Y" : ["WS.A", "BZ.W", "IS.W", "WS.W", "LE.W"],
    "ZF.Y" : [],
-   "ZR.Y" : ["BZ.A", "LE.A", "WS.A", "BZ.W", "IS.W", "WS.W", "LE.W",
-             "WW.Y", "LE.Y"],
    }
 
 ########################## END OF CONFIGURATION SECTION ########################
 
 class Procedure(SmartScript.SmartScript):
-    def __init__(self, dbss): 
+    def __init__(self, dbss):
         SmartScript.SmartScript.__init__(self, dbss)
         self._dbss = dbss
 

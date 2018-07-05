@@ -18,15 +18,19 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="J/kg" name="Pos Buoy Energy" abbreviation="PBE" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="J/kg" name="Pos Buoy Energy" abbreviation="PBE">
     <Method name="Alias">
-        <Field abbreviation="CAPE"/>
+        <Field abbreviation="CAPE" />
     </Method>
     <Method name="Or" levels="0FHAG">
-        <Field abbreviation="PBE" level="Surface"/>
-        <Field abbreviation="PBE" level="BLyr"/>
+        <Field abbreviation="PBE" level="Surface" />
+        <Field abbreviation="PBE" level="BLyr" />
     </Method>
     <Method name="Alias" levels="0FHAG">
-		<Field abbreviation="PBE" level="Surface"/>
-	</Method> 
+        <Field abbreviation="PBE" level="Surface" />
+    </Method>
 </DerivedParameter>

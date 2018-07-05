@@ -18,10 +18,14 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter unit="ft" name="MSL5" abbreviation="MSL5" xmlns:ns2="group">
     <Method name="MSL">
-        <Field abbreviation="skyLayerBase"/>
-        <Field abbreviation="elevation"/>
-        <ConstantField value="4"/>
+        <Field abbreviation="skyLayerBase" />
+        <Field abbreviation="elevation" />
+        <ConstantField value="4" />
     </Method>
 </DerivedParameter>

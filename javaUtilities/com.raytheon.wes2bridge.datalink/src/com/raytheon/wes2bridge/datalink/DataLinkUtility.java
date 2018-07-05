@@ -8,12 +8,12 @@ package com.raytheon.wes2bridge.datalink;
  *
  * This is an extremely simple utility. This program
  * expects on argument: a postgresql database directory.
- * This utility will then extract the "/awips2/data" and
+ * This utility will then extract the "/awips2/database/data" and
  * return only the name of the database directory.
  */
 public class DataLinkUtility 
 {
-	private static final String AWIPSII_DATA = "/awips2/data/";
+	private static final String AWIPSII_DATA = "/awips2/database/data/";
 	
 	/**
 	 * @param args

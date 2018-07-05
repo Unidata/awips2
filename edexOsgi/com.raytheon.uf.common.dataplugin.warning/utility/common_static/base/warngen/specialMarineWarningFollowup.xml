@@ -1,15 +1,22 @@
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
 <!-- Special Marine Warning Follow-Up Statement configuration -->
 <warngenConfig>
-<!-- Customized by        Phil Kurimski WFO DTX 13 April 2011 
-                          Evan Bookbinder 09-16-2011 OB11.0.8-8
-                          Phil Kurimski 23 Sept 2011 Added Volcano Information
-                          Phil Kurimski  1 Mar 2012
-                          Evan Bookbinder 09-11-2012 Added settings for locations shapefile
-                                                     Added new areaSource variable  
-                          Phil Kurimski 09-16-2013 Fixed multiple selections in pathcast 
-                          Phil Kurimski 09-19-2013 added geospatialConfig.xml      
-                          Richard Barnhill 12-30-2015 changed genericCTA and gustyWindsCTA to eliminate references to (,)
-                          Richard Barnhill 12-30-2015 added showString for list of locations so correct one displays and not both.                 
+<!-- Customized by
+       Phil Kurimski WFO DTX 13 April 2011
+       Evan Bookbinder  09-16-2011 OB11.0.8-8
+       Phil Kurimski    09-23-2011 Added Volcano Information
+       Phil Kurimski    03-01-2012
+       Evan Bookbinder  09-11-2012 Added settings for locations shapefile
+                                  Added new areaSource variable
+       Phil Kurimski    09-16-2013 Fixed multiple selections in pathcast
+       Phil Kurimski    09-19-2013 added geospatialConfig.xml
+       Richard Barnhill 12-30-2015 changed genericCTA and gustyWindsCTA to eliminate references to (,)
+       Richard Barnhill 12-30-2015 added showString for list of locations so correct one displays and not both.
+       Phil Kurimski    01-30-2017 Added additional options to Basis, DCS 19347
 -->
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
@@ -143,6 +150,11 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="warnBasis" parseString="MARINE WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="warnBasis" parseString="A MARINER REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="warnBasis" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="coastGuard" bulletText="Coast Guard reported" bulletGroup="warnBasis" parseString="THE COAST GUARD REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported" bulletGroup="warnBasis" parseString="LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="warnBasis" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="ship" bulletText="Ship reported" bulletGroup="warnBasis" parseString="A SHIP REPORTED"/>
+  <bullet bulletName="buoy" bulletText="Buoy reported" bulletGroup="warnBasis" parseString="A BUOY REPORTED"/>
   <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="warnBasis" parseString="SATELLITE IMAGERY INDICATED"/>
   <bullet bulletName="pilot" bulletText="Pilot reported" bulletGroup="warnBasis" parseString="A PILOT REPORTED"/>
   <bullet bulletText="" bulletType="title"/>
@@ -196,6 +208,11 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletName="marineSpotter" bulletText="Marine weather spotters reported" bulletGroup="warnBasis" parseString="MARINE WEATHER SPOTTERS REPORTED"/>
   <bullet bulletName="mariner" bulletText="Mariner reported" bulletGroup="warnBasis" parseString="A MARINER REPORTED"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="warnBasis" parseString="THE PUBLIC REPORTED"/>
+  <bullet bulletName="coastGuard" bulletText="Coast Guard reported" bulletGroup="warnBasis" parseString="THE COAST GUARD REPORTED"/>
+  <bullet bulletName="lawEnforcement" bulletText="Law enforcement reported" bulletGroup="warnBasis" parseString="LAW ENFORCEMENT REPORTED"/>
+  <bullet bulletName="emergencyManagement" bulletText="Emergency management reported" bulletGroup="warnBasis" parseString="EMERGENCY MANAGEMENT REPORTED"/>
+  <bullet bulletName="ship" bulletText="Ship reported" bulletGroup="warnBasis" parseString="A SHIP REPORTED"/>
+  <bullet bulletName="buoy" bulletText="Buoy reported" bulletGroup="warnBasis" parseString="A BUOY REPORTED"/>
   <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="warnBasis" parseString="SATELLITE IMAGERY INDICATED"/>
   <bullet bulletName="pilot" bulletText="Pilot reported" bulletGroup="warnBasis" parseString="A PILOT REPORTED"/>
   <bullet bulletText="" bulletType="title"/>

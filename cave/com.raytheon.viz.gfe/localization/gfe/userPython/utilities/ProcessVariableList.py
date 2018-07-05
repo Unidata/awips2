@@ -33,12 +33,19 @@
 ## Jun 11, 2008    1164           jelkins    Initial creation
 ## Jun 16, 2008    1164           jelkins    Implemented Callback Handling
 ## Jun 23, 2008    1164           jelkins    Support 3 argument widget tuple
+## Nov 28, 2017    6540           randerso   Set default precision to 0 to 
+##                                           match default resolution
 ## 
 ## </pre>
 ## 
 ## @author jelkins
-## @version 1.0
-## 
+##
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 from com.raytheon.viz.gfe.ui.runtimeui import ValuesDialog
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID, ParmID
 from com.raytheon.uf.common.time import TimeRange
@@ -169,7 +176,7 @@ def buildWidgetList(pythonWidgetList):
     for widget in pythonWidgetList:
         
         res = 1.0   # Default resolution
-        prec = 3    # Default precision
+        prec = 0    # Default precision
         valueList = []
         
         # unpack the tuple

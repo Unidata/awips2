@@ -31,6 +31,10 @@
 # 
 #
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 class BaseTool:
     
      def process(self, pythonTextEditorToolCallback, args):

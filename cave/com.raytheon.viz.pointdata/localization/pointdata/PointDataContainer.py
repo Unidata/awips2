@@ -34,7 +34,11 @@ import PointDataView, NoDataException
 #    
 # 
 #
-    
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 class PointDataContainer:
 
     def __init__(self, pdvDict, javaPdc, refTime):        

@@ -20,10 +20,11 @@
 package com.raytheon.viz.mpe.ui.dialogs.gagetable;
 
 import java.text.SimpleDateFormat;
-import java.util.TimeZone;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
+
+import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * GageTable Dialog table model.
@@ -35,15 +36,16 @@ import javax.swing.table.DefaultTableModel;
  * ------------ ---------- ----------- --------------------------
  * May 29, 2009 2476       mpduff     Initial creation
  * Jan 13, 2016 18092      snaples    Updated to use DefaultTableModel instead of Abstract
+ * May 12, 2017 6283       bkowal     Added {@link #gageTableDlg} and fixed
+ *                                    {@link #isCellEditable(int, int)}.
  * 
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
-public class GageTableModel extends DefaultTableModel implements
-        GageTableListener {
+public class GageTableModel extends DefaultTableModel
+        implements GageTableListener {
     private static final long serialVersionUID = -814822107762024666L;
 
     /**
@@ -60,13 +62,14 @@ public class GageTableModel extends DefaultTableModel implements
      * Column data.
      */
     private static Vector<String> columns = null;
-    
-    
+
+    private final GageTableDlg gageTableDlg;
+
     static {
         sdf = new SimpleDateFormat("yyyyMMddHH");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sdf.setTimeZone(TimeUtil.GMT_TIME_ZONE);
         GageTableDataManager dataManager = GageTableDataManager.getInstance();
-        
+
         // Get the data
         rows = dataManager.getRows();
         columns = dataManager.getColumns();
@@ -75,11 +78,12 @@ public class GageTableModel extends DefaultTableModel implements
     /**
      * Constructor.
      */
-    public GageTableModel() {
+    public GageTableModel(final GageTableDlg gageTableDlg) {
+        this.gageTableDlg = gageTableDlg;
         GageTableProductManager productManager = GageTableProductManager
                 .getInstance();
         GageTableDataManager dataManager = GageTableDataManager.getInstance();
-        
+
         // Get the data
         rows = dataManager.getRows();
         columns = dataManager.getColumns();
@@ -94,21 +98,23 @@ public class GageTableModel extends DefaultTableModel implements
         dataManager.reloadData();
         updateData(dataManager.getRows(), dataManager.getColumns());
         fireTableStructureChanged();
+        gageTableDlg.refreshSort();
     }
 
     /**
      * Update the data for the model.
      * 
      * @param rows
-     *      The new row data
+     *            The new row data
      * @param columns
-     *      The new column data
+     *            The new column data
      */
-    public void updateData(Vector<Vector<String>> rows, Vector<String> columns) {
+    public void updateData(Vector<Vector<String>> rows,
+            Vector<String> columns) {
         GageTableModel.rows = rows;
         GageTableModel.columns = columns;
     }
-    
+
     /**
      * Get the column count.
      */
@@ -129,9 +135,9 @@ public class GageTableModel extends DefaultTableModel implements
      * Get the value at the indicated cell.
      * 
      * @param rowIndex
-     *      The index of the row
+     *            The index of the row
      * @param columnIndex
-     *      The index of the column
+     *            The index of the column
      */
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
@@ -142,23 +148,19 @@ public class GageTableModel extends DefaultTableModel implements
      * Is cell editable?
      * 
      * @param row
-     *      The index of the row
+     *            The index of the row
      * @param col
-     *      The index of the column
+     *            The index of the column
      */
     @Override
     public boolean isCellEditable(int row, int col) {
-        // Note that the data/cell address is constant,
-        // no matter where the cell appears onscreen.
-        // col 2 is the Edit Gage Value column
-        if (col == 2) {
+        if (GageTableConstants.EDIT_GAGE_VALUE.equals(getColumnName(col))) {
             return true;
         } else {
             return false;
         }
     }
 
-    
     @Override
     public void setValueAt(Object value, int row, int col) {
         Vector<String> record = rows.get(row);
@@ -174,8 +176,7 @@ public class GageTableModel extends DefaultTableModel implements
     /**
      * Returns the rows data Vector.
      * 
-     * @return rows
-     *      The Vector of data
+     * @return rows The Vector of data
      */
     public Vector<Vector<String>> getDataVector() {
         return rows;
@@ -185,7 +186,7 @@ public class GageTableModel extends DefaultTableModel implements
      * Set the rows data Vector.
      * 
      * @param rows
-     *      The Vector of data
+     *            The Vector of data
      */
     public void setDataVector(Vector<Vector<String>> rows) {
         GageTableModel.rows = rows;
@@ -199,7 +200,8 @@ public class GageTableModel extends DefaultTableModel implements
     }
 
     /**
-     * @param columns the columns to set
+     * @param columns
+     *            the columns to set
      */
     public void setColumns(Vector<String> columns) {
         GageTableModel.columns = columns;
@@ -207,7 +209,6 @@ public class GageTableModel extends DefaultTableModel implements
 
     @Override
     public void notifyUpdate(GageTableUpdateEvent ue) {
-        System.out.println("GageTableModel.notifyUpdate() called...");
         if (ue.isChanged()) {
             refreshTable();
         }

@@ -28,7 +28,7 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
-import com.raytheon.viz.core.rsc.BlendedResourceData;
+import com.raytheon.uf.viz.core.rsc.groups.BlendedResourceData;
 
 /**
  * 

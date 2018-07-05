@@ -56,6 +56,7 @@ import com.raytheon.uf.common.util.file.FilenameFilters;
  * Oct 15, 2013  2473     bsteffen  Switch logging to use UFStatus
  * Apr 11, 2016  5564     bsteffen  Move localization files to common_static
  * May 06, 2016  5572     bsteffen  Move to common, add html support
+ * Mar 10, 2017  6171     bsteffen  Do not mangle the units when they specify a code table.
  * 
  * </pre>
  * 
@@ -158,8 +159,8 @@ public class GribTableLookup {
      * @return The value associated with the key in the specified table. Null if
      *         not found
      */
-    public Object getTableValue(int centerid, int subcenterid,
-            String tableName, int value) {
+    public Object getTableValue(int centerid, int subcenterid, String tableName,
+            int value) {
 
         GribTable table = getTable(centerid, subcenterid, tableName);
         if (table == null) {
@@ -203,13 +204,15 @@ public class GribTableLookup {
 
         /* Gets all predefined found in the utility directory */
         IPathManager pm = PathManagerFactory.getPathManager();
-        String commonPath = pm.getFile(
-                pm.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.BASE), "/grib/tables").getPath();
+        String commonPath = pm
+                .getFile(pm.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.BASE), "/grib/tables")
+                .getPath();
 
-        String sitePath = pm.getFile(
-                pm.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.SITE), "/grib/tables").getPath();
+        String sitePath = pm
+                .getFile(pm.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.SITE), "/grib/tables")
+                .getPath();
 
         initTablesFromPath(commonPath);
         initTablesFromPath(sitePath);
@@ -242,11 +245,12 @@ public class GribTableLookup {
                         String tableName = tableFile.getName()
                                 .replace(".table", "").trim();
                         try {
-                            createTable(tableFile, center, subcenter, tableName);
+                            createTable(tableFile, center, subcenter,
+                                    tableName);
                         } catch (IOException e) {
                             statusHandler.error("Unable to create table: "
                                     + tableName + " for Center: " + center
-                                    + " Subcenter: " + subcenter);
+                                    + " Subcenter: " + subcenter, e);
                             continue;
                         }
                     } else if (tableFile.getName().endsWith(".html")) {
@@ -258,7 +262,7 @@ public class GribTableLookup {
                         } catch (IOException e) {
                             statusHandler.error("Unable to create table: "
                                     + tableName + " for Center: " + center
-                                    + " Subcenter: " + subcenter);
+                                    + " Subcenter: " + subcenter, e);
                             continue;
                         }
 
@@ -324,15 +328,21 @@ public class GribTableLookup {
         int subcenter = table.getSubcenterId();
         /* Special handling of parameter tables */
         if (tableName.startsWith("4.2.")) {
-            String name = null, abbreviation = null, d2dAbbrev = null, unit = null;
+            String name = null, abbreviation = null, d2dAbbrev = null,
+                    unit = null;
             if (tokens.length > 2) {
                 name = tokens[2].trim();
                 if (tokens.length > 3) {
-                    /*
-                     * NCEP html tables use space for multiplication but proper
-                     * parsing needs an '*'
-                     */
-                    unit = tokens[3].replace(' ', '*').trim();
+                    if (tokens[3].contains("Code table")) {
+                        unit = tokens[3].trim();
+
+                    } else {
+                        /*
+                         * NCEP html tables use space for multiplication but
+                         * proper parsing needs an '*'
+                         */
+                        unit = tokens[3].replace(' ', '*').trim();
+                    }
                     if (tokens.length > 4) {
                         abbreviation = tokens[4].trim();
                         if (tokens.length > 5) {
@@ -355,7 +365,8 @@ public class GribTableLookup {
         /* Special handling of surface table */
         else if (tableName.startsWith("4.5")) {
             int number = Integer.parseInt(tokens[0]);
-            String name = null, unit = null, abbreviation = null, d2dAbbrev = null;
+            String name = null, unit = null, abbreviation = null,
+                    d2dAbbrev = null;
             name = tokens[2].trim();
             if (tokens.length > 3) {
                 unit = tokens[3].replace(' ', '*').trim();
@@ -384,15 +395,15 @@ public class GribTableLookup {
             table.addEntry(number, surface);
         }
         /* Special handling of generating process table */
-        else if (tableName.equals("A")) {
+        else if ("A".equals(tableName)) {
             int number = Integer.parseInt(tokens[0]);
             String description = tokens[2];
             String name = null;
             if (tokens.length == 4) {
                 name = tokens[3];
             }
-            GenProcess process = new GenProcess(center, subcenter, number,
-                    name, description);
+            GenProcess process = new GenProcess(center, subcenter, number, name,
+                    description);
             table.addEntry(Integer.valueOf(tokens[0]), process);
         } else {
             table.addEntry(Integer.valueOf(tokens[0]), tokens[2]);

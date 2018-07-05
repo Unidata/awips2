@@ -1,9 +1,14 @@
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
 <!-- Burn Scar Flash Flood Statement configuration for County-based products-->
 <!-- This template can be used for any pre-defined polygon that a site needs
      to issue a FFW for outside of a dam break. -->
-<!-- Created by Phil Kurimski 02-07-2013 for OB13.2.1-5     
+<!-- Created by Phil Kurimski 02-07-2013 for OB13.2.1-5
      Phil Kurimski   09-19-2013 added geospatialConfig.xml
-     Mike Dangelo  10-20-2015 Standard CTAs                    
+     Mike Dangelo  10-20-2015 Standard CTAs
 -->
 
 <warngenConfig>

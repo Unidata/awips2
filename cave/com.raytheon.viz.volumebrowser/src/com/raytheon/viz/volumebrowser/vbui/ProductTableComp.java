@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -60,6 +60,7 @@ import org.eclipse.swt.widgets.TableItem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.menus.vb.ViewMenu;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
@@ -70,14 +71,13 @@ import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
 import com.raytheon.viz.volumebrowser.loader.ProductCreator;
 import com.raytheon.viz.volumebrowser.loader.ProductCreatorManager;
 import com.raytheon.viz.volumebrowser.loader.ProductLoader;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
- * 
+ *
  * This class manages the Product Table that will be loaded onto the display.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
@@ -94,9 +94,9 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
  * Aug 03, 2015  3861     bsteffen  Move product loading to ProductLoader
  * Jan 12, 2016  5055     randerso  Moved resize listener into this class.
  *                                  Set column widths at creation
- * 
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  * @version 1.0
  */
@@ -173,11 +173,11 @@ public class ProductTableComp extends Composite {
     /**
      * Open Inventory dialogs.
      */
-    Map<String, InventoryDlg> inventoryDlgMap = new HashMap<String, InventoryDlg>();
+    Map<String, InventoryDlg> inventoryDlgMap = new HashMap<>();
 
     /**
      * Constructor.
-     * 
+     *
      * @param parentComp
      *            Parent composite.
      */
@@ -267,8 +267,8 @@ public class ProductTableComp extends Composite {
     private void initializeData() {
         tiFont = new Font(this.getDisplay(), "Fixed", 10, SWT.BOLD);
 
-        productKeySet = new HashSet<String>();
-        tableDataArray = new ArrayList<ProductTableData>();
+        productKeySet = new HashSet<>();
+        tableDataArray = new ArrayList<>();
     }
 
     /**
@@ -369,15 +369,16 @@ public class ProductTableComp extends Composite {
                 }
             }
 
-            private void toggleDisplayTypes(Table prodSelTable, TableItem item) {
+            private void toggleDisplayTypes(Table prodSelTable,
+                    TableItem item) {
 
                 int itemIndex = prodSelTable.indexOf(item);
                 ProductTableData productTableData = tableDataArray
                         .get(itemIndex);
 
-                if (!isMultiDisplayTypeCapable(productTableData
-                        .getCatalogEntry().getDialogSettings()
-                        .getViewSelection())) {
+                if (!isMultiDisplayTypeCapable(
+                        productTableData.getCatalogEntry().getDialogSettings()
+                                .getViewSelection())) {
                     return;
                 }
 
@@ -388,8 +389,8 @@ public class ProductTableComp extends Composite {
 
                 for (int i = 0; i < displayTypes.size(); i++) {
                     if (displayTypes.get(i).equals(currentDisplayType)) {
-                        changeProductDisplayType(itemIndex,
-                                displayTypes.get((i + 1) % displayTypes.size()));
+                        changeProductDisplayType(itemIndex, displayTypes
+                                .get((i + 1) % displayTypes.size()));
                     }
                 }
 
@@ -429,7 +430,7 @@ public class ProductTableComp extends Composite {
      * mouse button was selected and the indexes need to be updated to reflect
      * the selection/deselection. If the flag is false then re-do the indexes
      * and keep the selections the same.
-     * 
+     *
      * @param flag
      *            Selection flag.
      */
@@ -525,8 +526,8 @@ public class ProductTableComp extends Composite {
         gl.marginHeight = 2;
         gl.marginWidth = 2;
         prodLabelComp.setLayout(gl);
-        prodLabelComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
+        prodLabelComp.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         // Label that displays the number of products in the table.
         Label prodLbl = new Label(prodLabelComp, SWT.NONE);
@@ -555,8 +556,8 @@ public class ProductTableComp extends Composite {
         gl.marginHeight = 2;
         gl.marginWidth = 2;
         buttonComp.setLayout(gl);
-        buttonComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
+        buttonComp.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         for (Button button : buttons) {
             button.setParent(buttonComp);
@@ -570,13 +571,13 @@ public class ProductTableComp extends Composite {
      */
     private void updateProductLabels() {
         totalProductsLbl.setText(String.valueOf(prodSelTable.getItemCount()));
-        selectedProductsLbl.setText(String.valueOf(prodSelTable
-                .getSelectionCount()));
+        selectedProductsLbl
+                .setText(String.valueOf(prodSelTable.getSelectionCount()));
     }
 
     /**
      * Create a popup menu for the table item that was right-clicked.
-     * 
+     *
      * @param parent
      *            Parent control.
      * @param tableItem
@@ -604,20 +605,20 @@ public class ProductTableComp extends Composite {
             for (final DisplayType displayType : productData.getSelectedData()
                     .getDisplayTypes()) {
 
-                if (displayType.equals(productData.getDisplayTypeSet()
-                        .iterator().next())) {
+                if (displayType.equals(
+                        productData.getDisplayTypeSet().iterator().next())) {
                     continue;
                 }
 
                 MenuItem changeDisplayTypeMenuItem = new MenuItem(popupMenu,
                         SWT.NONE);
-                changeDisplayTypeMenuItem.setText("Change to "
-                        + productData.getName(displayType));
+                changeDisplayTypeMenuItem.setText(
+                        "Change to " + productData.getName(displayType));
                 changeDisplayTypeMenuItem
                         .addSelectionListener(new SelectionAdapter() {
                             /*
                              * (non-Javadoc)
-                             * 
+                             *
                              * @seeorg.eclipse.swt.events.SelectionAdapter#
                              * widgetSelected
                              * (org.eclipse.swt.events.SelectionEvent)
@@ -670,7 +671,8 @@ public class ProductTableComp extends Composite {
 
                         @Override
                         public void widgetSelected(SelectionEvent e) {
-                            loadAllDisplayTypes(prodSelTable.indexOf(tableItem));
+                            loadAllDisplayTypes(
+                                    prodSelTable.indexOf(tableItem));
                         }
 
                         private void loadAllDisplayTypes(int indexOf) {
@@ -714,7 +716,8 @@ public class ProductTableComp extends Composite {
      * @param indexOf
      * @param displayType
      */
-    protected void changeProductDisplayType(int index, DisplayType displayType) {
+    protected void changeProductDisplayType(int index,
+            DisplayType displayType) {
         TableItem ti = prodSelTable.getItem(index);
         ProductTableData productData = getProductData(index);
 
@@ -724,14 +727,15 @@ public class ProductTableComp extends Composite {
             return;
         }
 
-        productData.getDisplayTypeSet().remove(
-                productData.getDisplayTypeSet().iterator().next());
+        productData.getDisplayTypeSet()
+                .remove(productData.getDisplayTypeSet().iterator().next());
         productData.getDisplayTypeSet().add(displayType);
 
         ti.setText(1, productData.getName());
     }
 
-    protected void changeProductDisplayType(int index, String displayTypeString) {
+    protected void changeProductDisplayType(int index,
+            String displayTypeString) {
         DisplayType displayType = DisplayType.valueOf(displayTypeString);
         changeProductDisplayType(index, displayType);
     }
@@ -743,7 +747,7 @@ public class ProductTableComp extends Composite {
         if (inventoryDlg == null) {
             inventoryDlg = new InventoryDlg(getShell(), tableData);
             inventoryDlgMap.put(name, inventoryDlg);
-            inventoryDlg.setCloseCallback(new ICloseCallback() {
+            inventoryDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -765,12 +769,12 @@ public class ProductTableComp extends Composite {
     }
 
     /**
-     * 
+     *
      * @return a list of all selected data, an empty list if nothing is selected
      */
     public List<ProductTableData> getSelectedData() {
 
-        List<ProductTableData> selectedData = new ArrayList<ProductTableData>();
+        List<ProductTableData> selectedData = new ArrayList<>();
 
         for (int selectedIndex : prodSelTable.getSelectionIndices()) {
             ProductTableData productData = tableDataArray.get(selectedIndex);
@@ -789,15 +793,15 @@ public class ProductTableComp extends Composite {
 
         // enable the diff button if there are two products and they are of the
         // same display type
-        diffBtn.setEnabled(isDifferenceProduct(prodSelTable
-                .getSelectionIndices()));
+        diffBtn.setEnabled(
+                isDifferenceProduct(prodSelTable.getSelectionIndices()));
 
         updateProductLabels();
     }
 
     /**
      * Unselect the product at the specified index.
-     * 
+     *
      * @param index
      *            The index or indices of the product(s) to be unselected.
      * @param secondProductIndex
@@ -829,7 +833,7 @@ public class ProductTableComp extends Composite {
 
     /**
      * Load all of the selected products.
-     * 
+     *
      * @param difference
      *            if true load the a difference of the selected products.
      */
@@ -862,14 +866,15 @@ public class ProductTableComp extends Composite {
 
         return (prodIndexes.length == 2
                 && getProductData(prodIndexes[0]).getCatalogEntry()
-                        .getDialogSettings().getViewSelection() != ViewMenu.SOUNDING && getProductData(
-                    prodIndexes[0]).getDisplayTypeSet().equals(
-                getProductData(prodIndexes[1]).getDisplayTypeSet()));
+                        .getDialogSettings()
+                        .getViewSelection() != ViewMenu.SOUNDING
+                && getProductData(prodIndexes[0]).getDisplayTypeSet().equals(
+                        getProductData(prodIndexes[1]).getDisplayTypeSet()));
     }
 
     /**
      * Load the product at the specified index.
-     * 
+     *
      * @param selectedItemIndex
      *            Index of the selected product.
      */
@@ -922,7 +927,7 @@ public class ProductTableComp extends Composite {
 
     /**
      * Remove a product that matches the specified key.
-     * 
+     *
      * @param key
      *            Product key used to identify the product to be deleted.
      */
@@ -933,7 +938,7 @@ public class ProductTableComp extends Composite {
 
     /**
      * Remove a product from the table data array.
-     * 
+     *
      * @param key
      *            Product key used to identify the product.
      */
@@ -956,8 +961,8 @@ public class ProductTableComp extends Composite {
     protected boolean hasProductCreator(IDataCatalogEntry entry) {
         IDataCatalog catalog = DataCatalogManager.getDataCatalogManager()
                 .getDataCatalog(entry.getSelectedData());
-        ResourceType resourceType = entry.getDialogSettings()
-                .getViewSelection().getResourceType();
+        ResourceType resourceType = VBMenuBarItemsMgr
+                .getResourceType(entry.getDialogSettings().getViewSelection());
         HashMap<String, RequestConstraint> metadataMap = catalog
                 .getProductParameters(entry);
         String pluginName = metadataMap.get(PluginDataObject.PLUGIN_NAME_ID)
@@ -1000,7 +1005,7 @@ public class ProductTableComp extends Composite {
             final Runnable updateInventoryStrings = new Runnable() {
                 /*
                  * (non-Javadoc)
-                 * 
+                 *
                  * @see java.lang.Runnable#run()
                  */
                 @Override
@@ -1021,8 +1026,8 @@ public class ProductTableComp extends Composite {
                 }
             };
 
-            tblData.getProductInventory().addJobChangeListener(
-                    new JobChangeAdapter() {
+            tblData.getProductInventory()
+                    .addJobChangeListener(new JobChangeAdapter() {
                         @Override
                         public void done(IJobChangeEvent event) {
                             getDisplay().asyncExec(updateInventoryStrings);
@@ -1039,7 +1044,7 @@ public class ProductTableComp extends Composite {
 
     /**
      * Add a product to the product table.
-     * 
+     *
      * @param productParms
      *            Product parameters.
      * @param selectedData
@@ -1056,8 +1061,8 @@ public class ProductTableComp extends Composite {
             @Override
             protected IStatus run(IProgressMonitor monitor) {
                 final IDataCatalogEntry catalogEntry = DataCatalogManager
-                        .getDataCatalogManager().getDataCatalogEntry(
-                                selectedData);
+                        .getDataCatalogManager()
+                        .getDataCatalogEntry(selectedData);
                 if (catalogEntry != null) {
                     VizApp.runAsync(new Runnable() {
 
@@ -1079,7 +1084,7 @@ public class ProductTableComp extends Composite {
     }
 
     /**
-     * 
+     *
      * @param currentSetting
      * @return return true if the current view is capable of selecting and
      *         displaying multiple display types, false otherwise

@@ -30,6 +30,12 @@
 #      to override variables, definitions, thresholds, and methods
 ##
 ##########################################################################
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 import MultipleElementTable
 import string, time, re, os, types, copy
 

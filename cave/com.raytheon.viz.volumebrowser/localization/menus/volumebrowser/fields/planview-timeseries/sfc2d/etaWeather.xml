@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -18,21 +18,19 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="menuItem" menuText="Max Temp" key="MxT"
-        indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Min Temp" key="MnT"
-        indentText="false" />
-    <contribute xsi:type="menuItem" menuText="POP" key="POP"
-        indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Tstorm Prob"
-        key="ThP" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Freezing Precip POP"
-        key="CPOZP" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Frozen Precip POP"
-        key="CPOFP" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Total Cloud Cover"
-        key="CCP" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Snow Depth"
-        key="SnD" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Max Temp" key="MxT" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Min Temp" key="MnT" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="POP" key="POP" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Tstorm Prob" key="ThP" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Freezing Precip POP" key="CPOZP"
+        indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Frozen Precip POP" key="CPOFP" indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Total Cloud Cover" key="CCP" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Snow Depth" key="SnD" indentText="false" />
 </menuTemplate>

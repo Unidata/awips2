@@ -18,29 +18,33 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter unit="K/m" name="Lapse Rate" abbreviation="gamma" xmlns:ns2="group">
     <Method levels="S" name="Derivative">
-        <Field abbreviation="T"/>
-        <Field level="upper" abbreviation="T"/>
-        <Field level="upper" abbreviation="GH"/>
-        <Field abbreviation="GH"/>
+        <Field abbreviation="T" />
+        <Field level="upper" abbreviation="T" />
+        <Field level="upper" abbreviation="GH" />
+        <Field abbreviation="GH" />
     </Method>
     <Method levels="C" name="Derivative">
-        <Field level="lower" abbreviation="T"/>
-        <Field level="upper" abbreviation="T"/>
-        <Field level="upper" abbreviation="GH"/>
-        <Field level="lower" abbreviation="GH"/>
+        <Field level="lower" abbreviation="T" />
+        <Field level="upper" abbreviation="T" />
+        <Field level="upper" abbreviation="GH" />
+        <Field level="lower" abbreviation="GH" />
     </Method>
     <Method levels="S" name="LapseRate">
-        <Field abbreviation="T"/>
-        <Field abbreviation="P"/>
-        <Field level="upper" abbreviation="T"/>
-        <Field level="upper" abbreviation="P"/>
+        <Field abbreviation="T" />
+        <Field abbreviation="P" />
+        <Field level="upper" abbreviation="T" />
+        <Field level="upper" abbreviation="P" />
     </Method>
     <Method levels="C" name="LapseRate">
-        <Field level="lower" abbreviation="T"/>
-        <Field level="lower" abbreviation="P"/>
-        <Field level="upper" abbreviation="T"/>
-        <Field level="upper" abbreviation="P"/>
+        <Field level="lower" abbreviation="T" />
+        <Field level="lower" abbreviation="P" />
+        <Field level="upper" abbreviation="T" />
+        <Field level="upper" abbreviation="P" />
     </Method>
 </DerivedParameter>

@@ -1,6 +1,9 @@
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="bufrobsProcessor" class="com.raytheon.uf.edex.plugin.bufrobs.BufrObsProcessor" />
 
@@ -9,7 +12,7 @@
     <bean id="bufrobsSynopticLandDecoder" class="com.raytheon.uf.edex.plugin.bufrobs.synoptic.SynopticLandBufrDecoder" depends-on="sfcObsRegistered">
         <constructor-arg ref="sfcobsPluginName" />
     </bean>
-    
+
     <bean id="bufrobsBuoyDecoder" class="com.raytheon.uf.edex.plugin.bufrobs.buoy.BuoyBufrDecoder" depends-on="sfcObsRegistered">
         <constructor-arg ref="sfcobsPluginName" />
     </bean>
@@ -48,9 +51,8 @@
                     <doTry>
                         <pipeline>
                             <bean ref="bufrobsProcessor" />
-                            <multicast>
-                                <to uri="direct-vm:persistIndexAlert" />
-                            </multicast>
+                            <bean ref="bufrObsRecordPopulator" method="populate" />
+                            <to uri="direct-vm:persistIndexAlert" />
                         </pipeline>
                         <doCatch>
                             <exception>java.lang.Throwable</exception>

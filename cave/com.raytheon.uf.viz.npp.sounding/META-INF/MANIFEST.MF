@@ -21,7 +21,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.viz.pointdata;bundle-version="1.12.1174",
  com.raytheon.viz.core.graphing;bundle-version="1.12.1174",
  javax.measure;bundle-version="1.0.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: gov.noaa.nws.ncep.edex.common.sounding
 Export-Package: com.raytheon.uf.viz.npp.sounding.rsc

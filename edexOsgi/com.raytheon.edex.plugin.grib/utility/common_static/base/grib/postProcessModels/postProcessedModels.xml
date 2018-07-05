@@ -1,34 +1,56 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        This is an incremental override file, indicating that the files at
+        different localization levels will be combined.
+    -->
 <postProcessedModels>
 
-    <!-- Post Processor definitions for models containing grids needing to be 
+    <!-- Post Processor definitions for models containing grids needing to be
         stitched together -->
     <postProcessedModel id="Ensemble">
-        <modelName>ECMF[0-9]|ENSEMBLE[0-9]{2}
+        <modelName>UKMET[0-9]{2}|ECMF[0-9]|ENSEMBLE[0-9]{2}|AVN[0-9]{2}
         </modelName>
         <processorName>EnsembleGridAssembler</processorName>
     </postProcessedModel>
 
-    <!-- Post processor definitions for models which disseminate updated grids 
-        containing identical metadata. This data is primarily from RFCs. The overwrite 
+    <!-- Post processor definitions for models which disseminate updated grids
+        containing identical metadata. This data is primarily from RFCs. The overwrite
         post processor is used to prevent updated data from being discarded as duplicates. -->
-    <!--
     <postProcessedModel id="Overwrite">
-        <modelName>HPCqpfNDFD|RFCqpf|HPCqpf|MPE-.*|QPE-.*|URMA25</modelName>
+        <modelName>HPCqpfNDFD|RFCqpf|HPCqpf|MPE-.*|QPE-.*|URMA25|</modelName>
         <processorName>OverwriteGribPostProcessor</processorName>
     </postProcessedModel>
-    -->
 
-    <!-- Post processor definition for FFG grids. Similar to the models using 
-        the overwrite post processor, FFG gridded data is also updated without changing 
+    <!-- Post processor definition for FFG grids. Similar to the models using
+        the overwrite post processor, FFG gridded data is also updated without changing
         the associated metadata. In this case, the previous updates need to be retained. -->
     <postProcessedModel id="FFG">
         <modelName>FFG-[A-Z]{3}</modelName>
         <processorName>FFGGribPostProcessor</processorName>
     </postProcessedModel>
 
-    <!-- Post processor definitions for models using the temperature correction 
-        post processor. These models may have some parameters which are incorrectly 
+    <!-- Post processor definitions for models using the temperature correction
+        post processor. These models may have some parameters which are incorrectly
         labeled Celsius vs. Kelvin. The list of parameters to correct is in temperatureCorrectionParameters.xml -->
     <postProcessedModel id="TempCorrection">
         <modelName>RTOFS-.*</modelName>
@@ -36,13 +58,13 @@
     </postProcessedModel>
 
     <postProcessedModel id="LiftedIndex">
-        <modelName>GFS.*|NAM.*|HiResW.*</modelName>
+        <modelName>GFS.*|ETA.*|DGEX.*|HiResW.*</modelName>
         <processorName>LiftedIndexPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the RTMA model -->
     <postProcessedModel id="RTMA">
-        <modelName>RTMA.*</modelName>
+        <modelName>RTMA</modelName>
         <processorName>RTMAGribPostProcessor</processorName>
     </postProcessedModel>
 
@@ -60,37 +82,55 @@
     </postProcessedModel>
 
     <!-- Post processor definition for the ETA (NAM80) model -->
-    <postProcessedModel id="NAM80">
-        <modelName>NAM80</modelName>
+    <postProcessedModel id="ETA">
+        <modelName>ETA</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the RAP40 model -->
     <postProcessedModel id="RAP40">
-	<modelName>RAP40</modelName>
-	<processorName>RAP40GribPostProcessor</processorName>
+        <modelName>RAP40</modelName>
+        <processorName>RAP40GribPostProcessor</processorName>
     </postProcessedModel>
 
-    <postProcessedModel id="CMC">
-        <modelName>CMC</modelName>
+    <!-- Post processor definition for the CPCoutlook211 model -->
+    <postProcessedModel id="CPCoutlook">
+        <modelName>CPCoutlook211</modelName>
+        <processorName>CPCoutlookGribPostProcessor</processorName>
+    </postProcessedModel>
+
+    <!-- Post processor definitions for the Canadian models -->
+    <postProcessedModel id="Canadian-NH">
+        <modelName>Canadian-NH</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
+    </postProcessedModel>
+
+    <postProcessedModel id="Canadian-Reg">
+        <modelName>Canadian-Reg</modelName>
+        <processorName>PrecipAccumPostProcessor</processorName>
+    </postProcessedModel>
+
+    <!-- Post processor definition for the LAPS model -->
+    <postProcessedModel id="LAPS">
+        <modelName>LAPS</modelName>
+        <processorName>LapsPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for the RAP13 model -->
     <postProcessedModel id="RAP13">
-	<modelName>RAP13</modelName>
-	<processorName>RAP13GribPostProcessor</processorName>
+        <modelName>RAP13</modelName>
+        <processorName>RAP13GribPostProcessor</processorName>
     </postProcessedModel>
 
     <!-- Post processor definition for HPCqpfNDFD -->
     <postProcessedModel id="HPCqpfNDFD">
         <modelName>HPCqpfNDFD</modelName>
-        <processorName>HPCqpfPostProcessor</processorName>
-    </postProcessedModel>
+            <processorName>HPCqpfPostProcessor</processorName>
+        </postProcessedModel>
 
     <!-- Post processor definition for the GFS20 model -->
     <postProcessedModel id="GFS20">
-        <modelName>GFS20</modelName>
+        <modelName>GFS20|AK-GFS22|GFS20-.*</modelName>
         <processorName>PrecipAccumPostProcessor</processorName>
     </postProcessedModel>
 
@@ -100,7 +140,7 @@
          the GFE and volume browser do not handle dynamic names
          this post processing produces.
     -->
-    <!-- 
+    <!--
     <postProcessedModel id="HWRF">
         <modelName>HWRF</modelName>
         <processorName>HWRFPostProcessor</processorName>

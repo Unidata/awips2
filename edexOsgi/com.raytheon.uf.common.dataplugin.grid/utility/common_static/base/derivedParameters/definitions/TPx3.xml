@@ -18,9 +18,13 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="mm" name="3 Hr Accum Precip" abbreviation="TPx3" xmlns:ns2="group">
-	<Method name="Add">
-        <Field abbreviation="St-Pr3hr"/>
-        <Field abbreviation="CP3hr"/>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="mm" name="3 Hr Accum Precip" abbreviation="TPx3">
+    <Method name="Add">
+        <Field abbreviation="St-Pr3hr" />
+        <Field abbreviation="CP3hr" />
     </Method>
 </DerivedParameter>

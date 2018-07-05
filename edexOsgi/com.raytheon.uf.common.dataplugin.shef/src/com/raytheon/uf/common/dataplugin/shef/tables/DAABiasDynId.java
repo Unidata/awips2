@@ -1,7 +1,5 @@
 package com.raytheon.uf.common.dataplugin.shef.tables;
 
-
-
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
@@ -11,14 +9,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * 
- * 
+ * Embeddable identifier for the {@link DAABiasDyn} entity.
  * 
  * <pre>
  * 
@@ -26,18 +21,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/22/2014   Redmine #3454 (A2 14.3.1) new dualpol-related table ID
+ * 10/05/2016   5631       bkowal      Cleanup.
  * 
  * </pre>
  * 
  * @author OHD
- * @version 1.1
  */
 
 @Embeddable
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class DAABiasDynId extends PersistableDataObject implements Serializable, ISerializableObject {
+public class DAABiasDynId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -113,17 +108,19 @@ public class DAABiasDynId extends PersistableDataObject implements Serializable,
             return false;
         RwbiasdynId castOther = (RwbiasdynId) other;
 
-        return ((this.getRadid() == castOther.getRadid()) || (this.getRadid() != null
-                && castOther.getRadid() != null && this.getRadid().equals(
-                castOther.getRadid())))
-                && ((this.getOfficeId() == castOther.getOfficeId()) || (this
-                        .getOfficeId() != null
-                        && castOther.getOfficeId() != null && this
-                        .getOfficeId().equals(castOther.getOfficeId())))
-                && ((this.getObstime() == castOther.getObstime()) || (this
-                        .getObstime() != null
-                        && castOther.getObstime() != null && this.getObstime()
-                        .equals(castOther.getObstime())))
+        return ((this.getRadid() == castOther.getRadid())
+                || (this.getRadid() != null && castOther.getRadid() != null
+                        && this.getRadid().equals(castOther.getRadid())))
+                && ((this.getOfficeId() == castOther.getOfficeId())
+                        || (this.getOfficeId() != null
+                                && castOther.getOfficeId() != null
+                                && this.getOfficeId()
+                                        .equals(castOther.getOfficeId())))
+                && ((this.getObstime() == castOther.getObstime())
+                        || (this.getObstime() != null
+                                && castOther.getObstime() != null
+                                && this.getObstime()
+                                        .equals(castOther.getObstime())))
                 && (this.getMemspanInd() == castOther.getMemspanInd());
     }
 
@@ -139,5 +136,4 @@ public class DAABiasDynId extends PersistableDataObject implements Serializable,
         result = 37 * result + this.getMemspanInd();
         return result;
     }
-
 }

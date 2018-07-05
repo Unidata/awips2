@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Timeseries Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.xy.timeseries;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.geospatial,
@@ -16,10 +16,8 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.viz.core.graphing,
  com.raytheon.viz.ui,
  javax.measure,
- org.eclipse.ui,
  org.eclipse.core.runtime,
- org.geotools
-Import-Package: com.raytheon.viz.core.rsc
+ com.raytheon.uf.viz.core.rsc
 Export-Package: com.raytheon.uf.viz.xy.timeseries,
  com.raytheon.uf.viz.xy.timeseries.adapter,
  com.raytheon.uf.viz.xy.timeseries.display,

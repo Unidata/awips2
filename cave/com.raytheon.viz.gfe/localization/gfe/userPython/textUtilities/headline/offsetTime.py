@@ -35,9 +35,13 @@
 #
 ##
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 import time, string
 import logging
-from awips import TimeUtil
+from ufpy import TimeUtil
 
 offset = 0
 timeStr = ""

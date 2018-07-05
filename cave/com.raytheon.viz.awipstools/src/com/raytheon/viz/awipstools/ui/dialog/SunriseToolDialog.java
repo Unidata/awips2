@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,6 +26,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -36,6 +37,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -61,16 +63,14 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * SunriseToolDialog.
- * 
- * Tool for viewing the sunrise/sunset time and associated Azimuth's for a
+ * Tool for viewing the sunrise/sunset time and associated Azimuths for a
  * specified latitude, longitude, day, month and year.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date       	Ticket#		Engineer	Description
- * ----------	----------	-----------	--------------------------
- * 08/15/07     426         Eric Babin    Initial Creation.
+ * Date         Ticket#     Engineer    Description
+ * ----------   ----------  ----------- --------------------------
+ * 08/15/07     426         Eric Babin  Initial Creation.
  * 23Oct2007    499         Eric Babin  Added error check for latitude between -90 &amp; 90.
  * 03Dec2007    461         bphillip    Modified to use VizTime
  *  10-21-09    #1711       bsteffen    Modified to use datamanager for home location
@@ -78,21 +78,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      that were present in AWIPSI.
  * 11Jul2012    875         rferrel     Now uses PointsDataManager
  * 25 Jul 2014  #3400       lvenable    Modified the shell style to remove the application modal setting.
- * 
+ * Feb 23, 2017 6115        tgurney     Calculate spacing based on font size
+ *
  * </pre>
- * 
+ *
  * @author Eric Babin
- * @version 1
  */
 public class SunriseToolDialog extends CaveJFACEDialog {
 
-    public static final int CalculateID = 987;
-
-    private static final int CIRCLE_SIZE = 150;
-
-    private static final int CIRCLE_X = 50;
-
-    private static final int CIRCLE_Y = 60;
+    private static final int CALCULATE_ID = IDialogConstants.CLIENT_ID;
 
     private Shell parentShell;
 
@@ -128,8 +122,6 @@ public class SunriseToolDialog extends CaveJFACEDialog {
 
     private Button calculateButton;
 
-    private int startX = 0;
-
     private int startY = 0;
 
     private Composite sunriseFieldComposite;
@@ -164,50 +156,20 @@ public class SunriseToolDialog extends CaveJFACEDialog {
 
     private Color bgColor;
 
-    private SunriseSunsetCalculator suniseCalculator = new SunriseSunsetCalculator();
+    private SunriseSunsetCalculator sunriseCalculator = new SunriseSunsetCalculator();
 
     private float latitudeValue;
 
     private float longitudeValue;
 
+    private int charWidth;
+
+    private int charHeight;
+
+    private int circleSize;
+
     private DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
-    // for daylight savings entries, add 1000000 (1 hour, to show the offset
-    // right.
-
-    /*
-     * String zoneStrings[] = {
-     * TimeZone.getTimeZone("Pacific/Guam").getDisplayName(false,
-     * TimeZone.SHORT) + " (+" +
-     * TimeZone.getTimeZone("Pacific/Guam").getRawOffset() / 3600000 + ")",
-     * TimeZone.getTimeZone("HST").getDisplayName(false, TimeZone.SHORT) + " ("
-     * + TimeZone.getTimeZone("HST").getRawOffset() / 3600000 + ")",
-     * TimeZone.getTimeZone("AST").getDisplayName(false, TimeZone.SHORT) + " ("
-     * + TimeZone.getTimeZone("AST").getRawOffset() / 3600000 + ")",
-     * TimeZone.getTimeZone("AST").getDisplayName(true, TimeZone.SHORT) + " (" +
-     * (TimeZone.getTimeZone("AST").getRawOffset() + 100000) / 3600000 + ")",
-     * TimeZone.getTimeZone("PST").getDisplayName(false, TimeZone.SHORT) + " ("
-     * + TimeZone.getTimeZone("PST").getRawOffset() / 3600000 + ")",
-     * TimeZone.getTimeZone("PST").getDisplayName(true, TimeZone.SHORT) + " (" +
-     * (TimeZone.getTimeZone("PST").getRawOffset() + 100000) / 3600000 + ")",
-     * TimeZone.getTimeZone("MST").getDisplayName(false, TimeZone.SHORT) + " ("
-     * + TimeZone.getTimeZone("MST").getRawOffset() / 3600000 + ")",
-     * TimeZone.getTimeZone("MST").getDisplayName(true, TimeZone.SHORT) + " (" +
-     * (TimeZone.getTimeZone("MST").getRawOffset() + 100000) / 3600000 + ")",
-     * TimeZone.getTimeZone("CST").getDisplayName(false, TimeZone.SHORT) + " ("
-     * + TimeZone.getTimeZone("CST").getRawOffset() / 3600000 + ")",
-     * TimeZone.getTimeZone("CST").getDisplayName(true, TimeZone.SHORT) + " (" +
-     * (TimeZone.getTimeZone("CST").getRawOffset() + 100000) / 3600000 + ")",
-     * TimeZone.getTimeZone("EST").getDisplayName(false, TimeZone.SHORT) + " ("
-     * + TimeZone.getTimeZone("EST").getRawOffset() / 3600000 + ")",
-     * TimeZone.getTimeZone("EST").getDisplayName(true, TimeZone.SHORT) + " (" +
-     * (TimeZone.getTimeZone("EST").getRawOffset() + 100000) / 3600000 + ")",
-     * TimeZone.getTimeZone("SystemV/AST4").getDisplayName(false,
-     * TimeZone.SHORT) + " (" +
-     * TimeZone.getTimeZone("SystemV/AST4").getRawOffset() / 3600000 + ")",
-     * TimeZone.getTimeZone("GMT").getDisplayName(false, TimeZone.SHORT) +
-     * " (0)" };
-     */
     final String timeZoneIDs[] = { "Pacific/Guam", "HST", "AST", "AST", "PST",
             "PST", "MST", "MST", "CST", "CST", "EST", "EST", "SystemV/AST4",
             "GMT" };
@@ -225,7 +187,7 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         setShellStyle(getShellStyle() & ~SWT.APPLICATION_MODAL);
 
         parentShell = parShell;
-        this.title = dialogTitle;
+        title = dialogTitle;
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddzZ");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         yyyyMMdd = sdf.format(SimulatedTime.getSystemTime().getTime());
@@ -233,18 +195,14 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         Coordinate center = PointsDataManager.getInstance().getWfoCenter();
         latitudeValue = (float) center.y;
         longitudeValue = (float) center.x;
-
-        this.setupTimezones();
+        GC gc = new GC(parShell);
+        charWidth = gc.getCharWidth('x');
+        charHeight = gc.getFontMetrics().getHeight();
+        gc.dispose();
+        setupTimezones();
         zone = localTimeZoneString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets
-     * .Composite)
-     */
     @Override
     public Control createDialogArea(Composite parent) {
         top = (Composite) super.createDialogArea(parent);
@@ -293,21 +251,21 @@ public class SunriseToolDialog extends CaveJFACEDialog {
      */
     private void calculateSunriseSunset() {
 
-        suniseCalculator.calculate(longitudeValue, latitudeValue, zone,
+        sunriseCalculator.calculate(longitudeValue, latitudeValue, zone,
                 yearValue, monthValue, dayValue);
 
-        azimuthRise = suniseCalculator.getSunriseAzimuth();
-        azimuthSet = suniseCalculator.getSunsetAzimuth();
-        sunrise = suniseCalculator.getSunRiseTime();
-        sunset = suniseCalculator.getSunSetTime();
-        lengthOfDay = suniseCalculator.getDayLength();
+        azimuthRise = sunriseCalculator.getSunriseAzimuth();
+        azimuthSet = sunriseCalculator.getSunsetAzimuth();
+        sunrise = sunriseCalculator.getSunRiseTime();
+        sunset = sunriseCalculator.getSunSetTime();
+        lengthOfDay = sunriseCalculator.getDayLength();
 
         sunriseCanvas.redraw();
     }
 
     /**
      * Method for getting next location for screen layout
-     * 
+     *
      * @param isLabel
      *            boolean Pass true, to signify left column.
      * @return a FormData object
@@ -316,13 +274,12 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         FormData data = new FormData();
 
         if (isLabel) {
-            startX += 3;
             data.top = new FormAttachment(0, startY);
             data.left = new FormAttachment(0, 0);
         } else {
             data.top = new FormAttachment(0, startY);
-            data.left = new FormAttachment(0, 80);
-            startY += 34;
+            data.left = new FormAttachment(0, charWidth * 10);
+            startY += (int) (charHeight * 1.6);
         }
         return data;
     }
@@ -331,7 +288,6 @@ public class SunriseToolDialog extends CaveJFACEDialog {
      * Method for creating sunrise display.
      */
     private void createSunriseDisplay() {
-        startX = 0;
         startY = 0;
 
         sunriseDisplayComposite = new Composite(top, SWT.NONE);
@@ -343,16 +299,17 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         createFormLayoutLoc(false);
         FormData mDat = createFormLayoutLoc(true);
 
-        mDat.height = 260;
-        mDat.width = 250;
+        mDat.height = charWidth * 35;
+        mDat.width = charWidth * 38;
         mDat.top = new FormAttachment(0, 0);
-        sunriseCanvas = createSunriseChart(sunriseDisplayComposite,
-                mDat.height, mDat.width);
+        sunriseCanvas = createSunriseChart(sunriseDisplayComposite, mDat.height,
+                mDat.width);
         sunriseCanvas.setLayoutData(mDat);
+        circleSize = mDat.width / 2;
     }
 
     /**
-     * Method for creating the month, day, ect labels and fields.
+     * Method for creating the month, day, etc labels and fields.
      */
     private void createToolControls() {
         String[] zoneStrings = null;
@@ -360,7 +317,6 @@ public class SunriseToolDialog extends CaveJFACEDialog {
 
         sunriseFieldComposite = new Composite(top, SWT.NONE);
         sunriseFieldComposite.setLayout(new FormLayout());
-        sunriseFieldComposite.setSize(80, 360);
 
         GridData gridData = new GridData(GridData.FILL_BOTH);
         sunriseFieldComposite.setLayoutData(gridData);
@@ -369,33 +325,32 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         latitudeLabel.setText("Latitude:");
         latitudeLabel.setLayoutData(createFormLayoutLoc(true));
 
-        latitudeText = new Text(sunriseFieldComposite, SWT.SINGLE | SWT.RIGHT
-                | SWT.BORDER);
+        latitudeText = new Text(sunriseFieldComposite,
+                SWT.SINGLE | SWT.RIGHT | SWT.BORDER);
         FormData data = createFormLayoutLoc(false);
-        data.width = 52;
+        data.width = charWidth * 10;
         latitudeText.setLayoutData(data);
         latitudeText.setText("" + latitudeValue);
         latitudeText.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent e) {
                 String s = latitudeText.getText();
 
                 try {
                     latitudeValue = Float.parseFloat(s);
                     if (latitudeValue < -90 || latitudeValue > 90) {
-                        MessageDialog
-                                .openError(parentShell,
-                                        "Invalid Number Specified",
-                                        "Latitude must be between -90 and 90.  Please correct.");
+                        MessageDialog.openError(parentShell,
+                                "Invalid Number Specified",
+                                "Latitude must be between -90 and 90.  Please correct.");
 
                         latitudeText.setText("0.0");
                         latitudeText.setFocus();
                     }
                 } catch (NumberFormatException nfe) {
                     if (s.charAt(0) != '-') {
-                        MessageDialog
-                                .openError(parentShell,
-                                        "Invalid Number Specified",
-                                        "The input for the Latitude not a number.  Please correct.");
+                        MessageDialog.openError(parentShell,
+                                "Invalid Number Specified",
+                                "The input for the Latitude is not a number.  Please correct.");
                         latitudeText.setFocus();
                     }
                 }
@@ -406,13 +361,14 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         longitudeLabel.setText("Longitude:");
         longitudeLabel.setLayoutData(createFormLayoutLoc(true));
 
-        longitudeText = new Text(sunriseFieldComposite, SWT.SINGLE | SWT.RIGHT
-                | SWT.BORDER);
+        longitudeText = new Text(sunriseFieldComposite,
+                SWT.SINGLE | SWT.RIGHT | SWT.BORDER);
         data = createFormLayoutLoc(false);
-        data.width = 52;
+        data.width = charWidth * 10;
         longitudeText.setLayoutData(data);
         longitudeText.setText("" + longitudeValue);
         longitudeText.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent e) {
                 String s = longitudeText.getText();
 
@@ -420,10 +376,9 @@ public class SunriseToolDialog extends CaveJFACEDialog {
                     longitudeValue = Float.parseFloat(s);
                 } catch (NumberFormatException nfe) {
                     if (s.charAt(0) != '-') {
-                        MessageDialog
-                                .openError(parentShell,
-                                        "Invalid Number Specified",
-                                        "The input for the Longitude not a number.  Please correct.");
+                        MessageDialog.openError(parentShell,
+                                "Invalid Number Specified",
+                                "The input for the Longitude is not a number.  Please correct.");
                         longitudeText.setFocus();
                     }
                 }
@@ -432,9 +387,12 @@ public class SunriseToolDialog extends CaveJFACEDialog {
 
         setHomeLocButton = new Button(sunriseFieldComposite, SWT.PUSH);
         setHomeLocButton.setText("Set at Home location");
-        setHomeLocButton.setLayoutData(createFormLayoutLoc(true));
+        data = createFormLayoutLoc(true);
+        data.top = new FormAttachment(0, startY += charWidth / 2);
+        setHomeLocButton.setLayoutData(data);
         setHomeLocButton.addListener(SWT.MouseUp, new Listener() {
 
+            @Override
             public void handleEvent(Event event) {
                 Coordinate home = PointsDataManager.getInstance().getHome();
                 longitudeValue = (float) home.x;
@@ -447,7 +405,7 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         createFormLayoutLoc(false);
 
         data = createFormLayoutLoc(true);
-        data.top = new FormAttachment(0, startY += 10);
+        data.top = new FormAttachment(0, startY += charWidth * 2);
 
         yearLabel = new Label(sunriseFieldComposite, SWT.NONE);
         yearLabel.setText("Year:");
@@ -455,21 +413,22 @@ public class SunriseToolDialog extends CaveJFACEDialog {
 
         yearText = new Text(sunriseFieldComposite, SWT.SINGLE | SWT.BORDER);
         data = createFormLayoutLoc(false);
-        data.left = new FormAttachment(0, 70);
+        data.left = new FormAttachment(0, charWidth * 9);
         yearText.setLayoutData(data);
         yearText.setText(yyyyMMdd.substring(0, 4));
         yearValue = Integer.valueOf(yyyyMMdd.substring(0, 4));
 
         yearText.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent e) {
                 String s = yearText.getText();
 
                 try {
                     yearValue = Integer.parseInt(s);
                 } catch (NumberFormatException nfe) {
-                    MessageDialog
-                            .openError(parentShell, "Invalid Number Specified",
-                                    "The input for the Year is not valid.  Please correct.");
+                    MessageDialog.openError(parentShell,
+                            "Invalid Number Specified",
+                            "The input for the Year is not valid.  Please correct.");
                     yearText.setFocus();
                 }
             }
@@ -482,20 +441,21 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         monthText.setText(yyyyMMdd.substring(4, 6));
         monthValue = Integer.valueOf(yyyyMMdd.substring(4, 6));
         data = createFormLayoutLoc(false);
-        data.left = new FormAttachment(0, 70);
+        data.left = new FormAttachment(0, charWidth * 9);
 
         monthText.setLayoutData(data);
 
         monthText.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent e) {
                 String s = monthText.getText();
 
                 try {
                     monthValue = Integer.parseInt(s);
                 } catch (NumberFormatException nfe) {
-                    MessageDialog
-                            .openError(parentShell, "Invalid Number Specified",
-                                    "The input for the Month is not valid.  Please correct.");
+                    MessageDialog.openError(parentShell,
+                            "Invalid Number Specified",
+                            "The input for the Month is not valid.  Please correct.");
                     monthText.setFocus();
                 }
             }
@@ -508,46 +468,49 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         dayText.setText(yyyyMMdd.substring(6, 8));
         dayValue = Integer.valueOf(yyyyMMdd.substring(6, 8));
         data = createFormLayoutLoc(false);
-        data.left = new FormAttachment(0, 70);
+        data.left = new FormAttachment(0, charWidth * 9);
 
         dayText.setLayoutData(data);
 
         dayText.addModifyListener(new ModifyListener() {
+            @Override
             public void modifyText(ModifyEvent e) {
                 String s = dayText.getText();
 
                 try {
                     dayValue = Integer.parseInt(s);
                 } catch (NumberFormatException nfe) {
-                    MessageDialog
-                            .openError(parentShell, "Invalid Number Specified",
-                                    "The input for the Day not valid.  Please correct.");
+                    MessageDialog.openError(parentShell,
+                            "Invalid Number Specified",
+                            "The input for the Day is not valid.  Please correct.");
                     dayText.setFocus();
                 }
             }
         });
         zoneLabel = new Label(sunriseFieldComposite, SWT.NONE);
         zoneLabel.setText("Zone:");
-        zoneLabel.setLayoutData(createFormLayoutLoc(true));
+        data = createFormLayoutLoc(true);
+        data.top = new FormAttachment(0, startY += charWidth);
+        zoneLabel.setLayoutData(data);
 
         zoneStrings = new String[timezonesMap.size()];
         tzIterator = timezonesMap.keySet().iterator();
-        String key = null;
         for (int i = 0; i < zoneStrings.length; i++) {
             zoneStrings[i] = tzIterator.next();
-            key = tzIterator.toString();
         }
 
         zoneCombo = new Combo(sunriseFieldComposite, SWT.DROP_DOWN);
         zoneCombo.setItems(zoneStrings);
         data = createFormLayoutLoc(false);
-        data.left = new FormAttachment(0, 60);
+        data.left = new FormAttachment(0, charWidth * 8);
         zoneCombo.setLayoutData(data);
 
         zoneCombo.addSelectionListener(new SelectionListener() {
+            @Override
             public void widgetDefaultSelected(SelectionEvent e) {
             }
 
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 if (zoneCombo.getSelectionIndex() != -1) {
                     zone = timezonesMap.get(zoneCombo.getText());
@@ -560,9 +523,7 @@ public class SunriseToolDialog extends CaveJFACEDialog {
         /* Set Display Text To First Element In Combo Box */
         zoneCombo.setText(zoneStrings[0]);
         setCurrentTimeZone(zoneStrings);
-        ((FormData) zoneCombo.getLayoutData()).width = 90;
 
-        startX = 0;
         startY = 0;
     }
 
@@ -575,9 +536,9 @@ public class SunriseToolDialog extends CaveJFACEDialog {
 
         lTimeZoneString = localTimeZoneString();
         if (timezonesMap.containsValue(lTimeZoneString)) {
-            for (int i = 0; i < zoneStrings.length; i++) {
-                if (zoneStrings[i].contains(lTimeZoneString + "(")) {
-                    zoneCombo.setText(zoneStrings[i]);
+            for (String zoneString : zoneStrings) {
+                if (zoneString.contains(lTimeZoneString + "(")) {
+                    zoneCombo.setText(zoneString);
                 }
             }
         }
@@ -587,13 +548,13 @@ public class SunriseToolDialog extends CaveJFACEDialog {
      * @return
      */
     private String localTimeZoneString() {
-        String localTimeZone = new SimpleDateFormat("z").format(SimulatedTime
-                .getSystemTime().getTime());
+        String localTimeZone = new SimpleDateFormat("z")
+                .format(SimulatedTime.getSystemTime().getTime());
         return localTimeZone;
     }
 
     /**
-     * 
+     *
      * @param comp
      *            The parent composite
      * @param height
@@ -602,14 +563,13 @@ public class SunriseToolDialog extends CaveJFACEDialog {
      *            The width of the parent composite.
      * @return The canvas with the sunrise chart.
      */
-    private Canvas createSunriseChart(Composite comp, int height,
-            int canvasWidth) {
+    private Canvas createSunriseChart(Composite comp, final int height,
+            final int width) {
 
         final Canvas canvas = new Canvas(comp, SWT.NONE | SWT.BORDER);
-        final int width = canvasWidth;
-
         canvas.addPaintListener(new PaintListener() {
 
+            @Override
             public void paintControl(PaintEvent e) {
                 bgColor = e.gc.getBackground();
 
@@ -638,14 +598,16 @@ public class SunriseToolDialog extends CaveJFACEDialog {
                     }
                 }
 
-                e.gc.setBackground(Display.getCurrent().getSystemColor(
-                        SWT.COLOR_YELLOW));
-                e.gc.fillArc(CIRCLE_X, CIRCLE_Y, CIRCLE_SIZE, CIRCLE_SIZE,
+                e.gc.setBackground(
+                        Display.getCurrent().getSystemColor(SWT.COLOR_YELLOW));
+                int circleX = width / 2 - circleSize / 2;
+                int circleY = height / 2 - circleSize / 2;
+                e.gc.fillArc(circleX, circleY, circleSize, circleSize,
                         startAngle, arcAngle);
-                e.gc.setBackground(Display.getCurrent().getSystemColor(
-                        SWT.COLOR_BLACK));
+                e.gc.setBackground(
+                        Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
 
-                e.gc.drawArc(CIRCLE_X, CIRCLE_Y, CIRCLE_SIZE, CIRCLE_SIZE,
+                e.gc.drawArc(circleX, circleY, circleSize, circleSize,
                         startAngle, arcAngle);
 
                 e.gc.setBackground(bgColor);
@@ -653,52 +615,41 @@ public class SunriseToolDialog extends CaveJFACEDialog {
                 e.gc.setLineStyle(SWT.LINE_SOLID);
 
                 e.gc.drawString(sunrise, 5, 0);
-                e.gc.drawString(
-                        "Azimuth: " + decimalFormat.format(azimuthRise), 5, 20);
-                e.gc.drawString(sunset, width / 2 + 5, 0);
+                e.gc.drawString("Azimuth: " + decimalFormat.format(azimuthRise),
+                        5, charHeight);
+                e.gc.drawString(sunset, width - charWidth * 16, 0);
                 e.gc.drawString("Azimuth: " + decimalFormat.format(azimuthSet),
-                        width / 2 + 5, 20);
+                        width - charWidth * 16, charHeight);
 
                 // Center the Length of day string
                 int fontMid = e.gc.getFontMetrics().getAverageCharWidth()
                         * lengthOfDay.length();
-                e.gc.drawString(lengthOfDay, CIRCLE_X + CIRCLE_SIZE / 2
-                        - fontMid / 2, CIRCLE_Y + CIRCLE_SIZE + 20);
-                // e.gc.setFont(originalFont);
+                e.gc.drawString(lengthOfDay,
+                        circleX + circleSize / 2 - fontMid / 2,
+                        circleY + circleSize + charHeight);
                 e.gc.setLineWidth(2);
                 // N-S line.
-                e.gc.drawString(
-                        "N",
-                        CIRCLE_X + CIRCLE_SIZE / 2 - e.gc.getCharWidth('N') / 2,
-                        CIRCLE_Y - e.gc.getFontMetrics().getHeight());
-                e.gc.drawLine(CIRCLE_X + CIRCLE_SIZE / 2, CIRCLE_Y, CIRCLE_X
-                        + CIRCLE_SIZE / 2, CIRCLE_Y + CIRCLE_SIZE);
-                e.gc.drawString(
-                        "S",
-                        CIRCLE_X + CIRCLE_SIZE / 2 - e.gc.getCharWidth('S') / 2,
-                        CIRCLE_Y + CIRCLE_SIZE);
+                e.gc.drawString("N",
+                        circleX + circleSize / 2 - e.gc.getCharWidth('N') / 2,
+                        circleY - charHeight);
+                e.gc.drawLine(circleX + circleSize / 2, circleY,
+                        circleX + circleSize / 2, circleY + circleSize);
+                e.gc.drawString("S",
+                        circleX + circleSize / 2 - e.gc.getCharWidth('S') / 2,
+                        circleY + circleSize);
                 // W-E line.
-                e.gc.drawString("W", CIRCLE_X - e.gc.getCharWidth('W'),
-                        CIRCLE_Y + CIRCLE_SIZE / 2
-                                - e.gc.getFontMetrics().getHeight() / 2);
-                e.gc.drawLine(CIRCLE_X, CIRCLE_Y + CIRCLE_SIZE / 2, CIRCLE_X
-                        + CIRCLE_SIZE, CIRCLE_Y + CIRCLE_SIZE / 2);
+                e.gc.drawString("W", circleX - e.gc.getCharWidth('W'),
+                        circleY + circleSize / 2 - charHeight / 2);
+                e.gc.drawLine(circleX, circleY + circleSize / 2,
+                        circleX + circleSize, circleY + circleSize / 2);
                 e.gc.drawString("E",
-                        CIRCLE_X + CIRCLE_SIZE + e.gc.getCharWidth('E') / 2,
-                        CIRCLE_Y + CIRCLE_SIZE / 2
-                                - e.gc.getFontMetrics().getHeight() / 2);
+                        circleX + circleSize + e.gc.getCharWidth('E') / 2,
+                        circleY + circleSize / 2 - charHeight / 2);
             }
         });
         return canvas;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
@@ -710,9 +661,10 @@ public class SunriseToolDialog extends CaveJFACEDialog {
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         // override, so can add calculate as default button.
-        calculateButton = createButton(parent, CalculateID, "Calculate", false);
+        calculateButton = createButton(parent, CALCULATE_ID, "Calculate", false);
         calculateButton.addListener(SWT.MouseUp, new Listener() {
 
+            @Override
             public void handleEvent(Event event) {
                 calculateSunriseSunset();
             }

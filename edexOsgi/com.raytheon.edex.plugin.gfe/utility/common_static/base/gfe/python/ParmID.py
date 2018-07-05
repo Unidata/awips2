@@ -17,6 +17,20 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls 
+#
+##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 from com.raytheon.uf.common.dataplugin.gfe.db.objects import ParmID as JavaParmID
 import JUtil
@@ -56,7 +70,7 @@ class ParmID(JUtil.JavaWrapperClass):
                     self.__pid = JavaParmID(name, model, level)
 
     def __str__(self):
-        return str(self.__pid.toString())
+        return str(self.__pid)
 
     @staticmethod
     def defaultLevel():

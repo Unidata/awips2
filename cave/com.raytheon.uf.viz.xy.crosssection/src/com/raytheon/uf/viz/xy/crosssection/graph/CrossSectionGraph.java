@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -56,9 +56,9 @@ import com.raytheon.uf.viz.xy.graph.axis.LinearAxisPlacer;
 import com.raytheon.uf.viz.xy.graph.axis.LogarithmicAxisPlacer;
 import com.raytheon.uf.viz.xy.graph.labeling.IGraphLabel;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScale.ScaleType;
 import com.raytheon.viz.core.map.GeoUtil;
-import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.slice.request.HeightScale.ScaleType;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -67,36 +67,37 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * 
+ *
  * Creates a cross section on a graph display.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jul 03, 2010           bsteffen  Initial creation
- * Feb 15, 2013  1638     mschenke  Got rid of viz/edex topo classes 
+ * Feb 15, 2013  1638     mschenke  Got rid of viz/edex topo classes
  *                                  and moved into common
  * Aug 13, 2013  2262     dgilling  Use new wxmath hgt2pres method.
  * Jun 14, 2014  3242     njensen   Null safety checks
  * Oct 27, 2015  5051     bsteffen  Use cached topo
  * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
- * 
+ * Jul 24, 2017  6048     mapeters  Prevent possible error in constructVirtualExtent()
+ *                                  when resources have no datatimes
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
- * @version 1.0
  */
 public class CrossSectionGraph extends AbstractGraph {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CrossSectionGraph.class);
 
-    private Map<LineString, IWireframeShape> topoLines = new HashMap<LineString, IWireframeShape>();
+    private Map<LineString, IWireframeShape> topoLines = new HashMap<>();
 
-    private Map<LineString, double[]> topoData = new HashMap<LineString, double[]>();
+    private Map<LineString, double[]> topoData = new HashMap<>();
 
-    private Map<LineString, String[]> cityData = new HashMap<LineString, String[]>();
+    private Map<LineString, String[]> cityData = new HashMap<>();
 
     private int zoomLevel = 1;
 
@@ -107,30 +108,26 @@ public class CrossSectionGraph extends AbstractGraph {
         super(descriptor);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.graph.AbstractGraph#canHandleResoruce(com.raytheon
-     * .uf.viz.xy.map.rsc.IGraphableResource)
-     */
     @Override
     protected boolean canHandleResoruce(IGraphableResource<?, ?> rsc) {
         return rsc instanceof AbstractCrossSectionResource;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#constructVirtualExtent()
-     */
     @Override
     protected void constructVirtualExtent() {
-        ArrayList<IGraphLabel<Double>> xLabels = new ArrayList<IGraphLabel<Double>>();
-        double[] minMaxX = new double[2];
+        ArrayList<IGraphLabel<Double>> xLabels = new ArrayList<>();
         getRangeData(xLabels, new ArrayList<IGraphLabel<Double>>());
-        minMaxX[0] = xLabels.get(0).getDiscreteValue();
-        minMaxX[1] = xLabels.get(xLabels.size() - 1).getDiscreteValue();
+
+        double minX, maxX;
+        if (!xLabels.isEmpty()) {
+            minX = xLabels.get(0).getDiscreteValue();
+            maxX = xLabels.get(xLabels.size() - 1).getDiscreteValue();
+        } else {
+            // Setting min/max to the same value causes no labels to be shown
+            minX = 0;
+            maxX = 0;
+        }
+
         HeightScale heightScale = ((CrossSectionDescriptor) descriptor)
                 .getHeightScale();
         if (heightScale.getScale() == ScaleType.LOG) {
@@ -140,8 +137,7 @@ public class CrossSectionGraph extends AbstractGraph {
             xAxisPlacer = new LinearAxisPlacer(graphExtent.getHeight(),
                     heightScale.getMinVal(), heightScale.getMaxVal());
         }
-        yAxisPlacer = new LinearAxisPlacer(graphExtent.getWidth(), minMaxX[0],
-                minMaxX[1]);
+        yAxisPlacer = new LinearAxisPlacer(graphExtent.getWidth(), minX, maxX);
 
         updateVirtualExtent();
         for (IWireframeShape shape : topoLines.values()) {
@@ -153,11 +149,6 @@ public class CrossSectionGraph extends AbstractGraph {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#createAxes()
-     */
     @Override
     protected void createAxes() {
         if (yAxisPlacer != null && xAxisPlacer != null) {
@@ -180,14 +171,6 @@ public class CrossSectionGraph extends AbstractGraph {
         super.paint(target, paintProps);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.graph.AbstractGraph#paintTitles(com.raytheon.uf
-     * .viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintTitles(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -229,17 +212,9 @@ public class CrossSectionGraph extends AbstractGraph {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.graph.AbstractGraph#paintUnits(com.raytheon.uf
-     * .viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
-    protected void paintUnits(IGraphicsTarget target, PaintProperties paintProps)
-            throws VizException {
+    protected void paintUnits(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
         if (unitsFont == null) {
             unitsFont = target.initializeFont((String) null, 8,
                     new IFont.Style[] {});
@@ -255,21 +230,6 @@ public class CrossSectionGraph extends AbstractGraph {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#reconstruct()
-     */
-    @Override
-    public void reconstruct() {
-        super.reconstruct();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#dispose()
-     */
     @Override
     public void dispose() {
         for (IWireframeShape shape : topoLines.values()) {
@@ -308,7 +268,7 @@ public class CrossSectionGraph extends AbstractGraph {
         if (y > (paintProps.getView().getExtent().getMaxY() - (height * 3.5))) {
             y = paintProps.getView().getExtent().getMaxY() - (height * 3.5);
         }
-        List<DrawableString> labels = new ArrayList<DrawableString>();
+        List<DrawableString> labels = new ArrayList<>();
         for (int i = 0; i < cities.length; i++) {
             if (cities[i] == null) {
                 continue;
@@ -349,7 +309,7 @@ public class CrossSectionGraph extends AbstractGraph {
         if (y > (paintProps.getView().getExtent().getMaxY() - (height * 2.5))) {
             y = paintProps.getView().getExtent().getMaxY() - (height * 2.5);
         }
-        List<DrawableString> labels = new ArrayList<DrawableString>();
+        List<DrawableString> labels = new ArrayList<>();
         for (double d = yAxisPlacer.getMinDataValue(); d <= yAxisPlacer
                 .getMaxDataValue(); d += inc) {
             String label = Integer.toString((int) Math.round(d / 1000));
@@ -391,7 +351,8 @@ public class CrossSectionGraph extends AbstractGraph {
             double[][] lineSegment = new double[topoData.length][2];
             for (int i = 0; i < topoData.length; i++) {
                 lineSegment[i][0] = graphExtent.getMinX()
-                        + ((i * graphExtent.getWidth()) / (topoData.length - 1));
+                        + ((i * graphExtent.getWidth())
+                                / (topoData.length - 1));
                 lineSegment[i][1] = topoData[i];
                 lineSegment[i][1] = Math.min(lineSegment[i][1],
                         graphExtent.getMaxY());
@@ -470,23 +431,23 @@ public class CrossSectionGraph extends AbstractGraph {
                 cities[i] = GeoUtil.formatCoordinate(cityCoords[i]);
                 double tolerance = 2.0;
                 Envelope env = new Envelope(cityCoords[i].x - tolerance,
-                        cityCoords[i].x + tolerance, cityCoords[i].y
-                                - tolerance, cityCoords[i].y + tolerance);
+                        cityCoords[i].x + tolerance,
+                        cityCoords[i].y - tolerance,
+                        cityCoords[i].y + tolerance);
                 Geometry geom = gf.toGeometry(env);
 
-                Map<String, String> map = new HashMap<String, String>();
+                Map<String, String> map = new HashMap<>();
                 map.put("WARNGENLEV", "1");
                 boolean exclusive = false;
                 SpatialQueryResult[] features;
                 try {
                     features = SpatialQueryFactory.create().query("City",
-                            new String[] { "NAME", "ST" }, geom, map,
-                            exclusive, SearchMode.CONTAINS);
+                            new String[] { "NAME", "ST" }, geom, map, exclusive,
+                            SearchMode.CONTAINS);
                 } catch (SpatialException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Error occured requesting City data, cities will be unavailable.",
-                                    e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Error occured requesting City data, cities will be unavailable.",
+                            e);
                     return new String[0];
                 }
 

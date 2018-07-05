@@ -18,17 +18,21 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="/s" name="Shear (Vector)" abbreviation="Shear" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="/s" name="Shear (Vector)" abbreviation="Shear">
     <Method levels="C" name="Derivative">
-        <Field level="upper" abbreviation="Wind"/>
-        <Field level="lower" abbreviation="Wind"/>
-        <Field level="upper" abbreviation="GH"/>
-        <Field level="lower" abbreviation="GH"/>
+        <Field level="upper" abbreviation="Wind" />
+        <Field level="lower" abbreviation="Wind" />
+        <Field level="upper" abbreviation="GH" />
+        <Field level="lower" abbreviation="GH" />
     </Method>
     <Method levels="S" name="Derivative">
-        <Field level="upper" abbreviation="Wind"/>
-        <Field abbreviation="Wind"/>
-        <Field level="upper" abbreviation="GH"/>
-        <Field abbreviation="GH"/>
+        <Field level="upper" abbreviation="Wind" />
+        <Field abbreviation="Wind" />
+        <Field level="upper" abbreviation="GH" />
+        <Field abbreviation="GH" />
     </Method>
 </DerivedParameter>

@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.geotiff.rsc;
 
-import java.io.IOException;
-
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -33,7 +31,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
- * TODO Add Description
+ * Used to load a geotiff from a particular file.
  * 
  * <pre>
  * 
@@ -41,13 +39,12 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Feb 18, 2009            bgonzale     Initial creation
+ * Oct 25, 2017  5773      bsteffen     Remove unnecessary exception handling.
  * 
  * </pre>
  * 
  * @author bgonzale
- * @version 1.0
  */
-
 @XmlAccessorType(XmlAccessType.NONE)
 public class GeoTiffResourceData extends AbstractResourceData {
 
@@ -76,33 +73,25 @@ public class GeoTiffResourceData extends AbstractResourceData {
     @Override
     public GeoTiffResource construct(LoadProperties loadProperties,
             IDescriptor descriptor) throws VizException {
-        try {
-            return new GeoTiffResource(this, loadProperties);
-        } catch (IOException e) {
-            throw new VizException(
-                    "Failed to initialize a GeoTiffResource for file "
-                            + fileName, e);
-        }
+        return new GeoTiffResource(this, loadProperties);
     }
 
-    @Override
-    public void update(Object updateData) {
-        // TODO Auto-generated method stub
-    }
-
-    /**
-     * @return the filename
-     */
     public String getFilename() {
         return fileName;
     }
 
-    /**
-     * @param filename
-     *            the filename to set
-     */
     public void setFilename(String filename) {
         this.fileName = filename;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((fileName == null) ? 0 : fileName.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        return result;
     }
 
     @Override
@@ -110,28 +99,27 @@ public class GeoTiffResourceData extends AbstractResourceData {
         if (this == obj) {
             return true;
         }
-        if (obj == null || obj instanceof GeoTiffResourceData == false) {
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
             return false;
         }
         GeoTiffResourceData other = (GeoTiffResourceData) obj;
-
-        if (this.fileName != null && other.fileName == null) {
-            return false;
-        } else if (this.fileName == null && other.fileName != null) {
-            return false;
-        } else if (this.fileName != null
-                && this.fileName.equals(other.fileName) == false) {
+        if (fileName == null) {
+            if (other.fileName != null) {
+                return false;
+            }
+        } else if (!fileName.equals(other.fileName)) {
             return false;
         }
-
-        if (this.name != null && other.name == null) {
-            return false;
-        } else if (this.name == null && other.name != null) {
-            return false;
-        } else if (this.name != null && this.name.equals(other.name) == false) {
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
             return false;
         }
-
         return true;
     }
 

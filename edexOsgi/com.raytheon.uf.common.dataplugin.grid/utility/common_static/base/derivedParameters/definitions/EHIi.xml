@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--  COMMENT:
 // EHI/BRN Shear interaction - 72% supercells tornadic - Davies, SLS 1995
 
@@ -27,16 +31,17 @@ FIELD: |1.|
 
 NEW FILE - EHIi.xml
 -->
-<DerivedParameter name="Energy Helicity Index" abbreviation="EHIi" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="Energy Helicity Index" abbreviation="EHIi" xmlns:ns2="group"
+    xmlns:ns3="http://www.example.org/productType">
     <Method levels="Layer" name="Test">
-        <Field abbreviation="EHI"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="-1e37"/>
-        <ConstantField value="2.49"/>
-        <ConstantField value="0.0"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="2.49"/>
-        <ConstantField value="1e37"/>
-        <ConstantField value="1.0"/>
+        <Field abbreviation="EHI" />
+        <ConstantField value="1.0" />
+        <ConstantField value="-1e37" />
+        <ConstantField value="2.49" />
+        <ConstantField value="0.0" />
+        <ConstantField value="1.0" />
+        <ConstantField value="2.49" />
+        <ConstantField value="1e37" />
+        <ConstantField value="1.0" />
     </Method>
 </DerivedParameter>

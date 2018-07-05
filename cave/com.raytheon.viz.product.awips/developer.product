@@ -25,7 +25,7 @@
 -Dlogback.configurationFile=logback-viz-core-developer.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
--Dviz.memory.warn.threshold=99
+-Dviz.memory.warn.threshold=10M
 -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
 -Dhttps.certificate.check=false
 -Djava.library.path=/awips2/python/lib/python2.7/site-packages/jep
@@ -37,8 +37,9 @@
 -XX:G1MixedGCLiveThresholdPercent=25
 -XX:G1OldCSetRegionThresholdPercent=25
 -XX:G1HeapWastePercent=5
--DvizVersion=17.1.1
--DbuildSystem=macOS/Eclipse
+-DvizVersion=18.1.1
+-DbuildSystem=RHEL/Eclipse
+-XX:SoftRefLRUPolicyMSPerMB=1000
       </vmArgs>
       <vmArgsWin>-Dfile.encoding=UTF-8
       </vmArgsWin>

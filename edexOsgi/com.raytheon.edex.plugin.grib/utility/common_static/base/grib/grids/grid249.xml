@@ -18,10 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <polarStereoGridCoverage>
     <name>249</name>
     <description>Grid over Alaska for 10-km Alaska nest (Polar
-		Stereographic)</description>
+        Stereographic)</description>
     <la1>45.4</la1>
     <lo1>-171.6</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>

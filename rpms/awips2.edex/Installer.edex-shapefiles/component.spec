@@ -17,10 +17,12 @@ Packager: %{_build_site}
 AutoReq: no
 Provides: awips2-edex-shapefiles
 Requires: awips2
+Requires: awips2-edex
 Requires: awips2-edex-base
 
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+# disable jar repacking
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
 
 %description
@@ -58,18 +60,16 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-%pre
+mkdir -p %{_build_root}/awips2/edex/data/utility/edex_static/base/shapefiles/WarnGenLoc
+if [ $? -ne 0 ]; then
+   exit 1 
+fi
 
 %post
-
-%preun
-
-%postun
 
 %clean
 rm -rf ${RPM_BUILD_ROOT}
 
 %files
 %defattr(775,awips,fxalpha,755)
-%dir /awips2/edex
 /awips2/edex/*

@@ -26,6 +26,13 @@
 #    ??              ??            ??             Initial creation
 #    02/10/2016      5283          nabowle        Remove NGM support.
 #---------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
+#---------------------------------------------------------------------
 #
 #  B O I V E R I F Y   C O N F I G U R A T I O N
 #
@@ -102,7 +109,7 @@ SAVE_MODELS=["GFS40","GFS40BC","ADJMAV","ADJMAVBC","ADJMEX","ADJMEXBC",
             "ADJMEH","ADJMEN","ADJMEL",
             "MOSGuide","MOSGuideBC",
             "NAM12","NAM12BC","ADJMET","ADJMETBC",
-            "ADJDGX","ADJDGXBC",
+            "DGEX","DGEXBC","ADJDGX","ADJDGXBC",
             "ADJFWC","ADJFWCBC",
             "ADJKAF","ADJKAFBC",
             "SREF","SREFBC",
@@ -208,7 +215,9 @@ START_OFFSET_HOURS={"MaxT":12,
 #  then for a 15Z run of the SREF model - we will add -3 hours to that,
 #  getting 12Z - and check for other 12Z models when finding common cases.
 #     
-BASE_OFFSET={"ADJDGX":6,
+BASE_OFFSET={"DGEX":6,
+             "DGEXBC":6,
+             "ADJDGX":6,
              "ADJDGXBC":6,
              "SREF":-3,
              "SREFBC":-3,

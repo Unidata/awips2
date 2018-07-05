@@ -1,36 +1,8 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.legend;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleResourceManager;
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool.EnsembleToolMode;
-import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
-import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
-import gov.noaa.gsd.viz.ensemble.display.common.GeneratedGridResourceHolder;
-import gov.noaa.gsd.viz.ensemble.display.common.GeneratedTimeSeriesResourceHolder;
-import gov.noaa.gsd.viz.ensemble.display.common.GridResourceHolder;
-import gov.noaa.gsd.viz.ensemble.display.common.HistogramGridResourceHolder;
-import gov.noaa.gsd.viz.ensemble.display.common.TimeSeriesResourceHolder;
-import gov.noaa.gsd.viz.ensemble.display.rsc.histogram.HistogramResource;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.EnsembleToolViewer;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common.ContextMenuManager;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common.DistributionViewerComposite;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common.GlobalPreferencesComposite;
-import gov.noaa.gsd.viz.ensemble.util.ChosenGEFSColors;
-import gov.noaa.gsd.viz.ensemble.util.ChosenSREFColors;
-import gov.noaa.gsd.viz.ensemble.util.EnsembleGEFSColorChooser;
-import gov.noaa.gsd.viz.ensemble.util.EnsembleSREFColorChooser;
-import gov.noaa.gsd.viz.ensemble.util.GlobalColor;
-import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
-import gov.noaa.gsd.viz.ensemble.util.Utilities;
-
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -76,15 +48,45 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
+import org.eclipse.ui.progress.UIJob;
 
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.StyleException;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
+import com.raytheon.uf.viz.core.grid.rsc.AbstractGridResource;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.viz.grid.rsc.general.D2DGridResource;
+
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool.EnsembleToolMode;
+import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
+import gov.noaa.gsd.viz.ensemble.display.common.EnsembleMembersHolder;
+import gov.noaa.gsd.viz.ensemble.display.common.GeneratedGridResourceHolder;
+import gov.noaa.gsd.viz.ensemble.display.common.GeneratedTimeSeriesResourceHolder;
+import gov.noaa.gsd.viz.ensemble.display.common.GridResourceHolder;
+import gov.noaa.gsd.viz.ensemble.display.common.HistogramGridResourceHolder;
+import gov.noaa.gsd.viz.ensemble.display.common.TimeSeriesResourceHolder;
+import gov.noaa.gsd.viz.ensemble.display.control.contour.ContourControlDialog;
+import gov.noaa.gsd.viz.ensemble.display.rsc.histogram.HistogramResource;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.EnsembleToolViewer;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common.ContextMenuManager;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common.DistributionViewerComposite;
+import gov.noaa.gsd.viz.ensemble.util.ChosenGEFSColors;
+import gov.noaa.gsd.viz.ensemble.util.ChosenSREFColors;
+import gov.noaa.gsd.viz.ensemble.util.EnsembleGEFSColorChooser;
+import gov.noaa.gsd.viz.ensemble.util.EnsembleSREFColorChooser;
+import gov.noaa.gsd.viz.ensemble.util.GlobalColor;
+import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
+import gov.noaa.gsd.viz.ensemble.util.Utilities;
 
 /***
  * 
@@ -99,6 +101,13 @@ import com.raytheon.viz.grid.rsc.general.D2DGridResource;
  * Date          Ticket#    Engineer      Description
  * ------------ ---------- ----------- --------------------------
  * Oct 15, 2015   12565      polster     Initial creation
+ * Dec 14, 2016   19443      polster     added isWidgetReady method
+ * Dec 29, 2016   19325      jing        Legend for an image member
+ * Feb 17, 2017   19325      jing        Added ERF image capability
+ * Mar 01, 2017   19443      polster     Clear all method force clears to empty map
+ * Mar 17  2017   19443      jing        Resource group behavior added
+ * Mar 31, 2017   19598      jing        Contour control feature
+ * Jan 10, 2018   20524      polster     Fixed time series get legend name
  * 
  * </pre>
  * 
@@ -107,7 +116,8 @@ import com.raytheon.viz.grid.rsc.general.D2DGridResource;
  */
 public class LegendBrowserComposite extends Composite {
 
-    private EnsembleToolViewer mainToolView = null;
+    private static final transient IUFStatusHandler statusHandler = UFStatus
+            .getHandler(LegendBrowserComposite.class);
 
     private DistributionViewerComposite distributionViewerComposite = null;
 
@@ -127,6 +137,8 @@ public class LegendBrowserComposite extends Composite {
 
     final private ITreeViewerListener expandCollapseListener = new LegendTreeExpandCollapseListener();
 
+    private ContourControlDialog contourDialog = null;
+
     private ERFProductDialog erfDialog = null;
 
     protected TreeItem foundTreeItem = null;
@@ -135,7 +147,15 @@ public class LegendBrowserComposite extends Composite {
 
     private ArrayList<ColumnLabelProvider> columnLabelProviders = new ArrayList<ColumnLabelProvider>();
 
+    private LegendNameTreeColumnLabelProvider columnNameLabelProvider = null;
+
+    private LegendTimeTreeColumnLabelProvider columnTimeLabelProvider = null;
+
     private MenuItem addERFLayerMenuItem = null;
+
+    private MenuItem addERFImageLayerMenuItem = null;
+
+    private MenuItem contourMenuItem = null;
 
     private TreeViewerColumn column0 = null;
 
@@ -143,25 +163,34 @@ public class LegendBrowserComposite extends Composite {
 
     private final long elegantWaitPeriod = 100;
 
-    private AbstractVizResource<?, ?> currentEnsembleRsc = null;
+    private final Font legendTimeFont = SWTResourceManager
+            .getFont("courier new", 8, SWT.BOLD);
 
-    private boolean CTRL_KEY_DEPRESSED = false;
+    private final Font legendNameFont = SWTResourceManager
+            .getFont("courier new", 8, SWT.BOLD);
 
-    private List<Image> imageCache = null;
+    /*
+     * Padding used as tree viewer column headers are not very cosmetically
+     * controllable.
+     */
+    private static final String HEADER_GRID_PRODUCTS = "Products";
 
-    // private FramesInfo currentFramesInfo;
+    private static final String HEADER_VALID_TIME = "Time";
 
-    // If an item in the tree is toggled, need not clear the distribution viewer
-    // when refreshing the tree.
+    private static final String HEADER_CYCLE_TIME = "Cycle Time";
+
+    /*
+     * If an item in the tree is toggled, need not clear the distribution viewer
+     * when refreshing the tree.
+     */
     boolean isItemToggled = false;
 
     public LegendBrowserComposite(Composite parentTabFolder, int style,
             EnsembleToolViewer ownerView, CTabItem itemLegendsTabItem) {
         super(parentTabFolder, style);
+
         ensembleToolTabFolder = (CTabFolder) parentTabFolder;
-        mainToolView = ownerView;
         legendsTabItem = itemLegendsTabItem;
-        imageCache = new ArrayList<>();
         createBody();
     }
 
@@ -175,8 +204,8 @@ public class LegendBrowserComposite extends Composite {
          * contain a tab folder displaying a distribution viewer tool.
          */
         rootComposite = new Composite(ensembleToolTabFolder, SWT.NONE);
-        GridData rootComposite_gd = new GridData(SWT.FILL, SWT.FILL, true,
-                true, 1, 1);
+        GridData rootComposite_gd = new GridData(SWT.FILL, SWT.FILL, true, true,
+                1, 1);
         rootComposite.setLayoutData(rootComposite_gd);
         GridLayout rootComposite_gl = new GridLayout(1, true);
         rootComposite_gl.marginWidth = 0;
@@ -230,8 +259,9 @@ public class LegendBrowserComposite extends Composite {
         legendRootContainerScrolledComposite.setExpandVertical(true);
 
         /* Legend tab contains a tree of legends */
-        legendsTree = new Tree(legendRootContainerScrolledComposite, SWT.BORDER
-                | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SINGLE | SWT.FULL_SELECTION);
+        legendsTree = new Tree(legendRootContainerScrolledComposite,
+                SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.SINGLE
+                        | SWT.FULL_SELECTION);
         legendsTree.setLinesVisible(true);
         legendsTree.setHeaderVisible(true);
         legendsTreeViewer = new TreeViewer(legendsTree);
@@ -250,7 +280,7 @@ public class LegendBrowserComposite extends Composite {
         legendsTabItem.setControl(rootComposite);
 
         legendsTreeViewer.setContentProvider(new LegendTreeContentProvider());
-        legendsTreeViewer.setSorter(new EnsembleTreeSorter());
+        legendsTreeViewer.setSorter(new LegendTreeSorter());
 
         legendsTree.addKeyListener(new LegendTreeKeyListener());
 
@@ -259,24 +289,24 @@ public class LegendBrowserComposite extends Composite {
     private void createColumns(TreeViewer legendsTableViewer) {
 
         column0 = new TreeViewerColumn(legendsTableViewer, SWT.LEFT);
-        column0.getColumn().setWidth(220);
+        column0.getColumn().setWidth(265);
         column0.getColumn().setMoveable(false);
-        column0.getColumn().setText("   Grid Products");
+        column0.getColumn().setText(HEADER_GRID_PRODUCTS);
         column0.getColumn().setAlignment(SWT.LEFT);
 
-        LegendNameTreeColumnLabelProvider cnlp = new LegendNameTreeColumnLabelProvider();
-        columnLabelProviders.add(cnlp);
-        column0.setLabelProvider(cnlp);
+        columnNameLabelProvider = new LegendNameTreeColumnLabelProvider();
+        columnLabelProviders.add(columnNameLabelProvider);
+        column0.setLabelProvider(columnNameLabelProvider);
 
         column1 = new TreeViewerColumn(legendsTableViewer, SWT.LEFT);
-        column1.getColumn().setWidth(220);
+        column1.getColumn().setWidth(200);
         column1.getColumn().setMoveable(false);
-        column1.getColumn().setText("   Time");
+        column1.getColumn().setText(HEADER_VALID_TIME);
         column1.getColumn().setAlignment(SWT.LEFT);
 
-        LegendTimeTreeColumnLabelProvider ctlp = new LegendTimeTreeColumnLabelProvider();
-        columnLabelProviders.add(ctlp);
-        column1.setLabelProvider(ctlp);
+        columnTimeLabelProvider = new LegendTimeTreeColumnLabelProvider();
+        columnLabelProviders.add(columnTimeLabelProvider);
+        column1.setLabelProvider(columnTimeLabelProvider);
 
     }
 
@@ -288,7 +318,7 @@ public class LegendBrowserComposite extends Composite {
         distributionViewerComposite = new DistributionViewerComposite(
                 rootSashForm, SWT.NONE);
 
-        // Initial as an example PDFCDF chart in the Distribution Viewer.
+        // TODO Initial as an example PDFCDF chart in the Distribution Viewer.
         // It's a test and developing tool for adding new chart tool, and fixing
         // bug. Keep it!
         // distributionViewerComposite.getGhGUI()
@@ -304,8 +334,12 @@ public class LegendBrowserComposite extends Composite {
     @Override
     public void dispose() {
 
-        for (Image img : imageCache) {
-            img.dispose();
+        if (columnNameLabelProvider != null) {
+            columnNameLabelProvider.dispose();
+        }
+
+        if (columnTimeLabelProvider != null) {
+            columnTimeLabelProvider.dispose();
         }
 
         if (columnLabelProviders != null) {
@@ -317,7 +351,7 @@ public class LegendBrowserComposite extends Composite {
             erfDialog.close();
         }
 
-        if (isViewerTreeReady()) {
+        if (isWidgetReady()) {
 
             legendsTree.removeAll();
             legendsTree.dispose();
@@ -335,7 +369,7 @@ public class LegendBrowserComposite extends Composite {
     protected boolean anyChildrenToggleOn(String productName) {
         boolean anyChildrenToggledOn = false;
 
-        TreeItem parentItem = findTreeItemByLabelName(productName);
+        TreeItem parentItem = findTreeItemByLabelName(productName, true);
 
         List<TreeItem> descendants = new ArrayList<TreeItem>();
         getAllDescendants(parentItem, descendants);
@@ -369,6 +403,30 @@ public class LegendBrowserComposite extends Composite {
     }
 
     /*
+     * This method wraps the method of the same name which is either called from
+     * the main (GUI) thread or not. See method matchParentToChildrenVisibility
+     * below this method for a description of what these methods do.
+     * 
+     */
+    protected void matchParentToChildrenVisibility(TreeItem ci,
+            boolean useMainThread) {
+
+        final TreeItem childItem = ci;
+        if (useMainThread) {
+            VizApp.runSync(new Runnable() {
+
+                @Override
+                public void run() {
+                    matchParentToChildrenVisibility(childItem);
+                }
+            });
+
+        } else {
+            matchParentToChildrenVisibility(childItem);
+        }
+    }
+
+    /*
      * The tree items in the tree are grouped by a top level ensemble name whose
      * children are all ensemble members (viz-resources). Visibility defines
      * whether the resource is visible on the main CAVE map, or not.
@@ -377,109 +435,137 @@ public class LegendBrowserComposite extends Composite {
      * item (ensemble name) must also be NOT-grayed-out. Likewise, if all
      * children resources of a given parent are invisible then the parent tree
      * item should be grayed out.
+     * 
+     * This call must be called from a method which is running on the main
+     * thread.
      */
     protected void matchParentToChildrenVisibility(TreeItem ci) {
 
         final TreeItem childItem = ci;
-        VizApp.runSync(new Runnable() {
+        if (!isWidgetReady() || childItem == null || childItem.isDisposed()
+                || childItem.getParentItem() == null
+                || childItem.getParentItem().isDisposed()) {
+            return;
+        }
 
-            @Override
-            public void run() {
+        final TreeItem parentItem = childItem.getParentItem();
 
-                if (!isViewerTreeReady()) {
-                    return;
+        final Object d = parentItem.getData();
+        if (d instanceof EnsembleMembersHolder) {
+
+            List<TreeItem> descendants = new ArrayList<TreeItem>();
+            getAllDescendants(parentItem, descendants);
+
+            boolean ai = true;
+
+            for (TreeItem ti : descendants) {
+                Object data = ti.getData();
+                if (data instanceof EnsembleMembersHolder) {
+                    continue;
                 }
-                if (childItem == null) {
-                    return;
-                }
-                if (childItem.isDisposed()) {
-                    return;
-                }
-                if (childItem.getParentItem() == null) {
-                    return;
-                }
-                if (childItem.getParentItem().isDisposed()) {
-                    return;
-                }
-                final TreeItem parentItem = childItem.getParentItem();
-
-                final Object d = parentItem.getData();
-                if (d instanceof String) {
-
-                    List<TreeItem> descendants = new ArrayList<TreeItem>();
-                    getAllDescendants(parentItem, descendants);
-
-                    boolean ai = true;
-
-                    for (TreeItem ti : descendants) {
-                        Object data = ti.getData();
-                        if (data instanceof AbstractResourceHolder) {
-                            AbstractResourceHolder gr = (AbstractResourceHolder) data;
-                            AbstractVizResource<?, ?> rsc = gr.getRsc();
-                            if (rsc.getProperties().isVisible()) {
-                                ai = false;
-                                break;
-                            }
-                        }
-                    }
-
-                    final boolean allInvisible = ai;
-
-                    /* if all invisible then make sure the parent is grayed-out. */
-                    if (allInvisible) {
-                        parentItem.setForeground(EnsembleToolViewer
-                                .getDisabledForegroundColor());
-                        if (isViewerTreeReady()) {
-                            legendsTreeViewer.getTree().deselectAll();
-                        }
-                    }
-                    /*
-                     * otherwise, if any one item is visible then make sure the
-                     * parent is normalized.
-                     */
-
-                    else {
-                        parentItem.setForeground(EnsembleToolViewer
-                                .getEnabledForegroundColor());
-                        if (isViewerTreeReady()) {
-                            legendsTreeViewer.getTree().deselectAll();
-                        }
+                if (data instanceof AbstractResourceHolder) {
+                    AbstractResourceHolder gr = (AbstractResourceHolder) data;
+                    AbstractVizResource<?, ?> rsc = gr.getRsc();
+                    if (rsc.getProperties().isVisible()) {
+                        ai = false;
+                        break;
                     }
                 }
             }
-        });
+
+            final boolean allInvisible = ai;
+
+            /*
+             * if all invisible then make sure the parent is grayed-out.
+             */
+            if (allInvisible) {
+                parentItem.setForeground(
+                        EnsembleToolViewer.getDisabledForegroundColor());
+                legendsTreeViewer.getTree().deselectAll();
+            }
+            /*
+             * otherwise, if any one item is visible then make sure the parent
+             * is normalized.
+             */
+
+            else {
+                parentItem.setForeground(
+                        EnsembleToolViewer.getEnabledForegroundColor());
+                legendsTreeViewer.getTree().deselectAll();
+            }
+        }
+    }
+
+    /*
+     * This method wraps the method of the same name which is either called from
+     * the main (GUI) thread or not. See method findTreeItemByLabelName below
+     * this method for a description of what these methods do.
+     * 
+     */
+    private TreeItem findTreeItemByLabelName(final String name,
+            final boolean useMainThread) {
+
+        if (isWidgetReady()) {
+            /*
+             * If we are not already on the ui main thread
+             */
+            if (useMainThread) {
+                VizApp.runSync(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        foundTreeItem = findTreeItemByLabelName(name);
+                    }
+                });
+            }
+            /*
+             * otherwise, we are already on the ui main thread
+             */
+            else {
+                foundTreeItem = findTreeItemByLabelName(name);
+            }
+        }
+        return foundTreeItem;
+
     }
 
     /*
      * This searches only root level items to see if a root item of a given name
-     * has any children (ensemble members) and, if so, returns those children.
+     * has any children (ensemble members) and, if so, returns that tree item.
+     * 
+     * This call must be called from a method which is running on the main
+     * thread.
      */
     private TreeItem findTreeItemByLabelName(final String name) {
 
-        VizApp.runSync(new Runnable() {
+        TreeItem[] allRoots = legendsTree.getItems();
 
-            @Override
-            public void run() {
-                TreeItem[] allRoots = legendsTree.getItems();
+        for (TreeItem ti : allRoots) {
+            if (ti.getData() instanceof AbstractResourceHolder) {
 
-                for (TreeItem ti : allRoots) {
-                    if (ti.getData() instanceof String) {
-                        String treeItemLabelName = (String) ti.getData();
-                        if (treeItemLabelName.equals(name)) {
+                AbstractResourceHolder arh = (AbstractResourceHolder) ti
+                        .getData();
+                /* Root items have no parents */
+                if (arh.getParent() == null) {
+                    if (arh instanceof EnsembleMembersHolder) {
+                        if (arh.getGroupName().equals(name)) {
                             foundTreeItem = ti;
                             break;
                         }
+                    } else if (arh.getRsc().getName().equals(name)) {
+                        foundTreeItem = ti;
+                        break;
                     }
                 }
             }
-        });
+        }
         return foundTreeItem;
 
     }
 
     /*
      * Return the first tree item that equals the passed in
-     * GenericResourceHolder.
+     * AbstractResourceHolder.
      */
     private TreeItem findTreeItemByResource(AbstractResourceHolder rsc) {
 
@@ -490,13 +576,10 @@ public class LegendBrowserComposite extends Composite {
             if (foundItem != null)
                 break;
             Object tio = ti.getData();
-            if ((tio != null) && (tio instanceof AbstractResourceHolder)) {
-                AbstractResourceHolder gr = (AbstractResourceHolder) tio;
-                if (gr == rsc) {
-                    foundItem = ti;
-                    break;
-                }
-            } else if ((tio != null) && (tio instanceof String)) {
+            if (tio != null) {
+                continue;
+            }
+            if (tio instanceof EnsembleMembersHolder) {
                 TreeItem[] children = ti.getItems();
                 for (TreeItem treeItem : children) {
                     Object o = treeItem.getData();
@@ -508,7 +591,15 @@ public class LegendBrowserComposite extends Composite {
                         }
                     }
                 }
+            } else if (tio instanceof AbstractResourceHolder
+                    && !(tio instanceof EnsembleMembersHolder)) {
+                AbstractResourceHolder gr = (AbstractResourceHolder) tio;
+                if (gr == rsc) {
+                    foundItem = ti;
+                    break;
+                }
             }
+
         }
         return foundItem;
     }
@@ -516,57 +607,60 @@ public class LegendBrowserComposite extends Composite {
     public void prepareForNewToolInput() {
         VizApp.runAsync(new Runnable() {
             public void run() {
-                if (isViewerTreeReady()) {
-                    legendsTreeViewer.setInput(EnsembleTool.getInstance()
-                            .getEmptyResourceMap());
+                if (isWidgetReady()) {
+                    legendsTreeViewer.setInput(
+                            EnsembleTool.getInstance().getEmptyResourceList());
                 }
             }
         });
     }
 
-    synchronized public void setViewEditable(final boolean enabled) {
+    public void setEditable(final boolean enabled) {
 
-        if (isViewerTreeReady()) {
-            VizApp.runSync(new Runnable() {
+        VizApp.runSync(new Runnable() {
 
-                @Override
-                public void run() {
+            @Override
+            public void run() {
+                if (isWidgetReady()) {
                     if (!enabled) {
                         legendsTreeViewer.getTree().deselectAll();
                     }
 
                     legendsTree.setEnabled(enabled);
-                    distributionViewerComposite.setViewEditable(enabled);
-
+                    distributionViewerComposite.setEditable(enabled);
                 }
-            });
-        }
+            }
+        });
 
     }
 
-    private void setTreeExpansion(List<String> expandedElements) {
+    private void setTreeExpansion(
+            List<EnsembleMembersHolder> expandedElements) {
         TreeItem ti = null;
-        for (String s : expandedElements) {
-            ti = this.findTreeItemByLabelName(s);
+        String ensName = null;
+        for (EnsembleMembersHolder emh : expandedElements) {
+            ensName = emh.getGroupName();
+            ti = this.findTreeItemByLabelName(ensName);
             if (ti != null && !ti.isDisposed()) {
                 ti.setExpanded(true);
             }
         }
     }
 
-    private List<String> getTreeExpansion() {
+    private List<EnsembleMembersHolder> getTreeExpansion() {
 
-        List<String> expandedItems = new ArrayList<String>();
+        List<EnsembleMembersHolder> expandedItems = new ArrayList<>();
 
-        if (isViewerTreeReady()) {
+        if (isWidgetReady()) {
             TreeItem[] children = legendsTreeViewer.getTree().getItems();
             List<TreeItem> immediateChildren = Arrays.asList(children);
             for (TreeItem ti : immediateChildren) {
                 if (ti != null && !ti.isDisposed()) {
-                    if (ti.getData() instanceof String) {
-                        String s = (String) ti.getData();
+                    if (ti.getData() instanceof EnsembleMembersHolder) {
+                        EnsembleMembersHolder emh = (EnsembleMembersHolder) ti
+                                .getData();
                         if (ti.getExpanded()) {
-                            expandedItems.add(s);
+                            expandedItems.add(emh);
                         }
                     }
                 }
@@ -582,98 +676,126 @@ public class LegendBrowserComposite extends Composite {
         EnsembleTool.getInstance().setExpandedElements(getTreeExpansion());
     }
 
-    private void startAddERFLayer(String mousedEnsembleName) {
+    private void startAddERFLayer(String mousedEnsembleName, boolean isImage) {
 
         erfDialog = new ERFProductDialog(rootComposite.getShell(),
-                mousedEnsembleName);
+                mousedEnsembleName, isImage);
         if (erfDialog.open() == Window.OK) {
             erfDialog.close();
             erfDialog = null;
         }
     }
 
-    public void refreshInput(EnsembleToolLayer tl) {
-
-        if (!isViewerTreeReady()) {
+    private void startContourControl(String mousedEnsembleName)
+            throws StyleException {
+        List<AbstractResourceHolder> rhs = getEnsembleMemberGenericResources(
+                mousedEnsembleName);
+        if (rhs == null || rhs.isEmpty()
+                || !(rhs.get(0).getRsc() instanceof AbstractGridResource)) {
             return;
         }
-
-        final Map<String, List<AbstractResourceHolder>> ensembleResourcesMap = EnsembleTool
-                .getInstance().getCurrentToolLayerResources();
-
-        if (ensembleResourcesMap == null) {
-            return;
+        List<AbstractGridResource<?>> rscList = new ArrayList<AbstractGridResource<?>>();
+        for (AbstractResourceHolder rh : rhs) {
+            rscList.add((AbstractGridResource<?>) rh.getRsc());
         }
+        contourDialog = new ContourControlDialog(rootComposite.getShell(),
+                mousedEnsembleName, rscList);
 
-        VizApp.runAsync(new Runnable() {
+        /*
+         * TODO: This code tests the stylePreferences and label preferences
+         * objs. All member resources share one stylePreferences and one label
+         * preference object in the baseline code, which is not right. It maybe
+         * a fundamental problem for D2D data display. For dealing with the
+         * sharing problem, we clone the original StylePreferences object and
+         * assign a new object to the grid resources related to the
+         * "Contour Control". See the code in the
+         * EnsembleResourceManager::registerResource() and registerGenerated().
+         * 
+         * It requires adding two methods in ufcore:
+         * 
+         * AbstractGridResource.java, public AbstractStylePreferences
+         * getStylePreferences() { return stylePreferences; } public void
+         * setStylePreferences(AbstractStylePreferences stylePreferences) {
+         * this.stylePreferences = stylePreferences; }
+         * 
+         * For long term, AWIPS2 team should fix the baseline bug which may
+         * impact the contour and other display. Need to keep this code at this
+         * location for ET until the bug in base line is fixed.
+         * 
+         * for (AbstractResourceHolder rh : rhs){ AbstractGridResource rsc =
+         * (AbstractGridResource) (rh.getRsc()); LabelingPreferences
+         * labelingPreferences = null; AbstractStylePreferences stylePreferences
+         * = rsc .getStylePreferences(); if (stylePreferences instanceof
+         * ContourPreferences) { labelingPreferences = ((ContourPreferences)
+         * stylePreferences) .getContourLabeling(); float incrementOrig =
+         * labelingPreferences.getIncrement(); // valuesOrig
+         * =labelingPreferences.getValues(); }
+         */
+
+        if (contourDialog.open() == Window.OK) {
+            contourDialog.close();
+            contourDialog = null;
+        }
+    }
+
+    public void refreshInput(final List<AbstractResourceHolder> rscList) {
+
+        VizApp.runSync(new Runnable() {
             public void run() {
 
-                if (!isViewerTreeReady()) {
+                if (!isWidgetReady()) {
                     return;
                 }
 
-                // this method only acts on an instance of a Map ...
-                if (ensembleResourcesMap != null) {
-
-                    legendsTree.clearAll(true);
-
-                    // only change the tree's input reference (via setInput)
-                    // when the ensembleResourcesMap reference is different.
-
-                    if ((legendsTreeViewer.getInput() == null)
-                            || (ensembleResourcesMap != legendsTreeViewer
-                                    .getInput())) {
-                        legendsTreeViewer.setInput(ensembleResourcesMap);
-                    }
-                    legendsTreeViewer.refresh(true);
-
-                    // TODO:A simple solution for this release. Clear the
-                    // distribution viewer when refreshing
-                    // Should do clean for related change only. implement it
-                    // later.
-                    // See code in the
-                    // EnsembleResourceManager:updateGenerated(AbstractResourceHolder
-                    // rh).
-                    if (!isItemToggled) {
-                        getDistributionViewer().getGhGUI().getDisp()
-                                .clearDistributionViewer();
-                    }
-                    isItemToggled = false;
-                    
-                    AbstractResourceHolder grh = null;
-                    String ensembleRscName = null;
-                    if (isViewerTreeReady()) {
-                        TreeItem[] selectedItems = legendsTree.getSelection();
-                        if ((selectedItems != null)
-                                && (selectedItems.length > 0)
-                                && (selectedItems[0] != null)) {
-                            Object o = selectedItems[0].getData();
-                            if (o instanceof AbstractResourceHolder) {
-                                grh = (AbstractResourceHolder) o;
-                            } else if (o instanceof String) {
-                                ensembleRscName = (String) o;
-                            }
-                        }
-
-                        setTreeExpansion(EnsembleTool.getInstance()
-                                .getExpandedElements());
-
-                        if ((selectedItems != null)
-                                && (selectedItems.length > 0)
-                                && (selectedItems[0] != null)) {
-                            if (grh != null) {
-                                TreeItem ti = findTreeItemByResource(grh);
-                                if (ti != null)
-                                    legendsTree.select(ti);
-                            } else if (ensembleRscName != null) {
-                                TreeItem ti = findTreeItemByLabelName(ensembleRscName);
-                                if (ti != null)
-                                    legendsTree.select(ti);
-                            }
-                        }
-                    }
-                    legendsTreeViewer.refresh(false);
+                if (rscList == null) {
+                    return;
                 }
+
+                legendsTree.clearAll(true);
+
+                /*
+                 * only change the tree's input reference (via setInput) when
+                 * the ensembleResourcesMap reference is different.
+                 */
+
+                legendsTreeViewer.setInput(rscList);
+                legendsTreeViewer.refresh(true);
+
+                /*
+                 * TODO: A simple solution for this release. Clear the
+                 * distribution viewer when refreshing Should do clean for
+                 * related change only. implement it later. See code in the
+                 * EnsembleResourceManager:updateGenerated(
+                 * AbstractResourceHolder rh).
+                 */
+                if (!isItemToggled) {
+                    getDistributionViewer().getGhGUI().getDisp()
+                            .clearDistributionViewer();
+                }
+                isItemToggled = false;
+
+                AbstractResourceHolder grh = null;
+                TreeItem[] selectedItems = legendsTree.getSelection();
+                if ((selectedItems != null) && (selectedItems.length > 0)
+                        && (selectedItems[0] != null)) {
+                    Object o = selectedItems[0].getData();
+                    if (o instanceof AbstractResourceHolder) {
+                        grh = (AbstractResourceHolder) o;
+                    }
+                }
+
+                setTreeExpansion(
+                        EnsembleTool.getInstance().getExpandedElements());
+
+                if ((selectedItems != null) && (selectedItems.length > 0)
+                        && (selectedItems[0] != null)) {
+                    if (grh != null) {
+                        TreeItem ti = findTreeItemByResource(grh);
+                        if (ti != null)
+                            legendsTree.select(ti);
+                    }
+                }
+                legendsTreeViewer.refresh(false);
             }
         });
     }
@@ -681,8 +803,8 @@ public class LegendBrowserComposite extends Composite {
     /*
      * Keep track of the expansion state of the tree.
      */
-    private class LegendTreeExpandCollapseListener implements
-            ITreeViewerListener {
+    private class LegendTreeExpandCollapseListener
+            implements ITreeViewerListener {
 
         @Override
         public void treeCollapsed(TreeExpansionEvent event) {
@@ -707,7 +829,7 @@ public class LegendBrowserComposite extends Composite {
     }
 
     public void setTabDefaultState() {
-        updateCursor(EnsembleToolViewer.normalCursor);
+        updateCursor(EnsembleToolViewer.getNormalCursor());
     }
 
     protected void updateCursor(final Cursor c) {
@@ -715,7 +837,7 @@ public class LegendBrowserComposite extends Composite {
 
             @Override
             public void run() {
-                if (isViewerTreeReady()) {
+                if (isWidgetReady()) {
                     legendsTree.setCursor(c);
                 }
             }
@@ -723,7 +845,7 @@ public class LegendBrowserComposite extends Composite {
         });
     }
 
-    public boolean isViewerTreeReady() {
+    public boolean isWidgetReady() {
         boolean isReady = false;
 
         if (legendsTreeViewer != null && legendsTree != null
@@ -742,125 +864,138 @@ public class LegendBrowserComposite extends Composite {
     }
 
     /*
-     * Given a tree item, find the item in the tree and toggle it's visibility
-     * state.
+     * This method wraps the method of the same name which is either called from
+     * the main (GUI) thread or not. See method toggleItemVisible below this
+     * method for a description of what these methods do.
+     * 
      */
-    private void toggleItemVisible(TreeItem item) {
+    private void toggleItemVisible(final TreeItem item,
+            final boolean useMainThread) {
 
-        final TreeItem finalItem = item;
+        if (useMainThread) {
+            VizApp.runSync(new Runnable() {
 
-        VizApp.runSync(new Runnable() {
-
-            @Override
-            public void run() {
-
-                if (finalItem.isDisposed()) {
-                    return;
+                @Override
+                public void run() {
+                    toggleItemVisible(item);
                 }
-                final Object mousedItem = finalItem.getData();
-                if (mousedItem instanceof String) {
-
-                    Color fg = finalItem.getForeground();
-                    boolean isVisible = false;
-
-                    /*
-                     * TODO: Awkward way of seeing if the item has been already
-                     * grayed-out. This needs to be further evaluated for a
-                     * better solution.
-                     */
-                    if (fg.getRGB().equals(
-                            EnsembleToolViewer.getEnabledForegroundColor()
-                                    .getRGB())) {
-                        isVisible = false;
-                    } else {
-                        isVisible = true;
-                    }
-
-                    /* if it was on turn it off */
-                    if (isVisible) {
-                        finalItem.setForeground(EnsembleToolViewer
-                                .getDisabledForegroundColor());
-                        if (isViewerTreeReady()) {
-                            legendsTreeViewer.getTree().deselectAll();
-                        }
-                    }
-                    /* if it was off turn it on */
-                    else {
-                        finalItem.setForeground(EnsembleToolViewer
-                                .getEnabledForegroundColor());
-                        if (isViewerTreeReady()) {
-                            legendsTreeViewer.getTree().deselectAll();
-                        }
-                    }
-
-                } else if (mousedItem instanceof AbstractResourceHolder) {
-
-                    AbstractResourceHolder gr = (AbstractResourceHolder) mousedItem;
-                    boolean isVisible = gr.getRsc().getProperties().isVisible();
-                    /* toggle visibility */
-                    isVisible = !isVisible;
-                    gr.getRsc().getProperties().setVisible(isVisible);
-                    gr.getRsc().issueRefresh();
-                    /* update tree item to reflect new state */
-                    if (isVisible) {
-                        finalItem.setForeground(EnsembleToolViewer
-                                .getEnabledForegroundColor());
-                    } else {
-                        finalItem.setForeground(EnsembleToolViewer
-                                .getDisabledForegroundColor());
-                    }
-                    if (isViewerTreeReady()) {
-                        legendsTreeViewer.getTree().deselectAll();
-                    }
-
-                    // Toggle process for sample, text histogram and
-                    // distribution viewer.
-                    if (gr instanceof HistogramGridResourceHolder) {
-                        // Turns off other same mode histogram tools.
-                        // Keeps only one work at same time.
-                        if (isVisible) {
-                            EnsembleResourceManager.getInstance()
-                                    .turnOffOtherHistograms(
-                                            (HistogramGridResourceHolder) gr);
-                        }
-
-                        // Clear the Distribution Viewer
-                        if (((HistogramResource<?>) (gr.getRsc())).getMode() == HistogramResource.DisplayMode.GRAPHIC_HISTGRAM
-                                && getDistributionViewer() != null) {
-                            getDistributionViewer().getGhGUI().getDisp()
-                                    .clearDistributionViewer();
-                        }
-                        // Toggle process for loaded grid resource in Map
-                        // Update related generated resource.
-                    } else if (!gr.isGenerated()
-                            && gr.getRsc() instanceof D2DGridResource
-                            && gr.getRsc().getDescriptor() instanceof MapDescriptor) {
-                        // Update related generated resource(s).
-                        EnsembleResourceManager.getInstance().updateGenerated(
-                                gr);
-                    }
-
-                    // Set flag to prevent clear the distribution viewer when
-                    // refreshing the tree
-                    isItemToggled = true;
-                }
-            }
-        });
+            });
+        } else {
+            toggleItemVisible(item);
+        }
     }
 
-    protected TreeItem[] getDirectDescendants(TreeItem ri) {
+    /*
+     * Given a tree item, find the item in the tree and toggle it's visibility
+     * state.
+     * 
+     * This call must be called from a method which is running on the main
+     * thread.
+     */
+    private void toggleItemVisible(final TreeItem item) {
 
-        final TreeItem rootItem = ri;
-        VizApp.runSync(new Runnable() {
+        if (item.isDisposed()) {
+            return;
+        }
+        final Object mousedItem = item.getData();
+        if (mousedItem instanceof EnsembleMembersHolder) {
 
-            @Override
-            public void run() {
-                directDescendants = rootItem.getItems();
+            Color fg = item.getForeground();
+            boolean isVisible = false;
+
+            /*
+             * TODO: Awkward way of seeing if the item has been already
+             * grayed-out. This needs to be further evaluated for a better
+             * solution.
+             */
+            if (fg.getRGB().equals(
+                    EnsembleToolViewer.getEnabledForegroundColor().getRGB())) {
+                isVisible = false;
+            } else {
+                isVisible = true;
             }
 
-        });
+            /* if it was on turn it off */
+            if (isVisible) {
+                item.setForeground(
+                        EnsembleToolViewer.getDisabledForegroundColor());
+                if (isWidgetReady()) {
+                    legendsTreeViewer.getTree().deselectAll();
+                }
+            }
+            /* if it was off turn it on */
+            else {
+                item.setForeground(
+                        EnsembleToolViewer.getEnabledForegroundColor());
+                if (isWidgetReady()) {
+                    legendsTreeViewer.getTree().deselectAll();
+                }
+            }
 
-        return directDescendants;
+        } else if (mousedItem instanceof AbstractResourceHolder
+                && !(mousedItem instanceof EnsembleMembersHolder)) {
+
+            AbstractResourceHolder gr = (AbstractResourceHolder) mousedItem;
+            boolean isVisible = gr.getRsc().getProperties().isVisible();
+            /* toggle visibility */
+            isVisible = !isVisible;
+            gr.getRsc().getProperties().setVisible(isVisible);
+            gr.getRsc().issueRefresh();
+            if (EnsembleTool.getInstance().getToolLayer() != null) {
+                EnsembleTool.getInstance().getToolLayer().issueRefresh();
+            }
+            /* update tree item to reflect new state */
+            if (isVisible) {
+                item.setForeground(
+                        EnsembleToolViewer.getEnabledForegroundColor());
+            } else {
+                item.setForeground(
+                        EnsembleToolViewer.getDisabledForegroundColor());
+            }
+            if (isWidgetReady()) {
+                legendsTreeViewer.getTree().deselectAll();
+            }
+
+            /*
+             * Toggle process for sampling, text histogram and distribution
+             * viewer.
+             */
+            if (gr instanceof HistogramGridResourceHolder) {
+                /*
+                 * Turns off other same mode histogram tools. Keeps only one
+                 * working at same time.
+                 */
+                if (isVisible) {
+                    EnsembleTool.getInstance().turnOffOtherHistograms(
+                            (HistogramGridResourceHolder) gr);
+                }
+
+                /* Clear the Distribution Viewer */
+                if (((HistogramResource<?>) (gr.getRsc()))
+                        .getMode() == HistogramResource.DisplayMode.GRAPHIC_HISTOGRAM
+                        && getDistributionViewer() != null) {
+                    getDistributionViewer().getGhGUI().getDisp()
+                            .clearDistributionViewer();
+                }
+                /*
+                 * Toggle process for loaded grid resource in Map Update related
+                 * generated resource.
+                 */
+            } else if (!gr.isGenerated()
+                    && gr.getRsc() instanceof D2DGridResource
+                    && gr.getRsc().getDescriptor() instanceof MapDescriptor) {
+
+                /* Update related generated resource(s). */
+                EnsembleTool.getInstance().updateGenerated(gr);
+            }
+
+            /*
+             * Set flag to prevent clear the distribution viewer when refreshing
+             * the tree
+             */
+            isItemToggled = true;
+        }
+
     }
 
     /*
@@ -885,7 +1020,7 @@ public class LegendBrowserComposite extends Composite {
     protected List<AbstractResourceHolder> getEnsembleMemberGenericResources(
             String ensembleName) {
 
-        TreeItem parentItem = findTreeItemByLabelName(ensembleName);
+        TreeItem parentItem = findTreeItemByLabelName(ensembleName, true);
 
         List<TreeItem> descendants = new ArrayList<TreeItem>();
         getAllDescendants(parentItem, descendants);
@@ -930,7 +1065,8 @@ public class LegendBrowserComposite extends Composite {
         VizApp.runSync(new Runnable() {
             @Override
             public void run() {
-                setPerturbationMembers(getEnsembleMemberGenericResources(ensembleName));
+                setPerturbationMembers(
+                        getEnsembleMemberGenericResources(ensembleName));
             }
         });
 
@@ -986,7 +1122,7 @@ public class LegendBrowserComposite extends Composite {
 
         VizApp.runAsync(new Runnable() {
             public void run() {
-                if (isViewerTreeReady()) {
+                if (isWidgetReady()) {
                     legendsTreeViewer.refresh(true);
                 }
 
@@ -1015,7 +1151,7 @@ public class LegendBrowserComposite extends Composite {
              * if the ensemble tool isn't open then ignore user mouse clicks ...
              */
             if (!EnsembleTool.getInstance().isToolEditable()
-                    || !isViewerTreeReady()) {
+                    || !isWidgetReady()) {
                 return;
             }
 
@@ -1023,7 +1159,8 @@ public class LegendBrowserComposite extends Composite {
             Point point = new Point(event.x, event.y);
 
             final TreeItem userClickedTreeItem = legendsTree.getItem(point);
-            if (userClickedTreeItem == null || userClickedTreeItem.isDisposed()) {
+            if (userClickedTreeItem == null
+                    || userClickedTreeItem.isDisposed()) {
                 return;
             }
 
@@ -1038,16 +1175,14 @@ public class LegendBrowserComposite extends Composite {
                  */
                 final Object mousedItem = userClickedTreeItem.getData();
 
-                /*
-                 * Currently, top level tree items (which also contain child
-                 * tree items) are always Ensemble names (unique strings). So if
-                 * the user clicks on this item then display the popup menu for
-                 * the Ensemble product.
-                 */
-                if (mousedItem instanceof String) {
+                if (mousedItem instanceof EnsembleMembersHolder) {
+
+                    EnsembleMembersHolder emh = (EnsembleMembersHolder) mousedItem;
+
+                    String ensMemberName = emh.getGroupName();
+
                     final Menu legendMenu = new Menu(rootComposite.getShell(),
                             SWT.POP_UP);
-                    final String mousedEnsembleName = (String) mousedItem;
 
                     /*
                      * Relative frequency menu item allows the user to generate
@@ -1058,11 +1193,12 @@ public class LegendBrowserComposite extends Composite {
                     addERFLayerMenuItem = new MenuItem(legendMenu, SWT.PUSH);
                     addERFLayerMenuItem.setText("Relative Frequency");
 
-                    /* only enable the RF menu item if we are in plan view */
-                    if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_TIME_SERIES) {
+                    /* only enable the ERF menu item if we are in plan view */
+                    EnsembleToolMode mode = EnsembleTool.getInstance()
+                            .getToolMode();
+                    if (mode == EnsembleToolMode.LEGENDS_TIME_SERIES) {
                         addERFLayerMenuItem.setEnabled(false);
-                    }
-                    if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_PLAN_VIEW) {
+                    } else if (mode == EnsembleToolMode.LEGENDS_PLAN_VIEW) {
                         addERFLayerMenuItem.setEnabled(true);
                     }
 
@@ -1071,19 +1207,70 @@ public class LegendBrowserComposite extends Composite {
 
                                 public void handleEvent(Event event) {
 
-                                    updateCursor(EnsembleToolViewer.waitCursor);
-                                    startAddERFLayer(mousedEnsembleName);
-                                    updateCursor(EnsembleToolViewer.normalCursor);
+                                    startAddERFLayer(ensMemberName, false);
 
                                 }
                             });
 
                     /*
+                     * Contour control for ensemble product.
+                     */
+                    contourMenuItem = new MenuItem(legendMenu, SWT.PUSH);
+                    contourMenuItem.setText("Contour Control");
+
+                    if (mode == EnsembleToolMode.LEGENDS_TIME_SERIES) {
+                        contourMenuItem.setEnabled(false);
+                    } else if (mode == EnsembleToolMode.LEGENDS_PLAN_VIEW) {
+                        contourMenuItem.setEnabled(true);
+                    }
+
+                    contourMenuItem.addListener(SWT.Selection, new Listener() {
+
+                        public void handleEvent(Event event) {
+
+                            try {
+                                startContourControl(ensMemberName);
+                            } catch (StyleException e) {
+                                statusHandler.handle(Priority.WARN,
+                                        e.getLocalizedMessage(), e);
+                            }
+
+                        }
+                    });
+
+                    /*
+                     * Relative frequency image menu item allows the user to
+                     * generate a probability image display demonstrating the
+                     * chance a value p(x) lies within a range, outside a range,
+                     * above a threshold, or below a threshold.
+                     */
+                    addERFImageLayerMenuItem = new MenuItem(legendMenu,
+                            SWT.PUSH);
+                    addERFImageLayerMenuItem
+                            .setText("Relative Frequency Image");
+
+                    /* only enable the ERF menu item if we are in plan view */
+                    if (mode == EnsembleToolMode.LEGENDS_TIME_SERIES) {
+                        addERFImageLayerMenuItem.setEnabled(false);
+                    } else if (mode == EnsembleToolMode.LEGENDS_PLAN_VIEW) {
+                        addERFImageLayerMenuItem.setEnabled(true);
+                    }
+
+                    addERFImageLayerMenuItem.addListener(SWT.Selection,
+                            new Listener() {
+
+                                public void handleEvent(Event event) {
+
+                                    startAddERFLayer(ensMemberName, true);
+
+                                }
+                            });
+                    /*
                      * This menu item allows the user to choose a color gradient
                      * for either the SREF or GEFS ensemble products.
                      */
-                    MenuItem ensembleColorizeMenuItem = new MenuItem(
-                            legendMenu, SWT.PUSH);
+                    MenuItem ensembleColorizeMenuItem = new MenuItem(legendMenu,
+                            SWT.PUSH);
                     ensembleColorizeMenuItem.setText("Color Gradient");
 
                     ensembleColorizeMenuItem.addListener(SWT.Selection,
@@ -1102,7 +1289,8 @@ public class LegendBrowserComposite extends Composite {
                                         userClickedTreeItem.setExpanded(true);
                                     }
 
-                                    updateColorsOnEnsembleResource(mousedEnsembleName);
+                                    updateColorsOnEnsembleResource(
+                                            ensMemberName);
 
                                 }
                             });
@@ -1122,7 +1310,7 @@ public class LegendBrowserComposite extends Composite {
                                             rootComposite.getShell(),
                                             "Unload Ensemble Members",
                                             "Are you sure you want to unload all members of "
-                                                    + mousedEnsembleName + "?");
+                                                    + ensMemberName + "?");
 
                                     if (proceed) {
 
@@ -1159,7 +1347,8 @@ public class LegendBrowserComposite extends Composite {
 
                     legendMenu.setVisible(true);
 
-                } else if (mousedItem instanceof AbstractResourceHolder) {
+                } else if (mousedItem instanceof AbstractResourceHolder
+                        && !(mousedItem instanceof EnsembleMembersHolder)) {
 
                     /*
                      * If the tree item the user clicked on was an individual
@@ -1173,9 +1362,17 @@ public class LegendBrowserComposite extends Composite {
 
                     /* The popup menu is generated by the ContextMenuManager */
                     menuMgr.addMenuListener(new IMenuListener() {
+
                         public void menuAboutToShow(IMenuManager manager) {
-                            ResourcePair rp = EnsembleTool.getInstance()
+                            EnsembleToolLayer toolLayer = EnsembleTool
+                                    .getToolLayer(gr.getRsc());
+                            if (toolLayer == null) {
+                                return;
+                            }
+
+                            ResourcePair rp = toolLayer
                                     .getResourcePair(gr.getRsc());
+
                             if (rp != null) {
                                 ContextMenuManager.fillContextMenu(manager, rp,
                                         gr.getRsc().getResourceContainer());
@@ -1205,10 +1402,12 @@ public class LegendBrowserComposite extends Composite {
 
                 final Object mousedItem = userClickedTreeItem.getData();
 
-                /* A string means it is an ensemble product name */
-                if (mousedItem instanceof String) {
+                if (mousedItem instanceof EnsembleMembersHolder)
 
-                    String ensembleName = (String) mousedItem;
+                {
+
+                    EnsembleMembersHolder emh = (EnsembleMembersHolder) mousedItem;
+                    String ensembleName = emh.getGroupName();
 
                     /*
                      * The way that the TreeItem appears to work is that it
@@ -1230,212 +1429,41 @@ public class LegendBrowserComposite extends Composite {
                     if (!isExpanded) {
                         userClickedTreeItem.setExpanded(true);
                     }
+
                     ToggleEnsembleVisiblityJob ccj = new ToggleEnsembleVisiblityJob(
                             "Toggle Ensemble Members Visibility");
                     ccj.setPriority(Job.INTERACTIVE);
                     ccj.setTargetEnsembleProduct(ensembleName);
                     ccj.schedule(elegantWaitPeriod);
 
-                } else if (mousedItem instanceof AbstractResourceHolder) {
+                } else if (mousedItem instanceof AbstractResourceHolder
+                        && !(mousedItem instanceof EnsembleMembersHolder))
+
+                {
 
                     ToggleProductVisiblityJob ccj = new ToggleProductVisiblityJob(
                             "Toggle Product Visibility");
                     ccj.setPriority(Job.INTERACTIVE);
                     ccj.setTargetTreeItem(userClickedTreeItem);
                     ccj.schedule(elegantWaitPeriod);
+
                 }
+
             }
         }
 
         @Override
         public void mouseUp(MouseEvent event) {
-
-            Point point = new Point(event.x, event.y);
-
-            if (!EnsembleTool.getInstance().isToolEditable()
-                    || !isViewerTreeReady()) {
-                return;
-            }
-
-            final TreeItem userClickedTreeItem = legendsTree.getItem(point);
-
-            /*
-             * The mouse up event currently only acts on items in the tree so if
-             * the tree item is null then just return ...
-             */
-            if (userClickedTreeItem == null || userClickedTreeItem.isDisposed()) {
-                return;
-            }
-
-            /*
-             * keep track of the last highlighted resource and make sure it is
-             * still displayed properly ...
-             */
-            if (EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE != null) {
-                EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE.getCapability(
-                        OutlineCapability.class).setOutlineWidth(
-                        EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE_WIDTH);
-                EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE.getCapability(
-                        ColorableCapability.class).setColor(
-                        EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE_RGB);
-                EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE
-                        .getCapability(OutlineCapability.class)
-                        .setOutlineOn(
-                                EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE_OUTLINE_ASSERTED);
-            }
-
-            /*
-             * Is this a CTRL-MB1 (e.g. CONTROL LEFT-CLICK) over a tree item?
-             * ... then this is a UI SWT item selection
-             */
-            if ((event.button == 1) && ((event.stateMask & SWT.CTRL) != 0)) {
-
-                final Object mousedObject = userClickedTreeItem.getData();
-
-                /* Ctrl-click on a item that is already selected deselects it. */
-                if (EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE != null) {
-
-                    if (mousedObject instanceof AbstractResourceHolder) {
-                        AbstractResourceHolder grh = (AbstractResourceHolder) mousedObject;
-                        if (grh.getRsc() == EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE) {
-                            legendsTree.deselect(userClickedTreeItem);
-                            EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE = null;
-                            return;
-                        }
-                    }
-                } else if (isViewerTreeReady()) {
-
-                    /* Ctrl-click on a item that is not selected selects it. */
-                    if (mousedObject instanceof AbstractResourceHolder) {
-                        AbstractResourceHolder grh = (AbstractResourceHolder) mousedObject;
-                        EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE = grh
-                                .getRsc();
-                        legendsTreeViewer.getTree().deselectAll();
-                        legendsTreeViewer.getTree().select(userClickedTreeItem);
-                    }
-                    legendsTreeViewer.getTree().update();
-
-                }
-
-                /*
-                 * if the user selects an generated ERF product then update the
-                 * ERF tabs ...
-                 */
-                if (mousedObject instanceof GeneratedGridResourceHolder) {
-                    GeneratedGridResourceHolder grh = (GeneratedGridResourceHolder) mousedObject;
-                    if (grh.getCalculation() == Calculation.ENSEMBLE_RELATIVE_FREQUENCY) {
-                        /**
-                         * TODO: Do we want to bring up the ERF dialog with the
-                         * existing values to populate?
-                         */
-                    }
-                }
-
-                /* is this an individual grid product? */
-                if (mousedObject instanceof GridResourceHolder) {
-                    GridResourceHolder grh = (GridResourceHolder) mousedObject;
-
-                    /* only highlight a visible resource */
-                    if ((grh.getRsc() != null)
-                            && (grh.getRsc().getProperties().isVisible())) {
-
-                        currentEnsembleRsc = grh.getRsc();
-
-                        /*
-                         * Then highlight the resource in the primary pane and
-                         * keep track of the resource as the most recently
-                         * highlighted resource.
-                         */
-                        if ((currentEnsembleRsc != null)
-                                && (GlobalPreferencesComposite
-                                        .isThickenOnSelectionPreference())) {
-                            EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE = currentEnsembleRsc;
-                            EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE_WIDTH = currentEnsembleRsc
-                                    .getCapability(OutlineCapability.class)
-                                    .getOutlineWidth();
-                            EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE_RGB = currentEnsembleRsc
-                                    .getCapability(ColorableCapability.class)
-                                    .getColor();
-                            EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE_OUTLINE_ASSERTED = currentEnsembleRsc
-                                    .getCapability(OutlineCapability.class)
-                                    .isOutlineOn();
-                            currentEnsembleRsc.getCapability(
-                                    OutlineCapability.class).setOutlineOn(true);
-                            currentEnsembleRsc.getCapability(
-                                    OutlineCapability.class).setOutlineWidth(
-                                    GlobalPreferencesComposite
-                                            .getThickenWidthPreference());
-                            if (!GlobalPreferencesComposite
-                                    .isUseResourceColorOnThickenPreference()) {
-                                currentEnsembleRsc
-                                        .getCapability(
-                                                ColorableCapability.class)
-                                        .setColor(
-                                                GlobalPreferencesComposite
-                                                        .getThickenOnSelectionColorPreference()
-                                                        .getRGB());
-                            }
-                        }
-                    }
-                }
-                /*
-                 * Is this a generated product (e.g. a user-requested
-                 * calculation)?
-                 */
-                if (mousedObject instanceof GeneratedGridResourceHolder) {
-                    GeneratedGridResourceHolder grh = (GeneratedGridResourceHolder) mousedObject;
-
-                    /* only highlight a visible resource */
-                    if ((grh.getRsc() != null)
-                            && (grh.getRsc().getProperties().isVisible())) {
-
-                        currentEnsembleRsc = grh.getRsc();
-
-                        /*
-                         * Then highlight the resource in the primary pane and
-                         * keep track of the resource as the most recently
-                         * highlighted resource.
-                         */
-                        if ((currentEnsembleRsc != null)
-                                && (GlobalPreferencesComposite
-                                        .isThickenOnSelectionPreference())) {
-                            EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE = currentEnsembleRsc;
-                            EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE_WIDTH = currentEnsembleRsc
-                                    .getCapability(OutlineCapability.class)
-                                    .getOutlineWidth();
-                            EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE_RGB = currentEnsembleRsc
-                                    .getCapability(ColorableCapability.class)
-                                    .getColor();
-                            EnsembleToolViewer.LAST_HIGHLIGHTED_RESOURCE_OUTLINE_ASSERTED = currentEnsembleRsc
-                                    .getCapability(OutlineCapability.class)
-                                    .isOutlineOn();
-                            currentEnsembleRsc.getCapability(
-                                    OutlineCapability.class).setOutlineOn(true);
-                            currentEnsembleRsc.getCapability(
-                                    OutlineCapability.class).setOutlineWidth(
-                                    GlobalPreferencesComposite
-                                            .getThickenWidthPreference());
-                            if (!GlobalPreferencesComposite
-                                    .isUseResourceColorOnThickenPreference()) {
-                                currentEnsembleRsc
-                                        .getCapability(
-                                                ColorableCapability.class)
-                                        .setColor(
-                                                GlobalPreferencesComposite
-                                                        .getThickenOnSelectionColorPreference()
-                                                        .getRGB());
-                            }
-                        }
-                    }
-                }
-            }
+            // TODO No need for a mouse up event just yet.
         }
     }
 
     /*
      * This job toggles visibility for all members of an ensemble product.
      */
-    protected class ToggleEnsembleVisiblityJob extends Job {
+    protected class ToggleEnsembleVisiblityJob extends UIJob {
+
+        private IStatus jobStatusViz = null;
 
         private String ensembleName = null;
 
@@ -1448,21 +1476,18 @@ public class LegendBrowserComposite extends Composite {
         }
 
         @Override
-        protected IStatus run(IProgressMonitor monitor) {
-            IStatus status = null;
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+            jobStatusViz = Status.CANCEL_STATUS;
 
-            if (ensembleName == null) {
-                status = Status.CANCEL_STATUS;
-            } else {
-                updateCursor(EnsembleToolViewer.waitCursor);
-                TreeItem ensembleRootItem = findTreeItemByLabelName(ensembleName);
-
-                TreeItem[] descendants = getDirectDescendants(ensembleRootItem);
+            if (ensembleName != null && isWidgetReady()) {
+                final TreeItem ensembleRootItem = findTreeItemByLabelName(
+                        ensembleName);
+                TreeItem[] descendants = ensembleRootItem.getItems();
                 TreeItem ti = null;
                 int numDescendants = descendants.length;
                 for (int i = 0; i < numDescendants; i++) {
                     ti = descendants[i];
-                    toggleItemVisible(ti);
+                    toggleItemVisible(ti, false);
 
                     if (i == numDescendants - 1) {
                         /*
@@ -1470,105 +1495,73 @@ public class LegendBrowserComposite extends Composite {
                          * ensemble group, then you need to toggle the parent
                          * tree item off also
                          */
-                        matchParentToChildrenVisibility(ti);
+                        matchParentToChildrenVisibility(ti, false);
                     }
 
                 }
-                updateCursor(EnsembleToolViewer.normalCursor);
-                status = Status.OK_STATUS;
+                jobStatusViz = Status.OK_STATUS;
             }
-            return status;
+
+            if (jobStatusViz == Status.OK_STATUS) {
+                if (EnsembleTool.getInstance().getToolLayer() != null) {
+                    EnsembleTool.getInstance().refreshEditor();
+                }
+            }
+
+            return jobStatusViz;
         }
 
     }
 
     /*
-     * This is the content provider for the tree.
+     * This is the content provider for the tree. These inner methods are being
+     * provided with elements of type AbstractResourceHolder.
      */
     private class LegendTreeContentProvider implements ITreeContentProvider {
 
         @Override
-        public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
-            // do nothing
+        public void inputChanged(Viewer viewer, Object oldInput,
+                Object newInput) {
+            // TODO: ignore for now
         }
 
         @Override
-        @SuppressWarnings("unchecked")
         public Object[] getElements(Object inputElement) {
 
-            // The root elements of the tree are all strings representing
-            // the grid product name ... we get the map from the Ensemble-
-            // ToolManager. Create a primitive array of Objects having
-            // those names.
-
-            Map<String, List<AbstractResourceHolder>> allLoadedProducts = (Map<String, List<AbstractResourceHolder>>) inputElement;
-            if ((allLoadedProducts == null) || (allLoadedProducts.size() == 0)) {
+            List<AbstractResourceHolder> products = EnsembleTool.getInstance()
+                    .getResourceList();
+            if (products == null || products.size() == 0) {
                 return new Object[0];
             }
-
-            Object[] members = new Object[allLoadedProducts.size()];
-
-            List<AbstractResourceHolder> currResources = null;
-            Set<String> loadedProductNames = allLoadedProducts.keySet();
-            Iterator<String> iterator = loadedProductNames.iterator();
-            String currName = null;
-            for (int i = 0; iterator.hasNext(); i++) {
-                currName = iterator.next();
-                if (currName == null || currName.equals("")) {
-                    continue;
-                }
-                currResources = allLoadedProducts.get(currName);
-                // is this resource empty?
-                if (currResources.size() == 0) {
-                    continue;
-                }
-                // is this an individual resource?
-                else if (currResources.size() == 1) {
-                    members[i] = currResources.get(0);
-                }
-                // otherwise it is an ensemble resource (1-to-many ensemble
-                // members)
-                else {
-                    members[i] = currName;
+            int count = 0;
+            for (AbstractResourceHolder arh : products) {
+                if (arh.getParent() == null) {
+                    count++;
                 }
             }
-
+            int index = 0;
+            Object[] members = new Object[count];
+            for (AbstractResourceHolder arh : products) {
+                if (arh.getParent() == null) {
+                    members[index++] = arh;
+                }
+            }
             return members;
+
         }
 
         @Override
         public Object[] getChildren(Object parentElement) {
 
-            // The children of a top-level product are currently only
-            // perturbation members of an ensemble product. Find all
-            // children, which are guaranteed to be of Class type
-            // GenericResourceHolder, and return them in a primitive
-            // array of Objects.
-            Map<String, List<AbstractResourceHolder>> ensembles = EnsembleTool
-                    .getInstance().getCurrentToolLayerResources();
-
-            if ((ensembles == null) || (ensembles.size() == 0)
-                    || parentElement == null) {
-                return new Object[0];
-            }
-
+            AbstractResourceHolder currHolder = null;
             Object[] members = null;
-            if (String.class.isAssignableFrom(parentElement.getClass())) {
-
-                String ensembleName = (String) parentElement;
-                if (ensembleName.length() == 0) {
-                    return new Object[0];
+            if (parentElement instanceof AbstractResourceHolder) {
+                currHolder = (AbstractResourceHolder) parentElement;
+                if (currHolder.hasChildren()) {
+                    members = currHolder.getChildren();
+                } else {
+                    members = new Object[0];
                 }
-                List<AbstractResourceHolder> resources = ensembles
-                        .get(ensembleName);
-                members = new Object[resources.size()];
-                int i = 0;
-                for (AbstractResourceHolder rsc : resources) {
-                    members[i++] = rsc;
-                }
-            } else if (AbstractResourceHolder.class
-                    .isAssignableFrom(parentElement.getClass())) {
-                members = new Object[0];
             }
             return members;
         }
@@ -1576,59 +1569,32 @@ public class LegendBrowserComposite extends Composite {
         @Override
         public Object getParent(Object element) {
 
-            // Given an item from the tree, return its parent
-            // in the tree. Currently, only perturbation members
-            // can have parents, so the Object that gets returned
-            // is guaranteed to be an ensemble product. This is
-            // not critical to the logic that follows but just
-            // an FYI.
-            String parentEnsembleName = null;
-            boolean parentFound = false;
-            if (AbstractResourceHolder.class.isAssignableFrom(element
-                    .getClass())) {
-                AbstractResourceHolder targetRsc = (AbstractResourceHolder) element;
-                Map<String, List<AbstractResourceHolder>> ensembles = EnsembleTool
-                        .getInstance().getCurrentToolLayerResources();
-                Set<Entry<String, List<AbstractResourceHolder>>> entries = ensembles
-                        .entrySet();
-                Iterator<Entry<String, List<AbstractResourceHolder>>> iterator = entries
-                        .iterator();
-                Entry<String, List<AbstractResourceHolder>> currChild = null;
-                while (iterator.hasNext() && !parentFound) {
-                    currChild = iterator.next();
-                    List<AbstractResourceHolder> resources = currChild
-                            .getValue();
-                    for (AbstractResourceHolder gr : resources) {
-                        if (gr == targetRsc) {
-                            parentFound = true;
-                            parentEnsembleName = currChild.getKey();
-                        }
-                    }
-                }
+            AbstractResourceHolder parent = null;
+            if (element == null) {
+                return null;
             }
-            return parentEnsembleName;
+            if (element instanceof AbstractResourceHolder) {
+
+                AbstractResourceHolder targetRsc = (AbstractResourceHolder) element;
+                parent = (AbstractResourceHolder) targetRsc.getParent();
+            }
+            return parent;
         }
 
         @Override
         public boolean hasChildren(Object element) {
 
-            // Currently, if the given element has children than it is
-            // an ensemble product. Get the map of resources from the
-            // EnsembleTool and see whether the element
-            // given is an ensemble product (by having an associated
-            // "not empty" list ...
+            if (element == null) {
+                return false;
+            }
+            /*
+             * if the given element is an ensemble product then assume it has
+             * children
+             */
             boolean hasChildren = false;
-            Map<String, List<AbstractResourceHolder>> ensembles = EnsembleTool
-                    .getInstance().getCurrentToolLayerResources();
-            if (String.class.isAssignableFrom(element.getClass())) {
-                String ensembleName = (String) element;
-                List<AbstractResourceHolder> resources = ensembles
-                        .get(ensembleName);
-                if ((resources != null) && (resources.size() > 0)) {
-                    hasChildren = true;
-                }
-            } else {
-                // currently no other class types have children
+            if (element instanceof AbstractResourceHolder) {
+                AbstractResourceHolder targetRsc = (AbstractResourceHolder) element;
+                hasChildren = targetRsc.hasChildren();
             }
             return hasChildren;
         }
@@ -1659,8 +1625,7 @@ public class LegendBrowserComposite extends Composite {
         public void keyPressed(KeyEvent e) {
 
             if ((e.keyCode & SWT.CTRL) == SWT.CTRL) {
-                CTRL_KEY_DEPRESSED = true;
-                updateCursor(EnsembleToolViewer.selectionModeCursor);
+                updateCursor(EnsembleToolViewer.getSelectionCursor());
             }
         }
 
@@ -1668,142 +1633,310 @@ public class LegendBrowserComposite extends Composite {
         public void keyReleased(KeyEvent e) {
 
             if ((e.keyCode & SWT.CTRL) == SWT.CTRL) {
-                CTRL_KEY_DEPRESSED = false;
-                updateCursor(EnsembleToolViewer.normalCursor);
+                updateCursor(EnsembleToolViewer.getNormalCursor());
             }
         }
 
     }
 
-    // TODO we need come up with a more intuitive solution
-    // to sorting than what is provided here.
-    private class EnsembleTreeSorter extends ViewerSorter {
+    /**
+     * Product legends to be sorted are either individual products (e.g. NAM20,
+     * HRRR, etc) or an ensemble of products (e.g. SREF, GEFS)
+     */
+    private class LegendTreeSorter extends ViewerSorter {
 
         public int compare(Viewer v, Object av1, Object av2) {
 
-            boolean compareResultFound = false;
-
             int compareResult = 0;
 
-            if ((av1 instanceof String) && (av2 instanceof String)) {
-                String n1 = (String) av1;
-                String n2 = (String) av2;
-                compareResult = n1.compareTo(n2);
-            } else if ((av1 instanceof AbstractResourceHolder)
+            if ((av1 instanceof AbstractResourceHolder)
                     && (av2 instanceof AbstractResourceHolder)) {
 
                 AbstractResourceHolder gr1 = (AbstractResourceHolder) av1;
                 AbstractResourceHolder gr2 = (AbstractResourceHolder) av2;
 
-                AbstractVizResource<?, ?> vr1 = gr1.getRsc();
-                AbstractVizResource<?, ?> vr2 = gr2.getRsc();
+                /*
+                 * Compare one ensemble set group name to a root-level resource
+                 */
+                if (av1 instanceof EnsembleMembersHolder
+                        && !(av2 instanceof EnsembleMembersHolder)) {
 
-                if ((av1 instanceof GridResourceHolder)
+                    EnsembleMembersHolder eh1 = (EnsembleMembersHolder) av1;
+                    String eh1_group = eh1.getGroupName().trim();
+                    if (gr2.getRsc() != null) {
+                        compareResult = eh1_group
+                                .compareTo(gr2.getRsc().getName());
+                    } else {
+                        compareResult = 0;
+                    }
+
+                }
+                /*
+                 * Compare one root-level resource to an ensemble set group name
+                 */
+                else if (!(av1 instanceof EnsembleMembersHolder)
+                        && av2 instanceof EnsembleMembersHolder) {
+
+                    EnsembleMembersHolder eh2 = (EnsembleMembersHolder) av2;
+                    String eh2_group = eh2.getGroupName().trim();
+                    if (gr1.getRsc() != null) {
+                        compareResult = eh2_group
+                                .compareTo(gr1.getRsc().getName());
+                    } else {
+                        compareResult = 0;
+                    }
+
+                }
+                /* Compare two ensemble sets by group name */
+                else if (av1 instanceof EnsembleMembersHolder
+                        && av2 instanceof EnsembleMembersHolder) {
+
+                    EnsembleMembersHolder eh1 = (EnsembleMembersHolder) av1;
+                    EnsembleMembersHolder eh2 = (EnsembleMembersHolder) av2;
+                    String eh1_group = eh1.getGroupName().trim();
+                    String eh2_group = eh2.getGroupName().trim();
+                    compareResult = eh1_group.compareTo(eh2_group);
+
+                }
+                /* compare two ensemble members or two root-level resources */
+                else if ((av1 instanceof GridResourceHolder)
                         && (av2 instanceof GridResourceHolder)) {
+
+                    AbstractVizResource<?, ?> vr1 = gr1.getRsc();
+                    AbstractVizResource<?, ?> vr2 = gr2.getRsc();
 
                     GridResourceHolder grh1 = (GridResourceHolder) av1;
                     GridResourceHolder grh2 = (GridResourceHolder) av2;
 
                     // If there are perturbation names then let's compare those
-                    // ...
-                    String av1_pert = grh1.getEnsembleId();
-                    String av2_pert = grh2.getEnsembleId();
+                    // if they are from the same ensemble set
+                    if (grh1.getEnsembleId() != null
+                            && grh1.getEnsembleId().length() > 0
+                            && grh2.getEnsembleId() != null
+                            && grh2.getEnsembleId().length() > 0
+                            && grh1.getGroupName() != null
+                            && grh1.getGroupName().length() > 0
+                            && grh2.getGroupName() != null
+                            && grh2.getGroupName().length() > 0) {
+                        String av1_pert = grh1.getEnsembleId().trim();
+                        String av2_pert = grh2.getEnsembleId().trim();
+                        String av1_group = grh1.getGroupName().trim();
+                        String av2_group = grh2.getGroupName().trim();
 
-                    if ((av1_pert != null) && (av1_pert.length() > 0)
-                            && (av2_pert != null) && (av2_pert.length() > 0)) {
+                        /*
+                         * In order to sort an ensemble resource (i.e.
+                         * perturbation or member) make sure the ensemble id and
+                         * the group name are valid first. Otherwise just sort
+                         * alphabetically by resource name.
+                         */
+                        if ((av1_pert != null) && (av1_pert.length() > 0)
+                                && (av2_pert != null) && (av2_pert.length() > 0)
+                                && (av1_group != null && av1_group.length() > 0)
+                                && (av2_group != null
+                                        && av2_group.length() > 0)) {
+                            String av1_pertNumStr = null;
+                            String av2_pertNumStr = null;
+                            Integer av1_pertNum = null;
+                            Integer av2_pertNum = null;
 
-                        compareResult = av1_pert.compareTo(av2_pert);
-                        compareResultFound = true;
-                    } else {
-                        String ts_fullName_1 = vr1.getName();
-                        String ts_fullName_2 = vr2.getName();
+                            if (grh1.getGroupName()
+                                    .equals(grh2.getGroupName())) {
+                                /*
+                                 * If this is a GEFS perturbation/member then
+                                 * sort by the numeric portion of the id so the
+                                 * members are sorted in ascending order (.i.e.
+                                 * p1, p2, p3, ... p20, p21)
+                                 */
+                                if (grh1.getGroupName().startsWith("GEFS ")) {
+                                    if (av1_pert.startsWith("p")
+                                            && av2_pert.startsWith("p")) {
+                                        av1_pertNumStr = av1_pert.substring(1,
+                                                av1_pert.length());
+                                        av2_pertNumStr = av2_pert.substring(1,
+                                                av2_pert.length());
 
-                        if ((ts_fullName_1 != null) && (ts_fullName_2 != null)) {
+                                        try {
+                                            av1_pertNum = new Integer(
+                                                    av1_pertNumStr);
+                                            av2_pertNum = new Integer(
+                                                    av2_pertNumStr);
 
-                            compareResult = ts_fullName_1
-                                    .compareTo(ts_fullName_2);
-                            compareResultFound = true;
-                        }
-                    }
-                }
-                if (!compareResultFound) {
+                                            compareResult = av1_pertNum
+                                                    .compareTo(av2_pertNum);
 
-                    if (TimeSeriesResourceHolder.class.isAssignableFrom(av1
-                            .getClass())
-                            && (TimeSeriesResourceHolder.class
-                                    .isAssignableFrom(av2.getClass()))) {
+                                        } catch (NumberFormatException nfe) {
 
-                        TimeSeriesResourceHolder tsr1 = (TimeSeriesResourceHolder) av1;
-                        TimeSeriesResourceHolder tsr2 = (TimeSeriesResourceHolder) av2;
+                                            compareResult = av1_pertNumStr
+                                                    .compareTo(av2_pertNumStr);
 
-                        // If there are perturbation names then let's compare
-                        // those ...
-                        String pert_1 = tsr1.getEnsembleId();
-                        String pert_2 = tsr2.getEnsembleId();
+                                        }
 
-                        if ((pert_1 != null) && (pert_1.length() > 0)
-                                && (pert_2 != null) && (pert_2.length() > 0)) {
+                                    }
+                                }
+                                /*
+                                 * Otherwise, this will be an ensemble
+                                 * perturbation member that is not part of the
+                                 * GEFS. Just sort by resource name.
+                                 */
+                                else {
+                                    String fullName_1 = vr1.getName();
+                                    String fullName_2 = vr2.getName();
 
-                            compareResult = pert_1.compareTo(pert_2);
-                            compareResultFound = true;
-                        } else {
+                                    if ((fullName_1 != null)
+                                            && (fullName_2 != null)) {
 
-                            String ts_fullName_1 = vr1.getName();
-                            String ts_fullName_2 = vr2.getName();
-
-                            if ((ts_fullName_1 != null)
-                                    && (ts_fullName_2 != null)) {
-
-                                compareResult = ts_fullName_1
-                                        .compareTo(ts_fullName_2);
-                                compareResultFound = true;
+                                        compareResult = fullName_1
+                                                .compareTo(fullName_2);
+                                    }
+                                }
                             }
                         }
                     }
-                    if (!compareResultFound) {
+                    /*
+                     * Otherwise, one or the other entries are not ensemble
+                     * members (i.e. have no ensemble id) and so are root level
+                     * resources so just sort by resource name.
+                     */
+                    else {
+                        String fullName_1 = vr1.getName();
+                        String fullName_2 = vr2.getName();
 
-                        if ((vr1 != null) && (vr1.getName() != null)
-                                && (vr2 != null) && (vr2.getName() != null)) {
+                        if ((fullName_1 != null) && (fullName_2 != null)) {
 
-                            compareResult = vr1.getName().compareTo(
-                                    vr2.getName());
+                            compareResult = fullName_1.compareTo(fullName_2);
+                        }
+                    }
+
+                } else if (gr1 instanceof TimeSeriesResourceHolder
+                        && gr2 instanceof TimeSeriesResourceHolder) {
+
+                    TimeSeriesResourceHolder tsr1 = (TimeSeriesResourceHolder) av1;
+                    TimeSeriesResourceHolder tsr2 = (TimeSeriesResourceHolder) av2;
+
+                    // If there are perturbation names then let's compare those
+                    // if they are from the same ensemble set
+                    String av1_pert = tsr1.getEnsembleId().trim();
+                    String av2_pert = tsr2.getEnsembleId().trim();
+                    String av1_group = tsr1.getGroupName().trim();
+                    String av2_group = tsr2.getGroupName().trim();
+
+                    /*
+                     * In order to sort an ensemble resource (i.e. perturbation
+                     * or member) make sure the ensemble id and the group name
+                     * are valid first. Otherwise just sort alphabetically by
+                     * resource name.
+                     */
+                    if ((av1_pert != null) && (av1_pert.length() > 0)
+                            && (av2_pert != null) && (av2_pert.length() > 0)
+                            && (av1_group != null && av1_group.length() > 0)
+                            && (av2_group != null && av2_group.length() > 0)) {
+                        String av1_pertNumStr = null;
+                        String av2_pertNumStr = null;
+                        Integer av1_pertNum = null;
+                        Integer av2_pertNum = null;
+
+                        if (tsr1.getGroupName().equals(tsr2.getGroupName())) {
+                            /*
+                             * If this is a GEFS perturbation/member then sort
+                             * by the numeric portion of the id so the members
+                             * are sorted in ascending order (.i.e. p1, p2, p3,
+                             * ... p20, p21)
+                             */
+                            if (tsr1.getGroupName().startsWith("GEFS ")) {
+                                if (av1_pert.startsWith("p")
+                                        && av2_pert.startsWith("p")) {
+                                    av1_pertNumStr = av1_pert.substring(1,
+                                            av1_pert.length());
+                                    av2_pertNumStr = av2_pert.substring(1,
+                                            av2_pert.length());
+
+                                    try {
+                                        av1_pertNum = new Integer(
+                                                av1_pertNumStr);
+                                        av2_pertNum = new Integer(
+                                                av2_pertNumStr);
+
+                                        compareResult = av1_pertNum
+                                                .compareTo(av2_pertNum);
+
+                                    } catch (NumberFormatException nfe) {
+
+                                        compareResult = av1_pertNumStr
+                                                .compareTo(av2_pertNumStr);
+
+                                    }
+                                }
+                            }
+                            /*
+                             * Otherwise, this will be an ensemble perturbation
+                             * member that is not part of the GEFS. Just sort by
+                             * resource name.
+                             */
+                            else {
+
+                                AbstractVizResource<?, ?> ts1 = gr1.getRsc();
+                                AbstractVizResource<?, ?> ts2 = gr2.getRsc();
+
+                                if (ts1 != null && ts1.getName().length() > 0
+                                        && ts2 != null
+                                        && ts2.getName().length() > 0) {
+
+                                    String fullName_1 = ts1.getName();
+                                    String fullName_2 = ts2.getName();
+
+                                    if ((fullName_1 != null)
+                                            && (fullName_2 != null)) {
+                                        compareResult = fullName_1
+                                                .compareTo(fullName_2);
+                                    }
+                                } else {
+                                    compareResult = 0;
+                                }
+                            }
                         }
                     }
                 }
-            }
-            /*
-             * Finally, check for apples to oranges comparisons.
-             */
-            else if ((av1 instanceof String)
-                    && (av2 instanceof AbstractResourceHolder)) {
-                compareResult = 1;
-            } else if ((av1 instanceof AbstractResourceHolder)
-                    && (av2 instanceof String)) {
-                compareResult = -1;
-            }
+                /*
+                 * otherwise, just see if both holders have a valid resource and
+                 * compare those
+                 */
+                else {
+                    AbstractVizResource<?, ?> rsc1 = gr1.getRsc();
+                    AbstractVizResource<?, ?> rsc2 = gr2.getRsc();
+                    if (rsc1 != null && rsc1.getName().length() > 0
+                            && rsc2 != null && rsc2.getName().length() > 0) {
 
+                        String fullName_1 = rsc1.getName();
+                        String fullName_2 = rsc2.getName();
+                        compareResult = fullName_1.compareTo(fullName_2);
+
+                    }
+                    /*
+                     * if we reach here, just assume the two holders are equal
+                     */
+                    else {
+                        compareResult = 0;
+                    }
+                }
+            }
             return compareResult;
         }
-    }
-
-    private Font setLegendLabelFont(Object element) {
-
-        return SWTResourceManager.getFont("courier new", 10, SWT.BOLD);
 
     }
 
     public void setToolMode(EnsembleTool.EnsembleToolMode mode) {
         if (mode == EnsembleTool.EnsembleToolMode.LEGENDS_PLAN_VIEW) {
-            column1.getColumn().setText("   Valid Time");
+            column1.getColumn().setText(HEADER_VALID_TIME);
         } else if (mode == EnsembleTool.EnsembleToolMode.LEGENDS_TIME_SERIES) {
-            column1.getColumn().setText("   Cycle Time");
+            column1.getColumn().setText(HEADER_CYCLE_TIME);
         }
     }
 
-    private class LegendTimeTreeColumnLabelProvider extends ColumnLabelProvider {
+    private class LegendTimeTreeColumnLabelProvider
+            extends ColumnLabelProvider {
 
         public Font getFont(Object element) {
-            return setLegendLabelFont(element);
+            return legendTimeFont;
         }
 
         public Image getImage(Object element) {
@@ -1814,36 +1947,24 @@ public class LegendBrowserComposite extends Composite {
         public String getText(Object element) {
 
             String nodeLabel = null;
-            if (element instanceof String) {
-                nodeLabel = "";
-                /**
-                 * Find a child perturbation member resource (tree item?) and
-                 * get the time to set in this text.
-                 */
-            } else if (element instanceof GridResourceHolder) {
-
-                GridResourceHolder gr = (GridResourceHolder) element;
-                nodeLabel = gr.getDataTime();
-            } else if (TimeSeriesResourceHolder.class.isAssignableFrom(element
-                    .getClass())) {
-                TimeSeriesResourceHolder tsr = (TimeSeriesResourceHolder) element;
-                nodeLabel = tsr.getDataTime();
-            }
-            // update the visibility status cosmetically (i.e. normal text
-            // versus graying-out)
             if (element instanceof AbstractResourceHolder) {
                 AbstractResourceHolder gr = (AbstractResourceHolder) element;
+                nodeLabel = gr.getDataTime();
 
+                /*
+                 * update the visibility status cosmetically (i.e. normal text
+                 * versus graying-out)
+                 */
                 TreeItem treeItem = findTreeItemByResource(gr);
                 if (treeItem != null) {
                     if (gr.getRsc().getProperties().isVisible()) {
-                        treeItem.setForeground(EnsembleToolViewer
-                                .getEnabledForegroundColor());
+                        treeItem.setForeground(
+                                EnsembleToolViewer.getEnabledForegroundColor());
                     } else {
                         treeItem.setForeground(EnsembleToolViewer
                                 .getDisabledForegroundColor());
                     }
-                    matchParentToChildrenVisibility(treeItem);
+                    matchParentToChildrenVisibility(treeItem, false);
                 }
             }
             return nodeLabel;
@@ -1854,141 +1975,159 @@ public class LegendBrowserComposite extends Composite {
     /*
      * Here's how we control the items displayed in the tree.
      */
-    private class LegendNameTreeColumnLabelProvider extends ColumnLabelProvider {
+    private class LegendNameTreeColumnLabelProvider
+            extends ColumnLabelProvider {
 
         public Font getFont(Object element) {
-            return setLegendLabelFont(element);
+            return legendNameFont;
         }
 
         public Image getImage(Object element) {
             Image image = null;
-            if (element instanceof String) {
-                String productName = (String) element;
-                int imageWidth = 46;
-                int imageHeight = 18;
 
-                ImageData imageData = new ImageData(imageWidth, imageHeight,
-                        24, new PaletteData(255, 255, 255));
-                imageData.transparentPixel = imageData.palette
-                        .getPixel(new RGB(255, 255, 255));
-                image = new Image(rootComposite.getDisplay(), imageData);
-                GC gc = new GC(image);
-                gc.setBackground(GlobalColor.get(GlobalColor.WHITE));
-                gc.fillRectangle(0, 0, imageWidth, imageHeight);
+            if (element instanceof AbstractResourceHolder) {
+                AbstractResourceHolder rscHolder = (AbstractResourceHolder) element;
 
-                // if any ensemble members are visible then the root tree item
-                // should be "toggled on" ...
-                if (anyChildrenToggleOn(productName)) {
-                    gc.setBackground(GlobalColor.get(GlobalColor.BLACK));
-                }
-                // otherwise, the root tree item should appear "toggled off" ...
-                else {
-                    gc.setBackground(GlobalColor.get(GlobalColor.GRAY));
-                }
+                /* Is this an ensemble member? */
+                if (rscHolder instanceof EnsembleMembersHolder) {
+                    int imageWidth = 46;
+                    int imageHeight = 18;
 
-                int listEntryLineUpperLeft_x = 4;
-                int listEntryTopLineUpperLeft_y = 4;
-                int listEntryMiddleLineUpperLeft_y = 8;
-                int listEntryBottomLineUpperLeft_y = 12;
-                int listEntryWidth = 23;
-                int listEntryHeight = 2;
+                    ImageData imageData = new ImageData(imageWidth, imageHeight,
+                            24, new PaletteData(255, 255, 255));
+                    imageData.transparentPixel = imageData.palette
+                            .getPixel(new RGB(255, 255, 255));
+                    image = new Image(rootComposite.getDisplay(), imageData);
+                    GC gc = new GC(image);
+                    gc.setBackground(GlobalColor.get(GlobalColor.WHITE));
+                    gc.fillRectangle(0, 0, imageWidth, imageHeight);
 
-                // the icon for an ensemble product is three black
-                // horizontal bars which is an attempt to represent
-                // a list of the ensemble's pertubation members.
-                gc.fillRectangle(listEntryLineUpperLeft_x,
-                        listEntryTopLineUpperLeft_y, listEntryWidth,
-                        listEntryHeight);
-                gc.fillRectangle(listEntryLineUpperLeft_x,
-                        listEntryMiddleLineUpperLeft_y, listEntryWidth,
-                        listEntryHeight);
-                gc.fillRectangle(listEntryLineUpperLeft_x,
-                        listEntryBottomLineUpperLeft_y, listEntryWidth,
-                        listEntryHeight);
-
-                int bulletSize = 3;
-                int bulletUpperLeftMargin_x = 15;
-                int bulletUpperLeft_y = 9;
-
-                // then put a nice hyphen
-                gc.fillRectangle(listEntryWidth + bulletUpperLeftMargin_x,
-                        bulletUpperLeft_y, bulletSize + 2, bulletSize - 1);
-                gc.dispose();
-
-            } else if (element instanceof AbstractResourceHolder) {
-
-                AbstractResourceHolder gr = (AbstractResourceHolder) element;
-                RGB color = gr.getRsc()
-                        .getCapability(ColorableCapability.class).getColor();
-
-                int imageWidth = 46;
-                int imageHeight = 18;
-                int colorWidth = 24;
-                int colorHeight = 14;
-                int innerColorWidth = 20;
-                int innerColorHeight = 10;
-                int bulletSize = 3;
-                int bulletUpperLeftMargin_x = 13;
-                int bulletUpperLeft_y = 9;
-
-                ImageData imageData = new ImageData(imageWidth, imageHeight,
-                        24, new PaletteData(255, 255, 255));
-                imageData.transparentPixel = imageData.palette
-                        .getPixel(new RGB(255, 255, 255));
-                image = new Image(rootComposite.getDisplay(), imageData);
-                GC gc = new GC(image);
-                gc.setBackground(GlobalColor.get(GlobalColor.WHITE));
-                gc.fillRectangle(0, 0, imageWidth, imageHeight);
-                if (gr.getRsc().getProperties().isVisible()) {
-
-                    // need the following tweaking integers which cosmetic
-                    // center things nicely
-                    gc.setBackground(GlobalColor.get(GlobalColor.BLACK));
-
-                    // the icon for a visible individual grid resources put the
-                    // color of the resource inside a black bordered rectangle.
-                    gc.fillRectangle(4, imageHeight - colorHeight - 2,
-                            colorWidth, colorHeight);
-
-                    if (element instanceof GeneratedGridResourceHolder) {
-                        color = Utilities.brighten(color);
+                    // if any ensemble members are visible then the root tree
+                    // item
+                    // should be "toggled on" ...
+                    if (anyChildrenToggleOn(rscHolder.getGroupName())) {
+                        gc.setBackground(GlobalColor.get(GlobalColor.BLACK));
                     }
-                    gc.setBackground(SWTResourceManager.getColor(color));
-                    gc.fillRectangle(4 + ((colorWidth - innerColorWidth) / 2),
-                            (imageHeight - colorHeight)
-                                    + ((colorHeight - innerColorHeight) / 2)
-                                    - 2, innerColorWidth, innerColorHeight);
+                    // otherwise, the root tree item should appear "toggled off"
+                    // ...
+                    else {
+                        gc.setBackground(GlobalColor.get(GlobalColor.GRAY));
+                    }
+
+                    int listEntryLineUpperLeft_x = 4;
+                    int listEntryTopLineUpperLeft_y = 4;
+                    int listEntryMiddleLineUpperLeft_y = 8;
+                    int listEntryBottomLineUpperLeft_y = 12;
+                    int listEntryWidth = 23;
+                    int listEntryHeight = 2;
+
+                    // the icon for an ensemble product is three black
+                    // horizontal bars which is an attempt to represent
+                    // a list of the ensemble's pertubation members.
+                    gc.fillRectangle(listEntryLineUpperLeft_x,
+                            listEntryTopLineUpperLeft_y, listEntryWidth,
+                            listEntryHeight);
+                    gc.fillRectangle(listEntryLineUpperLeft_x,
+                            listEntryMiddleLineUpperLeft_y, listEntryWidth,
+                            listEntryHeight);
+                    gc.fillRectangle(listEntryLineUpperLeft_x,
+                            listEntryBottomLineUpperLeft_y, listEntryWidth,
+                            listEntryHeight);
+
+                    int bulletSize = 3;
+                    int bulletUpperLeftMargin_x = 15;
+                    int bulletUpperLeft_y = 9;
 
                     // then put a nice hyphen
-                    gc.setBackground(GlobalColor.get(GlobalColor.BLACK));
-                    gc.fillRectangle(colorWidth + bulletUpperLeftMargin_x,
+                    gc.fillRectangle(listEntryWidth + bulletUpperLeftMargin_x,
                             bulletUpperLeft_y, bulletSize + 2, bulletSize - 1);
+                    gc.dispose();
                 } else {
+                    RGB color = rscHolder.getRsc()
+                            .getCapability(ColorableCapability.class)
+                            .getColor();
 
-                    // need the following tweaking integers which cosmetic
-                    // center things nicely
-                    gc.setBackground(GlobalColor.get(GlobalColor.GRAY));
+                    int imageWidth = 46;
+                    int imageHeight = 18;
+                    int colorWidth = 24;
+                    int colorHeight = 14;
+                    int innerColorWidth = 20;
+                    int innerColorHeight = 10;
+                    int bulletSize = 3;
+                    int bulletUpperLeftMargin_x = 13;
+                    int bulletUpperLeft_y = 9;
 
-                    // the icon for a hidden individual grid resources put the
-                    // color of the resource inside a greyed bordered rectangle.
-                    gc.fillRectangle(4, imageHeight - colorHeight - 2,
-                            colorWidth, colorHeight);
-                    gc.setBackground(SWTResourceManager.getColor(Utilities
-                            .desaturate(color)));
-                    gc.fillRectangle(4 + ((colorWidth - innerColorWidth) / 2),
-                            (imageHeight - colorHeight)
-                                    + ((colorHeight - innerColorHeight) / 2)
-                                    - 2, innerColorWidth, innerColorHeight);
+                    ImageData imageData = new ImageData(imageWidth, imageHeight,
+                            24, new PaletteData(255, 255, 255));
+                    imageData.transparentPixel = imageData.palette
+                            .getPixel(new RGB(255, 255, 255));
+                    image = new Image(rootComposite.getDisplay(), imageData);
+                    GC gc = new GC(image);
+                    gc.setBackground(GlobalColor.get(GlobalColor.WHITE));
+                    gc.fillRectangle(0, 0, imageWidth, imageHeight);
+                    if (rscHolder.getRsc().getProperties().isVisible()) {
 
-                    gc.setBackground(GlobalColor.get(GlobalColor.GRAY));
-                    gc.fillRectangle(colorWidth + bulletUpperLeftMargin_x,
-                            bulletUpperLeft_y, bulletSize + 2, bulletSize - 1);
+                        /*
+                         * Need the following tweaking integers which cosmetic
+                         * center things nicely
+                         */
+                        gc.setBackground(GlobalColor.get(GlobalColor.BLACK));
+
+                        /*
+                         * The icon for a visible individual grid resources put
+                         * the color of the resource inside a black bordered
+                         * rectangle.
+                         */
+                        gc.fillRectangle(4, imageHeight - colorHeight - 2,
+                                colorWidth, colorHeight);
+
+                        if (element instanceof GeneratedGridResourceHolder) {
+                            color = Utilities.brighten(color);
+                        }
+                        gc.setBackground(SWTResourceManager.getColor(color));
+                        gc.fillRectangle(
+                                4 + ((colorWidth - innerColorWidth) / 2),
+                                (imageHeight - colorHeight)
+                                        + ((colorHeight - innerColorHeight) / 2)
+                                        - 2,
+                                innerColorWidth, innerColorHeight);
+
+                        /* then put a nice hyphen */
+                        gc.setBackground(GlobalColor.get(GlobalColor.BLACK));
+                        gc.fillRectangle(colorWidth + bulletUpperLeftMargin_x,
+                                bulletUpperLeft_y, bulletSize + 2,
+                                bulletSize - 1);
+                    } else {
+
+                        /*
+                         * Need the following tweaking integers which cosmetic
+                         * center things nicely
+                         */
+                        gc.setBackground(GlobalColor.get(GlobalColor.GRAY));
+
+                        /*
+                         * The icon for a hidden individual grid resources put
+                         * the color of the resource inside a greyed bordered
+                         * rectangle.
+                         */
+                        gc.fillRectangle(4, imageHeight - colorHeight - 2,
+                                colorWidth, colorHeight);
+                        gc.setBackground(SWTResourceManager
+                                .getColor(Utilities.desaturate(color)));
+                        gc.fillRectangle(
+                                4 + ((colorWidth - innerColorWidth) / 2),
+                                (imageHeight - colorHeight)
+                                        + ((colorHeight - innerColorHeight) / 2)
+                                        - 2,
+                                innerColorWidth, innerColorHeight);
+
+                        gc.setBackground(GlobalColor.get(GlobalColor.GRAY));
+                        gc.fillRectangle(colorWidth + bulletUpperLeftMargin_x,
+                                bulletUpperLeft_y, bulletSize + 2,
+                                bulletSize - 1);
+                    }
+                    gc.dispose();
                 }
-                gc.dispose();
-
-            }
-            if (image != null) {
-                imageCache.add(image);
             }
             return image;
         }
@@ -1996,69 +2135,62 @@ public class LegendBrowserComposite extends Composite {
         public String getText(Object element) {
 
             String nodeLabel = null;
-            if (element instanceof String) {
-                nodeLabel = (String) element;
-            } else if (GeneratedGridResourceHolder.class
-                    .isAssignableFrom(element.getClass())) {
-                AbstractResourceHolder gr = (AbstractResourceHolder) element;
-                nodeLabel = gr.getSpecificName();
-            } else if (element instanceof GridResourceHolder) {
 
-                GridResourceHolder gr = (GridResourceHolder) element;
-                if ((gr.getEnsembleId() != null)
-                        && (gr.getEnsembleId().length() > 0)) {
-                    nodeLabel = gr.getEnsembleId();
-                } else {
-                    nodeLabel = gr.getSpecificName();
-                }
-            } else if (TimeSeriesResourceHolder.class.isAssignableFrom(element
-                    .getClass())) {
-
-                TimeSeriesResourceHolder tsr = (TimeSeriesResourceHolder) element;
-                if ((tsr.getEnsembleId() != null)
-                        && (tsr.getEnsembleId().length() > 0)) {
-                    nodeLabel = tsr.getEnsembleId();
-                } else {
-                    if (element instanceof GeneratedTimeSeriesResourceHolder) {
-                        nodeLabel = tsr.getSpecificName();
-                    } else {
-                        nodeLabel = tsr.getGeneralName();
-                    }
-                }
-            } else if (element instanceof HistogramGridResourceHolder) {
-
-                HistogramGridResourceHolder gr = (HistogramGridResourceHolder) element;
-                if ((gr.getEnsembleId() != null)
-                        && (gr.getEnsembleId().length() > 0)) {
-                    nodeLabel = gr.getEnsembleId();
-                } else {
-                    nodeLabel = gr.getSpecificName();
-                }
-            }
-            // update the visibility status cosmetically (i.e. normal text
-            // versus graying-out)
             if (element instanceof AbstractResourceHolder) {
                 AbstractResourceHolder gr = (AbstractResourceHolder) element;
+
+                if (element instanceof EnsembleMembersHolder) {
+                    nodeLabel = gr.getGroupName();
+                } else if (element instanceof GeneratedGridResourceHolder) {
+                    nodeLabel = gr.getSpecificName();
+                } else if (element instanceof GridResourceHolder) {
+                    if ((gr.getEnsembleId() != null)
+                            && (gr.getEnsembleId().length() > 0)
+                            && ((AbstractGridResource<?>) (gr.getRsc()))
+                                    .getDisplayType() != DisplayType.IMAGE) {
+                        nodeLabel = gr.getEnsembleId();
+                    } else {
+                        nodeLabel = gr.getSpecificName();
+                    }
+                } else if (element instanceof TimeSeriesResourceHolder
+                        && !(element instanceof GeneratedTimeSeriesResourceHolder)) {
+                    TimeSeriesResourceHolder tsr = (TimeSeriesResourceHolder) element;
+                    if ((tsr.getEnsembleId() != null)
+                            && (tsr.getEnsembleId().length() > 0)) {
+                        nodeLabel = tsr.getEnsembleId();
+                    } else {
+                        nodeLabel = tsr.getSpecificName();
+                    }
+                } else if (element instanceof GeneratedTimeSeriesResourceHolder) {
+                    nodeLabel = gr.getSpecificName();
+                } else if (element instanceof HistogramGridResourceHolder) {
+                    HistogramGridResourceHolder hr = (HistogramGridResourceHolder) element;
+                    if ((hr.getEnsembleId() != null)
+                            && (hr.getEnsembleId().length() > 0)) {
+                        nodeLabel = hr.getEnsembleId();
+                    } else {
+                        nodeLabel = hr.getSpecificName();
+                    }
+                }
+
+                /*
+                 * Update the visibility status cosmetically (i.e. normal text
+                 * versus graying-out)
+                 */
 
                 TreeItem treeItem = findTreeItemByResource(gr);
                 if (treeItem != null) {
                     if (gr.getRsc().getProperties().isVisible()) {
-                        treeItem.setForeground(EnsembleToolViewer
-                                .getEnabledForegroundColor());
+                        treeItem.setForeground(
+                                EnsembleToolViewer.getEnabledForegroundColor());
                     } else {
                         treeItem.setForeground(EnsembleToolViewer
                                 .getDisabledForegroundColor());
                     }
-                    matchParentToChildrenVisibility(treeItem);
+                    matchParentToChildrenVisibility(treeItem, false);
                 }
-                // if (nodeLabel != null) {
-                // nodeLabel = nodeLabel.trim();
-                // if (gr != null && gr.requiresLoadCheck()
-                // && !gr.isLoadedAtFrame()) {
-                // nodeLabel = nodeLabel.concat(" (Not Loaded)");
-                // }
-                // }
             }
+
             return nodeLabel;
         }
     }
@@ -2086,8 +2218,8 @@ public class LegendBrowserComposite extends Composite {
                     if ((ensId != null) && (ensId.length() > 1)) {
                         currColor = ChosenSREFColors.getInstance()
                                 .getGradientByEnsembleId(ensId);
-                        rsc.getCapability(ColorableCapability.class).setColor(
-                                currColor.getRGB());
+                        rsc.getCapability(ColorableCapability.class)
+                                .setColor(currColor.getRGB());
                     }
                 }
             }
@@ -2113,22 +2245,17 @@ public class LegendBrowserComposite extends Composite {
             IStatus status = null;
 
             Color currColor = null;
-            int count = 0;
 
             for (AbstractResourceHolder gRsc : getPerturbationMembers()) {
                 if ((gRsc instanceof GridResourceHolder)
                         || (gRsc instanceof TimeSeriesResourceHolder)) {
-                    count++;
                     AbstractVizResource<?, ?> rsc = gRsc.getRsc();
-                    if (count == 1) {
-                        currentEnsembleRsc = rsc;
-                    }
                     String ensId = gRsc.getEnsembleIdRaw();
                     if ((ensId != null) && (ensId.length() > 1)) {
                         currColor = ChosenGEFSColors.getInstance()
                                 .getGradientByEnsembleId(ensId);
-                        rsc.getCapability(ColorableCapability.class).setColor(
-                                currColor.getRGB());
+                        rsc.getCapability(ColorableCapability.class)
+                                .setColor(currColor.getRGB());
                         rsc.getCapability(OutlineCapability.class);
                     }
                 }
@@ -2162,7 +2289,7 @@ public class LegendBrowserComposite extends Composite {
             if (treeItem == null) {
                 status = Status.CANCEL_STATUS;
             } else {
-                toggleItemVisible(treeItem);
+                toggleItemVisible(treeItem, true);
 
                 /*
                  * if this was the last item to be toggled off, for example, in
@@ -2170,7 +2297,7 @@ public class LegendBrowserComposite extends Composite {
                  * item off also
                  */
 
-                matchParentToChildrenVisibility(treeItem);
+                matchParentToChildrenVisibility(treeItem, true);
 
                 status = Status.OK_STATUS;
             }
@@ -2185,11 +2312,31 @@ public class LegendBrowserComposite extends Composite {
 
     public void clearAll() {
 
-        if (isViewerTreeReady()) {
-            legendsTreeViewer.getTree().clearAll(true);
+        if (isWidgetReady()) {
+            /*
+             * In association with VLab AWIPS2_GSD Issue #29204
+             * 
+             * Cosmetic clear for performance perception.
+             */
+            legendsTreeViewer.setInput(
+                    EnsembleTool.getInstance().getEmptyResourceList());
             legendsTreeViewer.refresh();
         }
 
+    }
+
+    public void updateElementInTree(AbstractResourceHolder arh) {
+
+        VizApp.runAsync(new Runnable() {
+
+            @Override
+            public void run() {
+                if (isWidgetReady()) {
+                    legendsTreeViewer.update(arh, null);
+                }
+            }
+
+        });
     };
 
 }

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -40,6 +40,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.auth.req.CheckAuthorizationRequest;
+import com.raytheon.uf.common.auth.util.PermissionUtils;
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
@@ -60,25 +62,29 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Site Activation Dialog
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 5, 2011            randerso     Initial creation
- * Oct 26, 2012 1287       rferrel     Code clean up for non-blocking dialog.
- * Aug 28, 2014 3563      randerso     Move to the new common INotificationObserer code
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 05, 2011           randerso  Initial creation
+ * Oct 26, 2012  1287     rferrel   Code clean up for non-blocking dialog.
+ * Aug 28, 2014  3563     randerso  Move to the new common INotificationObserer
+ *                                  code
+ * May 23, 2017  6217     randerso  Change to work with updated roles and
+ *                                  permissions framework
+ * May 23, 2017  6285     randerso  Migrate to new roles and permissions
+ *                                  framework
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
-public class SiteActivationDlg extends CaveJFACEDialog implements
-        INotificationObserver {
+public class SiteActivationDlg extends CaveJFACEDialog
+        implements INotificationObserver {
     private static final String SITE_ACTIVATION_TOPIC = "edex.alerts.siteActivate";
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -102,13 +108,6 @@ public class SiteActivationDlg extends CaveJFACEDialog implements
         this.dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
@@ -123,13 +122,6 @@ public class SiteActivationDlg extends CaveJFACEDialog implements
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveJFACEDialog#createDialogArea(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected Control createDialogArea(Composite parent) {
         Composite top = (Composite) super.createDialogArea(parent);
@@ -205,14 +197,22 @@ public class SiteActivationDlg extends CaveJFACEDialog implements
         layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
         group.setLayoutData(layoutData);
 
-        logRoll = new Text(group, SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL
-                | SWT.H_SCROLL);
+        logRoll = new Text(group,
+                SWT.MULTI | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
         layoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
         layoutData.widthHint = this.convertWidthInCharsToPixels(130);
         layoutData.heightHint = this.convertHeightInCharsToPixels(24);
         logRoll.setLayoutData(layoutData);
 
-        if (CheckPermissions.getAuthorization()) {
+        boolean authorized = false;
+        CheckAuthorizationRequest request = new CheckAuthorizationRequest(
+                PermissionUtils.buildPermissionString("gfe", "siteActivation"));
+        try {
+            authorized = (Boolean) ThriftClient.sendRequest(request);
+        } catch (VizException e) {
+            statusHandler.error("Unable to determine user authorization", e);
+        }
+        if (authorized) {
             NotificationManagerJob.addObserver(SITE_ACTIVATION_TOPIC, this);
             updateActiveSites();
 
@@ -231,13 +231,6 @@ public class SiteActivationDlg extends CaveJFACEDialog implements
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveJFACEDialog#createButtonBar(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected Control createButtonBar(Composite parent) {
         return null;
@@ -261,7 +254,8 @@ public class SiteActivationDlg extends CaveJFACEDialog implements
     private void doActivate() {
         String siteID = this.siteId.getText();
         if (!siteID.isEmpty()) {
-            ActivateSiteRequest request = new ActivateSiteRequest(siteID, "gfe");
+            ActivateSiteRequest request = new ActivateSiteRequest(siteID,
+                    "gfe");
             try {
                 ThriftClient.sendRequest(request);
             } catch (VizException e) {
@@ -322,13 +316,6 @@ public class SiteActivationDlg extends CaveJFACEDialog implements
         return activeSites;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.notification.INotificationObserver#
-     * notificationArrived
-     * (com.raytheon.uf.viz.core.notification.NotificationMessage[])
-     */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
         for (NotificationMessage msg : messages) {

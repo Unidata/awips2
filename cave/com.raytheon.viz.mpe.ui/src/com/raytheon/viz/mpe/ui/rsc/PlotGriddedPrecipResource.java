@@ -79,24 +79,25 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
- * TODO Add Description
+ * The MPE Gridded Precipitation Resource.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 27, 2009            snaples     Initial creation
+ * Apr 27, 2009 ?          snaples     Initial creation
+ * Feb 28, 2017 6157       bkowal      No longer alter the data when legend filtering
+ *                                     is enabled.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
-public class PlotGriddedPrecipResource extends
-        AbstractVizResource<AbstractResourceData, MapDescriptor> implements
-        IMpeResource {
+public class PlotGriddedPrecipResource
+        extends AbstractVizResource<AbstractResourceData, MapDescriptor>
+        implements IMpeResource {
 
     MPEDisplayManager displayMgr = null;
 
@@ -228,9 +229,12 @@ public class PlotGriddedPrecipResource extends
                 cm.read_file(file, num + mnum, spf);
                 cm.read_file(file, num + mnum - i1, pcp);
 
-                for (i = 0; i < (hrap_grid.maxi - hrap_grid.hrap_minx) - 1; i++) {
-                    for (j = 0; j < hrap_grid.maxj - hrap_grid.hrap_miny - 1; j++) {
-                        spf.value[i][j] = (spf.value[i][j] + pcp.value[i][j]) / 2;
+                for (i = 0; i < (hrap_grid.maxi - hrap_grid.hrap_minx)
+                        - 1; i++) {
+                    for (j = 0; j < hrap_grid.maxj - hrap_grid.hrap_miny
+                            - 1; j++) {
+                        spf.value[i][j] = (spf.value[i][j] + pcp.value[i][j])
+                                / 2;
                     }
                 }
             } else if (DailyQcUtils.pcp_in_use[num + mnum] == 1) {
@@ -248,9 +252,6 @@ public class PlotGriddedPrecipResource extends
 
         buf = FloatBuffer.allocate(hrap_grid.maxi * hrap_grid.maxj);
 
-        /* Get value in the HRAP grid bins. */
-        // for (i = 0; i < (hrap_grid.maxi); i++) {
-        // for (j = 0; j < hrap_grid.maxj; j++) {
         for (j = hrap_grid.maxj - 1; j >= 0; j--) {
             for (i = 0; i < hrap_grid.maxi; i++) {
                 if (hrap_grid.owner[i][j] == -1) {
@@ -272,7 +273,6 @@ public class PlotGriddedPrecipResource extends
                 }
                 Float fg = 0f;
                 value = pcp.value[i][j];
-                // fg = (float) (value / 100.0);
                 if (fg.isNaN() || value < 0) {
                     fg = -9999f;
                 } else {
@@ -283,17 +283,6 @@ public class PlotGriddedPrecipResource extends
                     f = fg;
                 } else {
                     f = 0;
-                }
-                if (MPELegendResource.dVal != 0) {
-                    if (MPELegendResource.up == true) {
-                        if (f >= MPELegendResource.dVal) {
-                            f = (float) MPELegendResource.dVal;
-                        }
-                    } else {
-                        if (f < MPELegendResource.dVal) {
-                            f = 1f;
-                        }
-                    }
                 }
                 buf.put(f);
             }
@@ -367,8 +356,9 @@ public class PlotGriddedPrecipResource extends
         Map<String, Object> values = new HashMap<String, Object>();
 
         try {
-            Coordinate gridCell = coord.asGridCell(HRAP.getInstance()
-                    .getGridGeometry(), PixelInCell.CELL_CORNER);
+            Coordinate gridCell = coord.asGridCell(
+                    HRAP.getInstance().getGridGeometry(),
+                    PixelInCell.CELL_CORNER);
 
             Point p = new Point((int) gridCell.x, (int) gridCell.y);
             Coordinate l = coord.asLatLon();
@@ -398,8 +388,8 @@ public class PlotGriddedPrecipResource extends
 
             ISpatialQuery query = SpatialQueryFactory.create();
 
-            com.vividsolutions.jts.geom.Point point = gf.createPoint(coord
-                    .asLatLon());
+            com.vividsolutions.jts.geom.Point point = gf
+                    .createPoint(coord.asLatLon());
 
             SpatialQueryResult[] results = query.query("county",
                     new String[] { "countyname" }, point, null, false,
@@ -471,7 +461,8 @@ public class PlotGriddedPrecipResource extends
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         if (buf == null
-                || (DailyQcUtils.grids_flag != 1 && DailyQcUtils.contour_flag != 1)
+                || (DailyQcUtils.grids_flag != 1
+                        && DailyQcUtils.contour_flag != 1)
                 || displayMgr.isQpf() != true) {
             return;
         }

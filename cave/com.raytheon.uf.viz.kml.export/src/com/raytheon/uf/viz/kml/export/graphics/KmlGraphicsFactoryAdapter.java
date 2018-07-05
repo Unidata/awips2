@@ -22,13 +22,10 @@ package com.raytheon.uf.viz.kml.export.graphics;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.opengis.coverage.grid.GridEnvelope;
 
 import com.raytheon.uf.viz.core.AbstractGraphicsFactoryAdapter;
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * 
@@ -38,14 +35,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 1, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Jun 01, 2012           bsteffen  Initial creation
+ * Nov 14, 2016  5976     bsteffen  Remove deprecated methods
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class KmlGraphicsFactoryAdapter extends AbstractGraphicsFactoryAdapter {
 
@@ -68,27 +65,6 @@ public class KmlGraphicsFactoryAdapter extends AbstractGraphicsFactoryAdapter {
     public KmlGraphicsTarget constructTarget(Canvas canvas, float width,
             float height) throws VizException {
         return new KmlGraphicsTarget();
-    }
-
-    @Override
-    public IExtent constructExtent(Coordinate[] coords) throws VizException {
-        return new PixelExtent(coords);
-    }
-
-    @Override
-    public IExtent constructExtent(double aMinX, double aMaxX, double aMinY,
-            double aMaxY) throws VizException {
-        return new PixelExtent(aMinX, aMaxX, aMinY, aMaxY);
-    }
-
-    @Override
-    public IExtent constructExtent(Rectangle rect) throws VizException {
-        return new PixelExtent(rect);
-    }
-
-    @Override
-    public IExtent constructExtent(GridEnvelope range) throws VizException {
-        return new PixelExtent(range);
     }
 
     @Override

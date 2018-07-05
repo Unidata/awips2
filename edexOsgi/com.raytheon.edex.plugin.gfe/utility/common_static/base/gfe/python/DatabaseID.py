@@ -18,23 +18,32 @@
 # further licensing information.
 ##
 
-import AbsTime
-import JUtil
-
 #
 # Provides a wrapper to the Java DatabaseID class
 #   
 #
-#    
-#     SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    04/10/08                      njensen       Initial Creation.
-#    04/02/10        4816          ryu           Add missing methods
-#    07/02/10        6350          ryu           Modified modelTime()
-#    03/12/2015      3955          randerso      Added __eq__ and __ne__
 #
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Apr 10, 2008           njensen   Initial Creation.
+# Apr 02, 2010  4816     ryu       Add missing methods
+# Jul 02, 2010  6350     ryu       Modified modelTime()
+# Mar 12, 2015  3955     randerso  Added __eq__ and __ne__
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls 
+#
+##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
+import AbsTime
+import JUtil
+
 
 class DatabaseID(JUtil.JavaWrapperClass):
     
@@ -44,7 +53,7 @@ class DatabaseID(JUtil.JavaWrapperClass):
     def __str__(self):
         if not self.isValid():
             return "<Invalid>"
-        return self.__dbid.toString()
+        return str(self.__dbid)
     
     def __repr__(self):
         return self.__str__()

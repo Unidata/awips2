@@ -20,6 +20,7 @@
 package com.raytheon.viz.mpe.ui.dialogs;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -62,11 +63,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 08, 2009             snaples     Initial creation
  * Feb 02, 2014  16201      snaples     Added saved data flag support
  * Feb 15, 2016  3491       skorolev    Fixed Unhandled event loop exception in updateRWR()
- * Jul 27, 2016  4523       skorolev    Cleanup.
  * 
  * </pre>
  * 
  * @author snaples
+ * @version 1.0
  */
 
 public class AddPseudoGageDialog extends CaveSWTDialog {
@@ -251,7 +252,7 @@ public class AddPseudoGageDialog extends CaveSWTDialog {
     protected void writePGage() {
         int maxpgage = 0;
         String where = " WHERE obstime='" + sdf.format(datetime) + "' ";
-        List<Pseudogageval> pgages = MPEDataManager.getInstance()
+        ArrayList<Pseudogageval> pgages = MPEDataManager.getInstance()
                 .getPseudoGageVal(where);
         if (!pgages.isEmpty()) {
             for (Pseudogageval gage : pgages) {

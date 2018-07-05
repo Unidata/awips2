@@ -115,11 +115,12 @@ import com.raytheon.viz.ui.statusline.StatusStore;
  * Jul 30, 2015 17770      lshi         Add handling for AT, EP, CP and WP basins
  * Jan 14, 2016 5239       randerso     Fixed Zones included/not included labels not always visible
  * Feb 05, 2016 5316       randerso     Moved AbstractZoneSelector to separate project
+ * Nov 01, 2016 5979       njensen      Cast to Number where applicable
+ * Jul 06, 2017 20085      lshi         Undefined basin ID for Atlantic when issuing tropical warning
  * 
  * </pre>
  * 
  * @author ebabin
- * @version 1.0
  */
 
 public class MakeHazardDialog extends CaveSWTDialog implements
@@ -232,7 +233,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             "CENTRAL PACIFIC HURRICANE CENTER" // CPHC
     };
 
-    private static final Map<String, String> BASINS = ImmutableMap.of("AT",
+    private static final Map<String, String> BASINS = ImmutableMap.of("AL",
             "10", "EP", "20", "CP", "30", "WP", "40");
 
     public MakeHazardDialog(Shell parent, DataManager dataManager,
@@ -291,7 +292,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         initializeComponents();
         shell.pack();
 
-        this.comboDict = new HashMap<String, Integer>();
+        this.comboDict = new HashMap<>();
         setHazardType(this.defaultHazardType);
         loadInitialData();
         getInitialSelections();
@@ -406,9 +407,8 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         }
         if (timeRange == null) {
             return;
-        } else {
-            setTRSliders(timeRange);
         }
+        setTRSliders(timeRange);
 
         String phen_sig = parmName.substring(3, 5) + "." + parmName.charAt(5);
         pickDefaultCategory(phen_sig);
@@ -652,7 +652,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         // Use the validated inputs
 
         // Put arguments in a map to pass to the script.
-        Map<String, Object> argmap = new HashMap<String, Object>();
+        Map<String, Object> argmap = new HashMap<>();
         argmap.put("selectedHazard", hazard);
         argmap.put("timeRange", timeRange);
         argmap.put("areaList", zoneList);
@@ -682,21 +682,22 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
             // Just return if no TCM is found. Something's really wrong
             return null;
-        } else {
-            String altFileName = getAltInfoFilename(tcmProduct);
-            if (altFileName != null) {
-                String nationalBase = BASINS.get("AT");
-                String baseETN = altFileName.substring(0, 2);
-                String baseEtnCode = BASINS.get(baseETN);
-                if (baseEtnCode != null) {
-                    nationalBase = baseEtnCode;
-                } else {
-                    statusHandler.warn("Undefined basin ID: " + baseETN
-                            + ", defaulting to AT");
-                }
-                String stormNum = altFileName.substring(2, 4);
-                tropicalETN = nationalBase + stormNum;
+        }
+
+        String altFileName = getAltInfoFilename(tcmProduct);
+        if (altFileName != null) {
+            String nationalBase = BASINS.get("AL");
+            String baseETN = altFileName.substring(0, 2);
+            String baseEtnCode = BASINS.get(baseETN);
+            if (baseEtnCode != null) {
+                nationalBase = baseEtnCode;
+            } else {
+                statusHandler.warn("Undefined basin ID: " + baseETN
+                        + ", defaulting to AL");
             }
+            String stormNum = altFileName.substring(2, 4);
+            tropicalETN = nationalBase + stormNum;
+
         }
         return tropicalETN;
     }
@@ -902,7 +903,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         selectAllButton.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
-                Map<String, Integer> comboDict = new HashMap<String, Integer>();
+                Map<String, Integer> comboDict = new HashMap<>();
                 for (String zoneName : zoneSelector.getZoneNames()) {
                     comboDict.put(zoneName, 1);
                 }
@@ -991,8 +992,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         etnSegNumGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
                 true));
 
-        List<String> groups = new ArrayList<String>(getHazardsDictionary()
-                .keySet());
+        List<String> groups = new ArrayList<>(getHazardsDictionary().keySet());
         this.currentHazardType = "";
 
         SelectionAdapter selAdapt = new SelectionAdapter() {
@@ -1398,7 +1398,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         List<Object> laData = this.localAreaData.get(le);
         if (laData != null) {
             // get the segment number
-            Integer segment = (Integer) laData.get(0);
+            Number segment = (Number) laData.get(0);
             if (segment != null) {
                 String segText = segment.toString();
                 this.etnSegNumberField.setText(segText);
@@ -1419,8 +1419,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
             @SuppressWarnings("unchecked")
             List<String> zoneList = (List<String>) laData.get(2);
             if ((zoneList != null) && !zoneList.isEmpty()) {
-                Map<String, Integer> comboDict = new HashMap<String, Integer>(
-                        zoneList.size());
+                Map<String, Integer> comboDict = new HashMap<>(zoneList.size());
                 for (String z : zoneList) {
                     comboDict.put(z, 1);
                 }
@@ -1516,7 +1515,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
         IReferenceSetManager rm = this.dataManager.getRefManager();
 
         List<String> areas = this.zoneSelector.getZoneNames();
-        List<String> areaList = new ArrayList<String>();
+        List<String> areaList = new ArrayList<>();
 
         for (String area : areas) {
             ReferenceID refId = new ReferenceID(area);
@@ -1580,9 +1579,12 @@ public class MakeHazardDialog extends CaveSWTDialog implements
 
         final DataManager dataManager = (DataManager) args.get("dataManager");
         final String colorName = (String) args.get("mapColor");
-        final int defaultMapWidth = (Integer) args.get("defaultMapWidth");
-        final int timeScaleEndTime = (Integer) args.get("timeScaleEndTime");
-        final float areaThreshold = (Float) args.get("areaThreshold");
+        final int defaultMapWidth = ((Number) args.get("defaultMapWidth"))
+                .intValue();
+        final int timeScaleEndTime = ((Number) args.get("timeScaleEndTime"))
+                .intValue();
+        final float areaThreshold = ((Number) args.get("areaThreshold"))
+                .floatValue();
         final String defaultHazardType = (String) args.get("defaultHazardType");
         final Map<String, List<String>> mapNames = (Map<String, List<String>>) args
                 .get("mapNames");
@@ -1590,7 +1592,7 @@ public class MakeHazardDialog extends CaveSWTDialog implements
                 .get("hazardDict");
         final List<String> tcmList = (List<String>) args.get("tcmList");
         final List<String> tropicalHaz = (List<String>) args.get("tropicalHaz");
-        final int natlBaseETN = (Integer) args.get("natlBaseETN");
+        final int natlBaseETN = ((Number) args.get("natlBaseETN")).intValue();
         final Map<String, List<String>> localEffectAreas = (Map<String, List<String>>) args
                 .get("localEffectAreas");
         final Map<String, List<Object>> localAreaData = (Map<String, List<Object>>) args

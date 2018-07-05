@@ -6,15 +6,21 @@
 # InitializeNewTopo.py
 #
 # Copies current GFE Topo grid to CurrentTopo element in NewTerrain database.
-# Populates NewTopo element from GMTED2010 topo dataset.
+# Populates NewTopo element from StdTerrain topo dataset.
 #
 # SOFTWARE HISTORY
 # Date         Ticket#    Engineer     Description
 # ------------ ---------- -----------  --------------------------
 # 10/13/2015    #4961     randerso     Initial creation
+# 07/18/2017    #6253     randerso     Use new StdTopo netCDF files
 #
 # Author: randerso
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 MenuItems = ["Edit"]
 
@@ -48,12 +54,15 @@ class Procedure (SmartScript.SmartScript):
         gtopoParm.saveParameter(True)
         gtopoParm.setMutable(False)
             
-        gmtedParm = self.getParm(baseTerrainDbId, "GMTED", "SFC")
-        gmtedGrid = self.getTerrainGrid("gmted2010")
-        gmtedParm.setMutable(True)
-        self.createGrid(baseTerrainDbId, "GMTED", "SCALAR", gmtedGrid, allTimes)
-        gmtedParm.saveParameter(True)
-        gmtedParm.setMutable(False)
+        stdTopoDbId = self.findDatabase("D2D_StdTerrain")
+        stdTopoGrid = self.getGrids(stdTopoDbId, "DISTsurface", "SFC", allTimes, mode="First")
+        stdTopoGrid /= 0.3048 # convert meters to feet
+
+        stdTopoParm = self.getParm(baseTerrainDbId, "StdTopo", "SFC")
+        stdTopoParm.setMutable(True)
+        self.createGrid(baseTerrainDbId, "StdTopo", "SCALAR", stdTopoGrid, allTimes)
+        stdTopoParm.saveParameter(True)
+        stdTopoParm.setMutable(False)
             
         newTopoParm = self.getParm(newTerrainDbId, "NewTopo", "SFC")
         inventory = newTopoParm.getGridInventory()
@@ -63,7 +72,7 @@ class Procedure (SmartScript.SmartScript):
                    "Do you wish to re-initialize the NewTopo Grid discarding any edits?")
 
         if doIt:
-            self.createGrid(newTerrainDbId, "NewTopo", "SCALAR", gmtedGrid, allTimes)
+            self.createGrid(newTerrainDbId, "NewTopo", "SCALAR", stdTopoGrid, allTimes)
             newTopoParm.saveParameter(True)
 
         self.setActiveElement(newTerrainDbId, "NewTopo", "SFC", allTimes)

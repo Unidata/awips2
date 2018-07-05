@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -39,18 +38,17 @@ import com.raytheon.viz.hydrocommon.data.GageData.ThreatIndex;
 import com.raytheon.viz.hydrocommon.pdc.PDCOptionData;
 
 /**
- * Point Data Control Add Missing Reports
+ * TODO Add Description
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 21, 2008            mpduff     Initial creation
- * Jul 28, 2016 4623       skorolev   Cleanup.
- * 
  * </pre>
  * 
  * @author mpduff
+ * @version 1.0
  */
 
 public class PointDataControlAddMissing {
@@ -75,14 +73,15 @@ public class PointDataControlAddMissing {
      * contains only reports with data. At the end of this routine, the list
      * contains both reports with data and reports with missing data.
      */
-    public static List<GageData> addMissingReports(List<GageData> obsReportList) {
+    public static ArrayList<GageData> addMissingReports(
+            ArrayList<GageData> obsReportList) {
         if ((obsReportList == null) || (obsReportList.size() == 0)) {
             return obsReportList;
         }
 
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         StringBuilder where = new StringBuilder();
-        List<String> missingLids = new ArrayList<String>();
+        ArrayList<String> missingLids = new ArrayList<String>();
 
         /*
          * if the user requests that missing reports be shown, then get a list
@@ -125,8 +124,8 @@ public class PointDataControlAddMissing {
         previousWhere = where.toString();
 
         PDCDataManager dataManager = PDCDataManager.getInstance();
-        List<Object[]> results = dataManager.getUnique("lid", "ingestfilter",
-                where.toString());
+        ArrayList<Object[]> results = dataManager.getUnique("lid",
+                "ingestfilter", where.toString());
 
         /* Create a HashMap for quick search of missing LID */
         Map<String, Object[]> ingestMap = new HashMap<String, Object[]>();
@@ -160,15 +159,8 @@ public class PointDataControlAddMissing {
         return obsReportList;
     }
 
-    /**
-     * Adds Missing Report
-     * 
-     * @param missingList
-     * @param obsReportList
-     * @return
-     */
-    private static List<GageData> addMissingReport(List<String> missingList,
-            List<GageData> obsReportList) {
+    private static ArrayList<GageData> addMissingReport(
+            ArrayList<String> missingList, ArrayList<GageData> obsReportList) {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         for (String lid : missingList) {
             GageData report = new GageData();

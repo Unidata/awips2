@@ -26,8 +26,6 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TimeZone;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -53,7 +51,6 @@ import com.raytheon.viz.mpe.core.MPEDataManager.MPEDateInfo;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.TransmitBestEstimateQPEProvider;
 import com.raytheon.viz.mpe.ui.TransmitRFCBiasProvider;
-import com.raytheon.viz.mpe.ui.actions.ClearMPEData;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
@@ -76,11 +73,11 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Jul 8, 2015   16790    snaples       Updated call to setCurrentEditDate to pass force variable.
  * Sep 29, 2015  17975    snaples      Fixed issue with Hydro date not following the CAVE time when changed.
  * Apr 11, 2016 5512      bkowal       Cleanup.
+ * Dec 15, 2017 6547      bkowal       Initialize {@link #prevHydDate}.
  * 
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
 
 public class ChooseDataPeriodDialog extends CaveJFACEDialog {
@@ -568,7 +565,7 @@ public class ChooseDataPeriodDialog extends CaveJFACEDialog {
         
         hourSpinner.setSelection(cal.get(Calendar.HOUR_OF_DAY));
         
-        
+        prevHydDate = hydroCal.getTime();
         hydyearText.setText(Integer.toString(hydroCal.get(Calendar.YEAR)));
         hydmonthText.setText(Integer.toString(hydroCal.get(Calendar.MONTH) + 1));
         

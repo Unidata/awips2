@@ -20,6 +20,7 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  *  Date          Ticket#   Engineer    Description
  *  ------------- --------  ----------- --------------------------
  *  Aug 12, 2016  DCS 18781 jburks      Intial creation.
+ *  Dec 11, 2017  DCS 19856 jburks      Added isHidden method.
  * 
  * </pre>
  * 
@@ -51,6 +52,12 @@ public class IncompleteFramesToggleAction extends AbstractRightClickAction {
     @Override
     public String getText() {
         return "Show incomplete frames";
+    }
+
+    @Override
+    public boolean isHidden() {
+        SatResource resc = (SatResource) getSelectedRsc();
+        return !resc.getResourceData().isIncompleteFrameSelectableProduct();
     }
 
 }

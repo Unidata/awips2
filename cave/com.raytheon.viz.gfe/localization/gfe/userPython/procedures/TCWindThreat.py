@@ -16,12 +16,19 @@
 # Modified: by Shannon/Pablo 06/19/2012 to make A2 and DRT compatible
 # Modified: by Pablo/Shannon on 05/21/2014 to fix bug introduced in 2012 when Very Low was eliminated
 # Modified: By Santos/Lefebvre 09/17/2014 to make changes for official implementation in 2015.
-# Modified: By Belk 07/15/2016 to make efficiency improvements, and 
+# Modified: By Belk 07/15/2016 to make efficiency improvements, and
 #   refactor to make use of a utility containing common methods with other tools
 # CHECKED IN FOR 17.1.1: By LeFebvre 09/23/2016 finish converstion to numpy conventions.
-# Modified: By LeFebvre 09/26/16 - Removed commented out code to pass code review. 
-# Modified: By LeFebvre 10/31/16 - Added more code to ensure only one cyclone center point is calculated  
+# Modified: By LeFebvre 09/26/16 - Removed commented out code to pass code review.
+# Modified: By LeFebvre 10/31/16 - Added more code to ensure only one cyclone center point is calculated
+# Modified: By LeFebvre 07/18/17 - Added option to populate based on Preliminary or Official prob guidance.
 #----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 #
 # THIS CODE SHALL NOT BE CHANGED WITHOUT CONSULTING ORIGINAL DEVELOPERS.
 #
@@ -36,7 +43,8 @@ MenuItems = ["Populate","Edit"]
 # modified by the Script.
 
 
-VariableList = [("Forecast Confidence?", "Typical (Combined; For ill defined or for most systems anytime within 48 hours of landfall or closest approach)",
+VariableList = [("Probabilistic Wind Source?", "Official", "radio", ["Official", "Preliminary"]),
+                ("Forecast Confidence?", "Typical (Combined; For ill defined or for most systems anytime within 48 hours of landfall or closest approach)",
                  "radio", ["Typical (Combined; For ill defined or for most systems anytime within 48 hours of landfall or closest approach)",
                            "High (Combined; for well-behaved systems within 12 hours of landfall or closest approach)",
                            "Higher (Combined; for very well-behaved systems within 6 hours of landfall or closest approach)",
@@ -64,7 +72,7 @@ class Procedure (TropicalUtility.TropicalUtility):
     # the last one of each type
     def getProbGrids(self):
         ap = self.availableParms()
-        searchStr = self.getSiteID() + "_GRID_D2D_TPCProb"
+        searchStr = self.getSiteID() + "_GRID_D2D_" + self._probWindModelSource
         probModel = ""
         for elem, level, model in ap:
             if  searchStr in model.modelIdentifier():
@@ -77,7 +85,6 @@ class Procedure (TropicalUtility.TropicalUtility):
 
         # make a big timeRange
         timeRange = TimeRange.allTimes()
-
 
         # get the TPC prob grids, and keep the last one
         prob34List = self.getGrids(probModel, "prob34", "FHAG10", timeRange,
@@ -435,8 +442,17 @@ class Procedure (TropicalUtility.TropicalUtility):
 
     def execute(self, varDict):
 
+        # Fetch the model source and define the model name
+        sourceDB = varDict["Probabilistic Wind Source?"]
+        if sourceDB == "Official":
+            self._probWindModelSource = "TPCProb"
+        elif sourceDB == "Preliminary":
+            self._probWindModelSource = "TPCProbPrelim"
+        else:
+            self.statusBarMsg("Unknown model source selected. Aborting.", "U")
+            return
+
         # Get confidence value from the dialog
-               
         confidenceStr = varDict["Forecast Confidence?"]
         tcmwindmax = varDict["WindMax Source?"]
 
@@ -593,5 +609,6 @@ class Procedure (TropicalUtility.TropicalUtility):
         self.createGrid("Fcst", "WindThreat", "DISCRETE", (threatGrid, keys),
                         timeRange, discreteKeys=keys, discreteAuxDataLength=5,
                         discreteOverlap=0)
+
 
 

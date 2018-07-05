@@ -18,10 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <latLonGridCoverage>
     <name>2881144001</name>
     <description>Global High Resolution Sea Ice grid
-		(longitude/latitude grid)-Add one column</description>
+        (longitude/latitude grid)-Add one column</description>
     <la1>89.9375</la1>
     <lo1>0.0625</lo1>
     <firstGridPointCorner>UpperLeft</firstGridPointCorner>

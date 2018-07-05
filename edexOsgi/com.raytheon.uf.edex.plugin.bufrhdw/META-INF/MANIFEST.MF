@@ -4,7 +4,7 @@ Bundle-Name: Bufrhdw Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.bufrhdw
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.raytheon.uf.common.dataplugin.bufrhdw;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.pointdata,

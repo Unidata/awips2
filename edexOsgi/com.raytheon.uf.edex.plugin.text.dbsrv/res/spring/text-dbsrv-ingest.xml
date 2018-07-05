@@ -1,25 +1,27 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <!-- Special handler for text plugin archives that bases filenames off
          creation time-->
     <bean id="textArchiveNamer" class="com.raytheon.uf.edex.plugin.text.dbsrv.maintenance.archiver.TextArchiveFileNameFormatter" />
-    <bean factory-bean="databaseArchiver" factory-method="registerPluginArchiveFormatter" depends-on="databaseArchiver">
+    <bean factory-bean="databaseArchiver" factory-method="registerPluginArchiveFormatter">
         <constructor-arg value="text" />
         <constructor-arg ref="textArchiveNamer" />
     </bean>
 
-    <bean factory-bean="databaseArchiver" factory-method="registerPluginBatchSize" depends-on="databaseArchiver">
+    <bean factory-bean="databaseArchiver" factory-method="registerPluginBatchSize">
         <constructor-arg value="text" />
         <constructor-arg value="1000" type="java.lang.Integer"/>
     </bean>
 
     <bean id="afosToAwipsListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.AfosToAwipsListener">
-        <constructor-arg value="/awips2/edex/data/utility/common_static/base/afos2awips/afos2awips.txt"/>
+        <constructor-arg value="${afos2awips.legacyFileLocation}"/>
     </bean>
-    
+
     <bean id="afosBrowserListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.AfosBrowserModelSubscriber" />
 
     <bean factory-bean="ndmProc" factory-method="registerListener">
@@ -51,13 +53,14 @@
         <constructor-arg value="awipsMasterPIL.txt" />
         <constructor-arg ref="afosBrowserListener" />
     </bean>
-    
+
     <!-- textdb -->
     <bean id="textDBStaticDataListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.TextDBStaticDataSubscriber">
         <constructor-arg value="jms-generic:topic:textDBFilesChanged"/>
     </bean>
-    <bean id="siteMapListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.SiteMapNationalDatasetSubscriber" />
-
+    <bean id="siteMapListener" class="com.raytheon.uf.edex.plugin.text.dbsrv.ingest.SiteMapNationalDatasetSubscriber">
+        <constructor-arg value="jms-generic:topic:siteMapFilesChanged"/>
+    </bean>
     <bean factory-bean="ndmProc" factory-method="registerListener">
         <constructor-arg value="bit_table.dat" />
         <constructor-arg ref="textDBStaticDataListener" />
@@ -98,6 +101,10 @@
         <route id="textDBStaticSetDirty">
             <from uri="jms-generic:topic:textDBFilesChanged"/>
             <bean ref="textDBStaticDataListener" method="setDirty"/>
+        </route>
+        <route id="siteMapSetDirty">
+            <from uri="jms-generic:topic:siteMapFilesChanged"/>
+            <bean ref="siteMapListener" method="setDirty"/>
         </route>
     </camelContext>
 </beans>

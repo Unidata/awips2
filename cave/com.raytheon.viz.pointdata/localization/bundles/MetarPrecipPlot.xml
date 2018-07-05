@@ -18,34 +18,38 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor" currentAnimationMode="Temporal">
-				<resource>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
                     <loadProperties>
-						<capabilities>
-							<capability xsi:type="magnificationCapability" magnification="1.5"/>
-                            <capability xsi:type="densityCapability" density="3"/>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="metarPrecipResourceData" duration="${duration}"
-						retrieveData="false" isUpdatingOnMetadataOnly="false" 
-						isRequeryNecessaryOnTimeMatch="true">
-						<binOffset posOffset="${posOffset}" negOffset="${negOffset}" virtualOffset="0"/>
-						<metadataMap>
-							
-							<mapping key="pluginName">
-								<constraint constraintValue="obs" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-			</descriptor>
-		</displays>
-	</displayList>
+                        <capabilities/>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="metarPrecipResourceData"
+                        duration="${duration}" retrieveData="false"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true">
+                        <binOffset posOffset="${posOffset}"
+                            negOffset="${negOffset}" virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="obs"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

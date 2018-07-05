@@ -34,10 +34,15 @@
 #                                                 RollbackMasterInterface.
 #    07/27/15         4263         dgilling       Support refactored Java
 #                                                 ProcedureControllers.
+#    02/19/18         7222         mapeters       Log canceled procedures.
 #    
 # 
 #
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 import logging
 import sys
@@ -105,6 +110,7 @@ class ProcedureInterface(RollbackMasterInterface.RollbackMasterInterface):
              return self.runMethod(moduleName, className, methodName, **kwargs)
         except Exceptions.EditActionError, e:
             if "Cancel" == e.errorType() and "Cancel" == e.errorInfo():
+                self.log.info("Procedure [" + moduleName + "] canceled")
                 return None
             raise
 

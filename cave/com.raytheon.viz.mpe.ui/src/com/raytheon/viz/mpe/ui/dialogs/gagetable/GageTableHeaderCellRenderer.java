@@ -22,11 +22,15 @@ package com.raytheon.viz.mpe.ui.dialogs.gagetable;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 /**
  * Custom cell renderer for header cells of the Gage Table Dialog.
@@ -36,23 +40,25 @@ import javax.swing.table.TableCellRenderer;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 2, 2009  2476       mpduff     Initial creation
+ * Jun 02, 2009  2476      mpduff      Initial creation
+ * Mar 01, 2017 6158       mpduff      Changed how sorting works.
+ * Jul 14, 2017 6358       mpduff      Changed method name.
+ * 
  * 
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
-public class GageTableHeaderCellRenderer extends JTextArea implements
-        TableCellRenderer {
+public class GageTableHeaderCellRenderer extends JTextArea
+        implements TableCellRenderer {
     private static final long serialVersionUID = 8036794115176421761L;
 
-    private final String upArrowString = "\u25BC"; // upArrow unicode for Times
-                                                   // New Roman font
+    /* upArrow unicode for Times New Roman font */
+    private final String upArrowString = "\u25BC";
 
-    private final String downArrowString = "\u25B2";// downArrow unicode for
-                                                    // Times New Roman font
+    /* downArrow unicode for Times New Roman font */
+    private final String downArrowString = "\u25B2";
 
     public GageTableHeaderCellRenderer() {
         setLineWrap(true);
@@ -64,33 +70,44 @@ public class GageTableHeaderCellRenderer extends JTextArea implements
     public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column) {
         GageTableDataManager dataManager = GageTableDataManager.getInstance();
-        GageTableSortSettings columnSettings = dataManager.getColumnSettings();
+        GageTableSortSettings settings = dataManager.getSortSettings();
+
+        List<String> sortCols = settings.getSortColumns();
+        List<String> cols = new ArrayList<>(sortCols.size());
+
+        // Remove blank column names
+        for (String columnName : sortCols) {
+            if (!columnName.isEmpty()) {
+                cols.add(columnName);
+            }
+        }
+
         String arrowString = upArrowString;
         setBorder(UIManager.getBorder("TableHeader.cellBorder"));
         setFont(new Font("Dialog", Font.BOLD, 12));
-        
-        if (columnSettings == null) {
-            columnSettings = new GageTableSortSettings();
-        }
-        
-        if (columnSettings.getSortCol1Index() == column) {
-            if (columnSettings.getAscending1() == 1) {
-                arrowString = downArrowString;
-            } else {
-                arrowString = upArrowString;
+
+        Enumeration<TableColumn> columns = table.getColumnModel().getColumns();
+        int width = 80;
+        while (columns.hasMoreElements()) {
+            TableColumn tableColumn = columns.nextElement();
+            String headerValue = (String) tableColumn.getHeaderValue();
+            if (headerValue.equals(value)) {
+                int idx = cols.indexOf(value);
+                if (idx >= 0) {
+                    arrowString = settings.getSortDirections().get(value)
+                            ? downArrowString : upArrowString;
+                    setText(value.toString() + "\n" + arrowString + " "
+                            + (cols.indexOf(value) + 1));
+                } else {
+                    setText(value.toString() + "\n\n");
+                }
+
+                width = tableColumn.getWidth();
+                break;
             }
-            setText(value.toString() + "\n" + arrowString + " 1");
-        } else if (columnSettings.getSortCol2Index() == column) {
-            setText(value.toString() + " \n2");
-        } else if (columnSettings.getSortCol3Index() == column) {
-            setText(value.toString() + "\n3");
-        } else if (columnSettings.getSortCol4Index() == column) {
-            setText(value.toString() + "\n4");
-        } else {
-            setText(value.toString() + "\n\n");
         }
-        
-        setSize(new Dimension(columnSettings.getColumnWidth(), 100));
+
+        setSize(new Dimension(width, 100));
 
         return this;
     }

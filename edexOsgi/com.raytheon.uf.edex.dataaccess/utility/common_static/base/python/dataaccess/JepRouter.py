@@ -18,7 +18,6 @@
 # further licensing information.
 # #
 
-
 #
 # Routes requests to the Data Access Framework through JEP to the Java classes.
 # Returns Python objects that wrap Java objects.
@@ -43,7 +42,12 @@
 #                                                 getOptionalIdentifiers()
 #
 #
-#
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 from awips.dataaccess import IDataRequest
 

@@ -64,30 +64,30 @@ import com.raytheon.viz.ui.widgets.duallist.IUpdate;
 
 /**
  * Stats graphing control dialog.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 25, 2012   1357     mpduff      Initial creation.
- * Jan 17, 2013   1357     mpduff      Added timestep settings.
- * Feb 26, 2013   1667     mpduff      Sort categories.
- * Sep 27, 2013   2419     lvenable    Changed code so the dual list will
- *                                      function correctly on start up.
- * Feb 19, 2014   2734     mpduff      Default time range to 24 hours.
- * Mar 1, 2016    3989     tgurney     Rename AwipsCalendar to CalendarDialog
- * Mar 15, 2016   5484     randerso    Fix GUI sizing issues
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Sep 25, 2012  1357     mpduff    Initial creation.
+ * Jan 17, 2013  1357     mpduff    Added timestep settings.
+ * Feb 26, 2013  1667     mpduff    Sort categories.
+ * Sep 27, 2013  2419     lvenable  Changed code so the dual list will function
+ *                                  correctly on start up.
+ * Feb 19, 2014  2734     mpduff    Default time range to 24 hours.
+ * Mar 01, 2016  3989     tgurney   Rename AwipsCalendar to CalendarDialog
+ * Mar 15, 2016  5484     randerso  Fix GUI sizing issues
+ * Feb 28, 2017  6121     randerso  Update DualListConfig settings
+ *
  * </pre>
- * 
+ *
  * @author mpduff
- * @version 1.0
  */
 
-public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
-        IUpdate {
+public class StatsControlDlg extends CaveSWTDialog
+        implements IStatsControl, IUpdate {
     /** Status handler. */
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(StatsControlDlg.class);
@@ -166,7 +166,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            parent Shell
      */
@@ -271,13 +271,15 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
         startRdo = new Button(rdoComp, SWT.RADIO);
         startRdo.setSelection(true);
-        startRdo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+        startRdo.setLayoutData(
+                new GridData(SWT.CENTER, SWT.CENTER, true, false));
         startRdo.setText("Start");
         startRdo.setToolTipText("Start time range\nat selected time");
 
         splitRdo = new Button(rdoComp, SWT.RADIO);
         splitRdo.setSelection(false);
-        splitRdo.setLayoutData(new GridData(SWT.CENTER, SWT.CENTER, true, false));
+        splitRdo.setLayoutData(
+                new GridData(SWT.CENTER, SWT.CENTER, true, false));
         splitRdo.setText("Split");
         splitRdo.setToolTipText("Split time range\nat selected time");
     }
@@ -354,8 +356,8 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
         groupFilterListConfig.setAvailableListLabel("Available Groups:");
         groupFilterListConfig.setSelectedListLabel("Selected Groups:");
         groupFilterListConfig.setShowUpDownBtns(false);
-        groupFilterListConfig.setListWidth(150);
-        groupFilterListConfig.setListHeight(100);
+        groupFilterListConfig.setListWidthInChars(25);
+        groupFilterListConfig.setVisibleItems(10);
 
         this.groupFilterDualList = new DualList(dualListComp, SWT.NONE,
                 groupFilterListConfig, this);
@@ -400,7 +402,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
     /**
      * Display an informational popup message to the user.
-     * 
+     *
      * @param title
      *            The title
      * @param message
@@ -417,7 +419,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
     /**
      * Set the data types.
-     * 
+     *
      * @param dataTypes
      *            String[] of data types
      */
@@ -452,7 +454,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
      * Populate the categore combo box
      */
     private void populateCategoryCombo() {
-        Set<String> items = new TreeSet<String>();
+        Set<String> items = new TreeSet<>();
         for (StatisticsConfig config : this.configList) {
             items.addAll(config.getCategories());
         }
@@ -462,8 +464,8 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
         String category = this.categoryCombo.getText();
         Map<String, String> eventTypes = utils.getEventTypes(category);
-        this.eventTypeCombo.setItems(eventTypes.keySet().toArray(
-                new String[eventTypes.keySet().size()]));
+        this.eventTypeCombo.setItems(eventTypes.keySet()
+                .toArray(new String[eventTypes.keySet().size()]));
         eventTypeCombo.select(0);
         this.eventTypeCombo.setData(eventTypes);
     }
@@ -472,10 +474,10 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
      * Set the data types based on category selection.
      */
     public void setDataTypes() {
-        String category = this.categoryCombo.getItem(categoryCombo
-                .getSelectionIndex());
-        String type = this.eventTypeCombo.getItem(eventTypeCombo
-                .getSelectionIndex());
+        String category = this.categoryCombo
+                .getItem(categoryCombo.getSelectionIndex());
+        String type = this.eventTypeCombo
+                .getItem(eventTypeCombo.getSelectionIndex());
 
         @SuppressWarnings("unchecked")
         String typeID = ((Map<String, String>) eventTypeCombo.getData())
@@ -491,16 +493,16 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
      * Update the options based on combo box selections
      */
     private void updateOptions() {
-        String category = this.categoryCombo.getItem(categoryCombo
-                .getSelectionIndex());
+        String category = this.categoryCombo
+                .getItem(categoryCombo.getSelectionIndex());
         Map<String, String> eventTypes = utils.getEventTypes(category);
-        this.eventTypeCombo.setItems(eventTypes.keySet().toArray(
-                new String[eventTypes.keySet().size()]));
+        this.eventTypeCombo.setItems(eventTypes.keySet()
+                .toArray(new String[eventTypes.keySet().size()]));
         eventTypeCombo.select(0);
         this.eventTypeCombo.setData(eventTypes);
 
-        String type = this.eventTypeCombo.getItem(eventTypeCombo
-                .getSelectionIndex());
+        String type = this.eventTypeCombo
+                .getItem(eventTypeCombo.getSelectionIndex());
 
         @SuppressWarnings("unchecked")
         String typeID = ((Map<String, String>) eventTypeCombo.getData())
@@ -519,10 +521,10 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
      * Set the data type and groups
      */
     public void setDataTypesAndGroups() {
-        String category = this.categoryCombo.getItem(categoryCombo
-                .getSelectionIndex());
-        String type = this.eventTypeCombo.getItem(eventTypeCombo
-                .getSelectionIndex());
+        String category = this.categoryCombo
+                .getItem(categoryCombo.getSelectionIndex());
+        String type = this.eventTypeCombo
+                .getItem(eventTypeCombo.getSelectionIndex());
 
         @SuppressWarnings("unchecked")
         String typeID = ((Map<String, String>) eventTypeCombo.getData())
@@ -574,7 +576,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
         String[] selectedGroups = groupFilterDualList.getSelectedListItems();
         StatsEventData conf = utils.getEventData(category, typeID);
-        List<String> groupList = new ArrayList<String>();
+        List<String> groupList = new ArrayList<>();
         for (String group : selectedGroups) {
             String groupName = conf.getGroupNameFromDisplayName(group);
             if (groupName != null) {
@@ -651,8 +653,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
                 graphDlg.open();
             } else {
-                displayPopup(
-                        "No Data",
+                displayPopup("No Data",
                         "No statistical data are available for the time period selected.",
                         SWT.ICON_INFORMATION);
             }
@@ -663,7 +664,7 @@ public class StatsControlDlg extends CaveSWTDialog implements IStatsControl,
 
     /**
      * Format the date.
-     * 
+     *
      * @param date
      *            The date to format
      * @return the formated string

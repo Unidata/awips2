@@ -31,8 +31,12 @@ import AlertVizProcessor
 #    
 # 
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 class DebugProcessor(AlertVizProcessor.AlertVizProcessor):
-        
+
     def process(self, statusMessage, alertMetadata, globalConfiguration):
          print "%s %s %s" % (statusMessage.getPriority(), statusMessage.getCategory(), statusMessage.getMessage())
-         

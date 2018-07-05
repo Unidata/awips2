@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Grib Plug-in
 Bundle-SymbolicName: com.raytheon.edex.plugin.grib
-Bundle-Version: 1.15.2.qualifier
+Bundle-Version: 1.17.0.qualifier
 Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.edex.common;bundle-version="1.14.0",
  com.raytheon.uf.common.awipstools,
@@ -28,4 +28,4 @@ Export-Package: com.raytheon.edex.plugin.grib,
  com.raytheon.edex.plugin.grib.spatial,
  com.raytheon.edex.plugin.grib.util,
  com.raytheon.edex.util.grib
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

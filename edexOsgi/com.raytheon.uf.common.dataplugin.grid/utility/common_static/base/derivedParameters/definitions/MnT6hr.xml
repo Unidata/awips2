@@ -18,4 +18,8 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="MnT6hr" name="6-hr Minimum Temperature" unit="K"/>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter abbreviation="MnT6hr" name="6-hr Minimum Temperature" unit="K" />

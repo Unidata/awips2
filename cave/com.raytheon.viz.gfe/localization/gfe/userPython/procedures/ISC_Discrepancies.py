@@ -35,6 +35,11 @@
 #
 # Author: hansen
 # ----------------------------------------------------------------------------
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 MenuItems = ["Consistency"]
 
 import ISC_Utility_Local

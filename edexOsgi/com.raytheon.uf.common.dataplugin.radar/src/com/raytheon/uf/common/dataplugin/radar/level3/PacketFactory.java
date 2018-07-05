@@ -25,10 +25,10 @@ import java.lang.reflect.Constructor;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.raytheon.uf.common.dataplugin.radar.level3.generic.GenericUtil;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * A factory for creating packets based on the packet ID. In the case of generic
@@ -41,23 +41,22 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 03/04/2013   DCS51      zwang       Handle GFM product
  * 07/29/2013   2148       mnash       Refactor registering of packets to Spring
  * 03/04/2014   2870       njensen     Log product ID when no class found for generic packet
+ * 06/27/2017   6316       njensen     Switched from ufstatus to slf4j for logging
  * 12/11/2017   ----       mjames@ucar Remove INFO-level logging.
  * 
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
 
 public class PacketFactory {
 
     /** The logger */
-    private static final IUFStatusHandler handler = UFStatus
-            .getHandler(PacketFactory.class);
+    private final Logger logger = LoggerFactory.getLogger(PacketFactory.class);
 
-    private Map<Integer, Class<? extends SymbologyPacket>> classMap = new HashMap<Integer, Class<? extends SymbologyPacket>>();
+    private Map<Integer, Class<? extends SymbologyPacket>> classMap = new HashMap<>();
 
-    private Map<Integer, Class<? extends SymbologyPacket>> genericClassMap = new HashMap<Integer, Class<? extends SymbologyPacket>>();
+    private Map<Integer, Class<? extends SymbologyPacket>> genericClassMap = new HashMap<>();
 
     private static final PacketFactory instance = new PacketFactory();
 
@@ -87,15 +86,16 @@ public class PacketFactory {
         SymbologyPacket packet = null;
         Class<? extends SymbologyPacket> packetClass = classMap.get(packetId);
 
-        // Check for Generic Packet so the correct Generic Packet subclass can
-        // be used.
+        /*
+         * Check for Generic Packet so the correct Generic Packet subclass can
+         * be used.
+         */
         if (packetClass != null && packetClass.equals(GenericDataPacket.class)) {
             int productId = GenericUtil.getProductID(in);
             packetClass = genericClassMap.get(productId);
             if (packetClass == null) {
-                handler.handle(Priority.ERROR,
-                        "No class registered for generic packet ID: "
-                                + packetId + " with product ID: " + productId);
+                logger.warn("No class registered for generic packet ID: "
+                        + packetId + " with product ID: " + productId);
                 return packet;
             }
         }
@@ -106,12 +106,12 @@ public class PacketFactory {
                         .getConstructor(int.class, DataInputStream.class);
                 packet = ctor.newInstance(packetId, in);
             } catch (Exception e) {
-                handler.handle(Priority.ERROR, "Unable to construct class "
+                logger.error(
+                        "Unable to construct class "
                         + packetClass.getName(), e);
             }
         } else {
-            handler.handle(Priority.ERROR,
-                    "No class registered for packet ID: " + packetId);
+            logger.warn("No class registered for packet ID: " + packetId);
         }
         return packet;
     }

@@ -21,9 +21,9 @@ package com.raytheon.viz.gfe.core.internal;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.apache.commons.lang3.Validate;
 import org.eclipse.ui.PlatformUI;
@@ -72,6 +72,7 @@ import com.raytheon.viz.gfe.rsc.GFESystemResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 20, 2009            njensen     Initial creation
+ * Jun 14, 2017 6297       bsteffen    Make listeners thread safe.
  * 
  * </pre>
  * 
@@ -79,8 +80,8 @@ import com.raytheon.viz.gfe.rsc.GFESystemResource;
  * @version 1.0
  */
 
-public abstract class AbstractSpatialDisplayManager implements
-        ISpatialDisplayManager {
+public abstract class AbstractSpatialDisplayManager
+        implements ISpatialDisplayManager {
 
     protected final DataManager dataManager;
 
@@ -121,11 +122,11 @@ public abstract class AbstractSpatialDisplayManager implements
     protected AbstractSpatialDisplayManager(DataManager dataMgr) {
         this.dataManager = dataMgr;
         this.globalTimeRange = new TimeRange(0, 0);
-        this.activatedParmChangedListeners = new HashSet<IActivatedParmChangedListener>();
-        this.gridVisibilityChangedListeners = new HashSet<IGridVisibilityChangedListener>();
-        this.globalSelectionTRChangedListeners = new HashSet<IGlobalSelectionTRChangedListener>();
-        this.displayModeChangedListeners = new HashSet<IDisplayModeChangedListener>();
-        this.spatialEditorTimeChangedListeners = new HashSet<ISpatialEditorTimeChangedListener>();
+        this.activatedParmChangedListeners = new CopyOnWriteArraySet<>();
+        this.gridVisibilityChangedListeners = new CopyOnWriteArraySet<>();
+        this.globalSelectionTRChangedListeners = new CopyOnWriteArraySet<>();
+        this.displayModeChangedListeners = new CopyOnWriteArraySet<>();
+        this.spatialEditorTimeChangedListeners = new CopyOnWriteArraySet<>();
 
         setShowISCMarkers(Activator.getDefault().getPreferenceStore()
                 .getBoolean("ShowISCMarkers"));
@@ -136,8 +137,9 @@ public abstract class AbstractSpatialDisplayManager implements
         setShowISCSiteIDMarker(Activator.getDefault().getPreferenceStore()
                 .getBoolean("ShowISCSiteIDMarker"));
 
-        setShowISCOfficialSymbolMarker(Activator.getDefault()
-                .getPreferenceStore().getBoolean("ShowISCOfficialSymbolMarker"));
+        setShowISCOfficialSymbolMarker(
+                Activator.getDefault().getPreferenceStore()
+                        .getBoolean("ShowISCOfficialSymbolMarker"));
 
         setShowISCUpdateTime(Activator.getDefault().getPreferenceStore()
                 .getBoolean("ShowISCUpdateTime"));
@@ -157,34 +159,16 @@ public abstract class AbstractSpatialDisplayManager implements
      */
     protected abstract IDescriptor[] getDescriptors();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#getActivatedParm()
-     */
     @Override
     public Parm getActivatedParm() {
         return activeParm;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#getLastActivatedParm()
-     */
     @Override
     public Parm getLastActivatedParm() {
         return lastActiveParm;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#
-     * addActivatedParmChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener)
-     */
     @Override
     public void addActivatedParmChangedListener(
             IActivatedParmChangedListener listener) {
@@ -192,26 +176,12 @@ public abstract class AbstractSpatialDisplayManager implements
         this.activatedParmChangedListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#
-     * removeActivatedParmChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IActivatedParmChangedListener)
-     */
     @Override
     public void removeActivatedParmChangedListener(
             IActivatedParmChangedListener parmChangeListener) {
         this.activatedParmChangedListeners.remove(parmChangeListener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.ISpatialDisplayManager#
-     * addDisplayModeChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IDisplayModeChangedListener)
-     */
     @Override
     public void addDisplayModeChangedListener(
             IDisplayModeChangedListener listener) {
@@ -219,26 +189,12 @@ public abstract class AbstractSpatialDisplayManager implements
         this.displayModeChangedListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.ISpatialDisplayManager#
-     * removeDisplayModeChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IDisplayModeChangedListener)
-     */
     @Override
     public void removeDisplayModeChangedListener(
             IDisplayModeChangedListener listener) {
         this.displayModeChangedListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#
-     * addGridVisibilityChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IGridVisibilityChangedListener)
-     */
     @Override
     public void addGridVisibilityChangedListener(
             IGridVisibilityChangedListener listener) {
@@ -246,26 +202,12 @@ public abstract class AbstractSpatialDisplayManager implements
         this.gridVisibilityChangedListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#
-     * removeGridVisibilityChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IGridVisibilityChangedListener)
-     */
     @Override
     public void removeGridVisibilityChangedListener(
             IGridVisibilityChangedListener parmChangeListener) {
         this.gridVisibilityChangedListeners.remove(parmChangeListener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#
-     * addGlobalSelectionTRChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IGlobalSelectionTRChangedListener)
-     */
     @Override
     public void addGlobalSelectionTRChangedListener(
             IGlobalSelectionTRChangedListener listener) {
@@ -273,26 +215,12 @@ public abstract class AbstractSpatialDisplayManager implements
         this.globalSelectionTRChangedListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#
-     * removeGlobalSelectionTRChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IGlobalSelectionTRChangedListener)
-     */
     @Override
     public void removeGlobalSelectionTRChangedListener(
             IGlobalSelectionTRChangedListener listener) {
         this.globalSelectionTRChangedListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.ISpatialDisplayManager#
-     * addSpatialEditorTimeChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener)
-     */
     @Override
     public void addSpatialEditorTimeChangedListener(
             ISpatialEditorTimeChangedListener listener) {
@@ -300,26 +228,12 @@ public abstract class AbstractSpatialDisplayManager implements
         this.spatialEditorTimeChangedListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.ISpatialDisplayManager#
-     * removeSpatialEditorTimeChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener)
-     */
     @Override
     public void removeSpatialEditorTimeChangedListener(
             ISpatialEditorTimeChangedListener listener) {
         this.spatialEditorTimeChangedListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#addEditTool(com.raytheon
-     * .viz.gfe.edittool.AbstractGFEEditTool)
-     */
     @Override
     public void addEditTool(AbstractGFEEditTool editTool) throws VizException {
         IDescriptor[] descriptors = getDescriptors();
@@ -333,13 +247,6 @@ public abstract class AbstractSpatialDisplayManager implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#removeEditTool(com.raytheon
-     * .viz.gfe.edittool.AbstractGFEEditTool)
-     */
     @Override
     public void removeEditTool(AbstractGFEEditTool editTool)
             throws VizException {
@@ -352,14 +259,6 @@ public abstract class AbstractSpatialDisplayManager implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#setDisplayMode(com.raytheon
-     * .viz.gfe.core.parm.Parm,
-     * com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode)
-     */
     @Override
     public void setDisplayMode(Parm parm, VisMode mode) {
         for (IDescriptor descriptor : getDescriptors()) {
@@ -382,11 +281,6 @@ public abstract class AbstractSpatialDisplayManager implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.ISpatialDisplayManager#getSystemResource()
-     */
     @Override
     public GFESystemResource getSystemResource() throws VizException {
         for (IDescriptor descriptor : getDescriptors()) {
@@ -427,17 +321,10 @@ public abstract class AbstractSpatialDisplayManager implements
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#getCurrentlyEnabledParms
-     * ()
-     */
     @Override
     public Parm[] getCurrentlyEnabledParms() {
         for (IDescriptor descriptor : getDescriptors()) {
-            List<Parm> parmList = new ArrayList<Parm>();
+            List<Parm> parmList = new ArrayList<>();
             List<GFEResource> rscs = descriptor.getResourceList()
                     .getResourcesByTypeAsType(GFEResource.class);
             for (GFEResource rsc : rscs) {
@@ -445,7 +332,7 @@ public abstract class AbstractSpatialDisplayManager implements
                     parmList.add(rsc.getParm());
                 }
             }
-            if (parmList.size() > 0) {
+            if (!parmList.isEmpty()) {
                 return parmList.toArray(new Parm[parmList.size()]);
             }
         }
@@ -454,7 +341,8 @@ public abstract class AbstractSpatialDisplayManager implements
     }
 
     @Override
-    public void makeVisible(Parm parm, boolean visible, boolean makeOnlyVisible) {
+    public void makeVisible(Parm parm, boolean visible,
+            boolean makeOnlyVisible) {
         for (IDescriptor descriptor : getDescriptors()) {
             makeVisible(descriptor, parm, visible, makeOnlyVisible);
         }
@@ -464,8 +352,8 @@ public abstract class AbstractSpatialDisplayManager implements
         }
     }
 
-    private void makeVisible(IDescriptor descriptor, Parm parm,
-            boolean visible, boolean makeOnlyVisible) {
+    private void makeVisible(IDescriptor descriptor, Parm parm, boolean visible,
+            boolean makeOnlyVisible) {
         List<GFEResource> rscs = descriptor.getResourceList()
                 .getResourcesByTypeAsType(GFEResource.class);
         for (GFEResource rsc : rscs) {
@@ -487,13 +375,6 @@ public abstract class AbstractSpatialDisplayManager implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#activateParm(com.raytheon
-     * .viz.gfe.core.parm.Parm)
-     */
     @Override
     public void activateParm(Parm parmToActivate)
             throws GFEOperationFailedException {
@@ -627,13 +508,6 @@ public abstract class AbstractSpatialDisplayManager implements
         return seTime;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#setSpatialEditorTime
-     * (java.util.Date)
-     */
     @Override
     public void setSpatialEditorTime(Date date) {
         this.seTime = date;
@@ -662,8 +536,8 @@ public abstract class AbstractSpatialDisplayManager implements
 
     private void updateElement(String commandId, boolean state) {
         if (PlatformUI.isWorkbenchRunning()) {
-            ICommandService service = (ICommandService) PlatformUI
-                    .getWorkbench().getService(ICommandService.class);
+            ICommandService service = PlatformUI.getWorkbench()
+                    .getService(ICommandService.class);
 
             service.refreshElements(commandId, null);
         }
@@ -702,13 +576,6 @@ public abstract class AbstractSpatialDisplayManager implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#setGlobalTimeRange(com
-     * .raytheon.edex.plugin.time.TimeRange)
-     */
     @Override
     public void setGlobalTimeRange(TimeRange timeRange) {
         this.globalTimeRange = timeRange;
@@ -718,12 +585,6 @@ public abstract class AbstractSpatialDisplayManager implements
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.ISpatialDisplayManager#getGlobalTimeRange()
-     */
     @Override
     public TimeRange getGlobalTimeRange() {
         return this.globalTimeRange;

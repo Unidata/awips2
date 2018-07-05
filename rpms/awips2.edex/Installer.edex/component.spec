@@ -12,7 +12,6 @@ License: N/A
 Distribution: N/A
 Vendor: %{_build_vendor}
 Packager: %{_build_site}
-
 provides: awips2-edex
 provides: awips2-base-component
 provides: awips2-base
@@ -29,6 +28,7 @@ AWIPS II Edex Installation - Installs and configures AWIPS II Edex.
 
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
+# disable jar repacking
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-java-repack-jars[[:space:]].*$!!g')
 
 %prep
@@ -52,7 +52,15 @@ mkdir -p %{_build_root}/awips2/edex/{bin,logs,webapps}
 if [ $? -ne 0 ]; then
    exit 1
 fi
+mkdir -p %{_build_root}/awips2/etc
+if [ $? -ne 0 ]; then
+   exit 1
+fi
 mkdir -p %{_build_root}/etc/init.d
+if [ $? -ne 0 ]; then
+   exit 1
+fi
+mkdir -p %{_build_root}/awips2/edex/data/share
 if [ $? -ne 0 ]; then
    exit 1
 fi
@@ -60,6 +68,7 @@ fi
 /bin/cp -r %{_baseline_workspace}/rpms/awips2.edex/Installer.edex/programs/qpidNotify.py ${RPM_BUILD_ROOT}/awips2/edex/bin/
 
 DEPLOY_SCRIPT="deploy.edex.awips2/deploy/deploy-esb-configuration.xml"
+
 # use deploy-install to deploy edex-configuration.
 pushd . > /dev/null
 cd %{_baseline_workspace}
@@ -71,7 +80,9 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 popd > /dev/null
+
 DEPLOY_SCRIPT="deploy.edex.awips2/deploy/deploy-esb.xml"
+
 # use deploy-install to deploy edex.
 pushd . > /dev/null
 cd %{_baseline_workspace}
@@ -96,7 +107,7 @@ fi
 INSTALLER_RPM="%{_baseline_workspace}/rpms"
 # copy the service script.
 EDEX_BASE="${INSTALLER_RPM}/awips2.edex/Installer.edex"
-cp -v ${EDEX_BASE}/scripts/init.d/* \
+cp -v ${EDEX_BASE}/scripts/edex_camel \
    %{_build_root}/etc/init.d
 if [ $? -ne 0 ]; then
    exit 1
@@ -116,15 +127,31 @@ fi
 # Set ipaddress in setup.env and run chkconfig for init.d services
 /awips2/edex/bin/edex setup > /dev/null 2>&1
 
+# We need to create a link to the python shared library if it does not exist.
+pushd . > /dev/null 2>&1
+if [ -d /awips2/python/lib ]; then
+   cd /awips2/python/lib
+   if [ -L libpython.so ]; then
+      # Ensure that we are pointing to the correct shared library.
+      rm -f libpython.so
+   fi
+      
+   if [ -f libpython2.7.so.1.0 ]; then
+      ln -s libpython2.7.so.1.0 libpython.so
+   fi
+fi
+popd > /dev/null 2>&1
+
 if [ -f /etc/init.d/edex_camel ]; then
    /sbin/chkconfig --add edex_camel
 fi
 
 # determine if an installation of awips2-common-base is already present
-# (CAVE has been installed before edex on a standalone machine)
+# (CAVE has been installed before edex on an ADAM machine)
 if [ -d /awips2/.edex ]; then
    # copy the common-base contributions to the EDEX installation
    cp -r /awips2/.edex/* /awips2/edex
+   
    # cleanup
    rm -rf /awips2/.edex
 fi
@@ -133,6 +160,7 @@ fi
 if [ "${1}" = "1" ]; then
    exit 0
 fi
+
 if [ -f /etc/init.d/edex_camel ]; then
    /sbin/chkconfig --del edex_camel
 fi
@@ -147,7 +175,9 @@ rm -rf ${RPM_BUILD_ROOT}
 %dir /awips2/edex
 %dir /awips2/edex/conf
 /awips2/edex/conf/*
+%dir /awips2/edex/data
 /awips2/edex/data/*
+%dir /awips2/edex/data/share
 %dir /awips2/edex/etc
 /awips2/edex/etc/*
 %dir /awips2/edex/lib
@@ -158,5 +188,6 @@ rm -rf ${RPM_BUILD_ROOT}
 %defattr(755,awips,fxalpha,755)
 %dir /awips2/edex/bin
 /awips2/edex/bin/*.sh
+/awips2/edex/bin/scriptLauncher
 %attr(755,awips,fxalpha) /awips2/edex/bin/qpidNotify.py
-%attr(744,root,root) /etc/init.d/*
+%attr(744,root,root) /etc/init.d/edex_camel

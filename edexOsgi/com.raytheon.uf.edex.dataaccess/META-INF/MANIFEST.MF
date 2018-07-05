@@ -7,5 +7,5 @@ Bundle-Vendor: RAYTHEON
 Require-Bundle: com.raytheon.uf.common.dataaccess,
  com.raytheon.uf.common.serialization.comm,
  com.raytheon.uf.common.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

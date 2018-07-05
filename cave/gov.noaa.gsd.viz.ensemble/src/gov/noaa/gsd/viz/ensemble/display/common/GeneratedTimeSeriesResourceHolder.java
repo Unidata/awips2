@@ -1,10 +1,10 @@
 package gov.noaa.gsd.viz.ensemble.display.common;
 
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+
 import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
 import gov.noaa.gsd.viz.ensemble.display.rsc.timeseries.GeneratedTimeSeriesResource;
 import gov.noaa.gsd.viz.ensemble.util.Utilities;
-
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 
 /**
  * Concrete resolution of accessors of typical time series resource attributes.
@@ -23,15 +23,17 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
  * @author jing
  * @version 1.0
  */
-public class GeneratedTimeSeriesResourceHolder extends TimeSeriesResourceHolder {
+public class GeneratedTimeSeriesResourceHolder
+        extends TimeSeriesResourceHolder {
 
     GeneratedTimeSeriesResource<?> currRsc = null;
 
-    protected GeneratedTimeSeriesResourceHolder(AbstractVizResource<?, ?> rsc,
-            boolean isSelected) {
+    public GeneratedTimeSeriesResourceHolder(AbstractVizResource<?, ?> rsc) {
 
-        super(rsc, isSelected);
+        super(rsc);
         currRsc = (GeneratedTimeSeriesResource<?>) rsc;
+        isGenerated = true;
+
     }
 
     @Override
@@ -70,4 +72,25 @@ public class GeneratedTimeSeriesResourceHolder extends TimeSeriesResourceHolder 
         return nodeLabel;
 
     }
+
+    /**
+     * Boolean method to return true when two generated resources have the same
+     * calculation, level, and unit.
+     * 
+     * @param tsrh
+     *            the generated resource against which to compare similarity
+     * @return true if this generated resource is similar to the given grh
+     *         argument
+     */
+    public boolean isSimilarTo(GeneratedTimeSeriesResourceHolder tsrh) {
+        boolean areSimilar = false;
+
+        if (getCalculation().equals(tsrh.getCalculation())
+                && getLevel().equals(tsrh.getLevel())
+                && getUnits().equals(tsrh.getUnits())) {
+            areSimilar = true;
+        }
+        return areSimilar;
+    }
+
 }

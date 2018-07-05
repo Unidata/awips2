@@ -1,15 +1,20 @@
-<!-- Severe Thunderstorm Warning configuration --> 
-<!-- MODIFIED 
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
+<!-- Severe Thunderstorm Warning configuration -->
+<!-- MODIFIED
      PHIL KURIMSKI WFO DTX   1-26-2012 OB12.1.1-1 FOR IMPACT BASED SVR WARNINGS
      PHIL KURIMSKI WFO DTX   2-29-2012 OB12.2.1-4
      PHIL KURIMSKI 4-20-2012
      MIKE REGA 5-10-2012 DR 14525 added timeZoneField
                          DR 14691 added feAreaField
-     Evan Bookbinder 09-11-2012 Added settings for locations shapefile    
-                                Added new areaSource object     
-     Phil Kurimski   09-19-2013 added geospatialConfig.xml      
+     Evan Bookbinder 09-11-2012 Added settings for locations shapefile
+                                Added new areaSource object
+     Phil Kurimski   09-19-2013 added geospatialConfig.xml
      Evan Bookbinder  2-18-2014 corrected supercell CTA typo & added DSS Events
-     Evan Bookbinder  6-15-2015 corrected grapefruit and softball hail sizes     
+     Evan Bookbinder  6-15-2015 corrected grapefruit and softball hail sizes
 -->
 <warngenConfig>
 
@@ -83,15 +88,15 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <duration>90</duration>
  </durations>
  
- <!-- bullets: User specified text generation options 
+ <!-- bullets: User specified text generation options
           - bulletName: an id that is passed to the template when a bullet
                       is selected. This should be unique
           - bulletText: the text presented to the user in the selection list
           - bulletType: "title" makes the bullet unselectable
-          				"basin" correlates the item to a Geometry in the customlocations table
-          - bulletGroup: Only one bullet can be selected per bulletGroup 
-          - parseString: this string must MATCH a unique phrase in the associated bulletText. 
-          	This will be used to highlight the appropriate bullet on a follow up-->
+                        "basin" correlates the item to a Geometry in the customlocations table
+          - bulletGroup: Only one bullet can be selected per bulletGroup
+          - parseString: this string must MATCH a unique phrase in the associated bulletText.
+            This will be used to highlight the appropriate bullet on a follow up-->
 <bulletActionGroups>
 <bulletActionGroup action="NEW" phen="SV" sig="W">
  <bullets>
@@ -160,7 +165,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
 <bulletActionGroup action="COR" phen="SV" sig="W">
  <bullets>
   <bullet bulletText="*********** BASIS FOR WARNING (CHOOSE 1) **********" bulletType="title"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" bulletDefault="true" parseString="SOURCE...RADAR INDICATED"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="toggle1" parseString="SOURCE...RADAR INDICATED"/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="toggle1" parseString="SOURCE...TRAINED WEATHER SPOTTERS"/>
   <bullet bulletName="lawEnforcement" bulletText="Law Enforcement Reported" bulletGroup="toggle1" parseString="SOURCE...LAW ENFORCEMENT"/>
   <bullet bulletName="emergencyMgmt" bulletText="Emergency Management Reported" bulletGroup="toggle1" parseString="SOURCE...EMERGENCY MANAGEMENT"/>
@@ -200,7 +205,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
   <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
-  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" bulletDefault="true" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
   <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
   <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
   <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>

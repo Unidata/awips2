@@ -18,13 +18,18 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="m/s" name="Bulk Shear Vectors" abbreviation="BlkShr" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="m/s" name="Bulk Shear Vectors"
+    abbreviation="BlkShr">
     <Method levels="C" name="Difference">
-        <Field level="upper" abbreviation="Wind"/>
-        <Field level="lower" abbreviation="Wind"/>
+        <Field level="upper" abbreviation="Wind" />
+        <Field level="lower" abbreviation="Wind" />
     </Method>
-     <Method levels="0-1kmAgl,0-6kmAgl" name="Vector">
-        <Field abbreviation="VVCSH"/>
-        <Field abbreviation="VUCSH"/>
+    <Method levels="0-1kmAgl,0-6kmAgl" name="Vector">
+        <Field abbreviation="VVCSH" />
+        <Field abbreviation="VUCSH" />
     </Method>
 </DerivedParameter>

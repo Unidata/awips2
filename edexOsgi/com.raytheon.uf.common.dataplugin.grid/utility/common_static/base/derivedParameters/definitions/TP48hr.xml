@@ -18,9 +18,13 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="mm" name="48 Hr Accum Precip" abbreviation="TP48hr" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="mm" name="48 Hr Accum Precip" abbreviation="TP48hr">
     <Method dtime="true" levels="Surface" name="Add">
-        <Field timeShift="0" abbreviation="TP24hr"/>
-        <Field timeShift="-86400" abbreviation="TP24hr"/>
+        <Field timeShift="0" abbreviation="TP24hr" />
+        <Field timeShift="-86400" abbreviation="TP24hr" />
     </Method>
 </DerivedParameter>

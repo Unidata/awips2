@@ -21,7 +21,6 @@ package com.raytheon.viz.mpe.ui.rsc;
 
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.io.IOException;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 import java.util.ArrayList;
@@ -46,16 +45,18 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.style.LabelingPreferences;
 import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.common.xmrg.XmrgFile;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.xmrg.hrap.HRAPCoordinates;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.alerts.AlertMessage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay2;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
+import com.raytheon.viz.alerts.IAlertObserver;
+import com.raytheon.viz.alerts.observers.ProductAlertObserver;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
-import com.raytheon.viz.mpe.MPEDateFormatter;
 import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.ComparisonFields;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
@@ -66,6 +67,9 @@ import com.raytheon.viz.mpe.ui.dialogs.polygon.RubberPolyData;
 import com.raytheon.viz.mpe.ui.dialogs.polygon.RubberPolyData.PolygonEditAction;
 import com.raytheon.viz.mpe.ui.rsc.AbstractMPEGriddedResourceData.Frame;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
+import com.raytheon.uf.common.dataplugin.mpe.PrecipRecord;
+import com.raytheon.uf.common.mpe.fieldgen.PrecipDataKey;
+import com.raytheon.uf.common.mpe.fieldgen.PrecipField;
 
 /**
  * MPE resource that displays field data. Also supports data editing
@@ -82,7 +86,7 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  *                                      hour less than the file time stamp. 
  * Jul 02, 2013   2160     mpduff      Changed how edited data are called for return.
  * Sep 17, 2013 16563      snaples      Updated createFrameImage to handle trace precip 
- *                                      properly when mapping to screen.	
+ *                                      properly when mapping to screen.
  * Mar 10, 2014 17059      snaples      Added case for Prism data for unit conversion correction.
  * Mar 19, 2014 17109      snaples      Removed code that added an hour to SATPRE, the base file reference time has been adjusted.
  * Nov 05, 2015 18095      lbousaidi    Fixed hour substitued for satellite field precip when drawing polygon.
@@ -90,16 +94,18 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData.MPEFieldFrame;
  * Dec 08, 2015 5180       bkowal       Made the hour substitution special case precise.
  * Feb 15, 2016 5338       bkowal       Update the persistent set of polygons for an existing frame after one or
  *                                      all are deleted.
+ * Sep 21, 2017 6407       bkowal       Centralized data loading and retrieval. Implements {@link IAlertObserver} to support
+ *                                      automatic refreshing of certain precip field types within the hour.
+ * Oct 30, 2017 17911      wkwock       Display RFC QPE
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 
-public class MPEFieldResource extends
-        AbstractGriddedMPEResource<MPEFieldResourceData, MPEFieldFrame>
-        implements IPolygonEditsChangedListener {
+public class MPEFieldResource
+        extends AbstractGriddedMPEResource<MPEFieldResourceData, MPEFieldFrame>
+        implements IPolygonEditsChangedListener, IAlertObserver {
 
     private static final short MISSING_VALUE = -899;
 
@@ -116,22 +122,19 @@ public class MPEFieldResource extends
     public MPEFieldResource(MPEFieldResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
-        getCapability(ColorableCapability.class).setColor(
-                new RGB(255, 255, 255));
+        getCapability(ColorableCapability.class)
+                .setColor(new RGB(255, 255, 255));
+        if (resourceData.getFieldData() == DisplayFieldData.goesRSatPre) {
+            ProductAlertObserver.addObserver(PrecipRecord.PLUGIN_NAME, this);
+        }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.mpe.ui.rsc.AbstractGriddedMPEResource#initInternal(com
-     * .raytheon.uf.viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
-        contourPreferences = createContourPreferences(getCapability(
-                ColorMapCapability.class).getColorMapParameters());
+        contourPreferences = createContourPreferences(
+                getCapability(ColorMapCapability.class)
+                        .getColorMapParameters());
         PolygonEditManager.registerListener(this);
         MPEDisplayManager displayManager = MPEDisplayManager
                 .getInstance(descriptor.getRenderableDisplay());
@@ -141,14 +144,11 @@ public class MPEFieldResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.mpe.ui.rsc.AbstractGriddedMPEResource#disposeInternal()
-     */
     @Override
     protected void disposeInternal() {
+        if (resourceData.getFieldData() == DisplayFieldData.goesRSatPre) {
+            ProductAlertObserver.removeObserver(PrecipRecord.PLUGIN_NAME, this);
+        }
         super.disposeInternal();
         PolygonEditManager.unregisterListener(this);
     }
@@ -156,22 +156,21 @@ public class MPEFieldResource extends
     public List<RubberPolyData> getPolygonEdits(Date date) {
         try {
             MPEFieldFrame frame = getFrame(new DataTime(date));
-            return new ArrayList<RubberPolyData>(frame.getPolygonEdits());
+            return new ArrayList<>(frame.getPolygonEdits());
         } catch (VizException e) {
-            Activator.statusHandler.handle(
-                    Priority.PROBLEM,
+            Activator.statusHandler.handle(Priority.PROBLEM,
                     "Error getting polygon edits for "
                             + resourceData.getFieldData() + " for time: "
-                            + date, e);
+                            + date,
+                    e);
         }
-        return new ArrayList<RubberPolyData>();
+        return new ArrayList<>();
     }
 
     /**
      * @param frame
      * @return
      */
-    @SuppressWarnings("incomplete-switch")
     private short[] getEditedData(MPEFieldFrame frame) {
         short[] editedData = frame.getEditedData();
         if (editedData != null) {
@@ -180,7 +179,7 @@ public class MPEFieldResource extends
         short[] data = frame.data;
         editedData = Arrays.copyOf(data, data.length);
         List<RubberPolyData> polygonEdits = frame.getPolygonEdits();
-        Map<DisplayFieldData, short[]> dataMap = new HashMap<DisplayFieldData, short[]>();
+        Map<DisplayFieldData, short[]> dataMap = new HashMap<>();
         ColorMapParameters parameters = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
         UnitConverter displayToData = parameters.getDisplayToDataConverter();
@@ -188,7 +187,7 @@ public class MPEFieldResource extends
         int width = displayExtent.width;
         int height = displayExtent.height;
         for (RubberPolyData edit : polygonEdits) {
-            if (edit.isVisible() == false) {
+            if (!edit.isVisible()) {
                 continue;
             }
             short[] subData = null;
@@ -209,18 +208,16 @@ public class MPEFieldResource extends
                             cal.add(Calendar.HOUR, -1);
                         }
 
-                        XmrgFile subFile = MPEDisplayManager.getXmrgFile(
-                                edit.getSubDrawSource(), cal.getTime());
-
-                        subFile.load();
-                        subData = subFile.getData();
+                        MPEPrecipData mpePrecipData = MPEPrecipDataLoader
+                                .load(edit.getSubDrawSource(), cal);
+                        subData = mpePrecipData.getData();
                         dataMap.put(edit.getSubDrawSource(), subData);
-                    } catch (IOException e) {
-                        Activator.statusHandler.handle(
-                                Priority.INFO,
+                    } catch (MPEDataLoadException e) {
+                        Activator.statusHandler.handle(Priority.INFO,
                                 "Error loading Substitution data from "
                                         + edit.getSubDrawSource()
-                                        + " for polygon data", e);
+                                        + " for polygon data",
+                                e);
                     }
                 }
             }
@@ -263,6 +260,9 @@ public class MPEFieldResource extends
                     case SET:
                         editedData[idx] = (short) converted;
                         break;
+                    default:
+                        /* Do Nothing. */
+                        break;
                     }
                 }
             }
@@ -272,27 +272,12 @@ public class MPEFieldResource extends
         return editedData;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.mpe.ui.rsc.AbstractGriddedMPEResource#getData(com.raytheon
-     * .uf.common.time.DataTime)
-     */
     @Override
     public short[] getData(DataTime time) throws VizException {
         MPEFieldFrame frame = getFrame(time);
         return getEditedData(frame);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type == ChangeType.DATA_UPDATE) {
@@ -318,29 +303,16 @@ public class MPEFieldResource extends
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.mpe.ui.rsc.AbstractGriddedMPEResource#getHrapSubGridExtent
-     * ()
-     */
     @Override
     protected Rectangle getHrapSubGridExtent() {
         try {
             return HRAPCoordinates.getHRAPCoordinates();
         } catch (Exception e) {
-            throw new RuntimeException("Error getting hrap sub grid extent");
+            throw new RuntimeException("Error getting hrap sub grid extent.",
+                    e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.mpe.ui.rsc.AbstractGriddedMPEResource#createFrame(com
-     * .raytheon.uf.common.time.DataTime)
-     */
     @Override
     protected MPEFieldFrame createFrame(DataTime currTime) throws VizException {
         // Get field we are displaying
@@ -370,16 +342,34 @@ public class MPEFieldResource extends
                 DisplayFieldData field1 = comparisonFields.getField1();
                 DisplayFieldData field2 = comparisonFields.getField2();
 
-                XmrgFile file1 = MPEDisplayManager.getXmrgFile(field1,
-                        timeToLoad.getTime());
-
-                XmrgFile file2 = MPEDisplayManager.getXmrgFile(field2,
-                        timeToLoad.getTime());
+                MPEPrecipData mpePrecipData1 = null;
+                try {
+                    mpePrecipData1 = MPEPrecipDataLoader.load(field1,
+                            timeToLoad);
+                } catch (MPEDataLoadException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+                if (mpePrecipData1 == null) {
+                    continue;
+                }
+                MPEPrecipData mpePrecipData2 = null;
+                try {
+                    mpePrecipData2 = MPEPrecipDataLoader.load(field2,
+                            timeToLoad);
+                } catch (MPEDataLoadException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+                if (mpePrecipData2 == null) {
+                    continue;
+                }
 
                 boolean isDifference = false;
                 boolean isRatio = false;
 
-                if (displayField.equals(DisplayFieldData.precipDifferenceField)) {
+                if (displayField
+                        .equals(DisplayFieldData.precipDifferenceField)) {
                     isDifference = true;
 
                 } else if (displayField
@@ -387,26 +377,13 @@ public class MPEFieldResource extends
                     isRatio = true;
                 }
 
-                try {
-                    file1.load();
-                    file2.load();
-                } catch (IOException e) {
-                    Activator.statusHandler.handle(
-                            Priority.INFO,
-                            "Error loading XMRG file for "
-                                    + field1
-                                    + " or "
-                                    + field2
-                                    + " at time "
-                                    + MPEDateFormatter
-                                            .format_MMM_dd_yyyy_HH(timeToLoad
-                                                    .getTime()), e);
-                    continue;
-                }
-
-                Rectangle fileExtent = file1.getHrapExtent();
-                short[] file1Data = file1.getData();
-                short[] file2Data = file2.getData();
+                /*
+                 * TODO: should really verify that they are both using the same
+                 * hrap extents.
+                 */
+                Rectangle fileExtent = mpePrecipData1.getHrapExtent();
+                short[] file1Data = mpePrecipData1.getData();
+                short[] file2Data = mpePrecipData2.getData();
 
                 for (int y = 0; y < displayExtent.height; ++y) {
                     for (int x = 0; x < displayExtent.width; ++x) {
@@ -435,7 +412,8 @@ public class MPEFieldResource extends
                                 double ratio = calculateRatio(value1, value2);
 
                                 if (ratio != MISSING_VALUE) {
-                                    fi = (short) (ratio * RATIO_CONVERSION_FACTOR);
+                                    fi = (short) (ratio
+                                            * RATIO_CONVERSION_FACTOR);
                                 } else {
                                     fi = MISSING_VALUE;
                                 }
@@ -454,31 +432,21 @@ public class MPEFieldResource extends
 
             } else // is a non-comparison field
             {
-
-                XmrgFile file = MPEDisplayManager.getXmrgFile(displayField,
-                        timeToLoad.getTime());
+                MPEPrecipData mpePrecipData = null;
                 try {
-                    long fileLength = file.getFile().length();
-                    if (fileLength > 0) {
-                        file.load();
-                    } else // can't read the file since it is empty
-                    {
-                        continue;
-                    }
-                } catch (IOException e) {
-                    Activator.statusHandler.handle(
-                            Priority.INFO,
-                            "Error loading XMRG file for "
-                                    + displayField
-                                    + " at time "
-                                    + MPEDateFormatter
-                                            .format_MMM_dd_yyyy_HH(timeToLoad
-                                                    .getTime()), e);
+                    mpePrecipData = MPEPrecipDataLoader.load(displayField,
+                            timeToLoad);
+                } catch (MPEDataLoadException e) {
+                    statusHandler.handle(Priority.PROBLEM,
+                            e.getLocalizedMessage(), e);
+                }
+
+                if (mpePrecipData == null) {
                     continue;
                 }
 
-                Rectangle fileExtent = file.getHrapExtent();
-                short[] fileData = file.getData();
+                Rectangle fileExtent = mpePrecipData.getHrapExtent();
+                short[] fileData = mpePrecipData.getData();
                 for (int y = 0; y < displayExtent.height; ++y) {
                     for (int x = 0; x < displayExtent.width; ++x) {
                         int px = x + displayExtent.x;
@@ -543,12 +511,14 @@ public class MPEFieldResource extends
 
         else if (denominator == 0) {
             if (numerator == 0) {
-                result = 1.0; // if no rain, they are in agreeement, so show
-                              // this
+                /*
+                 * if no rain, they are in agreement, so show this
+                 */
+                result = 1.0;
             } else if (numerator > 0) {
                 result = BIG_VALUE;
-            } else // numerator is missing
-            {
+            } else {
+                // numerator is missing
                 result = MISSING_VALUE;
             }
         } else {
@@ -722,5 +692,67 @@ public class MPEFieldResource extends
                 otherFrame.setPolygonEdits(currentPolygonEdits);
             }
         }
+    }
+
+    @Override
+    public void alertArrived(Collection<AlertMessage> alertMessages) {
+        Date refreshDate = null;
+        Calendar calendar = getDescriptor().getTimeForResource(this)
+                .getRefTimeAsCalendar();
+        MPEPrecipInventoryManager inventory;
+        try {
+            inventory = MPEPrecipInventoryManager
+                    .getInstance(PrecipField.SATPRE);
+        } catch (MPEDataLoadException e) {
+            statusHandler
+                    .error("Failed to retrieve the data inventory for field: "
+                            + PrecipField.SATPRE.name() + ".", e);
+            return;
+        }
+        for (AlertMessage alertMessage : alertMessages) {
+            final DataTime dataTime = (DataTime) alertMessage.decodedAlert
+                    .get("dataTime");
+            Calendar alertCalendar = dataTime.getRefTimeAsCalendar();
+            alertCalendar = TimeUtil.minCalendarFields(alertCalendar,
+                    Calendar.MINUTE, Calendar.SECOND, Calendar.MILLISECOND);
+            inventory.addToInventory(
+                    new PrecipDataKey(PrecipField.SATPRE, alertCalendar));
+            if (alertCalendar.equals(calendar)) {
+                /*
+                 * Only refresh the display if the data updates are applicable
+                 * to the current hour.
+                 */
+                refreshDate = calendar.getTime();
+            }
+        }
+        if (refreshDate != null) {
+            resourceChanged(ChangeType.DATA_UPDATE, refreshDate);
+        }
+    }
+
+    protected MPEFieldFrame getFrame(DataTime currTime) throws VizException {
+        MPEFieldFrame frame = super.getFrame(currTime);
+
+        List<RFCQPEResource> rfcQpeRscList = MPEDisplayManager.getCurrent()
+                .getRfcQpeRscList();
+        Iterator<RFCQPEResource> iterator = rfcQpeRscList.iterator();
+        while (iterator.hasNext()) {
+            RFCQPEResource rfcQpeRsc = iterator.next();
+
+            if (rfcQpeRsc.getStatus() == ResourceStatus.DISPOSED) {
+                iterator.remove();
+            }
+        }
+
+        //if there's RFC QPE displaying, dispayMPE field in it's RFC boundary only
+        //else display it in it's HRAP area.
+        if (frame != null && frame.data != null) {
+            if (rfcQpeRscList.isEmpty()) {
+                resourceData.unmaskData(frame);
+            } else {
+                resourceData.maskData(frame);
+            }
+        }
+        return frame;
     }
 }

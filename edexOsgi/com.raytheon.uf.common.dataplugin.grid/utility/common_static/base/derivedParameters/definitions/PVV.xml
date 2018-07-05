@@ -18,36 +18,40 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="Pa/s" name="Omega" abbreviation="PVV" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="Pa/s" name="Omega" abbreviation="PVV">
     <Method levels="MaxOmega" name="Slice">
-        <Field level="3D" abbreviation="PVV"/>
-        <Field level="3D" abbreviation="PVV"/>
+        <Field level="3D" abbreviation="PVV" />
+        <Field level="3D" abbreviation="PVV" />
         <ConstantField value="-1e35" />
-        <ConstantField value="-1"/>
+        <ConstantField value="-1" />
     </Method>
     <Method levels="MaxTW" name="Slice">
-        <Field level="3D" abbreviation="TW"/>
-        <Field level="3D" abbreviation="PVV"/>
-        <ConstantField value="1e35"/>
-        <ConstantField value="-1"/>
+        <Field level="3D" abbreviation="TW" />
+        <Field level="3D" abbreviation="PVV" />
+        <ConstantField value="1e35" />
+        <ConstantField value="-1" />
     </Method>
     <Method name="PVV.execute1">
-    	<Field abbreviation="omega" />
+        <Field abbreviation="omega" />
     </Method>
     <Method name="Alias">
-        <Field abbreviation="WOm"/>
+        <Field abbreviation="WOm" />
     </Method>
     <Method name="Alias" levels="Surface">
-        <Field abbreviation="NetIO"/>
+        <Field abbreviation="NetIO" />
     </Method>
     <Method name="Slice" levels="S,TEMP">
-    	<Field abbreviation="PVV" level="3D"/>
-    	<Field abbreviation="P"/>
-    	<ConstantField value="-1"/>
+        <Field abbreviation="PVV" level="3D" />
+        <Field abbreviation="P" />
+        <ConstantField value="-1" />
     </Method>
     <Method name="Slice" levels="S,K,Ke">
-    	<Field abbreviation="PVV" level="3D"/>
-    	<Field abbreviation="P"/>
-    	<ConstantField value="-2"/>
+        <Field abbreviation="PVV" level="3D" />
+        <Field abbreviation="P" />
+        <ConstantField value="-2" />
     </Method>
 </DerivedParameter>

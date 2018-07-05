@@ -74,7 +74,7 @@ scripts = [
     
     "commentary": """
     Upgrading Area1 from WS.A to WS.W
-    Upgrading Area2 from WS.A to ZR.Y
+    Upgrading Area2 from WS.A to WW.Y
     Area1 (FLZ139, FLZ239, FLZ142, FLZ242, FLZ043, FLZ148, FLZ248, FLZ149, FLZ249, FLZ050, FLZ151, FLZ251) 0-39
     Area2 (FLZ052, FLZ155, FLZ255, FLZ056, FLZ057, FLZ160, FLZ260, FLZ061, FLZ162, FLZ262, FLZ165, FLZ265) 0-39
     """,
@@ -84,7 +84,7 @@ scripts = [
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
        ("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.W", ["FLZ139", "FLZ239", "FLZ142", "FLZ242", "FLZ043", "FLZ148", "FLZ248", "FLZ149", "FLZ249", "FLZ050", "FLZ151", "FLZ251"]),
-       ("Fcst", "Hazards", "DISCRETE", 0, 39, "ZR.Y", ["FLZ052", "FLZ155", "FLZ255", "FLZ056", "FLZ057", "FLZ160", "FLZ260", "FLZ061", "FLZ162", "FLZ262", "FLZ165", "FLZ265"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 39, "WW.Y", ["FLZ052", "FLZ155", "FLZ255", "FLZ056", "FLZ057", "FLZ160", "FLZ260", "FLZ061", "FLZ162", "FLZ262", "FLZ165", "FLZ265"]),
        ],
     "checkStrings": [
       "WWUS42 KTBW 010000",
@@ -113,15 +113,15 @@ scripts = [
       "$$",
       "FLZ052-056-057-061-155-160-162-165-255-260-262-265-010800-",
       "/O.UPG.KTBW.WS.A.0001.000000T0000Z-100102T1500Z/",
-      "/O.NEW.KTBW.ZR.Y.0001.100101T0000Z-100102T1500Z/",
+      "/O.NEW.KTBW.WW.Y.0001.100101T0000Z-100102T1500Z/",
       "Polk-Hardee-Highlands-DeSoto-Coastal Manatee-Coastal Sarasota-",
       "Coastal Charlotte-Coastal Lee-Inland Manatee-Inland Sarasota-",
       "Inland Charlotte-Inland Lee-",
       "700 PM EST Thu Dec 31 2009",
-      "...FREEZING RAIN ADVISORY IN EFFECT UNTIL 10 AM EST SATURDAY...",
-      "The National Weather Service in Tampa Bay Ruskin has issued a Freezing Rain Advisory, which is in effect until 10 AM EST Saturday. The Winter Storm Watch is no longer in effect. ",
+      "...WINTER WEATHER ADVISORY IN EFFECT UNTIL 10 AM EST SATURDAY...",
+      "The National Weather Service in Tampa Bay Ruskin has issued a Winter Weather Advisory for |* Enter hazard type *|, which is in effect until 10 AM EST Saturday. The Winter Storm Watch is no longer in effect.",
       "PRECAUTIONARY/PREPAREDNESS ACTIONS...",
-      "A Freezing Rain Advisory means that periods of freezing rain or freezing drizzle will cause travel difficulties. Be prepared for slippery roads. Slow down and use caution while driving.",
+      "A Winter Weather Advisory means that periods of snow, sleet, or freezing rain will cause travel difficulties. Be prepared for slippery roads and limited visibilities, and use caution while driving.",
       "&&",
       "$$",
        ],
@@ -129,7 +129,7 @@ scripts = [
     {
     
     "commentary": """
-    Expanding the existing WS.W hazard (Area1) into the existing ZR.Y hazard (Area2)
+    Expanding the existing WS.W hazard (Area1) into the existing WW.Y hazard (Area2)
     Area1 (FLZ139, FLZ239, FLZ142, FLZ242, FLZ043, FLZ148, FLZ248, FLZ149, FLZ249, FLZ050, FLZ151, FLZ251, FLZ052, FLZ057) 0-39
     Area2 (FLZ155, FLZ255, FLZ056, FLZ160, FLZ260, FLZ061, FLZ162, FLZ262, FLZO65) 0-39
     """,
@@ -139,7 +139,7 @@ scripts = [
     "createGrids": [
         ("Fcst", "Hazards", "DISCRETE", -100, 100, "<None>", "all"),
         ("Fcst", "Hazards", "DISCRETE", 0, 39, "WS.W", ["FLZ139", "FLZ239", "FLZ142", "FLZ242", "FLZ043", "FLZ148", "FLZ248", "FLZ149", "FLZ249", "FLZ050", "FLZ151", "FLZ251", "FLZ052", "FLZ057"]),
-        ("Fcst", "Hazards", "DISCRETE", 0, 39, "ZR.Y", ["FLZ155", "FLZ255", "FLZ056", "FLZ160", "FLZ260", "FLZ061", "FLZ162", "FLZ262", "FLZ165", "FLZ265"]),
+        ("Fcst", "Hazards", "DISCRETE", 0, 39, "WW.Y", ["FLZ155", "FLZ255", "FLZ056", "FLZ160", "FLZ260", "FLZ061", "FLZ162", "FLZ262", "FLZ165", "FLZ265"]),
         ],
     "checkStrings": [
       "WWUS42 KTBW 010000",
@@ -150,7 +150,7 @@ scripts = [
       "...|*Overview headline (must edit)*|...",
       ".|*Overview (must edit)*|.",
       "FLZ052-057-010800-",
-      "/O.UPG.KTBW.ZR.Y.0001.000000T0000Z-100102T1500Z/",
+      "/O.UPG.KTBW.WW.Y.0001.000000T0000Z-100102T1500Z/",
       "/O.EXA.KTBW.WS.W.0001.000000T0000Z-100102T1500Z/",
       "Polk-Highlands-",
       "700 PM EST Thu Dec 31 2009",
@@ -175,16 +175,16 @@ scripts = [
       "&&",
       "$$",
       "FLZ056-061-155-160-162-165-255-260-262-265-010800-",
-      "/O.CON.KTBW.ZR.Y.0001.000000T0000Z-100102T1500Z/",
+      "/O.CON.KTBW.WW.Y.0001.000000T0000Z-100102T1500Z/",
       "Hardee-DeSoto-Coastal Manatee-Coastal Sarasota-Coastal Charlotte-",
       "Coastal Lee-Inland Manatee-Inland Sarasota-Inland Charlotte-",
       "Inland Lee-",
       "700 PM EST Thu Dec 31 2009",
-      "...FREEZING RAIN ADVISORY REMAINS IN EFFECT UNTIL 10 AM EST SATURDAY...",
+      "...WINTER WEATHER ADVISORY REMAINS IN EFFECT UNTIL 10 AM EST SATURDAY...",
 #       "A Freezing Rain Advisory remains in effect until 10 AM EST Saturday. ",
 #      "|*|* SEGMENT TEXT GOES HERE *|.*|",
       "PRECAUTIONARY/PREPAREDNESS ACTIONS...",
-      "A Freezing Rain Advisory means that periods of freezing rain or freezing drizzle will cause travel difficulties. Be prepared for slippery roads. Slow down and use caution while driving.",
+      "A Winter Weather Advisory means that periods of snow, sleet, or freezing rain will cause travel difficulties. Be prepared for slippery roads and limited visibilities, and use caution while driving.",
       "&&",
       "$$",
         ],
@@ -216,16 +216,16 @@ scripts = [
       "&&",
       "$$",
       "FLZ056-061-155-160-162-165-255-260-262-265-010800-",
-      "/O.CON.KTBW.ZR.Y.0001.000000T0000Z-100102T1500Z/",
+      "/O.CON.KTBW.WW.Y.0001.000000T0000Z-100102T1500Z/",
       "Hardee-DeSoto-Coastal Manatee-Coastal Sarasota-Coastal Charlotte-",
       "Coastal Lee-Inland Manatee-Inland Sarasota-Inland Charlotte-",
       "Inland Lee-",
       "700 PM EST Thu Dec 31 2009",
-      "...FREEZING RAIN ADVISORY REMAINS IN EFFECT UNTIL 10 AM EST SATURDAY...",
+      "...WINTER WEATHER ADVISORY REMAINS IN EFFECT UNTIL 10 AM EST SATURDAY...",
 #       "A Freezing Rain Advisory remains in effect until 10 AM EST Saturday. ",
 #      "|*|* SEGMENT TEXT GOES HERE *|.*|",
       "PRECAUTIONARY/PREPAREDNESS ACTIONS...",
-      "A Freezing Rain Advisory means that periods of freezing rain or freezing drizzle will cause travel difficulties. Be prepared for slippery roads. Slow down and use caution while driving.",
+      "A Winter Weather Advisory means that periods of snow, sleet, or freezing rain will cause travel difficulties. Be prepared for slippery roads and limited visibilities, and use caution while driving.",
       "&&",
       "$$",
                      ],
@@ -233,7 +233,7 @@ scripts = [
     {
     
     "commentary": """
-    Removing Area2 and the ZR.Y hazard
+    Removing Area2 and the WW.Y hazard
     Area2 (FLZ155, FLZ255, FLZ056, FLZ160, FLZ260, FLZ061, FLZ162, FLZ262, FLZ165, FLZ265)
     """,
     
@@ -252,13 +252,13 @@ scripts = [
       "...|*Overview headline (must edit)*|...",
       ".|*Overview (must edit)*|.",
       "FLZ056-061-155-160-162-165-255-260-262-265-010100-",
-      "/O.CAN.KTBW.ZR.Y.0001.000000T0000Z-100102T1500Z/",
+      "/O.CAN.KTBW.WW.Y.0001.000000T0000Z-100102T1500Z/",
       "Hardee-DeSoto-Coastal Manatee-Coastal Sarasota-Coastal Charlotte-",
       "Coastal Lee-Inland Manatee-Inland Sarasota-Inland Charlotte-",
       "Inland Lee-",
       "700 PM EST Thu Dec 31 2009",
-      "...FREEZING RAIN ADVISORY IS CANCELLED...",
-      "The National Weather Service in Tampa Bay Ruskin has cancelled the Freezing Rain Advisory. ",
+      "...WINTER WEATHER ADVISORY IS CANCELLED...",
+      "The National Weather Service in Tampa Bay Ruskin has cancelled the Winter Weather Advisory. ",
 #       "|* SEGMENT TEXT GOES HERE *|.",
       "$$",
       "FLZ043-050-052-057-139-142-148-149-151-239-242-248-249-251-010800-",

@@ -1,27 +1,27 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.edex.menus;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -29,10 +29,10 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.LocalizationFile;
 import com.raytheon.uf.common.localization.PathManager;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
@@ -42,13 +42,13 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 
 /**
- * 
+ *
  * Abstract class for generating menu files
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Jul 23, 2010           mnash     Initial creation
@@ -61,9 +61,10 @@ import com.raytheon.uf.common.status.UFStatus;
  *                                  methods
  * Jul 15, 2016  5744     mapeters  Use common_static.base instead of
  *                                  edex_static.base in fromXml(String)
- * 
+ * Aug 21, 2017  6372     mapeters  Use common_static instead of cave_static
+ *
  * </pre>
- * 
+ *
  * @author mnash
  */
 public abstract class AbstractMenuUtil {
@@ -73,11 +74,11 @@ public abstract class AbstractMenuUtil {
     protected final PathManager pm = (PathManager) PathManagerFactory
             .getPathManager();
 
-    protected LocalizationContext caveConfigured = pm.getContext(
-            LocalizationType.CAVE_STATIC, LocalizationLevel.CONFIGURED);
+    protected LocalizationContext commonConfigured = pm.getContext(
+            LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
 
-    private final LocalizationContext commonBase = pm.getContext(
-            LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+    private final LocalizationContext commonBase = pm
+            .getContext(LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
 
     private String site = null;
 
@@ -88,14 +89,14 @@ public abstract class AbstractMenuUtil {
 
     /**
      * Create the menus for a different site
-     * 
+     *
      * @param site
      */
     public void createMenus(String site) {
         if (site != null) {
-            caveConfigured = pm.getContextForSite(LocalizationType.CAVE_STATIC,
-                    site);
-            caveConfigured.setLocalizationLevel(LocalizationLevel.CONFIGURED);
+            commonConfigured = pm
+                    .getContextForSite(LocalizationType.COMMON_STATIC, site);
+            commonConfigured.setLocalizationLevel(LocalizationLevel.CONFIGURED);
         }
         setSite(site);
         if (!checkCreated()) {
@@ -105,10 +106,10 @@ public abstract class AbstractMenuUtil {
 
     /**
      * Convert menu objects to xml and writes them to disk
-     * 
+     *
      * @param object
      *            The object to marshal
-     * 
+     *
      * @param path
      *            The path
      */
@@ -118,12 +119,8 @@ public abstract class AbstractMenuUtil {
             Marshaller marshaller = context.createMarshaller();
             marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,
                     new Boolean(true));
-            LocalizationFile file = pm
-                    .getLocalizationFile(caveConfigured, path);
-            // make sure the directory exists!
-            if (!file.getFile().exists()) {
-                file.getFile().getParentFile().mkdirs();
-            }
+            ILocalizationFile file = pm.getLocalizationFile(commonConfigured,
+                    path);
 
             try (SaveableOutputStream os = file.openOutputStream()) {
                 marshaller.marshal(object, os);
@@ -139,7 +136,7 @@ public abstract class AbstractMenuUtil {
     /**
      * Convert xml to an object using jaxb (for menu templates). Looks for xml
      * file in common_static.base localization context.
-     * 
+     *
      * @param path
      * @return the unmarshalled object
      */
@@ -150,12 +147,12 @@ public abstract class AbstractMenuUtil {
 
     /**
      * Unmarshal an xml file.
-     * 
+     *
      * @param path
      *            The path of the file
      * @param lContext
      *            The localization context
-     * 
+     *
      * @return The xml object
      */
     public Object fromXml(String path, LocalizationContext lContext) {
@@ -183,38 +180,39 @@ public abstract class AbstractMenuUtil {
 
     /**
      * Check to see whether the menu creator needs to be run
-     * 
+     *
      * @return true if it needs to be run
      */
     protected abstract boolean checkCreated();
 
     /**
      * Check to see whether the menu creator needs to be run
-     * 
+     *
      * @param fileName
      * @param type
-     * 
+     *
      * @return true if it needs to be run
      */
     public boolean checkCreated(String fileName, String type) {
-        LocalizationContext context = pm.getContextForSite(
-                LocalizationType.COMMON_STATIC, getSite());
-        LocalizationFile lFile = pm.getLocalizationFile(context, type
-                + File.separator + fileName);
+        LocalizationContext context = pm
+                .getContextForSite(LocalizationType.COMMON_STATIC, getSite());
+        ILocalizationFile lFile = pm.getLocalizationFile(context,
+                type + IPathManager.SEPARATOR + fileName);
         if (lFile == null || !lFile.exists()) {
             return false;
         }
 
-        // get the file from localization that has the
-        LocalizationFile olFile = pm.getLocalizationFile(caveConfigured,
-                "menus" + File.separator + type + File.separator + "." + type
-                        + "MenuTime");
+        // get the localization file whose timestamp is the menu creation time
+        ILocalizationFile olFile = pm.getLocalizationFile(commonConfigured,
+                "menus" + IPathManager.SEPARATOR + type + IPathManager.SEPARATOR
+                        + "." + type + "MenuTime");
 
-        long useTime = lFile.getFile().lastModified();
-        long writeTime = olFile.getFile().lastModified();
+        Date useTime = lFile.getTimeStamp();
+        Date writeTime = olFile.getTimeStamp();
 
-        if (writeTime < useTime) {
-            try (SaveableOutputStream olFileStream = olFile.openOutputStream()) {
+        if (writeTime.before(useTime)) {
+            try (SaveableOutputStream olFileStream = olFile
+                    .openOutputStream()) {
                 // Update menu creation time file
                 olFileStream.write(new byte[0]);
                 olFileStream.save();
@@ -226,8 +224,8 @@ public abstract class AbstractMenuUtil {
 
         statusHandler.info("Timestamp in " + fileName
                 + " was before timestamp in ." + type + "MenuTime");
-        statusHandler.info("Menus already created for site " + getSite()
-                + " for " + type);
+        statusHandler.info(
+                "Menus already created for site " + getSite() + " for " + type);
         return true;
 
     }

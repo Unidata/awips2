@@ -10,4 +10,4 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.viz.core
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.ui.tools.map
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

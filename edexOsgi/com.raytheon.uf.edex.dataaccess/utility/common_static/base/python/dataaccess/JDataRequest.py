@@ -18,7 +18,6 @@
 # further licensing information.
 ##
 
-
 #
 # Implements IDataRequest and wraps around a Java IDataRequest
 #  
@@ -35,6 +34,12 @@
 #    Apr 08, 2016    5553          bkowal         Fix getEnvelope() typo
 # 
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 from awips.dataaccess import IDataRequest
 from com.raytheon.uf.common.dataplugin.level import Level

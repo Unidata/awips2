@@ -20,7 +20,6 @@
 package com.raytheon.viz.grid.inv;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -37,6 +36,7 @@ import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
 import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.CommonGridInventory;
+import com.raytheon.uf.common.dataplugin.grid.derivparam.GridInventoryUpdater;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.cache.CoverageUtils;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.tree.GridRequestableNode;
 import com.raytheon.uf.common.dataplugin.level.Level;
@@ -66,7 +66,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.points.IPointChangedListener;
 import com.raytheon.uf.viz.points.PointsDataManager;
-import com.raytheon.viz.grid.util.RadarAdapter;
+import com.raytheon.viz.grid.GridExtensionManager;
 
 /**
  * Inventory object for calculating and managing the available grid data,
@@ -88,14 +88,16 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  *                                    derived parameters to common
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * Mar 03, 2016  5439     bsteffen    Split grid inventory into common and viz
+ * Aug 15, 2017  6332     bsteffen    Move radar specific logic to extension
+ * Aug 23, 2017  6125     bsteffen    Handle updates through super class.
  * 
  * </pre>
  * 
  * @author brockwoo
  */
 
-public class VizGridInventory extends CommonGridInventory implements
-        IPointChangedListener {
+public class VizGridInventory extends CommonGridInventory
+        implements IPointChangedListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(VizGridInventory.class);
 
@@ -110,10 +112,9 @@ public class VizGridInventory extends CommonGridInventory implements
     @Override
     public void initTree(Map<String, DerivParamDesc> derParLibrary)
             throws DataCubeException {
-        super.initTree(derParLibrary);
         if (updater == null) {
             updater = new GridUpdater(this);
-            updater.startObserving();
+            super.initTree(derParLibrary);
             /*
              * Currently only one instance of GridInventory is created by the
              * GribDataCubeAdapter and lasts for the life of CAVE. Thus no need
@@ -121,29 +122,30 @@ public class VizGridInventory extends CommonGridInventory implements
              */
             PointsDataManager.getInstance().addHomeChangedListener(this);
         } else {
+            super.initTree(derParLibrary);
             updater.refreshNodes();
         }
     }
 
+    @Override
+    protected GridInventoryUpdater getUpdater() {
+        return updater;
+    }
+
+    @Override
     public void reinitTree() {
-        try {
-            initTree(derParLibrary);
-            /*
-             * reprocess all failed requests to see if data has become
-             * available.
-             */
-            List<Map<String, RequestConstraint>> constraintsToTry = this.failedRequests;
-            this.failedRequests = new ArrayList<>(failedRequests.size());
-            for (Map<String, RequestConstraint> constraints : constraintsToTry) {
-                evaluateRequestConstraints(constraints);
-            }
-        } catch (DataCubeException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        super.reinitTree();
+        /*
+         * reprocess all failed requests to see if data has become available.
+         */
+        List<Map<String, RequestConstraint>> constraintsToTry = this.failedRequests;
+        this.failedRequests = new ArrayList<>(failedRequests.size());
+        for (Map<String, RequestConstraint> constraints : constraintsToTry) {
+            evaluateRequestConstraints(constraints);
         }
     }
 
     private void initGatherModels(DataTree tree) {
-        long startTime = System.currentTimeMillis();
         modelsWithPerts.clear();
 
         /*
@@ -165,16 +167,15 @@ public class VizGridInventory extends CommonGridInventory implements
             DbQueryResponse response = (DbQueryResponse) ThriftClient
                     .sendRequest(request);
             for (Map<String, Object> objMap : response.getResults()) {
-                String model = String.valueOf(objMap
-                        .get(GridInfoConstants.DATASET_ID));
-                String parameter = String.valueOf(objMap
-                        .get(GridInfoConstants.PARAMETER_ABBREVIATION));
-                String levelId = String.valueOf(objMap
-                        .get(GridInfoConstants.LEVEL_ID));
+                String model = String
+                        .valueOf(objMap.get(GridInfoConstants.DATASET_ID));
+                String parameter = String.valueOf(
+                        objMap.get(GridInfoConstants.PARAMETER_ABBREVIATION));
+                String levelId = String
+                        .valueOf(objMap.get(GridInfoConstants.LEVEL_ID));
                 String ensemble = (String) objMap
                         .get(GridInfoConstants.ENSEMBLE_ID);
-                LevelNode node = tree.getLevelNode(model, parameter,
-                        levelId.toString());
+                LevelNode node = tree.getLevelNode(model, parameter, levelId);
                 if (node instanceof GridRequestableNode) {
                     GridRequestableNode gribNode = (GridRequestableNode) node;
                     List<String> ensembles = gribNode.getEnsembles();
@@ -192,42 +193,19 @@ public class VizGridInventory extends CommonGridInventory implements
                 }
             }
         } catch (VizException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Error determining ensemble information, Gather function may be broken",
-                            e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error determining ensemble information, Gather function may be broken",
+                    e);
         }
-        long endTime = System.currentTimeMillis();
-        System.out.println("Time processing gather nodes = "
-                + (endTime - startTime));
     }
 
-    /**
-     * the source, parameter, and level are from an update from edex and if no
-     * such database node exists will trigger a new of the grid tree
-     * 
-     * @param source
-     * @param parameter
-     * @param level
-     */
+    @Override
     public LevelNode getNode(String source, String parameter, Level level) {
-        try {
-            List<AbstractRequestableNode> nodes = walkTree(null,
-                    Arrays.asList(source), Arrays.asList(parameter),
-                    Arrays.asList(level), true, true, null);
-            if (nodes == null || nodes.isEmpty()) {
-                return null;
-            }
-            if (nodes.get(0) instanceof AbstractDerivedDataNode) {
-                updater.addNode((AbstractDerivedDataNode) nodes.get(0));
-            }
-            return nodes.get(0);
-        } catch (InterruptedException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Error occured in Grid Inventory: Cannot retrieve node: "
-                            + source + "/" + parameter + "/" + level, e);
+        LevelNode node = super.getNode(source, parameter, level);
+        if (node instanceof AbstractDerivedDataNode) {
+            updater.addNode((AbstractDerivedDataNode) node);
         }
-        return null;
+        return node;
     }
 
     @Override
@@ -235,35 +213,28 @@ public class VizGridInventory extends CommonGridInventory implements
         DataTree newTree = super.createBaseTree();
         initGatherModels(newTree);
         initAliasModels(newTree);
-        RadarAdapter.getInstance().addRadarBaseTree(newTree, derParLibrary);
+        GridExtensionManager.addToBaseTree(newTree, derParLibrary);
         return newTree;
     }
 
     @Override
-    public List<DataTime> timeAgnosticQuery(Map<String, RequestConstraint> query)
-            throws DataCubeException {
-        List<DataTime> rval = null;
-        List<String> sources = getSourcesToProcess(query);
-        boolean processRadar = sources != null && sources.contains("radar");
-        boolean processGrid = !processRadar || sources.size() > 1;
+    public List<DataTime> timeAgnosticQuery(
+            Map<String, RequestConstraint> query) throws DataCubeException {
 
-        if (processGrid) {
-            rval = super.timeAgnosticQuery(query);
+        List<DataTime> rval = super.timeAgnosticQuery(query);
+
+        Set<DataTime> times;
+        try {
+            times = GridExtensionManager.timeInvariantQuery(query);
+        } catch (VizException e) {
+            throw new DataCubeException(e);
         }
-        if (processRadar) {
-            Set<DataTime> times;
-            try {
-                times = RadarAdapter.getInstance().timeInvariantQuery();
-            } catch (VizException e) {
-                throw new DataCubeException(e);
-            }
-            if (rval == null && times != null) {
-                rval = new ArrayList<>(times.size());
-            }
+        if (rval == null && times != null) {
+            rval = new ArrayList<>(times.size());
+        }
 
-            if (times != null) {
-                rval.addAll(times);
-            }
+        if (times != null) {
+            rval.addAll(times);
         }
         return rval;
     }
@@ -326,7 +297,8 @@ public class VizGridInventory extends CommonGridInventory implements
                     } catch (DataCubeException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 "Unable to create model aliases, problems with "
-                                        + model1 + " and " + model2, e);
+                                        + model1 + " and " + model2,
+                                e);
                         return 0;
                     }
                 }
@@ -356,8 +328,8 @@ public class VizGridInventory extends CommonGridInventory implements
     public List<AbstractRequestableNode> evaluateRequestConstraints(
             Map<String, RequestConstraint> query) {
         try {
-            List<AbstractRequestableNode> nodes = super
-                    .evaluateRequestConstraints(query);
+            List<AbstractRequestableNode> nodes = super.evaluateRequestConstraints(
+                    query);
             for (AbstractRequestableNode node : nodes) {
                 if (node instanceof AbstractDerivedDataNode) {
                     updater.addNode((AbstractDerivedDataNode) node);
@@ -378,8 +350,8 @@ public class VizGridInventory extends CommonGridInventory implements
         if (nameRC == null) {
             // Only bother grabbing nodes with perts
             nameRC = new RequestConstraint(null, ConstraintType.IN);
-            nameRC.setConstraintValueList(modelsWithPerts
-                    .toArray(new String[0]));
+            nameRC.setConstraintValueList(
+                    modelsWithPerts.toArray(new String[0]));
             query = new HashMap<>(query);
             query.put(GridConstants.DATASET_ID, nameRC);
         } else {
@@ -441,36 +413,33 @@ public class VizGridInventory extends CommonGridInventory implements
 
     @Override
     public String get3DMasterLevel(String model) {
-        if (model.equals(RadarAdapter.RADAR_SOURCE)) {
-            return RadarAdapter.CUBE_MASTER_LEVEL_NAME;
+        String result = GridExtensionManager.get3DMasterLevel(model);
+        if (result == null) {
+            result = super.get3DMasterLevel(model);
         }
-        return super.get3DMasterLevel(model);
+        return result;
     }
 
     @Override
-    protected LevelNode getCubeNode(
-            String modelName,
+    protected LevelNode getCubeNode(String modelName,
             List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> cubeLevels) {
-        if (modelName.equals(RadarAdapter.RADAR_SOURCE)) {
-            return new RadarCubeLevelNode(cubeLevels, modelName);
+        LevelNode result = GridExtensionManager.getCubeNode(modelName,
+                cubeLevels);
+        if (result == null) {
+            result = super.getCubeNode(modelName, cubeLevels);
         }
-        return super.getCubeNode(modelName, cubeLevels);
+        return result;
     }
 
     @Override
     protected Object resolvePluginStaticData(SourceNode sNode,
             DerivParamField field, Level level) {
-        String fieldParamAbbrev = field.getParam();
-        /*
-         * Check to see if we can set the field from the masterlevel name
-         */
-        if (level.getMasterLevel().getName().equals(fieldParamAbbrev)) {
-            if ("TILT".equals(fieldParamAbbrev)) {
-                return new TiltGridDataLevelNode(sNode.getValue(),
-                        fieldParamAbbrev, level);
-            }
+        Object result = GridExtensionManager.resolvePluginStaticData(sNode,
+                field, level);
+        if (result == null) {
+            result = super.resolvePluginStaticData(sNode, field, level);
         }
-        return super.resolvePluginStaticData(sNode, field, level);
+        return result;
     }
 
     @Override
@@ -478,7 +447,7 @@ public class VizGridInventory extends CommonGridInventory implements
             DerivParamMethod method, Level level, List<Object> fields,
             SourceNode source) {
         if (method.getMethodType() == MethodType.OTHER
-                && method.getName().equalsIgnoreCase("Gather")) {
+                && "Gather".equalsIgnoreCase(method.getName())) {
             AbstractRequestableNode lNode = (AbstractRequestableNode) fields
                     .get(0);
 

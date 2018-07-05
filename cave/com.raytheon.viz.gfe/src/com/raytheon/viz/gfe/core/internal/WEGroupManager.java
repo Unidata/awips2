@@ -48,6 +48,7 @@ import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.protectedfiles.ProtectedFileLookup;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -72,16 +73,17 @@ import com.raytheon.viz.gfe.core.IWEGroupManager;
  * Aug 13, 2015  4749       njensen     Implemented dispose()
  * Nov 12, 2015  4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Feb 05, 2016  5242       dgilling    Remove calls to deprecated Localization APIs.
+ * Aug 07, 2017  6379       njensen     Use ProtectedFileLookup
  * 
  * </pre>
  * 
  * @author chammack
- * @version 1.0
  */
 
 public class WEGroupManager implements IWEGroupManager,
         ILocalizationFileObserver {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WEGroupManager.class);
 
     private String WEGROUP_DIR = "gfe/weGroups";
@@ -104,7 +106,7 @@ public class WEGroupManager implements IWEGroupManager,
         this.dataManager = dataManager;
 
         try {
-            this.jaxb = new SingleTypeJAXBManager<WEGroup>(WEGroup.class);
+            this.jaxb = new SingleTypeJAXBManager<>(WEGroup.class);
         } catch (JAXBException e) {
             statusHandler
                     .error("Error initializing WEGroup JAXBManager, Weather Element Groups will not work",
@@ -122,7 +124,7 @@ public class WEGroupManager implements IWEGroupManager,
         this.sortOrder = Arrays.asList(Activator.getDefault()
                 .getPreferenceStore().getStringArray("WEList"));
         if (sortOrder == null) {
-            sortOrder = new ArrayList<String>();
+            sortOrder = new ArrayList<>();
         }
 
         this.comparator = new Comparator<String>() {
@@ -155,7 +157,7 @@ public class WEGroupManager implements IWEGroupManager,
         ILocalizationFile[] files = pathManager.listFiles(contexts,
                 WEGROUP_DIR, new String[] { ".xml" }, false, true);
 
-        inventory = new LinkedHashMap<LocalizationLevel, Set<String>>();
+        inventory = new LinkedHashMap<>();
         for (ILocalizationFile lf : files) {
             String fn = LocalizationUtil.extractName(lf.getPath());
             LocalizationLevel levelType = lf.getContext()
@@ -163,7 +165,7 @@ public class WEGroupManager implements IWEGroupManager,
 
             Set<String> inventoryList = inventory.get(levelType);
             if (inventoryList == null) {
-                inventoryList = new HashSet<String>();
+                inventoryList = new HashSet<>();
                 inventory.put(levelType, inventoryList);
             }
             String s = construct(fn);
@@ -232,7 +234,7 @@ public class WEGroupManager implements IWEGroupManager,
 
         bundle.rectifyForSite(this.dataManager.getSiteID(), availableParmIDs);
         // Append the ParmIDs to the returning argument
-        List<ParmID> parmIDs = new ArrayList<ParmID>();
+        List<ParmID> parmIDs = new ArrayList<>();
         for (int i = 0; i < bundle.getWeItems().length; i++) {
             ParmID parmID = bundle.getWeItems()[i].getParmID();
             if (parmID != null) {
@@ -259,7 +261,7 @@ public class WEGroupManager implements IWEGroupManager,
 
     @Override
     public List<String> getInventory() {
-        List<String> completeList = new ArrayList<String>();
+        List<String> completeList = new ArrayList<>();
 
         for (LocalizationLevel lt : this.inventory.keySet()) {
 
@@ -293,7 +295,7 @@ public class WEGroupManager implements IWEGroupManager,
     public boolean isProtected(String name) {
         LocalizationFile file = getLocalizationFile(name);
         if (file != null) {
-            return file.isProtected();
+            return ProtectedFileLookup.isProtected(file);
         } else {
             return false;
         }
@@ -337,7 +339,7 @@ public class WEGroupManager implements IWEGroupManager,
         } catch (IOException e) {
             String msg = String.format("Error writing to WEGroup file %s: %s",
                     file, e.getLocalizedMessage());
-            statusHandler.error(msg);
+            statusHandler.error(msg, e);
         } catch (LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error saving to localization server", e);
@@ -348,7 +350,7 @@ public class WEGroupManager implements IWEGroupManager,
 
         Set<String> list = inventory.get(LocalizationLevel.USER);
         if (list == null) {
-            list = new HashSet<String>();
+            list = new HashSet<>();
             inventory.put(LocalizationLevel.USER, list);
         }
         list.add(key);
@@ -370,7 +372,7 @@ public class WEGroupManager implements IWEGroupManager,
      */
     @Override
     public List<String> getUserInventory() {
-        List<String> completeList = new ArrayList<String>();
+        List<String> completeList = new ArrayList<>();
         Set<String> userInv = this.inventory.get(LocalizationLevel.USER);
         if (userInv != null) {
             completeList.addAll(userInv);

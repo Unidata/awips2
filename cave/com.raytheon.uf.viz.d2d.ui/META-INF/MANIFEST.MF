@@ -2,10 +2,10 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Ui Plug-in
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.ui;singleton:=true
-Bundle-Version: 1.14.0.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Activator: com.raytheon.uf.viz.d2d.ui.Activator
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.d2d.ui,
  com.raytheon.uf.viz.d2d.ui.actions,
@@ -16,16 +16,13 @@ Export-Package: com.raytheon.uf.viz.d2d.ui,
  com.raytheon.uf.viz.d2d.ui.perspectives,
  com.raytheon.uf.viz.d2d.ui.time.dialogs
 Require-Bundle: org.eclipse.core.runtime,
- org.eclipse.ui,
- com.raytheon.uf.common.time;bundle-version="1.12.1174",
- com.raytheon.uf.common.geospatial;bundle-version="1.12.1174",
- com.raytheon.uf.common.colormap;bundle-version="1.12.1174",
- com.raytheon.uf.common.util;bundle-version="1.12.1174",
- com.raytheon.uf.viz.d2d.core;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core;bundle-version="1.12.1174",
- com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0",
- com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
- com.raytheon.viz.ui;bundle-version="1.12.1174",
- com.raytheon.uf.viz.xy;bundle-version="1.12.1174"
-Import-Package: com.raytheon.viz.core.imagery
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.colormap,
+ com.raytheon.uf.viz.d2d.core,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.viz.core.rsc,
+ com.raytheon.uf.viz.core.maps,
+ com.raytheon.viz.ui,
+ com.raytheon.uf.viz.xy
 Bundle-ClassPath: com.raytheon.uf.viz.d2d.ui.jar

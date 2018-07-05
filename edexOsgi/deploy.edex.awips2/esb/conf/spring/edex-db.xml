@@ -1,17 +1,20 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
-    xmlns:util="http://www.springframework.org/schema/util" xmlns:tx="http://www.springframework.org/schema/tx"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
-  http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
-  http://www.springframework.org/schema/util
-  http://www.springframework.org/schema/util/spring-util-3.1.xsd
-  http://www.springframework.org/schema/tx
-  http://www.springframework.org/schema/tx/spring-tx.xsd">  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd">
 
     <tx:annotation-driven transaction-manager="metadataTxManager"
         proxy-target-class="true" />
-    
+
     <!-- The db class finder will search the plugin dir for classes with @Entity or @Embeddable -->
     <bean id="dbClassFinder" class="com.raytheon.uf.edex.database.DatabaseClassAnnotationFinder" />
 
@@ -25,6 +28,7 @@
                 <value>com.raytheon.uf.common.dataplugin.shef</value>
                 <value>com.raytheon.edex.plugin.shef</value>
                 <value>com.raytheon.uf.common.bmh</value>
+                <value>com.raytheon.uf.common.plugin.hpe.data</value>
             </list>
         </property>
     </bean>
@@ -32,7 +36,7 @@
     <bean id="metadataSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata/hibernate.cfg.xml
+            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata.hibernate.cfg.xml
             </value>
         </property>
         <!-- >property name="dataSource"><ref bean="datasourceMetadata"/></property -->
@@ -51,7 +55,7 @@
     <bean id="admin_metadataSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata/hibernate.admin.cfg.xml</value>
+            <value>file:///${edex.home}/conf/db/hibernateConfig/metadata.hibernate.admin.cfg.xml</value>
         </property>
         <property name="databaseSessionConfiguration" ref="metadataDbSessionConfig" />
     </bean>
@@ -69,7 +73,7 @@
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <!-- no annotations to load, so no databaseSessionConfig -->
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/maps/hibernate.cfg.xml
+            <value>file:///${edex.home}/conf/db/hibernateConfig/maps.hibernate.cfg.xml
             </value>
         </property>
     </bean>
@@ -83,7 +87,7 @@
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <!-- no annotations to load, so no databaseSessionConfig -->
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/maps/hibernate.admin.cfg.xml
+            <value>file:///${edex.home}/conf/db/hibernateConfig/maps.hibernate.admin.cfg.xml
             </value>
         </property>
     </bean>

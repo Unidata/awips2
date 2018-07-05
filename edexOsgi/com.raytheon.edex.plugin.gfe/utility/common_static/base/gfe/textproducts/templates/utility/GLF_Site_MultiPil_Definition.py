@@ -17,6 +17,11 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 # ---------------------------------------------------------------------
 # This software is in the public domain, furnished "as is", without
 # technical  support, and with no warranty, express or implied, as to

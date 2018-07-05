@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--
 //
 // Partial Thickness Precipitation Type Icons - Snow3
@@ -30,43 +34,43 @@ Snow thickness criteria:
 1000-700 mb thickness 2850m or less
 
 -->
-<DerivedParameter name="Thickness: Snow Likely" abbreviation="Snow3" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
-     <Method levels="900MB" name="Test">
-        <Field level="1000MB-850MB" abbreviation="dZ"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="-1.0E37"/>
-        <ConstantField value="1299.0"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="1300.0"/>
-        <ConstantField value="1.0E37"/>
-        <ConstantField value="0.0"/>
+<DerivedParameter name="Thickness: Snow Likely" abbreviation="Snow3">
+    <Method levels="900MB" name="Test">
+        <Field level="1000MB-850MB" abbreviation="dZ" />
+        <ConstantField value="1.0" />
+        <ConstantField value="-1.0E37" />
+        <ConstantField value="1299.0" />
+        <ConstantField value="1.0" />
+        <ConstantField value="1.0" />
+        <ConstantField value="1300.0" />
+        <ConstantField value="1.0E37" />
+        <ConstantField value="0.0" />
     </Method>
-     <Method levels="800MB" name="Test">
-        <Field level="850MB-700MB" abbreviation="dZ"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="-1.0E37"/>
-        <ConstantField value="1541.0"/>
-        <Field level="900MB" abbreviation="Snow3"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="1542.0"/>
-        <ConstantField value="1.0E37"/>
-        <ConstantField value="0.0"/>
+    <Method levels="800MB" name="Test">
+        <Field level="850MB-700MB" abbreviation="dZ" />
+        <ConstantField value="1.0" />
+        <ConstantField value="-1.0E37" />
+        <ConstantField value="1541.0" />
+        <Field level="900MB" abbreviation="Snow3" />
+        <ConstantField value="1.0" />
+        <ConstantField value="1542.0" />
+        <ConstantField value="1.0E37" />
+        <ConstantField value="0.0" />
     </Method>
     <Method levels="850MB" name="Test">
-        <Field level="1000MB-700MB" abbreviation="dZ"/>
-		<ConstantField value="1"/>
-        <ConstantField value="-1.e37"/>
-        <ConstantField value="2850"/>
-        <Field level="800MB" abbreviation="Snow3"/>
- 		<ConstantField value="1"/>
-        <ConstantField value="2851"/>
-        <ConstantField value="1.e37"/>
-        <ConstantField value="0"/>
+        <Field level="1000MB-700MB" abbreviation="dZ" />
+        <ConstantField value="1" />
+        <ConstantField value="-1.e37" />
+        <ConstantField value="2850" />
+        <Field level="800MB" abbreviation="Snow3" />
+        <ConstantField value="1" />
+        <ConstantField value="2851" />
+        <ConstantField value="1.e37" />
+        <ConstantField value="0" />
     </Method>
     <Method name="Mapping" levels="Surface">
-		<Field level="850MB" abbreviation="Snow3" />
+        <Field level="850MB" abbreviation="Snow3" />
         <ConstantField value="1" />
-		<ConstantField value="89" />
-	</Method>
+        <ConstantField value="89" />
+    </Method>
 </DerivedParameter>

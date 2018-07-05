@@ -33,6 +33,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.shef.data.IObservation;
@@ -55,6 +56,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * May 23, 2016       5590     bkowal  Cleanup.
  * Jun 24, 2016       5699     bkowal  Defined the observation retrieval named queries.
  * Jun 29, 2016       5699     bkowal  Implement {@link IObservation}.
+ * Dec 18, 2017       6554     bkowal  Implemented {@link ICheckValue}.
  * 
  * </pre>
  * 
@@ -69,7 +71,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(name = "height")
 @DynamicSerialize
 public class Height extends PersistableDataObject<HeightId> implements
-        Serializable, IObservation {
+        Serializable, IObservation, ICheckValue {
 
     private static final String ORDER_BY_HQL = " ORDER BY o.id.lid, o.id.pe, o.id.obstime ASC";
 
@@ -254,4 +256,12 @@ public class Height extends PersistableDataObject<HeightId> implements
         this.postingtime = postingtime;
     }
 
+    @Transient
+    @Override
+    public String getCompareValue() {
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
+    }
 }

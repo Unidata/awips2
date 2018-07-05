@@ -9,7 +9,7 @@ Require-Bundle: com.raytheon.edex.common,
  javax.persistence,
  com.raytheon.uf.common.status
 Export-Package: com.raytheon.uf.edex.plugin.ccfp
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.dataplugin.ccfp,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.wmo

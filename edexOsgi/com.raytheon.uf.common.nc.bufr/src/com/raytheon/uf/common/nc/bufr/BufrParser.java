@@ -26,6 +26,11 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
+import java.util.regex.Pattern;
+
+import com.raytheon.uf.common.numeric.UnsignedNumbers;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 import ucar.ma2.Array;
 import ucar.ma2.ArraySequence;
@@ -37,10 +42,6 @@ import ucar.nc2.Attribute;
 import ucar.nc2.NetcdfFile;
 import ucar.nc2.Structure;
 import ucar.nc2.Variable;
-
-import com.raytheon.uf.common.numeric.UnsignedNumbers;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * BUFR parser that utilizes the UCAR BUFR decoder that works with the Netcdf
@@ -60,11 +61,11 @@ import com.raytheon.uf.common.status.UFStatus;
  *                                     added scanForStructField()
  * Apr 29, 2014 2906       bclement    added close()
  * Jun 12, 2014 3229       bclement    fixed empty array in structure problem
+ * Sep 11, 2017 6406       bsteffen    Upgrade ucar
  * 
  * </pre>
  * 
  * @author bclement
- * @version 1.0
  */
 public class BufrParser {
 
@@ -91,7 +92,7 @@ public class BufrParser {
 
     private StructIterator structIter;
 
-    private final Stack<StructureLevel> structStack = new Stack<StructureLevel>();
+    private final Stack<StructureLevel> structStack = new Stack<>();
 
     private Event lastEvent = null;
 
@@ -159,7 +160,9 @@ public class BufrParser {
             rval = Event.END_STRUCTURE;
         } else if (varIter != null) {
             if (varIter.hasNext()) {
-                /* we are working through a bufr file, start the next variable */
+                /*
+                 * we are working through a bufr file, start the next variable
+                 */
                 rval = startVariable();
             } else {
                 /* no more variables, we are at the end of the bufr file */
@@ -251,11 +254,12 @@ public class BufrParser {
         Variable parentVar = parent.getCurrentMemberVar();
         if (!(parentVar instanceof Structure)) {
             log.error("Structure variable members out of sync");
-            throw new IllegalStateException("Structure variable members out of sync");
+            throw new IllegalStateException(
+                    "Structure variable members out of sync");
         }
         List<Variable> memberVars = ((Structure) parentVar).getVariables();
-        return startStructure(new StructureLevel(childData, childMembers,
-                memberVars));
+        return startStructure(
+                new StructureLevel(childData, childMembers, memberVars));
     }
 
     /**
@@ -416,7 +420,9 @@ public class BufrParser {
                 && var.getDataType().equals(DataType.CHAR)) {
             rval = DataType.STRING;
         } else if (isScaledOrOffset(var)) {
-            /* variables that need scale or offset will be returned as doubles */
+            /*
+             * variables that need scale or offset will be returned as doubles
+             */
             rval = DataType.DOUBLE;
         } else {
             rval = getUnscaledDataType(var);
@@ -499,8 +505,7 @@ public class BufrParser {
         DataType type = typedArray.type;
         long size = array.getSize();
         Object value;
-        if (charArrayAsString && size > 1
-                && type.equals(DataType.CHAR)) {
+        if (charArrayAsString && size > 1 && type.equals(DataType.CHAR)) {
             int len = (int) array.getSize();
             StringBuilder builder = new StringBuilder(len);
             for (int i = 0; i < len; ++i) {
@@ -560,9 +565,11 @@ public class BufrParser {
                 break;
             case INT:
                 value = (Long) (UnsignedNumbers.uintToLong((Integer) value));
+                break;
             case LONG:
-                log.warn("Unsigned long not supported, value may be incorrectly interpreted: "
-                        + var.getFullName());
+                log.warn(
+                        "Unsigned long not supported, value may be incorrectly interpreted: "
+                                + var.getFullName());
                 break;
             default:
                 // no action
@@ -588,7 +595,7 @@ public class BufrParser {
             value = value.doubleValue() + offset.doubleValue();
         }
         return value;
-     }
+    }
 
     /**
      * Get field values as collection. Missing values will be represented by
@@ -597,8 +604,7 @@ public class BufrParser {
      * @return null if not processing variable
      * @throws IOException
      */
-    public Collection<Object> getFieldCollection()
-            throws IOException {
+    public Collection<Object> getFieldCollection() throws IOException {
         TypedArray typedArray = readFieldAsArray();
         if (typedArray == null) {
             return null;
@@ -606,7 +612,7 @@ public class BufrParser {
         Variable var = getFieldVariable();
         Array array = typedArray.array;
         int len = (int) array.getSize();
-        Collection<Object> rval = new ArrayList<Object>(len);
+        Collection<Object> rval = new ArrayList<>(len);
         for (int i = 0; i < len; ++i) {
             rval.add(processValue(array.getObject(i), var));
         }
@@ -783,8 +789,8 @@ public class BufrParser {
                         .doubleValue();
                 break;
             case STRING:
-                rval = unscaledValue.toString().equals(
-                        missingAttrib.getStringValue());
+                rval = unscaledValue.toString()
+                        .equals(missingAttrib.getStringValue());
                 break;
             default:
                 rval = unscaledValue.equals(missingAttrib.getValue(0));
@@ -803,9 +809,26 @@ public class BufrParser {
      * @return null if no field found or parser is not currently parsing a
      *         structure
      */
-    public BufrDataItem scanForStructField(String fieldName, boolean charArrayAsString) {
+    public BufrDataItem scanForStructField(String fieldName,
+            boolean charArrayAsString) {
+        return scanForStructField(Pattern.compile(fieldName, Pattern.LITERAL),
+                charArrayAsString);
+    }
+
+    /**
+     * Get field from current structure level. Does not affect the current state
+     * of the parser. Only searches current level (does not go into
+     * substructures).
+     * 
+     * @param fieldPattern
+     * @param charArrayAsString
+     * @return null if no field found or parser is not currently parsing a
+     *         structure
+     */
+    public BufrDataItem scanForStructField(Pattern fieldPattern,
+            boolean charArrayAsString) {
         BufrDataItem rval = null;
-        if ( structStack.isEmpty()){
+        if (structStack.isEmpty()) {
             return rval;
         }
         StructureLevel level = structStack.peek();
@@ -815,13 +838,15 @@ public class BufrParser {
             Member member = memberIter.next();
             Variable variable = varIter.next();
             DataType type = member.getDataType();
-            if (!type.equals(DataType.STRUCTURE) && !type.equals(DataType.SEQUENCE)) {
+            if (!type.equals(DataType.STRUCTURE)
+                    && !type.equals(DataType.SEQUENCE)) {
                 /* current member is a field */
-                if (member.getName().equals(fieldName)){
+                if (fieldPattern.matcher(member.getName()).matches()) {
                     StructureData sd = level.getStructData();
                     Array array = sd.getArray(member);
-                    Object value = getFieldScalarValue(new TypedArray(array,
-                            type), variable, charArrayAsString);
+                    Object value = getFieldScalarValue(
+                            new TypedArray(array, type), variable,
+                            charArrayAsString);
                     rval = new BufrDataItem(member.getName(), value, type,
                             variable);
                     break;

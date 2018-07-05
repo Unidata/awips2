@@ -1,19 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<!--
-  Mar 20, 2013    #1774    randerso    Added all parms from dataFieldTable.txt
-                                       sorted lists for ease of update
-  May 07, 2013    #1974    randerso    Removed unnecessary TPCSG_ entries (should only need TPCSG-)
-                                       Changed TP_XXX to tpXXX for RFC total precip
-  Jul 03, 2013    #2044    randerso    Removed mappings from tpXXX to tp_XXX for RFCQPF
-  Mar 31, 2014    #2934    dgilling    Updated params for pSurge2.0/PHISH data.
-  Jul 03, 2014  DR 14068   mfoster     Added parameters for 3km AK-RTMA
-  Dec 15, 2014  DR 14024   jwatson     Added parameters for 2.5km GFSLAMPGrid
-  Feb 24, 2015  DR 16671   byin        Added HPBL for RAP13
-  May 21, 2015  DR 17515   bhunder     Added parameters for URMA25
-  Jun 29, 2015    #4537    rferrel     Added parameters for HRRR.
-  Oct 08, 2015    #4958    dgilling    Added parameters for NationalBlend.
-  Jun 29, 2016  DCS 18817  bhunder     Added a parameter (TP168hr) needed for HPCQPF.
- -->
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        Mar 20, 2013    #1774    randerso    Added all parms from dataFieldTable.txt
+                                             sorted lists for ease of update
+        May 07, 2013    #1974    randerso    Removed unnecessary TPCSG_ entries (should only need TPCSG-)
+                                             Changed TP_XXX to tpXXX for RFC total precip
+        Jul 03, 2013    #2044    randerso    Removed mappings from tpXXX to tp_XXX for RFCQPF
+        Mar 31, 2014    #2934    dgilling    Updated params for pSurge2.0/PHISH data.
+        Jul 03, 2014  DR 14068   mfoster     Added parameters for 3km AK-RTMA
+        Dec 15, 2014  DR 14024   jwatson     Added parameters for 2.5km GFSLAMPGrid
+        Feb 24, 2015  DR 16671   byin        Added HPBL for RAP13
+        May 21, 2015  DR 17515   bhunder     Added parameters for URMA25
+        Jun 29, 2015    #4537    rferrel     Added parameters for HRRR.
+        Oct 08, 2015    #4958    dgilling    Added parameters for NationalBlend.
+        Jun 29, 2016  DCS 18817  bhunder     Added a parameter (TP168hr) needed for HPCQPF.
+        Mar 10, 2017    #6171    bsteffen    Added parameters for NationalBlend(v3).
+        Jun 01, 2017  DR 19937   jwatson     Added Visc23 for glamp. Prob vis less than 5 miles.
+        Jun 29, 2017    #6323    randerso    Added Surge90Pct entries
+        Dec 06, 2017  DCS 20267  psantos     Add NWPS rip current guidance
+    -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <aliasList caseSensitive="true" namespace="gfeParamName">
     <alias base="APTMP">aptmp</alias>
     <alias base="AV">av</alias>
@@ -271,6 +301,10 @@
     <alias base="POP3hr">pop3hr</alias>
     <alias base="POP6hr">pop6hr</alias>
     <alias base="POP">pop</alias>
+    <alias base="POP1hr">pop1hr</alias>
+    <alias base="PPI1hr">ppi1hr</alias>
+    <alias base="PPI6hr">ppi6hr</alias>
+    <alias base="PPI">ppi</alias>
     <alias base="PPAM">ppam</alias>
     <alias base="PPAN">ppan</alias>
     <alias base="PPAS">ppas</alias>
@@ -463,6 +497,7 @@
     <alias base="UZTWC">uztwc</alias>
     <alias base="Visc1">visc1</alias>
     <alias base="Visc2">visc2</alias>
+    <alias base="Visc23">visc23</alias>
     <alias base="VMCC">vmcc</alias>
     <alias base="VSS">vss</alias>
     <alias base="VV">ww</alias>
@@ -490,6 +525,7 @@
     <alias base="Surge30pctCumul">Surge30Pct</alias>
     <alias base="Surge40pctCumul">Surge40Pct</alias>
     <alias base="Surge50pctCumul">Surge50Pct</alias>
+    <alias base="Surge90pctCumul">Surge90Pct</alias>
     <alias base="PSurge0ftCumul">PSurge0Ft</alias>
     <alias base="PSurge1ftCumul">PSurge1Ft</alias>
     <alias base="PSurge2ftCumul">PSurge2Ft</alias>
@@ -516,30 +552,50 @@
     <alias base="PSurge23ftCumul">PSurge23Ft</alias>
     <alias base="PSurge24ftCumul">PSurge24Ft</alias>
     <alias base="PSurge25ftCumul">PSurge25Ft</alias>
-    <alias base="Surge10pct6hr">Surge10Pctincr</alias>
-    <alias base="Surge20pct6hr">Surge20Pctincr</alias>
-    <alias base="Surge30pct6hr">Surge30Pctincr</alias>
-    <alias base="Surge40pct6hr">Surge40Pctincr</alias>
-    <alias base="Surge50pct6hr">Surge50Pctincr</alias>
-    <alias base="PSurge0ft6hr">PSurge0Ftincr</alias>
-    <alias base="PSurge1ft6hr">PSurge1Ftincr</alias>
-    <alias base="PSurge2ft6hr">PSurge2Ftincr</alias>
-    <alias base="PSurge3ft6hr">PSurge3Ftincr</alias>
-    <alias base="PSurge4ft6hr">PSurge4Ftincr</alias>
-    <alias base="PSurge5ft6hr">PSurge5Ftincr</alias>
-    <alias base="PSurge6ft6hr">PSurge6Ftincr</alias>
-    <alias base="PSurge7ft6hr">PSurge7Ftincr</alias>
-    <alias base="PSurge8ft6hr">PSurge8Ftincr</alias>
-    <alias base="PSurge9ft6hr">PSurge9Ftincr</alias>
-    <alias base="PSurge10ft6hr">PSurge10Ftincr</alias>
-    <alias base="PSurge11ft6hr">PSurge11Ftincr</alias>
-    <alias base="PSurge12ft6hr">PSurge12Ftincr</alias>
-    <alias base="PSurge13ft6hr">PSurge13Ftincr</alias>
-    <alias base="PSurge14ft6hr">PSurge14Ftincr</alias>
-    <alias base="PSurge15ft6hr">PSurge15Ftincr</alias>
-    <alias base="PSurge16ft6hr">PSurge16Ftincr</alias>
-    <alias base="PSurge17ft6hr">PSurge17Ftincr</alias>
-    <alias base="PSurge18ft6hr">PSurge18Ftincr</alias>
-    <alias base="PSurge19ft6hr">PSurge19Ftincr</alias>
-    <alias base="PSurge20ft6hr">PSurge20Ftincr</alias>
+    <alias base="Surge10pct">Surge10Pctincr</alias>
+    <alias base="Surge20pct">Surge20Pctincr</alias>
+    <alias base="Surge30pct">Surge30Pctincr</alias>
+    <alias base="Surge40pct">Surge40Pctincr</alias>
+    <alias base="Surge50pct">Surge50Pctincr</alias>
+    <alias base="Surge90pct">Surge90Pctincr</alias>
+    <alias base="PSurge0ft">PSurge0Ftincr</alias>
+    <alias base="PSurge1ft">PSurge1Ftincr</alias>
+    <alias base="PSurge2ft">PSurge2Ftincr</alias>
+    <alias base="PSurge3ft">PSurge3Ftincr</alias>
+    <alias base="PSurge4ft">PSurge4Ftincr</alias>
+    <alias base="PSurge5ft">PSurge5Ftincr</alias>
+    <alias base="PSurge6ft">PSurge6Ftincr</alias>
+    <alias base="PSurge7ft">PSurge7Ftincr</alias>
+    <alias base="PSurge8ft">PSurge8Ftincr</alias>
+    <alias base="PSurge9ft">PSurge9Ftincr</alias>
+    <alias base="PSurge10ft">PSurge10Ftincr</alias>
+    <alias base="PSurge11ft">PSurge11Ftincr</alias>
+    <alias base="PSurge12ft">PSurge12Ftincr</alias>
+    <alias base="PSurge13ft">PSurge13Ftincr</alias>
+    <alias base="PSurge14ft">PSurge14Ftincr</alias>
+    <alias base="PSurge15ft">PSurge15Ftincr</alias>
+    <alias base="PSurge16ft">PSurge16Ftincr</alias>
+    <alias base="PSurge17ft">PSurge17Ftincr</alias>
+    <alias base="PSurge18ft">PSurge18Ftincr</alias>
+    <alias base="PSurge19ft">PSurge19Ftincr</alias>
+    <alias base="PSurge20ft">PSurge20Ftincr</alias>
+    <alias base="PSurgemin">PSurgeMinincr</alias>
+    <alias base="PSurgemax">PSurgeMaxincr</alias>
+    <alias base="PSurgemean">PSurgeMeanincr</alias>
+    <alias base="PSurgeminCumul">PSurgeMin</alias>
+    <alias base="PSurgemaxCumul">PSurgeMax</alias>
+    <alias base="PSurgemeanCumul">PSurgeMean</alias>
+    <alias base="PrbCldIce">prbcldice</alias>
+    <alias base="PTypeRefIP">ptyperefip</alias>
+    <alias base="PTypFreezingRain">ptypfreezingrain</alias>
+    <alias base="PTypRain">ptyprain</alias>
+    <alias base="PTypSnow">ptypsnow</alias>
+    <alias base="PTypIcePellets">ptypicepellets</alias>
+    <alias base="SNOWLVL">snowlvl</alias>
+    <alias base="SNOWRATIO">snowratio</alias>
+    <alias base="PBE">pbe</alias>
+    <alias base="NBE">nbe</alias>
+    <alias base="RIPCOP">ripcop</alias>
+    <alias base="EROSNP">erosnp</alias>
+    <alias base="OWASHP">owashp</alias>
 </aliasList>

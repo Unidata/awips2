@@ -18,8 +18,14 @@
 # further licensing information.
 ##
 
-from java.util import ArrayList
-from com.raytheon.edex.uengine.tasks.query import ShefQuery
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # XML request of data
@@ -32,6 +38,13 @@ from com.raytheon.edex.uengine.tasks.query import ShefQuery
 #    06/02/08                      M. Duff        Initial Creation.
 #    
 # 
+
+
+
+from java.util import ArrayList
+from com.raytheon.edex.uengine.tasks.query import ShefQuery
+
+
 class ShefLocationQuery(BaseRequest.BaseRequest):
     
     def __init__(self):

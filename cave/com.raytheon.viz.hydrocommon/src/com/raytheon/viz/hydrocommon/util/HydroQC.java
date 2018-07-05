@@ -19,9 +19,6 @@
  **/
 package com.raytheon.viz.hydrocommon.util;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.viz.core.exception.VizException;
 
 /**
  * Hydro QC utilities.
@@ -31,16 +28,13 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 23, 2008            mpduff     Initial creation
- * Jul 25, 2016 4623       skorolev   Cleanup.
  * </pre>
  * 
  * @author mpduff
+ * @version 1.0
  */
 
 public class HydroQC {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(HydroQC.class);
-
     public static final int QC_PASSED = 101;
 
     public static final int QC_QUESTIONABLE = 102;
@@ -130,7 +124,7 @@ public class HydroQC {
     /**
      * Bit pattern 0100000000000000 0000000000000000 yields 1,073,741,824.
      */
-    public static final int QUESTIONABLE_BAD_THRESHOLD = 1073741824;
+    private static final int QUESTIONABLE_BAD_THRESHOLD = 1073741824;
 
     /**
      * Bit pattern 0111111111111111 1111111111111111 yields 2,147,483,647. =
@@ -183,13 +177,6 @@ public class HydroQC {
         }
     }
 
-    /**
-     * Sets QC Code
-     * 
-     * @param bitGrpDescr
-     * @param qualityCode
-     * @return
-     */
     public static long setQcCode(int bitGrpDescr, long qualityCode) {
         switch (bitGrpDescr) {
         case QC_DEFAULT:
@@ -344,11 +331,12 @@ public class HydroQC {
              * An invalid bit value was processed. The quality control code
              * remains unchanged.
              */
-            statusHandler
-                    .error("Invalid request made in setQcCode() function. bitGrpDescr = "
-                            + bitGrpDescr);
+            // TODO log the error message
+            // fprintf(stderr, "%s",
+            // "Invalid request made in set_qccode() function.\n");
             break;
         }
+
         return qualityCode;
     }
 
@@ -407,10 +395,11 @@ public class HydroQC {
                 qualityCode = bitwise_AND_result;
             }
         } else {
-            statusHandler
-                    .error("Invalid request made in setQcBit() function. bitPosition = "
-                            + bitPosition);
+            // TODO log this error
+            // fprintf(stderr, "%s", "Invalid request made in set_qcbit()
+            // function.\n");
         }
+
         return qualityCode;
     }
 
@@ -436,14 +425,7 @@ public class HydroQC {
         return qualityCode;
     }
 
-    /**
-     * Builds QC Symbol
-     * 
-     * @param qualityCode
-     * @return
-     * @throws VizException
-     */
-    public static String buildQcSymbol(long qualityCode) throws VizException {
+    public static String buildQcSymbol(long qualityCode) {
         String returnVal = "";
         if (checkQcCode(QC_PASSED, qualityCode) == true) {
             returnVal = "G";
@@ -458,16 +440,7 @@ public class HydroQC {
         return returnVal;
     }
 
-    /**
-     * Checks QC Code
-     * 
-     * @param bitGroupDescription
-     * @param qualityCode
-     * @return
-     * @throws VizException
-     */
-    public static boolean checkQcCode(int bitGroupDescription, long qualityCode)
-            throws VizException {
+    public static boolean checkQcCode(int bitGroupDescription, long qualityCode) {
         boolean returnValue = false;
         switch (bitGroupDescription) {
         case QC_DEFAULT:
@@ -514,19 +487,13 @@ public class HydroQC {
             }
             break;
         default:
-            throw new VizException("bitGroupDescription=" + bitGroupDescription
-                    + " Invalid request made in check_qc_code function.\n");
+            // TODO log error message
+            // "Invalid request made in check_qc_code() function.\n");
         }
 
         return returnValue;
     }
 
-    /**
-     * Builds QC Description
-     * 
-     * @param qualityCode
-     * @return
-     */
     public static String buildQcDescr(long qualityCode) {
         StringBuffer rval = new StringBuffer();
 

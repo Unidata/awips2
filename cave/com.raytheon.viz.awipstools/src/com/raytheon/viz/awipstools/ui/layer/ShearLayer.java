@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -32,13 +32,13 @@ import org.eclipse.ui.PlatformUI;
 import org.geotools.referencing.GeodeticCalculator;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
-import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -50,6 +50,8 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
+import com.raytheon.uf.viz.core.rsc.extratext.ExtraTextResourceData;
+import com.raytheon.uf.viz.core.rsc.extratext.IExtraTextGeneratingResource;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
 import com.raytheon.uf.viz.points.PointsDataManager;
 import com.raytheon.viz.awipstools.common.ToolsUiUtil;
@@ -61,34 +63,38 @@ import com.vividsolutions.jts.geom.LineString;
 
 /**
  * Interactive resource for rendering the Shear data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer       Description
- * ------------- -------- -------------- --------------------------
- * Mar 15, 2013  15693    mgamazaychikov Added magnification capability.
- * May 02, 2013  14587    D. Friedman    Use base velocity.
- * Aug 29, 2013  2281     bsteffen       Fix click distance calculations.
- * Sep 03, 2013  2310     bsteffen       Move MouseHandler from ShearAction to
- *                                       ShearLayer.
- * Mar  3, 2014  2804     mschenke       Set back up clipping pane
- * Jul 28, 2014  3430     mapeters       Updated the 'handleMouseUp' and 
- *                                       'handleMouseDownMove' functions 
- *                                       to prevent errors when MB3 clicking off 
- *                                       the map or MB1 dragging off the map with 
- *                                       tool in editable mode.
- * Aug 14, 2014  3523     mapeters       Updated deprecated {@link DrawableString#textStyle} 
- *                                       assignments.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 15, 2013  15693    mgamazay  Added magnification capability.
+ * May 02, 2013  14587    dfriedma  Use base velocity.
+ * Aug 29, 2013  2281     bsteffen  Fix click distance calculations.
+ * Sep 03, 2013  2310     bsteffen  Move MouseHandler from ShearAction to
+ *                                  ShearLayer.
+ * Mar 03, 2014  2804     mschenke  Set back up clipping pane
+ * Jul 28, 2014  3430     mapeters  Updated the 'handleMouseUp' and
+ *                                  'handleMouseDownMove' functions to prevent
+ *                                  errors when MB3 clicking off the map or MB1
+ *                                  dragging off the map with tool in editable
+ *                                  mode.
+ * Aug 14, 2014  3523     mapeters  Updated deprecated {@link
+ *                                  DrawableString#textStyle} assignments.
+ * Sep 19, 2016  5887     mapeters  Made abstract, implement
+ *                                  IExtraTextGeneratingResource, only recreate
+ *                                  IWireframeShape when line is moved
+ *
  * </pre>
- * 
+ *
  * @author mnash
- * @version 1.0
  */
 
-public class ShearLayer extends
-        AbstractVizResource<AbstractResourceData, MapDescriptor> {
+public abstract class ShearLayer
+        extends AbstractVizResource<AbstractResourceData, MapDescriptor>
+        implements IExtraTextGeneratingResource {
 
     private LineString baseline = null;
 
@@ -103,6 +109,8 @@ public class ShearLayer extends
 
     private float endCircleRadius;
 
+    private IWireframeShape lineShape = null;
+
     public ShearLayer(GenericToolsResourceData<VRShearLayer> data,
             LoadProperties props, MapDescriptor descriptor) {
         super(data, props);
@@ -112,25 +120,6 @@ public class ShearLayer extends
         this.mouseHandler = new MouseHandler(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#dispose()
-     */
-    @Override
-    protected void disposeInternal() {
-        IDisplayPaneContainer container = getResourceContainer();
-        if (container != null) {
-            container.unregisterMouseHandler(mouseHandler);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.IVizResource#getCoordinateReferenceSystem()
-     */
     public CoordinateReferenceSystem getCoordinateReferenceSystem() {
         if (descriptor == null) {
             return null;
@@ -139,12 +128,6 @@ public class ShearLayer extends
         return descriptor.getCRS();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
-     * IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         gc = new GeodeticCalculator(descriptor.getCRS());
@@ -154,18 +137,11 @@ public class ShearLayer extends
         if (container != null && mouseHandler != null) {
             container.registerMouseHandler(mouseHandler);
         }
+
+        ExtraTextResourceData.addExtraTextResource(descriptor);
     }
 
-    public boolean isApplicable(PixelExtent extent) {
-        return true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#paint(com.raytheon.viz.core.
-     * IGraphicsTarget, com.raytheon.viz.core.PixelExtent, double, float)
-     */
+    @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
 
@@ -173,33 +149,25 @@ public class ShearLayer extends
         RGB color = this.getCapability(ColorableCapability.class).getColor();
         drawEndCircles(target, ls.getCoordinates(), paintProps.getZoomLevel());
         drawLineString(target, ls, color, IGraphicsTarget.LineStyle.SOLID);
-        String label = drawLabeling(target, ls, color, paintProps);
+        getAndDrawLabel(target);
         target.clearClippingPlane();
-        try {
-            drawUpperLeftCornerLabel(target, paintProps, label);
-        } finally {
-            target.setupClippingPlane(paintProps.getClippingPane());
-        }
+        target.setupClippingPlane(paintProps.getClippingPane());
     }
 
-    public void drawLines(Coordinate[] coors) {
-
-    }
-
-    public void drawLineString(IGraphicsTarget target, LineString lineString,
+    private void drawLineString(IGraphicsTarget target, LineString lineString,
             RGB theColor, IGraphicsTarget.LineStyle lineStyle)
-            throws VizException {
-        IWireframeShape line = target.createWireframeShape(true, descriptor);
-
-        line.addLineSegment(lineString.getCoordinates());
+                    throws VizException {
+        if (lineShape == null) {
+            lineShape = target.createWireframeShape(true, descriptor);
+            lineShape.addLineSegment(lineString.getCoordinates());
+        }
 
         if (lineStyle.equals(IGraphicsTarget.LineStyle.SOLID)) {
-            target.drawWireframeShape(line, theColor, 1);
+            target.drawWireframeShape(lineShape, theColor, 1);
         } else {
-            target.drawWireframeShape(line, theColor, 1,
+            target.drawWireframeShape(lineShape, theColor, 1,
                     IGraphicsTarget.LineStyle.DASHED);
         }
-        line.dispose();
     }
 
     private void drawEndCircles(IGraphicsTarget target, Coordinate[] latLongs,
@@ -224,31 +192,31 @@ public class ShearLayer extends
     public Coordinate getCoordinateOnCircle(Coordinate coor, double radius,
             int angle) {
 
-        double centerPixel[] = descriptor.worldToPixel(new double[] { coor.x,
-                coor.y });
+        double centerPixel[] = descriptor
+                .worldToPixel(new double[] { coor.x, coor.y });
         double pointOnCircle[] = new double[2];
 
-        pointOnCircle[0] = centerPixel[0] + radius
-                * Math.cos(Math.toRadians(angle));
-        pointOnCircle[1] = centerPixel[1] + radius
-                * Math.sin(Math.toRadians(angle));
-        double dd[] = descriptor.pixelToWorld(new double[] { pointOnCircle[0],
-                pointOnCircle[1] });
+        pointOnCircle[0] = centerPixel[0]
+                + radius * Math.cos(Math.toRadians(angle));
+        pointOnCircle[1] = centerPixel[1]
+                + radius * Math.sin(Math.toRadians(angle));
+        double dd[] = descriptor.pixelToWorld(
+                new double[] { pointOnCircle[0], pointOnCircle[1] });
         Coordinate coorOnCircle = new Coordinate(dd[0], dd[1]);
 
         return coorOnCircle;
 
     }
 
-    protected void drawBaselineLabel(IGraphicsTarget target,
-            Coordinate latLong, String label) throws VizException {
+    protected void drawBaselineLabel(IGraphicsTarget target, Coordinate latLong,
+            String label) throws VizException {
 
-        double c1[] = descriptor.worldToPixel(new double[] { latLong.x,
-                latLong.y });
+        double c1[] = descriptor
+                .worldToPixel(new double[] { latLong.x, latLong.y });
 
         double c2[] = target.getPointOnCircle(c1[0], c1[1], 0.0, 6, 0);
-        DrawableString ds = new DrawableString(label, this.getCapability(
-                ColorableCapability.class).getColor());
+        DrawableString ds = new DrawableString(label,
+                this.getCapability(ColorableCapability.class).getColor());
         ds.basics.x = c2[0];
         ds.basics.y = c2[1];
         ds.font = null;
@@ -270,8 +238,9 @@ public class ShearLayer extends
         gc.setStartingGeographicPoint(center.x, center.y);
         double meters = nmToMeter.convert(27);
         gc.setDirection(90, meters);
-        Coordinate c2 = new Coordinate(gc.getDestinationGeographicPoint()
-                .getX(), gc.getDestinationGeographicPoint().getY());
+        Coordinate c2 = new Coordinate(
+                gc.getDestinationGeographicPoint().getX(),
+                gc.getDestinationGeographicPoint().getY());
 
         Coordinate coors[] = { center, c2 };
 
@@ -282,45 +251,46 @@ public class ShearLayer extends
         return getCapability(EditableCapability.class).isEditable();
     }
 
-    public void moveBaseline(Coordinate delta, int index) {
-
+    public void moveBaseline(Coordinate delta) {
         for (Coordinate point : baseline.getCoordinates()) {
             point.x += delta.x;
             point.y += delta.y;
         }
+        disposeLineShape();
         issueRefresh();
     }
 
     /**
      * Moves the point to the new coordinates. (Typically user drags the
      * point...)
-     * 
+     *
      * @param delta
      *            The change of the point to update.
      * @param pointToUpdate
      *            The point to Update.
      */
     public void movePoint(Coordinate delta, Coordinate pointToUpdate) {
-
         for (Coordinate point : baseline.getCoordinates()) {
             if (point.equals(pointToUpdate)) {
                 point.x += delta.x;
                 point.y += delta.y;
             }
         }
+        disposeLineShape();
         issueRefresh();
     }
 
     /**
-     * Get the closest endpoint to the provided screen location.
-     * 
-     * @param refX
+     * Get the closest endpoint to the provided screen location, if any are
+     * near.
+     *
+     * @param x
      *            x location in screen pixels
-     * @param refY
+     * @param y
      *            y location in screen pixels
-     * @return T Coordinate of the endpoint, null if not found.
+     * @return Coordinate of the endpoint, null if not close to any.
      */
-    public Coordinate isInsideEndpoint(int x, int y) {
+    private Coordinate getCloseEndpoint(int x, int y) {
         IDisplayPaneContainer container = getResourceContainer();
         if (container == null) {
             return null;
@@ -335,70 +305,52 @@ public class ShearLayer extends
     }
 
     /**
-     * Return the index of the linestring the user clicked in (for move for
+     * Return whether or not the user clicked inside the baseline (for move for
      * instance).
-     * 
-     * @param refX
+     *
+     * @param x
      *            x location of reference point in screen pixels
-     * @param refY
+     * @param y
      *            y location of reference point in screen pixels
-     * @return int Index of line they matched on.
+     * @return true if user clicked on/near the baseline, otherwise false
      */
-    public int isInsideLine(int x, int y) {
+    private boolean isInsideLine(int x, int y) {
         IDisplayPaneContainer container = getResourceContainer();
         Coordinate[] coords = getBaseline().getCoordinates();
-        if (container != null
-                && ToolsUiUtil.closeToLine(container, coords, x, y, 15)) {
-            return 0;
-        } else {
-            return -1;
-        }
+        return container != null
+                && ToolsUiUtil.closeToLine(container, coords, x, y, 15);
     }
 
     /**
-     * Draw label in the upper left corner.
-     * 
+     * Get the Shear label. If target is non-null, the label will also be drawn
+     * on the baseline.
+     *
      * @param target
-     * @param paintProps
-     * @param label
+     *            the target to use for drawing the baseline label, may be null
+     *            to prevent drawing
+     * @return the label
      * @throws VizException
      */
-    protected void drawUpperLeftCornerLabel(IGraphicsTarget target,
-            PaintProperties paintProps, String label) throws VizException {
-        // TODO this screen location code is borrowed from MPELegendResource...
-        // should it be put into a shared class, possibly a paint
-        // properties method?
-        IExtent screenExtent = paintProps.getView().getExtent();
-        double scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
-        DrawableString tmpDS = new DrawableString("0", new RGB(100, 100, 100));
-        tmpDS.font = null;
-        double textHeight = target.getStringsBounds(tmpDS).getHeight() * scale;
-        double padding = 3 * scale;
-        double textSpace = textHeight + padding;
-        double cmapHeight = textHeight * 1.25;
-        double legendHeight = cmapHeight + 2.0 * textSpace + 2.0 * padding;
-        double y1 = screenExtent.getMinY() + legendHeight * 2.5;
-        double x1 = screenExtent.getMinX() + padding * 10.0;
-        DrawableString ds = new DrawableString(label, this.getCapability(
-                ColorableCapability.class).getColor());
-        ds.basics.x = x1;
-        ds.basics.y = y1;
-        ds.font = null;
-        ds.horizontalAlignment = HorizontalAlignment.LEFT;
-        // set the magnification
-        ds.magnification = this.getCapability(MagnificationCapability.class)
-                .getMagnification().floatValue();
-        target.drawStrings(ds);
-    }
+    protected abstract String getAndDrawLabel(IGraphicsTarget target)
+            throws VizException;
 
-    public String drawLabeling(IGraphicsTarget target, LineString lineString,
-            RGB theColor, PaintProperties paintProps) throws VizException {
-        return "NO DATA";
-    }
+    protected abstract String calculateShearLabel(double length,
+            Coordinate sCoor, Coordinate eCoor, Coordinate midpointCoor)
+                    throws VizException;
 
-    protected String calculateShearLabel(double length, Coordinate sCoor,
-            Coordinate eCoor, Coordinate midpointCoor) throws VizException {
-        return "NO DATA";
+    @Override
+    public String[] getExtraText(DataTime time) {
+        String label;
+        try {
+            label = getAndDrawLabel(null);
+        } catch (VizException e) {
+            statusHandler.handle(Priority.WARN,
+                    "Error retrieving shear label: " + e.getLocalizedMessage(),
+                    e);
+            label = "NO DATA";
+        }
+
+        return new String[] { label };
     }
 
     protected float getRangeValue(Map<String, Object> map) {
@@ -422,6 +374,28 @@ public class ShearLayer extends
         return 0.0f;
     }
 
+    private void disposeLineShape() {
+        if (lineShape != null) {
+            lineShape.dispose();
+            lineShape = null;
+        }
+    }
+
+    @Override
+    protected void disposeInternal() {
+        IDisplayPaneContainer container = getResourceContainer();
+        if (container != null) {
+            container.unregisterMouseHandler(mouseHandler);
+        }
+        disposeLineShape();
+    }
+
+    @Override
+    public void project(CoordinateReferenceSystem crs) throws VizException {
+        disposeLineShape();
+        issueRefresh();
+    }
+
     protected static class VelocityRange {
         private static String VALUE_KEY = "Value";
 
@@ -434,18 +408,18 @@ public class ShearLayer extends
         String separatorSymbol;
 
         public VelocityRange(Map<String, Object> map) {
-            if (map != null
-                    && map.containsKey("Mnemonic")
-                    && (map.containsKey(BASE_VELOCITY_VALUE_KEY) || map
-                            .containsKey(VALUE_KEY))) {
+            if (map != null && map.containsKey("Mnemonic")
+                    && (map.containsKey(BASE_VELOCITY_VALUE_KEY)
+                            || map.containsKey(VALUE_KEY))) {
                 String mnemonic = map.get("Mnemonic").toString();
 
                 if (mnemonic.equalsIgnoreCase("V")
                         || mnemonic.equalsIgnoreCase("SRM")
                         || mnemonic.equalsIgnoreCase("HV")) {
                     String s = map.get(BASE_VELOCITY_VALUE_KEY).toString();
-                    if (s == null)
+                    if (s == null) {
                         s = map.get(VALUE_KEY).toString();
+                    }
                     if (s != null && !s.equalsIgnoreCase("NO DATA")) {
                         final String corePatternStr = "-?[0-9]+\\.[0-9]+";
                         final String symbolPatternStr = "[<>]";
@@ -472,9 +446,8 @@ public class ShearLayer extends
                         Pattern upperPattern = Pattern
                                 .compile(upperPatternString.toString());
                         Matcher upperMatcher = upperPattern.matcher(s);
-                        if (upperMatcher.find()
-                                && (this.separatorSymbol != null || upperMatcher
-                                        .find())) {
+                        if (upperMatcher.find() && (this.separatorSymbol != null
+                                || upperMatcher.find())) {
                             String match = upperMatcher.group();
                             this.upper = Float.valueOf(match);
                         }
@@ -530,7 +503,7 @@ public class ShearLayer extends
      */
     private static enum Mode {
         CREATE, MOVE_LINE, MOVE_POINT, PAN
-    };
+    }
 
     private static class MouseHandler extends InputAdapter {
 
@@ -547,20 +520,16 @@ public class ShearLayer extends
         /** The last mouse position - y */
         private int lastMouseY = -1;
 
-        /** The index of the line to be moved */
-        private int lineToMove;
-
         /** The millisecond time of the right mouse button down event */
         private long rightMouseButtonDownTime;
 
         private Coordinate coordinateMoved;
 
-        private Coordinate coordinateFound = null;
-
         public MouseHandler(ShearLayer shearLayer) {
             this.shearLayer = shearLayer;
         }
 
+        @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
             lastMouseX = x;
             lastMouseY = y;
@@ -568,8 +537,8 @@ public class ShearLayer extends
             if (shearLayer.isEditable()) {
 
                 if (mouseButton == 1) {
-                    lineToMove = -1;
-                    coordinateFound = shearLayer.isInsideEndpoint(x, y);
+                    Coordinate coordinateFound = shearLayer.getCloseEndpoint(x,
+                            y);
 
                     if (coordinateFound != null) {
                         this.mode = Mode.MOVE_POINT;
@@ -577,7 +546,7 @@ public class ShearLayer extends
                         return true;
                     }
 
-                    if ((lineToMove = shearLayer.isInsideLine(x, y)) != -1) {
+                    if (shearLayer.isInsideLine(x, y)) {
                         this.mode = Mode.MOVE_LINE;
                         return true;
                     }
@@ -592,19 +561,16 @@ public class ShearLayer extends
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.map.IMouseHandler#handleMouseDownMove(int,
-         * int)
-         */
+        @Override
         public boolean handleMouseDownMove(int x, int y, int button) {
 
-            if (button != 1)
+            if (button != 1) {
                 return false;
+            }
 
-            if (this.mode == Mode.PAN)
+            if (this.mode == Mode.PAN) {
                 return false;
+            }
 
             if (this.mode == Mode.MOVE_LINE || this.mode == Mode.MOVE_POINT) {
                 IDisplayPaneContainer container = shearLayer
@@ -622,7 +588,7 @@ public class ShearLayer extends
                 Coordinate delta = new Coordinate(c2.x - c.x, c2.y - c.y);
 
                 if (this.mode == Mode.MOVE_LINE) {
-                    shearLayer.moveBaseline(delta, this.lineToMove);
+                    shearLayer.moveBaseline(delta);
                 } else {
                     shearLayer.movePoint(delta, coordinateMoved);
                 }
@@ -636,14 +602,11 @@ public class ShearLayer extends
             return true;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.map.IMouseHandler#handleMouseUp(int, int)
-         */
+        @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             if (mouseButton == 3) {
-                if (System.currentTimeMillis() - this.rightMouseButtonDownTime < 275) {
+                if (System.currentTimeMillis()
+                        - this.rightMouseButtonDownTime < 275) {
                     IDisplayPaneContainer container = shearLayer
                             .getResourceContainer();
                     if (container == null) {
@@ -658,38 +621,34 @@ public class ShearLayer extends
                     // move prior unmoved end point
                     Coordinate[] coords = shearLayer.getBaseline()
                             .getCoordinates();
-                    indexOfMovedEndpoint = (indexOfMovedEndpoint >= coords.length - 1) ? 0
-                            : ++indexOfMovedEndpoint;
+                    indexOfMovedEndpoint = (indexOfMovedEndpoint >= coords.length
+                            - 1) ? 0 : ++indexOfMovedEndpoint;
                     Coordinate coord = coords[indexOfMovedEndpoint];
-                    Coordinate delta = new Coordinate(c.x - coord.x, c.y
-                            - coord.y, c.z - coord.z);
+                    Coordinate delta = new Coordinate(c.x - coord.x,
+                            c.y - coord.y, c.z - coord.z);
 
                     shearLayer.movePoint(delta, coord);
                 }
-            } else if (this.mode == Mode.PAN)
+            } else if (this.mode == Mode.PAN) {
                 return false;
+            }
 
             // Default back to pan operation
             mode = Mode.PAN;
             return true;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.mouse.IMouseHandler#handleMouseMove(int,
-         * int)
-         */
+        @Override
         public boolean handleMouseMove(int x, int y) {
             if (shearLayer.isEditable()) {
 
-                if (shearLayer.isInsideEndpoint(x, y) != null) {
+                if (shearLayer.getCloseEndpoint(x, y) != null) {
                     // Change the cursor to a hand.
                     this.setCursorHand();
                     return true;
                 }
 
-                if (shearLayer.isInsideLine(x, y) != -1) {
+                if (shearLayer.isInsideLine(x, y)) {
                     // Change the cursor to crosshairs.
                     this.setCursorCross();
                     return true;
@@ -721,5 +680,4 @@ public class ShearLayer extends
         }
 
     }
-
 }

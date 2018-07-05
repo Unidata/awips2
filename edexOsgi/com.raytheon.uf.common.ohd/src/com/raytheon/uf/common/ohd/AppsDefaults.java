@@ -73,6 +73,7 @@ import com.raytheon.uf.common.util.FileUtil;
  * May 02, 2016 5614       bkowal       Added constant {@link #NAME}.
  * May 17, 2016 5576       bkowal       Added {@link #consideredTrue(String)}.
  * Oct 28, 2016 19478      xwei         Loading system env into a hashMap
+ * Oct 05, 2017 6407       bkowal       Handle null values in {@link #consideredTrue(String)}.
  * 
  * </pre>
  * 
@@ -84,8 +85,8 @@ public class AppsDefaults {
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
-    private static final String Apps_defaults_FILENAME = Paths.get("hydro",
-            NAME).toString();
+    private static final String Apps_defaults_FILENAME = Paths
+            .get("hydro", NAME).toString();
 
     private static final String RFR_OPEN = "$(";
 
@@ -142,11 +143,11 @@ public class AppsDefaults {
      */
     private AppsDefaults() {
         _envProperties = new Properties();
-        
+
         Map<String, String> m = new HashMap<String, String>(System.getenv());
         this.checkAppsDefaults(m, "Environment");
         _envProperties.putAll(m);
-        
+
         /*
          * TODO this is nearly unmaintainable, figure out a better way to do it
          * that works in both CAVE and EDEX, perhaps through a combination of a
@@ -204,7 +205,8 @@ public class AppsDefaults {
                 checkAppsDefaults(siteMap, _appsDefaultsSiteFile.toString());
             }
             if (baseMap.isEmpty() == false) {
-                checkAppsDefaults(baseMap, _appsDefaultsNationalFile.toString());
+                checkAppsDefaults(baseMap,
+                        _appsDefaultsNationalFile.toString());
             }
 
             tokens = tokenSet;
@@ -220,8 +222,8 @@ public class AppsDefaults {
             if (valueToValidate == null) {
                 continue;
             }
-            if (AppsDefaultsDirKeys.validateDirectory(expandReferBacks(
-                    valueToValidate, 0))) {
+            if (AppsDefaultsDirKeys
+                    .validateDirectory(expandReferBacks(valueToValidate, 0))) {
                 continue;
             }
             /*
@@ -231,10 +233,8 @@ public class AppsDefaults {
             propertiesMap.remove(key);
             StringBuilder sb = new StringBuilder("Illegal property: ")
                     .append(valueToValidate)
-                    .append(" specified for Apps Defaults key: ")
-                    .append(key)
-                    .append(" in file: ")
-                    .append(containingFile)
+                    .append(" specified for Apps Defaults key: ").append(key)
+                    .append(" in file: ").append(containingFile)
                     .append(". Property has been ignored. Valid values must map to a location within one of the specified directories: ")
                     .append(AppsDefaultsDirKeys.getValidRootsAsString())
                     .append(".");
@@ -250,9 +250,11 @@ public class AppsDefaults {
         _appsDefaultsNationalFile = null;
 
         IPathManager pm = PathManagerFactory.getPathManager();
-        _appsDefaultsUserFile = pm.getLocalizationFile(pm.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.USER),
-                Apps_defaults_FILENAME);
+        _appsDefaultsUserFile = pm
+                .getLocalizationFile(
+                        pm.getContext(LocalizationType.COMMON_STATIC,
+                                LocalizationLevel.USER),
+                        Apps_defaults_FILENAME);
         if (_appsDefaultsUserFile.exists()) {
             logger.info("Setting user Apps_defaults file: "
                     + _appsDefaultsUserFile);
@@ -260,9 +262,11 @@ public class AppsDefaults {
             logger.info("No user Apps_defaults file found.");
         }
 
-        _appsDefaultsSiteFile = pm.getLocalizationFile(pm.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE),
-                Apps_defaults_FILENAME);
+        _appsDefaultsSiteFile = pm
+                .getLocalizationFile(
+                        pm.getContext(LocalizationType.COMMON_STATIC,
+                                LocalizationLevel.SITE),
+                        Apps_defaults_FILENAME);
         if (_appsDefaultsSiteFile.exists()) {
             logger.info("Setting site Apps_defaults file: "
                     + _appsDefaultsSiteFile);
@@ -270,9 +274,11 @@ public class AppsDefaults {
             logger.warn("No site Apps_defaults file found.");
         }
 
-        _appsDefaultsNationalFile = pm.getLocalizationFile(pm.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
-                Apps_defaults_FILENAME);
+        _appsDefaultsNationalFile = pm
+                .getLocalizationFile(
+                        pm.getContext(LocalizationType.COMMON_STATIC,
+                                LocalizationLevel.BASE),
+                        Apps_defaults_FILENAME);
         if (_appsDefaultsNationalFile.exists()) {
             logger.info("Setting base Apps_defaults file: "
                     + _appsDefaultsNationalFile);
@@ -315,8 +321,8 @@ public class AppsDefaults {
             BufferedReader reader = null;
             try {
                 logger.info("Reading " + file + " into AppsDefaults");
-                reader = new BufferedReader(new InputStreamReader(
-                        file.openInputStream()));
+                reader = new BufferedReader(
+                        new InputStreamReader(file.openInputStream()));
                 String line = null;
                 NameValuePair pair = null;
 
@@ -478,6 +484,13 @@ public class AppsDefaults {
      *         {@code false}, otherwise.
      */
     public boolean consideredTrue(final String tokenValue) {
+        if (tokenValue == null) {
+            /*
+             * The current AppsDefaults implementation does make the trueSet
+             * writable. So, this check must be performed.
+             */
+            return _trueSet.contains(null);
+        }
         return _trueSet.contains(tokenValue.toLowerCase());
     }
 
@@ -599,9 +612,11 @@ public class AppsDefaults {
                 recursionCount--;
             } else {
                 middle = "ERROR_ERROR_ERROR";
-                logger.error("You probably have a cycle in your Apps Defaults File's refer backs, please check it");
+                logger.error(
+                        "You probably have a cycle in your Apps Defaults File's refer backs, please check it");
             }
-            if ((referBackEndIndex + RFR_CLOSE.length()) < tokenValue.length()) {
+            if ((referBackEndIndex + RFR_CLOSE.length()) < tokenValue
+                    .length()) {
                 end = tokenValue.substring(
                         referBackEndIndex + RFR_CLOSE.length(),
                         tokenValue.length());
@@ -729,8 +744,8 @@ public class AppsDefaults {
 
         StringBuffer tokenValueBuffer = new StringBuffer();
 
-        for (int i = delimiterIndex + 1; ((i < line.length()) && (!foundTokenValue))
-                && (!foundComment); i++) {
+        for (int i = delimiterIndex + 1; ((i < line.length())
+                && (!foundTokenValue)) && (!foundComment); i++) {
             char c = line.charAt(i);
             if (isWhiteSpace(c)) {
                 // check to see if this is white space at the beginning or the

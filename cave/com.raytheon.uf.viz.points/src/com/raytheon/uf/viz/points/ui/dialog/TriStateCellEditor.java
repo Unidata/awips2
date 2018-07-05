@@ -41,24 +41,47 @@ import org.eclipse.swt.widgets.Control;
  * 
  * @noextend This class is not intended to be subclassed by clients.
  * 
- *           <pre>
+ * <pre>
  * 
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 13, 2012            rferrel     Initial creation
+ * Apr 18, 2017  6237      njensen     Added enum javadoc, constructor, and toString()
  * 
  * </pre>
  * 
  * @author rferrel
- * @version 1.0
  */
 
 public class TriStateCellEditor extends CellEditor {
+
+    /**
+     * The state of the checkbox. A tri-state checkbox has a selected,
+     * unselected, and third state which often indicates a partial selection.
+     * SWT refers to the third state as "grayed".
+     */
     public static enum STATE {
-        GRAYED, SELECTED, UNSELECTED
-    };
+        GRAYED("grayed"), SELECTED("checked"), UNSELECTED("unchecked");
+
+        protected final String iconName;
+
+        /**
+         * Constructor
+         * 
+         * @param iconName
+         *            the name of the icon to use for this state
+         */
+        STATE(String iconName) {
+            this.iconName = iconName;
+        }
+
+        @Override
+        public String toString() {
+            return this.iconName;
+        }
+    }
 
     /**
      * Default CheckboxCellEditor style
@@ -109,6 +132,7 @@ public class TriStateCellEditor extends CellEditor {
      * checkbox control and notifies listeners with
      * <code>ICellEditorListener.applyEditorValue</code>.
      */
+    @Override
     public void activate() {
         if (value == STATE.SELECTED) {
             value = STATE.UNSELECTED;
@@ -119,49 +143,28 @@ public class TriStateCellEditor extends CellEditor {
         fireApplyEditorValue();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.viewers.CellEditor#createControl(org.eclipse.swt.widgets
-     * .Composite)
-     */
     @Override
     protected Control createControl(Composite parent) {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.viewers.CellEditor#doGetValue()
-     */
     @Override
     protected Object doGetValue() {
         return value;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.viewers.CellEditor#doSetFocus()
-     */
     @Override
     protected void doSetFocus() {
         // Ignore
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.viewers.CellEditor#doSetValue(java.lang.Object)
-     */
     @Override
     protected void doSetValue(Object value) {
         Assert.isTrue(value instanceof STATE);
         this.value = (STATE) value;
     }
 
+    @Override
     public void activate(ColumnViewerEditorActivationEvent activationEvent) {
         if (activationEvent.eventType != ColumnViewerEditorActivationEvent.TRAVERSAL) {
             super.activate(activationEvent);

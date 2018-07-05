@@ -29,6 +29,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    05/12/11                      njensen        Initial Creation.
 #    11/06/14        3549          njensen        Log receiveData
+#    11/15/16        5992          bsteffen       Log size and decompress time
 #    
 # 
 #
@@ -39,6 +40,7 @@ STORE_DIR_LEN = len(STORE_DIR)
 SECTION_KEYS=['total',
               '  receiveData',
               '  deserialize',
+              '  decompress',
               '  getLock',
               '    approxLockSleepTime',
               '    orphanCheck',
@@ -50,7 +52,10 @@ SECTION_KEYS=['total',
               '  createRecord',
               '  closeFile',
               '  releaseLock',
-              '  serialize']
+              '  serialize',
+              'size']
+
+SIZE_UNITS=['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB' ]
 
 class StatsThread(threading.Thread):
     
@@ -127,7 +132,7 @@ class StatsThread(threading.Thread):
             recTime=recTimes[timeKey]
 
             if not reqDict.has_key(timeKey):
-                reqDict[timeKey] = {'count':0, 'time':0.0, 'slowest':0.0, 'fastest':9999.0}
+                reqDict[timeKey] = {'count':0, 'time':0.0, 'slowest':0.0, 'fastest':float('inf')}
 
             requestEntry = reqDict[timeKey]
             requestEntry['count'] += 1
@@ -175,9 +180,24 @@ class StatsThread(threading.Thread):
                             slow = '%.3f' % (entry['slowest'])
                             stmt += req.ljust(20) + COL
                             stmt += section.ljust(25) + COL
-                            stmt += str(entry['count']).rjust(7) + COL + avg.rjust(8) + COL
-                            stmt += fast + COL + slow + '\n'
+                            count = str(entry['count'])
+                            if timeKey == 'size':
+                                count = self._adjustSize(entry['time'])
+                                avg = self._adjustSize(avg)
+                                fast = self._adjustSize(fast)
+                                slow = self._adjustSize(slow)
+                            stmt += count.rjust(9) + avg.rjust(9)
+                            stmt += fast.rjust(9) + slow.rjust(9) + '\n'
                 stmt += '\n'
         else:
             stmt += COL + 'No transactions reported'
         return stmt
+
+    def _adjustSize(self, entry):
+        index=0
+        entry=float(entry)
+        maxIndex = len(SIZE_UNITS) - 1
+        while entry > 1024 and index < maxIndex:
+            entry /= 1024
+            index +=1
+        return '%.1f%s' % (entry, SIZE_UNITS[index])

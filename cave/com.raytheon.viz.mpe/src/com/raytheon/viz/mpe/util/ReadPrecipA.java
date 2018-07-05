@@ -36,7 +36,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Pdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 /**
- * TODO Add Description
+ * Based on: ohd/pproc_lib/src/GageQC/TEXT/read_precip_a.c
  * 
  * <pre>
  * 
@@ -44,11 +44,11 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 6, 2009            snaples     Initial creation
+ * Mar 10, 2016  19625     snaples     Moved array initialization outside of try.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class ReadPrecipA {
@@ -80,23 +80,24 @@ public class ReadPrecipA {
         /* Store the GMT time as a string of format YYYYMMDD. */
         pdata[i].ztime = dt;
         // logMessage("ztime %d\n", pdata[i].ztime);
+        
+        for (j = 0; j < 5; j++) {
+            number_found[j] = 0;
+            pdata[i].used[j] = 1;
+            pdata[i].level = 1;
+        }
+        for (k = 0; k < numPstations; k++) {
+            for (m = 0; m < 5; m++) {
+                pdata[i].stn[k].rrain[m].data = -1;
+                pdata[i].stn[k].rrain[m].qual = -1;
+            }
+        }
+
 
         try {
 
             in = new BufferedReader(new FileReader(preca));
             System.out.println("Reading point file: " + preca);
-
-            for (j = 0; j < 5; j++) {
-                number_found[j] = 0;
-                pdata[i].used[j] = 1;
-                pdata[i].level = 1;
-            }
-            for (k = 0; k < numPstations; k++) {
-                for (m = 0; m < 5; m++) {
-                    pdata[i].stn[k].rrain[m].data = -1;
-                    pdata[i].stn[k].rrain[m].qual = -1;
-                }
-            }
 
             int p = 1;
             int qq = 0;

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -39,9 +39,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
  * A record corresponding to a TAF ready to be sent
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -49,17 +49,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 30, 2012 14715      rferrel     Refactored and moved.
  * Mar 21, 2013 15375      zhao        Modified getInfo() to also handle VFT product
  * May 07, 2014 3091       rferrel     Use OUP authorization to bring up send dialog.
- * 
+ * Feb 03, 2017 6065       tgurney     Add copy constructor
+ * Mar 22, 2017 6065       tgurney     Add xml flag
+ *
  * </pre>
- * 
+ *
  * @author avarani
- * @version 1.0
  */
 @Entity
 @Table(name = "taf_queue")
 @DynamicSerialize
-public class TafQueueRecord implements IPersistableDataObject<Integer>,
-        Comparable<TafQueueRecord> {
+public class TafQueueRecord
+        implements IPersistableDataObject<Integer>, Comparable<TafQueueRecord> {
 
     private static final long serialVersionUID = 1L;
 
@@ -119,13 +120,17 @@ public class TafQueueRecord implements IPersistableDataObject<Integer>,
     @Column
     private boolean display;
 
+    @DynamicSerializeElement
+    @Column
+    private boolean xml;
+
     public TafQueueRecord() {
         super();
     }
 
     /**
      * Construct a record with the desired values.
-     * 
+     *
      * @param forecasterId
      * @param xmitTime
      * @param tafText
@@ -151,25 +156,56 @@ public class TafQueueRecord implements IPersistableDataObject<Integer>,
         this.state = TafQueueState.PENDING;
         this.statusMessage = "";
         this.display = true;
+        this.xml = false;
+    }
+
+    /**
+     * Copy constructor
+     *
+     * @param other
+     */
+    public TafQueueRecord(TafQueueRecord other) {
+        this.forecasterId = other.forecasterId;
+        this.xmitTime = other.xmitTime;
+        this.tafText = other.tafText;
+        this.bbb = other.bbb;
+        this.siteId = other.siteId;
+        this.wmoId = other.wmoId;
+        this.stationId = other.stationId;
+        this.headerTime = other.headerTime;
+        this.state = other.state;
+        this.statusMessage = other.statusMessage;
+        this.display = other.display;
+        this.xml = other.xml;
     }
 
     /**
      * Format the information "file name" string.
-     * 
+     *
      * @return info
      */
     public String getInfo() {
-        String productTag = "TAF";
-        // for VFT product (DR15375)
-        if ((forecasterId != null)
-                && forecasterId.equals(TafQueueVftConfigMgr.getInstance()
-                        .getFcstid())) {
-            productTag = "VFT";
+        return String.format(
+                "%1$s-%7$s%8$s%5$s-%6$s-%7$s-%2$ty%2$tm%2$td%2$tH%2$tM-%4$s-%9$d",
+                forecasterId, headerTime, tafText, bbb, siteId, wmoId,
+                stationId, getProductTag(), xmitTime.getTime() / 1000);
+    }
+
+    public String getAwipsWanPil() {
+        return stationId + getProductTag() + siteId;
+    }
+
+    public String getProductTag() {
+        String rval = "TAF";
+        if (xml) {
+            rval = "TML";
         }
-        return String
-                .format("%1$s-%7$s%8$s%5$s-%6$s-%7$s-%2$ty%2$tm%2$td%2$tH%2$tM-%4$s-%9$d",
-                        forecasterId, headerTime, tafText, bbb, siteId, wmoId,
-                        stationId, productTag, (xmitTime.getTime() / 1000));
+        // for VFT product (DR15375)
+        if (forecasterId != null && forecasterId
+                .equals(TafQueueVftConfigMgr.getInstance().getFcstid())) {
+            rval = "VFT";
+        }
+        return rval;
     }
 
     /**
@@ -190,11 +226,6 @@ public class TafQueueRecord implements IPersistableDataObject<Integer>,
         return tafText;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
     @Override
     public int compareTo(TafQueueRecord o) {
         if (o.xmitTime.before(this.xmitTime)) {
@@ -298,17 +329,12 @@ public class TafQueueRecord implements IPersistableDataObject<Integer>,
         this.wmoId = wmoId;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.common.dataplugin.persist.IPersistableDataObject#
-     * getIdentifier()
-     */
     @Override
     public Integer getIdentifier() {
         return getId();
     }
 
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("TafQueueRecord, id:").append(id).append(", forecasterId:")
@@ -321,5 +347,13 @@ public class TafQueueRecord implements IPersistableDataObject<Integer>,
         sb.append("\n\ttafText:\"").append(tafText).append("\"");
         sb.append("\n\tstatusMessage:\"").append(statusMessage).append("\"\n");
         return sb.toString();
+    }
+
+    public boolean isXml() {
+        return xml;
+    }
+
+    public void setXml(boolean xml) {
+        this.xml = xml;
     }
 }

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -18,79 +18,74 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">   
-    
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="toolbarSubMenu" menuText="Aviation">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/aviation.xml" />
     </contribute>
-    
-     <contribute xsi:type="toolbarSubMenu" menuText="ECMWF-HiRes">
+    <contribute xsi:type="toolbarSubMenu" menuText="ECMWF-HiRes">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/ECMWFHiRes.xml" />
     </contribute>
-    
-     <contribute xsi:type="toolbarSubMenu" menuText="GFSLAMP Station">
+    <contribute xsi:type="toolbarSubMenu" menuText="GFSLAMP Station">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/GFSLAMPStation.xml" />
     </contribute>
-
     <contribute xsi:type="toolbarSubMenu" menuText="GFSLAMP Gridded">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/GFSLAMPGridded.xml" />
     </contribute>
-    
-     <contribute xsi:type="toolbarSubMenu" menuText="WPC Guidance">
+    <contribute xsi:type="toolbarSubMenu" menuText="HPC Guidance">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/HPCGuidance.xml" />
-    </contribute>   
-
+    </contribute>
     <contribute xsi:type="toolbarSubMenu" menuText="Marine">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/marine.xml" />
     </contribute>
-   
     <contribute xsi:type="toolbarSubMenu" menuText="MDL MOS">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/MDLMOS.xml" />
     </contribute>
-    
     <contribute xsi:type="toolbarSubMenu" menuText="NAM DNG 5km">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/NAMDNG5km.xml" />
     </contribute>
-    
-     <contribute xsi:type="toolbarSubMenu" menuText="NAM Weather">
+    <contribute xsi:type="toolbarSubMenu" menuText="NAM Weather">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/etaWeather.xml" />
     </contribute>
-    
-     <contribute xsi:type="toolbarSubMenu" menuText="pSurge Plus Tide">
+    <contribute xsi:type="toolbarSubMenu" menuText="National Blend">
+        <contribute xsi:type="subinclude"
+            fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/NBM.xml" />
+    </contribute>
+    <contribute xsi:type="toolbarSubMenu" menuText="pSurge Plus Tide">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/pSurgePlusTide.xml" />
     </contribute>
-
     <contribute xsi:type="toolbarSubMenu" menuText="PHISH (Above Ground)">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/PHISHAboveGround.xml" />
     </contribute>
-
     <contribute xsi:type="toolbarSubMenu" menuText="TPC Guidance">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/TPCGuidance.xml" />
-    </contribute>    
-
+    </contribute>
     <contribute xsi:type="toolbarSubMenu" menuText="NWPS">
         <contribute xsi:type="subinclude"
             fileName="menus/volumebrowser/fields/planview-timeseries/sfc2d/NWPS.xml" />
-    </contribute>    
-
-    <contribute xsi:type="menuItem" menuText="Altimeter" key="MSLSA" indentText="true" /> 
+    </contribute>
+    <contribute xsi:type="menuItem" menuText="Altimeter" key="MSLSA" indentText="true" />
     <contribute xsi:type="menuItem" menuText="CU Rule" key="CURU" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Duct Function" key="df" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Fire Danger" key="FD" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Haines Index" key="HI" indentText="false" />
-    <contribute xsi:type="menuItem" menuText="Soil Moisture" key="SMC" indentText="false" />    
+    <contribute xsi:type="menuItem" menuText="Soil Moisture" key="SMC" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Turb Kin Energy" key="TKE" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Weather" key="wx" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Cloud Decks" key="clDecks" indentText="false" />
@@ -105,7 +100,5 @@
     <contribute xsi:type="menuItem" menuText="Icing Pot" key="IP" indentText="false" />
     <contribute xsi:type="menuItem" menuText="Icing Probability" key="ICIP" indentText="true" />
     <contribute xsi:type="menuItem" menuText="Icing Potential" key="TIPD" indentText="true" />
-    <contribute xsi:type="menuItem" menuText="Icing Severity"  key="ICI" indentText="true" />
-   
-   
+    <contribute xsi:type="menuItem" menuText="Icing Severity" key="ICI" indentText="true" />
 </menuTemplate>

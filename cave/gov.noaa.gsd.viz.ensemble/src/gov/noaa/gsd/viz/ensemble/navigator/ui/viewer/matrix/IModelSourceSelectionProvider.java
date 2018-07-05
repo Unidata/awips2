@@ -12,6 +12,7 @@ package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 20, 2016  12371      polster     Initial creation
+ * Dec 01, 2017   41520     polster     Renamed class ModelSources to ModelSourceKind
  * 
  * </pre>
  * 
@@ -20,5 +21,5 @@ package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix;
  */
 public interface IModelSourceSelectionProvider {
 
-    ModelSources getSelected();
+    ModelSourceKind getSelected();
 }

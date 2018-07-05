@@ -59,14 +59,15 @@ import com.raytheon.uf.viz.datacube.DataCubeContainer;
  * May 05, 2014  3026     mpduff      Made getCurrentGribRecord() public
  * Nov 19, 2014  5056     jing        changed access modifier on getAnyGridRecord
  *                                    from private to public
+ * Apr 20, 2017  6046     bsteffen    Throw more specific errors when getData is
+ *                                    failing.
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-public class GridResource<T extends AbstractResourceData> extends
-        AbstractGridResource<T> {
+public class GridResource<T extends AbstractResourceData>
+        extends AbstractGridResource<T> {
 
     public GridResource(T resourceData, LoadProperties loadProperties) {
         super(resourceData, loadProperties);
@@ -78,8 +79,7 @@ public class GridResource<T extends AbstractResourceData> extends
         if (pdos == null) {
             return null;
         }
-        List<GeneralGridData> dataList = new ArrayList<GeneralGridData>(
-                pdos.size());
+        List<GeneralGridData> dataList = new ArrayList<>(pdos.size());
         for (PluginDataObject pdo : pdos) {
             GeneralGridData data = getData((GridRecord) pdo);
             if (data != null) {
@@ -106,23 +106,26 @@ public class GridResource<T extends AbstractResourceData> extends
     }
 
     protected GeneralGridData getData(IDataRecord[] dataRecs,
-            GeneralGridGeometry gridGeometry, Unit<?> dataUnit) {
-        if (dataRecs.length == 1) {
-            if (dataRecs[0] instanceof FloatDataRecord) {
-                return GeneralGridData.createScalarData(gridGeometry,
-                        wrapDataRecord(dataRecs[0]), dataUnit);
-
-            }
+            GeneralGridGeometry gridGeometry, Unit<?> dataUnit)
+            throws VizException {
+        if (dataRecs == null || dataRecs.length == 0) {
+            return null;
+        } else if (dataRecs.length == 1) {
+            return GeneralGridData.createScalarData(gridGeometry,
+                    wrapDataRecord(dataRecs[0]), dataUnit);
         } else if (dataRecs.length == 2) {
             FloatBuffer mag = wrapDataRecord(dataRecs[0]);
             FloatBuffer dir = wrapDataRecord(dataRecs[1]);
             return GeneralGridData.createVectorDataUV(gridGeometry, mag, dir,
                     dataUnit);
+        } else {
+            throw new VizException(
+                    "Unexpected IDataRecord array length: " + dataRecs.length);
         }
-        return null;
     }
 
-    protected FloatBuffer wrapDataRecord(IDataRecord record) {
+    protected FloatBuffer wrapDataRecord(IDataRecord record)
+            throws VizException {
         if (record instanceof FloatDataRecord) {
             float[] fdata = ((FloatDataRecord) record).getFloatData();
             fdata = Arrays.copyOf(fdata, fdata.length);
@@ -132,8 +135,12 @@ public class GridResource<T extends AbstractResourceData> extends
                 }
             }
             return FloatBuffer.wrap(fdata);
+        } else if (record == null) {
+            return null;
+        } else {
+            throw new VizException("Unexpected IDataRecord type: "
+                    + record.getClass().getSimpleName());
         }
-        return null;
     }
 
     @Override

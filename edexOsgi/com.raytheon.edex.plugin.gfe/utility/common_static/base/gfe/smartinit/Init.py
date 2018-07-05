@@ -17,28 +17,44 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-#     SOFTWARE HISTORY
+# SOFTWARE HISTORY
 #
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    02/16/12        14439         jdynina        modified haines thresholds
-#    02/16/12        13917         jdynina        merged in changes from TRAC ticket 11391
-#    07/25/12        #957          dgilling       implement edit areas as args to calc methods.
-#    10/05/12        15158         ryu            add Forecaster.getDb()
-#    04/04/13        #1787         randerso       fix validTime check to work with accumulative parms
-#                                                 fix logging so you can actually determine why
-#                                                 a smartInit is not calculating a parameter
-#    10/29/2013      #2476         njensen        Improved getting wx/discrete keys when retrieving data
-#    10/27/2014      #3766         randerso       Changed _getLatest to include error text returned from InitClient.createDB()
-#    Apr 23, 2015    #4259         njensen        Updated for new JEP API
-#    08/06/2015      4718          dgilling       Prevent numpy 1.9 from wasting memory by
-#                                                 upcasting scalars too high when using where.
-#    Aug 13, 2015    4704          randerso       Added NumpyJavaEnforcer support for smartInits
-#                                                 additional code cleanup
-#    Dec 03, 2015    #5168         randerso       Fixed problems running calc methods with both accumulative
-#                                                 and non-accumulative weather elements as inputs 
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 16, 2012  14439    jdynina   modified haines thresholds
+# Feb 16, 2012  13917    jdynina   merged in changes from TRAC ticket 11391
+# Jul 25, 2012  957      dgilling  implement edit areas as args to calc methods.
+# Oct 05, 2012  15158    ryu       add Forecaster.getDb()
+# Apr 04, 2013  1787     randerso  fix validTime check to work with accumulative
+#                                  parms fix logging so you can actually
+#                                  determine why a smartInit is not calculating
+#                                  a parameter
+# Oct 29, 2013  2476     njensen   Improved getting wx/discrete keys when
+#                                  retrieving data
+# Oct 27, 2014  3766     randerso  Changed _getLatest to include error text
+#                                  returned from InitClient.createDB()
+# Apr 23, 2015  4259     njensen   Updated for new JEP API
+# Aug 06, 2015  4718     dgilling  Prevent numpy 1.9 from wasting memory by
+#                                  upcasting scalars too high when using where.
+# Aug 13, 2015  4704     randerso  Added NumpyJavaEnforcer support for smartInits
+#                                  additional code cleanup
+# Dec 03, 2015  5168     randerso  Fixed problems running calc methods with both
+#                                  accumulative and non-accumulative weather
+#                                  elements as inputs 
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls 
 #
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+#
+# This file can be subclassed to override behavior. Please see the 
+# Configuration Guides->Smart Initialization Configuration section of the GFE 
+# Online Help for guidance on creating a new smart init 
+##
+
+
+
 import string, sys, re, time, types, getopt, fnmatch, LogStream, DatabaseID, JUtil, AbsTime, TimeRange
 import SmartInitParams
 import NumpyJavaEnforcer
@@ -811,6 +827,9 @@ class Forecaster(GridUtilities):
                 wenameLevel = wename + "_SFC"
             #if wenameLevel not in self.newdb().keys():
             if wenameLevel not in JUtil.javaStringListToPylist(self.newdb().getKeys()):
+                msg = wenameLevel + " not in " + \
+                      self.newdb().getModelIdentifier() + " " + "SKIPPING"
+                LogStream.logProblem(msg)
                 continue
             rval = filter(lambda x,y=wenameLevel : x[0] != y, rval)
             rval.append((wenameLevel, mthd, fargs))
@@ -1376,7 +1395,7 @@ class IFPIO:
         if not saved:
             if wrongType is None:
                 wrongType = type(grid)
-            msg = str(wrongType) + " type returned from calcMethod is not safe to store for " + newwe.toString()
+            msg = str(wrongType) + " type returned from calcMethod is not safe to store for " + str(newwe)
             raise TypeError(msg)
 
 #--------------------------------------------------------------------------

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,19 +34,22 @@ import org.eclipse.swt.widgets.Scale;
 
 /**
  * This widget displays a horizontal scale.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 4, 2008	1164			jelkins	Initial creation
- * Dec 11, 2014 638    mgamazaychikov   Add isFloat to explicitly specify the type of return value
- *                                      be either Float or Integer.
- * 
+ *
+ * Date          Ticket#  Engineer        Description
+ * ------------- -------- --------------- --------------------------------------
+ * Jun 04, 2008  1164     jelkins         Initial creation
+ * Dec 11, 2014  638      mgamazaychikov  Add isFloat to explicitly specify the
+ *                                        type of return value be either Double
+ *                                        or Integer.
+ * Nov 28, 2017  6540     randerso        Change Float references to Double for
+ *                                        compatibility with Jep 3.6
+ *
  * </pre>
- * 
+ *
  * @author jelkins
- * @version 1.0
  */
 
 public class ScaleWidget extends Widget {
@@ -55,14 +58,14 @@ public class ScaleWidget extends Widget {
 
     private Scale scale;
 
-    private float minValue;
+    private double minValue;
 
-    private float maxValue;
+    private double maxValue;
 
-    private int range;
+    private long range;
 
-    private float resolution;
-    
+    private double resolution;
+
     private int precision;
 
     private DecimalFormat format;
@@ -71,7 +74,7 @@ public class ScaleWidget extends Widget {
 
     /**
      * Class constructor specifying this scale's label.
-     * 
+     *
      * @param label
      *            the label to assign to this scale.
      */
@@ -91,16 +94,9 @@ public class ScaleWidget extends Widget {
 
         range = 100;
         resolution = 1;
-        precision = 3;
+        precision = 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.ui.runtimeui.widgets.Widget#buildComposite(org.eclipse
-     * .swt.widgets.Composite, int)
-     */
     @Override
     public Composite buildComposite(Composite parent) {
 
@@ -122,10 +118,15 @@ public class ScaleWidget extends Widget {
         range = Math.round((maxValue - minValue) / getResolution());
 
         format = new DecimalFormat();
+        int p = (int) Math.ceil(-Math.log10(resolution));
+        if (precision < p) {
+            precision = p;
+        }
         format.setMaximumFractionDigits(precision);
-        
+        format.setMinimumFractionDigits(precision);
+
         scale.setMinimum(0);
-        scale.setMaximum(range);
+        scale.setMaximum((int) range);
         scale.setIncrement(1);
         scale.setPageIncrement(1);
 
@@ -146,11 +147,11 @@ public class ScaleWidget extends Widget {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                float value = getScaleValue();
+                double value = getScaleValue();
 
                 label.setText(format.format(value));
                 if (isFloat()) {
-                    setValue(new Float(value));
+                    setValue(new Double(value));
                 }
                 else {
                     setValue(new Integer((int)value));
@@ -165,8 +166,8 @@ public class ScaleWidget extends Widget {
     /**
      * @return the scaleValue
      */
-    private float getScaleValue() {
-    	return scale.getSelection() * resolution + minValue;
+    private double getScaleValue() {
+        return scale.getSelection() * resolution + minValue;
     }
 
     /**
@@ -174,20 +175,20 @@ public class ScaleWidget extends Widget {
      * <p>
      * Translates the desired scaleValue onto the adjusted widget scale.
      * </p>
-     * 
+     *
      * @param scaleValue
      *            the scaleValue to set
      */
     private void setInitialScaleValue(float scaleValue) {
 
-        int position = Math.round((scaleValue - minValue) / resolution);
-        scale.setSelection(position);
+        long position = Math.round((scaleValue - minValue) / resolution);
+        scale.setSelection((int) position);
     }
 
     /**
      * @return the resolution
      */
-    public float getResolution() {
+    public double getResolution() {
         return resolution;
     }
 
@@ -196,25 +197,23 @@ public class ScaleWidget extends Widget {
      * <p>
      * Default resolution is 1.
      * </p>
-     * 
+     *
      * @param resolution
      *            the resolution to set
      */
-    public void setResolution(float resolution) {
-        if (resolution != 0.0f) {
+    public void setResolution(double resolution) {
+        if (resolution != 0.0) {
             this.resolution = resolution;
         }
     }
 
+    /**
+     * @return the precision
+     */
     public int getPrecision() {
         return precision;
-	}
+    }
 
-	/*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.ui.runtimeui.widgets.Widget#toString()
-     */
     @Override
     public String toString() {
         char Q = '\''; // quote
@@ -225,7 +224,7 @@ public class ScaleWidget extends Widget {
 
     /**
      * Set the minimum and maximum scale value for this widget.
-     * 
+     *
      * @param list
      *            of two values
      *            <ol>
@@ -240,7 +239,7 @@ public class ScaleWidget extends Widget {
 
     /**
      * Set the minimum and maximum scale value for this widget.
-     * 
+     *
      * @param options
      *            an array of two values. The first value is taken as the
      *            minimum value and the second value is taken as the maximum
@@ -251,14 +250,23 @@ public class ScaleWidget extends Widget {
         super.setOptions(options);
     }
 
+    /**
+     * @param precision
+     */
     public void setPrecision(int precision) {
         this.precision = precision;
     }
 
+    /**
+     * @return true if scale is floating point
+     */
     public boolean isFloat() {
         return isFloat;
     }
 
+    /**
+     * @param isFloat
+     */
     public void setFloat(boolean isFloat) {
         this.isFloat = isFloat;
     }

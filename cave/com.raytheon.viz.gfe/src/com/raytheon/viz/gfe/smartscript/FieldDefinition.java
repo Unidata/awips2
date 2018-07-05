@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -24,36 +24,56 @@ import java.util.List;
 
 /**
  * Contains definitions of entry fields for variable list GUIs
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 29, 2010            dgilling     Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -----------------------------
+ * Oct 29, 2010           dgilling  Initial creation
+ * Nov 28, 2017  6540     randerso  Changed resolution to double
+ *
  * </pre>
- * 
+ *
  * @author dgilling
- * @version 1.0
  */
 
 public class FieldDefinition {
 
     public static enum FieldType {
-        LABEL("label"), NUMERIC("numeric"), ALPHANUMERIC("alphaNumeric"), RADIO(
-                "radio"), CHECK("check"), SCALE("scale"), SCROLLBAR("scrollbar"), PARM(
-                "parm"), PARMS("parms"), PARMPLUSVARIABLE("parmPlusVariable"), PARMSPLUSVARIABLE(
-                "parmsPlusVariable"), PARMMUTABLE("parmMutable"), PARMSMUTABLE(
-                "parmsMutable"), PARMMUTABLEPLUSVARIABLE(
-                "parmMutablePlusVariable"), PARMSMUTABLEPLUSVARIABLE(
-                "parmsMutablePlusVariable"), DATABASE("database"), DATABASES(
-                "databases"), D2DMODEL("D2D_model"), D2DMODELS("D2D_models"), MODEL(
-                "model"), MODELS("models"), REFSET("refset"), REFSETS("refsets"), TIMERANGE(
-                "timeRange"), TIMERANGES("timeRanges"), MAP("map"), MAPS("maps"), OUTPUT_FILE(
-                "output file"), OUTPUT_DIRECTORY("output directory"), STARTTIME(
-                "startTime"), ENDTIME("endTime"), UNKNOWN("");
+        LABEL("label"),
+        NUMERIC("numeric"),
+        ALPHANUMERIC("alphaNumeric"),
+        RADIO("radio"),
+        CHECK("check"),
+        SCALE("scale"),
+        SCROLLBAR("scrollbar"),
+        PARM("parm"),
+        PARMS("parms"),
+        PARMPLUSVARIABLE("parmPlusVariable"),
+        PARMSPLUSVARIABLE("parmsPlusVariable"),
+        PARMMUTABLE("parmMutable"),
+        PARMSMUTABLE("parmsMutable"),
+        PARMMUTABLEPLUSVARIABLE("parmMutablePlusVariable"),
+        PARMSMUTABLEPLUSVARIABLE("parmsMutablePlusVariable"),
+        DATABASE("database"),
+        DATABASES("databases"),
+        D2DMODEL("D2D_model"),
+        D2DMODELS("D2D_models"),
+        MODEL("model"),
+        MODELS("models"),
+        REFSET("refset"),
+        REFSETS("refsets"),
+        TIMERANGE("timeRange"),
+        TIMERANGES("timeRanges"),
+        MAP("map"),
+        MAPS("maps"),
+        OUTPUT_FILE("output file"),
+        OUTPUT_DIRECTORY("output directory"),
+        STARTTIME("startTime"),
+        ENDTIME("endTime"),
+        UNKNOWN("");
 
         private String pythonWidgetName;
 
@@ -98,12 +118,12 @@ public class FieldDefinition {
 
     private List<? extends Object> valueList;
 
-    private float resolution;
+    private double resolution;
 
     private int precision;
 
     public FieldDefinition() {
-        valueList = new ArrayList<Object>();
+        valueList = new ArrayList<>();
     }
 
     /**
@@ -113,9 +133,10 @@ public class FieldDefinition {
      * @param defaultValue
      * @param valueList
      * @param resolution
+     * @param precision
      */
     public FieldDefinition(Object name, String description, FieldType type,
-            Object defaultValue, List<Object> valueList, float resolution,
+            Object defaultValue, List<Object> valueList, double resolution,
             int precision) {
         this.name = name;
         this.description = description;
@@ -166,11 +187,11 @@ public class FieldDefinition {
         this.valueList = valueList;
     }
 
-    public float getResolution() {
+    public double getResolution() {
         return resolution;
     }
 
-    public void setResolution(float resolution) {
+    public void setResolution(double resolution) {
         this.resolution = resolution;
     }
 

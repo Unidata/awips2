@@ -45,6 +45,7 @@ import javax.imageio.ImageWriter;
 import javax.imageio.stream.FileImageOutputStream;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Rwresult;
+import com.raytheon.uf.common.mpe.constants.FilePermissionConstants;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
@@ -77,10 +78,10 @@ import com.raytheon.viz.mpe.ui.dialogs.polygon.PolygonEditManager;
  *                                      MPE is saved via the GUI.
  * Mar 10, 2015 14554      snaples      Added check to remove Best Estimate polygons after saving.
  * Oct 19, 2015 18090      lbousaidi    Added date format when the token st3_date_form token is set to Ymd.
+ * Aug 07, 2017 6334       bkowal       Directories are now created with 770 permissions and files 660.
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 public class SaveBestEstimate {
 
@@ -109,8 +110,8 @@ public class SaveBestEstimate {
         if ((date_form == null) || date_form.isEmpty()
                 || date_form.equals("mdY")) {
             ST3_FORMAT_STRING = MPEDateFormatter.MMddyyyyHH;
-        } else if (date_form.equals("Ymd")){
-            ST3_FORMAT_STRING = MPEDateFormatter.yyyyMMddHH; 
+        } else if (date_form.equals("Ymd")) {
+            ST3_FORMAT_STRING = MPEDateFormatter.yyyyMMddHH;
         }
         /*----------------------------------------------------------*/
         /* create date in desired format for use in xmrg filename */
@@ -156,7 +157,8 @@ public class SaveBestEstimate {
             }
             xmrgFile.setData(data);
             header.setProcessFlag(PROCESS_FLAG_LOCAL);
-            xmrgFile.save(new File(fileName));
+            xmrgFile.save(new File(fileName),
+                    FilePermissionConstants.POSIX_FILE_SET);
 
             /*
              * Is the mpe_send_qpe_to_sbn token set to ON? If so create a second
@@ -167,7 +169,8 @@ public class SaveBestEstimate {
                 fileName = String.format("%s/xmrg%sz",
                         appsDefaults.getToken("mpe_qpe_sbn_dir"), cdate);
                 header.setProcessFlag(PROCESS_FLAG_SBN);
-                xmrgFile.save(new File(fileName));
+                xmrgFile.save(new File(fileName),
+                        FilePermissionConstants.POSIX_FILE_SET);
             }
         } catch (IOException e) {
             Activator.statusHandler.handle(Priority.PROBLEM,
@@ -272,35 +275,38 @@ public class SaveBestEstimate {
         }
 
         /* Check if the RFC Bias needs to be sent across the WAN. */
-        boolean transmit_rfc_bias = appsDefaults.getBoolean(
-                "mpe_transmit_bias", true);
-        boolean transmit_bias_on_save = appsDefaults.getBoolean(
-                "transmit_bias_on_save", true);
+        boolean transmit_rfc_bias = appsDefaults.getBoolean("mpe_transmit_bias",
+                true);
+        boolean transmit_bias_on_save = appsDefaults
+                .getBoolean("transmit_bias_on_save", true);
         if (transmit_rfc_bias && transmit_bias_on_save) {
 
-            Date currentDate = MPEDisplayManager.getCurrent().getCurrentEditDate();
+            Date currentDate = MPEDisplayManager.getCurrent()
+                    .getCurrentEditDate();
             SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHH");
             String transmitDate = formatter.format(currentDate);
             String scriptDir = appsDefaults.getToken("pproc_bin");
             String scriptName = "transmit_rfc_bias";
             ProcessBuilder pb = new ProcessBuilder(scriptDir + "/" + scriptName,
-                                transmitDate);
+                    transmitDate);
             try {
-                    pb.start();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
+                pb.start();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
         }
-        File qpePolyFile = PolygonEditManager.getHourlyEditFile(bestEstField, editDate);
-        if (bestEstField.getFieldName().equals(DisplayFieldData.Xmrg.getFieldName())){
-            if (qpePolyFile.exists()){
+        File qpePolyFile = PolygonEditManager.getHourlyEditFile(bestEstField,
+                editDate);
+        if (bestEstField.getFieldName()
+                .equals(DisplayFieldData.Xmrg.getFieldName())) {
+            if (qpePolyFile.exists()) {
                 qpePolyFile.delete();
             }
         }
         MPEDisplayManager.getCurrent().setSavedData(true);
-        MPEDisplayManager.getCurrent().getDisplayedFieldResource().resourceChanged(ChangeType.DATA_UPDATE, editDate);
+        MPEDisplayManager.getCurrent().getDisplayedFieldResource()
+                .resourceChanged(ChangeType.DATA_UPDATE, editDate);
     }
 
     private static void mpegui_save_image(BufferedImage bi, String format,
@@ -345,64 +351,64 @@ public class SaveBestEstimate {
         List<Rwresult> pRWResultHead = IHFSDbGenerated.GetRWResult(where);
 
         if (pRWResultHead.size() == 0) {
-            Activator.statusHandler
-                    .handle(Priority.PROBLEM,
-                            String.format(
-                                    "In routine 'update_rwr_save': Could not select a record from the RWResult table for query '%s'.\n",
-                                    where));
+            Activator.statusHandler.handle(Priority.PROBLEM,
+                    String.format(
+                            "In routine 'update_rwr_save': Could not select a record from the RWResult table for query '%s'.\n",
+                            where));
         } else {
             Rwresult pRWResultNode = pRWResultHead.get(0);
 
             /* Update the elements in the RWResult node. */
-            
+
             fldtype = checkAndModifyMapxFieldType(fldtype);
-            
+
             pRWResultNode.setMapxFieldType(fldtype.toLowerCase());
             pRWResultNode.setAutoSave(asave);
             pRWResultNode.setDrawPrecip(drpr);
-            pRWResultNode.setLastSaveTime(SimulatedTime.getSystemTime()
-                    .getTime());
+            pRWResultNode
+                    .setLastSaveTime(SimulatedTime.getSystemTime().getTime());
 
             /* Update the record in the database. */
             int status = IHFSDbGenerated.UpdateRWResult(pRWResultNode);
 
             if (status == -1) {
-                Activator.statusHandler
-                        .handle(Priority.PROBLEM,
-                                String.format(
-                                        "In routine 'update_rwr_save': could not update record in RWResult for query '%s'.",
-                                        where));
+                Activator.statusHandler.handle(Priority.PROBLEM,
+                        String.format(
+                                "In routine 'update_rwr_save': could not update record in RWResult for query '%s'.",
+                                where));
             }
 
-            /* Free the memory used by the linked list of RWResult structures. */
+            /*
+             * Free the memory used by the linked list of RWResult structures.
+             */
             pRWResultHead.clear();
         }
 
     }
 
     private static String checkAndModifyMapxFieldType(String fieldType) {
-       
+
         // This method changes fieldType to lowercase.
-        // It also shortens fieldTypes as needed to fit into the mapx_field_type column in the RWResult table.
-        // Note: the mapx_field_type column is informational only.  It is not used by the code
+        // It also shortens fieldTypes as needed to fit into the mapx_field_type
+        // column in the RWResult table.
+        // Note: the mapx_field_type column is informational only. It is not
+        // used by the code
         // other than reading and writing from and to the database.
-        
+
         String newFieldType = null;
         String lowerCaseFieldType = fieldType.toLowerCase();
-        
-        final Map<String,String> conversionTable = new HashMap<String , String>();
-                
+
+        final Map<String, String> conversionTable = new HashMap<String, String>();
+
         conversionTable.put("localfield1", "localfld1");
         conversionTable.put("localfield2", "localfld2");
         conversionTable.put("localfield3", "localfld3");
-        
+
         conversionTable.put("avgrdmosaic", "avgrdmos");
         conversionTable.put("maxrdmosaic", "maxrdmos");
-        
-        
+
         newFieldType = conversionTable.get(lowerCaseFieldType);
-        if (newFieldType == null)
-        {
+        if (newFieldType == null) {
             newFieldType = lowerCaseFieldType;
         }
         return newFieldType;

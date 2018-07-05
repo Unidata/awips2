@@ -17,6 +17,11 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 # ----------------------------------------------------------------------------
 # This software is in the public domain, furnished "as is", without technical
 # support, and with no warranty, express or implied, as to its usefulness for
@@ -28,10 +33,10 @@
 # Author: (Initial) Matt Davis/ARX
 #         OB9.2  Tracy Hansen
 #         OB9.3  Shannon White/Tracy Hansen/Matt Belk
+#         OB17.3.1 Shannon White (updated to use InundationMax and remove all references to MSL)
 #
-#
-# Version 3/7/11
-# Version 8/22/11
+# 
+# Version 6/8/2017
 # ----------------------------------------------------------------------------
 
 import GenericHazards
@@ -1404,6 +1409,7 @@ class TextProduct(GenericHazards.TextProduct):
 
 
     ## From the tropical formatters -- want to use the same configuration
+
     def moderated_dict(self, parmHisto, timeRange, componentName):
         """
            Modifed to lower the high end filter threshold from 20 MPH to
@@ -1432,18 +1438,16 @@ class TextProduct(GenericHazards.TextProduct):
         dict["WindGust"] = (0, 15)
         dict["WaveHeight"] = (0, 15)
         dict["Swell"] = (0, 15)
-        dict["SurgeHtPlusTide"] = (0,2)
-        dict["SurgeHtPlusTideWTopo"] = (0,2)
+        dict["InundationMax"] = (0,2)
         return dict
-
+      
     # This is a very simple way to round values -- if we need
     # something more sophisticated, we'll add it later.
     def _increment(self, element):
         dict = {
             "Wind": 5,
             "WindGust": 5,
-            "SurgeHtPlusTide": 1,
-            "SurgeHtPlusTideWTopo": 1,
+            "InundationMax": 1,
             }
         return dict.get(element, 0)
 
@@ -1581,8 +1585,7 @@ class TextProduct(GenericHazards.TextProduct):
         info.pwstrend = None
 
         # These need to be initialized to None so we'll know if NO grids are present
-        info.surgeHtPlusTide = None
-        info.surgeHtPlusTideWTopo = None
+        info.inundationMax = None
 
         # Pass 1:  Determine maximum values
         for i in range(len(statList)):
@@ -1643,10 +1646,8 @@ class TextProduct(GenericHazards.TextProduct):
                 if windGust > info.maxGust:
                     info.maxGust = windGust
 
-            info.surgeHtPlusTide = self._pickupMaxStats(
-                     statDict, info.surgeHtPlusTide, "SurgeHtPlusTide")
-            info.surgeHtPlusTideWTopo = self._pickupMaxStats(
-                     statDict, info.surgeHtPlusTideWTopo, "SurgeHtPlusTideWTopo")
+            info.inundationMax = self._pickupMaxStats(
+                     statDict, info.inundationMax, "InundationMax")
 
         # Round to increment
         if info.maxWind is not None and info.minWind is not None:
@@ -1656,18 +1657,15 @@ class TextProduct(GenericHazards.TextProduct):
             info.avgWind = self.round(info.avgWind, "Nearest", self._increment("Wind"))
         if info.maxGust is not None:
             info.maxGust = int(self.round(info.maxGust, "Nearest", self._increment("WindGust")))
-        if info.surgeHtPlusTide is not None:
-            info.surgeHtPlusTide = int(self.round(
-                info.surgeHtPlusTide,"Nearest", self._increment("SurgeHtPlusTide")))
-            if info.surgeHtPlusTide > 10:
-                info.deltaSurge = info.surgeHtPlusTide - 4
-            elif info.surgeHtPlusTide > 6:
-                info.deltaSurge = info.surgeHtPlusTide - 3
-            elif info.surgeHtPlusTide > 2:
-                info.deltaSurge = info.surgeHtPlusTide - 2
-        if info.surgeHtPlusTideWTopo is not None:
-            info.surgeHtPlusTideWTopo = int(self.round(
-                info.surgeHtPlusTideWTopo,"Nearest", self._increment("SurgeHtPlusTideWTopo")))
+        if info.inundationMax is not None:
+            info.inundationMax = int(self.round(
+                info.inundationMax,"Nearest", self._increment("InundationMax")))
+            if info.inundationMax > 10:
+                info.deltaSurge = info.inundationMax - 4
+            elif info.inundationMax > 6:
+                info.deltaSurge = info.inundationMax - 3
+            elif info.inundationMax > 2:
+                info.deltaSurge = info.inundationMax - 2
 
         print "\n\nStats for segment", segmentAreas
         print "   maxWind, maxWindGust", info.maxWind, info.maxGust
@@ -1679,8 +1677,7 @@ class TextProduct(GenericHazards.TextProduct):
         print "  64 Info"
         print "   min, max, prob64", info.minProb64, info.maxProb64
         print "   maxINTprob64", info.maxINTprob64
-        print "  SurgeHtPlusTide", info.surgeHtPlusTide
-        print "  SurgeHtPlusTideWTopo", info.surgeHtPlusTideWTopo
+        print "  InundationMax", info.inundationMax
 
         # Make additional passes to determine durations
         #  These are values for which we need to calculate durations
@@ -2061,8 +2058,7 @@ class TextProduct(GenericHazards.TextProduct):
             ("prob64", self.minMax), # 120 hour value
             ("pws34int", self.maximum, [6]),
             ("pws64int", self.maximum, [6]),
-            ("SurgeHtPlusTide", self.moderatedMax),
-            ("SurgeHtPlusTideWTopo", self.moderatedMax),
+            ("InundationMax", self.moderatedMax),
             ]
 
     #####################################################################################
@@ -2944,7 +2940,7 @@ class TextProduct(GenericHazards.TextProduct):
                 areaList.append(partOfState + " " + state)
 
         #  Add this general area to the text
-        areaPhrase += self.punctuateList(areaList)
+        areaPhrase = self.punctuateList(areaList)
 
         #  If we found any text - finish it up
         if len(areaPhrase.strip()) > 0:
@@ -4414,7 +4410,7 @@ remain in port until this storm passes.
 #        t=self._optionalSection_template(argDict, segment, info, hazards, listenList,
 #                                         checkAreaTypes=["coastal"])
 
-        if info.surgeHtPlusTide is None:
+        if info.inundationMax is None:
             return title + self._frame("Enter surge text here")
 
         t= ""
@@ -4444,7 +4440,7 @@ remain in port until this storm passes.
                 t+=self._surge_Watch_Peripheral(info)
             else: # In Situ
                 t+=self._surge_Watch_InSitu(info)
-            if info.surgeHtPlusTide > 0 and scenario != "InSitu":
+            if info.inundationMax > 0 and scenario != "InSitu":
                 t+= self._surge_Watch_Impact_stmt(info, segment)
             t+= "\n"
 
@@ -4456,7 +4452,7 @@ remain in port until this storm passes.
                 t+=self._surge_Warning_Peripheral(info)
             else: # In Situ
                 t+=self._surge_Warning_InSitu(info)
-            if info.surgeHtPlusTide > 0 and scenario != "InSitu":
+            if info.inundationMax > 0 and scenario != "InSitu":
                 t+=self._surge_Impact_stmt(info, segment)
             t+= "\n"
 
@@ -4468,7 +4464,7 @@ remain in port until this storm passes.
                 t+=self._surge_Conditions_Ongoing(info)
             elif scenario == "Diminishing":
                 t+=self._surge_Conditions_Diminishing(info)
-            if info.surgeHtPlusTide > 0 and scenario != "Diminishing":
+            if info.inundationMax > 0 and scenario != "Diminishing":
                 t+=self._surge_Impact_stmt(info, segment)
             t+="\n"
 
@@ -4483,7 +4479,7 @@ remain in port until this storm passes.
                 t+=self._surge_PostTropical_InProgress(info)
             elif scenario == "Completed":
                 t+=self._surge_PostTropical_Completed(info)
-            if info.surgeHtPlusTide > 0:
+            if info.inundationMax > 0:
                 t+=self._surge_Impact_stmt(info, segment)
             t+= "\n"
 
@@ -4940,23 +4936,18 @@ readiness actions as recommended."""),
 
     ##############
 
-    #  Changed 02/10/2011 (MHB) - Modified to not use "inundation up to 3 to 5 ft"
-    #  terminology.  Will only use "up to" wording with inundation values < 2 ft.
-    #  Otherwise will use "inundation of 3 to 5 ft" wording instead.  This
-    #  change will impact all of the surge wording templates.
+    #  Changed 6/8/2017 - Modified to use above ground only and remove all MSL
 
     def _surge_Watch_Advancing(self, info):
         t=""
         t+="It is still too early to determine the exact heights of combined storm surge and tide waters for specific locations within the forecast area to be caused by " + self._stormTypeName
         t+=". Much depends on the precise size, intensity and track of the system as it approaches the coast. "
-        if info.surgeHtPlusTide > 0:
-            t+="Given the latest forecast, there is a chance for combined storm surge and astronomical tide waters up to "
-            t+=`info.surgeHtPlusTideWTopo` +" feet above mean sea level within areas closer to the coast, "
-            t+="resulting in worst case flood inundation "
-            if info.surgeHtPlusTide > 2:
-                t+=" of " + `info.deltaSurge`+" to "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
+        if info.inundationMax > 0:
+            t+="Given the latest forecast, there is a reasonable worst case potential flood inundation"
+            if info.inundationMax > 2:
+                t+=" of " + `info.deltaSurge`+" to "+`info.inundationMax`+" feet above ground somewhere within the surge zone."
             else:
-                t+="up to" + `info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
+                t+="up to" + `info.inundationMax`+" feet above ground somewhere within the surge zone."
         else:
             t+=self._frame("According to the latest surge grids, coastal flooding is likely to be negligible. Please further describe your coastal flooding concerns here or delete this paragraph or consider deleting the whole storm surge and tide section.")
         return t
@@ -4965,14 +4956,12 @@ readiness actions as recommended."""),
         t=""
         t+="It is still too early to determine the exact heights of combined storm surge and tide waters for specific locations within the forecast area to be caused by " + self._stormTypeName
         t+=". Much depends on the precise size, intensity and track of the system as it approaches the coast and passes nearby. "
-        if info.surgeHtPlusTide > 0:
-            t+="Given the latest forecast, there is a chance for combined storm surge and astronomical tide waters up to "
-            t+=`info.surgeHtPlusTideWTopo` +" feet above mean sea level within areas closer to the coast, "
-            t+="resulting in worst case flood inundation "
-            if info.surgeHtPlusTide > 2:
-                t+="of " +`info.deltaSurge`+" to "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
+        if info.inundationMax > 0:
+            t+="Given the latest forecast, there is a reasonable worst case potential flood inundation"
+            if info.inundationMax > 2:
+                t+=" of " + `info.deltaSurge`+" to "+`info.inundationMax`+" feet above ground somewhere within the surge zone."
             else:
-                t+="up to "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
+                t+="up to" + `info.inundationMax`+" feet above ground somewhere within the surge zone."
         else:
             t+=self._frame("According to the latest surge grids, coastal flooding is likely to be negligible. Please further describe your coastal flooding concerns here or delete this paragraph or consider deleting the whole storm surge and tide section.")
         return t
@@ -4989,16 +4978,14 @@ readiness actions as recommended."""),
 
     def _surge_Warning_Advancing(self, info):
         t = ""
-        if info.surgeHtPlusTide > 0:
+        if info.inundationMax > 0:
 
-            t+="As "+self._stormTypeName+" approaches the coast, there is an increasing chance for combined storm surge and astronomical tide waters up to "
-            t+=`info.surgeHtPlusTideWTopo`+" feet above mean sea level within areas closer to the coast, resulting "
-            t+="In worst case flood inundation "
+            t+="As "+self._stormTypeName+" approaches the coast, there is an increasing chance for potential flood inundation "
 
-            if info.surgeHtPlusTide > 2:
-                t+="OF " +`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
+            if info.inundationMax > 2:
+                t+="of " +`info.deltaSurge`+" to "+`info.inundationMax`+" feet above ground somewhere within the surge zone."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
+                t+="up to "+`info.inundationMax`+" feet above ground somewhere within the surge zone."
 
             t+= "\n\nThe locations most likely to realize the greatest flooding include "
             t+=self._frame("Relative to the segment, explicitly list locations of greatest concern relative to inundation as that is what the impact statement below is based on for the worst affected area, include inland reach of the inundation waters. Further describe inundation elsewhere within the surge zone as applicable. Be aware that locations experiencing the highest storm surge and tide may not realize the greatest inundation. ")
@@ -5014,17 +5001,15 @@ readiness actions as recommended."""),
 
     def _surge_Warning_Peripheral(self, info):
         t = ""
-        if info.surgeHtPlusTide > 0:
+        if info.inundationMax > 0:
 
             t+="Although the core of "+self._stormTypeName+" is not currently forecast to move across coastal sections of the forecast area at this time, "
-            t+="there is still a chance for combined storm surge and astronomical tide waters up to "
-            t+=`info.surgeHtPlusTideWTopo`+" feet above mean sea level within areas closer to the coast, resulting "
-            t+="in worst case flood inundation "
+            t+="there is still a chance for potential flood inundation "
 
-            if info.surgeHtPlusTide > 2:
-                t+="of "+`info.deltaSurge`+" to "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
+            if info.inundationMax > 2:
+                t+="of " +`info.deltaSurge`+" to "+`info.inundationMax`+" feet above ground somewhere within the surge zone."
             else:
-                t+="up to "+`info.surgeHtPlusTide`+" feet above ground somewhere within the surge zone."
+                t+="up to "+`info.inundationMax`+" feet above ground somewhere within the surge zone."
 
             t+= "\n\nThe locations most likely to realize the greatest flooding include "
             t+=self._frame("Relative to the segment, explicitly list locations of greatest concern relative to inundation as that is what the impact statement below is based on for the worst affected area, include inland reach of the inundation waters. Further describe inundation elsewhere within the surge zone as applicable. Be aware that locations experiencing the highest storm surge and tide may not realize the greatest inundation. ")
@@ -5048,15 +5033,13 @@ readiness actions as recommended."""),
 
     def _surge_Conditions_Imminent(self, info):
         t = ""
-        if info.surgeHtPlusTide > 0:
-            t+="With the imminent arrival of "+self._stormTypeName+", combined storm surge and "
-            t+="astronomical tide waters up to "+`info.surgeHtPlusTideWTopo`+" feet above mean sea "
-            t+="level within areas closer to the coast will result in worst case flood inundation "
+        if info.inundationMax > 0:
+            t+="With the imminent arrival of "+self._stormTypeName+", potential flood inundation "
 
-            if info.surgeHtPlusTide > 2:
-                t+="of "+`info.deltaSurge`+" to "+`info.surgeHtPlusTide`+" feet above ground somewhere within parts of the surge zone."
+            if info.inundationMax > 2:
+                t+="of "+`info.deltaSurge`+" to "+`info.inundationMax`+" feet above ground is likely somewhere within the surge zone."
             else:
-                t+="up to "+`info.surgeHtPlusTide`+" feet above ground somewhere within parts of the surge zone."
+                t+="up to "+`info.inundationMax`+" feet above ground is likely somewhere within parts of the surge zone."
 
             t+="\n\nThe locations most likely to realize the greatest flooding include "
             t+=self._frame("Relative to the segment, explicitly list locations of greatest concern relative to inundation as that is what the impact statement below is based on for the worst affected area, include inland reach of the inundation waters; further describe inundation elsewhere within the surge zone as applicable; be aware that locations experiencing the highest storm surge and tide may not realize the greatest inundation. Also stress the rapid water rises that are likely. ")
@@ -5067,15 +5050,13 @@ readiness actions as recommended."""),
 
     def _surge_Conditions_Ongoing(self, info):
         t = ""
-        if info.surgeHtPlusTide > 0:
-            t+="Combined storm surge and astronomical tide waters up to "+`info.surgeHtPlusTideWTopo`
-            t+=" feet above mean sea level are likely being realized within areas closer to the coast"
-            t+=" and resulting in worst case flood inundation "
+        if info.inundationMax > 0:
+            t+="Expect flood inundation "
 
-            if info.surgeHtPlusTide > 2:
-                t+="OF "+`info.deltaSurge`+" TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within parts of the surge zone."
+            if info.inundationMax > 2:
+                t+="of "+`info.deltaSurge`+" to "+`info.inundationMax`+" feet above ground somewhere within the surge zone."
             else:
-                t+="UP TO "+`info.surgeHtPlusTide`+" feet above ground somewhere within parts of the surge zone."
+                t+="up to "+`info.inundationMax`+" feet above ground somewhere within the surge zone."
 
             t+="\n\nThe locations most likely realizing the greatest flooding include "
             t+=self._frame("Relative to the segment, explicitly list locations of greatest concern relative to inundation as that is what the impact statement below is based on for the worst affected area, include inland reach of the inundation waters; further describe inundation elsewhere within the surge zone as applicable; be aware that locations experiencing the highest storm surge and tide may not realize the greatest inundation.")
@@ -5087,22 +5068,17 @@ readiness actions as recommended."""),
 
     def _surge_Conditions_Diminishing(self, info):
         t = ""
-        if info.surgeHtPlusTide > 0:
+        if info.inundationMax > 0:
             t+="Although coastal flood waters will soon begin to partially recede, "
             t+="do not attempt to return to evacuated areas until official confirmation is "
             t+="received that it is safe to do so. "
-            t+="\n\nCombined storm surge and astronomical tide waters up to "+`info.surgeHtPlusTideWTopo` + " "
-            t+=self._frame("This is one case where more deterministic values can be drawn from slosh or other sources.")
-            t+=" feet above mean sea level were likely realized within areas closer to the coast resulting "
-            t+="in worst case flood inundation "
+            t+="\n\nContinued coastal inundation "
 
-            if info.surgeHtPlusTide > 2:
-                t+="of "+`info.deltaSurge`+" to "+`info.surgeHtPlusTide`
+            if info.inundationMax > 2:
+                t+="of "+`info.deltaSurge`+" to "+`info.inundationMax`+" feet above ground can be expected somewhere within the surge zone."
             else:
-                t+="up to "+`info.surgeHtPlusTide`
+                t+="up to "+`info.inundationMax`+" feet above ground can be expected somewhere within the surge zone."
 
-            t+=self._frame("Same comment here as above but relative to inundation.")
-            t+=" feet above ground. "
         else:
             t+="Minimal storm tide impacts are being observed. "
             t+=self._frame("According to the latest surge grids, coastal flooding is negligible. Please further describe your coastal flooding concerns here, leave this statement as is or delete the storm surge section all together.")
@@ -5113,7 +5089,7 @@ readiness actions as recommended."""),
     def _surge_PostEvent(self, info, scenario):
         t = ""
         if scenario == "Immediate":
-            if info.surgeHtPlusTide > 0:
+            if info.inundationMax > 0:
                 t+="As wind conditions associated with "+self._stormTypeName+" continue to improve, coastal flood waters will be slower to recede. Certain areas may still be inundated. Do not attempt to return to evacuated areas until official confirmation is received that it is safe to do so."
                 t+="\n\nThe locations which realized the greatest flooding include "
                 t+=self._frame("Relative to the segment, explicitly list locations that experienced greatest inundation flooding remember that in the absence of tidal or other kind of observations the real time slosh run at the time of landfall is likely your best source of information here, not necessarily the psurge data; further describe inundation elsehwere within the surge zone as applicable; describe any known impacts.")
@@ -5125,15 +5101,13 @@ readiness actions as recommended."""),
     #############
     def _surge_PostTropical_InProgress(self, info):
         t = ""
-        if info.surgeHtPlusTide > 0:
-            t+="As "+self._stormTypeName+" impacts the forecast area, combined storm surge and astronomical tide waters up to "
-            t+=`info.surgeHtPlusTideWTopo`
-            t+=" feet above mean sea level within areas closer to the coast will likely result in worst case flood inundation "
-            if info.surgeHtPlusTide > 2:
-                t+="of "+`info.deltaSurge`+" to "+`info.surgeHtPlusTide`
+        if info.inundationMax > 0:
+            t+="As "+self._stormTypeName+" impacts the forecast area, potential flood inundation "
+            if info.inundationMax > 2:
+                t+="of "+`info.deltaSurge`+" to "+`info.inundationMax`
             else:
-                t+="up to "+`info.surgeHtPlusTide`
-            t+=" feet above ground somewhere within the surge zone. "
+                t+="up to "+`info.inundationMax`
+            t+=" feet above ground is likely somewhere within the surge zone. "
             t+="\n\nThe locations which will likely realize the greatest flooding include "
             t+=self._frame("Relative to the segment, explicitly list locations of greatest inundation concerns, including inland reach; further describe inundation elsewhere within the surge zone as applicable.")
         else:
@@ -5143,14 +5117,13 @@ readiness actions as recommended."""),
 
     def _surge_PostTropical_Completed(self, info):
         t = ""
-        if info.surgeHtPlusTide > 0:
-            t+="As former "+self._stormTypeName+" impacts the forecast area, combined storm surge and astronomical tide waters up to "
-            t+=`info.surgeHtPlusTideWTopo`+" feet above mean sea level within areas closer to the coast will likely result in worst case flood inundation "
-            if info.surgeHtPlusTide > 2:
-                t+="of "+`info.deltaSurge`+" to "+`info.surgeHtPlusTide`
+        if info.inundationMax > 0:
+            t+="As former "+self._stormTypeName+" impacts the forecast area, potential flood inundation "
+            if info.inundationMax > 2:
+                t+="of "+`info.deltaSurge`+" to "+`info.inundationMax`
             else:
-                t+="up to "+`info.surgeHtPlusTide`
-            t+=" feet above ground somewhere within the surge zone."
+                t+="up to "+`info.inundationMax`
+            t+=" feet above ground is likely somewhere within the surge zone. "
             t+="\n\nThe locations which will likely realize the greatest flooding include "
             t+=self._frame("Relative to the segment, explicitly list locations of greatest inundation concerns, including inland reach; further describe inundation elsewhere within the surge zone as applicable.")
         else:
@@ -5160,22 +5133,22 @@ readiness actions as recommended."""),
 
     ##############
     ####### Total Water Level thresholds and statements
-    #######  NOTE: Thresholds are being compared to the SurgeHtPlusTide values
+    #######  NOTE: Thresholds are being compared to the InundationMax values
     ############## Impact Statements
 
     def _surge_Watch_Impact_stmt(self, info, segment):
         t=""
         water_dict = self._totalWaterLevel_dict(info, segment)
-        if info.surgeHtPlusTide  >= water_dict.get("Extreme", 7):
+        if info.inundationMax  >= water_dict.get("Extreme", 7):
             damage="Widespread major"
 
-        elif info.surgeHtPlusTide >= water_dict.get("High", 5):
+        elif info.inundationMax >= water_dict.get("High", 5):
             damage="Areas of major"
 
-        elif info.surgeHtPlusTide  >= water_dict.get("Moderate", 3):
+        elif info.inundationMax  >= water_dict.get("Moderate", 3):
             damage="Areas of moderate"
 
-        elif info.surgeHtPlusTide  >= water_dict.get("Low", 1):
+        elif info.inundationMax  >= water_dict.get("Low", 1):
             damage="Areas of minor"
         else:
             damage = None
@@ -5188,16 +5161,16 @@ readiness actions as recommended."""),
     def _surge_Impact_stmt(self, info, segment):
         t=""
         water_dict = self._totalWaterLevel_dict(info, segment)
-        if info.surgeHtPlusTide  >= water_dict.get("Extreme", 7):
+        if info.inundationMax  >= water_dict.get("Extreme", 7):
             damage= self._totalWaterLevel_Extreme_stmt(info, segment)
 
-        elif info.surgeHtPlusTide >= water_dict.get("High", 5):
+        elif info.inundationMax >= water_dict.get("High", 5):
             damage= self._totalWaterLevel_High_stmt(info, segment)
 
-        elif info.surgeHtPlusTide  >= water_dict.get("Moderate", 3):
+        elif info.inundationMax  >= water_dict.get("Moderate", 3):
             damage= self._totalWaterLevel_Moderate_stmt(info, segment)
 
-        elif info.surgeHtPlusTide  >= water_dict.get("Low", 1):
+        elif info.inundationMax  >= water_dict.get("Low", 1):
             damage= self._totalWaterLevel_Low_stmt(info, segment)
         else:
             damage ="Minor coastal flood damage"

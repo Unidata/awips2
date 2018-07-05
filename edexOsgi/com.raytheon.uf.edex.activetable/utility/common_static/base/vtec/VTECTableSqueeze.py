@@ -32,7 +32,17 @@
 #                                                 for each pil separately. Needed due to TCV, MWW,
 #                                                 and HLS (for HFO) all issuing tropical events so
 #                                                 a CAN record is kept for each pil.
+#    05/15/16        19995         ryu            Remove lower ETN records from active table.
+#    06/07/17        #6312         dgilling       Modify purging to keep last record for
+#                                                 each tropical hazard until 24 hrs have
+#                                                 passed without update. 
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 import os, sys, time, copy, LogStream
 
@@ -47,6 +57,14 @@ timer = TimeUtil.getTimer()
 # records.  Records purged consist of old SPC watches, old Tropical
 # events, last year's records, and extraneous records not needed for
 # new event ETN determination.
+#
+# Note on Tropical Hazard Events:
+# Tropical hazards do not conform to the same rules as other hazards for VTEC
+# purposes. The numbers do not increment like other hazards and a lower ETNs
+# can be issued after a higher ETN, depending on when a storm develops in
+# relation to affecting the U.S.. Additionally, it is possible for a storm to
+# exit the U.S. only to come back later where the same ETN will be used with
+# NEW once again.
 
 class VTECTableSqueeze:
 
@@ -61,6 +79,8 @@ class VTECTableSqueeze:
     def squeeze(self, table):
 
         if self.__debug:
+            LogStream.logDebug("************** STARTING VTEC TABLE SQUEEZE *********************")
+            LogStream.logDebug(time.asctime(time.gmtime(self.__ctime)))
             LogStream.logDebug("************** ORIGINAL TABLE *********************")
             LogStream.logDebug(self.__printActiveTable(table))
 
@@ -184,9 +204,12 @@ class VTECTableSqueeze:
     #entries.
     def __removeOldNationalAndShortFusedEvents(self, table):
         compare = ['id', 'phen', 'sig', 'officeid', 'pil']
-        convWatch=[('SV','A'), ('TO','A')]
-        #tropicalPhen=['TR','TY','HU'] Removed to disable 24hour purging for OB 8.2
-        tropicalPhen=[]
+        convWatch = [('SV','A'), ('TO','A')]
+        
+        # To make it simpler to deal with the case where tropical hazards can 
+        # go from NEW -> CAN -> NEW we will purge any event that has not been
+        # updated after 24 hours
+        tropicalPhen = TropicalCycloneUtil.TROPICAL_PHENS
         #shortFused=[('FA','W'), ('FF','W'), ('FL','W'), ('MA','W'),
         #  ('SV','W'), ('TO','W'), ('TS','W')]
         shortFused = []   #no longer purge shortFused events
@@ -271,6 +294,7 @@ class VTECTableSqueeze:
                         etns = issueYears[iy]
 
                         #determine what to keep and what to toss 
+                        maxetn = max(etns)
                         for etn in etns:
                             all_hourOld = True
                             all_cancelled = True
@@ -293,7 +317,6 @@ class VTECTableSqueeze:
                             # 1. is UFN, not cancelled, and not older then two weeks.
                             # 2. not UFN, and not ended in the last hour
                             # 3. cancelled, from this year, keep only records that are minid
-                            #    for each etn
 
                             if ufn and not all_cancelled and not all_twoWeeksOld: # 1
                                 for id in ids:
@@ -306,7 +329,12 @@ class VTECTableSqueeze:
                                         saveRec.append(rec)
 
                             elif iy == self.__thisYear: # 3
-                                keep_id = min(ids)
+                                keep_id = None
+                                # We keep a record of every in process 
+                                # or "ended" tropical hazard to deal with 
+                                # hazards that hit land out of ETN order
+                                if ps[0] in TropicalCycloneUtil.TROPICAL_PHENS or etn == maxetn:
+                                    keep_id = min(ids)
                                 for id in ids:
                                     if id == keep_id:
                                         for rec in ids[id]:

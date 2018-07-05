@@ -1,11 +1,11 @@
 package gov.noaa.gsd.viz.ensemble.action;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import com.raytheon.viz.ui.tools.AbstractTool;
+
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
 
 /**
  * This is how you start the Ensemble Tool. Only allow the Ensemble Tool to be
@@ -17,7 +17,8 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 7, 2014    5056      polster     Initial creation
+ * Dec 07, 2014    5056      polster     Initial creation
+ * Mar 01, 2017   19443      polster     Changed method signature
  * 
  * </pre>
  * 
@@ -37,7 +38,7 @@ public class EnsembleToolAction extends AbstractTool {
          * Only execute the action if an ensemble tool layer is not already in
          * the active editor
          */
-        if (EnsembleTool.isToolNotLoaded()) {
+        if (!EnsembleTool.isToolLoaded()) {
             EnsembleTool.getInstance().execute(event);
         }
         return null;

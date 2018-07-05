@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,8 +33,6 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.server.database.VGridDatabase;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -46,21 +44,24 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
 
 /**
  * Smart Init Aggregator/Queue for Camel
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 11, 2008            njensen     Initial creation
- * Oct 6, 2009    3172     njensen     Based on GribNotifyMessages
- * Jun 13, 2013  #2044     randerso    Refactored to use IFPServer,
- *                                     moved smartInit queuing code here 
- *                                     from other modules, general code cleanup
- * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4                               
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Dec 11, 2008           njensen   Initial creation
+ * Oct 06, 2009  3172     njensen   Based on GribNotifyMessages
+ * Jun 13, 2013  2044     randerso  Refactored to use IFPServer, moved smartInit
+ *                                  queuing code here from other modules,
+ *                                  general code cleanup
+ * Oct 16, 2014  3454     bphillip  Upgrading to Hibernate 4
+ * Sep 12, 2016  5861     randerso  Remove references to IFPServerConfigManager
+ *                                  which was largely redundant with IFPServer.
+ *
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
 public class SmartInitQueue {
@@ -71,7 +72,7 @@ public class SmartInitQueue {
 
     /**
      * Create the single instance of the queue. Should only be used by spring.
-     * 
+     *
      * @return the smartInit queue
      */
     public static synchronized SmartInitQueue createQueue() {
@@ -83,7 +84,7 @@ public class SmartInitQueue {
 
     /**
      * get single instance of queue if it exists
-     * 
+     *
      * @return the singleton instance or null
      */
     public static SmartInitQueue getQueue() {
@@ -98,7 +99,7 @@ public class SmartInitQueue {
 
     /**
      * Queue a SmartInit to be run
-     * 
+     *
      * @param site
      *            the site ID
      * @param config
@@ -135,23 +136,16 @@ public class SmartInitQueue {
             inits.add(record);
         }
 
-        mergeInits(inits);
+        mergeInits(config, inits);
     }
 
-    private void mergeInits(Collection<SmartInitRecord> inits) {
+    private void mergeInits(IFPServerConfig config,
+            Collection<SmartInitRecord> inits) {
         for (SmartInitRecord record : inits) {
-            try {
-                DatabaseID toAdd = new DatabaseID(record.getDbName());
-                IFPServerConfig config = IFPServerConfigManager
-                        .getServerConfig(toAdd.getSiteId());
-                String modelTime = toAdd.getModelTime();
-                int hour = Integer.parseInt(modelTime.substring(9, 11));
-                if (config.initSkip(toAdd.getModelName(), hour)) {
-                    continue;
-                }
-            } catch (GfeConfigurationException e) {
-                statusHandler
-                        .handle(Priority.ERROR, e.getLocalizedMessage(), e);
+            DatabaseID toAdd = new DatabaseID(record.getDbName());
+            String modelTime = toAdd.getModelTime();
+            int hour = Integer.parseInt(modelTime.substring(9, 11));
+            if (config.initSkip(toAdd.getModelName(), hour)) {
                 continue;
             }
 
@@ -166,8 +160,8 @@ public class SmartInitQueue {
                             .getTime()) {
                         oldRecord.setInsertTime(newInsertTime);
                     }
-                    oldRecord.setManual(oldRecord.isManual()
-                            || record.isManual());
+                    oldRecord.setManual(
+                            oldRecord.isManual() || record.isManual());
                     oldRecord.setPriority(Math.min(oldRecord.getPriority(),
                             record.getPriority()));
                 }
@@ -177,29 +171,40 @@ public class SmartInitQueue {
 
     /**
      * Queue a manual smartInit request
-     * 
+     *
      * @param init
      *            init request
-     * 
+     *
      *            <pre>
      *  Examples:
      *     OAX_GRID_D2D_RAP13_20100923_0900 or
      *     OAX_GRID_D2D_RAP13_20100923_0900:1 or
      *     OAX_GRID_D2D_RAP13_20100923_0900:1:myRAP13
-     * </pre>
+     *            </pre>
      */
     public void addManualInit(String init) {
-        Collection<SmartInitRecord> manualInits = splitManual(init);
-        mergeInits(manualInits);
-        // force update the tables
-        fireSmartInit();
+        List<SmartInitRecord> manualInits = splitManual(init);
+        if (!manualInits.isEmpty()) {
+            DatabaseID dbId = new DatabaseID(manualInits.get(0).getDbName());
+            IFPServer ifpServer = IFPServer.getActiveServer(dbId.getSiteId());
+            if (ifpServer == null) {
+                statusHandler.error(
+                        "No active IFPServer for site: " + dbId.getSiteId());
+                return;
+            }
+            IFPServerConfig config = ifpServer.getConfig();
+            mergeInits(config, manualInits);
+
+            // force update the tables
+            fireSmartInit();
+        }
     }
 
     /**
      * Flush the in memory smartInit queue to database.
-     * 
+     *
      * This is done on a timer to reduce the number of database writes
-     * 
+     *
      */
     public void fireSmartInit() {
         Map<SmartInitRecordPK, SmartInitRecord> initsToStore = null;
@@ -234,31 +239,31 @@ public class SmartInitQueue {
                             s.save(record);
                         } else {
                             Date newInsertTime = record.getInsertTime();
-                            oldRecord.setPriority(Math.min(
-                                    oldRecord.getPriority(),
-                                    record.getPriority()));
-                            if (oldRecord.getInsertTime().getTime() < newInsertTime
-                                    .getTime()) {
+                            oldRecord.setPriority(
+                                    Math.min(oldRecord.getPriority(),
+                                            record.getPriority()));
+                            if (oldRecord.getInsertTime()
+                                    .getTime() < newInsertTime.getTime()) {
                                 oldRecord.setInsertTime(newInsertTime);
                             }
-                            oldRecord.setManual(oldRecord.isManual()
-                                    || record.isManual());
+                            oldRecord.setManual(
+                                    oldRecord.isManual() || record.isManual());
                             s.update(oldRecord);
                         }
                         tx.commit();
                     } catch (Throwable t) {
                         statusHandler.handle(Priority.ERROR,
                                 "Error adding smartInit [" + record.getId()
-                                        + "] to database queue", t);
+                                        + "] to database queue",
+                                t);
 
                         if (tx != null) {
                             try {
                                 tx.rollback();
                             } catch (HibernateException e) {
-                                statusHandler
-                                        .handle(Priority.ERROR,
-                                                "Error rolling back smart init lock transaction",
-                                                e);
+                                statusHandler.handle(Priority.ERROR,
+                                        "Error rolling back smart init lock transaction",
+                                        e);
                             }
                         }
                     }
@@ -277,7 +282,7 @@ public class SmartInitQueue {
 
     }
 
-    private Collection<SmartInitRecord> splitManual(String initName) {
+    private List<SmartInitRecord> splitManual(String initName) {
         List<SmartInitRecord> rval = new ArrayList<SmartInitRecord>(60);
 
         try {
@@ -324,8 +329,8 @@ public class SmartInitQueue {
                 siteInitModules = new ArrayList<String>();
                 siteInitModules.add(tokens[2]);
             } else {
-                IFPServerConfig config = IFPServerConfigManager
-                        .getServerConfig(dbId.getSiteId());
+                IFPServerConfig config = IFPServer
+                        .getActiveServer(dbId.getSiteId()).getConfig();
                 siteInitModules = config.initModels(gfeModel);
             }
 
@@ -338,8 +343,8 @@ public class SmartInitQueue {
             for (String module : siteInitModules) {
                 for (Date validTime : validTimes) {
                     SmartInitRecord record = new SmartInitRecord(
-                            dbName.replace(gfeModel, module), module,
-                            validTime, dbName, calcAll, priority);
+                            dbName.replace(gfeModel, module), module, validTime,
+                            dbName, calcAll, priority);
                     rval.add(record);
                 }
             }

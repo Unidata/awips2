@@ -71,13 +71,12 @@ import com.raytheon.viz.ui.input.EditableManager;
  * Mar 15, 2013  15693    mgamazaychikov Added magnification to display state.
  * Jun 10, 2014  3263     bsteffen       Synchronize dataTimes
  * Jul 30, 2015  17761    D. Friedman    Fix time matching.
+ * Nov 03, 2016  5941     bsteffen       Fix recycling
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
-
 public abstract class AbstractStormTrackResource extends
         AbstractVizResource<AbstractResourceData, MapDescriptor> implements
         IResourceDataChanged, IContextMenuContributor {
@@ -88,7 +87,12 @@ public abstract class AbstractStormTrackResource extends
 
     private StormTrackUIManager manager;
 
-    private boolean timeMatchBasis = false;
+    /**
+     * When this resource is generating its own times instead of matching the
+     * other times in the descriptor then this field is used to hold the initial
+     * time which the generated times are based off of.
+     */
+    private DataTime basisTime = null;
 
     private int maximumFrameCount = -1;
 
@@ -127,7 +131,7 @@ public abstract class AbstractStormTrackResource extends
     public DataTime[] getMatchedDataTimes(DataTime[] timeSteps) {
         synchronized (this.dataTimes) {
 
-            if (timeMatchBasis) {
+            if (basisTime != null) {
                 /*
                  * We only want to calculate more data times if the user has
                  * selected more frames than there have been in the past.
@@ -138,6 +142,10 @@ public abstract class AbstractStormTrackResource extends
 
                     this.maximumFrameCount = this.descriptor
                             .getNumberOfFrames();
+
+                    if (dataTimes.isEmpty()) {
+                        dataTimes.add(basisTime);
+                    }
 
                     DataTime earliestTime = this.dataTimes.get(0);
                     this.fillDataTimeArray(earliestTime, variance);
@@ -153,21 +161,20 @@ public abstract class AbstractStormTrackResource extends
                 }
 
                 if (dataTimes.size() == 0) {
-                    timeMatchBasis = true;
                     /*
                      * Case where this tool is time match basis or no data
                      * loaded
                      */
-                    DataTime currentTime = null;
                     if (dataTimes.size() > 0) {
-                        currentTime = dataTimes.get(dataTimes.size() - 1);
+                        basisTime = dataTimes.get(dataTimes.size() - 1);
                     } else {
-                        currentTime = new DataTime(SimulatedTime
+                        basisTime = new DataTime(
+                                SimulatedTime
                                 .getSystemTime().getTime());
                     }
 
-                    dataTimes.add(currentTime);
-                    this.fillDataTimeArray(currentTime,
+                    dataTimes.add(basisTime);
+                    this.fillDataTimeArray(basisTime,
                             this.descriptor.getNumberOfFrames() - 1);
                 }
             }
@@ -200,6 +207,9 @@ public abstract class AbstractStormTrackResource extends
         if (manager != null) {
             manager.dispose();
         }
+        this.dataTimes.clear();
+        this.maximumFrameCount = 0;
+        this.displayState.geomChanged = true;
     }
 
     @Override

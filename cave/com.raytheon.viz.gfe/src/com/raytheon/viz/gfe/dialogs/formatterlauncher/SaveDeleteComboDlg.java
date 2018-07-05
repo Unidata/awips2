@@ -38,6 +38,7 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.gfe.textproduct.CombinationsFileUtil;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.protectedfiles.ProtectedFileLookup;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -54,15 +55,16 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Mar 25, 2008  N/A      lvenable  Initial creation
  * Nov 08, 2012  1298     rferrel   Code cleanup for non-blocking dialog.
  * Oct 03, 2016  19293    randerso  Moved CombinationsFileUtil to common
+ * Aug 07, 2017  6379     njensen   Use ProtectedFileLookup
  *
  * </pre>
  *
  * @author lvenable
- * @version 1.0
  *
  */
 public class SaveDeleteComboDlg extends CaveJFACEDialog {
-    private final transient IUFStatusHandler statusHandler = UFStatus
+
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SaveDeleteComboDlg.class);
 
     private Map<String, Integer> comboDict;
@@ -89,8 +91,8 @@ public class SaveDeleteComboDlg extends CaveJFACEDialog {
         this.mapNames = mapNames;
         this.optionStr = optionStr;
 
-        this.names = new ArrayList<String>();
-        this.protectedNames = new ArrayList<String>();
+        this.names = new ArrayList<>();
+        this.protectedNames = new ArrayList<>();
         LocalizationFile[] lfs = CombinationsFileUtil.getSavedCombos();
 
         for (LocalizationFile lf : lfs) {
@@ -99,7 +101,7 @@ public class SaveDeleteComboDlg extends CaveJFACEDialog {
             if (name.isEmpty()) {
                 continue;
             }
-            if (!lf.isProtected()) {
+            if (!ProtectedFileLookup.isProtected(lf)) {
                 this.names.add(name);
             } else {
                 this.protectedNames.add(name);
@@ -107,31 +109,17 @@ public class SaveDeleteComboDlg extends CaveJFACEDialog {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
 
-        if (this.optionStr.equals("Save")) {
+        if ("Save".equals(this.optionStr)) {
             newShell.setText("Save Combinations");
         } else {
             newShell.setText("Delete Combinations");
         }
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveJFACEDialog#createDialogArea(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected Control createDialogArea(Composite parent) {
         Composite top = (Composite) super.createDialogArea(parent);
@@ -151,18 +139,10 @@ public class SaveDeleteComboDlg extends CaveJFACEDialog {
         comboListBox.deselectAll();
 
         comboListBox.addSelectionListener(new SelectionAdapter() {
-
-            /*
-             * (non-Javadoc)
-             *
-             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.
-             * eclipse .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 setSelectedBox();
             }
-
         });
 
         comboName = new Text(top, SWT.BORDER | SWT.SINGLE);
@@ -187,13 +167,6 @@ public class SaveDeleteComboDlg extends CaveJFACEDialog {
         return top;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         createButton(parent, IDialogConstants.OK_ID, this.optionStr, true);
@@ -201,22 +174,17 @@ public class SaveDeleteComboDlg extends CaveJFACEDialog {
                 IDialogConstants.CANCEL_LABEL, false);
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see com.raytheon.viz.ui.dialogs.CaveJFACEDialog#okPressed()
-     */
     @Override
     protected void okPressed() {
         String bName = this.comboName.getText();
-        if (this.optionStr.equals("Save")) {
+        if ("Save".equals(this.optionStr)) {
             if (!this.protectedNames.contains(bName)) {
                 performComboSave(bName);
             } else {
                 statusHandler.handle(Priority.SIGNIFICANT, "Combinations "
                         + bName + " is protected or an invalid name. ");
             }
-        } else if (this.optionStr.equals("Delete")) {
+        } else if ("Delete".equals(this.optionStr)) {
             if (!this.protectedNames.contains(bName)
                     && this.names.contains(bName)) {
                 performComboDelete(bName);

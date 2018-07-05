@@ -1,49 +1,57 @@
 #!/bin/sh
-
-# This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
-# This software product contains export-restricted data whose
-# export/transfer/disclosure is restricted by U.S. law. Dissemination
-# to non-U.S. persons whether in the United States or abroad requires
-# an export license or other authorization.
-# 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
-# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-# further licensing information.
+################################################################################
 #
+# Create GFE images using the EDEX GfeClient Service
 #
 # SOFTWARE HISTORY
-# Date         Ticket#    Engineer    Description
-# ------------ ---------- ----------- --------------------------
-# Feb 07, 2014  #2509     dgilling    Fix baseline merge issue.
 #
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 07, 2014  2509     dgilling  Fix baseline merge issue.
+# Feb 07, 2017  6092     randerso  Updated to use new GfeClient service
 #
+##
 
-
-# get path to cave
+# get path to script directory
 path_to_script=`readlink -f $0`
 RUN_FROM_DIR=`dirname $path_to_script`
 
-# cave directory
-CAVE_DIR=/awips2/cave
+source ${RUN_FROM_DIR}/setup.env
 
-# execute the runProcedure module
-_GFECLI="${RUN_FROM_DIR}/gfeclient.sh"
+# execute the PngWriter module
 _MODULE="${RUN_FROM_DIR}/src/ifpimage/PngWriter.py"
 
-# quoting of '$@' is used to prevent command line interpretation
-if [ ! -f $_GFECLI ] || [ ! -d $CAVE_DIR ]
+# Check to see if override set in setup.env to use old GfeClient
+if [ -z "${USE_OLD_GFECLIENT}" ]
 then
-  echo "CAVE and/or gfeclient not installed on this workstation ..exiting"
-  exit 1
-else
-  $_GFECLI $_MODULE "$@"
-fi
+    #
+    # run using GfeClient service
+    #
+    /awips2/python/bin/python ${RUN_FROM_DIR}/src/gfeClient/gfeClient.py $_MODULE "$@"
 
+    ##
+    # Automatically shutdown the GfeClientServer since PngWriter cannot be run
+    # more than once per session. Hopefully PngWriter can be improved in a future
+    # release so this is not necessary.
+    ## 
+    /awips2/python/bin/python ${RUN_FROM_DIR}/src/gfeClient/gfeClient.py ShutDown "$@"
+    
+else
+    #
+    # run using old GfeClient.sh
+    #
+
+    # cave directory
+    CAVE_DIR=/awips2/cave
+    
+    _GFECLI="${RUN_FROM_DIR}/gfeclient.sh"
+    
+    # quoting of '$@' is used to prevent command line interpretation
+    if [ ! -f $_GFECLI ] || [ ! -d $CAVE_DIR ]
+    then
+        echo "CAVE and/or gfeclient not installed on this workstation ..exiting"
+        exit 1
+    else
+        $_GFECLI $_MODULE "$@"
+    fi
+fi

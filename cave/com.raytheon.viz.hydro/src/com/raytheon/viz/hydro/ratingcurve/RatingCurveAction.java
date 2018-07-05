@@ -76,7 +76,7 @@ public class RatingCurveAction extends AbstractHandler {
 
                 ratingCurveDlg = new RatingCurveDlg(shell, lid,
                         displayString.toString(), false);
-                ratingCurveDlg.setCloseCallback(new ICloseCallback() {
+                ratingCurveDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {

@@ -85,11 +85,11 @@ import com.raytheon.uf.viz.stats.display.ScaleManager;
  * Jan 29, 2013    1523    mpduff      Fix for count units.
  * Mar 12, 2013    1760    mpduff      Fix for 3 hour graph x axis labels.
  * Sep 25, 2013    2406    lvenable    Fixed color memory leaks.
+ * Feb 24, 2017    6120    njensen     Dynamically size canvas based on font
  * 
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
 public class StatsDisplayCanvas extends Canvas {
@@ -146,36 +146,30 @@ public class StatsDisplayCanvas extends Canvas {
     /** Constant */
     private final String MINUTE_00 = "00";
 
-    private final int canvasWidth = 800;
+    private final int canvasWidth;
 
-    private final int canvasHeight = 575;
+    private final int canvasHeight;
 
-    private final int GRAPH_BORDER = 75;
+    private final int graphBorder;
 
-    private final int GRAPH_WIDTH = canvasWidth - GRAPH_BORDER * 2;
+    private final int graphWidth;
 
-    private final int GRAPH_HEIGHT = canvasHeight - GRAPH_BORDER * 2;
+    private final int graphHeight;
 
     /** Y Axis dimensions */
-    private final int[] yAxis = new int[] { GRAPH_BORDER, GRAPH_BORDER,
-            GRAPH_BORDER, GRAPH_HEIGHT + GRAPH_BORDER };
+    private final int[] yAxis;
 
     /** X Axis dimensions */
-    private final int[] xAxis = new int[] { GRAPH_BORDER,
-            GRAPH_HEIGHT + GRAPH_BORDER, GRAPH_WIDTH + GRAPH_BORDER,
-            GRAPH_HEIGHT + GRAPH_BORDER };
+    private final int[] xAxis;
 
     /** Top border dimensions */
-    private final int[] borderTop = new int[] { GRAPH_BORDER, GRAPH_BORDER,
-            GRAPH_BORDER + GRAPH_WIDTH, GRAPH_BORDER };
+    private final int[] borderTop;
 
     /** Right border dimensions */
-    private final int[] borderRight = new int[] { GRAPH_BORDER + GRAPH_WIDTH,
-            GRAPH_BORDER, GRAPH_BORDER + GRAPH_WIDTH,
-            GRAPH_BORDER + GRAPH_HEIGHT };
+    private final int[] borderRight;
 
     /** Canvas center */
-    private final int center = canvasWidth / 2;
+    private final int center;
 
     /** Canvas font */
     private Font canvasFont;
@@ -205,7 +199,7 @@ public class StatsDisplayCanvas extends Canvas {
     private final IStatsDisplay callback;
 
     /** Map of Rectangle objects */
-    private final Map<String, List<Rectangle>> rectangleMap = new HashMap<String, List<Rectangle>>();
+    private final Map<String, List<Rectangle>> rectangleMap = new HashMap<>();
 
     /** Tooltip shell */
     private Shell tooltip;
@@ -246,6 +240,31 @@ public class StatsDisplayCanvas extends Canvas {
         this.graphTitle = graphTitle;
         this.graphTitle2 = start + "Z - " + end + "Z";
 
+        canvasFont = new Font(parentComp.getDisplay(), "Monospace", 9,
+                SWT.NORMAL);
+
+        GC gc = new GC(this);
+        gc.setFont(canvasFont);
+        int width = gc.getFontMetrics().getAverageCharWidth();
+        int height = gc.getFontMetrics().getHeight();
+        gc.dispose();
+
+        canvasWidth = Math.max(800, width * 120);
+        canvasHeight = Math.max(575, height * 38);
+        graphBorder = Math.max(75, width * 14);
+        graphWidth = canvasWidth - graphBorder * 2;
+        graphHeight = canvasHeight - graphBorder * 2;
+
+        yAxis = new int[] { graphBorder, graphBorder, graphBorder,
+                graphHeight + graphBorder };
+        xAxis = new int[] { graphBorder, graphHeight + graphBorder,
+                graphWidth + graphBorder, graphHeight + graphBorder };
+        borderTop = new int[] { graphBorder, graphBorder,
+                graphBorder + graphWidth, graphBorder };
+        borderRight = new int[] { graphBorder + graphWidth, graphBorder,
+                graphBorder + graphWidth, graphBorder + graphHeight };
+        center = canvasWidth / 2;
+
         setupCanvas();
     }
 
@@ -257,8 +276,6 @@ public class StatsDisplayCanvas extends Canvas {
         RGB rgbColor = RGBColors.getRGBColor("gray85");
         backgroundColor = new Color(parentComp.getDisplay(), rgbColor);
 
-        canvasFont = new Font(parentComp.getDisplay(), "Monospace", 9,
-                SWT.NORMAL);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.heightHint = canvasHeight;
         gd.widthHint = canvasWidth;
@@ -308,7 +325,7 @@ public class StatsDisplayCanvas extends Canvas {
 
             gc.setFont(canvasFont);
 
-            fontHeight = (gc.getFontMetrics().getHeight());
+            fontHeight = gc.getFontMetrics().getHeight();
             fontAveWidth = gc.getFontMetrics().getAverageCharWidth();
         }
     }
@@ -326,8 +343,8 @@ public class StatsDisplayCanvas extends Canvas {
         gc.fillRectangle(0, 0, canvasWidth, canvasHeight + 2);
 
         gc.setBackground(backgroundColor);
-        Rectangle graphArea = new Rectangle(GRAPH_BORDER, GRAPH_BORDER,
-                GRAPH_WIDTH, GRAPH_HEIGHT);
+        Rectangle graphArea = new Rectangle(graphBorder, graphBorder,
+                graphWidth, graphHeight);
         gc.fillRectangle(graphArea);
         gc.setBackground(parentComp.getDisplay()
                 .getSystemColor(SWT.COLOR_WHITE));
@@ -343,11 +360,11 @@ public class StatsDisplayCanvas extends Canvas {
         int titleLength = graphTitle.length() * fontAveWidth;
         int title2Length = graphTitle2.length() * fontAveWidth;
         int titleX = center - titleLength / 2;
-        int titleY = GRAPH_BORDER / 2 - fontHeight;
+        int titleY = graphBorder / 2 - fontHeight;
         gc.drawText(graphTitle, titleX, titleY);
 
         titleX = center - title2Length / 2;
-        titleY = GRAPH_BORDER / 2 + 5;
+        titleY = graphBorder / 2 + 5;
         gc.drawText(graphTitle2, titleX, titleY);
 
         drawXAxis(gc);
@@ -369,10 +386,10 @@ public class StatsDisplayCanvas extends Canvas {
         gc.drawPolyline(xAxis);
 
         // List of locations for the date labels
-        List<Integer> dateLocationList = new ArrayList<Integer>();
-        dateLocationList.add(GRAPH_BORDER); // first one
+        List<Integer> dateLocationList = new ArrayList<>();
+        dateLocationList.add(graphBorder); // first one
 
-        List<Date> dateList = new ArrayList<Date>();
+        List<Date> dateList = new ArrayList<>();
 
         SimpleDateFormat sdf = axisFormat.get();
         TimeRange tr = callback.getGraphData().getTimeRange();
@@ -381,7 +398,7 @@ public class StatsDisplayCanvas extends Canvas {
         long milliRange = tr.getDuration();
         long numHours = milliRange / TimeUtil.MILLIS_PER_HOUR;
 
-        millisPerPixelX = milliRange / GRAPH_WIDTH;
+        millisPerPixelX = milliRange / graphWidth;
 
         boolean showLine = true;
         int height = 15;
@@ -392,12 +409,12 @@ public class StatsDisplayCanvas extends Canvas {
         for (long i = tr.getStart().getTime(); i <= tr.getEnd().getTime(); i += TimeUtil.MILLIS_PER_HOUR) {
             cal.setTimeInMillis(i);
             int[] tickArray = {
-                    Math.round(GRAPH_BORDER + (i - startMillis)
+                    Math.round(graphBorder + (i - startMillis)
                             / millisPerPixelX),
-                    GRAPH_BORDER + GRAPH_HEIGHT,
-                    Math.round(GRAPH_BORDER + (i - startMillis)
+                    graphBorder + graphHeight,
+                    Math.round(graphBorder + (i - startMillis)
                             / millisPerPixelX),
-                    GRAPH_BORDER + GRAPH_HEIGHT + height };
+                    graphBorder + graphHeight + height };
             if (cal.get(Calendar.HOUR_OF_DAY) == 0
                     && cal.get(Calendar.MINUTE) == 0) {
                 gc.setLineWidth(3);
@@ -423,11 +440,11 @@ public class StatsDisplayCanvas extends Canvas {
 
                     if (draw) {
                         int[] gridLine = new int[] {
-                                Math.round(GRAPH_BORDER + (i - startMillis)
+                                Math.round(graphBorder + (i - startMillis)
                                         / millisPerPixelX),
-                                GRAPH_BORDER + GRAPH_HEIGHT,
-                                Math.round(GRAPH_BORDER + (i - startMillis)
-                                        / millisPerPixelX), GRAPH_BORDER };
+                                graphBorder + graphHeight,
+                                Math.round(graphBorder + (i - startMillis)
+                                        / millisPerPixelX), graphBorder };
                         gc.drawPolyline(gridLine);
                     }
                 }
@@ -435,14 +452,14 @@ public class StatsDisplayCanvas extends Canvas {
 
             // Save the Zero hour for later
             if (hour == 0) {
-                dateLocationList.add(Math.round(GRAPH_BORDER
+                dateLocationList.add(Math.round(graphBorder
                         + (i - startMillis) / millisPerPixelX));
                 if (!dateList.contains(cal.getTime())) {
                     dateList.add(cal.getTime());
                 }
             }
             buffer.setLength(0); // Clear the buffer
-            int y = GRAPH_BORDER + GRAPH_HEIGHT + 20;
+            int y = graphBorder + graphHeight + 20;
             int hr = cal.get(Calendar.HOUR_OF_DAY);
             int minute = cal.get(Calendar.MINUTE);
 
@@ -452,7 +469,7 @@ public class StatsDisplayCanvas extends Canvas {
                     for (int j = 0; j < TimeUtil.MINUTES_PER_HOUR; j += 15) {
 
                         buffer.setLength(0);
-                        int x = Math.round(GRAPH_BORDER
+                        int x = Math.round(graphBorder
                                 + (i - startMillis + j
                                         * TimeUtil.MILLIS_PER_MINUTE)
                                 / millisPerPixelX);
@@ -473,14 +490,14 @@ public class StatsDisplayCanvas extends Canvas {
 
                             if (callback.drawGridLines()) {
                                 int[] gridLineArray = {
-                                        Math.round(GRAPH_BORDER
+                                        Math.round(graphBorder
                                                 + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
                                                         * j) / millisPerPixelX),
-                                        GRAPH_BORDER + GRAPH_HEIGHT,
-                                        Math.round(GRAPH_BORDER
+                                        graphBorder + graphHeight,
+                                        Math.round(graphBorder
                                                 + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
                                                         * j) / millisPerPixelX),
-                                        GRAPH_BORDER };
+                                        graphBorder };
                                 if (hr == 0 && minute == 0) {
                                     gc.setLineWidth(3);
                                 }
@@ -502,18 +519,18 @@ public class StatsDisplayCanvas extends Canvas {
 
                         // Minor tick marks
                         int[] minorTickArray = {
-                                Math.round(GRAPH_BORDER
+                                Math.round(graphBorder
                                         + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
                                                 * j) / millisPerPixelX),
-                                GRAPH_BORDER + GRAPH_HEIGHT,
-                                Math.round(GRAPH_BORDER
+                                graphBorder + graphHeight,
+                                Math.round(graphBorder
                                         + (i - startMillis + TimeUtil.MILLIS_PER_MINUTE
                                                 * j) / millisPerPixelX),
-                                GRAPH_BORDER + GRAPH_HEIGHT + height - 5 };
+                                graphBorder + graphHeight + height - 5 };
                         gc.drawPolyline(minorTickArray);
                     }
                 } else {
-                    int x = Math.round(GRAPH_BORDER + (i - startMillis)
+                    int x = Math.round(graphBorder + (i - startMillis)
                             / millisPerPixelX);
                     String hrStr = (hr < 10) ? ZERO.concat(String.valueOf(hr))
                             : String.valueOf(hr);
@@ -526,11 +543,11 @@ public class StatsDisplayCanvas extends Canvas {
                                 || (numHours == TimeUtil.HOURS_PER_WEEK && hr == 0)) {
 
                             int[] gridLineArray = {
-                                    Math.round(GRAPH_BORDER + (i - startMillis)
+                                    Math.round(graphBorder + (i - startMillis)
                                             / millisPerPixelX),
-                                    GRAPH_BORDER + GRAPH_HEIGHT,
-                                    Math.round(GRAPH_BORDER + (i - startMillis)
-                                            / millisPerPixelX), GRAPH_BORDER };
+                                    graphBorder + graphHeight,
+                                    Math.round(graphBorder + (i - startMillis)
+                                            / millisPerPixelX), graphBorder };
                             gc.setLineWidth(1);
                             gc.drawPolyline(gridLineArray);
                             gc.setLineWidth(3);
@@ -538,7 +555,7 @@ public class StatsDisplayCanvas extends Canvas {
                     }
                 }
             } else if (numHours == 336 && hour == 0) {
-                int x = Math.round(GRAPH_BORDER + (i - startMillis)
+                int x = Math.round(graphBorder + (i - startMillis)
                         / millisPerPixelX);
                 buffer.append(cal.get(Calendar.MONTH) + 1);
                 buffer.append("/");
@@ -550,11 +567,11 @@ public class StatsDisplayCanvas extends Canvas {
                     // show every other line
                     if (showLine) {
                         int[] gridLineArray = {
-                                Math.round(GRAPH_BORDER + (i - startMillis)
+                                Math.round(graphBorder + (i - startMillis)
                                         / millisPerPixelX),
-                                GRAPH_BORDER + GRAPH_HEIGHT,
-                                Math.round(GRAPH_BORDER + (i - startMillis)
-                                        / millisPerPixelX), GRAPH_BORDER };
+                                graphBorder + graphHeight,
+                                Math.round(graphBorder + (i - startMillis)
+                                        / millisPerPixelX), graphBorder };
                         gc.setLineWidth(1);
                         gc.drawPolyline(gridLineArray);
                         gc.setLineWidth(3);
@@ -564,7 +581,7 @@ public class StatsDisplayCanvas extends Canvas {
 
             } else if (numHours == 720) {
                 if (cal.get(Calendar.DAY_OF_MONTH) % 2 == 0 && hour == 0) {
-                    int x = Math.round(GRAPH_BORDER + (i - startMillis)
+                    int x = Math.round(graphBorder + (i - startMillis)
                             / millisPerPixelX);
                     buffer.append(cal.get(Calendar.MONTH) + 1);
                     buffer.append("/");
@@ -574,11 +591,11 @@ public class StatsDisplayCanvas extends Canvas {
                     if (callback.drawGridLines()) {
                         if (showLine) {
                             int[] gridLineArray = {
-                                    Math.round(GRAPH_BORDER + (i - startMillis)
+                                    Math.round(graphBorder + (i - startMillis)
                                             / millisPerPixelX),
-                                    GRAPH_BORDER + GRAPH_HEIGHT,
-                                    Math.round(GRAPH_BORDER + (i - startMillis)
-                                            / millisPerPixelX), GRAPH_BORDER };
+                                    graphBorder + graphHeight,
+                                    Math.round(graphBorder + (i - startMillis)
+                                            / millisPerPixelX), graphBorder };
                             gc.setLineWidth(1);
                             gc.drawPolyline(gridLineArray);
                             gc.setLineWidth(3);
@@ -589,7 +606,7 @@ public class StatsDisplayCanvas extends Canvas {
             }
         }
 
-        dateLocationList.add(GRAPH_BORDER + GRAPH_WIDTH); // last one
+        dateLocationList.add(graphBorder + graphWidth); // last one
 
         int idx = 0;
         if (dateLocationList.get(0) == dateLocationList.get(1)) {
@@ -606,8 +623,8 @@ public class StatsDisplayCanvas extends Canvas {
                 if (loc2 - loc1 > dateStr.length() * fontAveWidth) {
                     int loc = ((loc2 + loc1) / 2)
                             - (((dateStr.length() * fontAveWidth) / 2) + 1);
-                    if (loc < GRAPH_BORDER + GRAPH_WIDTH) {
-                        gc.drawText(dateStr, loc, GRAPH_BORDER + GRAPH_HEIGHT
+                    if (loc < graphBorder + graphWidth) {
+                        gc.drawText(dateStr, loc, graphBorder + graphHeight
                                 + 40);
                     }
                 }
@@ -655,19 +672,19 @@ public class StatsDisplayCanvas extends Canvas {
         // Draw the axis tick marks
         for (int i = 0; i < numberTicks; i++) {
             int yPix = y2pixel(minScaleVal, maxScaleVal, yVal);
-            int[] tick = { GRAPH_BORDER, yPix, GRAPH_BORDER - 10, yPix };
+            int[] tick = { graphBorder, yPix, graphBorder - 10, yPix };
             gc.drawPolyline(tick);
 
             String label = format.format(yVal);
-            int labelX = GRAPH_BORDER - (label.length() * fontAveWidth) - 20;
+            int labelX = graphBorder - (label.length() * fontAveWidth) - 20;
             int labelY = yPix - (fontHeight / 2);
             gc.drawText(label, labelX, labelY);
             yVal += inc;
 
             // Draw gridline if needed
             if (callback.drawGridLines()) {
-                int[] gridLine = new int[] { GRAPH_BORDER, yPix,
-                        GRAPH_BORDER + GRAPH_WIDTH, yPix };
+                int[] gridLine = new int[] { graphBorder, yPix,
+                        graphBorder + graphWidth, yPix };
                 gc.drawPolyline(gridLine);
             }
         }
@@ -733,7 +750,7 @@ public class StatsDisplayCanvas extends Canvas {
                 gc.setBackground(color);
                 if (groupSettings.containsKey(key)) {
 
-                    List<Integer> pointList = new ArrayList<Integer>();
+                    List<Integer> pointList = new ArrayList<>();
                     if (!rectangleMap.containsKey(key)) {
                         rectangleMap.put(key, new ArrayList<Rectangle>());
                     }
@@ -761,13 +778,13 @@ public class StatsDisplayCanvas extends Canvas {
 
                             long diff = x - startMillis;
                             if (diff == 0) {
-                                xPix = GRAPH_BORDER;
+                                xPix = graphBorder;
                             } else {
                                 xPix = Math
-                                        .round((diff / millisPerPixelX + GRAPH_BORDER));
+                                        .round((diff / millisPerPixelX + graphBorder));
                             }
 
-                            if (xPix > GRAPH_BORDER + GRAPH_WIDTH) {
+                            if (xPix > graphBorder + graphWidth) {
                                 continue;
                             }
 
@@ -816,8 +833,8 @@ public class StatsDisplayCanvas extends Canvas {
      */
     private int y2pixel(double yMin, double yMax, double y) {
         double yDiff = yMax - yMin;
-        double yValue = (GRAPH_HEIGHT / yDiff) * (y - yMin);
-        return Math.round(GRAPH_HEIGHT - Math.round(yValue) + GRAPH_BORDER);
+        double yValue = (graphHeight / yDiff) * (y - yMin);
+        return Math.round(graphHeight - Math.round(yValue) + graphBorder);
     }
 
     /**
@@ -900,7 +917,7 @@ public class StatsDisplayCanvas extends Canvas {
 
             int x = e.x;
             int y = e.y;
-            List<String> keyList = new ArrayList<String>();
+            List<String> keyList = new ArrayList<>();
             for (String key : graphData.getKeys()) {
                 if (rectangleMap.containsKey(key)) {
                     for (Rectangle rect : rectangleMap.get(key)) {
@@ -927,8 +944,8 @@ public class StatsDisplayCanvas extends Canvas {
         }
 
         // Remove any duplicate entries
-        Set<String> set = new HashSet<String>(inputList);
-        final List<String> keyList = new ArrayList<String>(set);
+        Set<String> set = new HashSet<>(inputList);
+        final List<String> keyList = new ArrayList<>(set);
         Collections.sort(keyList);
 
         Menu menu = new Menu(this.getShell(), SWT.POP_UP);

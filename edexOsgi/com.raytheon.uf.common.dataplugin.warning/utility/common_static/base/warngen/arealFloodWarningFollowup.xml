@@ -1,26 +1,32 @@
-<!-- Areal Flood Warning Follow-up Statement configuration -->
-<!-- Created by Mike Dangelo 09-19-2011 at Alaska TIM   
-     Edited by Mike Dangelo 01-25-2012 at CRH TIM
-     Edited by Evan Bookbinder 2-24-2012   
-     Edited by Phil Kurimski   2-28-2012  
-               Qinglu Lin      04-04-2012 DR 14691. Added <feAreaField> tag.
-               Evan Bookbinder 09-11-2012 Added settings for locations shapefile
-               Phil Kurimski   02-05-2013
-               Mike Dangelo    09-16-2013 changed name bullets to 'specific' stream, slight urbanCTA modification
-               Mike Dangelo    09-18-2013 added initial position and pathcasting options
-               Phil Kurimski   09-19-2013 added geospatialConfig.xml
-               Mike Rega       01-18-2014 added Alaska GP changes for 14.2.1
-               Mike Dangelo 1/23/2014 added IC group to bottom of CON bullets (it's locked anyway, no need to have it at the top) 
-               Phil Kurimski   06-24-2014 Put types of warnings and IC back at the top (forecasters rely on this when choosing a con statement
-                                          to determine what warning they are following up!)
-               Evan Bookbinder 10-24-2014 Fixed parseString for EXT for generic flooding
-               Evan Bookbinder 10-31-2014 Changed "FLOOD WARNING FOR" to "FLOOD WARNING" for all parse and show strings where the flood type
-                                           is "Generic"
-               Mike Dangelo    10-20-2015 Standard CTAs
-               Phil/Dave       10-20-2015  Added Canned statement for CAN
-               Evan Bookbinder 12-07-2016 Fixed inconsistencies with law enforcement and EM source text DR18713
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
 -->
-                 
+<!-- Areal Flood Warning Follow-up Statement configuration -->
+<!-- Created by Mike Dangelo 09-19-2011 at Alaska TIM
+     Modified by
+     Mike Dangelo 01-25-2012 at CRH TIM
+     Evan Bookbinder 2-24-2012
+     Phil Kurimski   2-28-2012
+     Qinglu Lin      04-04-2012 DR 14691. Added <feAreaField> tag.
+     Evan Bookbinder 09-11-2012 Added settings for locations shapefile
+     Phil Kurimski   02-05-2013
+     Mike Dangelo    09-16-2013 changed name bullets to 'specific' stream, slight urbanCTA modification
+     Mike Dangelo    09-18-2013 added initial position and pathcasting options
+     Phil Kurimski   09-19-2013 added geospatialConfig.xml
+     Mike Rega       01-18-2014 added Alaska GP changes for 14.2.1
+     Mike Dangelo    01-23-2014 added IC group to bottom of CON bullets (it's locked anyway, no need to have it at the top)
+     Phil Kurimski   06-24-2014 Put types of warnings and IC back at the top (forecasters rely on this when choosing a con statement
+                                to determine what warning they are following up!)
+     Evan Bookbinder 10-24-2014 Fixed parseString for EXT for generic flooding
+     Evan Bookbinder 10-31-2014 Changed "FLOOD WARNING FOR" to "FLOOD WARNING" for all
+                                parse and show strings where the flood type is "Generic"
+     Mike Dangelo    10-20-2015 Standard CTAs
+     Phil K./Dave T. 10-20-2015  Added Canned statement for CAN
+     Evan Bookbinder 12-07-2016 Fixed inconsistencies with law enforcement and EM source text DR18713
+-->
+
 <warngenConfig>
 
 <!-- INCLUDE ALL GEOSPTATIAL INFORMATION FOR THIS PRODUCT
@@ -200,7 +206,6 @@ Must be paired with proper vm code (which are commented out in arealFloodWarning
   <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
 <!-- <bullet bulletName="pathcast" bulletText="* Use storm track for pathcast (for thunderstorms) *" bulletGroup="pcast" parseString="OVER THE FOLLOWING LOCATIONS..."/> -->  
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>
@@ -262,7 +267,6 @@ Must be paired with proper vm code (which are commented out in arealFloodWarning
   <bullet bulletName="rainEdit" bulletText="User defined amount" bulletGroup="rainAmt" parseString="INCHES OF RAIN HAVE FALLEN"/>
   <bullet bulletText="*********** ADDITIONAL INFO ***********" bulletType="title"/>
   <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="&quot;LOCATIONS&quot;,&quot;INCLUDE...&quot;"/>
-  <bullet bulletName="listofcities" bulletText="Select for a list of cities" bulletGroup="pcast" parseString="WILL REMAIN OVER" showString="WILL REMAIN OVER"/>
 <!-- <bullet bulletName="pathcast" bulletText="* Use storm track for pathcast (for thunderstorms) *" bulletGroup="pcast" parseString="OVER THE FOLLOWING LOCATIONS..."/> -->  
   <bullet bulletName="drainages" bulletText="Automated list of drainages" parseString="THIS INCLUDES THE FOLLOWING STREAMS AND DRAINAGES" loadMap="River Drainage Basins"/>
   <bullet bulletName="addRainfall" bulletText="Additional rainfall of XX inches expected" parseString="ADDITIONAL RAINFALL"/>

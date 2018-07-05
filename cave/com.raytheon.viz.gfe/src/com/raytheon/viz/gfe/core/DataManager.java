@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -78,42 +78,49 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeProhibitedOpException;
 /**
  * DataManager is the central singleton in GFE upon which other managers are
  * attached.
- * 
+ *
  * DataManager has very little of its own functionality, it provides a
  * correlation between the various other managers in the system.
- * 
+ *
  * In the current implementation, one DataManager is associated to each eclipse
  * workbench window.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 03/12/2008              chammack    Initial Creation.
- * 02/15/2013    1507      dgilling    Force procedureInterface and
- *                                     smartToolInterface to be 
- *                                     initialized by constructor.
- * 04/24/2013    1936      dgilling    Move initialization of TextProductMgr
- *                                     to GFE startup.
- * 08/27/2013    2302      randerso    Code cleanup for AutoSaveJob
- * 09/05/2013    2307      dgilling    Use better PythonScript constructor.
- * 09/16/2013    2033      dgilling    Remove unused IToolController.
- * 12/09/2013    2367      dgilling    Instantiate ProcedureJobPool here.
- * 05/22/2014    3110      randerso    Attach router to edex.alerts.gfe earlier
- * 09/09/2014    3592      randerso    Added call to SampleSetManager.dispose()
- * 10/30/2014    3775      randerso    Added parmCacheInit to initStatus
- * 04/20/2015    4027      randerso    Let TextProductManager know we are not running in a GUI
- * 07/23/2015    4263      dgilling    Refactor to support initialization of script 
- *                                     controllers off main thread.
- * Aug 13, 2015  4749      njensen     Improved dispose(), parmEvictor can cancel                                    
- * 08/14/2015    4750      dgilling    Remove use of PythonScript in doIscRequestQuery.
- * 08/20/2015    4749      dgilling    Ensure TextProductManager is disposed on dispose.
- * 09/15/2015    4858      dgilling    Disable ISC when DRT mode is enabled.
- * 11/18/2015    5129      dgilling    Support new IFPClient.
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 12, 2008           chammack  Initial Creation.
+ * Feb 15, 2013  1507     dgilling  Force procedureInterface and
+ *                                  smartToolInterface to be initialized by
+ *                                  constructor.
+ * Apr 24, 2013  1936     dgilling  Move initialization of TextProductMgr to GFE
+ *                                  startup.
+ * Aug 27, 2013  2302     randerso  Code cleanup for AutoSaveJob
+ * Sep 05, 2013  2307     dgilling  Use better PythonScript constructor.
+ * Sep 16, 2013  2033     dgilling  Remove unused IToolController.
+ * Dec 09, 2013  2367     dgilling  Instantiate ProcedureJobPool here.
+ * May 22, 2014  3110     randerso  Attach router to edex.alerts.gfe earlier
+ * Sep 09, 2014  3592     randerso  Added call to SampleSetManager.dispose()
+ * Oct 30, 2014  3775     randerso  Added parmCacheInit to initStatus
+ * Apr 20, 2015  4027     randerso  Let TextProductManager know we are not
+ *                                  running in a GUI
+ * Jul 23, 2015  4263     dgilling  Refactor to support initialization of script
+ *                                  controllers off main thread.
+ * Aug 13, 2015  4749     njensen   Improved dispose(), parmEvictor can cancel
+ * Aug 14, 2015  4750     dgilling  Remove use of PythonScript in
+ *                                  doIscRequestQuery.
+ * Aug 20, 2015  4749     dgilling  Ensure TextProductManager is disposed on
+ *                                  dispose.
+ * Sep 15, 2015  4858     dgilling  Disable ISC when DRT mode is enabled.
+ * Nov 18, 2015  5129     dgilling  Support new IFPClient.
+ * Mar 16, 2017  6092     randerso  Dispose spatialDisplayManager when disposed
+ * Apr 21, 2017  6239     randerso  Code cleanup
+ * Jan 08, 2018  19900    ryu       Fix CAVE crash when starting GFE for non-activated site.
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 
 public class DataManager implements ISimulatedTimeChangeListener {
@@ -182,7 +189,9 @@ public class DataManager implements ISimulatedTimeChangeListener {
     /** interval that the parm evictor runs-- every 15 seconds */
     private static final int PARM_EVICTOR_SCHEDULE = 15;
 
-    /** Threshold of how long a parm can be unused before evicted -- 30 seconds */
+    /**
+     * Threshold of how long a parm can be unused before evicted -- 30 seconds
+     */
     private static final int PARM_EVICTOR_THRESHOLD = 30;
 
     private String siteId;
@@ -219,6 +228,11 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     private final ParmEvictor parmEvictorJob;
 
+    /**
+     * ISCDataAccess
+     *
+     * @return ISCDataAccess
+     */
     public IISCDataAccess getIscDataAccess() {
         return iscDataAccess;
     }
@@ -226,7 +240,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
     /**
      * Constructs a DataManager, passes in factory for creation of
      * {@link ISpatialDisplayManager} for this instance.
-     * 
+     *
      * @param factory
      * @param discriminator
      *            used as key for this instance of DataManager in the factory's
@@ -237,8 +251,8 @@ public class DataManager implements ISimulatedTimeChangeListener {
             throws GFEServerException {
         this.spatialDisplayManager = factory.createSpatialDisplayManager(this,
                 discriminator);
-        this.client = new IFPClient(VizApp.getWsId(), LocalizationManager
-                .getInstance().getSite());
+        this.client = new IFPClient(VizApp.getWsId(),
+                LocalizationManager.getInstance().getSite());
         this.router = new NotificationRouter(this.getSiteID());
         NotificationManagerJob.addObserver("edex.alerts.gfe", this.router);
 
@@ -269,15 +283,18 @@ public class DataManager implements ISimulatedTimeChangeListener {
         // get office type information, convert to Dictionary
         ServerResponse<Map<String, String>> sr = client
                 .getKnownSitesWithOfficeType();
-        this.officeTypeDict = Collections.unmodifiableMap(sr.getPayload());
-        this.allSites = Collections.unmodifiableList(new ArrayList<>(
-                this.officeTypeDict.keySet()));
+        if (sr.getPayload() != null) {
+            this.officeTypeDict = Collections.unmodifiableMap(sr.getPayload());
+        } else {
+            this.officeTypeDict = Collections.unmodifiableMap(Collections.emptyMap());
+        }
+        this.allSites = Collections.unmodifiableList(
+                new ArrayList<>(this.officeTypeDict.keySet()));
         this.officeType = officeTypeDict.get(this.siteId);
 
         // determine all known office types
         this.knownOfficeTypes = Collections
-                .unmodifiableSet(new HashSet<String>(this.officeTypeDict
-                        .values()));
+                .unmodifiableSet(new HashSet<>(this.officeTypeDict.values()));
 
         ISCInitJob iscInitJob = new ISCInitJob(this);
         iscInitJob.setSystem(true);
@@ -286,15 +303,18 @@ public class DataManager implements ISimulatedTimeChangeListener {
         // get the ISC states
         ServerResponse<IscSendStatus> sr2 = client.iscSendStatus();
         IscSendStatus iscSendStatus = sr2.getPayload();
-        this.sendISConSave = iscSendStatus.isSendISConSave();
-        this.sendISConPublish = iscSendStatus.isSendISConPublish();
-        this.requestISC = iscSendStatus.isRequestISC();
+        if (iscSendStatus != null) {
+            this.sendISConSave = iscSendStatus.isSendISConSave();
+            this.sendISConPublish = iscSendStatus.isSendISConPublish();
+            this.requestISC = iscSendStatus.isRequestISC();
+        }
 
         // set the ISC send state, which initially sends the message
-        new ISCSendStatusChangedMsg(false).send(); // initial state
-        if (CAVEMode.getMode().equals(CAVEMode.OPERATIONAL)
-                && ((SimulatedTime.getSystemTime().isRealTime()))
-                || (SimulatedTimeOperations.isTransmitAllowedinSimulatedTime())) {
+        new ISCSendStatusChangedMsg(false).send();
+        if ((CAVEMode.OPERATIONAL.equals(CAVEMode.getMode())
+                && ((SimulatedTime.getSystemTime().isRealTime())))
+                || (SimulatedTimeOperations
+                        .isTransmitAllowedinSimulatedTime())) {
             try {
                 enableISCsend(true);
             } catch (SimulatedTimeProhibitedOpException e) {
@@ -329,6 +349,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
      * {@link DataManagerFactory#dispose(Object)}
      */
     void dispose() {
+        spatialDisplayManager.dispose();
         sampleSetManager.dispose();
         selectTimeRangeManager.dispose();
         refManager.dispose();
@@ -374,8 +395,8 @@ public class DataManager implements ISimulatedTimeChangeListener {
         parmEvictorJob.cancel();
 
         if (CAVEMode.getMode() == CAVEMode.OPERATIONAL) {
-            SimulatedTime.getSystemTime().removeSimulatedTimeChangeListener(
-                    this);
+            SimulatedTime.getSystemTime()
+                    .removeSimulatedTimeChangeListener(this);
         }
 
         NotificationManagerJob.removeObserver("edex.alerts.gfe", router);
@@ -383,7 +404,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Return the workstation ID
-     * 
+     *
      * @return the workstation ID
      */
     public WsId getWsId() {
@@ -392,7 +413,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Return the parm manager
-     * 
+     *
      * @return the parm manager
      */
     public IParmManager getParmManager() {
@@ -401,7 +422,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Return the reference set manager
-     * 
+     *
      * @return the reference set manager
      */
     public IReferenceSetManager getRefManager() {
@@ -410,7 +431,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Return the spatial display manager
-     * 
+     *
      * @return the spatial display manager
      */
     public ISpatialDisplayManager getSpatialDisplayManager() {
@@ -426,7 +447,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Return the grid cycler (used for smart tools support)
-     * 
+     *
      * @return the grid cycler
      */
     public GridCycler getGridCycler() {
@@ -435,7 +456,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Return the site id
-     * 
+     *
      * @return the site id
      */
     public synchronized String getSiteID() {
@@ -448,7 +469,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Return the Client
-     * 
+     *
      * @return the Client
      */
     public IFPClient getClient() {
@@ -457,7 +478,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Return the ParmOp
-     * 
+     *
      * @return the ParmOp
      */
     public ParmOp getParmOp() {
@@ -471,13 +492,16 @@ public class DataManager implements ISimulatedTimeChangeListener {
         return this.sampleSetManager;
     }
 
+    /**
+     * @return the topo manager
+     */
     public ITopoManager getTopoManager() {
         return this.topoManager;
     }
 
     /**
      * Return the weather element group manager
-     * 
+     *
      * @return the weather element group manager
      */
     public IWEGroupManager getWEGroupManager() {
@@ -486,7 +510,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Return the notification router
-     * 
+     *
      * @return the notification router
      */
     public NotificationRouter getNotificationRouter() {
@@ -496,7 +520,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
     /**
      * Obtains and returns the current server inventory for the specified
      * weather element identifier.
-     * 
+     *
      * @param parmID
      *            Weather element to retrieve inventory for.
      * @return inventory for the parm. In the case of failure, an empty list
@@ -516,7 +540,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Get the system's operating mode
-     * 
+     *
      * @return the operating mode
      */
     public CAVEMode getOpMode() {
@@ -526,7 +550,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
     /**
      * ParmEvictor runs periodically to evict parms that have not been recently
      * used from memory
-     * 
+     *
      * @author chammack
      * @version 1.0
      */
@@ -557,10 +581,18 @@ public class DataManager implements ISimulatedTimeChangeListener {
         }
     }
 
+    /**
+     * @return the GridManager
+     */
     public IGridManager getGridManager() {
         return gridManager;
     }
 
+    /**
+     * Set the GridManager
+     *
+     * @param gridManager
+     */
     public void setGridManager(IGridManager gridManager) {
         this.gridManager = gridManager;
     }
@@ -600,8 +632,8 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     private void waitForScriptControllers() {
         long waitTime = 0;
-        while (!(smartToolsInitialized.get() && proceduresInitialized.get() && textProductsInitialized
-                .get())) {
+        while (!(smartToolsInitialized.get() && proceduresInitialized.get()
+                && textProductsInitialized.get())) {
             try {
                 waitTime += 10;
                 Thread.sleep(10);
@@ -614,10 +646,16 @@ public class DataManager implements ISimulatedTimeChangeListener {
                 + "ms for script controller initialization...");
     }
 
+    /**
+     * @return the SmartToolInterface
+     */
     public SmartToolMetadataManager getSmartToolInterface() {
         return smartToolInterface;
     }
 
+    /**
+     * @return the ProcedureInterface
+     */
     public ProcedureMetadataManager getProcedureInterface() {
         return procedureInterface;
     }
@@ -625,21 +663,28 @@ public class DataManager implements ISimulatedTimeChangeListener {
     /**
      * Returns the current vtecActiveTable, based upon the current
      * {@code CAVEMode}.
-     * 
+     *
      * @return The current active table.
      */
     public List<ActiveTableRecord> getActiveTable() {
-        ActiveTableMode tableName = (CAVEMode.getMode() == CAVEMode.PRACTICE) ? ActiveTableMode.PRACTICE
-                : ActiveTableMode.OPERATIONAL;
+        ActiveTableMode tableName = (CAVEMode.getMode() == CAVEMode.PRACTICE)
+                ? ActiveTableMode.PRACTICE : ActiveTableMode.OPERATIONAL;
         ServerResponse<List<ActiveTableRecord>> sr = getClient()
                 .getVTECActiveTable(tableName);
         if (!sr.isOkay()) {
-            statusHandler.error("Unable to obtain vtecActiveTable: "
-                    + sr.message());
+            statusHandler
+                    .error("Unable to obtain vtecActiveTable: " + sr.message());
         }
         return sr.getPayload();
     }
 
+    /**
+     * Queries the ISC routing table for the known ISC sites. Returns data about
+     * the servers (mhsid, server, port, protocol, welist, and other
+     * information).
+     *
+     * @return the IscQueryResponse
+     */
     public IscQueryResponse doIscRequestQuery() {
         ServerResponse<IscQueryResponse> sr = client.iscRequestQuery();
         if (!sr.isOkay()) {
@@ -656,10 +701,15 @@ public class DataManager implements ISimulatedTimeChangeListener {
             parmsWanted.add(parm.replace("_SFC", StringUtils.EMPTY));
         }
 
-        return new IscQueryResponse(sr.getPayload().getDomainDict(), sr
-                .getPayload().getServerDictT2S(), parmsWanted);
+        return new IscQueryResponse(sr.getPayload().getDomainDict(),
+                sr.getPayload().getServerDictT2S(), parmsWanted);
     }
 
+    /**
+     * Make an ISC request
+     *
+     * @param xmlRequest
+     */
     public void makeISCRequest(String xmlRequest) {
         ServerResponse<?> sr = client.iscRequestMake(xmlRequest);
         if (!sr.isOkay()) {
@@ -668,29 +718,49 @@ public class DataManager implements ISimulatedTimeChangeListener {
         }
     }
 
+    /**
+     * Return the officeType (e.g. wfo, nc, rfc) for a particular site
+     *
+     * @param site
+     * @return the office type
+     */
     public String officeType(String site) {
         return this.officeTypeDict.get(site);
     }
 
+    /**
+     * @return the list of known office types
+     */
     public List<String> knownOfficeTypes() {
-        return new ArrayList<String>(this.knownOfficeTypes);
+        return new ArrayList<>(this.knownOfficeTypes);
     }
 
+    /**
+     * @return the list of known sites
+     */
     public List<String> knownSites() {
         return this.allSites;
     }
 
+    /**
+     * @return the office type for this site
+     */
     public String getOfficeType() {
         return officeType;
     }
 
+    /**
+     * Set the office type for this site
+     *
+     * @param officeType
+     */
     public void setOfficeType(String officeType) {
         this.officeType = officeType;
     }
 
     /**
      * Returns the current client isc send status from the ifpServer.
-     * 
+     *
      * @return client isc send status
      */
     public boolean clientISCSendStatus() {
@@ -699,7 +769,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Returns the SendISConSave configuration item.
-     * 
+     *
      * @return SendISConSave configuration item
      */
     public boolean sendIscOnSave() {
@@ -708,7 +778,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Returns the SendISConPublish configuration item.
-     * 
+     *
      * @return SendISConPublish configuration item
      */
     public boolean sendIscOnPublish() {
@@ -717,7 +787,7 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Returns the requestISC configuration item.
-     * 
+     *
      * @return requestISC configuration item
      */
     public boolean requestISC() {
@@ -726,9 +796,9 @@ public class DataManager implements ISimulatedTimeChangeListener {
 
     /**
      * Sets the overall isc send capability for this user.
-     * 
+     *
      * @param state
-     * @throws SimulatedTimeProhibitedOperationException
+     * @throws SimulatedTimeProhibitedOpException
      */
     public void enableISCsend(boolean state)
             throws SimulatedTimeProhibitedOpException {
@@ -738,47 +808,60 @@ public class DataManager implements ISimulatedTimeChangeListener {
         }
 
         if (state == iscSendState) {
-            return; // do nothing
+            // do nothing
+            return;
         }
 
-        if (!CAVEMode.getMode().equals(CAVEMode.OPERATIONAL) || !requestISC()) {
-            state = false; // always disable if not operational or requestISC
-            // off
+        if (!CAVEMode.OPERATIONAL.equals(CAVEMode.getMode()) || !requestISC()) {
+            /*
+             * always disable if not operational or requestISC off
+             */
+            state = false;
 
         }
 
-        iscSendState = state; // as desired
+        // as desired
+        iscSendState = state;
 
         // send out a message to interested parties (both for success and fail)
         new ISCSendStatusChangedMsg(state).send();
     }
 
+    /**
+     * @return the EditActionProcessor
+     */
     public EditActionProcessor getEditActionProcessor() {
         return this.editActionProcessor;
     }
 
+    /**
+     * @return the DataMgrInitStatus
+     */
     public DataMgrInitStatus getInitStatus() {
         return initStatus;
     }
 
+    /**
+     * @return the TextProductManager
+     */
     public TextProductManager getTextProductMgr() {
         return textProductMgr;
     }
 
+    /**
+     * @return the ProcedureJobPool
+     */
     public ProcedureJobPool getProcedureJobPool() {
         return procJobPool;
     }
 
+    /**
+     * @return the SmartToolJobPool
+     */
     public SmartToolJobPool getSmartToolJobPool() {
         return toolJobPool;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.time.ISimulatedTimeChangeListener#timechanged()
-     */
     @Override
     public void timechanged() {
         boolean tryToEnable = SimulatedTimeOperations.isTransmitAllowed();
@@ -799,7 +882,8 @@ public class DataManager implements ISimulatedTimeChangeListener {
              */
             statusHandler.handle(Priority.WARN,
                     "ISC send status got into an invalid state trying to change state to "
-                            + newState, e);
+                            + newState,
+                    e);
         }
     }
 }

@@ -39,6 +39,11 @@
 #    "editArea:" [],
 #
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 CityDictionary = {
     "area1" : [("city1", "City 1"), ("city2", "City 2")],
     "area2" : [("city3", "City 3")],

@@ -481,22 +481,18 @@ hazards = """
             ('LE.W', allActions, 'WinterWx'),     # Lake Effect Snow Warning
             ('HS.W', allActions, 'WinterWx'),     # Heavy Snow Warning
             ('WS.W', allActions, 'WinterWx'),     # Winter Storm Warning
-            ('ZR.Y', allActions, 'WinterWx'),     # Freezing Rain Advisory
             ('HP.Y', allActions, 'WinterWx'),     # Heavy Sleet Advisory
             ('IP.Y', allActions, 'WinterWx'),     # Sleet Advisory
-            ('LE.Y', allActions, 'WinterWx'),     # Lake Effect Snow Advisory
             ('SB.Y', allActions, 'WinterWx'),     # Snow and Blowing Snow Advisory
             ('SN.Y', allActions, 'WinterWx'),     # Snow Advisory
             ('BS.Y', allActions, 'WinterWx'),     # Blowing Snow Advisory
             ('WW.Y', allActions, 'WinterWx'),     # Winter Weather Advisory
-            ('BZ.A', allActions, 'WinterWx'),     # Blizzard Watch
             ('HP.A', allActions, 'WinterWx'),     # Heavy Sleet Watch
-            ('LE.A', allActions, 'WinterWx'),     # Lake Effect Snow Watch
             ('WS.A', allActions, 'WinterWx'),     # Winter Storm Watch
             ('WC.W', allActions, 'WindChill'),    # Wind Chill Warning
             ('WC.Y', allActions, 'WindChill'),    # Wind Chill Advisory
             ('WC.A', allActions, 'WindChill'),    # Wind Chill Watch
-            ('DS.W', allActions, 'Dust'),         # Dust Storm Warning
+            ('DU.W', allActions, 'Dust'),         # Blowing Dust Warning
             ('DU.Y', allActions, 'Dust'),         # Blowing Dust Advisory
             ('EC.W', allActions, 'Cold'),         # Extreme Cold Warning
             ('EC.A', allActions, 'Cold'),         # Extreme Cold Watch

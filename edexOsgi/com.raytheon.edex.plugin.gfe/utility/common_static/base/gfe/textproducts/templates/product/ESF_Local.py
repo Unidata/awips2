@@ -1,22 +1,27 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 # ----------------------------------------------------------------------------
 # This software is in the public domain, furnished "as is", without technical
 # support, and with no warranty, express or implied, as to its usefulness for
@@ -34,6 +39,7 @@
 # ------------    ----------     ----------- --------------------------
 # Oct 20, 2014    #3685          randerso    Changed to support mixed case
 # Jul 27, 2016    #5769          randerso    Fixed case of MND header
+# Mar 29, 2017    #6210          randerso    Changed areaType to FIPS
 #
 ##
 
@@ -57,8 +63,8 @@ class TextProduct(GenericReport.TextProduct):
         "outputFile": "{prddir}/TEXT/ESF.txt",
         "debug": 0,
 
-        "areaType": 'ZONES',    #default UGC type (FIPS, ZONES)
-       
+        "areaType": 'FIPS',  # default UGC type
+
         ## Edit Areas: Create Combinations file with edit area combinations.
         "defaultEditAreas": "Combinations_ESF_<site>",
         "showZoneCombiner" : 1,
@@ -72,9 +78,9 @@ class TextProduct(GenericReport.TextProduct):
         "textdbPil" : "<textdbPil>",            # Product ID for storing to AWIPS text database.
         "awipsWANPil" : "<awipsWANPil>",        # Product ID for transmitting to AWIPS WAN.
         "wfoSiteID": "<site>",
- 
+
         # Area Dictionary -- Descriptive information about zones
-        "areaDictionary": "AreaDictionary", 
+        "areaDictionary": "AreaDictionary",
         # Language
         "language": "english",
         "lineLength": 66,   #Maximum line length
@@ -88,15 +94,18 @@ class TextProduct(GenericReport.TextProduct):
 
     # DO NOT OVERRIDE THE FOLLOWING CODE BLOCK
     # It is necessary to properly set for zones or counties
+    if "<site>" in ['AFG', 'AJK', 'AICE', 'ALU', 'AER', 'ACR', 'AFC', 'HFO', 'GUM', 'PPG']:
+        Definition['areaType'] = 'ZONES'
+
     if Definition['areaType'] == 'FIPS':
         # Name of map background for creating Combinations
-        Definition["mapNameForCombinations"] =  "FIPS_<site>" 
+        Definition["mapNameForCombinations"] =  "FIPS_<site>"
     else:
         # Name of map background for creating Combinations
-        Definition["mapNameForCombinations"] =  "Zones_<site>" 
+        Definition["mapNameForCombinations"] =  "Zones_<site>"
 
     def __init__(self):
-        GenericReport.TextProduct.__init__(self)        
+        GenericReport.TextProduct.__init__(self)
 
     def _preProcessProduct(self, fcst, argDict):
         return fcst
@@ -108,18 +117,18 @@ class TextProduct(GenericReport.TextProduct):
         #
         s = self._wmoID + " " + self._fullStationID + " " + \
             self._ddhhmmTime + "\n" + self._pil + "\n"
-        fcst = s.upper() 
+        fcst = s.upper()
 
         #
         # Next, add the non-segmented UGC data
         #
-        
+
         areaHeader = self.makeAreaHeader(
             argDict, areaLabel, self._issueTime, self._expireTime,
             self._areaDictionary, self._defaultEditAreas, cityDescriptor=self._cityDescriptor,
             includeCities=self._includeCities, includeZoneNames = self._includeZoneNames,
             includeIssueTime = self._includeIssueTime)
-       
+
         fcst = fcst + areaHeader + "\n"
 
         #
@@ -138,7 +147,7 @@ class TextProduct(GenericReport.TextProduct):
     def _makeProduct(self, fcst, editArea, areaLabel, argDict):
         fcst = fcst + "|* ...Headline concerning hydrologic conditions *|\n\n"
         fcst = fcst + "|* Insert forecast and narrative hydrologic information here *|"
-                
+
         return fcst
 
     def _postProcessProduct(self, fcst, argDict):
@@ -148,8 +157,8 @@ class TextProduct(GenericReport.TextProduct):
 
         fixMultiLF = re.compile(r'(\n\n)\n*', re.DOTALL)
         fcst = fixMultiLF.sub(r'\1', fcst)
-        
-        
+
+
         fcst = self.endline(fcst, linelength=self._lineLength, breakStr=[" ", "...", "-"])
         self.setProgressPercentage(100)
         self.progressMessage(0, 100, self._displayName + " Complete")

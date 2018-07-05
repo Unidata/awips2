@@ -46,10 +46,9 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceList.AddListener;
 import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
-import com.raytheon.uf.viz.d2d.core.D2DProperties;
 import com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay;
+import com.raytheon.uf.viz.d2d.core.ImageCombiner;
 import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
-import com.raytheon.viz.core.imagery.ImageCombiner;
 
 /**
  * Implementation of a D2D-specific map renderable display
@@ -68,6 +67,7 @@ import com.raytheon.viz.core.imagery.ImageCombiner;
  *                                   match basis
  * Sep 03, 2015  4779     njensen    Removed DataScale references
  * Dec 03, 2015  5147     bsteffen   Reset TimeMatcher on clear
+ * Nov 08, 2016  5976     bsteffen   Remove unused D2D paint properties
  * 
  * </pre>
  * 
@@ -102,38 +102,20 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
         desc.setTimeMatcher(new D2DTimeMatcher());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay#getMagnification()
-     */
     @Override
     public double getMagnification() {
         return magnification;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay#getDensity()
-     */
     @Override
     public double getDensity() {
         return density;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay#setMagnification(double
-     * )
-     */
     @Override
     public void setMagnification(double magnification) {
         this.magnification = magnification;
-        List<ResourcePair> rps = new ArrayList<ResourcePair>(
+        List<ResourcePair> rps = new ArrayList<>(
                 descriptor.getResourceList());
         for (int i = 0; i < rps.size(); i++) {
             AbstractVizResource<?, ?> resource = rps.get(i).getResource();
@@ -149,16 +131,10 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay#setDensity(double)
-     */
     @Override
     public void setDensity(double density) {
         this.density = density;
-        List<ResourcePair> rps = new ArrayList<ResourcePair>(
+        List<ResourcePair> rps = new ArrayList<>(
                 descriptor.getResourceList());
         for (int i = 0; i < rps.size(); i++) {
             AbstractVizResource<?, ?> resource = rps.get(i).getResource();
@@ -174,43 +150,20 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay#getScale()
-     */
     @Override
     public String getScale() {
         return getScaleName();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.d2d.core.ID2DRenderableDisplay#setScale(java.lang
-     * .String)
-     */
     @Override
     public void setScale(String scale) {
         setScaleName(scale);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.map.MapRenderableDisplay#paint(com.raytheon.
-     * uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
-        D2DProperties props = new D2DProperties();
-        props.setScale(getScale());
         PaintProperties myProps = new PaintProperties(paintProps);
-        myProps.setPerspectiveProps(props);
 
         if (scaleOnNextPaint) {
             scaleToClientArea(paintProps.getCanvasBounds());
@@ -220,13 +173,6 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
         super.paint(target, myProps);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.AbstractRenderableDisplay#setDescriptor
-     * (com.raytheon.uf.viz.core.drawables.IDescriptor)
-     */
     @Override
     public void setDescriptor(IDescriptor desc) {
         super.setDescriptor(desc);
@@ -240,12 +186,6 @@ public class D2DMapRenderableDisplay extends MapScaleRenderableDisplay
         return (IMapDescriptor) super.getDescriptor();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.drawables.AbstractRenderableDisplay#
-     * setAbstractDescriptor(com.raytheon.viz.core.drawables.AbstractDescriptor)
-     */
     @Override
     protected void setAbstractDescriptor(AbstractDescriptor ad) {
         super.setAbstractDescriptor(ad);

@@ -28,6 +28,10 @@
 # Author: hansen
 # ----------------------------------------------------------------------------
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 import ScalarPhrases
 import VectorRelatedPhrases
 import WxPhrases

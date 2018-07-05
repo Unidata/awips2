@@ -26,27 +26,38 @@
 # 10/23/2014    #3685     randerso    Fixed bug where .prj was not recognized when shape file
 #                                     was in the current directory (no directory specified)
 # 02/11/2016    #5348     randerso    Add code to create a county_names view into the county table
+# 01/23/2017    #6097     randerso    Removed unnecessary command line parameters. Use ogr2ogr to 
+#                                     to convert shapefile to WGS84 (EPSG:4326).
+# 08/02/2017    #6362     randerso    Add code to create alaska_marine view     
+# 08/28/2017    #6097     randerso    Made command line backward compatible with warning 
+#                                     message if extra arguments are present 
 #     
 ##
 
 function usage()
 {
     echo
-    echo usage: `basename $0` shapefile schema table [simplev [dbUser [dbPort [installDir [srid]]]]]
+    echo usage: `basename $0` shapefile table
     echo "where: shapefile - pathname of the shape file to be imported"
-    echo "       schema    - database schema where the shape file is to be imported"
     echo "       table     - database table where the shape file is to be imported"
-    echo "       simplev   - optional list of geometry simplification levels to be created"
-    echo "       dbUser    - optional database user id"
-    echo "       dbPort    - optional database port number"
-    echo "       installDir- optional directory path to awips installation"
-    echo "       srid      - optional srid of source shape file"
-    echo "example: `basename $0` uscounties.shp mapdata County 0.064,0.016,0.004,0.001 awips 5432 /awips2" 
+    echo "example: `basename $0` ~/Downloads/c_11au16.shp County"
 }
 
-if [ $# -lt 3 ] ; then
+if [ $# -lt 2 ] ; then
     usage
     exit -1
+fi
+
+if [ $# -gt 2 ] ; then
+    echo
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+    echo "!!!                                                                                  !!!"
+    echo "!!! WARNING: importShapeFile.sh HAS BEEN CHANGED. OBSOLETE ARGUMENTS WILL BE IGNORED !!!"
+    echo "!!! See updated usage information below for new command syntax.                      !!!"
+    echo "!!!                                                                                  !!!"
+    echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" 
+    usage
+    echo
 fi
 
 SHP_PATH=`readlink -f ${1}`
@@ -56,46 +67,16 @@ SHP_BASE="${SHP_NAME%.*}"   # shape file name without extension
 SHP_EXT="${SHP_NAME##*.}"   # shape file extension
 PRJ_PATH="${SHP_DIR}/${SHP_BASE}.prj"
 
-SCHEMA=`echo "${2}" | tr '[:upper:]' '[:lower:]'`
-TABLE=`echo "${3}" | tr '[:upper:]' '[:lower:]'`
-SIMPLEVS=${4}
-
-if [ -z $5 ] ; then
-    PGUSER=awips
-else
-    PGUSER=${5}
+TABLE=`echo "${2}" | tr '[:upper:]' '[:lower:]'`
+if [[ "${TABLE}" == "mapdata" && $# -gt 2 ]] ; then
+    TABLE=`echo "${3}" | tr '[:upper:]' '[:lower:]'`
 fi
 
-if [ -z $6 ] ; then
-    PGPORT=5432
-else
-    PGPORT=${6}
-fi
-
-if [ -z $7 ] ; then
-    PGBINDIR=/awips2/postgresql/bin/
-    PSQLBINDIR=/awips2/psql/bin/
-else
-    PGBINDIR=${7}/postgresql/bin/
-    PSQLBINDIR=${7}/psql/bin/
-fi
-
-if [ -z $8 ] ; then
-    if [ -e $PRJ_PATH ]
-    then
-        echo
-        echo "WARNING, found projection file: ${PRJ_PATH}"
-        echo "It is probable that this shape file is not in EPSG:4326 (WGS 84, unprojected lat/lon) format."
-        echo "Please determine the correct srid by uploading the .prj file to http://prj2epsg.org/search"
-        echo "and re-run `basename $0` supplying the correct srid."
-        usage
-        exit -1
-    fi
-
-    SRID=4326
-else
-    SRID=${8}:4326
-fi
+PGUSER=awipsadmin
+PGPORT=5432
+PGBINDIR=/awips2/postgresql/bin/
+PSQLBINDIR=/awips2/psql/bin/
+SIMPLEVS=( "0.064" "0.016" "0.004" "0.001" )
 
 if [ ! -r ${SHP_PATH} ]; then
     echo
@@ -103,53 +84,88 @@ if [ ! -r ${SHP_PATH} ]; then
     exit -1
 fi
 
-echo "  Importing ${SHP_NAME} into ${SCHEMA}.${TABLE} ..."
+SRC_SRID=""
+if [ ! -f $PRJ_PATH ] ; then
+    echo
+    echo "WARNING, no projection file (.prj) found. Assuming source projection is WGS84."
+    SRC_SRID="-s_srs EPSG:4326"
+fi
+
+echo "  Importing ${SHP_NAME} into mapdata.${TABLE} ..."
+
+export GDAL_DATA=/awips2/postgresql/share/gdal
 
 #
 # If updating county table drop the county names view
 #
-if [ "county" == ${TABLE} ] ; then
+if [ "county" == "${TABLE}" ] ; then
     ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
-        DROP VIEW IF EXISTS ${SCHEMA}.county_names;
+        DROP VIEW IF EXISTS mapdata.county_names;
+    "
+#
+# If updating marine or offshore zones drop Alaska marine view
+#
+elif [ "marinezones" == "${TABLE}" ] || [ "offshore" == "${TABLE}" ] ; then
+    ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
+        DROP VIEW IF EXISTS mapdata.alaska_marine;
     "
 fi
 
 ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
-    DELETE FROM public.geometry_columns WHERE f_table_schema = '${SCHEMA}' AND f_table_name = '${TABLE}';
-    DELETE FROM ${SCHEMA}.map_version WHERE table_name='${TABLE}';
-    DROP TABLE IF EXISTS ${SCHEMA}.${TABLE}
+    DELETE FROM public.geometry_columns WHERE f_table_schema = 'mapdata' AND f_table_name = '${TABLE}';
+    DELETE FROM mapdata.map_version WHERE table_name='${TABLE}';
+    DROP TABLE IF EXISTS mapdata.${TABLE}
 "
-${PGBINDIR}shp2pgsql -W LATIN1 -s ${SRID} -g the_geom -I ${SHP_PATH} ${SCHEMA}.${TABLE} | ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -f -
+TEMPDIR=`mktemp --directory`
+${PGBINDIR}ogr2ogr -f "ESRI Shapefile" -overwrite ${TEMPDIR} ${SHP_PATH} ${SRC_SRID} -t_srs EPSG:4326
+${PGBINDIR}shp2pgsql -W LATIN1 -s 4326 -g the_geom -I ${TEMPDIR}/${SHP_NAME} mapdata.${TABLE} | ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -f -
 ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
-    INSERT INTO ${SCHEMA}.map_version (table_name, filename) values ('${TABLE}','${SHP_NAME}');
-    SELECT AddGeometryColumn('${SCHEMA}','${TABLE}','the_geom_0','4326',(SELECT type FROM public.geometry_columns WHERE f_table_schema='${SCHEMA}' and f_table_name='${TABLE}' and f_geometry_column='the_geom'),2);
-    UPDATE ${SCHEMA}.${TABLE} SET the_geom_0=ST_Segmentize(the_geom,0.1);
-    CREATE INDEX ${TABLE}_the_geom_0_gist ON ${SCHEMA}.${TABLE} USING gist(the_geom_0);
+    INSERT INTO mapdata.map_version (table_name, filename) values ('${TABLE}','${SHP_NAME}');
+    SELECT AddGeometryColumn('mapdata','${TABLE}','the_geom_0','4326',(SELECT type FROM public.geometry_columns WHERE f_table_schema='mapdata' and f_table_name='${TABLE}' and f_geometry_column='the_geom'),2);
+    UPDATE mapdata.${TABLE} SET the_geom_0=ST_Segmentize(the_geom,0.1);
+    CREATE INDEX ${TABLE}_the_geom_0_gist ON mapdata.${TABLE} USING gist(the_geom_0);
 "
+rm -rf ${TEMPDIR}
+
+#
+# Create simplification levels for non-point data
+#
+TYPE=`${PSQLBINDIR}psql -d maps -U ${PGUSER} -qt -p ${PGPORT} -c "SELECT type FROM public.geometry_columns WHERE f_table_schema='mapdata' and f_table_name='${TABLE}' and f_geometry_column='the_geom';"`
+if [[ $TYPE != *"POINT"* ]] ; then
+    for LEV in "${SIMPLEVS[@]}" ; do
+        echo "    Creating simplified geometry level $LEV ..."
+        SUFFIX=${LEV/./_}
+        ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
+        SELECT AddGeometryColumn('mapdata','${TABLE}','the_geom_${SUFFIX}','4326',(SELECT type FROM public.geometry_columns WHERE f_table_schema='mapdata' and f_table_name='${TABLE}' and f_geometry_column='the_geom'),2);
+        UPDATE mapdata.${TABLE} SET the_geom_${SUFFIX}=ST_Segmentize(ST_Multi(ST_SimplifyPreserveTopology(the_geom,${LEV})),0.1);
+        CREATE INDEX ${TABLE}_the_geom_${SUFFIX}_gist ON mapdata.${TABLE} USING gist(the_geom_${SUFFIX});"
+    done
+fi
 
 #
 # If updating county table recreate the county names view
 #
-if [ "county" == ${TABLE} ] ; then
-    ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
-        CREATE OR REPLACE VIEW ${SCHEMA}.county_names AS
+if [ "county" == "${TABLE}" ] ; then
+${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
+        CREATE OR REPLACE VIEW mapdata.county_names AS
         SELECT countyname as name, ST_SetSRID(ST_Point(lon,lat), 4326)::geometry(Point, 4326) as the_geom
-	 	FROM ${SCHEMA}.county;
-	"
+        FROM mapdata.county;"
+
+#
+# If updating marine or offshore zones recreate the Alaska marine view
+#
+elif [ "marinezones" == "${TABLE}" ] || [ "offshore" == "${TABLE}" ] ; then
+${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
+    CREATE OR REPLACE VIEW mapdata.alaska_marine AS
+        SELECT CAST(ROW_NUMBER() OVER(ORDER BY id) AS INT) GID, * FROM (
+            SELECT id, wfo, name, lat, lon, 
+                the_geom, the_geom_0, the_geom_0_064, the_geom_0_016, the_geom_0_004, the_geom_0_001 
+            FROM mapdata.marinezones WHERE wfo IN ('AFC', 'AFG', 'AJK') 
+            UNION 
+            SELECT id, wfo, name, lat, lon, 
+                the_geom, the_geom_0, the_geom_0_064, the_geom_0_016, the_geom_0_004, the_geom_0_001 
+            FROM mapdata.offshore WHERE wfo IN ('AFC', 'AFG', 'AJK')
+        ) a;"
 fi
 
-if [ -n "$SIMPLEVS" ] ; then
-    echo "  Creating simplification levels ${SIMPLEVS}..."
-    IFS=",	 "
-    for LEV in $SIMPLEVS ; do
-        echo "    Creating simplified geometry level $LEV ..."
-        IFS="."
-        SUFFIX=
-        for x in $LEV ; do SUFFIX=${SUFFIX}_${x} ; done
-        ${PSQLBINDIR}psql -d maps -U ${PGUSER} -q -p ${PGPORT} -c "
-        SELECT AddGeometryColumn('${SCHEMA}','${TABLE}','the_geom${SUFFIX}','4326',(SELECT type FROM public.geometry_columns WHERE f_table_schema='${SCHEMA}' and f_table_name='${TABLE}' and f_geometry_column='the_geom'),2);
-        UPDATE ${SCHEMA}.${TABLE} SET the_geom${SUFFIX}=ST_Segmentize(ST_Multi(ST_SimplifyPreserveTopology(the_geom,${LEV})),0.1);
-        CREATE INDEX ${TABLE}_the_geom${SUFFIX}_gist ON ${SCHEMA}.${TABLE} USING gist(the_geom${SUFFIX});"
-    done
-fi
-${PGBINDIR}vacuumdb -d maps -t ${SCHEMA}.${TABLE} -U ${PGUSER} -p ${PGPORT} -vfz
+${PGBINDIR}vacuumdb -d maps -t mapdata.${TABLE} -U ${PGUSER} -p ${PGPORT} -vfz

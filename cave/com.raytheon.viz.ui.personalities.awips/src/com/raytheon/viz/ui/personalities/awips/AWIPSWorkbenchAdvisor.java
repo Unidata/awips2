@@ -26,11 +26,13 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.ui.IPerspectiveDescriptor;
+import org.eclipse.ui.IWorkbenchPreferenceConstants;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.application.IWorkbenchWindowConfigurer;
 import org.eclipse.ui.application.WorkbenchWindowAdvisor;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.contexts.IContextService;
+import org.eclipse.ui.internal.util.PrefUtil;
 
 import com.raytheon.uf.common.menus.MenuCreationRequest;
 import com.raytheon.uf.common.status.UFStatus;
@@ -53,14 +55,15 @@ import com.raytheon.uf.viz.personalities.cave.workbench.VizWorkbenchAdvisor;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 20, 2013            mschenke     Initial creation
- * Oct 01, 2014  3679      njensen      Fix propertyChange() for logPerformance
+ * Mar 20, 2013            mschenke    Initial creation
+ * Oct 01, 2014  3679      njensen     Fix propertyChange() for logPerformance
+ * Jan 23, 2017  6069      njensen     Show text on perspective buttons by default
  * Jun 25, 2017            mjames@ucar  No menu building from edex side.
+ * Jun 27, 2017  6316      njensen     Log -perspective argument
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 
 public class AWIPSWorkbenchAdvisor extends VizWorkbenchAdvisor {
@@ -83,7 +86,7 @@ public class AWIPSWorkbenchAdvisor extends VizWorkbenchAdvisor {
                     public void propertyChange(PropertyChangeEvent event) {
                         if (PreferenceConstants.P_LOG_PERF.equals(event
                                 .getProperty())) {
-                            Boolean log = Boolean.valueOf(event.getNewValue()
+                            boolean log = Boolean.valueOf(event.getNewValue()
                                     .toString());
                             if (log != logPeformance) {
                                 toggleLogging();
@@ -105,8 +108,10 @@ public class AWIPSWorkbenchAdvisor extends VizWorkbenchAdvisor {
     @Override
     public String getInitialWindowPerspectiveId() {
         if (singlePerspective) {
-            IPerspectiveDescriptor desc = getSpecifiedPerspective(ProgramArguments
-                    .getInstance().getString("-perspective"));
+            String perspective = ProgramArguments.getInstance()
+                    .getString("-perspective");
+            IPerspectiveDescriptor desc = getSpecifiedPerspective(
+                    perspective);
             if (desc != null) {
                 return desc.getId();
             }
@@ -122,7 +127,7 @@ public class AWIPSWorkbenchAdvisor extends VizWorkbenchAdvisor {
         logPeformance = !logPeformance;
 
         // add command execution listener
-        ICommandService service = (ICommandService) PlatformUI.getWorkbench()
+        ICommandService service = PlatformUI.getWorkbench()
                 .getService(ICommandService.class);
         if (logPeformance) {
             service.addExecutionListener(performanceListener);
@@ -148,19 +153,40 @@ public class AWIPSWorkbenchAdvisor extends VizWorkbenchAdvisor {
     public void postStartup() {
         super.postStartup();
 
-        Boolean log = Activator.getDefault().getPreferenceStore()
+        boolean log = Activator.getDefault().getPreferenceStore()
                 .getBoolean(PreferenceConstants.P_LOG_PERF);
 
         if (log != logPeformance) {
             toggleLogging();
         }
-        IContextService service = (IContextService) PlatformUI.getWorkbench()
+        IContextService service = PlatformUI.getWorkbench()
                 .getService(IContextService.class);
         service.activateContext("com.raytheon.uf.viz.application.awips");
     }
 
     @Override
+    protected void createDynamicMenus() {
+        // create the request to send to EDEX to generate the menus
+        MenuCreationRequest request = new MenuCreationRequest();
+        request.setSite(LocalizationManager.getInstance().getSite());
+        try {
+            ThriftClient.sendRequest(request);
+        } catch (VizException e) {
+            UFStatus.getHandler(AWIPSWorkbenchAdvisor.class).handle(
+                    Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+        super.createDynamicMenus();
+    }
+
+    @Override
     public void preStartup() {
+        super.preStartup();
+
+        // show text of perspectives of toolbar buttons by default
+        PrefUtil.getAPIPreferenceStore().setDefault(
+                IWorkbenchPreferenceConstants.SHOW_TEXT_ON_PERSPECTIVE_BAR,
+                true);
+
         // only restore state if no perspective passed in
         getWorkbenchConfigurer().setSaveAndRestore(!singlePerspective);
     }

@@ -18,11 +18,15 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="geoW" name="Geostrophic Wind" unit="m/s">
     <Method name="GeoWind">
-		<Field abbreviation="GHxSM2"/>
-		<Field abbreviation="dx"/>
-		<Field abbreviation="dy"/>
-		<Field abbreviation="coriolis"/>
-	</Method>
+        <Field abbreviation="GHxSM2" />
+        <Field abbreviation="dx" />
+        <Field abbreviation="dy" />
+        <Field abbreviation="coriolis" />
+    </Method>
 </DerivedParameter>

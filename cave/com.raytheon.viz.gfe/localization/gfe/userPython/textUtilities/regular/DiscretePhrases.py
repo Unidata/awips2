@@ -34,7 +34,13 @@
 #    ------------    ----------    -----------    --------------------------
 #    04/28/2015      4027          randerso       Changes for mixed case
 #                                                 Added sort for consistent ordering of multiple timezones
+#    10/02/2017      20335         ryu            Add storm surge w/w to tpcEvents so 
+#                                                 no timing phrase appear in headline
 #
+##
+
+##
+# This is a base file that is not intended to be overridden.
 ##
 
 import PhraseBuilder
@@ -1026,7 +1032,8 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
                 return ('EXPLICIT', 'EXPLICIT')
 
         # Tropical events never get times at all
-        tpcEvents = ['TY.A','TY.W','HU.A','HU.S','HU.W','TR.A','TR.W']
+        tpcEvents = ['TY.A','TY.W','HU.A','HU.S','HU.W','TR.A','TR.W', 
+                     'SS.A','SS.W']
         if phensig in tpcEvents:
             return ('NONE', 'NONE')
     

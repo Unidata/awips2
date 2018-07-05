@@ -1,6 +1,22 @@
-# NOTE: THIS FILE SHOULD NOT BE MODIFIED BY THE USER.  INSTEAD, REFER TO
-# THE BASE,SITE,USER and GFE CONFIGURATION DOCUMENTATION ON HOW TO
-# OVERRIDE ENTRIES IN THIS FILE.
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
 
 #------*-python-*-------------------------------------------------------------
 # Config file for the GFE (Graphical Forecast Editor).
@@ -14,6 +30,17 @@
 #                                                 text formatter and product script tasks
 #    02/04/2015      17039         ryu            Removed HighlightFramingCodes setting.
 #    02/09/2016      5283          nabowle        Remove NGM support.
+#    06/23/2017      6138          dgilling       Remove obsolete winter 
+#                                                 weather phensigs.
+#    12/06/2017      DCS20267      psantos        Add NWPS rip current guidance
+
+##
+# This is a base file that is not intended to be overridden.
+#
+# This file can be imported to override configuration settings. Please see the
+# Configuration Guides->GFE Configuration section of the GFE Online Help for
+# guidance on creating a new configuration file.
+##
 
 GFESUITE_HOME = "/awips2/GFESuite"
 GFESUITE_PRDDIR = "/tmp/products"
@@ -202,7 +229,7 @@ PublishTimes = ['Today', 'Tonight', 'Tomorrow', 'Tomorrow Night', 'Day 3',
 # Defines the initial loaded set of map backgrounds.  The name of each
 # background should match the name (without ".xml") of a map file in the 
 # CAVE/Bundles/maps directory under the Localization perspective.
-MapBackgrounds_default = ['statesCounties','CWA_All']
+MapBackgrounds_default = ['States','CWA']
 
 # Specific Colors for a map background
 # The user may specify a specific color to be used for a map background,
@@ -352,7 +379,7 @@ OfficeDomain_expandBottom = 10
 # Initial layout up of Grid Manager/Temporal Editor:
 # Values:  "OnTop" (default)
 #          "OnLeft"
-GM_TE_Layout = "OnLeft"
+#GM_TE_Layout = "OnTop"
 
 # Default setting for temporal editor weather elements. Choices are
 # ALL for all weather elements are displayed in the temporal
@@ -637,6 +664,7 @@ HistoryModelColor_HPCQPF = '#3dc9ff'
 HistoryModelColor_HPCGuide = '#3dc9ff'
 HistoryModelColor_RFCQPF = '#3bffb7'
 HistoryModelColor_Restore = '#e0a0ff'
+HistoryModelColor_DGEX = 'orange'
 HistoryModelColor_MOSGuide = '#e608ff'
 HistoryModelColor_OPCTAFBE = '#a0a0cc'
 HistoryModelColor_OPCTAFBSW = '#a0a0cc'
@@ -667,6 +695,7 @@ HistoryModelText_HPCQPF = 'HPCQPF'
 HistoryModelText_HPCGuide = 'HPCGuide'
 HistoryModelText_RFCQPF = 'RFCQPF'
 HistoryModelText_Restore = 'Restore'
+HistoryModelText_DGEX = 'DGEX'
 HistoryModelText_MOSGuide = 'GMOS'
 HistoryModelText_OPCTAFBE = 'OPC'
 HistoryModelText_OPCTAFBSW = 'OPC'
@@ -976,8 +1005,6 @@ Hazards_commonValues = [ \
     "Watches|Non-Precipitation|HW.A",
     "Watches|Non-Precipitation|HZ.A",
     "Watches|Non-Precipitation|EC.A",
-    "Watches|Winter Storm|BZ.A",
-    "Watches|Winter Storm|LE.A",
     "Watches|Winter Storm|WC.A",
     "Watches|Winter Storm|WS.A",
     "Warnings|Fire Weather|FW.W",
@@ -991,7 +1018,7 @@ Hazards_commonValues = [ \
     "Warnings|Marine|SR.W",
     "Warnings|Marine|SE.W",
     "Warnings|Non-Precipitation|AF.W",
-    "Warnings|Non-Precipitation|DS.W",
+    "Warnings|Non-Precipitation|DU.W",
     "Warnings|Non-Precipitation|EH.W",
     "Warnings|Non-Precipitation|FZ.W",
     "Warnings|Non-Precipitation|HW.W",
@@ -1027,8 +1054,6 @@ Hazards_commonValues = [ \
     "Advisories|Non-Precipitation|LW.Y",
     "Advisories|Non-Precipitation|AF.Y",
     "Advisories|Non-Precipitation|WI.Y",
-    "Advisories|Winter Weather|ZR.Y",
-    "Advisories|Winter Weather|LE.Y",
     "Advisories|Winter Weather|WC.Y",
     "Advisories|Winter Weather|WW.Y",
     "Statements|Coastal Flooding|CF.S",
@@ -1119,6 +1144,9 @@ DefaultColorTable_numColors = 150
 # You can determine the possible color tables that are on the system by
 # displaying any scalar image and selecting "Change Color Table To".
 
+RipProb_defaultColorTable="GFE/RipProb"
+ErosionProb_defaultColorTable="GFE/RunupProbs"
+OverwashProb_defaultColorTable="GFE/RunupProbs"
 T_defaultColorTable="GFE/Mid Range Enhanced"
 Td_defaultColorTable="GFE/Mid Range Enhanced"
 MaxT_defaultColorTable="GFE/Mid Range Enhanced"
@@ -1179,6 +1207,7 @@ Hazards_defaultColorTable = "GFE/Hazards"
 # Start HTI entries
 ProposedSS_defaultColorTable="GFE/w"
 ProposedSSnc_defaultColorTable="GFE/w"
+CollabDiffSS_defaultColorTable="GFE/diffSS"
 
 InundationMax_defaultColorTable="GFE/Inundation"
 InundationMax_maxColorTableValue = 30.0

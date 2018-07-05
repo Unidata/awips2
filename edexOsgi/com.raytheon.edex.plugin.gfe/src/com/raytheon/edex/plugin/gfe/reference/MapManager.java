@@ -28,8 +28,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -50,15 +48,18 @@ import org.opengis.referencing.operation.MathTransform;
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
 import com.raytheon.edex.plugin.gfe.exception.MissingLocalMapsException;
 import com.raytheon.edex.plugin.gfe.reference.DbShapeSource.ShapeType;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.textproducts.AreaDictionaryMaker;
 import com.raytheon.edex.plugin.gfe.textproducts.CombinationsFileMaker;
 import com.raytheon.edex.plugin.gfe.textproducts.Configurator;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
+import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.CoordinateType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceMgr;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleData;
 import com.raytheon.uf.common.dataplugin.gfe.sample.SampleId;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
@@ -68,7 +69,6 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.python.PyUtil;
 import com.raytheon.uf.common.python.PythonEval;
 import com.raytheon.uf.common.python.PythonIncludePathUtil;
@@ -92,6 +92,7 @@ import com.vividsolutions.jts.operation.buffer.BufferParameters;
 import com.vividsolutions.jts.operation.valid.IsValidOp;
 import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
 
+import jep.JepConfig;
 import jep.JepException;
 
 /**
@@ -131,8 +132,13 @@ import jep.JepException;
  * May 21, 2015  4518     dgilling  Change ISC_Send_Area to always be union of
  *                                  at least ISC_XXX and FireWxAOR_XXX.
  * Jul 18, 2016  5747     dgilling  Move edex_static to common_static.
+ * Sep 12, 2016  5861     randerso  Change IFPServerConfig.getSiteID() to return a single value
+ *                                  instead of a list containing only one value.
  * Oct 20, 2016  5953     randerso  Move usingLocalMaps flag directory to
  *                                  gfe/config
+ * Mar 29, 2017  5861     randerso  Improve handling of Maps.py exceptions
+ * Jun 12, 2017  6298     mapeters  Update references to refactored ReferenceMgr
+ * Jul 31, 2017  6342     randerso  Get ReferenceMgr from IFPServer. Code cleanup.
  *
  * </pre>
  *
@@ -151,7 +157,9 @@ public class MapManager {
     private static final String SAMPLE_SETS_DIR = FileUtil.join("gfe",
             "sampleSets");
 
-    private IFPServerConfig _config;
+    private IFPServer ifpServer;
+
+    private IFPServerConfig config;
 
     private List<String> _mapErrors;
 
@@ -175,16 +183,19 @@ public class MapManager {
 
     private PythonEval pyScript;
 
-    public MapManager(IFPServerConfig serverConfig) {
-        this(serverConfig, null);
-    }
-
-    @SuppressWarnings("unchecked")
-    public MapManager(IFPServerConfig serverConfig, String dir) {
+    /**
+     * Constructor
+     *
+     * @param ifpServer
+     *            IFPServer instance for this site
+     * @throws GfeException
+     */
+    public MapManager(IFPServer ifpServer) throws GfeException {
         try {
-            _config = serverConfig;
+            this.ifpServer = ifpServer;
+            this.config = ifpServer.getConfig();
 
-            String siteId = _config.getSiteID().get(0);
+            String siteId = config.getSiteID();
             IPathManager pathMgr = PathManagerFactory.getPathManager();
             LocalizationContext baseCtx = pathMgr.getContext(
                     LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
@@ -199,17 +210,13 @@ public class MapManager {
                     .getContextForSite(LocalizationType.COMMON_STATIC, siteId);
             this.siteDir = pathMgr.getFile(siteCtx, ".").getAbsolutePath();
 
-            if (dir != null) {
-                this.commonStaticConfigDir = dir;
-            } else {
-                this.commonStaticConfigDir = this.configuredDir;
-            }
+            this.commonStaticConfigDir = this.configuredDir;
 
             _mapErrors = new ArrayList<>();
 
             long t0 = System.currentTimeMillis();
-            statusHandler.info(
-                    "MapManager " + _config.getSiteID().get(0) + " started.");
+            statusHandler
+                    .info("MapManager " + config.getSiteID() + " started.");
 
             String includePath = PyUtil.buildJepIncludePath(true,
                     GfePyIncludeUtil.getGfeConfigIncludePath(siteId),
@@ -219,13 +226,19 @@ public class MapManager {
             List<DbShapeSource> maps = null;
             pyScript = null;
             try {
-                pyScript = new PythonEval(includePath,
-                        MapManager.class.getClassLoader());
+                JepConfig jepConfig = new JepConfig()
+                        .setIncludePath(includePath)
+                        .setClassLoader(this.getClass().getClassLoader());
+                pyScript = new PythonEval(jepConfig);
                 pyScript.eval("from Maps import *");
-                Object results = pyScript.execute("getMaps", null);
-                maps = (List<DbShapeSource>) results;
+
+                @SuppressWarnings("unchecked")
+                List<DbShapeSource> results = (List<DbShapeSource>) pyScript
+                        .execute("getMaps", null);
+
+                maps = results;
             } catch (JepException e) {
-                statusHandler.error("Error getting maps", e);
+                throw new GfeException("Error getting maps", e);
             }
 
             boolean needUpdate = true;
@@ -254,15 +267,14 @@ public class MapManager {
             }
 
             // configure the text products
-            Configurator configurator = new Configurator(
-                    _config.getSiteID().get(0));
+            Configurator configurator = new Configurator(config.getSiteID());
             statusHandler.info("Configuring text products....");
             configurator.execute();
 
             if (needUpdate) {
                 // need the attributes from the edit area step to be able to do
                 // this right
-                String site = _config.getSiteID().get(0);
+                String site = config.getSiteID();
                 new CombinationsFileMaker().genCombinationsFiles(site,
                         editAreaMap);
                 new AreaDictionaryMaker().genAreaDictionary(site,
@@ -279,9 +291,6 @@ public class MapManager {
         }
     }
 
-    /**
-     * @param maps
-     */
     private boolean updateNeeded(List<DbShapeSource> maps,
             final String directory) {
         // calc newest file inside maps.directory()
@@ -367,18 +376,6 @@ public class MapManager {
 
         statusHandler.info("Edit Area generation phase");
 
-        @SuppressWarnings("unused")
-        WsId fakeBase = null;
-        try {
-            fakeBase = new WsId(InetAddress.getLocalHost(), "BASE",
-                    "ifpServer");
-        } catch (UnknownHostException e1) {
-            statusHandler.error("Unable to get IP address for localhost");
-        }
-
-        // _refMgr->deleteAllReferenceData(fakeBase);
-        // _sampleMgr->deleteData(fakeBase, SampleID("ISC_Marker_Set"));
-        // _textMgr->deleteAllTextData(fakeBase, "EditAreaGroup");
         File d = new File(FileUtil.join(commonStaticConfigDir, EDIT_AREAS_DIR));
         if (d.exists()) {
             FileUtil.deleteDir(d);
@@ -403,7 +400,7 @@ public class MapManager {
         int i = 0;
         BoundingBox bounds = null;
         try {
-            bounds = MapUtil.getBoundingEnvelope(this._config.dbDomain());
+            bounds = MapUtil.getBoundingEnvelope(this.config.dbDomain());
         } catch (Exception e1) {
             statusHandler.handle(Priority.PROBLEM, e1.getLocalizedMessage(),
                     e1);
@@ -446,17 +443,14 @@ public class MapManager {
         statusHandler.info("EditArea generation time: " + (t1 - t0) + " ms");
     }
 
-    /**
-     *
-     */
     private void writeISCMarker() {
 
         // find all office types
-        List<String> foundOfficeTypes = new ArrayList<String>();
+        List<String> foundOfficeTypes = new ArrayList<>();
         for (int i = 0; i < this.iscMarkersID.size(); i++) {
-            int index = this._config.allSites().indexOf(iscMarkersID.get(i));
+            int index = this.config.allSites().indexOf(iscMarkersID.get(i));
             if (index != -1) {
-                String officeType = _config.officeTypes().get(index);
+                String officeType = config.officeTypes().get(index);
                 if (!foundOfficeTypes.contains(officeType)) {
                     foundOfficeTypes.add(officeType);
                 }
@@ -465,10 +459,10 @@ public class MapManager {
 
         // create each sample set based on office type
         for (int i = 0; i < foundOfficeTypes.size(); i++) {
-            List<Coordinate> values = new ArrayList<Coordinate>();
+            List<Coordinate> values = new ArrayList<>();
             for (int j = 0; j < iscMarkersID.size(); j++) {
-                int index = _config.allSites().indexOf(iscMarkersID.get(j));
-                if ((index != -1) && _config.officeTypes().get(index)
+                int index = config.allSites().indexOf(iscMarkersID.get(j));
+                if ((index != -1) && config.officeTypes().get(index)
                         .equals(foundOfficeTypes.get(i))) {
                     values.add(iscMarkers.get(j));
                 }
@@ -505,18 +499,17 @@ public class MapManager {
     private void writeSpecialISCEditAreas() {
         statusHandler.debug("Creating: ISC_Tool_Area and ISC_Send_Area.");
 
-        ReferenceMgr refDataMgr = new ReferenceMgr(_config);
-        String thisSite = _config.getSiteID().get(0);
+        ReferenceMgr refDataMgr = ifpServer.getReferenceMgr();
+        String thisSite = config.getSiteID();
 
         List<ReferenceData> areas = new ArrayList<>();
         List<String> editAreaNames = new ArrayList<>();
 
         ReferenceData iscSendArea = null;
         ReferenceID iscAreaName = new ReferenceID("ISC_" + thisSite);
-        ServerResponse<List<ReferenceData>> sr = refDataMgr
-                .getData(Arrays.asList(iscAreaName));
+        ServerResponse<ReferenceData> sr = refDataMgr.getData(iscAreaName);
         if (sr.isOkay()) {
-            iscSendArea = new ReferenceData(sr.getPayload().get(0));
+            iscSendArea = new ReferenceData(sr.getPayload());
             iscSendArea.setId(new ReferenceID("ISC_Send_Area"));
             areas.add(iscSendArea);
             editAreaNames.add(iscSendArea.getId().getName());
@@ -542,13 +535,13 @@ public class MapManager {
          */
         Collection<String> altISCEditAreas = new HashSet<>();
         altISCEditAreas.add("FireWxAOR_");
-        altISCEditAreas.addAll(_config.alternateISCEditAreaMasks());
+        altISCEditAreas.addAll(config.alternateISCEditAreaMasks());
         for (String altISCEditArea : altISCEditAreas) {
             ReferenceID editAreaName = new ReferenceID(
                     altISCEditArea + thisSite);
-            sr = refDataMgr.getData(Arrays.asList(editAreaName));
+            sr = refDataMgr.getData(editAreaName);
             if (sr.isOkay()) {
-                ReferenceData refData = sr.getPayload().get(0);
+                ReferenceData refData = sr.getPayload();
                 iscSendArea.orEquals(refData);
             } else {
                 String errorMsg = String.format(
@@ -584,7 +577,7 @@ public class MapManager {
 
         statusHandler.debug("creating: " + mapDef.getDisplayName());
         List<ReferenceData> data = createReferenceData(mapDef);
-        if (data.size() == 0) {
+        if (data.isEmpty()) {
             return;
         }
 
@@ -594,16 +587,16 @@ public class MapManager {
         // handle the group list, if specified
         String groupName = mapDef.getGroupName();
         if (groupName != null) {
-            List<String> list = new ArrayList<String>();
+            List<String> list = new ArrayList<>();
             for (int i = 0; i < data.size(); i++) {
                 list.add(data.get(i).getId().getName());
             }
 
             // Need some special edit areas for ISC
             // Create ISC_Tool_Area and ISC_Send_Area if ISC_CWA
-            List<String> knownSites = _config.allSites();
+            List<String> knownSites = config.allSites();
             boolean anySites = false;
-            if (groupName.equals("ISC")) {
+            if ("ISC".equals(groupName)) {
                 for (int i = 0; i < data.size(); i++) {
                     String n = data.get(i).getId().getName();
                     if ((n.length() == 7) && n.startsWith("ISC_")) {
@@ -692,7 +685,7 @@ public class MapManager {
     private void createISCMarker(String wfo, ReferenceData area) {
         try {
             // get the edit area as a Grid2DBit
-            GridLocation gridLoc = _config.dbDomain();
+            GridLocation gridLoc = config.dbDomain();
             ReferenceData awipsArea = new ReferenceData(area);
             Grid2DBit bits = awipsArea.getGrid();
 
@@ -719,7 +712,8 @@ public class MapManager {
             if (!bits.findNearestSet(
                     new Point((int) centerCell.x, (int) centerCell.y),
                     modCenterCell)) {
-                return; // nothing found(should never see this)
+                // nothing found (should never see this)
+                return;
             }
 
             // calculate the lat/lon 'center' point for this WFO
@@ -763,9 +757,8 @@ public class MapManager {
         if (groupDir.isDirectory() && groupDir.canWrite()) {
             File path = new File(FileUtil.join(groupDir.getAbsolutePath(),
                     groupName + ".txt"));
-            BufferedWriter out = null;
-            try {
-                out = new BufferedWriter(new FileWriter(path));
+            try (BufferedWriter out = new BufferedWriter(
+                    new FileWriter(path))) {
                 out.write(Integer.toString(l.size()));
                 out.write('\n');
                 for (String name : l) {
@@ -774,15 +767,7 @@ public class MapManager {
                 }
             } catch (IOException e) {
                 statusHandler
-                        .error("Error saving edit area group: " + groupName);
-            } finally {
-                if (out != null) {
-                    try {
-                        out.close();
-                    } catch (IOException e) {
-                        // nothing to do
-                    }
-                }
+                        .error("Error saving edit area group: " + groupName, e);
             }
         } else {
             statusHandler.error("Unable to write to " + groupDir);
@@ -790,16 +775,15 @@ public class MapManager {
     }
 
     private List<String> loadGroupList(String groupName) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         File groupDir = new File(
                 FileUtil.join(commonStaticConfigDir, EDIT_AREA_GROUPS_DIR));
         if (groupDir.exists() && groupDir.isDirectory()) {
             File groupFile = new File(FileUtil.join(groupDir.getAbsolutePath(),
                     groupName + ".txt"));
             if (groupFile.exists()) {
-                BufferedReader in = null;
-                try {
-                    in = new BufferedReader(new FileReader(groupFile));
+                try (BufferedReader in = new BufferedReader(
+                        new FileReader(groupFile))) {
                     String s = in.readLine();
                     int count = Integer.parseInt(s);
                     for (int i = 0; i < count; i++) {
@@ -809,14 +793,6 @@ public class MapManager {
                 } catch (Exception e) {
                     statusHandler.error("Error reading group file: "
                             + groupFile.getAbsolutePath(), e);
-                } finally {
-                    if (in != null) {
-                        try {
-                            in.close();
-                        } catch (IOException e) {
-                            // nothing to do
-                        }
-                    }
                 }
             }
         }
@@ -876,19 +852,19 @@ public class MapManager {
      */
     private List<ReferenceData> createReferenceData(DbShapeSource mapDef) {
         // ServerResponse sr;
-        List<ReferenceData> data = new ArrayList<ReferenceData>();
-        List<Map<String, Object>> attributes = new ArrayList<Map<String, Object>>();
+        List<ReferenceData> data = new ArrayList<>();
+        List<Map<String, Object>> attributes = new ArrayList<>();
         editAreaAttrs.put(mapDef.getDisplayName(), attributes);
 
         // Module dean("DefaultEditAreaNaming");
-        ArrayList<String> created = new ArrayList<String>();
+        ArrayList<String> created = new ArrayList<>();
         GeometryFactory gf = new GeometryFactory();
         DbShapeSource shapeSource = mapDef;
         try {
             // PathMgr pm(_config.dbBaseDirectory(), "MAPS");
             // String directory = pm.writePath(AccessLevel.baseName(), "");
 
-            GridLocation gloc = _config.dbDomain();
+            GridLocation gloc = config.dbDomain();
             MathTransform transform = MapUtil
                     .getTransformFromLatLon(PixelOrientation.CENTER, gloc);
 
@@ -896,15 +872,12 @@ public class MapManager {
             Coordinate c1 = new Coordinate(gloc.getNx() - 1, 0);
             Coordinate c2 = new Coordinate(gloc.getNx() - 1, gloc.getNy() - 1);
             Coordinate c3 = new Coordinate(0, gloc.getNy() - 1);
-            Polygon p = gf
-                    .createPolygon(
-                            gf.createLinearRing(
-                                    new Coordinate[] { c0, c1, c2, c3, c0 }),
-                            null);
+            Polygon p = gf.createPolygon(gf.createLinearRing(
+                    new Coordinate[] { c0, c1, c2, c3, c0 }), null);
             PreparedGeometry boundingGeometry = PreparedGeometryFactory
                     .prepare(p);
 
-            Map<String, Geometry> tempData = new HashMap<String, Geometry>();
+            Map<String, Geometry> tempData = new HashMap<>();
             while (shapeSource.hasNext()) {
                 SimpleFeature f = shapeSource.next();
                 Map<String, Object> info = shapeSource.getAttributes(f);
@@ -983,7 +956,7 @@ public class MapManager {
                 }
 
                 // transfer dictionary values to Seq values
-                data.add(new ReferenceData(_config.dbDomain(),
+                data.add(new ReferenceData(config.dbDomain(),
                         new ReferenceID(ean), polygons, CoordinateType.LATLON));
             }
 
@@ -1004,7 +977,7 @@ public class MapManager {
     private String runNamer(String instance, Map<String, Object> info) {
         String editAreaName = "";
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("instance", instance);
         args.put("info", info);
         try {
@@ -1020,7 +993,7 @@ public class MapManager {
     private boolean runFilter(String instance, Map<String, Object> info) {
         boolean result = false;
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put("instance", instance);
         args.put("info", info);
         try {
@@ -1068,7 +1041,7 @@ public class MapManager {
 
         String errorUser = errorLog
                 + " Edit areas for this map will not be generated."
-                + " Check site [" + _config.getSiteID().get(0)
+                + " Check site [" + config.getSiteID()
                 + "] localMaps.py configuration and verify all necessary shape files have been imported.";
         EDEXUtil.sendMessageAlertViz(Priority.ERROR,
                 "com.raytheon.edex.plugin.gfe", "GFE", "GFE", errorUser,

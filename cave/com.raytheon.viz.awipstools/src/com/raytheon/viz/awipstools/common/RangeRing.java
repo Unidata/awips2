@@ -35,160 +35,169 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * 10-21-09     #1711      bsteffen    Initial Comments, changed to accomodate both Fixed and Movable Rings
  * 08-13-14     #3467      mapeters    Modified equals() method to prevent ArrayIndexOutOfBoundsException.
+ * 09-08-16     #5871      njensen     Added hashCode() and formatted
  * 
  * </pre>
  * 
  * @author unknown
- * @version 1.0
  */
 public class RangeRing {
 
-	public enum RangeRingType {
-		FIXED, MOVABLE
-	};
+    public enum RangeRingType {
+        FIXED, MOVABLE
+    }
 
-	private RangeRingType type;
+    private RangeRingType type;
 
-	private boolean visible = false;
+    private boolean visible = false;
 
-	private String id = "";
+    private String id = "";
 
-	private Coordinate centerCoordinate;
+    private Coordinate centerCoordinate;
 
-	private int[] radii;
+    private int[] radii;
 
-	private String label = "";
+    private String label = "";
 
-	public RangeRing(String id, Coordinate centerCoordinate, int radius,
-			String label) {
-		this(id, centerCoordinate, radius, label, false);
-	}
+    public RangeRing(String id, Coordinate centerCoordinate, int radius,
+            String label) {
+        this(id, centerCoordinate, radius, label, false);
+    }
 
-	public RangeRing(String id, Coordinate centerCoordinate, int radius,
-			String label, boolean visible) {
-		this.type = RangeRingType.MOVABLE;
-		this.id = id;
-		this.centerCoordinate = centerCoordinate;
-		this.radii = new int[] { radius };
-		this.label = label;
-		this.visible = visible;
-	}
+    public RangeRing(String id, Coordinate centerCoordinate, int radius,
+            String label, boolean visible) {
+        this.type = RangeRingType.MOVABLE;
+        this.id = id;
+        this.centerCoordinate = centerCoordinate;
+        this.radii = new int[] { radius };
+        this.label = label;
+        this.visible = visible;
+    }
 
-	public RangeRing(String id, Coordinate centerCoordinate, int[] radii,
-			String label) {
-		this(id, centerCoordinate, radii, label, false);
+    public RangeRing(String id, Coordinate centerCoordinate, int[] radii,
+            String label) {
+        this(id, centerCoordinate, radii, label, false);
 
-	}
+    }
 
-	public RangeRing(String id, Coordinate centerCoordinate, int[] radii,
-			String label, boolean visible) {
-		this.type = RangeRingType.FIXED;
-		this.id = id;
-		this.centerCoordinate = centerCoordinate;
-		this.radii = radii;
-		this.label = label;
-		this.visible = visible;
-	}
+    public RangeRing(String id, Coordinate centerCoordinate, int[] radii,
+            String label, boolean visible) {
+        this.type = RangeRingType.FIXED;
+        this.id = id;
+        this.centerCoordinate = centerCoordinate;
+        this.radii = radii;
+        this.label = label;
+        this.visible = visible;
+    }
 
-	public String getId() {
-		return id;
-	}
+    public String getId() {
+        return id;
+    }
 
-	public void setId(String id) {
-		this.id = id;
-	}
+    public void setId(String id) {
+        this.id = id;
+    }
 
-	public Coordinate getCenterCoordinate() {
-		return centerCoordinate;
-	}
+    public Coordinate getCenterCoordinate() {
+        return centerCoordinate;
+    }
 
-	public void setCenterCoordinate(Coordinate centerCoordinate) {
-		this.centerCoordinate = centerCoordinate;
-	}
+    public void setCenterCoordinate(Coordinate centerCoordinate) {
+        this.centerCoordinate = centerCoordinate;
+    }
 
-	public int getRadius() {
-		return radii[0];
-	}
+    public int getRadius() {
+        return radii[0];
+    }
 
-	public void setRadius(int radius) {
-		this.radii[0] = radius;
-	}
+    public void setRadius(int radius) {
+        this.radii[0] = radius;
+    }
 
-	public int[] getRadii() {
-		return radii;
-	}
+    public int[] getRadii() {
+        return radii;
+    }
 
-	public void setRadii(int[] radii) {
-		this.radii = radii;
-	}
+    public void setRadii(int[] radii) {
+        this.radii = radii;
+    }
 
-	public String getLabel() {
-		return label;
-	}
+    public String getLabel() {
+        return label;
+    }
 
-	public void setLabel(String label) {
-		this.label = label;
-	}
+    public void setLabel(String label) {
+        this.label = label;
+    }
 
-	public boolean isVisible() {
-		return visible;
-	}
+    public boolean isVisible() {
+        return visible;
+    }
 
-	public void setVisible(boolean visible) {
-		this.visible = visible;
-	}
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
 
-	public RangeRingType getType() {
-		return type;
-	}
+    public RangeRingType getType() {
+        return type;
+    }
 
-	public void setType(RangeRingType type) {
-		this.type = type;
-	}
+    public void setType(RangeRingType type) {
+        this.type = type;
+    }
 
-	public RangeRing clone() {
-		RangeRing newRing = new RangeRing(this.id, new Coordinate(
-				this.centerCoordinate), Arrays.copyOf(this.radii,
-				this.radii.length), this.label, this.visible);
-		newRing.setType(this.type);
-		return newRing;
-	}
+    @Override
+    public RangeRing clone() {
+        RangeRing newRing = new RangeRing(this.id,
+                new Coordinate(this.centerCoordinate),
+                Arrays.copyOf(this.radii, this.radii.length), this.label,
+                this.visible);
+        newRing.setType(this.type);
+        return newRing;
+    }
 
-	public boolean equals(Object other) {
-		if (other == this) {
-			return true;
-		}
-		if (other == null) {
-			return false;
-		}
-		if (!(other instanceof RangeRing)) {
-			return false;
-		}
-		RangeRing otherRing = (RangeRing) other;
-		if (type != otherRing.type) {
-			return false;
-		}
-		if (visible != otherRing.visible) {
-			return false;
-		}
-		if (!id.equals(otherRing.id)) {
-			return false;
-		}
-		if (!centerCoordinate.equals(otherRing.centerCoordinate)) {
-			return false;
-		}
-		if (radii.length != otherRing.radii.length) {
-			return false;
-		}
-        for (int i = 0; i < radii.length; i++) {
-			if (radii[i] != otherRing.radii[i]) {
-				return false;
-			}
-		}
-		if (!label.equals(otherRing.label)) {
-			return false;
-		}
-		return true;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((centerCoordinate == null) ? 0
+                : centerCoordinate.hashCode());
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        result = prime * result + ((label == null) ? 0 : label.hashCode());
+        result = prime * result + Arrays.hashCode(radii);
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        RangeRing other = (RangeRing) obj;
+        if (centerCoordinate == null) {
+            if (other.centerCoordinate != null)
+                return false;
+        } else if (!centerCoordinate.equals(other.centerCoordinate))
+            return false;
+        if (id == null) {
+            if (other.id != null)
+                return false;
+        } else if (!id.equals(other.id))
+            return false;
+        if (label == null) {
+            if (other.label != null)
+                return false;
+        } else if (!label.equals(other.label))
+            return false;
+        if (!Arrays.equals(radii, other.radii))
+            return false;
+        if (type != other.type)
+            return false;
+        return true;
+    }
 
 }

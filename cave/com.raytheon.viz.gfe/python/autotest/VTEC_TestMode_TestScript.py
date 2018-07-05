@@ -541,7 +541,7 @@ scripts = [
     "productType":"OFF",
     "commentary": "Checking Test Mode for OFF",
     "cmdLineVars": "{('Product Issuance', 'productIssuance'): '400 AM', ('Issued By', 'issuedBy'): None}",
-    "createGrids": [("Fcst", "Hazards", "DISCRETE", 0, 24, "HU.W", "all")],
+    "createGrids": [("Fcst", "Hazards", "DISCRETE", 0, 24, "HU.W:1080", "all")],
     "comboFlag":  1,
     "combinations": "ZONE",
     "checkStrings": [
@@ -555,7 +555,7 @@ scripts = [
        "THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS TEST MESSAGE.",
        "$$",
 #        "FLZ042-012100-",
-       "/T.NEW.KTBW.HU.W.0001.100101T0900Z-000000T0000Z/",
+       "/T.NEW.KTBW.HU.W.1080.100101T0900Z-000000T0000Z/",
 #        "Citrus-",
        "400 AM EST Fri Jan 1 2010",
        "...THIS MESSAGE IS FOR TEST PURPOSES ONLY...",

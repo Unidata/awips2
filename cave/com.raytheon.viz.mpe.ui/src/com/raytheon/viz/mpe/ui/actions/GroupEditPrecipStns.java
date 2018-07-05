@@ -30,7 +30,8 @@ import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
+ * Applies quality code updates made in Group Edit Mode to a precipitation
+ * station closest to the mouse pointer.
  * 
  * <pre>
  * 
@@ -42,16 +43,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 04, 2014    283     cgobs       Fixed possible selection of filtered-out gages
  * Dec 2015        17388   ptilles     Add test for mpe_dqc_6hr_24hr_set_bad token value
  * Mar 15, 2016    18427   lbousaidi   Code Improvements for DR 18384 (Vlab 13938)
+ * Aug 11, 2017    6148    bkowal      Force the refresh of the station display.
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class GroupEditPrecipStns {
-	
-    private static final IUFStatusHandler statusHandler = UFStatus.getHandler(GroupEditPrecipStns.class);
-	
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
     public void group_edit_precip_stations(ReferencedCoordinate rcoord) {
         int time_pos;
         int i, m, k;
@@ -64,10 +66,9 @@ public class GroupEditPrecipStns {
         try {
             coord = rcoord.asLatLon();
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-        	 statusHandler
-             .error("Failed to convert ReferencedCoordinate to Coordinate.",
-                     e);
+            statusHandler.error(
+                    "Failed to convert ReferencedCoordinate to Coordinate.", e);
+            return;
         }
 
         if (MPEDisplayManager.pcpn_time_step == 0) {
@@ -102,7 +103,8 @@ public class GroupEditPrecipStns {
             }
 
             // elevation filter
-            if (DailyQcUtils.precip_stations.get(i).elev < DailyQcUtils.elevation_filter_value) {
+            if (DailyQcUtils.precip_stations
+                    .get(i).elev < DailyQcUtils.elevation_filter_value) {
                 continue;
             }
 
@@ -168,8 +170,7 @@ public class GroupEditPrecipStns {
 
         DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[time_pos].qual = (short) GroupEditStationsDialog.group_qual;
 
-        if (GroupEditStationsDialog.group_qual == 1
-                && time_pos == 4
+        if (GroupEditStationsDialog.group_qual == 1 && time_pos == 4
                 && DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].sflag[time_pos] == 1) {
 
             DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[time_pos].data = DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].rrain[time_pos].data;
@@ -178,14 +179,12 @@ public class GroupEditPrecipStns {
 
         }
 
-        if (time_pos == 4
-                && (GroupEditStationsDialog.group_qual == 1
-                        || GroupEditStationsDialog.group_qual == 0 || GroupEditStationsDialog.group_qual == 8)) {
-
+        if (time_pos == 4 && (GroupEditStationsDialog.group_qual == 1
+                || GroupEditStationsDialog.group_qual == 0
+                || GroupEditStationsDialog.group_qual == 8)) {
             for (k = 0; k < 4; k++) {
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[k].qual = (short) GroupEditStationsDialog.group_qual;
             }
-
         }
 
         /*
@@ -197,7 +196,8 @@ public class GroupEditPrecipStns {
         if (GroupEditStationsDialog.group_qual == 2) {
             DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[time_pos].data = 0.0f;
             DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[time_pos].qual = 2;
-            if ((DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].data - 0.0) < 0.0001) {
+            if ((DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].data
+                    - 0.0) < 0.0001) {
                 for (k = 0; k < 4; k++) {
                     DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[k].data = 0.0f;
                     DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[k].qual = 2;
@@ -213,8 +213,7 @@ public class GroupEditPrecipStns {
         boolean mpe_dqc_6hr_24hr_set_bad = AppsDefaults.getInstance()
                 .getBoolean("mpe_dqc_6hr_24hr_set_bad", true);
 
-        if (time_pos != 4
-                && GroupEditStationsDialog.group_qual == 1
+        if (time_pos != 4 && GroupEditStationsDialog.group_qual == 1
                 && DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].qual != 5
                 && DailyQcUtils.pdata[DailyQcUtils.pcpn_day].stn[isave].frain[4].qual != 4) {
             if (mpe_dqc_6hr_24hr_set_bad) {
@@ -235,6 +234,6 @@ public class GroupEditPrecipStns {
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[k] = 2;
             }
         }
-        return;
+        new OtherPrecipOptions().refresh_exposure();
     }
 }

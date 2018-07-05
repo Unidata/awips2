@@ -18,22 +18,32 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
     <displayList>
-        <displays xsi:type="mapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xsi:type="mapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="mapDescriptor">
                 <resource>
                     <loadProperties>
                         <capabilities>
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" outlineOn="true"
                                 outlineWidth="1" />
-                            <capability xsi:type="colorableCapability" colorAsString="#9b9b9b" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#9b9b9b" />
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="true" isHoverOn="false"
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="true" isHoverOn="false"
                         isVisible="true">
-                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
+                        <pdProps maxDisplayWidth="100000000"
+                            minDisplayWidth="0" />
                     </properties>
                     <resourceData xsi:type="spiResourceData">
                         <filename>basemaps/airports.spi</filename>

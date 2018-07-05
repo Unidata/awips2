@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -80,27 +80,27 @@ import com.raytheon.viz.warngen.config.AbstractDbSourceDataAdaptor;
 import com.raytheon.viz.warngen.config.DataAdaptorFactory;
 import com.raytheon.viz.warngen.util.Abbreviation;
 import com.raytheon.viz.warngen.util.AdjustAngle;
-import com.raytheon.viz.warnings.DateUtil;
+import com.raytheon.viz.warngen.util.DateUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * 
+ *
  * Wx
- * 
+ *
  * <pre>
- * 
+ *
  *    SOFTWARE HISTORY
- *   
+ *
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Nov 1, 2007             chammack    Initial Creation.
- *    Mar 01, 2012 DR13596    Qinglu Lin  Call GisUtil.restoreAlaskaLon() 
+ *    Mar 01, 2012 DR13596    Qinglu Lin  Call GisUtil.restoreAlaskaLon()
  *                                        in getClosestPoints().
  *    Apr 18, 2012 DR14733    Qinglu Lin  David's fix is used, which creates another
- *                                        ClosestPoint object in the for loop 
+ *                                        ClosestPoint object in the for loop
  *                                        that loops over availablePoints.
  *    May 21, 2012 DR14480    Qinglu Lin  Added code to prevent duplicate cities
  *                                        in pathcast.
@@ -113,7 +113,7 @@ import com.vividsolutions.jts.geom.Point;
  *    Mar 25, 2013 1605       jsanchez    Checks if a storm location is over an urban bound area.
  *    Apr 24, 2013 1943       jsanchez    Calculated partOfArea for a storm location over an urban bound area.
  *    May  2, 2013 1963       jsanchez    Referenced calculateLocationPortion from GisUtil.
- *    Jun 20, 2013 16224      Qinglu Lin  Updated pathcast() by removing restriction of "i < maxCount" at line 478, 
+ *    Jun 20, 2013 16224      Qinglu Lin  Updated pathcast() by removing restriction of "i < maxCount" at line 478,
  *                                        and added findPointsToBeRemoved(), computeAngle(), and remove pathcast's
  *                                        points that are in the past.
  *    Jun 24, 2013 DR 16317   D. Friedman Handle "motionless" track.
@@ -124,7 +124,7 @@ import com.vividsolutions.jts.geom.Point;
  *    May  7, 2015 ASM #17438 D. Friedman Clean up debug and performance logging.
  *    May 11, 2016 5622       jschmid     Allow use of simulated time using TimeUtil.newCalendar().
  * </pre>
- * 
+ *
  * @author chammack
  * @version 1
  */
@@ -149,7 +149,7 @@ public class Wx {
 
     /**
      * Constructor
-     * 
+     *
      * @param eventCenterLocation
      * @param motionSpeedInMetersPerSec
      * @param motionDir
@@ -191,7 +191,7 @@ public class Wx {
     /**
      * This method returns the pathcast given the proper configuration
      * parameters.
-     * 
+     *
      * @param pathcastConfiguration
      * @param geospatialConfig
      * @return the Pathcast
@@ -628,7 +628,7 @@ public class Wx {
      * this method. pointConfigs must be > 0, each point configuration passed in
      * should have the same SearchMethod, isWithinPolygon, and sort by fields
      * should all be the same for each source
-     * 
+     *
      * @param localizedSite
      * @param pointConfigs
      * @return
@@ -882,7 +882,7 @@ public class Wx {
 
     /**
      * Helper method to create a ClosestPoint object.
-     * 
+     *
      * @param cp
      * @param distance
      *            between the cp to the

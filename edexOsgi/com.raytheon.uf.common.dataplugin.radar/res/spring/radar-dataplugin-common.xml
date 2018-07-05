@@ -1,6 +1,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="radarUnitsRegisterd"
         class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
@@ -13,12 +14,12 @@
         </property>
     </bean>
 
-    <bean id="radarGridFactory"
-        class="com.raytheon.uf.common.dataplugin.radar.dataaccess.RadarGridFactory" />
+    <bean id="radarDataAccessFactory"
+        class="com.raytheon.uf.common.dataplugin.radar.dataaccess.RadarDataAccessFactory" />
 
     <bean factory-bean="dataAccessRegistry" factory-method="register">
         <constructor-arg value="radar" />
-        <constructor-arg ref="radarGridFactory" />
+        <constructor-arg ref="radarDataAccessFactory" />
     </bean>
 
     <bean id="radarPacketFactory"
@@ -344,7 +345,7 @@
 
     <bean factory-bean="radarPacketFactory" factory-method="registerGenericPacketType">
         <constructor-arg
-            value="com.raytheon.uf.common.dataplugin.radar.level3.SCCPacket"
+            value="com.raytheon.uf.common.dataplugin.radar.level3.SCLPacket"
             type="java.lang.Class" />
         <constructor-arg>
             <list>

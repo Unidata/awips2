@@ -71,15 +71,16 @@ import com.raytheon.uf.viz.kml.export.graphics.ext.KmlRasterImage;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 01, 2012            bsteffen     Initial creation
- * Jan 26, 2015  3974      njensen      Removed tesselate parameter for createShadedShape()
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 01, 2012           bsteffen  Initial creation
+ * Jan 26, 2015  3974     njensen   Removed tesselate parameter for
+ *                                  createShadedShape()
+ * Nov 14, 2016  5976     bsteffen  Remove deprecated methods
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class KmlGraphicsTarget extends AbstractGraphicsTarget {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -87,7 +88,7 @@ public class KmlGraphicsTarget extends AbstractGraphicsTarget {
 
     private final KmlFont defaultFont = new KmlFont();
 
-    private final List<KmlFeatureGenerator> generators = new ArrayList<KmlFeatureGenerator>(
+    private final List<KmlFeatureGenerator> generators = new ArrayList<>(
             256);
 
     protected IView view;
@@ -110,10 +111,11 @@ public class KmlGraphicsTarget extends AbstractGraphicsTarget {
             if (fd == null) {
                 statusHandler.handle(Priority.PROBLEM,
                         "No font data found for id: " + fontId);
+                return null;
             }
             float size = fd.height;
             String name = fd.getName();
-            List<IFont.Style> styles = new ArrayList<IFont.Style>();
+            List<IFont.Style> styles = new ArrayList<>();
 
             int style = fd.getStyle();
             if ((style & SWT.BOLD) != 0) {
@@ -157,21 +159,8 @@ public class KmlGraphicsTarget extends AbstractGraphicsTarget {
     }
 
     @Override
-    public KmlWireframeShape createWireframeShape(boolean mutable,
-            GeneralGridGeometry geom, float simplificationLevel) {
-        return new KmlWireframeShape(geom);
-    }
-
-    @Override
     public KmlWireframeShape createWireframeShape(boolean mutableFlag,
             GeneralGridGeometry geom) {
-        return new KmlWireframeShape(geom);
-    }
-
-    @Override
-    public KmlWireframeShape createWireframeShape(boolean mutable,
-            GeneralGridGeometry geom, float simplificationLevel,
-            boolean spatialChopFlag, IExtent extent) {
         return new KmlWireframeShape(geom);
     }
 

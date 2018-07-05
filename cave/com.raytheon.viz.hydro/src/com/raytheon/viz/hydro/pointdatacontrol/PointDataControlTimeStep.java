@@ -27,16 +27,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode;
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.viz.hydro.pointdatacontrol.PDCConstants.PrecipPeFilter;
 import com.raytheon.viz.hydro.pointdatacontrol.PDCConstants.ProcessLineMode;
 import com.raytheon.viz.hydro.pointdatacontrol.PDCConstants.RiverStationFilter;
@@ -50,28 +46,25 @@ import com.raytheon.viz.hydrocommon.data.GageData.ThreatIndex;
 import com.raytheon.viz.hydrocommon.pdc.PDCOptionData;
 
 /**
- * Point Data Control Time Step
+ * TODO Add Description
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer     Description
+ * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 4, 2009             mpduff       Initial creation
- * Jan 25, 2011  #7907     bkowal       Added a new method that would only
- *                                      filter values that had been previously
- *                                      retrieved.
- * Aug 03, 2016  4623      skorolev     Cleanup.
+ * Feb 4, 2009            mpduff     Initial creation
+ * Jan 25, 2011 #7907     bkowal     Added a new method that would only
+ *                                   filter values that had been previously
+ *                                   retrieved.
  * 
  * </pre>
  * 
  * @author mpduff
+ * @version 1.0
  */
 
 public class PointDataControlTimeStep {
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(PointDataControlTimeStep.class);
-
     private static final String PDC_DATA_DIR = "pdc_pp_dir";
 
     private static final int MAX_VALUE_COUNT = (24 * 60);
@@ -81,30 +74,29 @@ public class PointDataControlTimeStep {
 
     private StationEntryDetails stationEntryDetails = null;
 
-    private List<GageData> reportList = new ArrayList<>();
+    private ArrayList<GageData> reportList = new ArrayList<GageData>();
 
     /**
      * Update the preprocessed data cache.
      */
-    public List<GageData> updateData() {
+    public ArrayList<GageData> updateData() {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         String dataDir = getDataDirectory();
 
         try {
             readFile(dataDir);
         } catch (IOException e) {
-            statusHandler.handle(Priority.ERROR,
-                    "PointDataControlTimeStep.updateData():  Unable to read file "
-                            + dataDir, e);
-
+            // TODO Auto-generated catch block
+            System.err
+                    .println("PointDataControlTimeStep.updateData():  Unable to read file.");
+            e.printStackTrace();
         }
 
         PDCFileInfo fileInfo = PDCFileInfo.getInstance();
 
         if (!fileInfo.isSuccess()) {
-            statusHandler.handle(Priority.ERROR,
-                    "PointDataControlTimeStep.updateData():  Unable to read file "
-                            + dataDir);
+            System.err
+                    .println("PointDataControlTimeStep.updateData():  Unable to read file.");
             return null;
         }
 
@@ -146,21 +138,17 @@ public class PointDataControlTimeStep {
                     reportList, true);
 
         } catch (ParseException e) {
-            statusHandler.handle(Priority.ERROR, "Error parsing timeString "
-                    + timeString, e);
+            // TODO Auto-generated catch block
+            e.printStackTrace();
         }
 
         return reportList;
     }
-
-    /**
-     * Filter data
-     * 
-     * @return
-     */
-    public List<GageData> onlyFilterData() {
-        reportList = PointDataControlFilter.filterReportsAndAddInfo(reportList);
-
+    
+    public ArrayList<GageData> onlyFilterData() {
+        reportList = PointDataControlFilter
+            .filterReportsAndAddInfo(reportList);
+        
         return this.reportList;
     }
 
@@ -211,7 +199,8 @@ public class PointDataControlTimeStep {
         // Reset the data storage
         pdcManager.resetStationEntryDetailsMap();
 
-        try (BufferedReader in = new BufferedReader(new FileReader(path))) {
+        try {
+            BufferedReader in = new BufferedReader(new FileReader(path));
             String line;
             while (((line = in.readLine()) != null)) {
                 headerLineCnt++;
@@ -224,12 +213,13 @@ public class PointDataControlTimeStep {
 
                         // Store this for later use
                         try {
-                            fileInfo.setTimestepFileCreationTime(PDCConstants.DATE_FORMAT
-                                    .parse(dateString + " " + timeString));
+                            fileInfo
+                                    .setTimestepFileCreationTime(PDCConstants.DATE_FORMAT
+                                            .parse(dateString + " "
+                                                    + timeString));
                         } catch (ParseException e) {
-                            statusHandler.handle(Priority.ERROR,
-                                    "Error parsing timeString " + dateString
-                                            + " " + timeString, e);
+                            // TODO Auto-generated catch block
+                            e.printStackTrace();
                         }
                         continue;
                     } else if (headerLineCnt < 7) {
@@ -253,8 +243,7 @@ public class PointDataControlTimeStep {
                             fileInfo.setIncrementTime(incrTime);
                             fileInfo.setValueCount(valueCount);
                         } catch (NumberFormatException e) {
-                            statusHandler.handle(Priority.ERROR,
-                                    "Error parsing file info: " + line, e);
+                            e.printStackTrace();
                         }
                     } else {
                         if (line.length() > 0) {
@@ -283,25 +272,16 @@ public class PointDataControlTimeStep {
 
             }
 
+            in.close();
+
             fileInfo.setEntryCount(pdcManager.getStationEntryMap().size());
             fileInfo.setSuccess(true);
 
         } catch (IOException e) {
-            statusHandler.handle(Priority.ERROR, "Error open file " + path, e);
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Process Line
-     * 
-     * @param line
-     * @param valueCount
-     * @param processLineMode
-     * @param startTime
-     * @param incrTime
-     * @param station
-     * @return
-     */
     private StationEntryDetails processLine(String line, int valueCount,
             ProcessLineMode processLineMode, Calendar startTime, int incrTime,
             StationEntryDetails station) {
@@ -315,9 +295,8 @@ public class PointDataControlTimeStep {
                     incrTime);
             pdcManager.addStationEntry(station);
         } else {
-            statusHandler.handle(Priority.DEBUG,
-                    "process_line():  Invalid ProcessLineMode = "
-                            + processLineMode);
+            System.err.println("process_line():  Invalid ProcessLineMode = "
+                    + processLineMode);
         }
 
         return station;
@@ -377,16 +356,6 @@ public class PointDataControlTimeStep {
         return station;
     }
 
-    /**
-     * Loads ValuesInfo
-     * 
-     * @param line
-     * @param station
-     * @param valueCount
-     * @param startTime
-     * @param incrTime
-     * @return
-     */
     private StationEntryDetails loadValuesInfo(String line,
             StationEntryDetails station, int valueCount, Calendar startTime,
             int incrTime) {
@@ -432,9 +401,9 @@ public class PointDataControlTimeStep {
      * @param instantPrecipSelection
      *            Instantaneous precip selection
      */
-    private List<GageData> createReportList(PDCFileInfo fileInfo,
+    private ArrayList<GageData> createReportList(PDCFileInfo fileInfo,
             Date validReportTime, boolean inInstantPrecipMode,
-            int instantPrecipSelection, List<GageData> reportList) {
+            int instantPrecipSelection, ArrayList<GageData> reportList) {
         final String method = "createReportList()";
         int numValues = fileInfo.getValueCount();
         Calendar startTime = fileInfo.getStartTime();
@@ -454,25 +423,24 @@ public class PointDataControlTimeStep {
 
             if (!((usefulLoopIndex >= 0) && (usefulLoopIndex < numValues))) {
                 usefulLoopIndex = -1;
-                statusHandler.handle(
-                        Priority.DEBUG,
-                        "ERROR in "
+//                UFStatus.handle(Priority.PROBLEM, Activator.PLUGIN_ID,
+//                        StatusConstants.CATEGORY_HYDRO,
+//                        StatusConstants.SUBCATEGORY_HYDROVIEW, "ERROR in "
+                System.out.println("ERROR in "
                                 + method
                                 + " problem with startTime = "
-                                + PDCConstants.DATE_FORMAT.format(startTime
-                                        .getTime())
+                                + PDCConstants.DATE_FORMAT.format(startTime.getTime())
                                 + " Check roundness.  validReportTime = :"
                                 + PDCConstants.DATE_FORMAT
                                         .format(validReportTime)
                                 + ": startTime = :"
-                                + PDCConstants.DATE_FORMAT.format(startTime
-                                        .getTime()));
+                                + PDCConstants.DATE_FORMAT.format(
+                                        startTime.getTime()));
             }
         }
-
+        
         if (usefulLoopIndex == -1) {
-            statusHandler.handle(Priority.INFO, method + " usefulLoopIndex = "
-                    + usefulLoopIndex + " numValues = " + numValues);
+            System.out.println(method + " usefulLoopIndex = " + usefulLoopIndex + " numValues = " + numValues);
         }
 
         /* for each station entry, (there can be more than 1 entry per lid) */
@@ -500,7 +468,7 @@ public class PointDataControlTimeStep {
      * @return the Index
      */
     private int getInstPrecipArrayIndex(int selection) {
-
+        //final String method = "getInstPrecipArrayIndex()";
         int index = -1;
 
         if (selection == HydroConstants.InstPrecipSelection.PRECIP_TIME_30_MINUTES
@@ -532,6 +500,11 @@ public class PointDataControlTimeStep {
             index = 0;
         }
 
+//        UFStatus.handle(Priority.EVENTB, Activator.PLUGIN_ID,
+//                StatusConstants.CATEGORY_HYDRO,
+//                StatusConstants.SUBCATEGORY_HYDROVIEW, method + " selection = "
+//                        + selection + " index = " + index);
+//
         return index;
     }
 
@@ -542,9 +515,9 @@ public class PointDataControlTimeStep {
      * @param validTime
      * @param valueIndex
      */
-    private List<GageData> copyStationDetailsToReportList(
+    private ArrayList<GageData> copyStationDetailsToReportList(
             StationEntryDetails station, Date validTime, int valueIndex,
-            List<GageData> reportList) {
+            ArrayList<GageData> reportList) {
         GageData gd = new GageData();
 
         gd.setLid(station.getLid());
@@ -571,31 +544,26 @@ public class PointDataControlTimeStep {
         gd.setBasistime(validTime);
 
         gd.setThreatIndex(ThreatIndex.THREAT_MISSING_DATA); // Note: had been
-        // set to 'R', literally
+        // set to 'R',
+        // literally
         gd.setLat(station.getLat());
         gd.setLon(station.getLon() * -1);
-        // Note: had been set to "F", literally
-        gd.setDispClass("F");
+
+        gd.setDispClass("F"); // Note: had been set to "F", literally
 
         reportList.add(gd);
 
         return reportList;
     }
 
-    /**
-     * Filters River Station Reports
-     * 
-     * @param reportListArg
-     * @return
-     */
-    private List<GageData> filterRiverStationReports(
-            List<GageData> reportListArg) {
+    private ArrayList<GageData> filterRiverStationReports(
+            ArrayList<GageData> reportList) {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
 
         /* We only want to filter in Time Step mode with a River element type */
         if (pcOptions.getElementType() != HydroConstants.TimeStepDataElementType.RIVER_TIME_STEP_TYPE
                 .getTimeStepDataElementType()) {
-            return reportListArg;
+            return reportList;
         }
 
         int riverStationFilter = pcOptions.getRiverStationFilter();
@@ -603,10 +571,10 @@ public class PointDataControlTimeStep {
         if (riverStationFilter == RiverStationFilter.ALL_STATIONS_RSF
                 .getRiverStationFilter()) {
             // There is no filtering performed, so bail
-            return reportListArg;
+            return reportList;
         }
 
-        for (GageData gd : reportListArg) {
+        for (GageData gd : reportList) {
             boolean isReservoir = false;
 
             if (gd.getDispClass().toUpperCase().contains("D")) {
@@ -626,16 +594,10 @@ public class PointDataControlTimeStep {
 
         }
 
-        return reportListArg;
+        return reportList;
     }
 
-    /**
-     * Filters By PrecipPe
-     * 
-     * @param reportListArg
-     * @return
-     */
-    private List<GageData> filterByPrecipPe(List<GageData> reportListArg) {
+    private ArrayList<GageData> filterByPrecipPe(ArrayList<GageData> reportList) {
         /*
          * Note: this sort of filter routine- filters OUT, it never sets
          * rPtr->use to 1, since other filters may set it to 0, and hence filter
@@ -650,22 +612,22 @@ public class PointDataControlTimeStep {
          */
         if (pcOptions.getElementType() != HydroConstants.TimeStepDataElementType.RAIN_TIME_STEP_TYPE
                 .getTimeStepDataElementType()) {
-            return reportListArg;
+            return reportList;
         }
 
         if (pcOptions.getTsDataElement() == HydroConstants.TimeStepDataElement.INSTANTANEOUS_PRECIP_TSDE
                 .getElementType()) {
-            return reportListArg;
+            return reportList;
         }
 
         int precipPeFilter = pcOptions.getPrecipPeFilter();
 
         if (precipPeFilter == PrecipPeFilter.PC_AND_PP_PPF.getFilterType()) {
             /* There is no filtering performed, so bail */
-            return reportListArg;
+            return reportList;
         }
 
-        for (GageData gd : reportListArg) {
+        for (GageData gd : reportList) {
             if (precipPeFilter == PrecipPeFilter.PC_ONLY_PPF.getFilterType()) {
                 if (gd.getPe().equalsIgnoreCase("PP")) {
                     gd.setUse(false);
@@ -678,6 +640,6 @@ public class PointDataControlTimeStep {
             }
         }
 
-        return reportListArg;
+        return reportList;
     }
 }

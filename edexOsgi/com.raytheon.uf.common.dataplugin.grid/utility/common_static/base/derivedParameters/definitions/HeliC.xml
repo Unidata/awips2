@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--
 COMMENT:
 // Super Tornado Icons defined by BRNSHR>60m/s, EHI>2.5, 1000-850MB LR>3C/KM,
@@ -29,16 +33,17 @@ FIELD: |0.|
 
 NEW FILE - TORi.xml
 -->
-<DerivedParameter name="Helicity (for &gt; 300J/Kg MLCape)" abbreviation="HeliC" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="Helicity (for &gt; 300J/Kg MLCape)" abbreviation="HeliC" xmlns:ns2="group"
+    xmlns:ns3="http://www.example.org/productType">
     <Method name="Test">
-        <Field level="0-1kmAgl" abbreviation="cCape"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="-1.0E37"/>
-        <ConstantField value="300.0"/>
-        <ConstantField value="0.0"/>       
-        <ConstantField value="1.0"/>
-        <ConstantField value="300.0"/>
-        <ConstantField value="1.0E37"/>         
-        <Field abbreviation="Heli"/>
+        <Field level="0-1kmAgl" abbreviation="cCape" />
+        <ConstantField value="1.0" />
+        <ConstantField value="-1.0E37" />
+        <ConstantField value="300.0" />
+        <ConstantField value="0.0" />
+        <ConstantField value="1.0" />
+        <ConstantField value="300.0" />
+        <ConstantField value="1.0E37" />
+        <Field abbreviation="Heli" />
     </Method>
 </DerivedParameter>

@@ -64,6 +64,7 @@ import com.raytheon.uf.common.grib.GribCoverageStore;
 import com.raytheon.uf.common.grib.GridModel;
 import com.raytheon.uf.common.grib.GridModelSet;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.menus.vb.VbSourceList;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -71,7 +72,6 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.grib.wizard.GribWizardData;
-import com.raytheon.viz.volumebrowser.xml.VbSourceList;
 
 /**
  * 

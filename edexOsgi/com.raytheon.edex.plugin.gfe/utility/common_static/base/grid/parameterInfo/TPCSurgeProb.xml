@@ -1,8 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-  Mar 20, 2014    #2934    dgilling    Added new parameters for PHISH/pSurge 2.0.
-  Apr 17, 2014    #2934    dgilling    Fix fillValue and valid_range values.
- -->
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        Mar 20, 2014    #2934    dgilling    Added new parameters for PHISH/pSurge 2.0.
+        Apr 17, 2014    #2934    dgilling    Fix fillValue and valid_range values.
+        Jul 07, 2017    #6326    nabowle     Add new parameters and forecast hours (1-102) for psurge 2.6
+    -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
     <fcst>21600</fcst>
@@ -18,7 +45,10 @@
     <fcst>237600</fcst>
     <fcst>259200</fcst>
     <fcst>280800</fcst>
-    <fcst>288000</fcst>
+    <fcst>302400</fcst>
+    <fcst>324000</fcst>
+    <fcst>345600</fcst>
+    <fcst>367200</fcst>
   </valtimeMINUSreftime>
 
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
@@ -101,7 +131,23 @@
       <level>SFC</level>
     </levels>
   </gridParameterInfo>
-  
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>Surge90Pct</short_name>
+    <long_name>Hurricane Storm Surge Percentile(90)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE90pct</uiname>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge25Ft</short_name>
     <long_name>Prob of Hurricane Storm Surge &gt; 25 feet</long_name>
@@ -491,9 +537,10 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
@@ -506,15 +553,16 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
-  
+
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>Surge10Pctincr</short_name>
-    <long_name>6 hr Hurricane Storm Surge Percentile(10)</long_name>
+    <long_name>Hurricane Storm Surge Percentile(10)</long_name>
     <units>m</units>
     <udunits>meters</udunits>
     <uiname>SURGE10pct_incr</uiname>
@@ -522,14 +570,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>Surge20Pctincr</short_name>
-    <long_name>6 hr Hurricane Storm Surge Percentile(20)</long_name>
+    <long_name>Hurricane Storm Surge Percentile(20)</long_name>
     <units>m</units>
     <udunits>meters</udunits>
     <uiname>SURGE20pct_incr</uiname>
@@ -537,14 +586,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>Surge30Pctincr</short_name>
-    <long_name>6 hr Hurricane Storm Surge Percentile(30)</long_name>
+    <long_name>Hurricane Storm Surge Percentile(30)</long_name>
     <units>m</units>
     <udunits>meters</udunits>
     <uiname>SURGE30pct_incr</uiname>
@@ -552,14 +602,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>Surge40Pctincr</short_name>
-    <long_name>6 hr Hurricane Storm Surge Percentile(40)</long_name>
+    <long_name>Hurricane Storm Surge Percentile(40)</long_name>
     <units>m</units>
     <udunits>meters</udunits>
     <uiname>SURGE40pct_incr</uiname>
@@ -567,14 +618,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>Surge50Pctincr</short_name>
-    <long_name>6 hr Hurricane Storm Surge Percentile(50)</long_name>
+    <long_name>Hurricane Storm Surge Percentile(50)</long_name>
     <units>m</units>
     <udunits>meters</udunits>
     <uiname>SURGE50pct_incr</uiname>
@@ -582,14 +634,32 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
+    <short_name>Surge90Pctincr</short_name>
+    <long_name>Hurricane Storm Surge Percentile(90)</long_name>
+    <units>m</units>
+    <udunits>meters</udunits>
+    <uiname>SURGE90pct_incr</uiname>
+    <valid_range>-100.0</valid_range>
+    <valid_range>100.0</valid_range>
+    <fillValue>-999999.0</fillValue>
+    <n3D>0</n3D>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
+    <levels>
+      <level>FHAG0</level>
+      <level>SFC</level>
+    </levels>
+  </gridParameterInfo>
+
+  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge20Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 20 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 20 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge20c_incr</uiname>
@@ -597,14 +667,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge19Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 19 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 19 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge19c_incr</uiname>
@@ -612,14 +683,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge18Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 18 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 18 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge18c_incr</uiname>
@@ -627,14 +699,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge17Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 17 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 17 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge17c_incr</uiname>
@@ -642,14 +715,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge16Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 16 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 16 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge16c_incr</uiname>
@@ -657,14 +731,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge15Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 15 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 15 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge15c_incr</uiname>
@@ -672,14 +747,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge14Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 14 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 14 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge14c_incr</uiname>
@@ -687,14 +763,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge13Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 13 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 13 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge13c_incr</uiname>
@@ -702,14 +779,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge12Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 12 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 12 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge12c_incr</uiname>
@@ -717,14 +795,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge11Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 11 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 11 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge11c_incr</uiname>
@@ -732,14 +811,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge10Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 10 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 10 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge10c_incr</uiname>
@@ -747,14 +827,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge9Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 9 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 9 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge09c_incr</uiname>
@@ -762,14 +843,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge8Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 8 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 8 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge08c_incr</uiname>
@@ -777,14 +859,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge7Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 7 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 7 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge07c_incr</uiname>
@@ -792,14 +875,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge6Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 6 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 6 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge06c_incr</uiname>
@@ -807,14 +891,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge5Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 5 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 5 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge05c_incr</uiname>
@@ -822,14 +907,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge4Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 4 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 4 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge04c_incr</uiname>
@@ -837,14 +923,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge3Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 3 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 3 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge03c_incr</uiname>
@@ -852,14 +939,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge2Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 2 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 2 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge02c_incr</uiname>
@@ -867,14 +955,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge1Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 1 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 1 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge01c_incr</uiname>
@@ -882,14 +971,15 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>PSurge0Ftincr</short_name>
-    <long_name>6 hr Prob of Hurricane Storm Surge &gt; 0 feet</long_name>
+    <long_name>Prob of Hurricane Storm Surge &gt; 0 feet</long_name>
     <units>%</units>
     <udunits>percent</udunits>
     <uiname>ProbSurge00c_incr</uiname>
@@ -897,12 +987,13 @@
     <valid_range>100.0</valid_range>
     <fillValue>-999999.0</fillValue>
     <n3D>0</n3D>
-    <levelsDesc>0 FHAG</levelsDesc>
+    <levelsDesc>SFC 0 FHAG</levelsDesc>
     <levels>
       <level>FHAG0</level>
+      <level>SFC</level>
     </levels>
   </gridParameterInfo>
-  
+
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>staticTopo</short_name>
     <long_name>Topography</long_name>

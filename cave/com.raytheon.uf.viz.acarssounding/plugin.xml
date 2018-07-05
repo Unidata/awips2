@@ -35,5 +35,28 @@
             resourceType="cross_section">
       </productCreator>
    </extension>
-
+      <extension
+         point="com.raytheon.uf.viz.xy.crosssection.crosssectionadapter">
+      <crossSectionAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
+            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
+            name="Acars Sounding Cross Section Adapter">
+      </crossSectionAdapter>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.xy.timeseries.timeseriesadapter">
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
+            name="Acars Sounding Time Series Adapter">
+      </timeSeriesAdapter>
+   </extension>
+   <extension
+         point="com.raytheon.uf.viz.xy.varheight.varheightadapter">
+      <varHeightAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
+            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
+            name="AcarsSounding Var Height Adapter">
+      </varHeightAdapter>
+   </extension>
 </plugin>

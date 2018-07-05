@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -25,61 +25,64 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+
+import com.raytheon.uf.viz.vtec.VtecObject;
+import com.raytheon.uf.viz.vtec.VtecUtil;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.TextWarningConstants;
-import com.raytheon.viz.texteditor.util.VtecObject;
-import com.raytheon.viz.texteditor.util.VtecUtil;
 
 /**
  * TODO Add Description
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
+ *
+ * Date          Ticket#  Engineer     Description
+ * ------------- -------- ------------ -----------------------------------------
  *                                     Initial creation
- * Aug 25, 2011 10719      rferrel     ugcPtrn now local to file.
- * Mar 14, 2014 17175      D. Friedman Get correct time zone from times.
- * May 13, 2014 17177      Qinglu Lin  Updated runQC().
- * Mar 10, 2016 5411       randerso    Moved upper case conversion for QC checks into the 
- *                                      specific checks that need it.
- * 
+ * Aug 25, 2011  10719    rferrel      ugcPtrn now local to file.
+ * Mar 14, 2014  17175    D. Friedman  Get correct time zone from times.
+ * May 13, 2014  17177    Qinglu Lin   Updated runQC().
+ * Mar 10, 2016  5411     randerso     Moved upper case conversion for QC checks
+ *                                     into the specific checks that need it.
+ * Nov 03, 2016  5934     randerso     Moved VtecObject and VtecUtil to a
+ *                                     separate plugin.
+ * Apr 25, 2017  6251     dgilling     Code cleanup.
+ * May 19, 2017  6252     dgilling     Add exception case for DSW/SQW
+ *                                     followups.
+ *
  * </pre>
- * 
- * @version 1.0
  */
 public class TimeConsistentCheck implements IQCCheck {
-    private static final Pattern ugcPtrn = Pattern
-            .compile("(((\\w{2}[CZ](\\d{3}-){1,}){1,})|(\\d{3}-){1,})(\\d{2})(\\d{2})(\\d{2})-");
+    private static final Pattern UGC_PATTERN = Pattern.compile(
+            "(((\\w{2}[CZ](\\d{3}-){1,}){1,})|(\\d{3}-){1,})(\\d{2})(\\d{2})(\\d{2})-");
 
     @Override
     public String runQC(String header, String body, String nnn) {
-        body.toUpperCase();
+        body = body.toUpperCase();
 
-        String errorMsg = "";
-        Matcher m = null;
+        if (CAVEMode.getMode().equals(CAVEMode.PRACTICE)) {
+            if (body.contains(QCCheckConstants.TEST_MESSAGE_LABEL)) {
+                body = body.replaceAll(QCCheckConstants.TEST_MESSAGE_PATTERN,
+                        StringUtils.EMPTY);
+            }
+        }
+
         VtecObject vtec = VtecUtil.parseMessage(body);
         Calendar currenttime = Calendar
                 .getInstance(TimeZone.getTimeZone("GMT"));
-
-        if (CAVEMode.getMode().equals(CAVEMode.PRACTICE)) {
-            if (body.contains(TEST_MESSAGE_LABEL)) {
-                body = body.replaceAll(TEST_MESSAGE_LABEL, "");
-            }
-        }
 
         if (vtec != null) {
             currenttime.add(Calendar.MINUTE, 5);
             if (!vtec.getAction().equals("EXP")
                     && vtec.getEndTime().before(currenttime)) {
-                errorMsg += "Product has expired or will expire in\n less than 5 minutes. (UGC line)\n";
-                return errorMsg;
+                return "Product has expired or will expire in\n less than 5 minutes. (UGC line)\n";
             }
 
             // Event ending time vs UGC
-            m = ugcPtrn.matcher(body);
+            Matcher m = UGC_PATTERN.matcher(body);
             if (m.find()) {
                 int hour = Integer.parseInt(m.group(7));
                 int minute = Integer.parseInt(m.group(8));
@@ -87,28 +90,27 @@ public class TimeConsistentCheck implements IQCCheck {
                 currenttime.set(Calendar.MINUTE, minute);
                 currenttime.set(Calendar.SECOND, 0);
                 currenttime.setTimeZone(TimeZone.getTimeZone("GMT"));
-                if ((currenttime.getTimeInMillis() - vtec.getEndTime()
-                        .getTimeInMillis()) > (16 * 60 * 1000)) {
-                    errorMsg = "VTEC end time is 15 minutes older\n than UGC expiration times differ";
-                    return errorMsg;
+                if ((currenttime.getTimeInMillis()
+                        - vtec.getEndTime().getTimeInMillis()) > (16 * 60
+                                * 1000)) {
+                    return "VTEC end time is 15 minutes older\n than UGC expiration times differ";
                 }
             }
 
             // Event ending time (second bullet) vs Expiration
             String newBody = body.replaceAll("UNTIL NOON", "UNTIL 1200 PM");
             newBody = newBody.replaceAll("UNTIL MIDNIGHT", "UNTIL 1200 AM");
-            m = secondBulletPtrn.matcher(newBody);
+            m = QCCheckConstants.SECOND_BULLET_PATTERN.matcher(newBody);
             if (m.find()) {
                 TimeZone timeZone = TextWarningConstants.timeZoneShortNameMap
                         .get(m.group(4));
                 if (timeZone == null) {
-                    errorMsg += "Could not determine time zone in second bullet";
-                    return errorMsg;
+                    return "Could not determine time zone in second bullet";
                 }
                 int am_pm = m.group(3).equals("AM") ? Calendar.AM : Calendar.PM;
                 int minute = Integer.parseInt(m.group(2));
-                int hour = Integer.parseInt(m.group(1)) == 12 ? 0 : Integer
-                        .parseInt(m.group(1));
+                int hour = Integer.parseInt(m.group(1)) == 12 ? 0
+                        : Integer.parseInt(m.group(1));
 
                 Calendar secondBulletTime = new GregorianCalendar(timeZone);
                 if ((secondBulletTime.get(Calendar.AM_PM) == Calendar.PM)
@@ -125,33 +127,33 @@ public class TimeConsistentCheck implements IQCCheck {
 
                 if (currenttime.get(Calendar.HOUR_OF_DAY) != vtec.getEndTime()
                         .get(Calendar.HOUR_OF_DAY)) {
-                    errorMsg += "VTEC and bullet expiration times differ,\n or no * UNTIL line found.\n";
-                    return errorMsg;
+                    return "VTEC and bullet expiration times differ,\n or no * UNTIL line found.\n";
                 }
 
             } else if (!nnn.equalsIgnoreCase("SVS")
                     && !nnn.equalsIgnoreCase("FFS")
                     && !nnn.equalsIgnoreCase("FLW")
                     && !nnn.equalsIgnoreCase("FLS")
-                    && !nnn.equalsIgnoreCase("MWS")) {
-                errorMsg += "VTEC and bullet expiration times differ,\n or no * UNTIL line found.\n";
-                return errorMsg;
+                    && !nnn.equalsIgnoreCase("MWS")
+                    && ((nnn.equalsIgnoreCase("DSW")
+                            || nnn.equalsIgnoreCase("SQW"))
+                            && "NEW".equals(vtec.getAction()))) {
+                return "VTEC and bullet expiration times differ,\n or no * UNTIL line found.\n";
+
             }
 
             // Event beginning time vs ending time
             if (vtec.getEndTime().before(vtec.getStartTime())) {
-                errorMsg += "VTEC ending time is earlier than\n VTEC beginning time.\n";
-                return errorMsg;
+                return "VTEC ending time is earlier than\n VTEC beginning time.\n";
             }
         }
 
-        m = thirdBulletPtrn.matcher(body);
+        Matcher m = QCCheckConstants.THIRD_BULLET_PATTERN.matcher(body);
         if (m.find()) {
-            TimeZone timeZone = TextWarningConstants.timeZoneShortNameMap.get(m
-                    .group(4));
+            TimeZone timeZone = TextWarningConstants.timeZoneShortNameMap
+                    .get(m.group(4));
             if (timeZone == null) {
-                errorMsg += "Could not determine time zone in third bullet";
-                return errorMsg;
+                return "Could not determine time zone in third bullet";
             }
             int am_pm = m.group(3).equals("AM") ? Calendar.AM : Calendar.PM;
             int minute = Integer.parseInt(m.group(2));
@@ -170,12 +172,13 @@ public class TimeConsistentCheck implements IQCCheck {
                     .getTimeInMillis();
 
             if ((thirdBullettime.getTimeInMillis() - (60 * 1000)) > issuetime) {
-                errorMsg += "Event time is later than the MND\n issue time.\n";
-            } else if ((issuetime - thirdBullettime.getTimeInMillis()) > (15 * 60 * 1000)) {
-                errorMsg += "The event time is more than 15 minutes\n earlier than the issue time.\n";
+                return "Event time is later than the MND\n issue time.\n";
+            } else if ((issuetime - thirdBullettime.getTimeInMillis()) > (15
+                    * 60 * 1000)) {
+                return "The event time is more than 15 minutes\n earlier than the issue time.\n";
             }
         }
-        return errorMsg;
-    }
 
+        return StringUtils.EMPTY;
+    }
 }

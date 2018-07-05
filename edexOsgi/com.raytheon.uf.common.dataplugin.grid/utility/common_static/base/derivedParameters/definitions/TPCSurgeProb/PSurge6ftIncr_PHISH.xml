@@ -18,9 +18,14 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="PSurge6ftIncr_PHISH" name="PHISH probability &gt; 6 feet - incremental [agl]" unit="%">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter abbreviation="PSurge6ftIncr_PHISH"
+    name="PHISH probability &gt; 6 feet - incremental [agl]" unit="%">
     <!-- This parameter provides a custom legend and parameter name for the incremental surge that is coming from PHISH -->
-    <Method models="TPCSurgeProb" name="Alias" levels="0FHAG">
-        <Field abbreviation="PSurge6ft6hr"/>
+    <Method models="TPCSurgeProb P-ETSS P-ETSS-LoRes" name="Alias" levels="0FHAG">
+        <Field abbreviation="PSurge6ft6hr" />
     </Method>
 </DerivedParameter>

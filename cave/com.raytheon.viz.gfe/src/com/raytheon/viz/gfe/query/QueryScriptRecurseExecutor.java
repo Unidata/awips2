@@ -21,12 +21,12 @@ package com.raytheon.viz.gfe.query;
 
 import java.util.Map;
 
-import jep.JepException;
-
 import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+
+import jep.JepException;
 
 /**
  * Calls the willRecurse method for QueryScript and returns the correct type
@@ -38,12 +38,13 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 14, 2013            mnash     Initial creation
+ * Feb 14, 2013            mnash       Initial creation
+ * Nov 02, 2016    5979    njensen     Cast to Number where applicable
+ * Apr 14, 2017    5979    njensen     Safer null check after cast
  * 
  * </pre>
  * 
  * @author mnash
- * @version 1.0
  */
 
 public class QueryScriptRecurseExecutor implements
@@ -54,25 +55,18 @@ public class QueryScriptRecurseExecutor implements
 
     private Map<String, Object> args;
 
-    /**
-     * 
-     */
     public QueryScriptRecurseExecutor(Map<String, Object> args) {
         this.args = args;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.python.concurrent.IPythonExecutor#execute(com.
-     * raytheon.uf.common.python.PythonInterpreter)
-     */
     @Override
     public Integer execute(QueryScript script) {
         Integer retVal = null;
         try {
-            retVal = (Integer) script.execute("willRecurse", args);
+            Number n = (Number) script.execute("willRecurse", args);
+            if (n != null) {
+                retVal = n.intValue();
+            }
         } catch (JepException e) {
             statusHandler.handle(Priority.PROBLEM, "Unable to execute script",
                     e);

@@ -107,6 +107,8 @@ import jep.JepException;
  *                                     Fixed indentation for bulleted text below the first line.
  * Feb 08, 2017 #6127      dgilling    Remove errant calls to startUpdate/endUpdate
  *                                     added under 5787.
+ * Mar 20, 2018 20585      ryu         Fix verify listener to prevent joining of normal text
+ *                                     and locked text causing unlocking and garble.
  * </pre>
  * 
  * @author lvenable
@@ -193,7 +195,7 @@ public class StyledTextComp extends Composite {
 
     private boolean newProduct = false;
 
-    private Set<String> unlockCitySegs = new HashSet();
+    private Set<String> unlockCitySegs = new HashSet<>();
 
     private boolean autoWrapMode;
 
@@ -403,7 +405,7 @@ public class StyledTextComp extends Composite {
          * Lock content in the UGC text.
          */
         if (newProduct) {
-            unlockCitySegs = new HashSet<String>();
+            unlockCitySegs = new HashSet<>();
         }
 
         List<SegmentData> segArray = prodDataStruct.getSegmentsArray();
@@ -737,32 +739,48 @@ public class StyledTextComp extends Composite {
             return;
         }
 
-        // Check if the selected text contains locked text.
-        boolean selectTextLocked = selectionHasLockedText();
-
-        // Get the StyleRange at the cursor offset.
         int length = event.end - offset;
-        if (length == 0) {
-            length = 1;
-        }
-        boolean editingLockedText = rangeHasLockedText(offset, length);
 
-        if (selectTextLocked || editingLockedText) {
-            if (!isNonEditKey(event) && !isSystemTextChange()) {
-                event.doit = false;
-                return;
-            }
+        boolean editingLockedText = false;
+        if (length > 0) {
+            editingLockedText = rangeHasLockedText(offset, length);
+        } else if (event.text.length() > 0) {
+            // Should not allow inserting within locked text
+            editingLockedText = offsetIsWithinLockedText(offset);
         }
 
-        // this is specifically to handle the case of deleting line breaks
-        // between two separate locked sections so a locked section cannot be
-        // moved onto the end of an unlocked line
-        if ((length == 1) && (event.text.length() == 0)) {
-            if (((offset + 2) < textEditorST.getCharCount())
-                    && rangeHasLockedText(offset, 2)) {
+        if (editingLockedText && !isNonEditKey(event)) {
+            event.doit = false;
+            return;
+        }
+        
+        // edit range ends right before a block of locked text
+        if (rangeHasLockedText(event.end, 1)) {
+            if (event.end == 0) {
+                // not allow any insert
                 event.doit = false;
                 return;
+            } else if (event.text.length() == 0) {
+                // make sure text does not merge with locked text
+                // and keep a line between two locked blocks
+                if (!textEditorST.getTextRange(offset-1, 1).equals("\n") ||
+                        rangeHasLockedText(offset-1, 1)) {
+                    event.text = "\n";
+                }
+            } else {
+                // do not allow prepending onto locked text
+                if (!event.text.endsWith("\n")) {
+                    event.doit = false;
+                    return;
+                }
             }
+        }
+        
+        // do nothing if no change
+        if (textEditorST.getTextRange(event.start, length)
+                .equals(event.text)) {
+            event.doit = false;
+            return;
         }
 
         // allow edit to go through
@@ -835,6 +853,10 @@ public class StyledTextComp extends Composite {
      *         text.
      */
     protected boolean rangeHasLockedText(int offset, int length) {
+        if (offset >= textEditorST.getCharCount()) {
+            return false;
+        }
+        
         StyleRange[] ranges = textEditorST.getStyleRanges(offset, length);
 
         for (StyleRange range : ranges) {
@@ -843,6 +865,30 @@ public class StyledTextComp extends Composite {
             }
         }
 
+        return false;
+    }
+    
+    /**
+     * Check if offset is located within locked text.
+     * 
+     * @param offset
+     *            The text position to check.
+     * 
+     * @return Whether or not offset is located within locked text.
+     */
+    protected boolean offsetIsWithinLockedText(int offset) {
+        if (offset >= textEditorST.getCharCount())
+            return false;
+
+        StyleRange[] srs = textEditorST.getStyleRanges();
+
+        for (StyleRange sr : srs) {
+            if ((sr.foreground == lockColor) && 
+                    (offset > sr.start) && 
+                    (offset < (sr.start + sr.length))) {
+                return true;
+            }
+        }
         return false;
     }
 

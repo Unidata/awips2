@@ -566,7 +566,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         if (saveAsDlg == null || saveAsDlg.isDisposed()) {
             saveAsDlg = new CaseLoadSaveDeleteDlg(shell,
                     CaseLoadSaveDeleteDlg.Type.SaveAs);
-            saveAsDlg.setCloseCallback(new ICloseCallback() {
+            saveAsDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -596,7 +596,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         if (loadDlg == null || loadDlg.isDisposed()) {
             loadDlg = new CaseLoadSaveDeleteDlg(shell,
                     CaseLoadSaveDeleteDlg.Type.Load);
-            loadDlg.setCloseCallback(new ICloseCallback() {
+            loadDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -621,7 +621,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         if (deleteDlg == null || deleteDlg.isDisposed()) {
             deleteDlg = new CaseLoadSaveDeleteDlg(shell,
                     CaseLoadSaveDeleteDlg.Type.Delete);
-            deleteDlg.setCloseCallback(new ICloseCallback() {
+            deleteDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -681,7 +681,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
                     });
                 }
             });
-            generateCaseDlg.setCloseCallback(new ICloseCallback() {
+            generateCaseDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -724,7 +724,7 @@ public class CaseCreationDlg extends AbstractArchiveDlg {
         setCursorBusy(true);
         if (caseNameDlg == null || caseNameDlg.isDisposed()) {
             caseNameDlg = new CaseNameDialog(shell, targetDir);
-            caseNameDlg.setCloseCallback(new ICloseCallback() {
+            caseNameDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {

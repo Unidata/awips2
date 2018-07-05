@@ -15,4 +15,5 @@
 14:14:Nowcast
 # 15-191 Reserved
 # 192-254  Reserved for local use
+193:193:Probability-matched Mean
 255:255:Missing

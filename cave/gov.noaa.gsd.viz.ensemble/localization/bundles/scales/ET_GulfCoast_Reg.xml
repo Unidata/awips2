@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority version
+        of the file will completely replace a lower priority version of the file. 
+    -->
+<bundle>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay" scale="Regional"
+            mapCenter="-96.32976618771008 38.412854856637814 0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="matrixDescriptor">
+                <resource>
+                    <loadProperties>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#9b9b9b" />
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="MAP_OUTLINE"
+                        isMapLayer="true" />
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability"
+                                        colorAsString="#9b9b9b" />
+                                    <capability xsi:type="outlineCapability"
+                                        lineStyle="SOLID" />
+                                </capabilities>
+                            </loadProperties>
+                            <properties isMapLayer="true" />
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>World</mapName>
+                                <table>mapdata.world</table>
+                                <constraint>name not in ('Canada', 'Mexico', 'United States')</constraint>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability"
+                                        colorAsString="#9b9b9b" />
+                                    <capability xsi:type="outlineCapability"
+                                        lineStyle="SOLID" />
+                                </capabilities>
+                            </loadProperties>
+                            <properties isMapLayer="true">
+                                <pdProps maxDisplayWidth="100000000"
+                                    minDisplayWidth="750000" />
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>State Boundaries</mapName>
+                                <table>mapdata.states</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability"
+                                        colorAsString="#9b9b9b" />
+                                    <capability xsi:type="outlineCapability"
+                                        lineStyle="SOLID" />
+                                </capabilities>
+                            </loadProperties>
+                            <properties isMapLayer="true" />
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>Canada</mapName>
+                                <table>mapdata.canada</table>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability"
+                                        colorAsString="#9b9b9b" />
+                                    <capability xsi:type="outlineCapability"
+                                        lineStyle="SOLID" />
+                                </capabilities>
+                            </loadProperties>
+                            <properties isMapLayer="true" />
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>Mexico</mapName>
+                                <table>mapdata.mexico</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability"
+                                        colorAsString="#9b9b9b" />
+                                    <capability xsi:type="outlineCapability"
+                                        lineStyle="SOLID" />
+                                </capabilities>
+                            </loadProperties>
+                            <properties isMapLayer="true">
+                                <pdProps maxDisplayWidth="750000"
+                                    minDisplayWidth="0" />
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>County Boundaries</mapName>
+                                <table>mapdata.county</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <mapName>State/County Boundaries</mapName>
+                    </resourceData>
+                </resource>
+                <timeMatcher xsi:type="d2DTimeMatcher"
+                    loadMode="VALID_TIME_SEQ" />
+                <numberOfFrames>12</numberOfFrames>
+                <gridGeometry envelopeMaxY="805000.0"
+                    envelopeMinY="-805000.0" envelopeMaxX="1000000.0"
+                    envelopeMinX="-1000000.0" rangeY="0 9999" rangeX="0 12421">
+                    <CRS>
+                        <![CDATA[
+                            PROJCS["Lambert_Conformal_Conic_1SP", 
+                                GEOGCS["WGS84(DD)",
+                                    DATUM["WGS84", 
+                                        SPHEROID["WGS84", 6378137.0, 298.257223563]],
+                                    PRIMEM["Greenwich", 0.0],
+                                    UNIT["degree", 0.017453292519943295],
+                                    AXIS["Geodetic longitude", EAST],
+                                    AXIS["Geodetic latitude", NORTH]],
+                                PROJECTION["Lambert_Conformal_Conic_1SP"],
+                                PARAMETER["semi_major", 6371229.0],
+                                PARAMETER["semi_minor", 6371229.0],
+                                PARAMETER["central_meridian", -89.5],
+                                PARAMETER["latitude_of_origin", 30.0],
+                                PARAMETER["scale_factor", 1.0],
+                                PARAMETER["false_easting", 0.0],
+                                PARAMETER["false_northing", 0.0],
+                                UNIT["m", 1.0],
+                                AXIS["Easting", EAST],
+                                AXIS["Northing", NORTH]]
+                        ]]>
+                    </CRS>
+                </gridGeometry>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

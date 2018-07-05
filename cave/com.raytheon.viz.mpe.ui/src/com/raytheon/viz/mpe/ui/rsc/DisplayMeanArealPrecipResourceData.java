@@ -19,6 +19,8 @@
  **/
 package com.raytheon.viz.mpe.ui.rsc;
 
+import java.util.Calendar;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -31,19 +33,20 @@ import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 
 /**
- * TODO Add Description
+ * TODO This class currently is not even used. Resource Data implementation for
+ * the {@link DisplayMeanArealPrecipResource}.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 15, 2010            snaples     Initial creation
+ * Dec 15, 2010 ?          snaples     Initial creation
+ * Mar 01, 2017 6163       bkowal      Updates for {@link DisplayMeanArealPrecipResource}.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "displayMeanArealPrecipData")
@@ -57,56 +60,36 @@ public class DisplayMeanArealPrecipResourceData extends AbstractResourceData {
 
     private int accumInterval;
 
-    public DisplayMeanArealPrecipResourceData() {
+    private String displayAs;
 
+    private Calendar endDateTime;
+
+    public DisplayMeanArealPrecipResourceData() {
     }
 
-    /**
-     * @param displayManager
-     * @param boundary_type
-     * @param colorSet
-     */
     public DisplayMeanArealPrecipResourceData(MPEDisplayManager displayManager,
-            String boundary_type, DisplayFieldData fieldData, int accumInterval) {
+            String boundary_type, DisplayFieldData fieldData, int accumInterval,
+            final String displayAs, final Calendar endDateTime) {
         dm = displayManager;
         boundary = boundary_type;
         this.fieldData = fieldData;
         this.accumInterval = accumInterval;
+        this.displayAs = displayAs;
+        this.endDateTime = endDateTime;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon
-     * .uf.viz.core.comm.LoadProperties,
-     * com.raytheon.uf.viz.core.drawables.IDescriptor)
-     */
     @Override
     public DisplayMeanArealPrecipResource construct(
             LoadProperties loadProperties, IDescriptor descriptor)
-            throws VizException {
+                    throws VizException {
         return new DisplayMeanArealPrecipResource(dm, boundary, fieldData,
-                accumInterval);
+                accumInterval, displayAs, endDateTime);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object
-     * )
-     */
     @Override
     public void update(Object updateData) {
-
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -115,11 +98,6 @@ public class DisplayMeanArealPrecipResourceData extends AbstractResourceData {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {

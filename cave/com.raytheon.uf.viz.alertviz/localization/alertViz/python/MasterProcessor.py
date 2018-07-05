@@ -31,7 +31,11 @@
 #    
 # 
 #
-        
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 def process(statusMessage, alertMetadata, globalConfiguration):
     script = str(alertMetadata.getPythonScript())[:-3]    
     module = __import__(script)

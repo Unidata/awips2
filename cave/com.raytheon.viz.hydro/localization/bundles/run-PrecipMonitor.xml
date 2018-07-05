@@ -18,17 +18,20 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<launcher title="Site Specific" >
-	<application runDir="$HYDRO_APPS_DIR/whfs/bin" 
-	             path="$HYDRO_APPS_DIR/whfs/bin"
-	             name="start_rivermonitor" >
-	    <arguments additional="0" optional="true" >
-	    	<argument value="Precip"/>
-	    </arguments>
-	</application>
-	<settings>
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+<launcher title="Site Specific">
+    <application runDir="$HYDRO_APPS_DIR/whfs/bin" path="$HYDRO_APPS_DIR/whfs/bin" name="start_rivermonitor">
+        <arguments additional="0" optional="true">
+            <argument value="Precip" />
+        </arguments>
+    </application>
+    <settings>
         <environment>
-        	 <variable name="sys_java_dir" value="$JAVA_HOME" />
+            <variable name="sys_java_dir" value="$JAVA_HOME" />
         </environment>
-	</settings>
+    </settings>
 </launcher>

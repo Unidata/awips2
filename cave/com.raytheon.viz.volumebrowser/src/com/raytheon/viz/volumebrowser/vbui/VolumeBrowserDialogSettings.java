@@ -21,12 +21,12 @@ package com.raytheon.viz.volumebrowser.vbui;
 
 import org.eclipse.swt.widgets.MenuItem;
 
+import com.raytheon.uf.common.menus.vb.ViewMenu;
 import com.raytheon.uf.viz.points.data.IPointNode;
 import com.raytheon.uf.viz.points.data.Point;
-import com.raytheon.viz.core.slice.request.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.LeftRightMenu;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 
 /**
  * This is a container class to keep the various values used for the dialog.

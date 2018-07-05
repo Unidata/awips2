@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,29 +22,18 @@ package com.raytheon.viz.radar.rsc.graphic;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
-import org.geotools.coverage.grid.GeneralGridEnvelope;
-import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.geometry.GeneralEnvelope;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.crs.ProjectedCRS;
-import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
-import com.raytheon.uf.common.dataplugin.radar.level3.LinkedContourVectorPacket;
-import com.raytheon.uf.common.dataplugin.radar.level3.LinkedVector;
-import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyBlock;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarRecordUtil;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.StorageException;
-import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -72,9 +61,9 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Displays the melting layer as provided by radar (i.e. displays the levels at
  * which snow is turned to a mixture of snow and water and then in turn that is
  * changed to water only).
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -82,14 +71,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 13, 2103 2223       njensen     Overrode remove() to fix memory leak
  * Jul 28, 2013 2227       mnash       Fixing the projection issues, moving things
  *                                     around for better logical separation
- * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle}
  *                                     assignments.
  * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
- * 
+ * Aug 29, 2016 2671       tgurney     Move math to RadarRecordUtil
+ * Aug 31, 2016 2671       tgurney     Update signature of buildMeltingLayerCoordinates
+ *
  * </pre>
- * 
+ *
  * @author mnash
- * @version 1.0
  */
 
 public class RadarMLResource extends RadarGraphicsResource {
@@ -121,22 +111,15 @@ public class RadarMLResource extends RadarGraphicsResource {
     public RadarMLResource(RadarResourceData rrd, LoadProperties loadProps,
             IRadarInterrogator interrogator) throws VizException {
         super(rrd, loadProps, interrogator);
-        shapes = new HashMap<DataTime, Map<Integer, IWireframeShape>>();
+        shapes = new HashMap<>();
 
-        style = new HashMap<Integer, LineStyle>();
+        style = new HashMap<>();
         style.put(1, LineStyle.DASHED);
         style.put(2, LineStyle.SOLID);
         style.put(3, LineStyle.SOLID);
         style.put(4, LineStyle.DASHED);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.rsc.AbstractRadarResource#initInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         // initialize the font
@@ -144,14 +127,6 @@ public class RadarMLResource extends RadarGraphicsResource {
                 new IFont.Style[] {});
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.rsc.graphic.RadarGraphicsResource#paintInternal
-     * (com.raytheon.uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -160,25 +135,29 @@ public class RadarMLResource extends RadarGraphicsResource {
         if (shapeMap != null) {
             for (Integer num : shapeMap.keySet()) {
                 LineStyle lineStyle = style.get(num);
-                if (getCapability(OutlineCapability.class).getLineStyle() != LineStyle.DEFAULT) {
+                if (getCapability(OutlineCapability.class)
+                        .getLineStyle() != LineStyle.DEFAULT) {
                     lineStyle = getCapability(OutlineCapability.class)
                             .getLineStyle();
                 }
                 target.drawWireframeShape(shapeMap.get(num),
                         getCapability(ColorableCapability.class).getColor(),
                         getCapability(OutlineCapability.class)
-                                .getOutlineWidth(), lineStyle);
+                                .getOutlineWidth(),
+                        lineStyle);
             }
         }
 
         // paint the legend for melting layer
         IExtent extent = paintProps.getView().getExtent();
         double ratio = extent.getWidth() / paintProps.getCanvasBounds().width;
-        textFont.setMagnification((float) (getCapability(
-                MagnificationCapability.class).getMagnification().floatValue() * 1.5));
+        textFont.setMagnification(
+                (float) (getCapability(MagnificationCapability.class)
+                        .getMagnification().floatValue() * 1.5));
         LineStyle dashedLine = LineStyle.DASHED;
         LineStyle solidLine = LineStyle.SOLID;
-        if (getCapability(OutlineCapability.class).getLineStyle() != LineStyle.DEFAULT) {
+        if (getCapability(OutlineCapability.class)
+                .getLineStyle() != LineStyle.DEFAULT) {
             dashedLine = getCapability(OutlineCapability.class).getLineStyle();
             solidLine = getCapability(OutlineCapability.class).getLineStyle();
         }
@@ -194,11 +173,11 @@ public class RadarMLResource extends RadarGraphicsResource {
         line1.lineStyle = dashedLine;
         line1.width = getCapability(OutlineCapability.class).getOutlineWidth();
         line1.addPoint(extent.getMinX() + (X_OFFSET - X_OFFSET / 2.7) * ratio,
-                extent.getMinY() + (Y_OFFSET - 5 + textFont.getFontSize())
-                        * ratio);
+                extent.getMinY()
+                        + (Y_OFFSET - 5 + textFont.getFontSize()) * ratio);
         line1.addPoint(extent.getMinX() + (X_OFFSET - 10) * ratio,
-                extent.getMinY() + (Y_OFFSET - 5 + textFont.getFontSize())
-                        * ratio);
+                extent.getMinY()
+                        + (Y_OFFSET - 5 + textFont.getFontSize()) * ratio);
 
         DrawableLine line2 = new DrawableLine();
         line2.basics.color = getCapability(ColorableCapability.class)
@@ -206,11 +185,11 @@ public class RadarMLResource extends RadarGraphicsResource {
         line2.lineStyle = solidLine;
         line2.width = getCapability(OutlineCapability.class).getOutlineWidth();
         line2.addPoint(extent.getMinX() + (X_OFFSET - X_OFFSET / 2.7) * ratio,
-                extent.getMinY() + (Y_OFFSET - 5 + textFont.getFontSize() * 2)
-                        * ratio);
+                extent.getMinY()
+                        + (Y_OFFSET - 5 + textFont.getFontSize() * 2) * ratio);
         line2.addPoint(extent.getMinX() + (X_OFFSET - 10) * ratio,
-                extent.getMinY() + (Y_OFFSET - 5 + textFont.getFontSize() * 2)
-                        * ratio);
+                extent.getMinY()
+                        + (Y_OFFSET - 5 + textFont.getFontSize() * 2) * ratio);
         target.drawLine(line1, line2);
 
         RGB[] rgbs = new RGB[text.length];
@@ -236,14 +215,6 @@ public class RadarMLResource extends RadarGraphicsResource {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.rsc.graphic.RadarGraphicsResource#resourceChanged
-     * (com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type == ChangeType.DATA_UPDATE) {
@@ -252,13 +223,6 @@ public class RadarMLResource extends RadarGraphicsResource {
         super.resourceChanged(type, object);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.rsc.graphic.RadarGraphicsResource#project(org.
-     * opengis.referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
         refresh = true;
@@ -275,17 +239,9 @@ public class RadarMLResource extends RadarGraphicsResource {
         super.remove(dataTime);
     }
 
-    private Coordinate rectifyCoordinate(Coordinate c) {
-        c.x += 2048;
-        c.y += 2048;
-
-        c.y = 4096 - c.y;
-        return c;
-    }
-
     /**
      * Builds the shape map
-     * 
+     *
      * @param time
      * @param target
      * @return
@@ -297,7 +253,7 @@ public class RadarMLResource extends RadarGraphicsResource {
             shapeMap = shapes.get(time);
             if (time != null && (shapeMap == null || refresh)) {
                 disposeShapeMap(shapeMap);
-                shapeMap = new HashMap<Integer, IWireframeShape>();
+                shapeMap = new HashMap<>();
                 shapes.put(time, shapeMap);
                 displayedDate = time;
 
@@ -324,12 +280,16 @@ public class RadarMLResource extends RadarGraphicsResource {
                             e.getLocalizedMessage(), e);
                 }
 
-                Map<Integer, Coordinate[]> coordinates = buildCoordinates(
-                        radarRecord.getSymbologyBlock(), radarRecord.getCRS());
+                Map<Integer, Coordinate[]> coordinates = RadarRecordUtil
+                        .buildMeltingLayerCoordinates(radarRecord);
+                if (radarRecord.getSymbologyBlock() != null) {
+                    refresh = false;
+                }
 
-                // looping through the coordinates in order to create a
-                // wireframe
-                // shape
+                /*
+                 * looping through the coordinates in order to create a
+                 * wireframe shape
+                 */
                 for (Integer num : coordinates.keySet()) {
                     if (shapeMap.get(num) == null) {
                         ws = target.createWireframeShape(true, this.descriptor);
@@ -342,67 +302,6 @@ public class RadarMLResource extends RadarGraphicsResource {
             }
         }
         return shapeMap;
-    }
-
-    /**
-     * Builds the necessary coordinates for use in the wireframe shapes
-     * 
-     * @param block
-     * @param crs
-     * @return
-     */
-    private Map<Integer, Coordinate[]> buildCoordinates(SymbologyBlock block,
-            ProjectedCRS crs) {
-        GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
-        // Per section 3.3.3
-        generalEnvelope.setCoordinateReferenceSystem(crs);
-        generalEnvelope.setRange(0, -256000 * 2, 256000 * 2);
-        generalEnvelope.setRange(1, -256000 * 2, 256000 * 2);
-        // [-2048, 2048] == range of 4095 (inclusive 0), plus 1 because
-        // GGR is exclusive (?)
-        GeneralGridGeometry gg = new GeneralGridGeometry(
-                new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] { 4096,
-                        4096 }, false), generalEnvelope);
-        ReferencedCoordinate coordinate;
-        Map<Integer, Coordinate[]> coordinates = new HashMap<Integer, Coordinate[]>();
-        if (block != null) {
-            for (int i = 0; i < block.getNumLayers(); i++) {
-                for (int j = 1; j < block.getNumPackets(i); j++) {
-                    if (block.getPacket(i, j) instanceof LinkedContourVectorPacket) {
-                        List<LinkedVector> vector = ((LinkedContourVectorPacket) block
-                                .getPacket(i, j)).getVectors();
-                        Coordinate[] coords = new Coordinate[vector.size() + 1];
-                        for (int l = 0; l < coords.length - 1; l++) {
-                            if (!coordinates.containsKey(vector.get(l)
-                                    .getTheColor())) {
-                                coordinates.put(Integer.valueOf(vector.get(l)
-                                        .getTheColor()), coords);
-                            }
-
-                            // transform the coordinates to the correct
-                            // locations
-                            coordinate = new ReferencedCoordinate(
-                                    rectifyCoordinate(new Coordinate(vector
-                                            .get(l).getI2(), vector.get(l)
-                                            .getJ2())), gg, Type.GRID_CENTER);
-                            try {
-                                coords[l] = coordinate.asLatLon();
-                            } catch (TransformException e1) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        e1.getLocalizedMessage(), e1);
-                            } catch (FactoryException e1) {
-                                statusHandler.handle(Priority.PROBLEM,
-                                        e1.getLocalizedMessage(), e1);
-
-                            }
-                        }
-                        coords[coords.length - 1] = coords[0];
-                    }
-                }
-            }
-            refresh = false;
-        }
-        return coordinates;
     }
 
     /**

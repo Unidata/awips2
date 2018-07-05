@@ -32,25 +32,30 @@ from com.raytheon.uf.common.gfe.ifpclient import PyFPClient
 #
 # Runs the text formatter to generate text products
 #   
+#    
+# SOFTWARE HISTORY
 #
-#    
-#     SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    05/29/08                      njensen       Initial Creation.
-#    12/10/14        #14946        ryu           Add getTimeZones() function.
-#    04/16/15        #14946        ryu           Fix getTimeZones to return the office TZ if timezone
-#                                                is not set for any zone in a segment.
-#    04/20/2015      #4027         randerso      Fixes for formatter autotests
-#    Apr 25, 2015     4952         njensen        Updated for new JEP API
-#    05/06/2015      #4467         randerso      Convert to upper case before writing to files if
-#                                                mixed case is not enabled for the product.
-#                                                Cleaned up file writing code
-#    07/29/2015      #4263         dgilling      Support updated TextProductManager.
-#    11/30/2015      #5129         dgilling      Support new IFPClient.
-#    09/28/2016      19293         randerso      Log formatter exceptions to formatter log file
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# May 29, 2008           njensen   Initial Creation.
+# Dev 10, 2014  14946    ryu       Add getTimeZones() function.
+# Apr 16, 2015  14946    ryu       Fix getTimeZones to return the office TZ if timezone
+#                                  is not set for any zone in a segment.
+# Apr 20, 2015  4027     randerso  Fixes for formatter autotests
+# Apr 25, 2015  4952     njensen   Updated for new JEP API
+# May 06, 2015  4467     randerso  Convert to upper case before writing to files if
+#                                  mixed case is not enabled for the product.
+#                                  Cleaned up file writing code
+# Jul 29, 2015  4263     dgilling  Support updated TextProductManager.
+# Nov 30, 2015  5129     dgilling  Support new IFPClient.
+# Sep 28, 2016  19293    randerso  Log formatter exceptions to formatter log file
+# Feb 07, 2017  6092     randerso  Changed startTime and endTime to be time.struct_times
+# Feb 26, 2018  7230     mapeters  Don't reset DRT time to real time
 # 
+##
+
+##
+# This is a base file that is not intended to be overridden.
 ##
 
 displayNameDict = {}
@@ -175,15 +180,15 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
         logger.error("Can't have both -T and -E switches")
         return
 
-    if drtTime is not None:
+    if drtTime:
         import offsetTime
         offsetTime.setDrtOffset(drtTime)
 
     # Create Time Range
     useRawTR = 0
     if startTime is not None and endTime is not None:
-        start = getAbsTime(startTime)
-        end = getAbsTime(endTime)
+        start = decodeTimeStruct(startTime)
+        end = decodeTimeStruct(endTime)
         timeRange = TimeRange.TimeRange(start, end)
         # Set so this time range will override all others
         useRawTR = 1
@@ -344,7 +349,7 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
         pass
 
     del outForecasts
-    
+
     # Remove any lat/lon areas created temporarily
     #global LatLonIds
     #argDict["ifpClient"].deleteReferenceData(LatLonIds)
@@ -359,16 +364,10 @@ def runFormatter(databaseID, site, forecastList, cmdLineVarDict, vtecMode,
     # point!!!!!!!!!!!!!!!
     return forecasts
 
-def getAbsTime(timeStr):
-    "Create an AbsTime from a string: YYYYMMDD_HHMM"
-
-    year = int(timeStr[0:4])
-    month = int(timeStr[4:6])
-    day = int(timeStr[6:8])
-    hour = int(timeStr[9:11])
-    minute = int(timeStr[11:13])
-
-    return AbsTime.absTimeYMD(year, month, day, hour, minute)
+def decodeTimeStruct(timeStruct):
+    return AbsTime.absTimeYMD(timeStruct.tm_year, timeStruct.tm_mon, 
+                              timeStruct.tm_mday, 
+                              timeStruct.tm_hour, timeStruct.tm_min)
     
 def writeToFile(forecasts, outputFile, mode):
     if outputFile:

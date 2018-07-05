@@ -69,7 +69,8 @@ if [ "${1}" = "2" ]; then
 fi
 POSTGRESQL_INSTALL="/awips2/postgresql"
 DATABASE_INSTALL="/awips2/database"
-AWIPS2_DATA_DIRECTORY="/awips2/data"
+AWIPS2_DATA_DIRECTORY="/awips2/database/data"
+TABLESPACE_DIR="/awips2/database/tablespaces"
 PSQL_INSTALL="/awips2/psql"
 
 POSTMASTER="${POSTGRESQL_INSTALL}/bin/postmaster"
@@ -78,21 +79,21 @@ DROPDB="${POSTGRESQL_INSTALL}/bin/dropdb"
 PG_RESTORE="${POSTGRESQL_INSTALL}/bin/pg_restore"
 PSQL="${PSQL_INSTALL}/bin/psql"
 # Determine who owns the PostgreSQL Installation
-DB_OWNER=`ls -ld ${AWIPS2_DATA_DIRECTORY} | grep -w 'data' | awk '{print $3}'`
+DB_OWNER=$(stat -c %U ${AWIPS2_DATA_DIRECTORY})
 # Our log file
 SQL_LOG="${DATABASE_INSTALL}/sqlScripts/share/sql/ncep/ncep_sql_install.log"
 SQL_SHARE_DIR="${DATABASE_INSTALL}/sqlScripts/share/sql/ncep"
-LEGACY_SQL="/awips2/postgresql/share/contrib/postgis-2.4/legacy.sql"
+LEGACY_SQL="${POSTGRESQL_INSTALL}/share/contrib/postgis-2.4/legacy.sql"
 
 # Determine if PostgreSQL is running.
 I_STARTED_POSTGRESQL="NO"
-su - ${DB_OWNER} -c \
+ su - ${DB_OWNER} -c \
    "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1"
 RC="$?"
 
 # Start PostgreSQL if it is not running.
 if [ ! "${RC}" = "0" ]; then
-   su - ${DB_OWNER} -c \
+    su - ${DB_OWNER} -c \
       "${POSTMASTER} -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1 &"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
@@ -102,52 +103,43 @@ if [ ! "${RC}" = "0" ]; then
    # Give PostgreSQL Time To Start.
    sleep 10
    I_STARTED_POSTGRESQL="YES"
-else
-   echo "Found Running PostgreSQL Server..."
-   # Show The User.
-   su - ${DB_OWNER} -c \
-      "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY}"
 fi
    
 # Create the ncep directory; remove any existing directories.
-if [ -d /awips2/data/ncep ]; then
-   su - ${DB_OWNER} -c "rm -rf ${AWIPS2_DATA_DIRECTORY}/ncep"
+if [ -d "${TABLESPACE_DIR}/ncep" ]; then
+    su - ${DB_OWNER} -c "rm -rf ${TABLESPACE_DIR}/ncep"
 fi
-su - ${DB_OWNER} -c "mkdir -p ${AWIPS2_DATA_DIRECTORY}/ncep"
+ su - ${DB_OWNER} -c "mkdir -p ${TABLESPACE_DIR}/ncep"
 
 # Update createNcepDb.sql
-echo ${AWIPS2_DATA_DIRECTORY} | sed 's/\//\\\//g' > .awips2_escape.tmp
-AWIPS2_DATA_DIRECTORY_ESCAPED=`cat .awips2_escape.tmp`
+echo ${TABLESPACE_DIR} | sed 's/\//\\\//g' > .awips2_escape.tmp
+TABLESPACE_DIR_ESCAPED=`cat .awips2_escape.tmp`
 rm -f .awips2_escape.tmp
-perl -p -i -e "s/%{database_files_home}%/${AWIPS2_DATA_DIRECTORY_ESCAPED}/g" \
+perl -p -i -e "s/%{tablespace_dir}%/${TABLESPACE_DIR_ESCAPED}/g" \
    ${SQL_SHARE_DIR}/createNcepDb.sql
    
 
-su - ${DB_OWNER} -c \
-   "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepDb.sql" \
-   >> ${SQL_LOG} 2>&1
-su - ${DB_OWNER} -c \
-   "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepSchemas.sql" \
-   >> ${SQL_LOG} 2>&1
-
-su - ${DB_OWNER} -c \
-   "${PSQL} -d ncep -U awips -q -p 5432 -c \"CREATE EXTENSION postgis;\"" >> ${SQL_LOG} 2>&1   
-su - ${DB_OWNER} -c \
-   "${PSQL} -d ncep -U awips -q -p 5432 -c \"CREATE EXTENSION postgis_topology;\"" >> ${SQL_LOG} 2>&1
-   
-su - ${DB_OWNER} -c \
-   "${PSQL} -d ncep -U awips -q -p 5432 -f ${LEGACY_SQL}" \
-   >> ${SQL_LOG} 2>&1
-
-su - ${DB_OWNER} -c \
-   "${SQL_SHARE_DIR}/createNcepDb.sh ${PSQL_INSTALL} 5432 awips ${SQL_SHARE_DIR} ${SQL_LOG}"
-su - ${DB_OWNER} -c \
-   "${SQL_SHARE_DIR}/initializeNcepDb.sh ${POSTGRESQL_INSTALL} awips 5432 ${SQL_SHARE_DIR} ${SQL_LOG}"
+ su - ${DB_OWNER} -c \
+   "${PSQL} -d postgres -U awipsadmin -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepDb.sql" >> ${SQL_LOG} 2>&1
+ su - ${DB_OWNER} -c \
+   "${PSQL} -d postgres -U awipsadmin -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepSchemas.sql" >> ${SQL_LOG} 2>&1
+ su - ${DB_OWNER} -c \
+   "${PSQL} -d ncep -U awipsadmin -q -p 5432 -c \"CREATE EXTENSION postgis;\"" >> ${SQL_LOG} 2>&1   
+ su - ${DB_OWNER} -c \
+   "${PSQL} -d ncep -U awipsadmin -q -p 5432 -c \"CREATE EXTENSION postgis_topology;\"" >> ${SQL_LOG} 2>&1
+ su - ${DB_OWNER} -c \
+   "${PSQL} -d ncep -U awipsadmin -q -p 5432 -f ${LEGACY_SQL}" >> ${SQL_LOG} 2>&1
+ su - ${DB_OWNER} -c \
+   "${SQL_SHARE_DIR}/createNcepDb.sh ${PSQL_INSTALL} 5432 awipsadmin ${SQL_SHARE_DIR} ${SQL_LOG}"
+ su - ${DB_OWNER} -c \
+   "${SQL_SHARE_DIR}/initializeNcepDb.sh ${POSTGRESQL_INSTALL} awipsadmin 5432 ${SQL_SHARE_DIR} ${SQL_LOG}"
+ su - ${DB_OWNER} -c \
+   "${DATABASE_INSTALL}/sqlScripts/share/sql/alter_database_roles_and_permissions.sh ncep" >> ${SQL_LOG} 2>&1
    
 # stop PostgreSQL if we started it.
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
-   su - ${DB_OWNER} -c \
-      "${PG_CTL} stop -D /awips2/data"
+    su - ${DB_OWNER} -c \
+      "${PG_CTL} stop -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
       echo "Warning: Failed to shutdown PostgreSQL."
@@ -162,25 +154,27 @@ fi
 
 POSTGRESQL_INSTALL="/awips2/postgresql"
 PSQL_INSTALL="/awips2/psql"
-
-AWIPS2_DATA_DIRECTORY="/awips2/data"
+AWIPS2_DATA_DIRECTORY="/awips2/database/data"
+TABLESPACE_DIR="/awips2/database/tablespaces"
 POSTMASTER="${POSTGRESQL_INSTALL}/bin/postmaster"
 PG_CTL="${POSTGRESQL_INSTALL}/bin/pg_ctl"
 DROPDB="${POSTGRESQL_INSTALL}/bin/dropdb"
 PG_RESTORE="${POSTGRESQL_INSTALL}/bin/pg_restore"
 PSQL="${PSQL_INSTALL}/bin/psql"
 # Determine who owns the PostgreSQL Installation
-DB_OWNER=`ls -ld ${AWIPS2_DATA_DIRECTORY} | grep -w 'data' | awk '{print $3}'`
+DB_OWNER="$(stat -c %U ${AWIPS2_DATA_DIRECTORY})"
+
+# Drop the ncep database and tablespace.
 
 # start PostgreSQL if it is not running
 I_STARTED_POSTGRESQL="NO"
-su - ${DB_OWNER} -c \
+ su - ${DB_OWNER} -c \
    "${PG_CTL} status -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1"
 RC="$?"
 
 # Start PostgreSQL if it is not running.
 if [ ! "${RC}" = "0" ]; then
-   su - ${DB_OWNER} -c \
+    su - ${DB_OWNER} -c \
       "${POSTMASTER} -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1 &"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
@@ -192,26 +186,29 @@ if [ ! "${RC}" = "0" ]; then
    I_STARTED_POSTGRESQL="YES"
 fi
 
-su - ${DB_OWNER} -c \
-   "${DROPDB} -U awips ncep"
+ su - ${DB_OWNER} -c \
+   "${DROPDB} -U awipsadmin ncep"
 
 # Is there a ncep tablespace?
-NCEP_DIR=`${PSQL} -U awips -d postgres -c "\db" | grep ncep | awk '{print $5}'`
+# ask psql where the ncep tablespace is ...
+NCEP_DIR=`${PSQL} -U awipsadmin -d postgres -c "\db" | grep ncep | awk '{print $5}'`
 
 if [ ! "${NCEP_DIR}" = "" ]; then
-   su - ${DB_OWNER} -c \
-      "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE ncep\""
+   echo "Dropping ncep tablespace..."
+    su - ${DB_OWNER} -c \
+      "${PSQL} -U awipsadmin -d postgres -c \"DROP TABLESPACE ncep\""
       
    # remove the maps data directory that we created
+   echo "Attempting To Remove Directory: ${NCEP_DIR}"
    if [ -d "${NCEP_DIR}" ]; then
-      su - ${DB_OWNER} -c "rmdir ${NCEP_DIR}"
+       su - ${DB_OWNER} -c "rmdir ${NCEP_DIR}"
    fi
 fi
 
 # stop PostgreSQL if we started it.
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
-   su - ${DB_OWNER} -c \
-      "${PG_CTL} stop -D ${AWIPS2_DATA_DIRECTORY}"
+    su - ${DB_OWNER} -c \
+      "${PG_CTL} stop -D ${AWIPS2_DATA_DIRECTORY} > /dev/null 2>&1"
    RC="$?"
    if [ ! "${RC}" = "0" ]; then
       echo "Warning: Failed to shutdown PostgreSQL."
@@ -229,6 +226,7 @@ rm -rf ${RPM_BUILD_ROOT}
 %files
 %defattr(-,awips,fxalpha,-)
 %dir /awips2/database/sqlScripts/share/sql/ncep
+/awips2/database/sqlScripts/share/sql/ncep/shapefiles/
 %attr(777,root,root) /awips2/database/sqlScripts/share/sql/ncep/ncep_sql_install.log
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/addNcepNwxAdminMessageGpTable.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/createNcepConfigTables.sql
@@ -331,4 +329,3 @@ rm -rf ${RPM_BUILD_ROOT}
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/addUgcMzbnd.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/fixMzbnds.sql
 %attr(755,awips,fxalpha) /awips2/database/sqlScripts/share/sql/ncep/loadClimodata.sql
-/awips2/database/sqlScripts/share/sql/ncep/shapefiles

@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority version
+        of the file will completely replace a lower priority version of the file. 
+    -->
+<bundle>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay" scale="WFO"
+            mapCenter="-96.590057 41.44434699999999 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="matrixDescriptor">
+                <resource>
+                    <loadProperties>
+                        <capabilities>
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#9b9b9b" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="MAP_OUTLINE"
+                        isMapLayer="true" />
+                    <resourceData xsi:type="mapResourceGroupData">
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="shadeableCapability"
+                                        shaded="false" />
+                                    <capability xsi:type="outlineCapability"
+                                        lineStyle="SOLID" />
+                                    <capability xsi:type="colorableCapability"
+                                        colorAsString="#9b9b9b" />
+                                </capabilities>
+                            </loadProperties>
+                            <properties isMapLayer="true" />
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>World</mapName>
+                                <table>mapdata.world</table>
+                                <constraint>name not in ('CANADA', 'MEXICO', 'UNITED STATES')</constraint>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="outlineCapability"
+                                        lineStyle="SOLID" />
+                                    <capability xsi:type="colorableCapability"
+                                        colorAsString="#9b9b9b" />
+                                </capabilities>
+                            </loadProperties>
+                            <properties isMapLayer="true">
+                                <pdProps maxDisplayWidth="100000000"
+                                    minDisplayWidth="750000" />
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>State Boundaries</mapName>
+                                <table>mapdata.states</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="shadeableCapability"
+                                        shaded="false" />
+                                    <capability xsi:type="outlineCapability"
+                                        lineStyle="SOLID" />
+                                    <capability xsi:type="colorableCapability"
+                                        colorAsString="#9b9b9b" />
+                                </capabilities>
+                            </loadProperties>
+                            <properties isMapLayer="true" />
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>Canada</mapName>
+                                <table>mapdata.canada</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="shadeableCapability"
+                                        shaded="false" />
+                                    <capability xsi:type="outlineCapability"
+                                        lineStyle="SOLID" />
+                                    <capability xsi:type="colorableCapability"
+                                        colorAsString="#9b9b9b" />
+                                </capabilities>
+                            </loadProperties>
+                            <properties isMapLayer="true" />
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>Mexico</mapName>
+                                <table>mapdata.mexico</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties>
+                                <capabilities>
+                                    <capability xsi:type="shadeableCapability"
+                                        shaded="false" />
+                                    <capability xsi:type="outlineCapability"
+                                        lineStyle="SOLID" />
+                                    <capability xsi:type="colorableCapability"
+                                        colorAsString="#9b9b9b" />
+                                </capabilities>
+                            </loadProperties>
+                            <properties isMapLayer="true">
+                                <pdProps maxDisplayWidth="750000"
+                                    minDisplayWidth="0" />
+                            </properties>
+                            <resourceData xsi:type="dbMapResourceData">
+                                <mapName>County Boundaries</mapName>
+                                <table>mapdata.county</table>
+                                <geomField>the_geom</geomField>
+                            </resourceData>
+                        </resource>
+                        <mapName>State/County Boundaries</mapName>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties>
+                        <capabilities>
+                            <capability xsi:type="shadeableCapability"
+                                shaded="false" />
+                            <capability xsi:type="outlineCapability"
+                                lineStyle="SOLID" />
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#ffffb3" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties renderingOrderId="MAP_OUTLINE"
+                        isMapLayer="true" />
+                    <resourceData xsi:type="dbMapResourceData">
+                        <mapName>Local CWA Boundary</mapName>
+                        <table>mapdata.cwa</table>
+                        <constraint>wfo = 'OAX'</constraint>
+                        <geomField>the_geom</geomField>
+                    </resourceData>
+                </resource>
+                <timeMatcher xsi:type="d2DTimeMatcher"
+                    loadMode="VALID_TIME_SEQ" />
+                <numberOfFrames>12</numberOfFrames>
+                <gridGeometry envelopeMaxY="230048.65549884734"
+                    envelopeMinY="-230041.72068797084" envelopeMaxX="230042.41692510553"
+                    envelopeMinX="-230048.3123174316" rangeY="0 9999"
+                    rangeX="0 9999">
+                    <CRS>
+                        <![CDATA[
+                            PROJCS["Stereographic", 
+                                GEOGCS["WGS84(DD)",
+                                    DATUM["WGS84", 
+                                        SPHEROID["WGS84", 6378137.0, 298.257223563]], 
+                                    PRIMEM["Greenwich", 0.0],
+                                    UNIT["degree", 0.017453292519943295],
+                                    AXIS["Geodetic longitude", EAST], 
+                                    AXIS["Geodetic latitude", NORTH]], 
+                                PROJECTION["Stereographic"],
+                                PARAMETER["semi_major", 6371200.0],
+                                PARAMETER["semi_minor", 6371200.0],
+                                PARAMETER["central_meridian", -96.590057],
+                                PARAMETER["latitude_of_origin", 41.44434699999999], 
+                                PARAMETER["scale_factor", 1.0], 
+                                PARAMETER["false_easting", 0.0],
+                                PARAMETER["false_northing", 0.0], 
+                                UNIT["m", 1.0], 
+                                AXIS["Easting", EAST], 
+                                AXIS["Northing", NORTH]]
+                        ]]>
+                    </CRS>
+                </gridGeometry>
+            </descriptor>
+        </displays>
+    </displayList>
+</bundle>

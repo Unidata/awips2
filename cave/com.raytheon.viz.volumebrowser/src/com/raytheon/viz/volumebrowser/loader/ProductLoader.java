@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -36,8 +36,8 @@ import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.procedures.Bundle;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.ResourceType;
-import com.raytheon.viz.core.rsc.ICombinedResourceData;
-import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData.CombineOperation;
 import com.raytheon.viz.ui.BundleProductLoader;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.UiUtil;
@@ -47,28 +47,29 @@ import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalog;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
 import com.raytheon.viz.volumebrowser.vbui.ProductTableComp;
+import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr;
 
 /**
- * 
+ *
  * This class can be used to accumulate multiple products from the
  * {@link ProductTableComp} for loading. Each product is added using
  * {@link #addProduct(IDataCatalogEntry, DisplayType)} and when all products
  * have beens elected then they can be loaded with either {@link #load()} or
  * {@link #loadDifference()}. Instances of this class are not intended for
  * reuse.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Aug 03, 2015  3861     bsteffen  Initial Creation
  * Jan 13, 2016  5246     bsteffen  Create editor with new display so map
  *                                  resources are preserved.
- * 
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  */
 public class ProductLoader {
@@ -79,14 +80,14 @@ public class ProductLoader {
             DisplayType displayType) {
         IDataCatalog catalog = DataCatalogManager.getDataCatalogManager()
                 .getDataCatalog(catalogEntry.getSelectedData());
-        ResourceType resourceType = catalogEntry.getDialogSettings()
-                .getViewSelection().getResourceType();
+        ResourceType resourceType = VBMenuBarItemsMgr.getResourceType(
+                catalogEntry.getDialogSettings().getViewSelection());
         HashMap<String, RequestConstraint> metadataMap = catalog
                 .getProductParameters(catalogEntry);
         String pluginName = metadataMap.get(PluginDataObject.PLUGIN_NAME_ID)
                 .getConstraintValue();
-        ProductCreator loader = ProductCreatorManager.getInstance().getCreator(
-                pluginName, resourceType);
+        ProductCreator loader = ProductCreatorManager.getInstance()
+                .getCreator(pluginName, resourceType);
         if (loader == null) {
             throw new RuntimeException("Unable to load product for plugin "
                     + pluginName + " of type " + resourceType);
@@ -127,8 +128,8 @@ public class ProductLoader {
                 first.setCombineOperation(CombineOperation.DIFFERENCE);
             }
         }
-        System.out
-                .println("Loading a Difference Product from the Volume Browser.");
+        System.out.println(
+                "Loading a Difference Product from the Volume Browser.");
         load(display1);
     }
 
@@ -142,7 +143,8 @@ public class ProductLoader {
             Iterator<AbstractRenderableDisplay> it = displaysToLoad.iterator();
             while (it.hasNext()) {
                 AbstractRenderableDisplay next = it.next();
-                if (display.getDescriptor().isCompatible(next.getDescriptor())) {
+                if (display.getDescriptor()
+                        .isCompatible(next.getDescriptor())) {
                     display.getDescriptor().getResourceList()
                             .addAll(next.getDescriptor().getResourceList());
                     it.remove();
@@ -153,8 +155,8 @@ public class ProductLoader {
     }
 
     protected void load(AbstractRenderableDisplay display) {
-        String editorId = DescriptorMap.getEditorId(display.getDescriptor()
-                .getClass().getName());
+        String editorId = DescriptorMap
+                .getEditorId(display.getDescriptor().getClass().getName());
 
         IEditorPart activeEditor = EditorUtil.getActiveEditor();
 

@@ -49,14 +49,14 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 12, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ---------------------
+ * Jan 12, 2012           bsteffen  Initial creation
+ * Oct 04, 2016  5890     bsteffen  Fix dead null check.
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 @DynamicSerialize
 @Entity
@@ -160,7 +160,7 @@ public class Parameter extends PersistableDataObject implements
 
     public void setUnit(Unit<?> unit) {
         this.unit = unit;
-        if (unit.equals(Unit.ONE) || unit == null) {
+        if (unit == null || unit.equals(Unit.ONE)) {
             this.unitString = "";
         } else {
             this.unitString = UnitFormat.getUCUMInstance().format(unit);

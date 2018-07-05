@@ -26,8 +26,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jep.JepException;
-
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -36,10 +34,10 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexTimerBasedThread;
+
+import jep.JepException;
 
 /**
  * Service that runs smart inits
@@ -57,15 +55,13 @@ import com.raytheon.uf.edex.core.EdexTimerBasedThread;
  *                                      added support to run init for all valid times
  * Mar 14, 2014   2726      rjpeter     Implement graceful shutdown.
  * Jul 12, 2016   5747      dgilling    Move edex_static to common_static.
+ * Mar 30, 2017   5937      rjpeter     Use EdexTimerBasedThread logger.
  * </pre>
  * 
  * @author njensen
  */
 
 public class SmartInitSrv extends EdexTimerBasedThread {
-    protected static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(SmartInitSrv.class);
-
     private final Map<Long, SmartInitScript> cachedInterpreters = new HashMap<>();
 
     protected int pendingInitMinTimeMillis = 120000;
@@ -97,8 +93,8 @@ public class SmartInitSrv extends EdexTimerBasedThread {
         super.dispose();
 
         // Make sure OS resources are released at thread death
-        SmartInitScript script = cachedInterpreters.remove(Thread
-                .currentThread().getId());
+        SmartInitScript script = cachedInterpreters
+                .remove(Thread.currentThread().getId());
         if (script != null) {
             script.dispose();
         }
@@ -138,19 +134,18 @@ public class SmartInitSrv extends EdexTimerBasedThread {
                     File file = pathMgr.getFile(siteCtx,
                             LocalizationUtil.join("gfe", "smartinit"));
                     if ((file != null) && file.exists()) {
-                        initScript.addSitePath(
-                                file.getPath(),
-                                pathMgr.getFile(
-                                        baseCtx,
-                                        LocalizationUtil.join("gfe",
-                                                "smartinit")).getPath());
+                        initScript
+                                .addSitePath(file.getPath(), pathMgr
+                                        .getFile(baseCtx,
+                                                LocalizationUtil.join("gfe",
+                                                        "smartinit"))
+                                        .getPath());
                         sitePathsAdded.add(file.getPath());
                     }
                     file = pathMgr.getFile(siteCtx,
                             LocalizationUtil.join("gfe", "config"));
                     if ((file != null) && file.exists()) {
-                        initScript.addSitePath(
-                                file.getPath(),
+                        initScript.addSitePath(file.getPath(),
                                 pathMgr.getFile(baseCtx,
                                         LocalizationUtil.join("gfe", "config"))
                                         .getPath());
@@ -164,26 +159,27 @@ public class SmartInitSrv extends EdexTimerBasedThread {
 
                     initScript.execute(argMap);
                 } catch (Throwable e) {
-                    statusHandler.error("Error running smart init for "
-                            + record.getId(), e);
+                    logger.error(
+                            "Error running smart init for " + record.getId(),
+                            e);
                 } finally {
                     try {
                         for (String path : sitePathsAdded) {
                             initScript.removeSitePath(path);
                         }
                     } catch (JepException e) {
-                        statusHandler
-                                .error("Error cleaning up smart init interpreter's sys.path",
-                                        e);
+                        logger.error(
+                                "Error cleaning up smart init interpreter's sys.path",
+                                e);
                     }
                 }
             } else {
-                statusHandler.warn("Site " + db.getSiteId()
+                logger.warn("Site " + db.getSiteId()
                         + " has been disabled. Smart init for "
                         + record.getDbName() + " will not be processed.");
             }
         } catch (Throwable t) {
-            statusHandler.error("Error in SmartInitSrv", t);
+            logger.error("Error in SmartInitSrv", t);
         }
         SmartInitTransactions.removeSmartInit(record);
     }

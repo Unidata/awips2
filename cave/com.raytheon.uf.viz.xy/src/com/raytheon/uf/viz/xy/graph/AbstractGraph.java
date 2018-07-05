@@ -53,8 +53,8 @@ import com.raytheon.uf.viz.xy.graph.axis.IAxisPlacer;
 import com.raytheon.uf.viz.xy.graph.axis.OutlineAxis;
 import com.raytheon.uf.viz.xy.graph.labeling.IGraphLabel;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.raytheon.uf.viz.xy.util.AbstractGraphZoomHandler;
-import com.raytheon.viz.core.slice.request.HeightScale;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

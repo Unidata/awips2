@@ -1,9 +1,5 @@
 package gov.noaa.gsd.viz.ensemble.display.distribution;
 
-import gov.noaa.gsd.viz.ensemble.display.chart.ChartConfig;
-import gov.noaa.gsd.viz.ensemble.display.chart.PDFCDFChartView;
-import gov.noaa.gsd.viz.ensemble.display.chart.SingleSampleInfo;
-
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.PaintEvent;
@@ -20,6 +16,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
+
+import gov.noaa.gsd.viz.ensemble.display.chart.BasicChartView;
+import gov.noaa.gsd.viz.ensemble.display.chart.ChartConfig;
+import gov.noaa.gsd.viz.ensemble.display.chart.PDFCDFChartView;
+import gov.noaa.gsd.viz.ensemble.display.chart.SingleSampleInfo;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.EnsembleToolViewer;
 
 /**
  * 
@@ -146,27 +148,30 @@ public class DistributionViewUI extends Composite {
         GridData barComposite_gd = new GridData(SWT.FILL, SWT.TOP, true, false,
                 1, 1);
         barComposite.setLayoutData(barComposite_gd);
-        this_gl = new GridLayout(3, false);
+        this_gl = new GridLayout(20, false);
         barComposite.setLayout(this_gl);
 
         /* Left-most horizontal cosmetic spacer */
         Label spacer = new Label(barComposite, SWT.NONE);
-        GridData spacer_gd = new GridData(SWT.LEFT, SWT.CENTER, false, false,
-                1, 1);
-        spacer_gd.widthHint = 6;
+        GridData spacer_gd = new GridData(SWT.LEFT, SWT.CENTER, false, false, 2,
+                1);
         spacer.setLayoutData(spacer_gd);
 
         /* The label of the chart title */
-        titleLabel = new Label(barComposite, SWT.LEFT);
-        GridData titleLabel_gd = new GridData(SWT.FILL, SWT.CENTER, true,
-                false, 1, 1);
+        titleLabel = new Label(barComposite, SWT.NONE);
+        GridData titleLabel_gd = new GridData(SWT.LEFT, SWT.CENTER, true, false,
+                14, 1);
         titleLabel.setLayoutData(titleLabel_gd);
+        titleLabel.setFont(EnsembleToolViewer.getViewFontSmall());
         titleLabel.setText("PDF-CDF: ");
 
         /** The button for popping up the configuration dialog */
-        configButton = new Button(barComposite, SWT.PUSH | SWT.RIGHT);
+        configButton = new Button(barComposite, SWT.PUSH);
+        GridData configButton_gd = new GridData(SWT.FILL, SWT.CENTER, true,
+                false, 4, 1);
+        configButton.setLayoutData(configButton_gd);
+        configButton.setFont(EnsembleToolViewer.getViewFontSmall());
         configButton.setText("Settings...");
-        configButton.setSize(10, 5);
 
         configButton.setToolTipText("Configuration Dialog");
 
@@ -234,16 +239,17 @@ public class DistributionViewUI extends Composite {
                 // gets the cursor location, passes it into the PDFCDFChartView
                 // object and redraws the chart.
 
-                if ((config.getChartStyle() == ChartConfig.ChartStyle.CHART_PDF_CDF || config
-                        .getChartStyle() == ChartConfig.ChartStyle.CHART_CDF_ONLY)
-                        && (config.isMouseReadCDFMove() || (config
-                                .isMouseDownReadCDF() && mouseDownMove))
+                BasicChartView chartView = disp.getChart().getChartView();
+                ChartConfig.ChartStyle style = config.getChartStyle();
+                if ((style == ChartConfig.ChartStyle.CHART_PDF_CDF
+                        || style == ChartConfig.ChartStyle.CHART_CDF_ONLY)
+                        && (config.isMouseReadCDFMove()
+                                || (config.isMouseDownReadCDF()
+                                        && mouseDownMove))
                         && disp.getChart().getChartView().isReadyForPaint()) {
-                    ((PDFCDFChartView) (disp.getChart().getChartView()))
-                            .setmX(event.x);
-                    ((PDFCDFChartView) (disp.getChart().getChartView()))
-                            .setmY(event.y);
-                    disp.getChart().getChartView().setPainting(true);
+                    ((PDFCDFChartView) chartView).setmX(event.x);
+                    ((PDFCDFChartView) chartView).setmY(event.y);
+                    chartView.setPainting(true);
                     disp.getChart().paint(new GC(chartCanvas));
                     disp.getChart().getChartView().setPainting(false);
 
@@ -273,15 +279,15 @@ public class DistributionViewUI extends Composite {
                 // the mouse is down, gets the cursor location, passes it into
                 // the PDFCDFChartView object and redraws the chart.
 
-                if ((config.getChartStyle() == ChartConfig.ChartStyle.CHART_PDF_CDF || config
-                        .getChartStyle() == ChartConfig.ChartStyle.CHART_CDF_ONLY)
+                BasicChartView chartView = disp.getChart().getChartView();
+                ChartConfig.ChartStyle style = config.getChartStyle();
+                if ((style == ChartConfig.ChartStyle.CHART_PDF_CDF
+                        || style == ChartConfig.ChartStyle.CHART_CDF_ONLY)
                         && config.isMouseDownReadCDF()
-                        && disp.getChart().getChartView().isReadyForPaint()) {
-                    ((PDFCDFChartView) (disp.getChart().getChartView()))
-                            .setmX(event.x);
-                    ((PDFCDFChartView) (disp.getChart().getChartView()))
-                            .setmY(event.y);
-                    disp.getChart().getChartView().setPainting(true);
+                        && chartView.isReadyForPaint()) {
+                    ((PDFCDFChartView) chartView).setmX(event.x);
+                    ((PDFCDFChartView) chartView).setmY(event.y);
+                    chartView.setPainting(true);
                     disp.getChart().paint(new GC(chartCanvas));
                     disp.getChart().getChartView().setPainting(false);
 
@@ -301,7 +307,7 @@ public class DistributionViewUI extends Composite {
      *            - The chart title
      */
     public void setDistributionTitle(String title) {
-            this.titleLabel.setText(title);
+        this.titleLabel.setText(title);
     }
 
     /**
@@ -358,10 +364,10 @@ public class DistributionViewUI extends Composite {
 
     }
 
-    synchronized public void setViewEditable(boolean enabled) {
+    synchronized public void setEditable(boolean enabled) {
         titleLabel.setEnabled(enabled);
         configButton.setEnabled(enabled);
-        disp.setViewEditable(enabled);
+        disp.setEditable(enabled);
     }
 
 }

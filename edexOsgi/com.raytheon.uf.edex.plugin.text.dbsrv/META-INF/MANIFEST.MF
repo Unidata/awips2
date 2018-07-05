@@ -19,7 +19,7 @@ Require-Bundle: org.apache.commons.lang3;bundle-version="3.4.0",
 Export-Package: com.raytheon.uf.edex.plugin.text.dbsrv,
  com.raytheon.uf.edex.plugin.text.dbsrv.impl,
  com.raytheon.uf.edex.plugin.text.dbsrv.security
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package:  com.raytheon.uf.common.message,
  com.raytheon.uf.common.wmo,
  org.apache.commons.lang3

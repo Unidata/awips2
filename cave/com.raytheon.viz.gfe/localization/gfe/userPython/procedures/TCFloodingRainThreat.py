@@ -22,18 +22,30 @@
 # 9/7/2016 - Lefebvre/Santos: Added better logic for grid missing messages and Don't use guidance option.
 # 9/7/2016 - Lefebvre/Santos: Change ppffg timeRanges to anchor on 12Z cycles. 
 # VERSION 17.1.1 = The one checked in.
-# 11/14/2016 - Santos - Modified at testbed in Silver Springs to fix overlap variable to do the composite 
+# 11/14/2016 - Santos - Modified at testbed in Silver Springs to fix overlap variable to do the composite
 # of the rfc list edit areas, not just the overlap with cwa mask. Commented out statusBarMsg for the ppffg inventories.
-# 
+# 07/21/2017 - Tweaked for 2018 baseline (17.3.1) based on WPC recommendations following upcoming change in ERPs 
+# to neighborhood based probabilities. Check 2018 version of HTI User Guide for details. PS/TL
+# 8/31/2017 - Fixed issues found during Harvey when FFG was zero across large chunks of the area. PS/TL
+# 10/21/2017 - Additional tweaks made per Raytheon suggestions during code review. (DR20333)
+# 11/14/2017 - Fixed ERP thresholds per WPC recommendations during SWiT. Fixed also minimum value allowed for
+# FFG guidance in GFE D2D FFGXXX db to treat NO DATA or exception values as negative in GFE. This change was made in
+# the RFCFFGParameterInfo file. Otherwise logic below would not work.
+#
 #Search for COMMENTS to see any local config step you might need to take.
 # ----------------------------------------------------------------------------
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 MenuItems = ["Populate"]
 
-VariableList = [("Gridded/Text FFG Blending Factor" , 0.00, "scale", [0, 1], 0.05),
-                ("Probabilistic QPF Exceedance Level to use:", "10%", "radio", ["Don't Use Prob Guidance", "10%", "50%"]),
+VariableList = [("Gridded/Text FFG Blending?" , "Yes", "radio", ["Yes", "No"]),
+                ("Probabilistic QPF Exceedance Level to use:", "10%", "radio", ["Don't Use Prob Guidance", "05%", "10%", "25%", "50%"]),
 
-# Use the above line for the GUI when testing is finished. the line below will be enabled when we are ingesting 20%, 30%, and 40% percentiles..................................................... 
+# Use the above line for the GUI when testing is finished. the line below will be enabled when we are ingesting 20%, 30%, and 40% percentiles 
 #                ("Probabilistic QPF Exceedance Level to use:", "10%", "radio", ["Don't Use Prob Guidance", "10%", "20%", "30%", "40%", "50%"]),
                 ]
 
@@ -53,15 +65,15 @@ class Procedure (GridManipulation.GridManipulation):
 
     # get the current time, truncates to the last six hour value.
     # returns a timeRange with this startTime until 72 hrs from this time
-    
+
     def make72hrTimeRange(self, startTime):
-        
+
         # Make the end time 3 days from the startTime
         end = startTime + (72 * 3600)
         # Convert them to AbsTimes
         startTime = AbsTime.AbsTime(startTime)
         endTime = AbsTime.AbsTime(end)
-        
+
         timeRange = TimeRange.TimeRange(startTime, endTime)
 
         return timeRange
@@ -108,41 +120,41 @@ class Procedure (GridManipulation.GridManipulation):
             return 3
 
         return 0
-    
+
     def baseModelTime(self, modelTime):
-        
+
         oneDay = 3600 * 24
         offset = 3600 * 0  # hours after which we expect models to arrive
         baseTime = (int((modelTime + offset) / oneDay) * oneDay) - offset
-        
+
         return baseTime
-    
+
     def getProbBaseTime(self):
         ERPModelName = "HPCERP"
         ERPVarName = "TP10pct6hr"
         ERPLevel = "SFC"
         # get the list of all available models. They come sorted latest to oldest. 
         modelList = self.getModelList(ERPModelName, ERPVarName, ERPLevel)
-        
+
         if len(modelList) == 0:
             self.statusBarMsg("No ERP Guidance found.", "S")
             return None
-        
+
         for model in modelList:
             trList = self.GM_getWEInventory(ERPVarName, model)
             if len(trList) == 0:
                 continue
-            
+
             latestHr = (trList[-1].startTime().unixTime() - model.modelTime().unixTime()) / 3600
-            
+
             # return the time of the first model we find with enough data
             if latestHr >= 72:
                 return model.modelTime()
-            
+
         # If we get here, we have found no models with 72 hours of data so return the latest model time
         self.statusBarMsg("No model runs found with 72 hours of grids. Using latest model")
         return modelList[0].modelTime()
-            
+
     # Find the time of the model with a day 3 grid and truncate the modelTime to the last 12Z
     def getPpffgBaseTime(self):
         ERPModelName = "HPCERP"
@@ -342,13 +354,12 @@ class Procedure (GridManipulation.GridManipulation):
     # or basin.
     def getRFCFlashFloodGrid(self, productList, varDict):
 
-        ffgGrid = self.empty()
+        ffgGrid = self.newGrid(-9.0)
         foundGrids = False
-        factor = varDict["Gridded/Text FFG Blending Factor"]
+        blending = varDict["Gridded/Text FFG Blending?"]
         
         RFCList = self.getOverlappingRFCs()
-        #print "RFCList is: ", RFCList
-
+        
         ffgWEName = "FFG0624hr"
         # Fetch the gridded FFG, mosaic these into a single grid
         for rfc in RFCList:
@@ -375,18 +386,11 @@ class Procedure (GridManipulation.GridManipulation):
             #  Make a mask of the RFC domain
             rfcMask = self.encodeEditArea(rfc)
             
-            mask = (tempGrid > 0.0) & rfcMask
+            mask = (tempGrid >= 0.0) & rfcMask
             ffgGrid[mask] = tempGrid[mask]
             ffgGrid[mask] /= 25.4
             foundGrids = True
-
-            # Comment this in to see intermediate FFG grid from gridded guidance
-##        tr = self.getTimeRange("Today")
-##        self.createGrid("Fcst","FFGFromGrid", "SCALAR", ffgGrid, tr,
-##                            minAllowedValue = -1, maxAllowedValue=100,
-##                            precision=2)
-
-        
+                   
         # Make another FFG grid from the text guidance
         editAreaList = self.editAreaList()
 
@@ -419,22 +423,23 @@ class Procedure (GridManipulation.GridManipulation):
         # fill those holes with the text version of the FFG where the
         # gridded FFG is less than its non-zero average.
 
-        # if we found the grids fill in it in with values from the text products.
+        # if we found the grids fill it in with values from the text products.
+
+        siteID = self.getSiteID()
+        cwamask = self.encodeEditArea(siteID)
+
         if foundGrids:
-            # get the non-zero gridded average
-            mask = ffgGrid > 0.0
-            maskSum = np.sum(np.sum(mask))
-            gridSum = np.sum(np.sum(ffgGrid))
-            
-            if maskSum > 0:
-                gridAvg = gridSum / maskSum
-            else:  # nothing to do but return the text grid
+            # get the >=zero gridded average
+            mask = ffgGrid >= 0.0
+
+            if not mask.any(): # no points in mask
                 return ffgTextGrid
-            
-            # fill in textFFG where griddedFFG is less than average
-            ffgMask = ffgGrid < (gridAvg * factor)
-            ffgGrid[ffgMask] = ffgTextGrid[ffgMask]
-            #ffgGrid = where(less(ffgGrid, gridAvg * factor), ffgTextGrid, ffgGrid)           
+
+            if blending == "Yes":
+                missingMask = (ffgGrid < 0.0) & cwamask
+                if missingMask.any():
+                    ffgGrid[missingMask] = ffgTextGrid[missingMask]
+
         else:
             ffgGrid = ffgTextGrid
 
@@ -477,45 +482,48 @@ class Procedure (GridManipulation.GridManipulation):
         ### CONFIGURATION SECTION  ################################
         ### Levels must exactly match the levels in the inland threat
         ### weather element.
-        ratios = [0.0, 0.75, 1.0, 2.0, 100.0]
-        erps = [0.0, 2.0, 10.0, 15.0, 100.0]   # CHANGE TO [0.0, 2.0, 5.0, 10.0, 100.0] ?????
-        cumqpfs = [0.0, 5.0, 10.0, 15.0, 20.0]  # What is this? We're not using this anywhere
+        ### Next two lines changed for 2018 with 17.3.1 baseline.
+#         ratios = [0.0, 0.75, 1.0, 1.5, 100.0]
+#         erps = [0.0, 5.0, 10.0, 20.0, 50.0, 100.0]   # 
+        
+        ratios = [0.0, 0.75, 1.0, 1.5, 100.0]
+        erps = [0.0, 5.0, 10.0, 20.0, 50.0, 100.0]   #
 
         threatMatrix = [
-            ["None",     "Very Low", "Elevated", "Mod"    ], # lowest ERP
-            ["Very Low", "Elevated", "Mod",      "High"   ],
-            ["Elevated", "Mod",      "High",     "Extreme"],
-            ["Mod",      "High",     "Extreme",  "Extreme"], # highest # ERP
+            ["None",     "Elevated", "Elevated", "Mod"    ], # lowest ERP
+            ["Elevated", "Elevated", "Mod",      "High"   ],
+            ["Elevated", "Mod",      "Mod",      "High"   ],
+            ["Mod",      "Mod",      "High",     "Extreme"], 
+            ["High",     "High",     "Extreme",  "Extreme"], # highest # ERP
             ] #  low ------ QPF/FFG ratio -------->high
-                        
+#
+# Old matrix. Keept it for reference.        
+#         threatMatrix = [
+#             ["None",     "Elevated", "Mod",      "High"    ], # lowest ERP
+#             ["Elevated", "Mod",      "Mod",      "High"   ],
+#             ["Elevated", "Mod",      "High",     "High"   ],
+#             ["Mod",      "High",     "High",     "Extreme"], 
+#             ["High",     "High",     "Extreme",  "Extreme"], # highest # ERP
+#             ] #  low ------ QPF/FFG ratio -------->high
+#
         # COMMENTS: The list of FFG products that contain FFG data for your WFO
-        # The following is an example for Miami. Default list is emply. You must
+        # The following is an example for Miami. Default list is empty. You must
         # populate it with your CWA FFG guidance.
 #        productList = ["ATLFFGMFL", "ATLFFGTBW", "ATLFFGMLB","ATLFFGKEY"]
-        productList = ["ATLFFGMFL", "ATLFFGTBW", "ATLFFGMLB","ATLFFGKEY"]
+        productList = []
         if len(productList) == 0:
             self.statusBarMsg("You have not configured Text FFG in Procedure. Create a site level copy, and configure your text FFG Guidance. Search for COMMENTS in the procedure.", "S")
 
         ###   END CONFIGURATION SECTION  #################################
-
-        ## Replace the "Very Low" with "Elevated"  if "Very Low" does not exist
-        ## in the list of discrete keys
-        
+       
         try:
             threatKeys = self.getDiscreteKeys("FloodingRainThreat")
         except:
             threatKeys = ["None", "Elevated", "Mod", "High", "Extreme"]
-        
-        # replace "Very Low" with "Elevated"
-        if "Very Low" not in threatKeys:  
-            for i in range(len(threatMatrix)):
-                for j in range(len(threatMatrix[i])):
-                    if threatMatrix[i][j] == "Very Low":
-                        threatMatrix[i][j] = "Elevated"
-                        
+
         baseTime = self.getProbBaseTime().unixTime()
         anchorTimeRange = self.GM_makeTimeRange(baseTime, baseTime + (3600 * 72))
-        
+
         ppffgBaseTime = self.getPpffgBaseTime().unixTime()
         ppffgTimeRange = self.GM_makeTimeRange(ppffgBaseTime, ppffgBaseTime + (3600 * 72))
 
@@ -558,7 +566,7 @@ class Procedure (GridManipulation.GridManipulation):
         ffgGrid = self.getRFCFlashFloodGrid(productList, varDict)
 
         # calculate the areas where the FFG is missing. We will fill these values with None eventually
-        missingFFGMask = ffgGrid <= 0.0
+        missingFFGMask = ffgGrid < 0.0
         
         # Get the ERP grids and stuff them in six hour time blocks to match
         # the cummulative QPF grids will create later
@@ -606,32 +614,25 @@ class Procedure (GridManipulation.GridManipulation):
                 self.statusBarMsg("FlashFlood or QPF grids missing at timeRange:" +
                                   str(probTR), "S")
                 continue
-            
+
             if ppffgGrid is None:
                 self.statusBarMsg("ERP grids missing at timeRange:" + str(probTR), "S")
                 continue
 
-            tempffgGrid = ffgGrid * 1.0
-            tempffgGrid[ffgGrid == 0.0] = 1000.0
+            tempffgGrid = ffgGrid.copy()
+            tempffgGrid[ffgGrid == 0.0] = 0.1
             ratioGrid = qpfGrid / tempffgGrid
-            ratioGrid[ffgGrid == 0.0] = 0.0
-            
-#             tempffgGrid = where(equal(ffgGrid, 0.0), float32(1000.0), ffgGrid)
-#             ratioGrid = qpfGrid / tempffgGrid
-#             ratioGrid[equal(ffgGrid, 0.0)] = 0.0
-            
-            # Clip the ratioGrid to 8.0 to prevent problems when displaying
+
+            # Clip the ratioGrid to 1000.0 to prevent problems when displaying
             ratioGrid.clip(0.0, 1000.0, ratioGrid)
-                        
-#             self.createGrid("Fcst", "ERP", "SCALAR", ppffgGrid, probTR,
-#                             minAllowedValue = -1, maxAllowedValue=100, precision=2)
+
             self.createGrid("Fcst", "FFG", "SCALAR", ffgGrid, probTR,
-                            minAllowedValue = 0, maxAllowedValue=10, precision=2)
+                            minAllowedValue = -9, maxAllowedValue=10, precision=2)
             self.createGrid("Fcst", "QPFtoFFGRatio", "SCALAR", ratioGrid, probTR, 
                             minAllowedValue = 0, maxAllowedValue=1000, precision=2)
 
             floodThreat = np.zeros(self.getGridShape(), np.int8)
-            
+
             for e in range(len(erps) - 1):
                 for r in range(len(ratios) - 1):
                     eMin = erps[e]
@@ -641,16 +642,10 @@ class Procedure (GridManipulation.GridManipulation):
                     ratioMask = (ratioGrid >= rMin) & (ratioGrid < rMax)
                     erpMask = (ppffgGrid >= eMin) & (ppffgGrid < eMax)
                     mask = ratioMask & erpMask
-                    
-#                     ratioMask = logical_and(greater_equal(ratioGrid, rMin),
-#                                             less(ratioGrid, rMax))
-#                     erpMask = logical_and(greater_equal(ppffgGrid, eMin), 
-#                                           less(ppffgGrid, eMax))
-#                     mask = logical_and(ratioMask, erpMask)
 
-                    keyIndex = self.getIndex(threatMatrix[r][e], threatKeys)
+                    keyIndex = self.getIndex(threatMatrix[e][r], threatKeys) #e is y and r ix x
                     floodThreat[mask] = keyIndex
-                    
+
             # Now set the values we found missing to the None key
             noneIndex = self.getIndex("None", threatKeys)
             floodThreat[missingFFGMask] = noneIndex
@@ -661,8 +656,8 @@ class Procedure (GridManipulation.GridManipulation):
                         discreteKeys=threatKeys,
                         discreteOverlap=0,
                         discreteAuxDataLength=2,
-                        defaultColorTable="gHLS_new")        
-            
+                        defaultColorTable="gHLS_new")
+
             maxFloodThreat = np.maximum(floodThreat, maxFloodThreat)
 
         # Make a big timeRange and delete all the FloodingRainThreat grids
@@ -671,7 +666,7 @@ class Procedure (GridManipulation.GridManipulation):
         dbTR = self.GM_makeTimeRange(startTime, endTime) 
         cTime = int(self._gmtime().unixTime()/ 3600)  * 3600 
         end = cTime + (6*3600)
-        threatTR = self.GM_makeTimeRange(cTime, end)     
+        threatTR = self.GM_makeTimeRange(cTime, end)
         self.deleteCmd(['FloodingRainThreat'], dbTR) 
         self.createGrid("Fcst", "FloodingRainThreat", "DISCRETE",
                         (maxFloodThreat, threatKeys), threatTR,
@@ -679,6 +674,6 @@ class Procedure (GridManipulation.GridManipulation):
                         discreteOverlap=0,
                         discreteAuxDataLength=2,
                         defaultColorTable="gHLS_new")
-                           
-        
+
+
         return 

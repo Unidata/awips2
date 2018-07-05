@@ -25,13 +25,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.geotools.referencing.GeodeticCalculator;
 
@@ -78,15 +78,14 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 12, 2015 4834        njensen     Changed LocalizationOpFailedException to LocalizationException
  * Nov 19, 2015 5129        dgilling    Support new IFPClient.
  * Feb 10, 2016 5242        dgilling    Remove calls to deprecated Localization APIs.
+ * Jun 14, 2017 6297        bsteffen    Make listeners thread safe.
  * 
  * </pre>
  * 
  * @author rbell
- * @version 1.0
  */
-
-public class SampleSetManager implements ISampleSetManager,
-        ILocalizationFileObserver {
+public class SampleSetManager
+        implements ISampleSetManager, ILocalizationFileObserver {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(SampleSetManager.class);
 
@@ -121,15 +120,15 @@ public class SampleSetManager implements ISampleSetManager,
     public SampleSetManager(IFPClient ifpClient) {
         this.loadedSet = new SampleId();
 
-        this.locations = new ArrayList<Coordinate>();
+        this.locations = new ArrayList<>();
 
-        this.markerLocations = new HashMap<String, List<Coordinate>>();
+        this.markerLocations = new HashMap<>();
 
-        this.sampleSetChangedListeners = new HashSet<ISampleSetChangedListener>();
+        this.sampleSetChangedListeners = new CopyOnWriteArraySet<>();
 
         this.ifpClient = ifpClient;
 
-        this.inventory = new TreeMap<String, SampleId>();
+        this.inventory = new TreeMap<>();
         ServerResponse<List<SampleId>> sr = this.ifpClient.getSampleInventory();
         if (sr.isOkay()) {
             for (SampleId id : sr.getPayload()) {
@@ -144,7 +143,8 @@ public class SampleSetManager implements ISampleSetManager,
         this.pathManager = PathManagerFactory.getPathManager();
         this.sampleSetDir = this.pathManager.getLocalizationFile(
                 this.pathManager.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.BASE), SAMPLE_SETS_DIR);
+                        LocalizationLevel.BASE),
+                SAMPLE_SETS_DIR);
         this.sampleSetDir.addFileUpdatedObserver(this);
 
         // load default sample points
@@ -179,19 +179,21 @@ public class SampleSetManager implements ISampleSetManager,
             return Collections.emptyList();
         }
 
-        String fileName = FileUtil.join(SAMPLE_SETS_DIR, sampleId.getName()
-                + ".xml");
+        String fileName = FileUtil.join(SAMPLE_SETS_DIR,
+                sampleId.getName() + ".xml");
 
         ILocalizationFile lf = pathManager.getLocalizationFile(
                 pathManager.getContext(LocalizationType.COMMON_STATIC,
-                        sampleId.getAccess()), fileName);
+                        sampleId.getAccess()),
+                fileName);
 
         List<Coordinate> points = Collections.emptyList();
         try (InputStream inStream = lf.openInputStream()) {
             SampleData sampleData = SampleData.getJAXBManager()
                     .unmarshalFromInputStream(inStream);
             points = sampleData.getPoints();
-        } catch (IOException | LocalizationException | SerializationException e) {
+        } catch (IOException | LocalizationException
+                | SerializationException e) {
             statusHandler.error("Unable to load sampledata: " + lf, e);
         }
 
@@ -203,18 +205,17 @@ public class SampleSetManager implements ISampleSetManager,
             SampleSetLoadMode loadMode) {
         ServerResponse<SampleData> sr = ifpClient.getSampleData(sampleId);
         if (!sr.isOkay()) {
-            statusHandler
-                    .error(String
-                            .format("Failure to get sample data from from IFPServer for [%s]: %s",
-                                    sampleId.getName(), sr.message()));
+            statusHandler.error(String.format(
+                    "Failure to get sample data from from IFPServer for [%s]: %s",
+                    sampleId.getName(), sr.message()));
             return;
         }
         SampleData sampleData = sr.getPayload();
 
         // set the loadedSet flag appropriately
         if ((loadMode == SampleSetLoadMode.REPLACE)
-                || ((loadMode == SampleSetLoadMode.ADD) && (this.locations
-                        .size() == 0))) {
+                || ((loadMode == SampleSetLoadMode.ADD)
+                        && (this.locations.isEmpty()))) {
             this.loadedSet = sampleData.getSampleId();
         } else {
             this.loadedSet = new SampleId();
@@ -231,7 +232,8 @@ public class SampleSetManager implements ISampleSetManager,
     @Override
     public void clearSamples() {
         mergeSamples(new ArrayList<Coordinate>(), SampleSetLoadMode.REPLACE);
-        this.loadedSet = new SampleId(); // no loaded set
+        // no loaded set
+        this.loadedSet = new SampleId();
         fireSampleSetChangedListeners();
         return;
     }
@@ -239,7 +241,8 @@ public class SampleSetManager implements ISampleSetManager,
     @Override
     public void addAnchoredSample(final Coordinate sampleLocation) {
         mergeSamples(Arrays.asList(sampleLocation), SampleSetLoadMode.ADD);
-        this.loadedSet = new SampleId(); // no longer a loaded set
+        // no longer a loaded set
+        this.loadedSet = new SampleId();
         fireSampleSetChangedListeners();
         return;
     }
@@ -255,7 +258,8 @@ public class SampleSetManager implements ISampleSetManager,
             float threshold) {
         mergeSamples(Arrays.asList(sampleLocation), SampleSetLoadMode.REMOVE,
                 threshold);
-        this.loadedSet = new SampleId(); // no longer a loaded set
+        // no longer a loaded set
+        this.loadedSet = new SampleId();
         fireSampleSetChangedListeners();
         return;
     }
@@ -265,7 +269,7 @@ public class SampleSetManager implements ISampleSetManager,
         String set = activeMarkerSet(gid);
         List<Coordinate> locations = markerLocations.get(set);
         if (locations == null) {
-            locations = new ArrayList<Coordinate>();
+            locations = new ArrayList<>();
         }
         locations.add(location);
         markerLocations.put(set, locations);
@@ -273,8 +277,10 @@ public class SampleSetManager implements ISampleSetManager,
     }
 
     @Override
-    public void removeAnchoredMarker(final Coordinate location, final GridID gid) {
-        removeAnchoredMarker(location, gid, ISampleSetManager.DEFAULT_THRESHOLD);
+    public void removeAnchoredMarker(final Coordinate location,
+            final GridID gid) {
+        removeAnchoredMarker(location, gid,
+                ISampleSetManager.DEFAULT_THRESHOLD);
     }
 
     @Override
@@ -284,7 +290,7 @@ public class SampleSetManager implements ISampleSetManager,
         String set = activeMarkerSet(gid);
         GeodeticCalculator gdc = new GeodeticCalculator();
         gdc.setStartingGeographicPoint(location.x, location.y);
-        ArrayList<Coordinate> toRemove = new ArrayList<Coordinate>();
+        List<Coordinate> toRemove = new ArrayList<>();
         for (Coordinate markerLoc : this.markerLocations.get(set)) {
             gdc.setDestinationGeographicPoint(markerLoc.x, markerLoc.y);
             float d = (float) gdc.getOrthodromicDistance();
@@ -346,12 +352,12 @@ public class SampleSetManager implements ISampleSetManager,
 
     @Override
     public boolean deleteSampleSet(final SampleId sampleId) {
-        ServerResponse<?> sr = ifpClient.deleteSampleData(Arrays
-                .asList(sampleId));
+        ServerResponse<?> sr = ifpClient
+                .deleteSampleData(Arrays.asList(sampleId));
         if (!sr.isOkay()) {
-            statusHandler.error(String.format(
-                    "Failure to delete sample set [%s]: %s",
-                    sampleId.getName(), sr.message()));
+            statusHandler.error(
+                    String.format("Failure to delete sample set [%s]: %s",
+                            sampleId.getName(), sr.message()));
         } else if (sampleId.getName().equals(loadedSet.getName())) {
             loadedSet = new SampleId();
         }
@@ -364,8 +370,8 @@ public class SampleSetManager implements ISampleSetManager,
 
         String name = LocalizationUtil.extractName(message.getFileName())
                 .replace(".xml", "");
-        SampleId id = new SampleId(name, false, message.getContext()
-                .getLocalizationLevel());
+        SampleId id = new SampleId(name, false,
+                message.getContext().getLocalizationLevel());
 
         switch (message.getChangeType()) {
         case ADDED:
@@ -465,7 +471,7 @@ public class SampleSetManager implements ISampleSetManager,
             }
             break;
         case REPLACE:
-            this.locations = new ArrayList<Coordinate>(mergeSet);
+            this.locations = new ArrayList<>(mergeSet);
             break;
         }
     }
@@ -493,8 +499,8 @@ public class SampleSetManager implements ISampleSetManager,
 
     @Override
     public SampleId[] getInventory() {
-        return this.inventory.values().toArray(
-                new SampleId[this.inventory.size()]);
+        return this.inventory.values()
+                .toArray(new SampleId[this.inventory.size()]);
     }
 
     @Override
@@ -502,7 +508,8 @@ public class SampleSetManager implements ISampleSetManager,
         String[] retVal = new String[this.inventory.size()];
         int i = 0;
         for (String name : this.inventory.keySet()) {
-            retVal[i++] = name;
+            retVal[i] = name;
+            i += 1;
         }
 
         return retVal;
@@ -521,7 +528,7 @@ public class SampleSetManager implements ISampleSetManager,
 
     @Override
     public List<Coordinate> getLocations() {
-        return new ArrayList<Coordinate>(this.locations);
+        return new ArrayList<>(this.locations);
     }
 
     @Override
@@ -556,7 +563,8 @@ public class SampleSetManager implements ISampleSetManager,
     }
 
     @Override
-    public void addSampleSetChangedListener(ISampleSetChangedListener listener) {
+    public void addSampleSetChangedListener(
+            ISampleSetChangedListener listener) {
         sampleSetChangedListeners.add(listener);
     }
 
@@ -566,9 +574,6 @@ public class SampleSetManager implements ISampleSetManager,
         sampleSetChangedListeners.remove(listener);
     }
 
-    /**
-     * Fires the sample set changed listeners.
-     */
     private void fireSampleSetChangedListeners() {
         for (ISampleSetChangedListener listener : sampleSetChangedListeners) {
             listener.sampleSetChanged(this);

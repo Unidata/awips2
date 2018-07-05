@@ -18,13 +18,17 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="GVV" name="Geometric Vertical Velocity" unit="m/s">
     <Method name="Slice" levels="S,K,Ke">
-    	<Field abbreviation="GVV" level="3D"/>
-    	<Field abbreviation="P"/>
-    	<ConstantField value="-2"/>
+        <Field abbreviation="GVV" level="3D" />
+        <Field abbreviation="P" />
+        <ConstantField value="-2" />
     </Method>
     <Method name="Alias">
-    	<Field abbreviation="GVV1hr"/>
+        <Field abbreviation="GVV1hr" />
     </Method>
 </DerivedParameter>

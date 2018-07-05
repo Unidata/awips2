@@ -31,6 +31,11 @@
 # Last Modified:                    Fri 25 Oct 02   1.1
 # ----------------------------------------------------------------------------
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 ToolType = "numeric"
 from numpy import *
 

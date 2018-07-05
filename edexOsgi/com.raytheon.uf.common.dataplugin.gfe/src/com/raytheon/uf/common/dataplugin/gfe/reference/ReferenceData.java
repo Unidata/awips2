@@ -72,6 +72,8 @@ import com.vividsolutions.jts.geom.Polygonal;
  * 01/31/2008              randerso    Initial creation
  * 10/01/2013   2361       njensen     Added static JAXBManager
  * 02/19/2015   4125       rjpeter     Updated to return a new pooled JAXBManager on request.
+ * 01/08/2018   19900      ryu         Fix CAVE crash when starting GFE for non-activated site.
+ *
  * </pre>
  * 
  * @author randerso
@@ -430,7 +432,7 @@ public class ReferenceData {
                         + this.getId().getName(), e);
 
                 // return an empty grid
-                grid = new Grid2DBit(gloc.getNx(), gloc.getNy());
+       	        grid = new Grid2DBit(gloc.getNx(), gloc.getNy());
             }
         }
         return grid;
@@ -477,8 +479,10 @@ public class ReferenceData {
     private void calcGrid() {
         if (polygons != null) {
             grid = convertToGridpoints(this);
-        } else {
+        } else if (gloc != null) {
             grid = new Grid2DBit(gloc.getNx(), gloc.getNy());
+        } else {
+            grid = new Grid2DBit(0, 0);
         }
     }
 

@@ -14,7 +14,15 @@
 #   refactor to make use of a utility containing common methods with other tools
 # Modified: By LeFebvre 09/23/2016 finish converstion to numpy conventions. 
 # CHECKED IN for 17.1.1
+#
+# Modified: By LeFebvre 06/12/17 - Fixed bug that incremented TornadoThreat
+# beyond Extreme and caused a crash.
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -205,17 +213,16 @@ class Procedure (TropicalUtility.TropicalUtility):
 
         # make sure we're not incrementing too far
         extremeIndex = self.getIndex("Extreme", threatKeys)
-#        extremeMask = equal(tornadoThreat, extremeIndex)
-        extremeMask = tornadoThreat == extremeIndex
-        mask = mask - extremeMask  # subtract the extreme area
 
         # increment the category.  This code assumes that the categories are
         # defined in increasing order of severity.
-#        tornadoThreat = where(mask, tornadoThreat + 1, tornadoThreat)
         tornadoThreat[mask] +=  1
 
+        # Clip the adjusted grid to the maximum allowed value - extremeIndex
+        tornadoThreat = np.clip(tornadoThreat, 0, extremeIndex)
+
         return tornadoThreat
-        
+
 
     def setTornadoGrid(self, tornadoThreat, threatKeys, var, dayNum, threshDict):
 
@@ -328,4 +335,5 @@ class Procedure (TropicalUtility.TropicalUtility):
                         defaultColorTable="Hazards")
 
         return
+
 

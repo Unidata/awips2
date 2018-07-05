@@ -1,0 +1,11 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Dissemination Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dissemination
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Import-Package: com.raytheon.uf.common.serialization.comm
+Export-Package: com.raytheon.uf.common.dissemination
+Require-Bundle: com.raytheon.uf.common.serialization;bundle-version="1.11.17",
+ com.raytheon.uf.common.auth;bundle-version="1.12.1174"

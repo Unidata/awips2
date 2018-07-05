@@ -1,32 +1,30 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.radar.rsc.image;
 
 import java.awt.Rectangle;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 import javax.measure.Measure;
 import javax.measure.quantity.Length;
 import javax.measure.unit.NonSI;
-import javax.measure.unit.SI;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -45,6 +43,9 @@ import com.raytheon.uf.viz.core.drawables.ext.colormap.IColormappedImageExtensio
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
 import com.raytheon.viz.awipstools.capabilities.EAVCapability;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
 import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
@@ -52,7 +53,6 @@ import com.raytheon.viz.awipstools.common.EstimatedActualVelocity;
 import com.raytheon.viz.awipstools.common.IRadialVelocityToolSource;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
-import com.raytheon.viz.radar.interrogators.RadarRadialInterrogator;
 import com.raytheon.viz.radar.rsc.RadarImageResource;
 import com.raytheon.viz.radar.rsc.RadarProductFactory;
 import com.raytheon.viz.radar.rsc.RadarResourceData;
@@ -61,9 +61,9 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * {@link RadarImageResource} that is able to display radial data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
@@ -74,19 +74,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jun 11, 2014  2061     bsteffen    Move rangeable methods here.
  * Jun 24, 2014  3072     bsteffen    Remove RadarRecord dependency for Radial
  *                                    Mesh
- * 
+ * Sep 13, 2016  3239     nabowle     Use the Interrogatable API.
+ *
  * </pre>
- * 
+ *
  * @author mnash
- * @version 1.0
  */
 
 public class RadarRadialResource extends RadarImageResource<MapDescriptor>
         implements IRadialVelocityToolSource, IRangeableResource {
 
-    public static final String HEIGHT_INTERROGATE_ID = "height";
-
-    private static final String EAV_VALUE = "EAC.Value";
+    public static final InterrogationKey<String> EAV_VALUE_STRING = new InterrogationKey<>();
 
     /**
      * @param rrd
@@ -102,39 +100,22 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         super.paintInternal(target, paintProps);
-        RangeRingsOverlayCapability rrcap = getCapability(RangeRingsOverlayCapability.class);
+        RangeRingsOverlayCapability rrcap = getCapability(
+                RangeRingsOverlayCapability.class);
         rrcap.setRangeableResource(this);
         rrcap.paint(target, paintProps);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.rsc.RadarImageResource#toImageData(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.ColorMapParameters,
-     * com.raytheon.uf.common.dataplugin.radar.RadarRecord, java.awt.Rectangle)
-     */
     @Override
     protected IImage createImage(IGraphicsTarget target,
             ColorMapParameters params, RadarRecord record, Rectangle rect)
-            throws VizException {
+                    throws VizException {
         byte[] table = createConversionTable(params, record);
-        return target
-                .getExtension(IColormappedImageExtension.class)
-                .initializeRaster(
-                        new RadarRadialDataRetrievalAdapter(record, table, rect),
-                        params);
+        return target.getExtension(IColormappedImageExtension.class)
+                .initializeRaster(new RadarRadialDataRetrievalAdapter(record,
+                        table, rect), params);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.rsc.RadarImageResource#project(org.opengis.referencing
-     * .crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         super.project(crs);
@@ -148,59 +129,46 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
     }
 
     @Override
-    public String inspect(DataTime dataTime, Map<String, String> dataMap) {
+    public String inspect(DataTime dataTime, InterrogateMap dataMap) {
         StringBuilder sb = new StringBuilder(super.inspect(dataTime, dataMap));
 
-        if (dataMap != null && dataMap.containsKey(EAV_VALUE)) {
-            sb.append(" ").append(dataMap.get(EAV_VALUE));
+        if (dataMap != null && dataMap.containsKey(EAV_VALUE_STRING)) {
+            sb.append(" ").append(dataMap.get(EAV_VALUE_STRING));
         }
         return sb.toString();
     }
 
     @Override
-    public Map<String, Object> interrogate(ReferencedCoordinate coord)
-            throws VizException {
-        Map<String, Object> dataMap = super.interrogate(coord);
-        if (dataMap != null
-                && dataMap.containsKey(RadarRadialInterrogator.MSL_HEIGHT_ID)) {
-            Object obj = dataMap.get(RadarRadialInterrogator.MSL_HEIGHT_ID);
-            // Get MSL object, handles if String, Number or Measure
-            if (obj instanceof String) {
-                obj = Double.parseDouble(String.valueOf(obj));
-            }
-            if (obj instanceof Number) {
-                obj = Measure.valueOf(((Number) obj).doubleValue(), SI.METER);
-            }
-            if (obj instanceof Measure) {
-                dataMap.put(HEIGHT_INTERROGATE_ID, (Measure<?, ?>) obj);
-            }
-        }
-        return dataMap;
-    }
-
-    @Override
-    public Map<String, String> interrogate(DataTime dataTime, Coordinate latLon) {
-        Map<String, String> dataMap = super.interrogate(dataTime, latLon);
+    public InterrogateMap interrogate(ReferencedCoordinate coordinate,
+            DataTime time, InterrogationKey<?>... keys) {
+        InterrogateMap dataMap = super.interrogate(coordinate, time, keys);
 
         // add EAV values to dataMap, if necessary
         if (hasCapability(EAVCapability.class)) {
             EAVCapability eavCap = getCapability(EAVCapability.class);
             if (eavCap.isCapabilityActive()) {
-                if (dataMap != null) {
-                    EstimatedActualVelocity eav = eavCap.getEav();
-                    dataMap.put(EAV_VALUE, eav.getEAVValue(latLon,
-                            new HashMap<String, Object>(dataMap)));
+                for (InterrogationKey<?> key : keys) {
+                    if (EAV_VALUE_STRING.equals(key)) {
+                        EstimatedActualVelocity eav = eavCap.getEav();
+                        dataMap.put(EAV_VALUE_STRING,
+                                eav.getEAVValue(
+                                        dataMap.get(IRadarInterrogator.AZIMUTH),
+                                        dataMap.get(IRadarInterrogator.RANGE),
+                                        dataMap.get(
+                                                IRadarInterrogator.MNEMONIC),
+                                dataMap.get(Interrogator.VALUE)));
+                    }
                 }
             }
         }
         return dataMap;
     }
 
-    protected static class RadarRadialDataRetrievalAdapter extends
-            RadarImageDataRetrievalAdapter {
+    protected static class RadarRadialDataRetrievalAdapter
+            extends RadarImageDataRetrievalAdapter {
 
-        public RadarRadialDataRetrievalAdapter(RadarRecord record,
-                byte[] table, Rectangle rect) {
+        public RadarRadialDataRetrievalAdapter(RadarRecord record, byte[] table,
+                Rectangle rect) {
             super(record, table, rect);
         }
 
@@ -236,13 +204,6 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.rsc.RadarImageResource#buildMesh(com.raytheon.
-     * uf.viz.core.IGraphicsTarget, com.raytheon.viz.radar.VizRadarRecord)
-     */
     @Override
     public IMesh buildMesh(IGraphicsTarget target, VizRadarRecord radarRecord)
             throws VizException {
@@ -254,16 +215,19 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
     public boolean isRadialVelocitySource() {
         int productCode = -1;
         try {
-            // TODO: This duplicates logic in RadarResourceData.constructResource
+            // TODO: This duplicates logic in
+            // RadarResourceData.constructResource
             if (radarRecords != null && !radarRecords.isEmpty()) {
                 RadarRecord r = radarRecords.values().iterator().next();
                 productCode = r.getProductCode();
             } else {
                 RequestConstraint productCodeConstraint = getResourceData()
                         .getMetadataMap().get("productCode");
-                if (productCodeConstraint.getConstraintType() == ConstraintType.EQUALS)
-                    productCode = Integer.parseInt(productCodeConstraint
-                            .getConstraintValue());
+                if (productCodeConstraint
+                        .getConstraintType() == ConstraintType.EQUALS) {
+                    productCode = Integer.parseInt(
+                            productCodeConstraint.getConstraintValue());
+                }
             }
         } catch (RuntimeException e) {
             // ignore
@@ -271,12 +235,6 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
         return RadarProductFactory.isVelocityProductCode(productCode);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource#
-     * getElevation()
-     */
     @Override
     public Measure<?, Length> getElevation() {
         RadarRecord radarRecord = getRadarRecord(displayedDate);
@@ -287,13 +245,6 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
         return Measure.valueOf(0.0, NonSI.FOOT);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource#getCenter
-     * ()
-     */
     @Override
     public Coordinate getCenter() {
         RadarRecord record = getRadarRecord(displayedDate);
@@ -303,13 +254,6 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
         return new Coordinate();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource#getTilt
-     * ()
-     */
     @Override
     public double getTilt() {
         double tilt = 0.0;
@@ -317,5 +261,17 @@ public class RadarRadialResource extends RadarImageResource<MapDescriptor>
             tilt = displayedDate.getLevelValue();
         }
         return tilt;
+    }
+
+    @Override
+    public Set<InterrogationKey<?>> getInterrogationKeys() {
+        Set<InterrogationKey<?>> keys = super.getInterrogationKeys();
+        if (hasCapability(EAVCapability.class)) {
+            EAVCapability eavCap = getCapability(EAVCapability.class);
+            if (eavCap.isCapabilityActive()) {
+                keys.add(EAV_VALUE_STRING);
+            }
+        }
+        return keys;
     }
 }

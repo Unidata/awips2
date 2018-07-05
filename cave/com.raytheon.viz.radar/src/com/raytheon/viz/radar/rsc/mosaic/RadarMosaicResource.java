@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.measure.Measure;
 import javax.measure.unit.UnitFormat;
 
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -64,7 +65,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.extratext.IExtraTextGeneratingResource;
-import com.raytheon.viz.core.rsc.BestResResource;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
+import com.raytheon.uf.viz.core.rsc.groups.BestResResource;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.rsc.AbstractRadarResource;
 import com.raytheon.viz.radar.rsc.MosaicPaintProperties;
@@ -74,11 +77,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Implements Radar Mosaic display
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer     Description
  * ------------- -------- ------------ -----------------------------------------
  * Jun 12, 2009  1937     askripsk     Initial creation
@@ -89,9 +92,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 10, 2014  3604     bsteffen     Ensure capability changes propogate to
  *                                     all resources/listeners.
  * May 19, 2016  3253     bsteffen     Refactor of extra text.
- * 
+ * Sep 13, 2016  3239     nabowle      Use the Interrogatable API.
+ *
  * </pre>
- * 
+ *
  * @author askripsk
  */
 public class RadarMosaicResource extends
@@ -134,8 +138,8 @@ public class RadarMosaicResource extends
         rrd.addChangeListener(this);
 
         if (this.getCapability(ColorableCapability.class).getColor() == null) {
-            this.getCapability(ColorableCapability.class).setColor(
-                    DEFAULT_COLOR);
+            this.getCapability(ColorableCapability.class)
+                    .setColor(DEFAULT_COLOR);
         }
 
         dataTimes = Collections.synchronizedList(new ArrayList<DataTime>());
@@ -195,7 +199,7 @@ public class RadarMosaicResource extends
     private int getSeverity(ResourcePair rp) {
         int maxSeverity = -1;
         if (rp.getResource() == null) {
-            
+            // nothing.
         } else if (rp.getResource() instanceof BestResResource) {
             for (ResourcePair rp1 : ((BestResResource) rp.getResource())
                     .getResourceList()) {
@@ -238,8 +242,8 @@ public class RadarMosaicResource extends
                 boolean forceIt = force || !curTime.equals(lastTime);
                 force = false;
                 lastTime = curTime;
-                mosaicRenderer.mosaic(target, new MosaicPaintProperties(
-                        paintProps, forceIt), this);
+                mosaicRenderer.mosaic(target,
+                        new MosaicPaintProperties(paintProps, forceIt), this);
             }
 
         }
@@ -247,15 +251,14 @@ public class RadarMosaicResource extends
 
     /**
      * Creates the buffer containing the data for the mosaic'ed radars.
-     * 
+     *
      * @param target
      * @param geo
      * @return
      * @throws VizException
      */
     @SuppressWarnings("unchecked")
-    private List<RadarRecord> constructRecordsToMosaic()
-            throws VizException {
+    private List<RadarRecord> constructRecordsToMosaic() throws VizException {
         List<RadarRecord> recordsToMosaic = new ArrayList<>();
 
         // Build list of radarRecords to mosaic
@@ -284,9 +287,8 @@ public class RadarMosaicResource extends
             ColorMapParameters params = null;
 
             for (ResourcePair rp : getResourceList()) {
-                if (rp.getResource() != null
-                        && rp.getResource().hasCapability(
-                                ColorMapCapability.class)) {
+                if (rp.getResource() != null && rp.getResource()
+                        .hasCapability(ColorMapCapability.class)) {
                     params = rp.getResource()
                             .getCapability(ColorMapCapability.class)
                             .getColorMapParameters();
@@ -296,13 +298,12 @@ public class RadarMosaicResource extends
             if (params != null && params.getColorMap() != null) {
                 for (ResourcePair rp : getResourceList()) {
                     if (rp.getResource() != null) {
-                        rp.getResource()
-                                .getCapability(ColorMapCapability.class)
+                        rp.getResource().getCapability(ColorMapCapability.class)
                                 .setColorMapParameters(params);
                     }
                 }
-                unitString = UnitFormat.getUCUMInstance().format(
-                        params.getDisplayUnit());
+                unitString = UnitFormat.getUCUMInstance()
+                        .format(params.getDisplayUnit());
                 initColorMap = true;
             }
         }
@@ -325,7 +326,7 @@ public class RadarMosaicResource extends
      * redoTimeMatching will not trigger an server requests and should be safe
      * to run within paint to guarantee that the latest times for any resources
      * match the frame times for the mosaic resource.
-     * 
+     *
      * @param frameTimes
      * @throws VizException
      */
@@ -359,7 +360,8 @@ public class RadarMosaicResource extends
         }
         for (ResourcePair pair : getResourceList()) {
             try {
-                if (!(pair.getResourceData() instanceof AbstractRequestableResourceData)) {
+                if (!(pair
+                        .getResourceData() instanceof AbstractRequestableResourceData)) {
                     continue;
                 }
                 AbstractRequestableResourceData arrd = (AbstractRequestableResourceData) pair
@@ -377,7 +379,8 @@ public class RadarMosaicResource extends
                 // remove any extra times
                 List<DataTime> displayList = Arrays.asList(displayTimes);
                 List<DataTime> frameList = Arrays.asList(frameTimes);
-                for (DataTime availableTime : pair.getResource().getDataTimes()) {
+                for (DataTime availableTime : pair.getResource()
+                        .getDataTimes()) {
                     DataTime adjAvailTime = availableTime;
                     if (resourceData.getBinOffset() != null) {
                         adjAvailTime = resourceData.getBinOffset()
@@ -397,10 +400,13 @@ public class RadarMosaicResource extends
     }
 
     /**
-     * Attempt to match the times for the mosaic with the times for an individual radar.
-     * 
-     * @param frameTimes the frame times for the mosaic resource
-     * @param availableTimes the times for a radar within a mosaic
+     * Attempt to match the times for the mosaic with the times for an
+     * individual radar.
+     *
+     * @param frameTimes
+     *            the frame times for the mosaic resource
+     * @param availableTimes
+     *            the times for a radar within a mosaic
      * @return
      */
     private DataTime[] timeMatch(DataTime[] frameTimes,
@@ -412,14 +418,14 @@ public class RadarMosaicResource extends
                 continue;
             }
             if (resourceData.getBinOffset() != null) {
-                frameTime = resourceData.getBinOffset().getNormalizedTime(
-                        frameTime);
+                frameTime = resourceData.getBinOffset()
+                        .getNormalizedTime(frameTime);
                 long frameValid = frameTime.getMatchValid();
                 // Match at twice the range of binOffset this makes
                 // things much smoother
                 int interval = resourceData.getBinOffset().getInterval() * 2000;
                 for (DataTime displayTime : availableTimes) {
-                    if(displayTime == null){
+                    if (displayTime == null) {
                         continue;
                     }
                     long dispValid = displayTime.getMatchValid();
@@ -472,7 +478,7 @@ public class RadarMosaicResource extends
         }
 
         Map<AbstractRadarResource<?>, DataTime> rscTimeMap = new HashMap<>();
-        Map<AbstractRadarResource<?>, Map<String, String>> rscInspectMap = new HashMap<>();
+        Map<AbstractRadarResource<?>, InterrogateMap> rscInspectMap = new HashMap<>();
         AbstractRadarResource<?> highestRsc = null;
         String inspectString = null;
         if (coord != null) {
@@ -527,8 +533,7 @@ public class RadarMosaicResource extends
             }
 
             for (AbstractRadarResource<?> rr : resources) {
-                Map<String, String> vals = rr.interrogate(rscTimeMap.get(rr),
-                        coord);
+                InterrogateMap vals = rr.interrogate(rscTimeMap.get(rr), coord);
                 if (vals != null) {
                     rscInspectMap.put(rr, vals);
                 }
@@ -536,10 +541,11 @@ public class RadarMosaicResource extends
             Double highestVal = Double.NEGATIVE_INFINITY;
             // Now loop through and find highest value
             for (AbstractRadarResource<?> rr : rscInspectMap.keySet()) {
-                Map<String, String> valMap = rscInspectMap.get(rr);
-                String num = valMap.get("numericValue");
+                InterrogateMap valMap = rscInspectMap.get(rr);
+                Measure<? extends Number, ?> num = valMap
+                        .get(Interrogator.VALUE);
                 if (num != null) {
-                    Double d = Double.parseDouble(num);
+                    Double d = num.getValue().doubleValue();
                     if (d > highestVal) {
                         highestVal = d;
                         highestRsc = rr;
@@ -583,8 +589,8 @@ public class RadarMosaicResource extends
                         dataTimes.add(time);
                     }
                 }
-                if (!Arrays.equals(timeMatchingMap.get(this), descriptor
-                        .getFramesInfo().getTimeMap().get(this))) {
+                if (!Arrays.equals(timeMatchingMap.get(this),
+                        descriptor.getFramesInfo().getTimeMap().get(this))) {
                     timeUpdateJob.schedule();
                 }
             }

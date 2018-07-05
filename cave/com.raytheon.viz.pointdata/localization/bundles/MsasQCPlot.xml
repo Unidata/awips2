@@ -18,58 +18,68 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-   <displayList>
-      <displays xsi:type="d2DMapRenderableDisplay"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-         <descriptor xsi:type="mapDescriptor" currentAnimationMode="Temporal">
-            <resource>
-               <loadProperties>
-                   <capabilities>
-                   </capabilities>
-               </loadProperties>
-               <properties isSystemResource="false" isBlinking="false"
-                   isMapLayer="false" isHoverOn="false"
-                   isVisible="true" />
-               <resourceData xsi:type="plotResourceData" plotSource="${legend}"
-                   plotModelFile="${svgPrefix}QcCallDesign.svg"
-                   retrieveData="false" isUpdatingOnMetadataOnly="false"
-                   isRequeryNecessaryOnTimeMatch="true">
-                   <binOffset posOffset="${posOffset}" negOffset="${negOffset}" virtualOffset="0"/>
-                   <metadataMap>
-                       <mapping key="pluginName">
-                           <constraint constraintValue="${plugin}" constraintType="EQUALS" />
-                       </mapping>
-                       <mapping key="qcType">
-                           <constraint constraintValue="${qcType}" constraintType="EQUALS" />
-                       </mapping>
-                   </metadataMap>
-               </resourceData>
-            </resource>
-            <resource>
-               <loadProperties>
-                   <capabilities>
-                   </capabilities>
-               </loadProperties>
-               <properties isSystemResource="false" isBlinking="false"
-                   isMapLayer="false" isHoverOn="false"
-                   isVisible="true" />
-               <resourceData xsi:type="plotResourceData" plotSource="${legend}--qc failed"
-                   plotModelFile="${svgPrefix}QcFailDesign.svg"
-                   retrieveData="false" isUpdatingOnMetadataOnly="false"
-                   isRequeryNecessaryOnTimeMatch="true">
-                   <binOffset posOffset="${posOffset}" negOffset="${negOffset}" virtualOffset="0"/>
-                   <metadataMap>
-                       <mapping key="pluginName">
-                           <constraint constraintValue="${plugin}" constraintType="EQUALS" />
-                       </mapping>
-                       <mapping key="qcType">
-                           <constraint constraintValue="${qcType}" constraintType="EQUALS" />
-                       </mapping>
-                   </metadataMap>
-               </resourceData>
-            </resource>
-         </descriptor>
-      </displays>
-   </displayList>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties>
+                        <capabilities/>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="${legend}" plotModelFile="${svgPrefix}QcCallDesign.svg"
+                        retrieveData="false" isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true">
+                        <binOffset posOffset="${posOffset}"
+                            negOffset="${negOffset}" virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="${plugin}"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="qcType">
+                                <constraint constraintValue="${qcType}"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties>
+                        <capabilities>
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="${legend}--qc failed" plotModelFile="${svgPrefix}QcFailDesign.svg"
+                        retrieveData="false" isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true">
+                        <binOffset posOffset="${posOffset}"
+                            negOffset="${negOffset}" virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="${plugin}"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="qcType">
+                                <constraint constraintValue="${qcType}"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

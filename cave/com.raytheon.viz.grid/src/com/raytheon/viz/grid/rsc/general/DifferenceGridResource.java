@@ -20,10 +20,9 @@
 package com.raytheon.viz.grid.rsc.general;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
+import javax.measure.Measure;
 import javax.measure.unit.Unit;
 
 import org.geotools.coverage.grid.GeneralGridEnvelope;
@@ -50,8 +49,11 @@ import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.GroupNamingCapability;
-import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
-import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineUtil;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData.CombineOperation;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData.CombineUtil;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
 
 /**
  * 
@@ -62,17 +64,17 @@ import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineUtil;
  * 
  * SOFTWARE HISTORY
  * 
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Mar 16, 2011           bsteffen    Initial creation
- * Feb 28, 2013  2791     bsteffen    Use DataSource instead of FloatBuffers
- *                                    for data access
- * May 15, 2015  4079     bsteffen    Use publicly accessible display unit.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 16, 2011  10751    bsteffen  Initial creation
+ * Feb 28, 2013  2791     bsteffen  Use DataSource instead of FloatBuffers for
+ *                                  data access
+ * May 15, 2015  4079     bsteffen  Use publicly accessible display unit.
+ * Aug 30, 2016  3240     bsteffen  Implement Interrogatable
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class DifferenceGridResource extends
         AbstractGridResource<DifferenceGridResourceData> implements
@@ -116,30 +118,66 @@ public class DifferenceGridResource extends
     }
 
     @Override
-    public Map<String, Object> interrogate(ReferencedCoordinate coord)
-            throws VizException {
-        Map<String, Object> oneMap = one.interrogate(coord);
-        Map<String, Object> twoMap = two.interrogate(coord);
-        if (oneMap == null || twoMap == null) {
-            return super.interrogate(coord);
+    public InterrogateMap interrogate(ReferencedCoordinate coordinate,
+            DataTime time, InterrogationKey<?>... keys) {
+        if(!(time instanceof CombinedDataTime)){
+            return super.interrogate(coordinate, time, keys);
         }
-        Map<String, Object> myMap = new HashMap<String, Object>();
-        double oneVal = ((Number) oneMap.get(INTERROGATE_VALUE)).doubleValue();
-        double twoVal = ((Number) twoMap.get(INTERROGATE_VALUE)).doubleValue();
-        myMap.put(INTERROGATE_VALUE, oneVal - twoVal);
-        if (oneMap.get(INTERROGATE_UNIT).equals(twoMap.get(INTERROGATE_UNIT))) {
-            myMap.put(INTERROGATE_UNIT, oneMap.get(INTERROGATE_UNIT));
-        } else {
-            myMap.put(INTERROGATE_UNIT, "(" + oneMap.get(INTERROGATE_UNIT)
-                    + "-" + twoMap.get(INTERROGATE_UNIT) + ")");
+        CombinedDataTime cTime = (CombinedDataTime) time;
+        InterrogateMap oneMap = one.interrogate(coordinate, cTime.getPrimaryDataTime(), keys);
+        InterrogateMap twoMap = two.interrogate(coordinate, cTime.getAdditionalDataTime(), keys);
+        if (oneMap == null || oneMap.isEmpty() || twoMap == null || twoMap.isEmpty()) {
+            return super.interrogate(coordinate, time, keys);
         }
-        if (myMap.containsKey(INTERROGATE_DIRECTION)
-                && twoMap.containsKey(INTERROGATE_DIRECTION)) {
-            float oneDir = (Float) oneMap.get(INTERROGATE_DIRECTION);
-            float twoDir = (Float) twoMap.get(INTERROGATE_DIRECTION);
-            myMap.put(INTERROGATE_DIRECTION, oneDir - twoDir);
+        InterrogateMap myMap = new InterrogateMap();
+        for(InterrogationKey<?> key : keys){
+            if(Interrogator.VALUE.equals(key)){
+                /*
+                 * Get the values from the internal resources and difference
+                 * them. If coordinate is not perfectly on grid points then this
+                 * causes the interpolation to occur in the sources rather than
+                 * in this resource which produces results that are more
+                 * consistent with the interrogation of the internal resources.
+                 */
+                Measure<? extends Number, ?> oneMeasure = oneMap
+                        .get(Interrogator.VALUE);
+                Measure<? extends Number, ?> twoMeasure = twoMap
+                        .get(Interrogator.VALUE);
+
+                double oneVal = oneMeasure.getValue().doubleValue();
+                double twoVal = twoMeasure.getValue().doubleValue();
+                double myVal = oneVal - twoVal;
+                Measure<? extends Number, ?> myMeasure = null;
+                if (oneMeasure.getUnit().equals(twoMeasure.getUnit())) {
+                    myMeasure = Measure.valueOf(myVal, oneMeasure.getUnit());
+                } else {
+                    myMeasure = Measure.valueOf(myVal, Unit.ONE);
+                }
+                myMap.put(Interrogator.VALUE, myMeasure);
+            } else if (UNIT_STRING_INTERROGATE_KEY.equals(key)) {
+                String oneUnit = oneMap.get(UNIT_STRING_INTERROGATE_KEY);
+                String twoUnit = twoMap.get(UNIT_STRING_INTERROGATE_KEY);
+                if (oneUnit.equals(twoUnit)) {
+                    myMap.put(UNIT_STRING_INTERROGATE_KEY, oneUnit);
+                } else {
+                    myMap.put(UNIT_STRING_INTERROGATE_KEY,
+                            "(" + oneUnit + "-" + twoUnit + ")");
+                }
+            } else if (DIRECTION_INTERROGATE_KEY.equals(key)) {
+                Number oneDir = oneMap.get(DIRECTION_INTERROGATE_KEY);
+                Number twoDir = twoMap.get(DIRECTION_INTERROGATE_KEY);
+                if (oneDir != null && twoDir != null) {
+                    myMap.put(DIRECTION_INTERROGATE_KEY,
+                            oneDir.doubleValue() - twoDir.doubleValue());
+                } else {
+                    myMap.putAll(super.interrogate(coordinate, time, key));
+                }
+            } else {
+                myMap.putAll(super.interrogate(coordinate, time, key));
+            }
         }
         return myMap;
+        
     }
 
     @Override

@@ -31,8 +31,8 @@ import org.eclipse.ui.menus.CommandContributionItemParameter;
 
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.d2d.ui.AbstractHeightDisplay;
-import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.slice.request.HeightScales;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScales;
 import com.raytheon.viz.ui.EditorUtil;
 
 /**

@@ -18,11 +18,17 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <latLonGridCoverage>
     <name>14</name>
-    <description>0.167 degree Latitude/Longitude grid (for the Easter
-		Pacific; includes Hawaii and extends to the Pacific islands of Guam
-		etc.)</description>
+    <description>0.167 degree Latitude/Longitude grid (for the Eastern
+        Pacific; includes Hawaii and extends to the Pacific islands of Guam
+        etc.)</description>
     <la1>30.0</la1>
     <lo1>130.0</lo1>
     <firstGridPointCorner>UpperLeft</firstGridPointCorner>

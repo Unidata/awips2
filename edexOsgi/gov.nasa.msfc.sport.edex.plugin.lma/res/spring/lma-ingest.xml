@@ -8,7 +8,7 @@
         <constructor-arg value="Ingest.SportLma.*" />
     </bean>
 
-	<bean id="lmaDecoder" class="gov.nasa.msfc.sport.edex.plugin.lma.LmaDecoder" depends-on="getParameterHandlerRegistered">
+	<bean id="lmaDecoder" class="gov.nasa.msfc.sport.edex.plugin.lma.LmaDecoder" depends-on="getParameterHandler">
 	   <property name="gridCoverageLookup" ref="gridcoveragelookup"/>
 	   <property name="levelDao" ref="sportlmalevelDao"/>
 	</bean>

@@ -4,7 +4,7 @@ Bundle-Name: Bufrascat Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.bufrascat
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.raytheon.uf.common.dataplugin.bufrascat,
  com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.pointdata,
@@ -16,7 +16,8 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.bufrascat,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.common.serialization,
- org.slf4j;bundle-version="1.7.12"
+ org.slf4j;bundle-version="1.7.12",
+ com.raytheon.uf.common.geospatial;bundle-version="1.15.1"
 Import-Package: com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.status,
  com.raytheon.uf.common.wmo,

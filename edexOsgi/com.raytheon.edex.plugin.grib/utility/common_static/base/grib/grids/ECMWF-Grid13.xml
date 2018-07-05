@@ -18,12 +18,18 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <latLonGridCoverage>
     <name>255113</name>
     <description>ECMWF</description>
-    <la1>90</la1>
+    <la1>89.999</la1>
     <lo1>120</lo1>
-    <firstGridPointCorner>UpperLeft</firstGridPointCorner>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
     <nx>81</nx>
     <ny>60</ny>
     <dx>1.5</dx>

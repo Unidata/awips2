@@ -63,7 +63,8 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
- * Display 7x7 Dialog
+ * The MPE 7x7 dialog. Displays a 7x7 grid representation of the area around a
+ * gage.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -78,7 +79,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Feb 2, 2014   16201      snaples     Added saved data flag support
  * Oct 30, 2015  18106      snaples     Changed order of populateGrid and modified updateGageData to
  *                                      fix issue with gage data not being in sync with grid data.
- * Jul 27, 2016   4623      skorolev    Cleanup.
+ * Mar 06, 2017   6161      mduff       This dialog is now separate from the MPE map display data.
+ * Jun 22, 2017   6161      bkowal      Always repopulate the grid in response to map clicks.
+ * Oct 06, 2017   6407      bkowal      Cleanup. Updates to support GOES-R SATPRE.
  * 
  * </pre>
  * 
@@ -98,8 +101,6 @@ public class Display7x7Dialog extends CaveSWTDialog {
     private Button setBad;
 
     private static String gageIdent;
-
-    private static String gageVal;
 
     private static int scaleVal;
 
@@ -127,7 +128,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
     private static MPEGageData workingGage;
 
-    private final Map<String, MPEGageData> editGage = new HashMap<>();
+    private final Map<String, MPEGageData> editGage = new HashMap<String, MPEGageData>();
 
     private final List<String> badGage = new ArrayList<>();
 
@@ -149,13 +150,9 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
     private UnitConverter cvt;
 
-    private Label lbl;
-
     private Composite gridComp;
 
     private MPEGageData gData;
-
-    private Button setMissing;
 
     private DisplayFieldData selectedFieldData;
 
@@ -163,30 +160,31 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
     private MPEDisplayManager mgr;
 
-    /**
-     * Constructor
-     * 
-     * @param parentShell
-     * @param data
-     */
     public Display7x7Dialog(Shell parentShell, MPEGageData data) {
         super(parentShell, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Display 7 X 7 Gage Editing Utility");
         mgr = MPEDisplayManager.getCurrent();
-        selectedGage = null;
-        selectedGage = data;
+        synchronized (this) {
+            selectedGage = data;
+        }
         gData = null;
-        gData = MPEDataManager.getInstance().getEditedGage(selectedGage);
         List<String> bg = MPEDataManager.getInstance().readBadGageList();
-        if (bg.size() > 0) {
+        if (!bg.isEmpty()) {
             for (String gageId : bg) {
                 badGage.add(gageId);
             }
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
+     * .eclipse.swt.widgets.Shell)
+     */
     @Override
-    protected void initializeComponents(Shell shell) {
+    protected synchronized void initializeComponents(Shell shell) {
         font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
         undoEn = false;
 
@@ -246,6 +244,11 @@ public class Display7x7Dialog extends CaveSWTDialog {
                 && !editGage.isEmpty()) {
             MPEDataManager.getInstance().writeBadGageList();
         }
+
+        if (resource != null && !resource.getName()
+                .equals(mgr.getDisplayedFieldResource().getName())) {
+            resource.dispose();
+        }
     }
 
     @Override
@@ -258,13 +261,19 @@ public class Display7x7Dialog extends CaveSWTDialog {
     }
 
     /**
-     * Populates Grid
+     * 
+     * 
+     * @param fieldType
      */
     private void populateGrid() {
-        resource = MPEDisplayManager.getCurrent().getDisplayedFieldResource();
         if (resource == null) {
-            return;
+            resource = MPEDisplayManager.getCurrent()
+                    .getDisplayedFieldResource();
+            if (resource == null) {
+                return;
+            }
         }
+
         parameters = resource.getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
 
@@ -277,8 +286,8 @@ public class Display7x7Dialog extends CaveSWTDialog {
             }
 
             try {
-                short[] xmData = resource.getData(MPEDisplayManager
-                        .getCurrent().getCurrentDisplayedDate());
+                short[] xmData = resource.getData(MPEDisplayManager.getCurrent()
+                        .getCurrentDisplayedDate());
 
                 for (int i = 0; i < 7; ++i) {
                     for (int j = 0; j < 7; ++j) {
@@ -301,8 +310,12 @@ public class Display7x7Dialog extends CaveSWTDialog {
         xmGrid = data;
     }
 
-    /**
-     * Creates ProductList Composite
+    /*
+     * (non-Javadoc)
+     * 
+     * @see
+     * com.raytheon.viz.ui.dialogs.CaveJFACEDialog#createDialogArea(org.eclipse
+     * .swt.widgets.Composite)
      */
     private void createProductListComp() {
         // Create a container to hold the label and the combo box.
@@ -318,8 +331,8 @@ public class Display7x7Dialog extends CaveSWTDialog {
         prodSetsLbl.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        prodSetCbo = new Combo(prodListComp, SWT.LEFT | SWT.DROP_DOWN
-                | SWT.READ_ONLY);
+        prodSetCbo = new Combo(prodListComp,
+                SWT.LEFT | SWT.DROP_DOWN | SWT.READ_ONLY);
         int selector = 0;
         DisplayFieldData dstype = MPEDisplayManager.getCurrent()
                 .getDisplayFieldType();
@@ -346,9 +359,6 @@ public class Display7x7Dialog extends CaveSWTDialog {
         });
     }
 
-    /**
-     * Creates Gage Grid Composite
-     */
     private void createGageGridComp() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         compG = new Composite(shell, SWT.NONE);
@@ -358,22 +368,20 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
     }
 
-    /**
-     * Creates Gage Composite
-     */
-    private void createGageComp() {
+    private synchronized void createGageComp() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite comp1 = new Composite(compG, SWT.NONE);
         GridLayout prodListCompLayout = new GridLayout(1, true);
         comp1.setLayout(prodListCompLayout);
         comp1.setLayoutData(gd);
 
+        String gageVal = null;
         if ((workingGage.getGval() == -999.f)
                 || (workingGage.getGval() == -9999.f)) {
             gageVal = "missing";
             scaleVal = 0;
             scaleValLab = String.format("%4.2f", (scaleVal / 100.0f));
-        } else if (workingGage.isBad()) {
+        } else if (workingGage.isIs_bad()) {
             gageVal = "bad";
             scaleVal = 0;
             scaleValLab = String.format("%4.2f", (scaleVal / 100.0f));
@@ -414,8 +422,8 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
                 } else {
                     gageVal = workingGage.getEdit();
-                    scaleVal = ((int) (100 * Float.parseFloat((workingGage
-                            .getEdit()))));
+                    scaleVal = ((int) (100
+                            * Float.parseFloat((workingGage.getEdit()))));
                     scaleValLab = String.format("%4.2f", (scaleVal / 100.0f));
                 }
             }
@@ -466,8 +474,8 @@ public class Display7x7Dialog extends CaveSWTDialog {
         gageID.setText(gageIdent);
 
         gageValue = new Label(comp1, SWT.BORDER);
-        gageValue
-                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        gageValue.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         gageValue.setAlignment(SWT.CENTER);
         gageValue.setText(gageVal);
 
@@ -476,12 +484,21 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
         Button setValue = new Button(comp1, SWT.PUSH);
         setValue.setText("Set Value");
-        setValue.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        setValue.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         setValue.addSelectionListener(new SelectionAdapter() {
 
+            /*
+             * (non-Javadoc)
+             * 
+             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.
+             * eclipse .swt.events.SelectionEvent)
+             */
             @Override
             public void widgetSelected(SelectionEvent e) {
-                undoEn = true;
+                synchronized (Display7x7Dialog.this) {
+                    undoEn = true;
+                }
                 int selVal = valueScale.getSelection();
                 String sval = String.format("%4.2f", selVal / 100.0f);
                 String xval = sval + " in.";
@@ -507,14 +524,22 @@ public class Display7x7Dialog extends CaveSWTDialog {
         undoMissing = new Button(comp1, SWT.PUSH);
         undoMissing.setEnabled(undoEn);
         undoMissing.setText("Undo Missing");
-        undoMissing.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
+        undoMissing.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         undoMissing.addSelectionListener(new SelectionAdapter() {
 
+            /*
+             * (non-Javadoc)
+             * 
+             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.
+             * eclipse .swt.events.SelectionEvent)
+             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 String gval = null;
-                undoEn = false;
+                synchronized (Display7x7Dialog.this) {
+                    undoEn = false;
+                }
                 undoMissing.setEnabled(undoEn);
                 String wid = workingGage.getId();
                 editGage.remove(wid);
@@ -533,24 +558,32 @@ public class Display7x7Dialog extends CaveSWTDialog {
                     workingGage.setEdit("");
                     workingGage.setManedit(oldManedit);
                     valueLabel.setText(gval);
-                    valueScale.setSelection(((int) (100 * Float
-                            .parseFloat(gval))));
+                    valueScale.setSelection(
+                            ((int) (100 * Float.parseFloat(gval))));
                 }
 
             }
 
         });
 
-        setMissing = new Button(comp1, SWT.PUSH);
+        Button setMissing = new Button(comp1, SWT.PUSH);
         setMissing.setText("Set Missing");
-        setMissing.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
+        setMissing.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         setMissing.addSelectionListener(new SelectionAdapter() {
 
+            /*
+             * (non-Javadoc)
+             * 
+             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.
+             * eclipse .swt.events.SelectionEvent)
+             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 String gval = null;
-                undoEn = true;
+                synchronized (Display7x7Dialog.this) {
+                    undoEn = true;
+                }
                 undoMissing.setEnabled(undoEn);
                 String wid = workingGage.getId();
                 gval = "missing";
@@ -578,6 +611,12 @@ public class Display7x7Dialog extends CaveSWTDialog {
         close.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         close.addSelectionListener(new SelectionAdapter() {
 
+            /*
+             * (non-Javadoc)
+             * 
+             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.
+             * eclipse .swt.events.SelectionEvent)
+             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 shell.dispose();
@@ -590,9 +629,9 @@ public class Display7x7Dialog extends CaveSWTDialog {
             setBad.setText("Set Bad");
             setBad.setEnabled(false);
         } else {
-            if (workingGage.isBad() == true) {
+            if (workingGage.isIs_bad() == true) {
                 setBad.setText("Set Not Bad");
-            } else if (workingGage.isBad() == false) {
+            } else if (workingGage.isIs_bad() == false) {
                 setBad.setText("Set Bad");
             }
         }
@@ -601,8 +640,8 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
             @Override
             public void widgetSelected(SelectionEvent e) {
-                if (setBad.getText().equalsIgnoreCase("Set Not Bad")) {
-                    workingGage.setBad(false);
+                if ("Set Not Bad".equalsIgnoreCase(setBad.getText())) {
+                    workingGage.setIs_bad(false);
                     String gval = null;
                     String wid = workingGage.getId();
                     badGage.remove(wid);
@@ -628,12 +667,12 @@ public class Display7x7Dialog extends CaveSWTDialog {
                         gageValue.setText(xval);
                         workingGage.setEdit(gval);
                         valueLabel.setText(gval);
-                        valueScale.setSelection(((int) (100 * Float
-                                .parseFloat(gval))));
+                        valueScale.setSelection(
+                                ((int) (100 * Float.parseFloat(gval))));
                     }
                     setBad.setText("Set Bad");
                 } else {
-                    workingGage.setBad(true);
+                    workingGage.setIs_bad(true);
                     String gval = null;
                     String wid = workingGage.getId();
                     gval = "bad";
@@ -668,9 +707,6 @@ public class Display7x7Dialog extends CaveSWTDialog {
         });
     }
 
-    /**
-     * Creates 7x7 Grid Composite
-     */
     private void create7x7GridComp() {
         comp2 = new Composite(compG, SWT.NONE);
         comp2.setLayout(new GridLayout(1, true));
@@ -682,7 +718,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
         for (int i = 0; i < 7; i++) {
             for (int j = 0; j < 7; j++) {
-                lbl = new Label(gridComp, SWT.BORDER);
+                Label lbl = new Label(gridComp, SWT.BORDER);
                 lbl.setAlignment(SWT.RIGHT);
                 lbl.setText(String.format(" %4.2f ", i + j / 100.0f));
                 grid[i][j] = lbl;
@@ -739,16 +775,13 @@ public class Display7x7Dialog extends CaveSWTDialog {
         });
     }
 
-    /**
-     * Creates Scale Composite
-     */
     private void createScaleComp() {
         // leave some space
         new Label(comp2, SWT.NONE);
 
         valueLabel = new Label(comp2, SWT.NONE);
-        valueLabel.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
+        valueLabel.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
         valueLabel.setAlignment(SWT.CENTER);
         valueLabel.setText(scaleValLab);
 
@@ -760,6 +793,12 @@ public class Display7x7Dialog extends CaveSWTDialog {
         valueScale.setSelection(scaleVal);
         valueScale.addSelectionListener(new SelectionAdapter() {
 
+            /*
+             * (non-Javadoc)
+             * 
+             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.
+             * eclipse .swt.events.SelectionEvent)
+             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int sel = valueScale.getSelection();
@@ -772,10 +811,12 @@ public class Display7x7Dialog extends CaveSWTDialog {
         l.setText("Edit Gage Value");
     }
 
-    /**
-     * Create Button Bar Control
+    /*
+     * (non-Javadoc)
      * 
-     * @return
+     * @see
+     * org.eclipse.jface.dialogs.Dialog#createButtonBar(org.eclipse.swt.widgets
+     * .Composite)
      */
     protected Control createButtonBar() {
         Composite composite = new Composite(shell, SWT.NONE);
@@ -798,12 +839,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
                 (int) (color.getGreen() * 255), (int) (color.getBlue() * 255));
     }
 
-    /**
-     * Updates Gage Data
-     * 
-     * @param data
-     */
-    public void updateGageData(MPEGageData data) {
+    public synchronized void updateGageData(MPEGageData data) {
         selectedGage = null;
         selectedGage = data;
         gData = null;
@@ -827,13 +863,13 @@ public class Display7x7Dialog extends CaveSWTDialog {
         ht = 7;
         width = 7;
         extent = new Rectangle(xOrig, yOrig, ht, width);
-
+        String gageVal = null;
         if ((workingGage.getGval() == -999.f)
                 || (workingGage.getGval() == -9999.f)) {
             gageVal = "missing";
             scaleVal = 0;
             scaleValLab = String.format("%4.2f", (scaleVal / 100.0f));
-        } else if (workingGage.isBad()) {
+        } else if (workingGage.isIs_bad()) {
             gageVal = "bad";
             scaleVal = 0;
             scaleValLab = String.format("%4.2f", (scaleVal / 100.0f));
@@ -876,8 +912,8 @@ public class Display7x7Dialog extends CaveSWTDialog {
 
                 } else {
                     gageVal = workingGage.getEdit();
-                    scaleVal = ((int) (100 * Float.parseFloat((workingGage
-                            .getEdit()))));
+                    scaleVal = ((int) (100
+                            * Float.parseFloat((workingGage.getEdit()))));
                     scaleValLab = String.format("%4.2f", (scaleVal / 100.0f));
                 }
             }
@@ -917,7 +953,7 @@ public class Display7x7Dialog extends CaveSWTDialog {
         gageValue.setText(gageVal);
         valueScale.setSelection(scaleVal);
         valueLabel.setText(String.format("%4.2f", scaleVal / 100.0f));
-        if (gageVal.equalsIgnoreCase("bad")) {
+        if ("bad".equalsIgnoreCase(gageVal)) {
             setBad.setText("Set Not Bad");
         } else {
             setBad.setText("Set Bad");
@@ -927,15 +963,19 @@ public class Display7x7Dialog extends CaveSWTDialog {
         updateGridField(displayTypes[prodSetCbo.getSelectionIndex()]);
     }
 
-    /**
-     * Updates Grid Field
-     * 
-     * @param fieldType
-     */
     private void updateGridField(DisplayFieldData fieldType) {
+        MPEFieldResource rsc = null;
         if (selectedFieldData != fieldType) {
             selectedFieldData = fieldType;
-            mgr.displayFieldData(fieldType);
+            rsc = mgr.getFieldData(fieldType);
+            if (rsc != null) {
+                if (resource != null && !resource.getName()
+                        .equals(mgr.getDisplayedFieldResource().getName())) {
+                    resource.dispose();
+                }
+
+                resource = rsc;
+            }
         }
         populateGrid();
         gridComp.notifyListeners(SWT.Paint, new Event());

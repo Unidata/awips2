@@ -29,7 +29,6 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 import javax.measure.unit.Unit;
-
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -42,7 +41,10 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.MapUtil;
+import com.raytheon.uf.common.mpe.constants.DPAConstants;
 import com.raytheon.uf.common.mpe.util.DPAFile;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.xmrg.hrap.HRAP;
 import com.raytheon.uf.common.xmrg.hrap.HRAPCoordinates;
 import com.raytheon.uf.common.xmrg.hrap.HRAPSubGrid;
@@ -81,16 +83,19 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 28, 2009 2675       mpduff      Initial creation
  * Aug 13, 2009 2675       mpduff      TIM Changes added
  * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
+ * Sep 16, 2016 5631       bkowal      Cleanup. Use {@link DPAConstants}.
  * 
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
-public class DPAResource extends
-        AbstractVizResource<GenericResourceData, MapDescriptor> implements
-        IMpeResource {
+public class DPAResource
+        extends AbstractVizResource<GenericResourceData, MapDescriptor>
+        implements IMpeResource {
+
+    private static final IUFStatusHandler handler = UFStatus
+            .getHandler(DPAResource.class);
 
     private static final String MISSING_DATA = "Missing Data";
 
@@ -100,9 +105,10 @@ public class DPAResource extends
 
     /** Radar types */
     public static enum SingleSiteRadarType {
-        RAW_SP_RADAR("Raw SP Radar"), RAW_DP_RADAR("Raw DP Radar"), MEAN_FIELD_BIAS_CORRECTED_SP_RADAR(
-                "Mean Field Bias Corrected SP Radar"), RADAR_COVERAGE_MAP(
-                "Radar Coverage Map");
+        RAW_SP_RADAR("Raw SP Radar"), RAW_DP_RADAR(
+                "Raw DP Radar"), MEAN_FIELD_BIAS_CORRECTED_SP_RADAR(
+                        "Mean Field Bias Corrected SP Radar"), RADAR_COVERAGE_MAP(
+                                "Radar Coverage Map");
 
         private String text;
 
@@ -155,8 +161,6 @@ public class DPAResource extends
 
     private int available = 0;
 
-    // private SingleSiteRadarType radarType = SingleSiteRadarType.RAW_SP_RADAR;
-
     private SingleSiteRadarType radarType;
 
     private boolean ignored = false;
@@ -177,8 +181,8 @@ public class DPAResource extends
      * @param ngrd
      *            The ngrd value
      */
-    public DPAResource(DPAFile dpaFile, List<Colorvalue> colorSet,
-            String radId, SingleSiteRadarType radarType, int ngrd) {
+    public DPAResource(DPAFile dpaFile, List<Colorvalue> colorSet, String radId,
+            SingleSiteRadarType radarType, int ngrd) {
         super(null, new LoadProperties());
         displayMgr = MPEDisplayManager.getCurrent();
         this.dpaFile = dpaFile;
@@ -187,8 +191,8 @@ public class DPAResource extends
         this.radarType = radarType;
         this.ngrd = ngrd;
 
-        getCapability(ColorableCapability.class).setColor(
-                RGBColors.getRGBColor("Yellow"));
+        getCapability(ColorableCapability.class)
+                .setColor(RGBColors.getRGBColor("Yellow"));
     }
 
     /*
@@ -229,24 +233,17 @@ public class DPAResource extends
 
     // -------------------------------------------------------------------
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
-     * IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) {
         boolean missingData = false;
         ColorMap colorMap = new ColorMap(colorSet.size());
-        // colorMap.setName(dataType.getCv_use());
         colorMap.setName("PRECIP_ACCUM");
         DataMappingPreferences dmPref = new DataMappingPreferences();
         int index = 0;
         for (Colorvalue cv : colorSet) {
             RGB rgb = RGBColors.getRGBColor(cv.getColorname().getColorName());
-            colorMap.setColor(index, new Color(rgb.red / 255f,
-                    rgb.green / 255f, rgb.blue / 255f));
+            colorMap.setColor(index, new Color(rgb.red / 255f, rgb.green / 255f,
+                    rgb.blue / 255f));
 
             DataMappingEntry entry = new DataMappingEntry();
             entry.setPixelValue((double) index);
@@ -270,21 +267,18 @@ public class DPAResource extends
         parameters.setDataMapping(dmPref);
 
         Unit<?> displayUnit = NonSI.INCH;
-        Unit<?> dataUnit = SI.MILLIMETER.divide(100);
 
         parameters.setFormatString("0.00");
 
         parameters.setDisplayUnit(displayUnit);
-        parameters.setImageUnit(dmPref.getImageUnit(displayUnit));
-        parameters.setDataUnit(dataUnit);
+        parameters.setColorMapUnit(dmPref.getImageUnit(displayUnit));
 
         parameters.setColorMapMax(parameters.getColorMap().getSize() - 1);
         parameters.setColorMapMin(0);
-        parameters.setDataMax(parameters.getColorMap().getSize() - 1);
-        parameters.setDataMin(0);
 
-        UnitConverter cvt = parameters.getDataToImageConverter();
-
+        Unit<?> dataUnit = SI.MILLIMETER.divide(100);
+        UnitConverter cvt = dataUnit
+                .getConverterTo(parameters.getColorMapUnit());
         try {
             buf = FloatBuffer.allocate(17161);
             Date dtg = MPEDisplayManager.getCurrent().getCurrentEditDate();
@@ -297,16 +291,16 @@ public class DPAResource extends
 
             available = 0;
             if (radarType == SingleSiteRadarType.RAW_DP_RADAR) {
-                available = RadarDataManager.getInstance().getAvailableRadarDP(
-                        radId, dtg);
+                available = RadarDataManager.getInstance()
+                        .getAvailableRadarDP(radId, dtg);
             } else {
-                available = RadarDataManager.getInstance().getAvailableRadarSP(
-                        radId, dtg);
+                available = RadarDataManager.getInstance()
+                        .getAvailableRadarSP(radId, dtg);
 
                 // check for special case of ignored radar
                 // this behavior is different than A1
-                ignored = RadarDataManager.getInstance().getIgnoreRadarSP(
-                        radId, dtg);
+                ignored = RadarDataManager.getInstance().getIgnoreRadarSP(radId,
+                        dtg);
                 if (ignored) {
                     available = 0;
                 }
@@ -316,23 +310,22 @@ public class DPAResource extends
 
                 dpaFile.load();
                 if (radarType == SingleSiteRadarType.RAW_SP_RADAR) {
-                    System.out.println("DPAResource: Reading SP Radar Data ");
+                    handler.info("Reading SP Radar Data");
                     data = dpaFile.getStage1i();
                 } else if (radarType == SingleSiteRadarType.RAW_DP_RADAR) {
-                    System.out.println("DPAResource: Reading DP Radar Data ");
+                    handler.info("Reading DP Radar Data");
                     data = dpaFile.getStage1i();
                 } else if (radarType == SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR) {
-                    System.out
-                            .println("DPAResource: Reading MFB Corrected SP Radar Data ");
+                    handler.info("Reading MFB Corrected SP Radar Data");
                     data = dpaFile.getStage1u();
                 } else {
                     data = dpaFile.getZeroData();
                 }
 
-                for (int i = 0; i < 131; i++) {
-                    for (int j = 0; j < 131; j++) {
-                        float f = -9999;
-                        if (data[i][j] != -9999) {
+                for (int i = 0; i < DPAConstants.NUM_DPA_ROWS; i++) {
+                    for (int j = 0; j < DPAConstants.NUM_DPA_COLS; j++) {
+                        float f = DPAConstants.DPA_MISSING;
+                        if (data[i][j] != DPAConstants.DPA_MISSING) {
                             f = (float) Math.floor(cvt.convert(data[i][j]));
                         }
 
@@ -342,7 +335,7 @@ public class DPAResource extends
 
                         // If grid cell outside radius then set missing
                         if (dist > ngrd) {
-                            f = -9999;
+                            f = DPAConstants.DPA_MISSING;
                         }
                         buf.put(f);
                     }
@@ -410,11 +403,12 @@ public class DPAResource extends
             project(gridGeometry.getCoordinateReferenceSystem());
         } catch (Exception e) {
             dpaFile = null;
-            e.printStackTrace();
+            statusHandler.error("Failed to initialize the DPA Resource.", e);
+            return;
         }
 
-        mainString = new DrawableString(radarType.text, getCapability(
-                ColorableCapability.class).getColor());
+        mainString = new DrawableString(radarType.text,
+                getCapability(ColorableCapability.class).getColor());
         ignoredStr = new DrawableString(RADAR_IGNORED,
                 RGBColors.getRGBColor("Red"));
         allZeroStr = new DrawableString(ALL_ZERO,
@@ -422,9 +416,10 @@ public class DPAResource extends
 
         if (missingData
                 && (radarType == SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR
-                        || radarType == SingleSiteRadarType.RAW_SP_RADAR || radarType == SingleSiteRadarType.RAW_DP_RADAR)) {
-            missingString = new DrawableString(MISSING_DATA, getCapability(
-                    ColorableCapability.class).getColor());
+                        || radarType == SingleSiteRadarType.RAW_SP_RADAR
+                        || radarType == SingleSiteRadarType.RAW_DP_RADAR)) {
+            missingString = new DrawableString(MISSING_DATA,
+                    getCapability(ColorableCapability.class).getColor());
         }
 
         ignoredStr.font = allZeroStr.font = mainString.font = target
@@ -437,13 +432,7 @@ public class DPAResource extends
     }
 
     // ---------------------------------------------------------------
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
-     * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-     */
+
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -455,8 +444,9 @@ public class DPAResource extends
                     gridDisplay = new GriddedImageDisplay(buf, descriptor,
                             gridGeometry);
 
-                    gridDisplay.setColorMapParameters(getCapability(
-                            ColorMapCapability.class).getColorMapParameters());
+                    gridDisplay.setColorMapParameters(
+                            getCapability(ColorMapCapability.class)
+                                    .getColorMapParameters());
                 }
 
                 GriddedImagePaintProperties giProps = new GriddedImagePaintProperties(
@@ -487,15 +477,14 @@ public class DPAResource extends
         Date date = MPEDisplayManager.getCurrent().getCurrentEditDate();
         if (date.equals(lastDate) == false) {
             // Check for ignored Radar
-            if (radarType.equals(SingleSiteRadarType.RAW_SP_RADAR)
-                    || radarType
-                            .equals(SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR)) {
-                ignored = RadarDataManager.getInstance().getIgnoreRadarSP(
-                        radId, date);
+            if (radarType.equals(SingleSiteRadarType.RAW_SP_RADAR) || radarType
+                    .equals(SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR)) {
+                ignored = RadarDataManager.getInstance().getIgnoreRadarSP(radId,
+                        date);
                 lastDate = date;
             } else if (radarType.equals(SingleSiteRadarType.RAW_DP_RADAR)) {
-                ignored = RadarDataManager.getInstance().getIgnoreRadarDP(
-                        radId, date);
+                ignored = RadarDataManager.getInstance().getIgnoreRadarDP(radId,
+                        date);
                 lastDate = date;
             }
         }
@@ -507,7 +496,8 @@ public class DPAResource extends
         }
 
         if (ignored
-                && (radarType == SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR || radarType == SingleSiteRadarType.RAW_SP_RADAR)) {
+                && (radarType == SingleSiteRadarType.MEAN_FIELD_BIAS_CORRECTED_SP_RADAR
+                        || radarType == SingleSiteRadarType.RAW_SP_RADAR)) {
             ignoredStr.setCoordinates(screenExtent.getMinX() + 50,
                     screenExtent.getMaxY() - 25, 0.0);
             target.drawStrings(ignoredStr);
@@ -518,8 +508,8 @@ public class DPAResource extends
                     screenExtent.getMaxY() - 25, 0.0);
             target.drawStrings(ignoredStr);
         }
-        if (available == 2
-                && (radarType == SingleSiteRadarType.RAW_DP_RADAR || radarType == SingleSiteRadarType.RAW_SP_RADAR)) {
+        if (available == 2 && (radarType == SingleSiteRadarType.RAW_DP_RADAR
+                || radarType == SingleSiteRadarType.RAW_SP_RADAR)) {
             allZeroStr.setCoordinates(screenExtent.getMinX() + 600,
                     screenExtent.getMaxY() - 25, 0.0);
             target.drawStrings(allZeroStr);

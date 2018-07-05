@@ -44,12 +44,12 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 	Nov 28, 2007					Eric Babin Initial Creation
+ * Nov 28, 2007            Eric Babin  Initial Creation
+ * Feb 22, 2017 6115       tgurney     Remove hardcoded sizing
  * 
  * </pre>
  * 
  * @author ebabin
- * @version 1.0
  */
 
 public class DistanceSpeedDialog extends CaveJFACEDialog {
@@ -71,13 +71,6 @@ public class DistanceSpeedDialog extends CaveJFACEDialog {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createDialogArea(org.eclipse.swt.widgets
-     * .Composite)
-     */
     @Override
     public Control createDialogArea(Composite parent) {
         top = (Composite) super.createDialogArea(parent);
@@ -162,28 +155,10 @@ public class DistanceSpeedDialog extends CaveJFACEDialog {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
         shell.setText(this.dsLayer.dialogTitle);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#getInitialSize()
-     */
-    @Override
-    protected Point getInitialSize() {
-
-        return new Point(300, 140);
     }
 
     @Override

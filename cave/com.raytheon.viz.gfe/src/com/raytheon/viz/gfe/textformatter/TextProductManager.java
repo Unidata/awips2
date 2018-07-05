@@ -64,11 +64,11 @@ import com.raytheon.viz.gfe.core.IAsyncStartupObjectListener;
  *                                     UI thread.
  * Dec 14, 2015  4816      dgilling    Support refactored PythonJobCoordinator API.
  * Apr 14, 2016  5578      dgilling    Add getVarDict.
+ * Nov 02, 2016  5979      njensen     Cast to Number where applicable
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
 
 public class TextProductManager implements ILocalizationFileObserver {
@@ -221,8 +221,8 @@ public class TextProductManager implements ILocalizationFileObserver {
     public boolean isSingleZoneSelect(String productName) {
         boolean isSingle = false;
         Object obj = getDefinitionValue(productName, "singleComboOnly");
-        if ((obj != null) && (obj instanceof Integer)) {
-            if ((Integer) obj == 1) {
+        if ((obj != null) && (obj instanceof Number)) {
+            if (((Number) obj).intValue() == 1) {
                 isSingle = true;
             }
         }
@@ -234,8 +234,8 @@ public class TextProductManager implements ILocalizationFileObserver {
         Object obj = getDefinitionValue(productName, "showZoneCombiner");
         if (obj == null) {
             mapRequired = false;
-        } else if (obj instanceof Integer) {
-            mapRequired = ((Integer) obj).intValue() != 0;
+        } else if (obj instanceof Number) {
+            mapRequired = ((Number) obj).intValue() != 0;
         } else if (obj instanceof Boolean) {
             mapRequired = ((Boolean) obj).booleanValue();
         }
@@ -353,13 +353,6 @@ public class TextProductManager implements ILocalizationFileObserver {
         return issuedBy;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
-     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
-     */
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         TextProductConfigDataExecutor executor = new TextProductConfigDataExecutor(

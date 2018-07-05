@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -95,67 +95,79 @@ import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
 import com.raytheon.viz.gfe.core.parm.VCParm;
 import com.raytheon.viz.gfe.core.parm.VParm;
 import com.raytheon.viz.gfe.core.parm.vcparm.VCModule;
+import com.raytheon.viz.gfe.core.parm.vcparm.VCModuleJobPool;
 import com.raytheon.viz.gfe.types.MutableInteger;
 
 /**
  * Class used to manage grid parms
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 03/26/2008              chammack    Split non-mock code from MockParmManager
- * 04/10/2008     #875     bphillip    Initial Creation
- * 04/18/2008     #875     bphillip    More implementation
- * 05/07/2008     #875     bphillip    Modified save forecast behavior
- * 05/19/2008     #875     bphillip    Implemented save forecast for vectors
- * 06/17/2008     #940     bphillip    Implemented GFE Locking
- * 08/19/2009    #2547     rjpeter     Implement Test/Prac database display.
- * 02/23/2012     #346     dgilling    Dispose of VCParms from this class's
- *                                     dispose method.
- * 02/23/2012     #346     dgilling    Ensure all Parms are disposed when calling
- *                                     dispose method.
- * 02/23/2012     #346     dgilling    Call Parm's dispose method when removing
- *                                     a Parm.
- * 03/01/2012     #346     dgilling    Use identity-based ListenerLists.
- * 03/01/2012     #354     dgilling    Modify setParms to always load (but not
- *                                     necessarily display) the ISC parms that
- *                                     correspond to a visible mutable parm.
- * 06/25/2012     #766     dgilling    Move to a shared thread pool for VCModule
- *                                     execution.
- * 06/25/2012     #766     dgilling    Fix NullPointerException from VCModules
- *                                     when running in practice mode.
- * 08/20/2012    #1082     randerso    Moved calcStepTimes to AbstractParmManager for
- *                                     use in PngWriter
- * 01/22/2013    #1515     dgilling    Increase default size of VCModule thread pool
- *                                     to decrease UI hang-ups waiting for results.
- * 03/20/2013    #1774     randerso    Code cleanup
- * 04/11/2013    16028     ryu         Fixed setParmsRemoveISCDeps() to not remove
- *                                     modified parms.
- * 05/02/2013    #1969     randerso    Cleaned up and optimized processing of DBInvChangedNotification
- * 05/14/2013    #2004     randerso    Corrected logging levels
- * 05/14/2013    #2004     randerso    Improved error handling
- * 08/06/2013    #1561     njensen     Use pm.listFiles() instead of pm.listStaticFiles()
- * 05/02/2013    #1969     randerso    Added code to explicitly create the mutable database
- *                                     if it doesn't exist. Used to just happen by accident
- *                                     when getParmList was called.
- * 11/21/2013    #2331     randerso    Merge with AbstractParmManager and deleted MockParmManager
- *                                     to simplify maintenance of this class.
- *                                     Changed handling of enabling/disabling Topo parm
- * 04/02/2014    #2969     randerso    Fix error when Toop parm is unloaded.
- * 05/28/2014    #3110     randerso    Remove #3105 changes
- * 09/08/2104    #3592     randerso    Changed to use new pm listStaticFiles()
- * 10/08/2014    #3684     randerso    Minor code optimization
- * 10/30/2014    #3775     randerso    Changed to createMutableDb before getting initial database inventory
- * 01/13/2015    #3955     randerso    Changed getProductDatabase() to return mutableDb for EditTopo
- * 03/12/2015    #4246     randerso    Changes to support VCModules at base, site, and user levels
- * 11/17/2015    #5129     dgilling    Changes to support new IFPClient
- * 02/05/2016    #5242     dgilling    Remove calls to deprecated Localization APIs.
- * Jul 19, 2017  ----      mjames@ucar Remove VCModuleJobPool.
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 26, 2008           chammack  Split non-mock code from MockParmManager
+ * Apr 10, 2008  875      bphillip  Initial Creation
+ * Apr 18, 2008  875      bphillip  More implementation
+ * May 07, 2008  875      bphillip  Modified save forecast behavior
+ * May 19, 2008  875      bphillip  Implemented save forecast for vectors
+ * Jun 17, 2008  940      bphillip  Implemented GFE Locking
+ * Aug 19, 2009  2547     rjpeter   Implement Test/Prac database display.
+ * Feb 23, 2012  346      dgilling  Dispose of VCParms from this class's dispose
+ *                                  method.
+ * Feb 23, 2012  346      dgilling  Ensure all Parms are disposed when calling
+ *                                  dispose method.
+ * Feb 23, 2012  346      dgilling  Call Parm's dispose method when removing a
+ *                                  Parm.
+ * Mar 01, 2012  346      dgilling  Use identity-based ListenerLists.
+ * Mar 01, 2012  354      dgilling  Modify setParms to always load (but not
+ *                                  necessarily display) the ISC parms that
+ *                                  correspond to a visible mutable parm.
+ * Jun 25, 2012  766      dgilling  Move to a shared thread pool for VCModule
+ *                                  execution.
+ * Jun 25, 2012  766      dgilling  Fix NullPointerException from VCModules when
+ *                                  running in practice mode.
+ * Aug 20, 2012  1082     randerso  Moved calcStepTimes to AbstractParmManager
+ *                                  for use in PngWriter
+ * Jan 22, 2013  1515     dgilling  Increase default size of VCModule thread
+ *                                  pool to decrease UI hang-ups waiting for
+ *                                  results.
+ * Mar 20, 2013  1774     randerso  Code cleanup
+ * Apr 11, 2013  16028    ryu       Fixed setParmsRemoveISCDeps() to not remove
+ *                                  modified parms.
+ * May 02, 2013  1969     randerso  Cleaned up and optimized processing of
+ *                                  DBInvChangedNotification
+ * May 14, 2013  2004     randerso  Corrected logging levels
+ * May 14, 2013  2004     randerso  Improved error handling
+ * Aug 06, 2013  1561     njensen   Use pm.listFiles() instead of
+ *                                  pm.listStaticFiles()
+ * May 02, 2013  1969     randerso  Added code to explicitly create the mutable
+ *                                  database if it doesn't exist. Used to just
+ *                                  happen by accident when getParmList was
+ *                                  called.
+ * Nov 21, 2013  2331     randerso  Merge with AbstractParmManager and deleted
+ *                                  MockParmManager to simplify maintenance of
+ *                                  this class. Changed handling of
+ *                                  enabling/disabling Topo parm
+ * Apr 02, 2014  2969     randerso  Fix error when Toop parm is unloaded.
+ * May 28, 2014  3110     randerso  Remove #3105 changes
+ * Sep 08, 2104  3592     randerso  Changed to use new pm listStaticFiles()
+ * Oct 08, 2014  3684     randerso  Minor code optimization
+ * Oct 30, 2014  3775     randerso  Changed to createMutableDb before getting
+ *                                  initial database inventory
+ * Jan 13, 2015  3955     randerso  Changed getProductDatabase() to return
+ *                                  mutableDb for EditTopo
+ * Mar 12, 2015  4246     randerso  Changes to support VCModules at base, site,
+ *                                  and user levels
+ * Nov 17, 2015  5129     dgilling  Changes to support new IFPClient
+ * Feb 05, 2016  5242     dgilling  Remove calls to deprecated Localization
+ *                                  APIs.
+ * Mar 16, 2017  6092     randerso  Made decodeDbString public for use in runProcedure.py
+ * Jan 08, 2018  19900    ryu       Fix CAVE crash when starting GFE for non-activated site.
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 public class ParmManager implements IParmManager, IMessageClient {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -287,6 +299,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     private JobPool notificationPool;
 
+    private VCModuleJobPool vcModulePool;
 
     private final GridLocation gloc;
 
@@ -306,7 +319,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Constructor
-     * 
+     *
      * @param dmgr
      *            the DataManager
      * @throws GFEServerException
@@ -314,18 +327,21 @@ public class ParmManager implements IParmManager, IMessageClient {
     @SuppressWarnings("unchecked")
     public ParmManager(DataManager dmgr) throws GFEServerException {
         this.dataManager = dmgr;
-        this.parms = new RWLArrayList<Parm>();
+        this.parms = new RWLArrayList<>();
         this.displayedParmListListeners = new ListenerList(
                 ListenerList.IDENTITY);
         this.parmListChangedListeners = new ListenerList(ListenerList.IDENTITY);
         this.systemTimeRangeChangedListeners = new ListenerList(
                 ListenerList.IDENTITY);
-        this.availableSourcesListeners = new ListenerList(ListenerList.IDENTITY);
+        this.availableSourcesListeners = new ListenerList(
+                ListenerList.IDENTITY);
         this.newModelListeners = new ListenerList(ListenerList.IDENTITY);
         this.parmIdChangedListeners = new ListenerList(ListenerList.IDENTITY);
 
         // Get virtual parm definitions
         vcModules = initVirtualCalcParmDefinitions();
+        vcModulePool = new VCModuleJobPool("GFE Virtual ISC Python executor",
+                this.dataManager, vcModules.size() + 2, Boolean.TRUE);
 
         PythonPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
@@ -396,12 +412,13 @@ public class ParmManager implements IParmManager, IMessageClient {
                 GridHistoryUpdateNotification.class) {
 
             @Override
-            public void notify(GridHistoryUpdateNotification notificationMessage) {
+            public void notify(
+                    GridHistoryUpdateNotification notificationMessage) {
                 ParmID parmID = notificationMessage.getParmId();
                 Parm parm = getParm(parmID);
                 if (parm != null) {
-                    parm.historyUpdateArrived(notificationMessage
-                            .getHistories());
+                    parm.historyUpdateArrived(
+                            notificationMessage.getHistories());
                 }
             }
 
@@ -431,27 +448,27 @@ public class ParmManager implements IParmManager, IMessageClient {
                 } else {
                     statusHandler.info(notificationMessage.toString());
                     if (notificationMessage.isSuccess()) {
-                        purgeDbCacheForSite(notificationMessage
-                                .getModifiedSite());
+                        purgeDbCacheForSite(
+                                notificationMessage.getModifiedSite());
                     }
                 }
             }
         };
 
-        dataManager.getNotificationRouter().addObserver(
-                this.dbInvChangeListener);
+        dataManager.getNotificationRouter()
+                .addObserver(this.dbInvChangeListener);
 
-        dataManager.getNotificationRouter().addObserver(
-                this.lockNotificationListener);
+        dataManager.getNotificationRouter()
+                .addObserver(this.lockNotificationListener);
 
         dataManager.getNotificationRouter()
                 .addObserver(this.gridUpdateListener);
 
-        dataManager.getNotificationRouter().addObserver(
-                this.gridHistoryUpdateListener);
+        dataManager.getNotificationRouter()
+                .addObserver(this.gridHistoryUpdateListener);
 
-        dataManager.getNotificationRouter().addObserver(
-                this.siteActivationListener);
+        dataManager.getNotificationRouter()
+                .addObserver(this.siteActivationListener);
 
         notificationPool = new JobPool("Parm Manager notification job",
                 NOTIFICATION_THREADS, true);
@@ -469,37 +486,32 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         this.systemTimeRange = recalcSystemTimeRange();
-        this.parmIDCacheServer = new HashMap<DatabaseID, List<ParmID>>();
-        this.parmIDCacheVParm = new HashMap<DatabaseID, List<ParmID>>();
-        this.parmIDCacheVCParm = new HashMap<DatabaseID, List<ParmID>>();
+        this.parmIDCacheServer = new HashMap<>();
+        this.parmIDCacheVParm = new HashMap<>();
+        this.parmIDCacheVCParm = new HashMap<>();
 
         updateDatabaseLists();
 
         this.productDB = determineProductDatabase();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#dispose()
-     */
     @SuppressWarnings("unchecked")
     @Override
     public void dispose() {
-        dataManager.getNotificationRouter().removeObserver(
-                this.dbInvChangeListener);
+        dataManager.getNotificationRouter()
+                .removeObserver(this.dbInvChangeListener);
 
-        dataManager.getNotificationRouter().removeObserver(
-                this.lockNotificationListener);
+        dataManager.getNotificationRouter()
+                .removeObserver(this.lockNotificationListener);
 
-        dataManager.getNotificationRouter().removeObserver(
-                this.gridUpdateListener);
+        dataManager.getNotificationRouter()
+                .removeObserver(this.gridUpdateListener);
 
-        dataManager.getNotificationRouter().removeObserver(
-                this.gridHistoryUpdateListener);
+        dataManager.getNotificationRouter()
+                .removeObserver(this.gridHistoryUpdateListener);
 
-        dataManager.getNotificationRouter().removeObserver(
-                this.siteActivationListener);
+        dataManager.getNotificationRouter()
+                .removeObserver(this.siteActivationListener);
 
         Message.unregisterInterest(this, EnableDisableTopoMsg.class);
 
@@ -514,12 +526,20 @@ public class ParmManager implements IParmManager, IMessageClient {
 
         notificationPool.cancel();
 
+        vcModulePool.cancel();
         for (VCModule module : vcModules) {
             module.dispose();
         }
     }
 
-    private DatabaseID decodeDbString(final String string) {
+    /**
+     * Decodes a mutable model specifier string into a full DatabaseID
+     *
+     * @param string
+     *            mutable model specifier
+     * @return the full DatabaseID
+     */
+    public DatabaseID decodeDbString(final String string) {
         String type = "";
         String model = "";
         String dtg = DatabaseID.NO_MODEL_TIME;
@@ -555,7 +575,7 @@ public class ParmManager implements IParmManager, IMessageClient {
     /**
      * Determines the name of the database that is used by products. This is the
      * official database identifier or if none, the mutable database id.
-     * 
+     *
      * @return The {@code DatabaseID} of the official database.
      */
     private DatabaseID determineProductDatabase() {
@@ -611,7 +631,7 @@ public class ParmManager implements IParmManager, IMessageClient {
             return null;
         }
 
-        List<ParmIDVis> addParms = new ArrayList<ParmIDVis>(1);
+        List<ParmIDVis> addParms = new ArrayList<>(1);
         addParms.add(new ParmIDVis(pid, displayable));
         setParms(addParms, new ArrayList<ParmID>(0));
         return getParm(pid);
@@ -632,47 +652,42 @@ public class ParmManager implements IParmManager, IMessageClient {
             IGridSlice[] data, boolean mutableParm, boolean displayable) {
         // already exists?
         if (getParm(pid) != null) {
-            return null; // already exists
+            // already exists
+            return null;
         }
 
         // validate the parm, ensure it isn't already listed
         if (isParmInDatabase(pid)) {
-            return null; // invalid parm - is already known
+            // invalid parm - is already known
+            return null;
         }
 
         // Make the parm
         Parm parm = new VParm(pid, gpi, mutableParm, displayable,
                 this.dataManager, data);
-        statusHandler.handle(Priority.VERBOSE, "Created Parm: "
-                + parm.getParmID().toString());
+        statusHandler.handle(Priority.VERBOSE,
+                "Created Parm: " + parm.getParmID().toString());
 
-        List<Parm> additions = new ArrayList<Parm>(1);
+        List<Parm> additions = new ArrayList<>(1);
         additions.add(parm);
         setParms(additions, new ArrayList<Parm>(0), new ArrayList<Parm>(0));
 
         return parm;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#deleteParm(com.raytheon.viz.gfe
-     * .core.parm.Parm[])
-     */
     @Override
     public void deleteParm(Parm... parms) {
         if (parms.length == 0) {
-            return; // Nothing to do
+            // Nothing to do
+            return;
         }
 
         this.parms.acquireReadLock();
-        List<Parm> toBeDeleted = new ArrayList<Parm>();
+        List<Parm> toBeDeleted = new ArrayList<>();
         try {
             for (int i = 0; i < parms.length; i++) {
                 if (!this.parms.contains(parms[i])) {
-                    statusHandler.handle(
-                            Priority.DEBUG,
+                    statusHandler.handle(Priority.DEBUG,
                             "Attempt to delete unknown parm:"
                                     + parms[i].getParmID());
                     continue;
@@ -682,15 +697,15 @@ public class ParmManager implements IParmManager, IMessageClient {
                 if (!parms[i].isModified()) {
                     toBeDeleted.add(parms[i]);
                 } else {
-                    statusHandler.debug("Skipping parm: "
-                            + parms[i].getParmID() + " due to modified state.");
+                    statusHandler.debug("Skipping parm: " + parms[i].getParmID()
+                            + " due to modified state.");
                 }
             }
         } finally {
             this.parms.releaseReadLock();
         }
 
-        List<ParmID> ids = new ArrayList<ParmID>();
+        List<ParmID> ids = new ArrayList<>();
         for (int i = 0; i < toBeDeleted.size(); i++) {
             ids.add(toBeDeleted.get(i).getParmID());
         }
@@ -701,15 +716,9 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#getAvailableDbs()
-     */
     @Override
     public List<DatabaseID> getAvailableDbs() {
-        List<DatabaseID> dbs = new ArrayList<DatabaseID>(
-                availableServerDatabases);
+        List<DatabaseID> dbs = new ArrayList<>(availableServerDatabases);
         for (DatabaseID dbId : availableVCParmDatabases) {
             if (!dbs.contains(dbId)) {
                 dbs.add(dbId);
@@ -724,14 +733,9 @@ public class ParmManager implements IParmManager, IMessageClient {
         return Collections.unmodifiableList(dbs);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#getDisplayedDbs()
-     */
     @Override
     public List<DatabaseID> getDisplayedDbs() {
-        Set<DatabaseID> dbs = new HashSet<DatabaseID>();
+        Set<DatabaseID> dbs = new HashSet<>();
         parms.acquireReadLock();
         try {
             for (Parm parm : parms) {
@@ -743,17 +747,12 @@ public class ParmManager implements IParmManager, IMessageClient {
         } finally {
             parms.releaseReadLock();
         }
-        return Collections.unmodifiableList(new ArrayList<DatabaseID>(dbs));
+        return Collections.unmodifiableList(new ArrayList<>(dbs));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#getUndisplayedDbs()
-     */
     @Override
     public List<DatabaseID> getUndisplayedDbs() {
-        Set<DatabaseID> dbs = new HashSet<DatabaseID>();
+        Set<DatabaseID> dbs = new HashSet<>();
         parms.acquireReadLock();
         try {
             for (Parm parm : parms) {
@@ -765,13 +764,13 @@ public class ParmManager implements IParmManager, IMessageClient {
         } finally {
             parms.releaseReadLock();
         }
-        return Collections.unmodifiableList(new ArrayList<DatabaseID>(dbs));
+        return Collections.unmodifiableList(new ArrayList<>(dbs));
     }
 
     @Override
     public ParmID[] getAllAvailableParms() {
-        List<DatabaseID> uncachedDbs = new ArrayList<DatabaseID>();
-        List<ParmID> parmIDs = new ArrayList<ParmID>(7500);
+        List<DatabaseID> uncachedDbs = new ArrayList<>();
+        List<ParmID> parmIDs = new ArrayList<>(7500);
 
         // check the cache
         for (DatabaseID dbID : getAvailableDbs()) {
@@ -779,11 +778,11 @@ public class ParmManager implements IParmManager, IMessageClient {
             synchronized (this.parmIDCacheServer) {
                 cacheParmIDs = this.parmIDCacheServer.get(dbID);
             }
-            if ((cacheParmIDs == null) && (dbID.getDbType().equals("V"))) {
+            if ((cacheParmIDs == null) && ("V".equals(dbID.getDbType()))) {
                 ParmID[] vcParms = getAvailableParms(dbID);
                 parmIDs.addAll(Arrays.asList(vcParms));
             } else if ((cacheParmIDs == null)
-                    && (!dbID.getDbType().equals("V"))) {
+                    && (!"V".equals(dbID.getDbType()))) {
                 if (this.availableServerDatabases.contains(dbID)) {
                     uncachedDbs.add(dbID);
                 }
@@ -810,7 +809,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
                 // add results to parmIDCache
                 // use two scans to initialize lists to correct size
-                Map<DatabaseID, MutableInteger> listSizes = new HashMap<DatabaseID, MutableInteger>(
+                Map<DatabaseID, MutableInteger> listSizes = new HashMap<>(
                         uncachedDbs.size());
                 for (DatabaseID dbID : uncachedDbs) {
                     listSizes.put(dbID, new MutableInteger(0));
@@ -818,15 +817,16 @@ public class ParmManager implements IParmManager, IMessageClient {
                 for (ParmID parm : results) {
                     listSizes.get(parm.getDbId()).add(1);
                 }
-                Map<DatabaseID, Set<ParmID>> dupRemovalMap = new HashMap<DatabaseID, Set<ParmID>>(
+                Map<DatabaseID, Set<ParmID>> dupRemovalMap = new HashMap<>(
                         (int) (uncachedDbs.size() * 1.3) + 1);
                 for (ParmID parm : results) {
                     DatabaseID dbID = parm.getDbId();
                     Set<ParmID> parmSet = dupRemovalMap.get(dbID);
                     if (!dbID.getDbType().endsWith("TMP")) {
                         if (parmSet == null) {
-                            parmSet = new HashSet<ParmID>((int) (listSizes.get(
-                                    dbID).getValue() * 1.3) + 1);
+                            parmSet = new HashSet<>(
+                                    (int) (listSizes.get(dbID).getValue() * 1.3)
+                                            + 1);
                             dupRemovalMap.put(dbID, parmSet);
                         }
                         parmSet.add(parm);
@@ -839,12 +839,12 @@ public class ParmManager implements IParmManager, IMessageClient {
                         List<ParmID> parms = this.parmIDCacheServer.get(dbId);
                         if (parms == null) {
                             this.parmIDCacheServer.put(dbId,
-                                    new ArrayList<ParmID>(entry.getValue()));
+                                    new ArrayList<>(entry.getValue()));
                         } else {
                             Set<ParmID> parmSet = entry.getValue();
                             parmSet.addAll(parms);
                             this.parmIDCacheServer.put(dbId,
-                                    new ArrayList<ParmID>(parmSet));
+                                    new ArrayList<>(parmSet));
                         }
                     }
                 }
@@ -876,7 +876,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         List<ParmID> parmIds = null;
 
         if (cacheParmIDs != null) {
-            parmIds = new ArrayList<ParmID>(cacheParmIDs);
+            parmIds = new ArrayList<>(cacheParmIDs);
         } else {
             if (availableServerDatabases.contains(dbID)) {
                 ServerResponse<List<ParmID>> sr = dataManager.getClient()
@@ -896,7 +896,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         if (parmIds == null) {
-            parmIds = new ArrayList<ParmID>();
+            parmIds = new ArrayList<>();
         }
 
         // look up the information in the vcparm database cache
@@ -906,9 +906,9 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
         if (cacheParmIDs != null) {
             parmIds.addAll(cacheParmIDs);
-        } else if (availableVCParmDatabases.contains(dbID)) { // make cache
-                                                              // entry
-            List<ParmID> pids = new ArrayList<ParmID>();
+        } else if (availableVCParmDatabases.contains(dbID)) {
+            // make cache entry
+            List<ParmID> pids = new ArrayList<>();
             parms.acquireReadLock();
             try {
                 for (VCModule mod : vcModules) {
@@ -933,8 +933,9 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
         if (cacheParmIDs != null) {
             parmIds.addAll(cacheParmIDs);
-        } else if (availableVParmDatabases.contains(dbID)) { // make cache entry
-            List<ParmID> pids = new ArrayList<ParmID>();
+        } else if (availableVParmDatabases.contains(dbID)) {
+            // make cache entry
+            List<ParmID> pids = new ArrayList<>();
             parms.acquireReadLock();
             try {
                 for (Parm p : parms) {
@@ -997,7 +998,8 @@ public class ParmManager implements IParmManager, IMessageClient {
             // does this parm id exist?
             if (getParm(parmID) != null) {
                 // logDebug << "Parm cycle " << cycle << " exists" << std::endl;
-                continue; // yes, try the next sequence number
+                // yes, try the next sequence number
+                continue;
             }
 
             // no -- try a lookup through available databases and parms
@@ -1037,10 +1039,10 @@ public class ParmManager implements IParmManager, IMessageClient {
     /**
      * ParmMgr::setParms() Adds/removes/displaystatechanges the set of given
      * parms. Handles the bookkeeping and sends out notifications.
-     * 
+     *
      * This is the complicated routine which handles all of the bookkeeping and
      * the notifications. Should never see a NULL parm* given to this routine.
-     * 
+     *
      * @param addParms
      * @param removeParms
      * @param displayedStateModParms
@@ -1066,7 +1068,8 @@ public class ParmManager implements IParmManager, IMessageClient {
         try {
             for (Parm addParm : addParms) {
                 if ((addParm != null) && !this.parms.contains(addParm)) {
-                    this.parms.add(addParm); // add the additions
+                    // add the additions
+                    this.parms.add(addParm);
                 }
             }
 
@@ -1088,7 +1091,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         // send ParmListChanged notification
-        if ((addParms.size() > 0) || (removeParms.size() > 0)) {
+        if ((!addParms.isEmpty()) || (!removeParms.isEmpty())) {
             this.parms.acquireReadLock();
             try {
                 fireParmListChanged(
@@ -1101,8 +1104,8 @@ public class ParmManager implements IParmManager, IMessageClient {
 
         }
 
-        List<Parm> addedDisplayed = new ArrayList<Parm>();
-        List<Parm> removedDisplayed = new ArrayList<Parm>();
+        List<Parm> addedDisplayed = new ArrayList<>();
+        List<Parm> removedDisplayed = new ArrayList<>();
         for (Parm p : addParms) {
             // the displayable check here is a deviation from AWIPS1 but it
             // appears the viz components don't all properly handle this message
@@ -1135,17 +1138,17 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         // send DisplayedParmListChanged notification
-        if ((removedDisplayed.size() > 0) || (addedDisplayed.size() > 0)) {
+        if ((!removedDisplayed.isEmpty()) || (!addedDisplayed.isEmpty())) {
             this.parms.acquireReadLock();
             try {
                 // System.out.println("Removed from display: "
                 // + removedDisplayed.toString());
 
-                fireDisplayedParmListChanged(this.parms
-                        .toArray(new Parm[this.parms.size()]), addedDisplayed
-                        .toArray(new Parm[addedDisplayed.size()]),
-                        removedDisplayed.toArray(new Parm[removedDisplayed
-                                .size()]));
+                fireDisplayedParmListChanged(
+                        this.parms.toArray(new Parm[this.parms.size()]),
+                        addedDisplayed.toArray(new Parm[addedDisplayed.size()]),
+                        removedDisplayed
+                                .toArray(new Parm[removedDisplayed.size()]));
             } finally {
                 this.parms.releaseReadLock();
             }
@@ -1159,16 +1162,16 @@ public class ParmManager implements IParmManager, IMessageClient {
 
             List<DatabaseID> nowDbs = getAvailableDbs();
 
-            List<DatabaseID> addedDbs = new ArrayList<DatabaseID>();
+            List<DatabaseID> addedDbs = new ArrayList<>();
             addedDbs.addAll(nowDbs);
             addedDbs.removeAll(prevAvailDbs);
 
-            List<DatabaseID> removedDbs = new ArrayList<DatabaseID>();
+            List<DatabaseID> removedDbs = new ArrayList<>();
             removedDbs.addAll(prevAvailDbs);
             removedDbs.removeAll(nowDbs);
 
             updateParmIdCache(removedDbs, addParms, removeParms);
-            if ((addedDbs.size() > 0) || (removedDbs.size() > 0)) {
+            if ((!addedDbs.isEmpty()) || (!removedDbs.isEmpty())) {
                 fireAvailableSourcesChanged(nowDbs, removedDbs, addedDbs);
             }
         } catch (GFEServerException e) {
@@ -1191,7 +1194,7 @@ public class ParmManager implements IParmManager, IMessageClient {
             }
 
             // add parms
-            Map<DatabaseID, Set<ParmID>> dupRemovalMap = new HashMap<DatabaseID, Set<ParmID>>();
+            Map<DatabaseID, Set<ParmID>> dupRemovalMap = new HashMap<>();
             for (Parm aParm : addedParms) {
                 if (aParm instanceof DbParm) {
                     ParmID pId = aParm.getParmID();
@@ -1200,9 +1203,9 @@ public class ParmManager implements IParmManager, IMessageClient {
                     if (parmSet == null) {
                         List<ParmID> parms = this.parmIDCacheServer.get(dbID);
                         if (parms == null) {
-                            parmSet = new HashSet<ParmID>();
+                            parmSet = new HashSet<>();
                         } else {
-                            parmSet = new HashSet<ParmID>(parms);
+                            parmSet = new HashSet<>(parms);
                         }
                         dupRemovalMap.put(dbID, parmSet);
                     }
@@ -1213,7 +1216,7 @@ public class ParmManager implements IParmManager, IMessageClient {
                     .entrySet()) {
                 DatabaseID dbID = entry.getKey();
                 this.parmIDCacheServer.put(dbID,
-                        new ArrayList<ParmID>(entry.getValue()));
+                        new ArrayList<>(entry.getValue()));
             }
         }
 
@@ -1248,7 +1251,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Updates the parmID cache. Given a list of parms to remove and the cache.
-     * 
+     *
      * @param parms
      *            List of Parms to remove from the cache.
      * @param cache
@@ -1269,7 +1272,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Updates the parmID cache. Given a parm to add and the cache.
-     * 
+     *
      * @param p
      * @param cache
      */
@@ -1288,26 +1291,23 @@ public class ParmManager implements IParmManager, IMessageClient {
         DatabaseID mutableDbId = getMutableDatabase();
         if (mutableDbId.isValid()) {
             // createMutableDb is it doesn't already exist
-            ServerResponse<?> sr = this.dataManager.getClient().createNewDb(
-                    mutableDbId);
+            ServerResponse<?> sr = this.dataManager.getClient()
+                    .createNewDb(mutableDbId);
             containsMutable = sr.isOkay();
         }
 
         if (this.availableDatabases == null) {
-            this.availableDatabases = new HashSet<DatabaseID>(
-                    getDatabaseInventory());
+            this.availableDatabases = new HashSet<>(getDatabaseInventory());
         }
 
-        this.availableServerDatabases = new ArrayList<DatabaseID>(
-                availableDatabases);
+        this.availableServerDatabases = new ArrayList<>(availableDatabases);
         this.availableVCParmDatabases = determineVCParmDatabases(vcModules);
-        this.availableVParmDatabases = new ArrayList<DatabaseID>();
+        this.availableVParmDatabases = new ArrayList<>();
         parms.acquireReadLock();
         try {
             for (Parm p : parms) {
-                if ((p instanceof VParm)
-                        && (!availableVParmDatabases.contains(p.getParmID()
-                                .getDbId()))) {
+                if ((p instanceof VParm) && (!availableVParmDatabases
+                        .contains(p.getParmID().getDbId()))) {
                     availableVParmDatabases.add(p.getParmID().getDbId());
                 }
             }
@@ -1317,7 +1317,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
         // calculate the name of isc database(s)
         if (this.iscDbs == null) {
-            iscDbs = new ArrayList<DatabaseID>();
+            iscDbs = new ArrayList<>();
         } else {
             iscDbs.clear();
         }
@@ -1329,17 +1329,20 @@ public class ParmManager implements IParmManager, IMessageClient {
             // availableDbs()
             // and simplify the three loops into one.
             for (DatabaseID dbid : availableVCParmDatabases) {
-                if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
+                if ("ISC".equals(dbid.getModelName())
+                        && !iscDbs.contains(dbid)) {
                     iscDbs.add(dbid);
                 }
             }
             for (DatabaseID dbid : availableVParmDatabases) {
-                if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
+                if ("ISC".equals(dbid.getModelName())
+                        && !iscDbs.contains(dbid)) {
                     iscDbs.add(dbid);
                 }
             }
             for (DatabaseID dbid : availableServerDatabases) {
-                if (dbid.getModelName().equals("ISC") && !iscDbs.contains(dbid)) {
+                if ("ISC".equals(dbid.getModelName())
+                        && !iscDbs.contains(dbid)) {
                     iscDbs.add(dbid);
                 }
             }
@@ -1348,16 +1351,20 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Determines the set of virtual calculated databases, from the definitions.
-     * 
+     *
      * @param definitions
      *            The list of VCParm definitions as VCModules.
      * @return The unique list of DatabaseIDs defined.
      */
-    private List<DatabaseID> determineVCParmDatabases(List<VCModule> definitions) {
-        List<DatabaseID> dbs = new ArrayList<DatabaseID>();
+    private List<DatabaseID> determineVCParmDatabases(
+            List<VCModule> definitions) {
+        List<DatabaseID> dbs = new ArrayList<>();
         for (VCModule mod : definitions) {
-            DatabaseID id = mod.getGpi().getParmID().getDbId();
-            if (!dbs.contains(id)) {
+            DatabaseID id = null;
+            if (mod.getGpi() != null) {
+                id = mod.getGpi().getParmID().getDbId();
+            }
+            if ((id != null) && !dbs.contains(id)) {
                 dbs.add(id);
             }
         }
@@ -1368,11 +1375,11 @@ public class ParmManager implements IParmManager, IMessageClient {
     /**
      * This function creates a new parm - of type database or virtual
      * calculated.
-     * 
+     *
      * Determines whether this is a database or virtual calculated parm, and
      * calls the appropriate create routine. Does not do bookkeeping; only
      * creates the parm and returns the pointer to the caller.
-     * 
+     *
      * @param pid
      * @param mutableParm
      * @param displayable
@@ -1382,12 +1389,14 @@ public class ParmManager implements IParmManager, IMessageClient {
     private Parm createParmInternal(final ParmID pid, boolean mutableParm,
             boolean displayable) throws GFEServerException {
         if (!isParmInDatabase(pid)) {
-            return null; // unknown
+            // unknown
+            return null;
         }
 
         // already created?
         if (getParm(pid) != null) {
-            return null; // already in existance
+            // already in existence
+            return null;
         }
 
         // check first if parm is a virtual calculated?
@@ -1425,9 +1434,9 @@ public class ParmManager implements IParmManager, IMessageClient {
         ServerResponse<GridParmInfo> sr1 = dataManager.getClient()
                 .getGridParmInfo(pid);
         if (!sr1.isOkay()) {
-            statusHandler.error(String.format(
-                    "Couldn't get GridParmInfo for parm %s: %s", pid,
-                    sr1.message()));
+            statusHandler.error(
+                    String.format("Couldn't get GridParmInfo for parm %s: %s",
+                            pid, sr1.message()));
             return null;
         }
         GridParmInfo gpi = sr1.getPayload();
@@ -1436,9 +1445,9 @@ public class ParmManager implements IParmManager, IMessageClient {
                 .getLockTable(new LockTableRequest(pid));
         List<LockTable> lt = sr2.getPayload();
         if ((!sr2.isOkay()) || (lt.size() != 1)) {
-            statusHandler.error(String.format(
-                    "Couldn't get lockTable for parm %s: %s", pid,
-                    sr2.message()));
+            statusHandler.error(
+                    String.format("Couldn't get lockTable for parm %s: %s", pid,
+                            sr2.message()));
             return null;
         }
 
@@ -1450,7 +1459,8 @@ public class ParmManager implements IParmManager, IMessageClient {
             boolean displayable) {
         // already exists?
         if (getParm(module.getGpi().getParmID()) != null) {
-            return null; // already exists
+            // already exists
+            return null;
         }
 
         Parm parm = new VCParm(dataManager, displayable, module);
@@ -1459,49 +1469,30 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Set the system time range
-     * 
+     *
      * @param systemTimeRange
      */
     public void setSystemTimeRange(TimeRange systemTimeRange) {
         this.systemTimeRange = systemTimeRange;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#compositeGridLocation()
-     */
     @Override
     public GridLocation compositeGridLocation() {
         return gloc;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#getParmInExpr(java.lang.String,
-     * boolean)
-     */
     @Override
     public Parm getParmInExpr(String exprName, boolean enableTopo) {
-        return getParmInExpr(exprName, enableTopo, dataManager
-                .getSpatialDisplayManager().getActivatedParm());
+        return getParmInExpr(exprName, enableTopo,
+                dataManager.getSpatialDisplayManager().getActivatedParm());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#enableDisableTopoParm(boolean,
-     * boolean)
-     */
     @Override
     public void enableDisableTopoParm(boolean wanted, boolean forceVisibility) {
         // find out if the topo parm already exists
         boolean exists = false;
-        Parm topoParm = getParm(this.dataManager.getTopoManager()
-                .getCompositeParmID());
+        Parm topoParm = getParm(
+                this.dataManager.getTopoManager().getCompositeParmID());
         if (topoParm != null) {
             exists = true;
         }
@@ -1520,9 +1511,10 @@ public class ParmManager implements IParmManager, IMessageClient {
             // ensure validity
             if ((gridSlice != null) && (gridSlice.isValid() == null)) {
                 // create the parm
-                topoParm = createVirtualParm(gridSlice.getGridInfo()
-                        .getParmID(), gridSlice.getGridInfo(),
-                        new IGridSlice[] { gridSlice }, false, false);
+                topoParm = createVirtualParm(
+                        gridSlice.getGridInfo().getParmID(),
+                        gridSlice.getGridInfo(), new IGridSlice[] { gridSlice },
+                        false, false);
 
                 // If forceVisibility, force the visibility to on,
                 // and force the display to IMAGE
@@ -1533,10 +1525,10 @@ public class ParmManager implements IParmManager, IMessageClient {
                     // before the topo resource was added to the resource list
                     topoParm.getDisplayAttributes().setVisMode(VisMode.IMAGE);
                     this.setParmDisplayable(topoParm, true);
-                    this.dataManager.getSpatialDisplayManager().setDisplayMode(
-                            topoParm, VisMode.IMAGE);
-                    this.dataManager.getSpatialDisplayManager().makeVisible(
-                            topoParm, true, false);
+                    this.dataManager.getSpatialDisplayManager()
+                            .setDisplayMode(topoParm, VisMode.IMAGE);
+                    this.dataManager.getSpatialDisplayManager()
+                            .makeVisible(topoParm, true, false);
                 }
             } else {
                 statusHandler.handle(Priority.PROBLEM,
@@ -1552,7 +1544,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     @Override
     public List<DatabaseID> getIscDatabases() {
-        return new ArrayList<DatabaseID>(iscDbs);
+        return new ArrayList<>(iscDbs);
     }
 
     @Override
@@ -1568,7 +1560,8 @@ public class ParmManager implements IParmManager, IMessageClient {
 
         }
 
-        return new ParmID(); // no match found
+        // no match found
+        return new ParmID();
     }
 
     @Override
@@ -1585,22 +1578,15 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#createParm(com.raytheon.uf.common
-     * .dataplugin.gfe.db.objects.ParmID, boolean, boolean)
-     */
     @Override
-    public Parm createParm(ParmID pid, boolean mutableParm, boolean displayable) {
+    public Parm createParm(ParmID pid, boolean mutableParm,
+            boolean displayable) {
         try {
             return createParmInternal(pid, mutableParm, displayable);
         } catch (GFEServerException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Failure to instantiate parm in createParmInternal: "
-                                    + pid, e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Failure to instantiate parm in createParmInternal: " + pid,
+                    e);
             return null;
         }
     }
@@ -1608,7 +1594,7 @@ public class ParmManager implements IParmManager, IMessageClient {
     /**
      * Recalculate the system time range using the total time span of all
      * displayed parms and their locks
-     * 
+     *
      * @return the system time range
      */
     private TimeRange recalcSystemTimeRange() {
@@ -1647,9 +1633,9 @@ public class ParmManager implements IParmManager, IMessageClient {
         if (hoursFuture == hoursPast) {
             hoursFuture++;
         }
-        TimeRange cTR = new TimeRange(baseTime.getTime()
-                - (hoursPast * TimeUtil.MILLIS_PER_HOUR), baseTime.getTime()
-                + (hoursFuture * TimeUtil.MILLIS_PER_HOUR));
+        TimeRange cTR = new TimeRange(
+                baseTime.getTime() - (hoursPast * TimeUtil.MILLIS_PER_HOUR),
+                baseTime.getTime() + (hoursFuture * TimeUtil.MILLIS_PER_HOUR));
 
         newSystemTR = newSystemTR.combineWith(cTR);
 
@@ -1670,14 +1656,9 @@ public class ParmManager implements IParmManager, IMessageClient {
         return newSystemTR;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.parm.IParmManager#getLockedParms()
-     */
     @Override
     public Parm[] getLockedParms() {
-        List<Parm> retVal = new ArrayList<Parm>();
+        List<Parm> retVal = new ArrayList<>();
 
         parms.acquireReadLock();
         try {
@@ -1692,13 +1673,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         return retVal.toArray(new Parm[retVal.size()]);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.parm.IParmManager#getParm(com.raytheon.viz.
-     * gfe.core.parm.ParmID)
-     */
     @Override
     public Parm getParm(ParmID parmID) {
         parms.acquireReadLock();
@@ -1714,31 +1688,21 @@ public class ParmManager implements IParmManager, IMessageClient {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.parm.IParmManager#getUndisplayedParms()
-     */
     @Override
     public Parm[] getUndisplayedParms() {
         Parm[] all = getAllParms();
         Parm[] displayed = getDisplayedParms();
-        Set<Parm> parms = new HashSet<Parm>(Arrays.asList(all));
+        Set<Parm> parms = new HashSet<>(Arrays.asList(all));
         parms.removeAll(Arrays.asList(displayed));
 
         return parms.toArray(new Parm[parms.size()]);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#getSelectedParms()
-     */
     @Override
     public Parm[] getSelectedParms() {
         // Cycles through each available parm and asks if selected(). If so,
         // adds it to the return list.
-        List<Parm> selParms = new ArrayList<Parm>();
+        List<Parm> selParms = new ArrayList<>();
         parms.acquireReadLock();
         try {
             for (Parm p : parms) {
@@ -1752,14 +1716,9 @@ public class ParmManager implements IParmManager, IMessageClient {
         return selParms.toArray(new Parm[selParms.size()]);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#getModifiedParms()
-     */
     @Override
     public Parm[] getModifiedParms() {
-        List<Parm> retVal = new ArrayList<Parm>();
+        List<Parm> retVal = new ArrayList<>();
         parms.acquireReadLock();
         try {
             for (Parm p : parms) {
@@ -1777,23 +1736,23 @@ public class ParmManager implements IParmManager, IMessageClient {
     /**
      * Returns a matching parm * (creates if necessary) for the given expression
      * and database id.
-     * 
+     *
      * @param dbid
      *            the database
      * @param exprName
      *            the expression name
      * @return the parm
      */
-    private Parm parmInExprDatabase(final DatabaseID dbid, final String exprName) {
+    private Parm parmInExprDatabase(final DatabaseID dbid,
+            final String exprName) {
         DatabaseID mutableDb = getMutableDatabase();
 
         ParmID topoID = this.dataManager.getTopoManager().getCompositeParmID();
         ParmID[] parmIDs = getAvailableParms(dbid);
         for (ParmID parmID : parmIDs) {
-            if (parmID.expressionName(topoID, mutableDb, false)
-                    .equals(exprName)
-                    || parmID.expressionName(topoID, mutableDb, true).equals(
-                            exprName)) {
+            if (parmID.expressionName(topoID, mutableDb, false).equals(exprName)
+                    || parmID.expressionName(topoID, mutableDb, true)
+                            .equals(exprName)) {
                 // match found -- parm already exists? or do we need to create
                 // it?
                 Parm p = getParm(parmID);
@@ -1812,7 +1771,7 @@ public class ParmManager implements IParmManager, IMessageClient {
      * ParmMgr::setParmsRemoveModParms() Helper function for setParms(). Removes
      * any modified parms from the "remove" list. Returns the modified list
      * through the calling argument.
-     * 
+     *
      * @param removeParms
      */
     private void setParmsRemoveModParms(Collection<ParmID> removeParms) {
@@ -1835,23 +1794,26 @@ public class ParmManager implements IParmManager, IMessageClient {
      * ParmMgr::setParmsDetermineModParms() Helper function for setParms().
      * Separate out the parms that are simply switching display states from the
      * addParms. Return these. Modifies the addParms list.
-     * 
+     *
      * @param addParms
      * @return
      */
-    private Collection<Parm> setParmsDetermineModParms(List<ParmIDVis> addParms) {
-        List<Parm> modParms = new ArrayList<Parm>();
+    private Collection<Parm> setParmsDetermineModParms(
+            List<ParmIDVis> addParms) {
+        List<Parm> modParms = new ArrayList<>();
 
         for (int i = addParms.size() - 1; i >= 0; i--) {
-            Parm p = getParm(addParms.get(i).getParmID()); // already exist?
+            // already exist?
+            Parm p = getParm(addParms.get(i).getParmID());
             if (p != null) {
-                p.getDisplayAttributes().setDisplayable(
-                        addParms.get(i).isVisible());
+                p.getDisplayAttributes()
+                        .setDisplayable(addParms.get(i).isVisible());
                 if (!modParms.contains(p)) {
                     modParms.add(p);
                 }
-                addParms.remove(addParms.get(i)); // remove the entry
-                                                  // from addParms
+
+                // remove the entry from addParms
+                addParms.remove(addParms.get(i));
             }
         }
         return modParms;
@@ -1862,13 +1824,13 @@ public class ParmManager implements IParmManager, IMessageClient {
      * parms. Dependent parms are those due to VCparms, or ISC parms. The
      * considerISC says to consider ISC dependencies based on showISC and the
      * Fcst->ISC relationship
-     * 
+     *
      * @param pid
      * @param considerISC
      * @return
      */
     private List<ParmID> dependentParms(final ParmID pid, boolean considerISC) {
-        List<ParmID> ret = new ArrayList<ParmID>(1);
+        List<ParmID> ret = new ArrayList<>(1);
 
         // check for a virtual calculated parm
         int index = vcIndex(pid);
@@ -1907,20 +1869,19 @@ public class ParmManager implements IParmManager, IMessageClient {
      * Helper function for <code>setParms</code>. Takes the toBeLoaded and
      * removeParms lists, calculates non-visible ISC dependencies, and then
      * returns the updated lists through the calling arguments.
-     * 
+     *
      * @param toBeLoaded
      * @param removeParms
      */
     private void setParmsRemoveISCDeps(List<ParmIDVisDep> toBeLoaded,
             Collection<ParmID> removeParms) {
-        List<ParmID> removeList = new ArrayList<ParmID>(removeParms);
+        List<ParmID> removeList = new ArrayList<>(removeParms);
 
         for (int i = 0; i < removeList.size(); i++) {
             List<ParmID> depParms = dependentParms(removeList.get(i), true);
             for (ParmID pid : depParms) {
                 int index = pivdIndex(toBeLoaded, pid);
-                if ((index != -1)
-                        && (!toBeLoaded.get(index).isVisible())
+                if ((index != -1) && (!toBeLoaded.get(index).isVisible())
                         && (!getParm(toBeLoaded.get(index).getParmID())
                                 .isModified())) {
                     removeList.add(toBeLoaded.get(index).getParmID());
@@ -1940,7 +1901,7 @@ public class ParmManager implements IParmManager, IMessageClient {
      * Helper function for <code>setParms</code>. Takes the toBeLoaded,
      * addedParms, removeParms, and modParms lists, calculates dependencies, and
      * then returns the updated lists through the calling arguments.
-     * 
+     *
      * @param toBeLoaded
      * @param addParms
      * @param removeParms
@@ -1959,22 +1920,27 @@ public class ParmManager implements IParmManager, IMessageClient {
             // to true so that the ISC parms that correspond to the visible
             // mutable parms are always loaded in the ParmManager. This was
             // found to significantly improve performance when loading ISC data.
-            List<ParmID> depParms = dependentParms(toBeLoaded.get(i)
-                    .getParmID(), true);
+            List<ParmID> depParms = dependentParms(
+                    toBeLoaded.get(i).getParmID(), true);
 
             for (ParmID depParm : depParms) {
                 // if not present, then add it to "tobeloaded" list
                 int index = pivdIndex(toBeLoaded, depParm);
                 if (index == -1) {
                     toBeLoaded.add(new ParmIDVisDep(depParm, false, true));
-                    if (getParm(depParm) == null) { // doesn't exist
+                    if (getParm(depParm) == null) {
+                        // doesn't exist
                         addParms.add(new ParmIDVis(depParm, false));
                     }
-                } else { // simply set the dependent flag
+                } else {
+                    // simply set the dependent flag
                     toBeLoaded.get(index).setDependent(true);
                 }
-                // if on remove list, then remove it, add as modified
-                // undisplayed
+
+                /*
+                 * if on remove list, then remove it, add as modified
+                 * undisplayed
+                 */
                 if (removeParms.contains(depParm)) {
                     removeParms.remove(depParm);
                     Parm p = getParm(depParm);
@@ -1990,7 +1956,7 @@ public class ParmManager implements IParmManager, IMessageClient {
     /**
      * ParmMgr::setParmsMakeParmIDVisDep() Helper function for setParms(). Makes
      * the initial ParmIDVisDep "tobeloaded" list.
-     * 
+     *
      * @param addParms
      * @param modParms
      * @param removeParms
@@ -2001,18 +1967,18 @@ public class ParmManager implements IParmManager, IMessageClient {
             Collection<ParmID> removeParms) {
         // make a list of the expected situation, use ParmIDVisDep to hold the
         // displayed/undisplayed flags.
-        List<ParmIDVisDep> toBeLoaded = new ArrayList<ParmIDVisDep>();
+        List<ParmIDVisDep> toBeLoaded = new ArrayList<>();
         // new ones
         for (ParmIDVis addParm : addParms) {
-            toBeLoaded.add(new ParmIDVisDep(addParm.getParmID(), addParm
-                    .isVisible(), false));
+            toBeLoaded.add(new ParmIDVisDep(addParm.getParmID(),
+                    addParm.isVisible(), false));
         }
 
         // mod display state
         for (Parm parm : modParms) {
             if (pivdIndex(toBeLoaded, parm.getParmID()) == -1) {
-                toBeLoaded.add(new ParmIDVisDep(parm.getParmID(), parm
-                        .getDisplayAttributes().isDisplayable(), false));
+                toBeLoaded.add(new ParmIDVisDep(parm.getParmID(),
+                        parm.getDisplayAttributes().isDisplayable(), false));
             }
         }
 
@@ -2022,8 +1988,8 @@ public class ParmManager implements IParmManager, IMessageClient {
             for (Parm p : parms) {
                 if ((pivdIndex(toBeLoaded, p.getParmID()) == -1)
                         && (!removeParms.contains(p.getParmID()))) {
-                    toBeLoaded.add(new ParmIDVisDep(p.getParmID(), p
-                            .getDisplayAttributes().isDisplayable(), false));
+                    toBeLoaded.add(new ParmIDVisDep(p.getParmID(),
+                            p.getDisplayAttributes().isDisplayable(), false));
                 }
 
             }
@@ -2035,20 +2001,20 @@ public class ParmManager implements IParmManager, IMessageClient {
     }
 
     /**
-     * 
+     *
      * Command to create/remove parms based on ParmID. For additions, the Map
      * contains the ParmID and visibility.
-     * 
+     *
      * implementation ---------------------------------------------------------
      * Note: addParms, removeParms is modified within this routine, thus they
      * are not passed in as const references.
-     * 
+     *
      * Routine converts the ParmIDs into Parms*. Special cases for VCParms,
      * since they need to load other parms possibly. Thus the input add and
      * remove may not result in the same parms being created and destroyed.
      * ------
      * ---------------------------------------------------------------------
-     * 
+     *
      * @param addParms
      * @param removeParms
      */
@@ -2135,7 +2101,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         // create the desired parms
-        List<Parm> parmsToAdd = new ArrayList<Parm>();
+        List<Parm> parmsToAdd = new ArrayList<>();
         for (ParmIDVis addParm : addParms) {
             boolean mutableFlag = addParm.getParmID().getDbId()
                     .equals(getMutableDatabase());
@@ -2156,7 +2122,8 @@ public class ParmManager implements IParmManager, IMessageClient {
             } catch (GFEServerException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Failure to instantiate parm in createParmInternal: "
-                                + addParm.getParmID().toString(), e);
+                                + addParm.getParmID().toString(),
+                        e);
             }
         }
 
@@ -2169,13 +2136,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         // setCursor(1); // turn OFF wait cursor
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#getParmInExpr(java.lang.String,
-     * boolean, com.raytheon.viz.gfe.core.parm.Parm)
-     */
     @Override
     public Parm getParmInExpr(final String exprName, boolean enableTopo,
             Parm variableParm) {
@@ -2186,12 +2146,12 @@ public class ParmManager implements IParmManager, IMessageClient {
         // ---------------------------------------------------------------------------
         DatabaseID mutableDb = getMutableDatabase();
         // Check for variableElement
-        if (exprName.equals("variableElement")) {
+        if ("variableElement".equals(exprName)) {
             return variableParm;
         }
 
         // Handle Topo: If Topo is not available, make it available
-        if (enableTopo && exprName.equals("Topo")) {
+        if (enableTopo && "Topo".equals(exprName)) {
             new EnableDisableTopoMsg(Action.ENABLE, false).send();
             return getParmInExpr(exprName, false, variableParm);
         }
@@ -2209,7 +2169,8 @@ public class ParmManager implements IParmManager, IMessageClient {
         // expression name match
         for (DatabaseID db : getAvailableDbs()) {
             if (db.equals(mutableDb)) {
-                continue; // already processed this one
+                // already processed this one
+                continue;
             }
             Parm p = parmInExprDatabase(db, exprName);
             if (p != null) {
@@ -2220,14 +2181,9 @@ public class ParmManager implements IParmManager, IMessageClient {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.parm.IParmManager#getDisplayedParms()
-     */
     @Override
     public Parm[] getDisplayedParms() {
-        List<Parm> retVal = new ArrayList<Parm>();
+        List<Parm> retVal = new ArrayList<>();
         parms.acquireReadLock();
         try {
             for (Parm p : parms) {
@@ -2241,45 +2197,38 @@ public class ParmManager implements IParmManager, IMessageClient {
         return retVal.toArray(new Parm[retVal.size()]);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#setDisplayedParms(com.raytheon
-     * .edex.plugin.gfe.db.objects.ParmID[])
-     */
     @Override
     public void setDisplayedParms(ParmID[] parmList) {
         // ensure that there are no duplicates
-        Set<ParmID> desParms = new HashSet<ParmID>(Arrays.asList(parmList));
+        Set<ParmID> desParms = new HashSet<>(Arrays.asList(parmList));
 
         // convert currently displayed list to ParmIDs
         ParmID[] displayed = getParmIDs(getDisplayedParms());
         // logDebug << "currently displayed: ids=" << displayed << std::endl;
 
-        Set<ParmID> parmSet = new HashSet<ParmID>(Arrays.asList(displayed));
+        Set<ParmID> parmSet = new HashSet<>(Arrays.asList(displayed));
 
         // find differences
-        Set<ParmID> deletions = new HashSet<ParmID>(parmSet);
+        Set<ParmID> deletions = new HashSet<>(parmSet);
         deletions.removeAll(desParms);
 
-        Set<ParmID> additions = new HashSet<ParmID>(desParms);
+        Set<ParmID> additions = new HashSet<>(desParms);
         additions.removeAll(parmSet);
         // logDebug << "to be deleted: ids=" << deletions << std::endl;
         // logDebug << "to be added: ids=" << additions << std::endl;
 
         // process deletions, but only if they are not modified state
         // this validates the deletions list
-        List<ParmID> deletionsList = new ArrayList<ParmID>(deletions);
-        List<ParmID> additionsList = new ArrayList<ParmID>(additions);
+        List<ParmID> deletionsList = new ArrayList<>(deletions);
+        List<ParmID> additionsList = new ArrayList<>(additions);
 
         for (int i = deletionsList.size() - 1; i >= 0; i--) {
             Parm p = getParm(deletionsList.get(i));
             if (p == null) {
-                deletions.remove(deletionsList.get(i)); // non-existant parm
+                // non-existant parm
+                deletions.remove(deletionsList.get(i));
             } else if (p.isModified()) {
-                statusHandler.handle(
-                        Priority.PROBLEM,
+                statusHandler.handle(Priority.PROBLEM,
                         "Attempt to unload a parm that is modified through"
                                 + " setDisplayedParms(). Parm="
                                 + deletionsList.get(i));
@@ -2290,8 +2239,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         // process additions, simply to validate them
         for (int i = additionsList.size() - 1; i >= 0; i--) {
             if (!isParmInDatabase(additionsList.get(i))) {
-                statusHandler.handle(
-                        Priority.DEBUG,
+                statusHandler.handle(Priority.DEBUG,
                         "Attempt to load a non-existent parm"
                                 + additionsList.get(i));
                 additions.remove(additionsList.get(i));
@@ -2299,7 +2247,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         // additions, deletions have been validated
-        List<ParmIDVis> addParms = new ArrayList<ParmIDVis>(additions.size());
+        List<ParmIDVis> addParms = new ArrayList<>(additions.size());
         for (ParmID pid : additions) {
             addParms.add(new ParmIDVis(pid, true));
         }
@@ -2311,10 +2259,10 @@ public class ParmManager implements IParmManager, IMessageClient {
     /**
      * Helper function for setParms(). Unloads old parms that are undisplayed
      * and not dependent. Calling arguments are modified.
-     * 
+     *
      * Ensure parm is already in existance, and isn't on the modParms list, and
      * isn't in the cachedParmList.
-     * 
+     *
      * @param toBeLoaded
      * @param modParms
      * @param removeParms
@@ -2346,14 +2294,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.IParmIDChangedListener#parmIDChanged(com
-     * .raytheon.viz.gfe.core.parm.Parm,
-     * com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID)
-     */
     @Override
     public void parmIDChanged(Parm parm, ParmID newParmID) {
         if (Arrays.asList(this.getAllParms()).contains(parm)) {
@@ -2362,13 +2302,6 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.msgs.IParmInventoryChangedListener#
-     * parmInventoryChanged(com.raytheon.viz.gfe.core.parm.Parm,
-     * com.raytheon.uf.common.time.TimeRange)
-     */
     @Override
     public void parmInventoryChanged(Parm parm, TimeRange timeRange) {
         if (!systemTimeRange.isValid()
@@ -2386,14 +2319,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.ILockTableChangedListener#lockTableChanged
-     * (com.raytheon.viz.gfe.core.parm.Parm,
-     * com.raytheon.edex.plugin.gfe.server.lock.LockTable)
-     */
     @Override
     public void lockTableChanged(Parm parm, LockTable lockTable) {
         TimeRange newTR = recalcSystemTimeRange();
@@ -2404,152 +2329,70 @@ public class ParmManager implements IParmManager, IMessageClient {
         return;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#addDisplayedParmListChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener)
-     */
     @Override
     public void addDisplayedParmListChangedListener(
             IDisplayedParmListChangedListener listener) {
         this.displayedParmListListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#removeDisplayedParmListChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IDisplayedParmListChangedListener)
-     */
     @Override
     public void removeDisplayedParmListChangedListener(
             IDisplayedParmListChangedListener listener) {
         this.displayedParmListListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#addParmListChangedListener(com
-     * .raytheon.viz.gfe.core.msgs.IParmListChangedListener)
-     */
     @Override
     public void addParmListChangedListener(IParmListChangedListener listener) {
         this.parmListChangedListeners.add(listener);
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#removeParmListChangedListener(
-     * com.raytheon.viz.gfe.core.msgs.IParmListChangedListener)
-     */
     @Override
-    public void removeParmListChangedListener(IParmListChangedListener listener) {
+    public void removeParmListChangedListener(
+            IParmListChangedListener listener) {
         this.parmListChangedListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#addParmIDChangedListener(com.raytheon
-     * .viz.gfe.core.msgs.IParmIDChangedListener)
-     */
     @Override
     public void addParmIDChangedListener(IParmIDChangedListener listener) {
         this.parmIdChangedListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#removeParmIDChangedListener(com
-     * .raytheon.viz.gfe.core.msgs.IParmIDChangedListener)
-     */
     @Override
     public void removeParmIDChangedListener(IParmIDChangedListener listener) {
         this.parmIdChangedListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#addSystemTimeRangeChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.ISystemTimeRangeChangedListener)
-     */
     @Override
     public void addSystemTimeRangeChangedListener(
             ISystemTimeRangeChangedListener listener) {
         this.systemTimeRangeChangedListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#removeSystemTimeRangeChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.ISystemTimeRangeChangedListener)
-     */
     @Override
     public void removeSystemTimeRangeChangedListener(
             ISystemTimeRangeChangedListener listener) {
         this.systemTimeRangeChangedListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#addAvailableSourcesChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IAvailableSourcesChangedListener)
-     */
     @Override
     public void addAvailableSourcesChangedListener(
             IAvailableSourcesChangedListener listener) {
         this.availableSourcesListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#addNewModelAvailableListener(com
-     * .raytheon.viz.gfe.core.msgs.INewModelAvailableListener)
-     */
     @Override
-    public void addNewModelAvailableListener(INewModelAvailableListener listener) {
+    public void addNewModelAvailableListener(
+            INewModelAvailableListener listener) {
         this.newModelListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#removeAvailableSourcesChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IAvailableSourcesChangedListener)
-     */
     @Override
     public void removeAvailableSourcesChangedListener(
             IAvailableSourcesChangedListener listener) {
         this.availableSourcesListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#removeNewModelAvailableListener
-     * (com.raytheon.viz.gfe.core.msgs.INewModelAvailableListener)
-     */
     @Override
     public void removeNewModelAvailableListener(
             INewModelAvailableListener listener) {
@@ -2558,7 +2401,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Fire the displayed parm list changed listener
-     * 
+     *
      * @param parms
      *            complete list of parms
      * @param adds
@@ -2585,7 +2428,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Fire the ParmID changed event.
-     * 
+     *
      * @param parm
      *            The parm which had its ParmID change
      * @param newParmId
@@ -2608,7 +2451,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Fire the parm list changed listener
-     * 
+     *
      * @param parms
      *            complete list of parms
      * @param adds
@@ -2634,7 +2477,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Fire the system time range changed listener
-     * 
+     *
      * @param systemTimeRange
      *            new system time range
      */
@@ -2656,7 +2499,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Fire the available sources changed event.
-     * 
+     *
      * @param inventory
      *            The complete inventory
      * @param deletions
@@ -2665,7 +2508,8 @@ public class ParmManager implements IParmManager, IMessageClient {
      *            The items added to the inventory
      */
     private void fireAvailableSourcesChanged(final List<DatabaseID> inventory,
-            final List<DatabaseID> deletions, final List<DatabaseID> additions) {
+            final List<DatabaseID> deletions,
+            final List<DatabaseID> additions) {
         for (Object listener : this.availableSourcesListeners.getListeners()) {
             final IAvailableSourcesChangedListener casted = (IAvailableSourcesChangedListener) listener;
 
@@ -2684,7 +2528,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Fire the new model available event.
-     * 
+     *
      * @param newModel
      * @param additions
      *            The DatabaseID of the newly-available model
@@ -2706,7 +2550,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Return a list of ParmIDs for a list of Parms
-     * 
+     *
      * @param parms
      *            the parms
      * @return the parm IDs
@@ -2721,13 +2565,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         return parmIDs;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#getParms(com.raytheon.uf.common
-     * .dataplugin.gfe.db.objects.ParmID[])
-     */
     @Override
     public Parm[] getParms(ParmID[] parmIDs) {
         Parm[] parms = new Parm[parmIDs.length];
@@ -2741,12 +2578,12 @@ public class ParmManager implements IParmManager, IMessageClient {
     /**
      * Return a list of Parms for a list of ParmIDs with nulls in place of parms
      * that are not loaded.
-     * 
+     *
      * @param parmIDs
      * @return
      */
     private List<Parm> getParms(final Collection<ParmID> parmIDs) {
-        List<Parm> parms = new ArrayList<Parm>();
+        List<Parm> parms = new ArrayList<>();
         for (ParmID pid : parmIDs) {
             Parm p = getParm(pid);
 
@@ -2757,29 +2594,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         return parms;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#getAllAvailableParms()
-     */
-    // @Override
-    // public ParmID[] getAllAvailableParms() {
-    // List<ParmID> parmIDs = new ArrayList<ParmID>();
-    // for (DatabaseID dbID : this.getAvailableDbs()) {
-    // parmIDs.addAll(Arrays.asList(this.getAvailableParms(dbID)));
-    // }
-    //
-    // return parmIDs.toArray(new ParmID[parmIDs.size()]);
-    //
-    // }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#setParmDisplayable(com.raytheon
-     * .viz.gfe.core.parm.Parm, boolean)
-     */
     @Override
     public void setParmDisplayable(Parm parm, boolean displayable) {
 
@@ -2789,21 +2603,17 @@ public class ParmManager implements IParmManager, IMessageClient {
                 && !parm.isModified()) {
             parm.getDisplayAttributes().setDisplayable(false);
         } else {
-            return; // modified displayable, can't change to non-displayable
+            // modified displayable, can't change to non-displayable
+            return;
         }
 
         // handle bookkeeping and notifications
-        List<ParmIDVis> stateChanges = new ArrayList<ParmIDVis>();
+        List<ParmIDVis> stateChanges = new ArrayList<>();
         stateChanges.add(new ParmIDVis(parm.getParmID(), true));
         setParms(stateChanges, new ArrayList<ParmID>());
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#deallocateUnusedGrids(int)
-     */
     @Override
     public void deallocateUnusedGrids(int seconds) {
         parms.acquireReadLock();
@@ -2823,7 +2633,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         // make a stripped time database name from dbName
         String modelName;
         String optType = "";
-        int index = databaseName.indexOf("_");
+        int index = databaseName.indexOf('_');
         if (index > -1) {
             optType = databaseName.substring(0, index);
             modelName = databaseName.substring(index + 1);
@@ -2836,7 +2646,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
         // attempt a match in the available database list. Note that the
         // list is always sorted in model time order within each modelName.
-        List<DatabaseID> matches = new ArrayList<DatabaseID>();
+        List<DatabaseID> matches = new ArrayList<>();
         for (DatabaseID dbId : availableDatabases) {
             if (stripped.equals(dbId.stripModelTime())) {
                 matches.add(dbId);
@@ -2852,10 +2662,12 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         // version database -- determine correct version
-        version = -version; // since version is negative, we want a postive
+        // since version is negative, we want a positive
+        version = -version;
         // index into the array
         if ((version < 0) || (version >= matches.size())) {
-            return new DatabaseID(); // don't have a match for this version
+            // don't have a match for this version
+            return new DatabaseID();
         }
 
         return matches.get(matches.size() - 1 - version);
@@ -2866,11 +2678,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         return Message.inquireLastMessage(ShowISCGridsMsg.class).show();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#getProductDB()
-     */
     @Override
     public DatabaseID getProductDB() {
         return this.productDB;
@@ -2879,14 +2686,14 @@ public class ParmManager implements IParmManager, IMessageClient {
     /**
      * Filters out a complete list of databaseIDs to those only allowed by the
      * dbCatagories in the gfeConfig. Sorts the final list.
-     * 
+     *
      * @param dbIds
      *            The list of DatabaseIDs to filter
      * @return A sorted list of DatabseIDs that are GRID types and match the
      *         list of allowed model types in the gfeConfig.
      */
     private List<DatabaseID> filterDbIds(List<DatabaseID> dbIds) {
-        List<DatabaseID> filteredIds = new ArrayList<DatabaseID>();
+        List<DatabaseID> filteredIds = new ArrayList<>();
 
         for (DatabaseID dbId : dbIds) {
             if (dbId.getFormat() == DataType.GRID) {
@@ -2906,15 +2713,15 @@ public class ParmManager implements IParmManager, IMessageClient {
      * mutable model, plus all other databases identified by the database
      * categories specified in the gfeConfig. The databases are filtered by
      * projection also, since the GFE can only handle one projection.
-     * 
+     *
      * @return A filtered list of available databases.
      */
     private List<DatabaseID> getDatabaseInventory() {
         ServerResponse<List<DatabaseID>> sr = dataManager.getClient()
                 .getDbInventory();
         if (!sr.isOkay()) {
-            statusHandler.error(String.format("GetDbInventory fail: %s",
-                    sr.message()));
+            statusHandler.error(
+                    String.format("GetDbInventory fail: %s", sr.message()));
             return Collections.emptyList();
         }
 
@@ -2926,7 +2733,7 @@ public class ParmManager implements IParmManager, IMessageClient {
      * This function is called when the list of available database has changed.
      * The list of available parms is updated based on the list of additions and
      * deletions.
-     * 
+     *
      * @param deletions
      *            The items being removed from the inventory
      * @param additions
@@ -2936,13 +2743,13 @@ public class ParmManager implements IParmManager, IMessageClient {
             List<DatabaseID> additions) {
 
         // create list of additions we didn't already have
-        List<DatabaseID> newAdditions = new ArrayList<DatabaseID>(additions);
+        List<DatabaseID> newAdditions = new ArrayList<>(additions);
         newAdditions.removeAll(availableDatabases);
 
         availableDatabases.addAll(newAdditions);
         availableDatabases.removeAll(deletions);
 
-        List<ParmID> toDelete = new ArrayList<ParmID>();
+        List<ParmID> toDelete = new ArrayList<>();
 
         for (Parm parm : getAllParms()) {
             ParmID pid = parm.getParmID();
@@ -2960,13 +2767,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IParmManager#updateModel(com.raytheon.uf.common
-     * .dataplugin.gfe.db.objects.DatabaseID)
-     */
     @Override
     public void updateModel(DatabaseID modelIdentifier) {
         boolean anyChanges = false;
@@ -2974,7 +2774,7 @@ public class ParmManager implements IParmManager, IMessageClient {
         // find all of the parms that share the same model,format, type, and
         // siteID
         DatabaseID stripModelIdentifier = modelIdentifier.stripModelTime();
-        List<Parm> parmsToReplace = new ArrayList<Parm>();
+        List<Parm> parmsToReplace = new ArrayList<>();
         for (Parm parm : getAllParms()) {
             DatabaseID dbId = parm.getParmID().getDbId().stripModelTime();
             if (dbId.equals(stripModelIdentifier)) {
@@ -2986,24 +2786,23 @@ public class ParmManager implements IParmManager, IMessageClient {
         // exists in the parmsToReplace list). All of these are from the same
         // model source, although the valid model times may be different.
         // We only to want to swap with one copy of this model.
-        List<ParmID> forceUnloadParms = new ArrayList<ParmID>();
-        ParmID[] lprId = getParmIDs(parmsToReplace
-                .toArray(new Parm[parmsToReplace.size()]));
-        List<ParmID> lprIdList = new ArrayList<ParmID>();
+        List<ParmID> forceUnloadParms = new ArrayList<>();
+        ParmID[] lprId = getParmIDs(
+                parmsToReplace.toArray(new Parm[parmsToReplace.size()]));
+        List<ParmID> lprIdList = new ArrayList<>();
         for (ParmID parmId : lprId) {
             lprIdList.add(parmId);
         }
         Collections.sort(lprIdList, Collections.reverseOrder());
 
-        for (ListIterator<ParmID> iterator = lprIdList.listIterator(lprIdList
-                .size()); iterator.previousIndex() > 0;) {
+        for (ListIterator<ParmID> iterator = lprIdList.listIterator(
+                lprIdList.size()); iterator.previousIndex() > 0;) {
             ParmID parmId = iterator.previous();
 
             if (parmId.getParmName().equals(
                     lprIdList.get(iterator.previousIndex()).getParmName())
-                    && parmId.getParmLevel().equals(
-                            lprIdList.get(iterator.previousIndex())
-                                    .getParmLevel())) {
+                    && parmId.getParmLevel().equals(lprIdList
+                            .get(iterator.previousIndex()).getParmLevel())) {
                 Parm parmToRemove = getParm(parmId);
                 if (parmsToReplace.contains(parmToRemove)) {
                     parmsToReplace.remove(parmToRemove);
@@ -3013,7 +2812,7 @@ public class ParmManager implements IParmManager, IMessageClient {
             }
         }
 
-        if (forceUnloadParms.size() > 0) {
+        if (!forceUnloadParms.isEmpty()) {
             anyChanges = true;
             setParms(new ArrayList<ParmIDVis>(), forceUnloadParms);
         }
@@ -3035,7 +2834,8 @@ public class ParmManager implements IParmManager, IMessageClient {
                     statusHandler.handle(Priority.PROBLEM,
                             "Problem with creating model-swap parm: "
                                     + newParmId.toString()
-                                    + " in updateModel()", e);
+                                    + " in updateModel()",
+                            e);
                     continue;
                 }
 
@@ -3046,8 +2846,8 @@ public class ParmManager implements IParmManager, IMessageClient {
         }
 
         if (anyChanges) {
-            statusHandler.handle(Priority.EVENTA, "Model Updated: "
-                    + modelIdentifier.toString());
+            statusHandler.handle(Priority.EVENTA,
+                    "Model Updated: " + modelIdentifier.toString());
         }
     }
 
@@ -3070,15 +2870,10 @@ public class ParmManager implements IParmManager, IMessageClient {
         return -1;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IParmManager#deleteTemporaryParms()
-     */
     @Override
     public void deleteTemporaryParms() {
         // get list of temporary parms
-        List<Parm> tempParms = new ArrayList<Parm>();
+        List<Parm> tempParms = new ArrayList<>();
         parms.acquireReadLock();
         try {
             for (Parm parm : parms) {
@@ -3133,7 +2928,7 @@ public class ParmManager implements IParmManager, IMessageClient {
             }
         }
 
-        List<VCModule> definitions = new ArrayList<VCModule>(modMap.size());
+        List<VCModule> definitions = new ArrayList<>(modMap.size());
         for (Entry<String, LocalizationFile> entry : modMap.entrySet()) {
             String modName = entry.getKey();
             LocalizationFile modFile = entry.getValue();
@@ -3163,7 +2958,7 @@ public class ParmManager implements IParmManager, IMessageClient {
 
     /**
      * Returns the Virtual Parm index into vcModules for the given ParmID.
-     * 
+     *
      * @param pid
      *            ParmID to search for.
      * @return The index of the ParmID if it is in vcModules. Else, -1.
@@ -3181,6 +2976,11 @@ public class ParmManager implements IParmManager, IMessageClient {
     @Override
     public JobPool getNotificationPool() {
         return notificationPool;
+    }
+
+    @Override
+    public VCModuleJobPool getVCModulePool() {
+        return vcModulePool;
     }
 
     @Override

@@ -86,6 +86,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.swt.widgets.ToolItem;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.ActiveTableRecord;
@@ -194,12 +195,12 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 06/28/2016   5578       bsteffen    Prevent getTimeZones from calling python while synced with the UI thread.
  * 10/25/2016  19446       ryu         Replace call to updateExpireTime() in setPurgeTime() to
  *                                     fix CAVE freeze issue when a ValuesDialog is open.
+ * Nov 02, 2016 5979       njensen     Cast to Number where applicable
  * 02/24/2017  19715       ryu         Fix issue of expiration time being changed on product correction.
  *
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  * 
  */
 public class ProductEditorComp extends Composite implements
@@ -376,7 +377,7 @@ public class ProductEditorComp extends Composite implements
 
     private enum Action {
         STORE, TRANSMIT, AUTOSTORE
-    };
+    }
 
     /**
      * Product transmission callback to report the state of transmitting a
@@ -394,7 +395,7 @@ public class ProductEditorComp extends Composite implements
                     + "([WAYSOFN])\\.([0-9]{4})\\.([0-9]{6})T([0-9]{4})Z-"
                     + "([0-9]{6})T([0-9]{4})Z/");
 
-    private final Map<String, Map<String, Integer>> newYearETNs = new HashMap<String, Map<String, Integer>>();
+    private final Map<String, Map<String, Integer>> newYearETNs = new HashMap<>();
 
     /**
      * Job to update times in product
@@ -572,7 +573,7 @@ public class ProductEditorComp extends Composite implements
         transDisabledImg = getImageRegistry().get("transmitDisabled");
         transLiveImg = getImageRegistry().get("transmitLive");
         checkImg = getImageRegistry().get("checkmark");
-        menuItems = new ArrayList<MenuItem>();
+        menuItems = new ArrayList<>();
 
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         GridLayout gl = new GridLayout(1, false);
@@ -1019,7 +1020,7 @@ public class ProductEditorComp extends Composite implements
         bottomComp.setLayout(new GridLayout(11, false));
         bottomComp.setLayoutData(gd);
 
-        buttons = new ArrayList<Button>();
+        buttons = new ArrayList<>();
 
         if (!editorCorrectionMode) {
             gd = new GridData(110, SWT.DEFAULT);
@@ -1207,6 +1208,14 @@ public class ProductEditorComp extends Composite implements
                     pid = "kkkknnnxxx";
                 }
             }
+
+            // The dialog being opened is modal to the parent dialog. This will
+            // prevent the launching of another dialog until the modal dialog is
+            // closed.
+            StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
+                    showStore, this, transmissionCB, pid, !textComp.isCorMode()
+                            && (action == Action.TRANSMIT));
+            storeDlg.open();
         }
     }
 
@@ -1284,7 +1293,7 @@ public class ProductEditorComp extends Composite implements
         String[] UGCs = new String[validTokens];
         System.arraycopy(uhdrTokens, 0, UGCs, 0, validTokens);
 
-        ArrayList<String> zones = new ArrayList<String>();
+        ArrayList<String> zones = new ArrayList<>();
         String alpha = "";
         for (String ugc : UGCs) {
             if (ugc.contains(">")) {
@@ -1318,10 +1327,10 @@ public class ProductEditorComp extends Composite implements
      */
     private List<String> getVTEClines(SegmentData segData) {
         prodDataStruct = textComp.getProductDataStruct();
-        HashMap<String, TextIndexPoints> segMap = segData.getSementMap();
+        Map<String, TextIndexPoints> segMap = segData.getSementMap();
         TextIndexPoints tipVtec = segMap.get("vtec");
         int lineCount = tipVtec.getEndIndex().x - tipVtec.getStartIndex().x;
-        ArrayList<String> vtecList = new ArrayList<String>(lineCount);
+        List<String> vtecList = new ArrayList<>(lineCount);
         for (int i = 0; i < lineCount; i++) {
             String vtec = prodDataStruct.getProductTextArray()[i
                     + tipVtec.getStartIndex().x];
@@ -1359,7 +1368,7 @@ public class ProductEditorComp extends Composite implements
         } else {
             if (pil != null) {
                 String shortPil = pil.substring(0, 3);
-                activeVtecRecords = new ArrayList<ActiveTableRecord>();
+                activeVtecRecords = new ArrayList<>();
                 for (ActiveTableRecord r : records) {
                     if (r.getPil().equalsIgnoreCase(shortPil)) {
                         activeVtecRecords.add(r);
@@ -1377,7 +1386,7 @@ public class ProductEditorComp extends Composite implements
     private List<ActiveTableRecord> getMatchingActiveVTEC(List<String> zones,
             String officeId, String phen, String sig, String etn) {
 
-        List<ActiveTableRecord> matches = new ArrayList<ActiveTableRecord>();
+        List<ActiveTableRecord> matches = new ArrayList<>();
         if (activeVtecRecords == null) {
             return null;
         }
@@ -1400,7 +1409,7 @@ public class ProductEditorComp extends Composite implements
     private String fixVTEC(List<String> zones, List<String> vtecs,
             Date transmissionTime) throws VizException {
 
-        List<String> rval = new ArrayList<String>();
+        List<String> rval = new ArrayList<>();
         DecimalFormat formatter = new DecimalFormat("0000");
         for (String vtec : vtecs) {
             if (!vtec.contains("-")) { // ignore HVTEC
@@ -1488,7 +1497,7 @@ public class ProductEditorComp extends Composite implements
                                 throw new VizException(msg);
                             }
                             // check if actions are the same
-                            List<String> newActions = new ArrayList<String>();
+                            List<String> newActions = new ArrayList<>();
                             for (ActiveTableRecord r : activeRecs) {
                                 // need to change the action to CON if
                                 // the end time did not change
@@ -1542,7 +1551,7 @@ public class ProductEditorComp extends Composite implements
                 String phensig = vtecTokens[3] + vtecTokens[4];
                 Map<String, Integer> times = newYearETNs.get(phensig);
                 if (times == null) {
-                    times = new HashMap<String, Integer>();
+                    times = new HashMap<>();
                 }
                 boolean match = false;
                 final TimeRange tr1 = new TimeRange(vtecStart, vtecEnd);
@@ -1617,9 +1626,9 @@ public class ProductEditorComp extends Composite implements
     private Date decodeVTECTime(String vt) throws ParseException {
         if (!vt.equals(ZERO_VTEC)) {
             return vtecTimeFmt.parse(vt);
-        } else {
-            return null;
         }
+
+        return null;
     }
 
     /*
@@ -1644,8 +1653,8 @@ public class ProductEditorComp extends Composite implements
             try {
                 startTime = vtecTimeFmt.parse(st);
                 endTime = vtecTimeFmt.parse(et);
-            } catch (Exception e) {
-
+            } catch (ParseException e) {
+                statusHandler.error("Error parsing time range", e);
             }
         }
 
@@ -1728,9 +1737,9 @@ public class ProductEditorComp extends Composite implements
     private String guessTDBPil() {
         if (textdbPil != null) {
             return textdbPil;
-        } else {
-            return "cccnnnxxx";
         }
+
+        return "cccnnnxxx";
     }
 
     private void parseIDs() {
@@ -1898,7 +1907,7 @@ public class ProductEditorComp extends Composite implements
             return null;
         }
 
-        List<String> purgeTimeStrs = new ArrayList<String>();
+        List<String> purgeTimeStrs = new ArrayList<>();
         List<SegmentData> segArray = pds.getSegmentsArray();
         for (SegmentData sd : segArray) {
             HashMap<String, TextIndexPoints> segMap = sd.getSementMap();
@@ -1915,7 +1924,7 @@ public class ProductEditorComp extends Composite implements
         }
 
         // remove duplicates
-        Set<String> timeStrings = new HashSet<String>(purgeTimeStrs);
+        Set<String> timeStrings = new HashSet<>(purgeTimeStrs);
 
         // get largest value
         long maxPurgeTime = 0L;
@@ -1961,12 +1970,12 @@ public class ProductEditorComp extends Composite implements
             throws ParseException {
         if (day.equals("000000") && time.equals("0000")) {
             return new Date(0);
-        } else {
-            String timeString = day + time;
-            SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmm");
-            formatter.setTimeZone(gmtTimeZone);
-            return formatter.parse(timeString);
         }
+
+        String timeString = day + time;
+        SimpleDateFormat formatter = new SimpleDateFormat("yyMMddHHmm");
+        formatter.setTimeZone(gmtTimeZone);
+        return formatter.parse(timeString);
     }
 
     /**
@@ -2227,6 +2236,7 @@ public class ProductEditorComp extends Composite implements
                                 }
                             }
                         } catch (ParseException e) {
+                            statusHandler.error("Error parsing time", e);
                         }
                     }
                 }
@@ -2278,7 +2288,7 @@ public class ProductEditorComp extends Composite implements
 
         InputDialog dlg = new InputDialog(getShell(), "Read AWIPS TextDB",
                 "AWIPS Product ID", initialValue, null);
-        if (dlg.open() != InputDialog.OK) {
+        if (dlg.open() != Window.OK) {
             return;
         }
         String pid = dlg.getValue();
@@ -2379,13 +2389,13 @@ public class ProductEditorComp extends Composite implements
         int autoWrite = 0;
         Object autoWrite_obj = productDefinition.get("autoWrite");
         if (autoWrite_obj != null) {
-            autoWrite = (Integer) autoWrite_obj;
+            autoWrite = ((Number) autoWrite_obj).intValue();
         }
 
         int autoStore = 0;
         Object autoStore_obj = productDefinition.get("autoStore");
         if (autoStore_obj != null) {
-            autoStore = (Integer) autoStore_obj;
+            autoStore = ((Number) autoStore_obj).intValue();
         }
 
         if (autoWrite == 1) {
@@ -2439,9 +2449,9 @@ public class ProductEditorComp extends Composite implements
         if (productDefinition.get("outputFile") != null) {
             String basename = new File(getDefString("outputFile")).getName();
             return basename;
-        } else {
-            return guessTDBPil();
         }
+
+        return guessTDBPil();
     }
 
     /**
@@ -2776,16 +2786,19 @@ public class ProductEditorComp extends Composite implements
     public ImageRegistry getImageRegistry() {
         if (registry == null) {
             registry = new ImageRegistry();
-            registry.put("transmitDisabled", Activator
-                    .imageDescriptorFromPlugin(Activator.PLUGIN_ID,
-                            "icons/transmitDisabled.gif"));
-            registry.put("transmitLive", Activator.imageDescriptorFromPlugin(
-                    Activator.PLUGIN_ID, "icons/transmitLive.gif"));
-            registry.put("checkmark", Activator.imageDescriptorFromPlugin(
-                    Activator.PLUGIN_ID, "icons/checkmark.gif"));
-            registry.put("yieldsign", Activator.imageDescriptorFromPlugin(
-                    Activator.PLUGIN_ID, "icons/yieldsign.gif"));
-            registry.put("stopsign", Activator.imageDescriptorFromPlugin(
+            registry.put("transmitDisabled",
+                    AbstractUIPlugin.imageDescriptorFromPlugin(
+                            Activator.PLUGIN_ID, "icons/transmitDisabled.gif"));
+            registry.put("transmitLive",
+                    AbstractUIPlugin.imageDescriptorFromPlugin(
+                            Activator.PLUGIN_ID, "icons/transmitLive.gif"));
+            registry.put("checkmark",
+                    AbstractUIPlugin.imageDescriptorFromPlugin(
+                            Activator.PLUGIN_ID, "icons/checkmark.gif"));
+            registry.put("yieldsign",
+                    AbstractUIPlugin.imageDescriptorFromPlugin(
+                            Activator.PLUGIN_ID, "icons/yieldsign.gif"));
+            registry.put("stopsign", AbstractUIPlugin.imageDescriptorFromPlugin(
                     Activator.PLUGIN_ID, "icons/stopsign.gif"));
         }
 
@@ -2836,13 +2849,6 @@ public class ProductEditorComp extends Composite implements
         return testVTEC;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
-     * notificationArrived
-     * (com.raytheon.uf.common.jms.notification.NotificationMessage[])
-     */
     @Override
     public void notificationArrived(NotificationMessage[] messages) {
         for (NotificationMessage msg : messages) {
@@ -3094,12 +3100,6 @@ public class ProductEditorComp extends Composite implements
             setSystem(true);
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
-         * IProgressMonitor)
-         */
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             if (monitor.isCanceled()) {

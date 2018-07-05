@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -36,30 +36,31 @@ import com.raytheon.uf.viz.xy.graph.axis.LinearAxisPlacer;
 import com.raytheon.uf.viz.xy.graph.axis.LogarithmicAxisPlacer;
 import com.raytheon.uf.viz.xy.graph.labeling.IGraphLabel;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScale.ScaleType;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
 import com.raytheon.uf.viz.xy.timeheight.rsc.AbstractTimeHeightResource;
-import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.slice.request.HeightScale.ScaleType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * 
+ *
  * The background graph for a time height display
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jul 03, 2010            bsteffen    Initial creation
  * Jun 18, 2014 3242       njensen     Null safety checks
  * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
- * 
+ * Jul 18, 2017 6048       mapeters    Handle rare case where resources have no
+ *                                     datatimes in constructVirtualExtent()
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
- * @version 1.0
  */
 public class TimeHeightGraph extends AbstractGraph {
 
@@ -73,16 +74,9 @@ public class TimeHeightGraph extends AbstractGraph {
      */
     public TimeHeightGraph(XyGraphDescriptor descriptor) {
         super(descriptor);
-        xLabels = new ArrayList<IGraphLabel<DataTime>>();
+        xLabels = new ArrayList<>();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.graph.AbstractGraph#canHandleResoruce(com.raytheon
-     * .uf.viz.xy.map.rsc.IGraphableResource)
-     */
     @Override
     protected boolean canHandleResoruce(IGraphableResource<?, ?> rsc) {
         return rsc instanceof AbstractTimeHeightResource;
@@ -96,18 +90,21 @@ public class TimeHeightGraph extends AbstractGraph {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#constructVirtualExtent()
-     */
     @Override
     protected void constructVirtualExtent() {
         xLabels.clear();
-        double[] minMaxX = new double[2];
         getRangeData(xLabels, new ArrayList<IGraphLabel<Double>>());
-        minMaxX[0] = xLabels.get(0).getDiscreteValue();
-        minMaxX[1] = xLabels.get(xLabels.size() - 1).getDiscreteValue();
+
+        double minX, maxX;
+        if (!xLabels.isEmpty()) {
+            minX = xLabels.get(0).getDiscreteValue();
+            maxX = xLabels.get(xLabels.size() - 1).getDiscreteValue();
+        } else {
+            // Arbitrary values, won't have any effect since there is no data
+            minX = 0;
+            maxX = 1;
+        }
+
         HeightScale heightScale = ((TimeHeightDescriptor) descriptor)
                 .getHeightScale();
         if (heightScale.getScale() == ScaleType.LOG) {
@@ -117,23 +114,19 @@ public class TimeHeightGraph extends AbstractGraph {
             xAxisPlacer = new LinearAxisPlacer(graphExtent.getHeight(),
                     heightScale.getMinVal(), heightScale.getMaxVal());
         }
-        if (((TimeHeightDescriptor) descriptor).getTimeDirection() == TimeDirection.LEFT_TO_RIGHT) {
-            yAxisPlacer = new LinearAxisPlacer(graphExtent.getWidth(),
-                    minMaxX[0], minMaxX[1]);
+        if (((TimeHeightDescriptor) descriptor)
+                .getTimeDirection() == TimeDirection.LEFT_TO_RIGHT) {
+            yAxisPlacer = new LinearAxisPlacer(graphExtent.getWidth(), minX,
+                    maxX);
         } else {
-            yAxisPlacer = new LinearAxisPlacer(graphExtent.getWidth(),
-                    minMaxX[1], minMaxX[0]);
+            yAxisPlacer = new LinearAxisPlacer(graphExtent.getWidth(), maxX,
+                    minX);
         }
         updateVirtualExtent();
         newResources = false;
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#createAxes()
-     */
     @Override
     protected void createAxes() {
         if (yAxisPlacer != null && xAxisPlacer != null) {
@@ -156,14 +149,6 @@ public class TimeHeightGraph extends AbstractGraph {
         super.paint(target, paintProps);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.graph.AbstractGraph#paintTitles(com.raytheon.uf
-     * .viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintTitles(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -180,17 +165,9 @@ public class TimeHeightGraph extends AbstractGraph {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.graph.AbstractGraph#paintUnits(com.raytheon.uf
-     * .viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
-    protected void paintUnits(IGraphicsTarget target, PaintProperties paintProps)
-            throws VizException {
+    protected void paintUnits(IGraphicsTarget target,
+            PaintProperties paintProps) throws VizException {
         if (unitsFont == null) {
             unitsFont = target.initializeFont((String) null, 8,
                     new IFont.Style[] {});

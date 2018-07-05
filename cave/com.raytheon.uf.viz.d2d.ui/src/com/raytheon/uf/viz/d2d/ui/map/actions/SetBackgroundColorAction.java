@@ -73,7 +73,7 @@ public class SetBackgroundColorAction extends AbstractRightClickAction {
             dialog = new BackgroundColorDialog(Display.getCurrent()
                     .getActiveShell(), container, mode);
             dialogMap.put(container, dialog);
-            dialog.setCloseCallback(new ICloseCallback() {
+            dialog.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {

@@ -20,7 +20,7 @@ Require-Bundle: org.eclipse.core.runtime,
  gov.noaa.nws.ncep.ui.nsharp;bundle-version="1.0.0",
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.viz.sounding;bundle-version="1.12.1174"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.viz.core.map,
  gov.noaa.nws.ncep.edex.common.sounding

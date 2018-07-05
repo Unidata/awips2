@@ -1,8 +1,5 @@
 package gov.noaa.gsd.viz.ensemble.display.rsc.histogram;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
-import gov.noaa.gsd.viz.ensemble.display.chart.SingleSampleInfo;
-
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,6 +36,9 @@ import com.raytheon.viz.grid.rsc.general.D2DGridResource;
 import com.raytheon.viz.ui.editor.IMultiPaneEditor;
 import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
 
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
+import gov.noaa.gsd.viz.ensemble.display.chart.SingleSampleInfo;
+
 /**
  * D2D ensemble sampling resources, supports all pane sampling and left-click
  * sampling as well. Implement steps: 1) Ensemble text value sampling; 2) Text
@@ -59,15 +59,16 @@ import com.raytheon.viz.ui.input.preferences.MousePreferenceManager;
  * ------------ ---------- ----------- --------------------------
  * July, 2014     5056       jing       Initial creation
  * Jan 12 2016    12301      jing       Added the distribution view tool
+ * Mar 17 2017    19325      jing       Resource group behavior added
  * 
- * </pre>
+ *          </pre>
  */
 
-public class HistogramResource<HistogramResoureData> extends
-        EnsSamplingResource {
+public class HistogramResource<HistogramResoureData>
+        extends EnsSamplingResource {
 
     public enum DisplayMode {
-        POINT_SAMPLING, HISTOGRAM_SAMPLING, COLOR_TEXT_HISTGRAM, GRAPHIC_HISTGRAM
+        POINT_SAMPLING, HISTOGRAM_SAMPLING, COLOR_TEXT_HISTGRAM, GRAPHIC_HISTOGRAM
     }
 
     private String level;
@@ -96,8 +97,8 @@ public class HistogramResource<HistogramResoureData> extends
      *            : a selected histogram display mode
      */
     public HistogramResource(HistogramResourceData histogramResourceData,
-            LoadProperties loadProperties, IDescriptor descriptor,
-            String level, String unit, DisplayMode mode) {
+            LoadProperties loadProperties, IDescriptor descriptor, String level,
+            String unit, DisplayMode mode) {
         super(histogramResourceData, loadProperties);
         this.level = level;
         this.unit = unit;
@@ -113,8 +114,8 @@ public class HistogramResource<HistogramResoureData> extends
         colorable.setColor(color);
     }
 
-    private class D2DMouseAdapter extends
-            EnsSamplingInputAdapter<HistogramResource<?>> {
+    private class D2DMouseAdapter
+            extends EnsSamplingInputAdapter<HistogramResource<?>> {
 
         private static final String INSPECT_PREF_HIST = "com.raytheon.viz.ui.input.inspect.hist";
 
@@ -131,12 +132,6 @@ public class HistogramResource<HistogramResoureData> extends
             super(HistogramResource.this);
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseDown(int,
-         * int, int)
-         */
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
             super.handleMouseDown(x, y, mouseButton);
@@ -172,12 +167,6 @@ public class HistogramResource<HistogramResoureData> extends
             return false;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see com.raytheon.viz.ui.input.IInputHandler#handleMouseUp(int, int,
-         * int)
-         */
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
             super.handleMouseUp(x, y, mouseButton);
@@ -202,24 +191,11 @@ public class HistogramResource<HistogramResoureData> extends
         return new D2DMouseAdapter();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.d2d.core.sampling.ID2DSamplingResource#
-     * setAllPanelSampling(boolean)
-     */
     // @Override
     public void setAllPanelSampling(boolean allPanelSampling) {
         this.allPanelSampling = allPanelSampling;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.d2d.core.sampling.ID2DSamplingResource#isAllPanelSampling
-     * ()
-     */
     public boolean isAllPanelSampling() {
         IDisplayPaneContainer container = getResourceContainer();
         if (container instanceof IMultiPaneEditor) {
@@ -233,14 +209,6 @@ public class HistogramResource<HistogramResoureData> extends
     /**
      * Generate sample histogram text/graphic with grid resources
      */
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * gov.noaa.gsd.viz.ensemble.display.rsc.histogram.EnsSamplingResource#doHover
-     * (com.raytheon.uf.common.geospatial.ReferencedCoordinate,
-     * com.raytheon.uf.viz.core.rsc.ResourceList)
-     */
     @Override
     protected SampleResult doHover(ReferencedCoordinate coord,
             ResourceList resources) throws VizException {
@@ -249,7 +217,7 @@ public class HistogramResource<HistogramResoureData> extends
             result = doHoverSampling(coord, resources);
         } else if (mode == DisplayMode.HISTOGRAM_SAMPLING) {
             result = doHoverText(coord, resources);
-        } else if (mode == DisplayMode.GRAPHIC_HISTGRAM) {
+        } else if (mode == DisplayMode.GRAPHIC_HISTOGRAM) {
             result = doHoverGraphics(coord, resources);
         }
         return result;
@@ -279,8 +247,8 @@ public class HistogramResource<HistogramResoureData> extends
                 String retVal = recursiveHoverSearchSampling(rp, coord);
                 if (retVal != null && retVal.length() > 0) {
                     RGB color = null;
-                    if (rp.getResource().hasCapability(
-                            ColorableCapability.class)) {
+                    if (rp.getResource()
+                            .hasCapability(ColorableCapability.class)) {
                         color = rp.getResource()
                                 .getCapability(ColorableCapability.class)
                                 .getColor();
@@ -300,8 +268,8 @@ public class HistogramResource<HistogramResoureData> extends
                 }
             }
         } catch (Throwable t) {
-            statusHandler.handle(Priority.PROBLEM, "Error sampling resources: "
-                    + t.getLocalizedMessage(), t);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error sampling resources: " + t.getLocalizedMessage(), t);
         }
 
         result.labels = labelList.toArray(new String[labelList.size()]);
@@ -391,8 +359,8 @@ public class HistogramResource<HistogramResoureData> extends
                 }
             }
         } catch (Throwable t) {
-            statusHandler.handle(Priority.PROBLEM, "Error sampling resources: "
-                    + t.getLocalizedMessage(), t);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error sampling resources: " + t.getLocalizedMessage(), t);
         }
 
         TextHistogram textHistogram = new TextHistogram(false);
@@ -479,8 +447,8 @@ public class HistogramResource<HistogramResoureData> extends
                 }
             }
         } catch (Throwable t) {
-            statusHandler.handle(Priority.PROBLEM, "Error sampling resources: "
-                    + t.getLocalizedMessage(), t);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error sampling resources: " + t.getLocalizedMessage(), t);
         }
 
         // Create the data information
@@ -494,8 +462,8 @@ public class HistogramResource<HistogramResoureData> extends
         String location = String.format(" %s%s %s%s", lat, y >= 0 ? "N" : "S",
                 lon, x >= 0 ? "E" : "W");
 
-        SingleSampleInfo info = new SingleSampleInfo(" ", location, level,
-                unit, values);
+        SingleSampleInfo info = new SingleSampleInfo(" ", location, level, unit,
+                values);
 
         /**
          * Pass sampled data into the distribution view GUI, to update the
@@ -524,7 +492,10 @@ public class HistogramResource<HistogramResoureData> extends
      * @param resources
      * @return selected resources
      */
-    private ResourceList filterResource(ResourceList resources) {
+    private ResourceList filterResource(IDescriptor descriptor) {
+
+        ResourceList resources = EnsembleTool.getInstance()
+                .getActiveResourceList();
         ResourceList filteredlist = new ResourceList();
 
         try {
@@ -540,8 +511,10 @@ public class HistogramResource<HistogramResoureData> extends
         int size = resources.size();
         for (int i = size - 1; i >= 0; --i) {
             ResourcePair rp = resources.get(i);
-            if (matchRscs.contains(rp.getResource()))
+            if (matchRscs.contains(rp.getResource())
+                    && descriptor.equals(rp.getResource().getDescriptor())) {
                 filteredlist.add(rp);
+            }
         }
 
         return filteredlist;
@@ -568,20 +541,13 @@ public class HistogramResource<HistogramResoureData> extends
     public String getName() {
         if (mode == DisplayMode.POINT_SAMPLING) {
             return level + " " + unit + " Ensemble Sampling";
-        } else if (mode == DisplayMode.GRAPHIC_HISTGRAM) {
+        } else if (mode == DisplayMode.GRAPHIC_HISTOGRAM) {
             return level + " " + unit + " Distribution Viewer";
         } else {
             return level + " " + unit + " Histogram Text";
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see gov.noaa.gsd.viz.ensemble.display.rsc.histogram.EnsSamplingResource#
-     * paintInternal(com.raytheon.uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -597,11 +563,11 @@ public class HistogramResource<HistogramResoureData> extends
 
         if (isAllPanelSampling() == false) {
 
-            hoverFont.setMagnification(getCapability(
-                    MagnificationCapability.class).getMagnification()
-                    .floatValue());
+            hoverFont.setMagnification(
+                    getCapability(MagnificationCapability.class)
+                            .getMagnification().floatValue());
             SampleResult result = doHover(sampleCoord,
-                    filterResource(descriptor.getResourceList()));
+                    filterResource(descriptor));
             paintResult(target, paintProps, sampleCoord, result);
 
             return;
@@ -626,13 +592,13 @@ public class HistogramResource<HistogramResoureData> extends
 
         IDisplayPane[] panes = container.getDisplayPanes();
         if (panes.length == 4) {
-            // Awips1 puts four panels in the wrong order.
-            panes = new IDisplayPane[] { panes[0], panes[1], panes[3], panes[2] };
+            // AWIPS2 puts four panels in the wrong order.
+            panes = new IDisplayPane[] { panes[0], panes[1], panes[3],
+                    panes[2] };
         }
 
         for (IDisplayPane pane : panes) {
-            ResourceList rscList = filterResource(pane.getDescriptor()
-                    .getResourceList());
+            ResourceList rscList = filterResource(pane.getDescriptor());
             for (ResourcePair pair : rscList) {
                 if (pair.getResource() == null
                         || !pair.getProperties().isVisible()) {

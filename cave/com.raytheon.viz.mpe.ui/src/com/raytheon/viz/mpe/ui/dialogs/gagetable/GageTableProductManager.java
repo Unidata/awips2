@@ -35,7 +35,8 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 1, 2009  2476      mpduff     Initial creation
+ * Jun 01, 2009  2476      mpduff      Initial creation
+ * Mar 01, 2017  6158      mpduff      Changed how sorting works.
  * 
  * </pre>
  * 
@@ -71,29 +72,29 @@ public class GageTableProductManager {
     public static final String MPE_SRGMOSAIC = "SRGMOSAIC";
 
     public static final String MPE_P3LMOSAIC = "P3LMOSAIC";
-    
-    //-------------------------------------------
+
+    // -------------------------------------------
     // Dual Pol Fields
-    
+
     public static final String MPE_RDMOSAIC = "RDMOSAIC";
-    
+
     public static final String MPE_BDMOSAIC = "BDMOSAIC";
-    
+
     public static final String MPE_MDMOSAIC = "MDMOSAIC";
-    
+
     public static final String MPE_LDMOSAIC = "LDMOSAIC";
-    
+
     public static final String MPE_MLDMOSAIC = "MLDMOSAIC";
-    
+
     public static final String MPE_AVGRDMOSAIC = "AVGRDMOSAIC";
-    
+
     public static final String MPE_MAXRDMOSAIC = "MAXRDMOSAIC";
-    
+
     public static final String MPE_SRDMOSAIC = "SRDMOSAIC";
-    
+
     public static final String MPE_SRDGMOSAIC = "SRDGMOSAIC";
-    
-    //----------------------------------------------
+
+    // ----------------------------------------------
 
     public static final String MPE_BESTQPE = "xmrg";
 
@@ -168,13 +169,10 @@ public class GageTableProductManager {
             col.setName(baseColNames[i]);
             col.setDataColumn(false);
             selectedColumns.add(col);
-            System.out.println("Added Base column " + col.getName());
         }
 
         // Copy available to selected since it's the first time
-        for (int i = 0; i < availableGageTableColumnList.size(); i++) {
-            selectedColumns.add(availableGageTableColumnList.get(i));
-        }
+        selectedColumns.addAll(availableGageTableColumnList);
     }
 
     /**
@@ -211,8 +209,8 @@ public class GageTableProductManager {
         column = new GageTableColumn(avgRadarMosaic);
         column.setProductDescriptor(avgRadarMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                avgRadarMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap.put(avgRadarMosaic.getProductFilenamePrefix(),
+                column);
         productNameLookup.put(avgRadarMosaic.getProductName(),
                 avgRadarMosaic.getProductFilenamePrefix());
 
@@ -222,8 +220,8 @@ public class GageTableProductManager {
         column = new GageTableColumn(maxRadarMosaic);
         column.setProductDescriptor(maxRadarMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                maxRadarMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap.put(maxRadarMosaic.getProductFilenamePrefix(),
+                column);
         productNameLookup.put(maxRadarMosaic.getProductName(),
                 maxRadarMosaic.getProductFilenamePrefix());
 
@@ -233,8 +231,8 @@ public class GageTableProductManager {
         column = new GageTableColumn(fieldBiasMosaic);
         column.setProductDescriptor(fieldBiasMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                fieldBiasMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(fieldBiasMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(fieldBiasMosaic.getProductName(),
                 fieldBiasMosaic.getProductFilenamePrefix());
 
@@ -244,8 +242,8 @@ public class GageTableProductManager {
         column = new GageTableColumn(localbiasMosaic);
         column.setProductDescriptor(localbiasMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                localbiasMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(localbiasMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(localbiasMosaic.getProductName(),
                 localbiasMosaic.getProductFilenamePrefix());
 
@@ -255,8 +253,8 @@ public class GageTableProductManager {
         column = new GageTableColumn(gageOnlyAnalysis);
         column.setProductDescriptor(gageOnlyAnalysis);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                gageOnlyAnalysis.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(gageOnlyAnalysis.getProductFilenamePrefix(), column);
         productNameLookup.put(gageOnlyAnalysis.getProductName(),
                 gageOnlyAnalysis.getProductFilenamePrefix());
 
@@ -266,8 +264,8 @@ public class GageTableProductManager {
         column = new GageTableColumn(multiSensorMosaic);
         column.setProductDescriptor(multiSensorMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                multiSensorMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(multiSensorMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(multiSensorMosaic.getProductName(),
                 multiSensorMosaic.getProductFilenamePrefix());
 
@@ -289,8 +287,8 @@ public class GageTableProductManager {
         column = new GageTableColumn(satelllitePrecipField);
         column.setProductDescriptor(satelllitePrecipField);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                satelllitePrecipField.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(satelllitePrecipField.getProductFilenamePrefix(), column);
         productNameLookup.put(satelllitePrecipField.getProductName(),
                 satelllitePrecipField.getProductFilenamePrefix());
 
@@ -309,13 +307,13 @@ public class GageTableProductManager {
 
         GageTableProductDescriptor satelliteRadarMosaic = new GageTableProductDescriptor(
                 "Satellite Radar Mosaic", MPE_SRMOSAIC,
-                "Satellite Radar Mosaic", "mpe_srmosaic_dir", new String[] {
-                        MPE_LSATPRE, MPE_LMOSAIC });
+                "Satellite Radar Mosaic", "mpe_srmosaic_dir",
+                new String[] { MPE_LSATPRE, MPE_LMOSAIC });
         column = new GageTableColumn(satelliteRadarMosaic);
         column.setProductDescriptor(satelliteRadarMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                satelliteRadarMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(satelliteRadarMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(satelliteRadarMosaic.getProductName(),
                 satelliteRadarMosaic.getProductFilenamePrefix());
 
@@ -325,8 +323,8 @@ public class GageTableProductManager {
         column = new GageTableColumn(satelliteGageMosaic);
         column.setProductDescriptor(satelliteGageMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                satelliteGageMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(satelliteGageMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(satelliteGageMosaic.getProductName(),
                 satelliteGageMosaic.getProductFilenamePrefix());
 
@@ -342,101 +340,109 @@ public class GageTableProductManager {
         productNameLookup.put(satelliteRadarGageMosaic.getProductName(),
                 satelliteRadarGageMosaic.getProductFilenamePrefix());
 
-        //----------------------------------------------------------------------
+        // ----------------------------------------------------------------------
         // Dual Pol Fields
-        
-        GageTableProductDescriptor DPradarMosaic= new GageTableProductDescriptor(
+
+        GageTableProductDescriptor DPradarMosaic = new GageTableProductDescriptor(
                 "DP Radar Mosaic", MPE_RDMOSAIC, "DP Radar Mosaic",
                 "mpe_rdmosaic_dir", new String[] { MPE_RMOSAIC, "RDMOSAIC" });
         column = new GageTableColumn(DPradarMosaic);
         column.setProductDescriptor(DPradarMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                DPradarMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap.put(DPradarMosaic.getProductFilenamePrefix(),
+                column);
         productNameLookup.put(DPradarMosaic.getProductName(),
                 DPradarMosaic.getProductFilenamePrefix());
-        
+
         GageTableProductDescriptor DPfieldBiasMosaic = new GageTableProductDescriptor(
-                "DP Field Bias Radar Mosaic", MPE_BDMOSAIC, "DP Field Bias Radar Mosaic",
-                "mpe_bdmosaic_dir", new String[] { MPE_RMOSAIC, "BDMOSAIC" });
+                "DP Field Bias Radar Mosaic", MPE_BDMOSAIC,
+                "DP Field Bias Radar Mosaic", "mpe_bdmosaic_dir",
+                new String[] { MPE_RMOSAIC, "BDMOSAIC" });
         column = new GageTableColumn(DPfieldBiasMosaic);
         column.setProductDescriptor(DPfieldBiasMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                DPfieldBiasMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(DPfieldBiasMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(DPfieldBiasMosaic.getProductName(),
                 DPfieldBiasMosaic.getProductFilenamePrefix());
-        
+
         GageTableProductDescriptor DPlocalBiasMosaic = new GageTableProductDescriptor(
-                "DP Local Bias Radar Mosaic", MPE_LDMOSAIC, "DP Local Bias Radar Mosaic",
-                "mpe_ldmosaic_dir", new String[] { MPE_RMOSAIC, "LDMOSAIC" });
+                "DP Local Bias Radar Mosaic", MPE_LDMOSAIC,
+                "DP Local Bias Radar Mosaic", "mpe_ldmosaic_dir",
+                new String[] { MPE_RMOSAIC, "LDMOSAIC" });
         column = new GageTableColumn(DPlocalBiasMosaic);
         column.setProductDescriptor(DPlocalBiasMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                DPlocalBiasMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(DPlocalBiasMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(DPlocalBiasMosaic.getProductName(),
                 DPlocalBiasMosaic.getProductFilenamePrefix());
-        
+
         GageTableProductDescriptor DPmultiSensorMosaic = new GageTableProductDescriptor(
                 "DP Field Bias Multisensor Radar Mosaic", MPE_MDMOSAIC,
-                "DP Field Bias Multisensor Radar Mosaic",
-                "mpe_mdmosaic_dir", new String[] { MPE_RMOSAIC, "MDMOSAIC" });
+                "DP Field Bias Multisensor Radar Mosaic", "mpe_mdmosaic_dir",
+                new String[] { MPE_RMOSAIC, "MDMOSAIC" });
         column = new GageTableColumn(DPmultiSensorMosaic);
         column.setProductDescriptor(DPmultiSensorMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                DPmultiSensorMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(DPmultiSensorMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(DPmultiSensorMosaic.getProductName(),
                 DPmultiSensorMosaic.getProductFilenamePrefix());
-        
+
         GageTableProductDescriptor DPlocalBiasMultiSensorMosaic = new GageTableProductDescriptor(
-                "DP Local Bias Multisensor Radar Mosaic", MPE_MLDMOSAIC,"DP Local Bias Multisensor Radar Mosaic",
-                "mpe_mldmosaic_dir", new String[] { MPE_RMOSAIC, "MLDMOSAIC" });
+                "DP Local Bias Multisensor Radar Mosaic", MPE_MLDMOSAIC,
+                "DP Local Bias Multisensor Radar Mosaic", "mpe_mldmosaic_dir",
+                new String[] { MPE_RMOSAIC, "MLDMOSAIC" });
         column = new GageTableColumn(DPlocalBiasMultiSensorMosaic);
         column.setProductDescriptor(DPlocalBiasMultiSensorMosaic);
         gageTableColumnList.add(column);
         gageTableProductColumnMap.put(
-                DPlocalBiasMultiSensorMosaic.getProductFilenamePrefix(), column);
+                DPlocalBiasMultiSensorMosaic.getProductFilenamePrefix(),
+                column);
         productNameLookup.put(DPlocalBiasMultiSensorMosaic.getProductName(),
                 DPlocalBiasMultiSensorMosaic.getProductFilenamePrefix());
-        
+
         GageTableProductDescriptor DPavgRadarMosaic = new GageTableProductDescriptor(
                 "DP Avg Radar Mosaic", MPE_AVGRDMOSAIC, "DP Avg Radar Mosaic",
-                "mpe_avgrdmosaic_dir", new String[] { MPE_RMOSAIC, "AVGRDMOSAIC" });
+                "mpe_avgrdmosaic_dir",
+                new String[] { MPE_RMOSAIC, "AVGRDMOSAIC" });
         column = new GageTableColumn(DPavgRadarMosaic);
         column.setProductDescriptor(DPavgRadarMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                DPavgRadarMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(DPavgRadarMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(DPavgRadarMosaic.getProductName(),
                 DPavgRadarMosaic.getProductFilenamePrefix());
-        
+
         GageTableProductDescriptor DPmaxRadarMosaic = new GageTableProductDescriptor(
                 "DP Max Radar Mosaic", MPE_MAXRDMOSAIC, "DP Max Radar Mosaic",
-                "mpe_maxrdmosaic_dir", new String[] { MPE_RMOSAIC, "MAXRDMOSAIC" });
+                "mpe_maxrdmosaic_dir",
+                new String[] { MPE_RMOSAIC, "MAXRDMOSAIC" });
         column = new GageTableColumn(DPmaxRadarMosaic);
         column.setProductDescriptor(DPmaxRadarMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                DPmaxRadarMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(DPmaxRadarMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(DPmaxRadarMosaic.getProductName(),
                 DPmaxRadarMosaic.getProductFilenamePrefix());
-        
+
         GageTableProductDescriptor DPsatelliteRadarMosaic = new GageTableProductDescriptor(
-                "DP Satellite Radar Mosaic", MPE_SRDMOSAIC, "DP Satellite Radar Mosaic",
-                "mpe_srdmosaic_dir", new String[] { MPE_RMOSAIC, "SRDMOSAIC" });
+                "DP Satellite Radar Mosaic", MPE_SRDMOSAIC,
+                "DP Satellite Radar Mosaic", "mpe_srdmosaic_dir",
+                new String[] { MPE_RMOSAIC, "SRDMOSAIC" });
         column = new GageTableColumn(DPsatelliteRadarMosaic);
         column.setProductDescriptor(DPsatelliteRadarMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                DPsatelliteRadarMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(DPsatelliteRadarMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(DPsatelliteRadarMosaic.getProductName(),
                 DPsatelliteRadarMosaic.getProductFilenamePrefix());
-        
+
         GageTableProductDescriptor DPsatelliteRadarGageMosaic = new GageTableProductDescriptor(
-                "DP Satellite Radar Gage Mosaic", MPE_SRDGMOSAIC, "DP Satellite Radar Gage Mosaic",
-                "mpe_srdgmosaic_dir", new String[] { MPE_RMOSAIC, "SRDGMOSAIC" });
+                "DP Satellite Radar Gage Mosaic", MPE_SRDGMOSAIC,
+                "DP Satellite Radar Gage Mosaic", "mpe_srdgmosaic_dir",
+                new String[] { MPE_RMOSAIC, "SRDGMOSAIC" });
         column = new GageTableColumn(DPsatelliteRadarGageMosaic);
         column.setProductDescriptor(DPsatelliteRadarGageMosaic);
         gageTableColumnList.add(column);
@@ -444,9 +450,9 @@ public class GageTableProductManager {
                 DPsatelliteRadarGageMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(DPsatelliteRadarGageMosaic.getProductName(),
                 DPsatelliteRadarGageMosaic.getProductFilenamePrefix());
-   
-        //----------------------------------------------------------------------
-        
+
+        // ----------------------------------------------------------------------
+
         GageTableProductDescriptor traiangulatedRadarMosaic = new GageTableProductDescriptor(
                 "Triangulated Radar Mosaic", MPE_P3LMOSAIC,
                 "Triangulated Radar Mosaic", "mpe_p3lmosaic_dir",
@@ -465,8 +471,8 @@ public class GageTableProductManager {
         column = new GageTableColumn(bestEstimateQPE);
         column.setProductDescriptor(bestEstimateQPE);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                bestEstimateQPE.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(bestEstimateQPE.getProductFilenamePrefix(), column);
         productNameLookup.put(bestEstimateQPE.getProductName(),
                 bestEstimateQPE.getProductFilenamePrefix());
 
@@ -477,20 +483,20 @@ public class GageTableProductManager {
         column = new GageTableColumn(rfcMeanFieldBiasMosaic);
         column.setProductDescriptor(rfcMeanFieldBiasMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                rfcMeanFieldBiasMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(rfcMeanFieldBiasMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(rfcMeanFieldBiasMosaic.getProductName(),
                 rfcMeanFieldBiasMosaic.getProductFilenamePrefix());
 
         GageTableProductDescriptor rfcMultiSensorMosaic = new GageTableProductDescriptor(
                 "RFC Multi-sensor Mosaic", MPE_RFCMMOSAIC,
-                "RFC Multi-sensor Mosaic", "mpe_rfcmmosaic_dir", new String[] {
-                        MPE_RMOSAIC, MPE_RFCBMOSAIC });
+                "RFC Multi-sensor Mosaic", "mpe_rfcmmosaic_dir",
+                new String[] { MPE_RMOSAIC, MPE_RFCBMOSAIC });
         column = new GageTableColumn(rfcMultiSensorMosaic);
         column.setProductDescriptor(rfcMultiSensorMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                rfcMultiSensorMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(rfcMultiSensorMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(rfcMultiSensorMosaic.getProductName(),
                 rfcMultiSensorMosaic.getProductFilenamePrefix());
 
@@ -500,8 +506,8 @@ public class GageTableProductManager {
         column = new GageTableColumn(rfcBestQPEMosaic);
         column.setProductDescriptor(rfcBestQPEMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                rfcBestQPEMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(rfcBestQPEMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(rfcBestQPEMosaic.getProductName(),
                 rfcBestQPEMosaic.getProductFilenamePrefix());
 
@@ -522,20 +528,20 @@ public class GageTableProductManager {
         column = new GageTableColumn(q2LocalBiasMosaic);
         column.setProductDescriptor(q2LocalBiasMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                q2LocalBiasMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(q2LocalBiasMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(q2LocalBiasMosaic.getProductName(),
                 q2LocalBiasMosaic.getProductFilenamePrefix());
 
         GageTableProductDescriptor q2MultiSensorMosaic = new GageTableProductDescriptor(
                 "Q2 Multi-sensor Mosaic", MPE_MLQMOSAIC,
-                "Q2 Multi-sensor Mosaic", "mpe_mlqmosaic_dir", new String[] {
-                        MPE_QMOSAIC, MPE_LQMOSAIC });
+                "Q2 Multi-sensor Mosaic", "mpe_mlqmosaic_dir",
+                new String[] { MPE_QMOSAIC, MPE_LQMOSAIC });
         column = new GageTableColumn(q2MultiSensorMosaic);
         column.setProductDescriptor(q2MultiSensorMosaic);
         gageTableColumnList.add(column);
-        gageTableProductColumnMap.put(
-                q2MultiSensorMosaic.getProductFilenamePrefix(), column);
+        gageTableProductColumnMap
+                .put(q2MultiSensorMosaic.getProductFilenamePrefix(), column);
         productNameLookup.put(q2MultiSensorMosaic.getProductName(),
                 q2MultiSensorMosaic.getProductFilenamePrefix());
     }
@@ -558,10 +564,8 @@ public class GageTableProductManager {
         final String DEFAULT_GENERATE_LIST = MPE_BESTQPE + ", " + MPE_BMOSAIC
                 + "," + MPE_GAGEONLY + "," + MPE_LMOSAIC + "," + MPE_LSATPRE
                 + "," + MPE_MLMOSAIC + "," + MPE_MMOSAIC + "," + MPE_RMOSAIC
-                + "," + MPE_SATPRE 
-                + "," + MPE_RDMOSAIC + "," + MPE_BDMOSAIC + "," + MPE_LDMOSAIC
-                + "," + MPE_MDMOSAIC + "," + MPE_MLDMOSAIC
-                ;
+                + "," + MPE_SATPRE + "," + MPE_RDMOSAIC + "," + MPE_BDMOSAIC
+                + "," + MPE_LDMOSAIC + "," + MPE_MDMOSAIC + "," + MPE_MLDMOSAIC;
 
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
         GageTableColumn productColumn;
@@ -584,16 +588,15 @@ public class GageTableProductManager {
             if (productColumn != null) {
                 addProductToGenerateList(productColumn);
                 // TODO - Log this
-                System.out
-                        .println("getAvailableProductsFromMPEGenerateList(): mpeProduct = "
+                System.out.println(
+                        "getAvailableProductsFromMPEGenerateList(): mpeProduct = "
                                 + productColumn.getProductDescriptor()
                                         .getProductFilenamePrefix());
             } else {
                 // TODO - Log this
-                System.out
-                        .println("getAvailableProductsFromMPEGenerateList(): "
-                                + "Unrecognized mpe_generate_list value "
-                                + product + ".");
+                System.out.println("getAvailableProductsFromMPEGenerateList(): "
+                        + "Unrecognized mpe_generate_list value " + product
+                        + ".");
             }
         }
     }
@@ -633,8 +636,8 @@ public class GageTableProductManager {
         AppsDefaults appsDefaults = AppsDefaults.getInstance();
         GageTableColumn column;
 
-        String generateArealQPE = appsDefaults.getToken(
-                GENERATE_AREAL_QPE_TOKEN, DEFAULT_GENERATE_AREAL_QPE);
+        String generateArealQPE = appsDefaults
+                .getToken(GENERATE_AREAL_QPE_TOKEN, DEFAULT_GENERATE_AREAL_QPE);
 
         if (generateArealQPE.equalsIgnoreCase("ON")) {
             column = gageTableProductColumnMap.get(MPE_RFCMOSAIC);
@@ -672,10 +675,8 @@ public class GageTableProductManager {
         }
     }
 
-    
-    //  Should we add code to handle a DP base radar ????
-    
-    
+    // Should we add code to handle a DP base radar ????
+
     /**
      * Add the product to the generate list.
      * 
@@ -706,20 +707,19 @@ public class GageTableProductManager {
             GageTableProductDescriptor product = column.getProductDescriptor();
             for (int i = 0; i < product.getDependencies().length; i++) {
                 dependency = product.getDependencies()[i];
-                dependentProductColumn = getGageTableProductColumnMap().get(
-                        dependency);
+                dependentProductColumn = getGageTableProductColumnMap()
+                        .get(dependency);
 
                 if (dependentProductColumn != null) {
-                    if (!getAvailableGageTableColumnList().contains(
-                            dependentProductColumn)) {
-                        getAvailableGageTableColumnList().add(
-                                dependentProductColumn);
+                    if (!getAvailableGageTableColumnList()
+                            .contains(dependentProductColumn)) {
+                        getAvailableGageTableColumnList()
+                                .add(dependentProductColumn);
                         checkProductDependencies(dependentProductColumn);
                     }
                 } else {
                     // TODO log this statement
-                    System.out.println("For product "
-                            + product.getProductName()
+                    System.out.println("For product " + product.getProductName()
                             + " unrecognized dependency " + dependency);
                 }
 
@@ -764,7 +764,8 @@ public class GageTableProductManager {
      * @param gageTableProductDescList
      *            the gageTableProductDescList to set
      */
-    public void setGageTableColumnList(List<GageTableColumn> gageTableColumnList) {
+    public void setGageTableColumnList(
+            List<GageTableColumn> gageTableColumnList) {
         this.gageTableColumnList = gageTableColumnList;
     }
 

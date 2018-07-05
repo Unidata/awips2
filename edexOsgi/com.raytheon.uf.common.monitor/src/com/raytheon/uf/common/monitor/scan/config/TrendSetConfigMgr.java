@@ -54,11 +54,11 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Oct 2, 2013   2361      njensen     Use JAXBManager for XML
  * Feb 15, 2016 5244       nabowle     Replace deprecated LocalizationFile methods.
  *                                     Add statusHandler.
+ * Aug 09, 2017 6373       tgurney     Move configs to common_static
  *
  * </pre>
  *
  * @author lvenable
- * @version 1.0
  */
 public class TrendSetConfigMgr {
 
@@ -72,7 +72,6 @@ public class TrendSetConfigMgr {
      * Configuration XML.
      */
     private String configXml = null;
-
 
     /**
      * Trend sets XML.
@@ -100,7 +99,7 @@ public class TrendSetConfigMgr {
      * Initialize method.
      */
     private void init() {
-        trendSetMap = new LinkedHashMap<String, String>();
+        trendSetMap = new LinkedHashMap<>();
         readDefaultConfig();
 
         updateTrendSetHashMap();
@@ -118,8 +117,8 @@ public class TrendSetConfigMgr {
                 trendSets = jaxb.unmarshalFromInputStream(is);
             }
         } catch (Exception e) {
-            statusHandler.handle(Priority.WARN,
-                    "Error reading default config.", e);
+            statusHandler.handle(Priority.WARN, "Error reading default config.",
+                    e);
         }
     }
 
@@ -132,8 +131,8 @@ public class TrendSetConfigMgr {
         ArrayList<SCANTrendSetXML> trendSetArray = trendSets.getTrendSets();
 
         for (int i = 0; i < trendSetArray.size(); i++) {
-            trendSetMap.put(trendSetArray.get(i).getName(), trendSetArray
-                    .get(i).getAttributes());
+            trendSetMap.put(trendSetArray.get(i).getName(),
+                    trendSetArray.get(i).getAttributes());
         }
     }
 
@@ -194,7 +193,7 @@ public class TrendSetConfigMgr {
 
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         ILocalizationFile locFile = pm.getLocalizationFile(context,
                 getFullConfigFileNameStr());
 
@@ -232,7 +231,7 @@ public class TrendSetConfigMgr {
      * @return Array on trend set names.
      */
     public String[] getInvalidAttributeNumber() {
-        ArrayList<String> invalidTrends = new ArrayList<String>();
+        ArrayList<String> invalidTrends = new ArrayList<>();
         Set<String> keys = trendSetMap.keySet();
 
         for (String key : keys) {
@@ -254,7 +253,7 @@ public class TrendSetConfigMgr {
      * @return String array of attributes.
      */
     public String[] getAttributes(String trendName) {
-        if (trendSetMap.containsKey(trendName) == true) {
+        if (trendSetMap.containsKey(trendName)) {
             String[] attrs = trendSetMap.get(trendName).split(",");
             return attrs;
         }
@@ -268,7 +267,7 @@ public class TrendSetConfigMgr {
      * @return Array of trend set names.
      */
     public String[] getTrendSetNames() {
-        ArrayList<String> trendNames = new ArrayList<String>();
+        ArrayList<String> trendNames = new ArrayList<>();
 
         Set<String> keys = trendSetMap.keySet();
 

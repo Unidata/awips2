@@ -48,11 +48,6 @@
       </crossSectionAdapter>
       <crossSectionAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
-            class="com.raytheon.uf.edex.plugin.acarssounding.common.ACARSSoundingRecord"
-            name="Acars Sounding Cross Section Adapter">
-      </crossSectionAdapter>
-      <crossSectionAdapter
-            adapter="com.raytheon.uf.viz.d2d.xy.adapters.crosssection.PointCSAdapter"
             class="com.raytheon.uf.common.dataplugin.bufrua.UAObs"
             name="Raob Cross Section Adapter">
       </crossSectionAdapter>
@@ -84,11 +79,6 @@
       </timeSeriesAdapter>
       <timeSeriesAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
-            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
-            name="Acars Sounding Time Series Adapter">
-      </timeSeriesAdapter>
-      <timeSeriesAdapter
-            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
             class="com.raytheon.uf.common.dataplugin.profiler.ProfilerObs"
             name="Profiler Time Series Adapter">
       </timeSeriesAdapter>
@@ -106,6 +96,11 @@
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
             class="com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord"
             name="Metar Time Series Adapter">
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="com.raytheon.uf.common.dataplugin.ldadmesonet.MesonetLdadRecord"
+            name="Mesonet Time Series Adapter">
       </timeSeriesAdapter>
       <timeSeriesAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
@@ -144,11 +139,6 @@
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
             class="com.raytheon.uf.common.dataplugin.profiler.ProfilerObs"
             name="Profiler Var Height Adapter">
-      </varHeightAdapter>
-      <varHeightAdapter
-            adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.PointDataVarHeightAdapter"
-            class="com.raytheon.uf.common.dataplugin.acarssounding.ACARSSoundingRecord"
-            name="AcarsSounding Var Height Adapter">
       </varHeightAdapter>
       <varHeightAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.varheight.DmdVarHeightAdapter"

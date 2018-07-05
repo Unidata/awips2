@@ -4,7 +4,7 @@ Bundle-Name: Monitor Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.monitor
 Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.common.monitor,
  com.raytheon.uf.common.monitor.config,
@@ -29,7 +29,8 @@ Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.serialization,
  org.springframework;bundle-version="2.5.6",
  com.raytheon.uf.common.status,
- com.raytheon.uf.common.util
+ com.raytheon.uf.common.util,
+ com.raytheon.uf.common.serialization.comm
 Import-Package: com.raytheon.uf.common.datastorage,
  com.raytheon.uf.common.time
 

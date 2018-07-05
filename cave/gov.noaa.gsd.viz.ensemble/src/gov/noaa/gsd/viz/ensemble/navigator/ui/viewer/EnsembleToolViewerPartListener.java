@@ -1,10 +1,10 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
-
 import org.eclipse.ui.IPartListener2;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchPartReference;
+
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
 
 /**
  * The part listener for the EnsembleToolViewer class (ViewPart). The most
@@ -20,6 +20,7 @@ import org.eclipse.ui.IWorkbenchPartReference;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 8, 2014    5056      polster     Initial creation
+ * Nov 12, 2016   19443     polster     Cleaned up commented out code
  * 
  * </pre>
  * 
@@ -37,48 +38,33 @@ public class EnsembleToolViewerPartListener implements IPartListener2 {
     @Override
     public void partActivated(IWorkbenchPartReference partRef) {
         if (isThisPart(partRef)) {
-            // ensembleToolViewer.setFocus();`
+            // Needed only because the interface requires it
         }
     }
 
     @Override
     public void partDeactivated(IWorkbenchPartReference partRef) {
         if (isThisPart(partRef)) {
-            /* TODO */
+            // Needed only because the interface requires it
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPartListener2#partHidden(org.eclipse.ui.
-     * IWorkbenchPartReference)
-     * 
-     * Whenever the ViewPart becomes hidden, then turn off tool layer
-     * editability.
-     */
     @Override
     public void partHidden(IWorkbenchPartReference partRef) {
         if (isThisPart(partRef)) {
-            /* TODO */
+            // Needed only because the interface requires it
         }
     }
 
     /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.IPartListener2#partVisible(org.eclipse.ui.
-     * IWorkbenchPartReference)
-     * 
      * Whenever the ViewPart becomes visible, then, if the user preference is
      * set for it, turn on tool layer editability.
      */
     @Override
     public void partVisible(IWorkbenchPartReference partRef) {
         if (isThisPart(partRef)) {
-            if (EnsembleTool.getInstance().isToolEditable()
-                    && EnsembleTool.getInstance()
-                            .isMakeEditableOnRestorePreference()) {
+            if (EnsembleTool.getInstance().isToolEditable() && EnsembleTool
+                    .getInstance().isMakeEditableOnRestorePreference()) {
                 EnsembleTool.getInstance().setEditable(true);
             }
         }
@@ -87,14 +73,14 @@ public class EnsembleToolViewerPartListener implements IPartListener2 {
     @Override
     public void partClosed(IWorkbenchPartReference partRef) {
         if (isThisPart(partRef)) {
-            /* TODO */
+            EnsembleTool.getInstance().ignorePartActivatedEvent(false);
         }
     }
 
     @Override
     public void partBroughtToTop(IWorkbenchPartReference partRef) {
         if (isThisPart(partRef)) {
-            /* TODO */
+            // Needed only because the interface requires it
         }
     }
 
@@ -102,14 +88,14 @@ public class EnsembleToolViewerPartListener implements IPartListener2 {
     public void partOpened(IWorkbenchPartReference partRef) {
 
         if (isThisPart(partRef)) {
-            /* TODO */
+            // Needed only because the interface requires it
         }
     }
 
     @Override
     public void partInputChanged(IWorkbenchPartReference partRef) {
         if (isThisPart(partRef)) {
-            /* TODO */
+            // Needed only because the interface requires it
         }
     }
 

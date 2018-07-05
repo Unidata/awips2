@@ -50,6 +50,7 @@ import com.raytheon.viz.hydrocommon.textreport.TextReportData.StaffGageData;
  * Apr 25, 2012 14499      wkwock      Refine format, query, etc
  * Nov 06, 2012 15454      wkwock      Fix query for get data from gage table
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Mar  8, 2017 17119      jdeng      E-19 history, gages with end date not listed
  * </pre>
  * 
  * @author mpduff
@@ -357,7 +358,7 @@ public class TextReportDataManager extends HydroDataManager {
     public TextReportData getGageQueryList(String lid) {
         TextReportData data = new TextReportData();
         String gageQuery = "select gbegin, type, owner, remark, maint, gend from gage where lid = '"
-                + lid + "' and gend is null ORDER BY gbegin desc";
+                + lid + "' ORDER BY gbegin desc";
         ArrayList<Object[]> rs = runQuery(gageQuery);
         ArrayList<Gage> gageList = new ArrayList<Gage>();
         int i = 0;
@@ -482,7 +483,8 @@ public class TextReportDataManager extends HydroDataManager {
         TextReportData data = new TextReportData();
 
         // String crestQuery =
-        // "select datcrst, cremark, hw, jam, olddatum, q, stage, suppress, timcrst, prelim from crest where lid = '"
+        // "select datcrst, cremark, hw, jam, olddatum, q, stage, suppress,
+        // timcrst, prelim from crest where lid = '"
         // + lid + "' order by datcrst";
 
         String where = "where lid = '" + lid + "' order by datcrst, timcrst";
@@ -529,8 +531,7 @@ public class TextReportDataManager extends HydroDataManager {
         TextReportData data = new TextReportData();
 
         /* Get the staff gage data */
-        String crestWhere = " where lid = '"
-                + lid
+        String crestWhere = " where lid = '" + lid
                 + "' and ((suppress != 'X') or (suppress is null)) order by stage desc";
         String floodWhere = " where lid = '" + lid + "' order by stage desc";
         ArrayList<Crest> staffCrestList = getCrestList(crestWhere);

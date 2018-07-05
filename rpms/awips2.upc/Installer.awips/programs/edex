@@ -35,7 +35,7 @@
 . /etc/profile.d/awips2.sh
 # directories definitions
 EDEX_PATH=/awips2/edex
-DATA_PATH=/awips2/data
+DATA_PATH=/awips2/database/data
 LOG_PATH=${EDEX_PATH}/logs
 EDEX_ENV_FILE=${EDEX_PATH}/bin/setup.env
 
@@ -62,7 +62,7 @@ edex_status() { # report back edex server on/off status
    echo ''
    echo '[edex status]'
 
-   if [ -d "/awips2/data" ]; then
+   if [ -d "${DATA_PATH}" ]; then
       # CHECK POSTGRES
       postgres_prc=`ps aux | grep postgresql | grep -v grep | grep -v java |awk '{ print $11 }'`
       if [ -z $postgres_prc ]; then

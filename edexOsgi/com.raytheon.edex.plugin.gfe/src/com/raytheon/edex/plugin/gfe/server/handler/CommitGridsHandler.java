@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -28,8 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.exception.GfeConfigurationException;
 import com.raytheon.edex.plugin.gfe.isc.IscSendQueue;
 import com.raytheon.edex.plugin.gfe.isc.IscSendRecord;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
@@ -51,24 +49,28 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * GFE task for commit grids to the official database
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 04/08/08     #875       bphillip    Initial Creation
- * 06/16/09                njensen     Send notifications
- * 09/22/09     3058       rjpeter     Converted to IRequestHandler
- * 03/17/13     1773       njensen     Log performance
- * 06/13/13     2044       randerso    Refactored to use IFPServer
- * 12/15/15     5166       kbisanz     Update logging to use SLF4J
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 08, 2008  875      bphillip  Initial Creation
+ * Jun 16, 2009           njensen   Send notifications
+ * Sep 22, 2009  3058     rjpeter   Converted to IRequestHandler
+ * Mar 17, 2013  1773     njensen   Log performance
+ * Jun 13, 2013  2044     randerso  Refactored to use IFPServer
+ * Dec 15, 2015  5166     kbisanz   Update logging to use SLF4J
+ * Sep 12, 2016  5861     randerso  Remove references to IFPServerConfigManager
+ *                                  which was largely redundant with IFPServer.
+ * Feb 02, 2017  3847     randerso  Converted ISCSendQueue to proper singleton
+ *
  * </pre>
- * 
+ *
  * @author bphillip
- * @version 1.0
  */
-public class CommitGridsHandler extends BaseGfeRequestHandler implements
-        IRequestHandler<CommitGridsRequest> {
+public class CommitGridsHandler extends BaseGfeRequestHandler
+        implements IRequestHandler<CommitGridsRequest> {
     protected final transient Logger logger = LoggerFactory
             .getLogger(getClass());
 
@@ -81,10 +83,9 @@ public class CommitGridsHandler extends BaseGfeRequestHandler implements
             CommitGridsRequest request) throws Exception {
         IFPServer ifpServer = getIfpServer(request);
 
-        ServerResponse<List<GridUpdateNotification>> sr = new ServerResponse<List<GridUpdateNotification>>();
+        ServerResponse<List<GridUpdateNotification>> sr = new ServerResponse<>();
         List<CommitGridRequest> commits = request.getCommits();
         WsId workstationID = request.getWorkstationID();
-        String siteID = request.getSiteID();
         boolean clientSendStatus = false;
         if (!commits.isEmpty()) {
             clientSendStatus = commits.get(0).isClientSendStatus();
@@ -110,9 +111,9 @@ public class CommitGridsHandler extends BaseGfeRequestHandler implements
         if (sr.isOkay()) {
             timer.reset();
             timer.start();
-            List<GridUpdateNotification> changes = new ArrayList<GridUpdateNotification>();
-            ServerResponse<?> ssr = ifpServer.getGridParmMgr().commitGrid(
-                    commits, workstationID, changes);
+            List<GridUpdateNotification> changes = new ArrayList<>();
+            ServerResponse<?> ssr = ifpServer.getGridParmMgr()
+                    .commitGrid(commits, workstationID, changes);
             timer.stop();
             perfLog.logDuration("Publish Grids: GridParmManager.commitGrid",
                     timer.getElapsedTime());
@@ -122,47 +123,40 @@ public class CommitGridsHandler extends BaseGfeRequestHandler implements
                 sr.addNotifications(notification);
             }
 
-            try {
-                // check for sending to ISC
-                timer.reset();
-                timer.start();
-                IFPServerConfig serverConfig = IFPServerConfigManager
-                        .getServerConfig(siteID);
-                String iscrta = serverConfig.iscRoutingTableAddress().get(
-                        "ANCF");
-                if (sr.isOkay() && (iscrta != null)
-                        && serverConfig.sendiscOnPublish() && clientSendStatus
-                        && serverConfig.requestISC()) {
-                    for (GridUpdateNotification change : changes) {
-                        // ensure Official database
-                        if (change.getParmId().getDbId().getModelName()
-                                .equals("Official")
-                                && change.getParmId().getDbId().getDbType()
-                                        .isEmpty()) {
-                            // queue them
-                            IscSendRecord sendReq = new IscSendRecord(
-                                    change.getParmId(),
-                                    change.getReplacementTimeRange(), "",
-                                    serverConfig.sendiscOnPublish());
-                            IscSendQueue.sendToQueue(Arrays.asList(sendReq));
-                        }
+            // check for sending to ISC
+            timer.reset();
+            timer.start();
+            IFPServerConfig serverConfig = ifpServer.getConfig();
+            String iscrta = serverConfig.iscRoutingTableAddress().get("ANCF");
+            if (sr.isOkay() && (iscrta != null)
+                    && serverConfig.sendiscOnPublish() && clientSendStatus
+                    && serverConfig.requestISC()) {
+                for (GridUpdateNotification change : changes) {
+                    // ensure Official database
+                    if ("Official"
+                            .equals(change.getParmId().getDbId().getModelName())
+                            && change.getParmId().getDbId().getDbType()
+                                    .isEmpty()) {
+                        // queue them
+                        IscSendRecord sendReq = new IscSendRecord(
+                                change.getParmId(),
+                                change.getReplacementTimeRange(), "",
+                                serverConfig.sendiscOnPublish());
+                        IscSendQueue.getInstance()
+                                .sendToQueue(Arrays.asList(sendReq));
                     }
                 }
-                timer.stop();
-                perfLog.logDuration(
-                        "Publish Grids: Queueing ISC send requests",
-                        timer.getElapsedTime());
-            } catch (GfeConfigurationException e1) {
-                logger.error("Unable to get server configuration for site ["
-                        + siteID + "]", e1);
             }
+            timer.stop();
+            perfLog.logDuration("Publish Grids: Queueing ISC send requests",
+                    timer.getElapsedTime());
         }
         if (sr.isOkay()) {
             try {
                 timer.reset();
                 timer.start();
-                ServerResponse<?> notifyResponse = SendNotifications.send(sr
-                        .getNotifications());
+                ServerResponse<?> notifyResponse = SendNotifications
+                        .send(sr.getNotifications());
                 if (!notifyResponse.isOkay()) {
                     for (ServerMsg msg : notifyResponse.getMessages()) {
                         sr.addMessage(msg.getMessage());
@@ -195,8 +189,8 @@ public class CommitGridsHandler extends BaseGfeRequestHandler implements
 
     private ServerResponse<?> lockCheckForCommit(CommitGridRequest request,
             WsId workstationID, LockManager lockMgr) {
-        ServerResponse<Object> sr = new ServerResponse<Object>();
-        List<LockTable> lockTables = new ArrayList<LockTable>();
+        ServerResponse<Object> sr = new ServerResponse<>();
+        List<LockTable> lockTables = new ArrayList<>();
         LockTableRequest lockTableRequest = null;
 
         // make the request and get the lock tables
@@ -211,10 +205,10 @@ public class CommitGridsHandler extends BaseGfeRequestHandler implements
         if (sr.isOkay()) {
             for (int j = 0; j < lockTables.size(); j++) {
                 if (lockTables.get(j).anyLocked(request.getTimeRange())) {
-                    sr.addMessage("Data locked in commitTimeRange - commit failed commitTR="
-                            + request.getTimeRange()
-                            + " locks="
-                            + lockTables.get(j));
+                    sr.addMessage(
+                            "Data locked in commitTimeRange - commit failed commitTR="
+                                    + request.getTimeRange() + " locks="
+                                    + lockTables.get(j));
                 }
             }
         } else {

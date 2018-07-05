@@ -18,7 +18,14 @@
 # further licensing information.
 ##
 
-from com.raytheon.edex.uengine.tasks.query import LatestTimeQuery
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Latest time query wrapper 
@@ -31,6 +38,11 @@ from com.raytheon.edex.uengine.tasks.query import LatestTimeQuery
 #    04/14/08                      njensen       Initial Creation.
 #    
 # 
+
+
+
+from com.raytheon.edex.uengine.tasks.query import LatestTimeQuery
+
 
 class LatestTime():
     def __init__(self, uriList):

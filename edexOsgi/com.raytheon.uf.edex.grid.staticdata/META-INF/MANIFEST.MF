@@ -4,7 +4,7 @@ Bundle-Name: Grid Static Data
 Bundle-SymbolicName: com.raytheon.uf.edex.grid.staticdata
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: javax.measure,
  com.raytheon.uf.common.dataplugin.grid;bundle-version="1.13.0",
  com.raytheon.uf.edex.plugin.grid,

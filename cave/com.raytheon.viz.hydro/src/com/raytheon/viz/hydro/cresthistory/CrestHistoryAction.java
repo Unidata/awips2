@@ -81,7 +81,7 @@ public class CrestHistoryAction extends AbstractHandler {
                 crestHistoryDlg = new CrestHistoryDlg(shell,
                         manager.getCurrentLid(), displayString.toString(),
                         false);
-                crestHistoryDlg.setCloseCallback(new ICloseCallback() {
+                crestHistoryDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {

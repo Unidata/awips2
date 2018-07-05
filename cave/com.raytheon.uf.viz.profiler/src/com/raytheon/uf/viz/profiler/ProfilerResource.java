@@ -29,6 +29,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -46,7 +48,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.TextStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -76,23 +77,20 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Feb  10, 2011    8030     bkowal      access to the plots ArrayList is now synchronized
  * Feb  15, 2011    8036     bkowal      magnification only affects the x-axis, wind barbs, and
  *                                       the color bar.
- * ======================================
- * AWIPS2 DR Work
  * 08/10/2012         1035 jkorman     Changed number of 'staffs' from 12 to 13 and changed time
  *                                     display to match AWIPS I.
  * 08/13/2012         1046 jkorman     Changed to load colorMap file.
  * 07/25/2014         3429 mapeters    Updated deprecated drawLine() calls.
- * 08/14/2014         3523 mapeters    Updated deprecated {@link DrawableString#textStyle}
+ * 08/14/2014         3523 mapeters    Updated deprecated DrawableString textStyle
  *                                     assignments.
  * 07/22/2015          688 nabowle     Synchronize plotObjects access.
  * 05/11/2015         5070 randerso    Adjust font sizes for dpi scaling
+ * 01/16/2017         5976 bsteffen    Update Usage of ColorMapLoader
  * 
  * </pre>
  * 
  * @author dhladky
- * @version 1.0
  */
-
 public class ProfilerResource extends
         AbstractVizResource<ProfilerResourceData, ProfilerDescriptor> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -190,8 +188,12 @@ public class ProfilerResource extends
 
         String cmName = null;
         if ((cmName = params.getColorMapName()) != null) {
-            IColorMap colorMap = ColorMapLoader.loadColorMap(cmName);
-            params.setColorMap(colorMap);
+            try {
+                IColorMap colorMap = ColorMapLoader.loadColorMap(cmName);
+                params.setColorMap(colorMap);
+            } catch (ColorMapException e) {
+                throw new VizException(e);
+            }
         }
         // If we failed to load a colorMap, load a default!
         if (params.getColorMap() == null) {

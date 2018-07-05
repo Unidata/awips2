@@ -18,41 +18,49 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
-				<resource>
-					<loadProperties loadWithoutData="false">
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<resourceData xsi:type="vaaResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="vaa" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-					<loadProperties loadWithoutData="false">
-						<capabilities>
-						</capabilities>
-					</loadProperties>
-					<resourceData xsi:type="forecastAshCloudsResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="vaa" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
-			</descriptor>
-		</displays>
-	</displayList>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <capabilities/>
+                    </loadProperties>
+                    <resourceData xsi:type="vaaResourceData"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="vaa"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <capabilities/>
+                    </loadProperties>
+                    <resourceData xsi:type="forecastAshCloudsResourceData"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="vaa"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <timeMatcher xsi:type="d2DTimeMatcher"
+                    deltaFilter="0" forecastFilter="0" />
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

@@ -44,22 +44,24 @@ import java.util.regex.Pattern;
  * 20071203            410 jkorman     JavaDoc complaints.
  * Jul 10, 2009 2191       rjpeter     Added getTtaaii.
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
- * Jun 10, 2016 RM18939 mgamazaychikov Generalize WMOHeader class regular expression for 
+ * Jun 10, 2016 RM18939    mgamazay    Generalize WMOHeader class regular expression for 
  *                                     binary lightning decoding.
- * Aug 8, 2016  DR18939    MPorricelli Update WMO_HEADER pattern to match spaces at end
+ * Aug 08, 2016 DR18939    MPorricelli Update WMO_HEADER pattern to match spaces at end
  *                                     of WMO header
+ * Dec 01, 2016 5970       njensen     Added more groups to header pattern string
+ *                                     
  * </pre>
  * 
  * @author jkorman
- * @version 1
  */
 public class WMOHeader {
 
     public static final String INGEST_FILE_NAME = "ingestfilename";
 
-    public static final String WMO_HEADER = "[A-Z]{3}[A-Z0-9](?:\\d{0,2}|[A-Z]{0,2}) [A-Z0-9]{4} \\d{6}(?: [A-Z]{3})? *[\\r]*\\n";
+    private static final String WMO_HEADER = "([A-Z]{3}[A-Z0-9](?:\\d{0,2}|[A-Z]{0,2}) [A-Z0-9 ]{4} "
+            + "(\\d{6})(?: [A-Z]{3})? *[\\r]*\\n)";
 
-    private static final Pattern WMO_HEADER_PATTERN = Pattern
+    public static final Pattern WMO_HEADER_PATTERN = Pattern
             .compile(WMO_HEADER);
 
     private static final int CCCCGROUP_SIZE = 4;
@@ -383,6 +385,7 @@ public class WMOHeader {
      * 
      * @return The string representation of this WMO header.
      */
+    @Override
     public String toString() {
         return wmoHeader;
     }

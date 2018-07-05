@@ -30,10 +30,8 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.raytheon.uf.common.localization.FileUpdatedMessage;
-import com.raytheon.uf.common.localization.FileUpdatedMessage.FileChangeType;
-import com.raytheon.uf.common.localization.ILocalizationFileObserver;
-import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -43,6 +41,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractNameGenerator;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
@@ -56,15 +55,15 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 3, 2011            mschenke     Initial creation
+ * Nov 1, 2017  6271      bsteffen     Remove localization file listener
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class AdaptivePlotResourceData extends AbstractResourceData implements
-        ILocalizationFileObserver {
+public class AdaptivePlotResourceData extends AbstractResourceData
+        implements ILocalizationPathObserver {
 
     protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AdaptivePlotResourceData.class);
@@ -102,18 +101,23 @@ public class AdaptivePlotResourceData extends AbstractResourceData implements
 
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
+            if (this == obj) {
                 return true;
-            if (obj == null)
+            }
+            if (obj == null) {
                 return false;
-            if (getClass() != obj.getClass())
+            }
+            if (getClass() != obj.getClass()) {
                 return false;
+            }
             PlotObject other = (PlotObject) obj;
             if (id == null) {
-                if (other.id != null)
+                if (other.id != null) {
                     return false;
-            } else if (!id.equals(other.id))
+                }
+            } else if (!id.equals(other.id)) {
                 return false;
+            }
             return true;
         }
 
@@ -133,9 +137,7 @@ public class AdaptivePlotResourceData extends AbstractResourceData implements
     @XmlAttribute
     private String filePath;
 
-    private Set<PlotObject> lastObjects = new HashSet<PlotObject>();
-
-    private LocalizationFile file;
+    private Set<PlotObject> lastObjects;
 
     private String nameKey, addressKey, cityKey, phoneKey;
 
@@ -148,26 +150,31 @@ public class AdaptivePlotResourceData extends AbstractResourceData implements
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#construct(com.raytheon
-     * .uf.viz.core.rsc.LoadProperties,
-     * com.raytheon.uf.viz.core.drawables.IDescriptor)
-     */
+    @Override
+    public void removeChangeListener(IResourceDataChanged listener) {
+        super.removeChangeListener(listener);
+        if (super.dataChangedListeners.isEmpty()) {
+            /*
+             * If no one is listening for changes then it is not necessary to
+             * watch the file anymore.
+             */
+            PathManagerFactory.getPathManager()
+                    .removeLocalizationPathObserver(this);
+            lastObjects = null;
+        }
+    }
+
     @Override
     public synchronized AbstractVizResource<?, ?> construct(
             LoadProperties loadProperties, IDescriptor descriptor)
             throws VizException {
-        if (file == null) {
-            fileUpdated(FileChangeType.ADDED, filePath);
+        if (lastObjects == null) {
+            if (!loadFromFile()) {
+                throw new VizException("Could not load plots from " + filePath);
+            }
+            PathManagerFactory.getPathManager()
+                    .addLocalizationPathObserver(filePath, this);
         }
-
-        if (file == null) {
-            throw new VizException("Could not find file: " + filePath);
-        }
-
         AdaptivePlotResource rsc = new AdaptivePlotResource(this,
                 loadProperties);
         for (PlotObject obj : lastObjects) {
@@ -176,63 +183,58 @@ public class AdaptivePlotResourceData extends AbstractResourceData implements
         return rsc;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
-     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
-     */
     @Override
-    public synchronized void fileUpdated(FileUpdatedMessage message) {
-        fileUpdated(message.getChangeType(), message.getFileName());
+    public void fileChanged(ILocalizationFile file) {
+        /*
+         * We aren't sure if the file we got was deleted or perhaps was a lower
+         * level we can ignore, don't try to figure it out, just reload.
+         */
+        loadFromFile();
     }
 
-    private void fileUpdated(FileChangeType changeType, String filePath) {
-        Set<PlotObject> newObjects = new HashSet<PlotObject>();
-        switch (changeType) {
-        case DELETED:
-        case ADDED: {
-            if (file != null) {
-                file.removeFileUpdatedObserver(this);
-            }
-            // Our old file was deleted, search for file
-            file = PathManagerFactory.getPathManager()
-                    .getStaticLocalizationFile(filePath);
-            if (file != null) {
-                file.addFileUpdatedObserver(this);
-            }
-            break;
-        }
-        }
-
+    /**
+     * Load the plot objects from a localization file.
+     * 
+     * @return true if the file exists and is properly formatted, otherwise
+     *         false.
+     */
+    private boolean loadFromFile() {
+        boolean success = false;
+        Set<PlotObject> lastObjects = this.lastObjects;
+        Set<PlotObject> newObjects = new HashSet<>();
+        ILocalizationFile file = PathManagerFactory.getPathManager()
+                .getStaticLocalizationFile(filePath);
         if (file != null) {
             try {
                 readFile(file, newObjects);
+                success = true;
             } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, "Error reloading "
-                        + file);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error reloading " + file, e);
             }
         }
 
-        fireChangeListeners(ChangeType.DATA_REMOVE,
-                lastObjects.toArray(new PlotObject[lastObjects.size()]));
-        fireChangeListeners(ChangeType.DATA_UPDATE,
-                newObjects.toArray(new PlotObject[newObjects.size()]));
-        lastObjects = newObjects;
+        if (lastObjects != null && !lastObjects.isEmpty()) {
+            fireChangeListeners(ChangeType.DATA_REMOVE,
+                    lastObjects.toArray(new PlotObject[lastObjects.size()]));
+        }
+        if (!newObjects.isEmpty()) {
+            fireChangeListeners(ChangeType.DATA_UPDATE,
+                    newObjects.toArray(new PlotObject[newObjects.size()]));
+        }
+        this.lastObjects = newObjects;
+        return success;
     }
 
-    private void readFile(LocalizationFile file, Collection<PlotObject> plots)
+    private void readFile(ILocalizationFile file, Collection<PlotObject> plots)
             throws VizException {
         String prefix = name;
         nameKey = prefix + "Name";
         addressKey = prefix + "Address";
         cityKey = prefix + "City";
         phoneKey = prefix + "Phone";
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new InputStreamReader(
-                    file.openInputStream()));
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(file.openInputStream()))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.startsWith(ID)) {
@@ -247,16 +249,8 @@ public class AdaptivePlotResourceData extends AbstractResourceData implements
                 }
             }
         } catch (Exception e) {
-            throw new VizException("Error reading file contents for "
-                    + getName(), e);
-        } finally {
-            if (br != null) {
-                try {
-                    br.close();
-                } catch (IOException e) {
-                    // Ignore
-                }
-            }
+            throw new VizException(
+                    "Error reading file contents for " + getName(), e);
         }
     }
 
@@ -277,7 +271,7 @@ public class AdaptivePlotResourceData extends AbstractResourceData implements
             String key = parts[0].trim();
             String value = parts[1].trim();
 
-            if (keyOrder[i].equals(key) == false) {
+            if (!keyOrder[i].equals(key)) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error parsing plot object (" + object.id
                                 + "), expected key, " + keyOrder[i]
@@ -350,18 +344,6 @@ public class AdaptivePlotResourceData extends AbstractResourceData implements
         this.name = name;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object
-     * )
-     */
-    @Override
-    public void update(Object updateData) {
-
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -376,28 +358,37 @@ public class AdaptivePlotResourceData extends AbstractResourceData implements
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         AdaptivePlotResourceData other = (AdaptivePlotResourceData) obj;
         if (filePath == null) {
-            if (other.filePath != null)
+            if (other.filePath != null) {
                 return false;
-        } else if (!filePath.equals(other.filePath))
+            }
+        } else if (!filePath.equals(other.filePath)) {
             return false;
+        }
         if (name == null) {
-            if (other.name != null)
+            if (other.name != null) {
                 return false;
-        } else if (!name.equals(other.name))
+            }
+        } else if (!name.equals(other.name)) {
             return false;
+        }
         if (plotName == null) {
-            if (other.plotName != null)
+            if (other.plotName != null) {
                 return false;
-        } else if (!plotName.equals(other.plotName))
+            }
+        } else if (!plotName.equals(other.plotName)) {
             return false;
+        }
         return true;
     }
 

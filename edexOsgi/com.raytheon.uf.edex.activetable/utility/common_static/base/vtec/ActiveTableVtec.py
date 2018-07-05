@@ -18,8 +18,6 @@
 # further licensing information.
 ##
 
-import copy
-
 #
 # Transforms a list of Java WarningRecords into a Python list of dictionaries
 # that GFE expects for decoded VTEC strings (i.e. the active table)
@@ -31,11 +29,20 @@ import copy
 #    ------------    ----------    -----------    --------------------------
 #    09/19/08                      njensen        Initial Creation.
 #    04/28/2015      #4027         randerso       Expunged Calendar from ActiveTableRecord
-#    
 # 
 #
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
+import copy
+
 import VTECPartners
+
+
 mappedPils = getattr(VTECPartners, "VTEC_MAPPED_PILS", {})
 
 def transformActiveTableToPython(table):

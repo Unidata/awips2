@@ -30,9 +30,9 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.graph.XyGraphDescriptor;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.raytheon.uf.viz.xy.varheight.graph.VarHeightGraph;
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResource;
-import com.raytheon.viz.core.slice.request.HeightScale;
 
 /**
  * TODO Add Description

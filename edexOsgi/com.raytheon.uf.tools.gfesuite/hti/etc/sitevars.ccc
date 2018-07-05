@@ -1,3 +1,9 @@
+####################################################
+# History:
+# 09/15/2017  DR-20302  lshi   make_hti.sh issue in svcbu mode 
+#####################################################
+
+
 # Configuration file for make_hti.sh & kml_legend.sh
 
 GFESUITE_HOME="/awips2/GFESuite"     # Where is GFESuite?
@@ -9,7 +15,7 @@ ARCHIVE="YES"                        # YES, graphics/kml will be archived with
                                      # each run, NO otherwise.
 
 # LDAD setup
-LDADserver="ls1-${site}"             # Name of local rsync server
+LDADserver="ls1"             # Name of local rsync server
 LDADuser="ldad"                      # User on local rsync server
 LDAD_DATA="/data/ldad/hti"           # Directory where output is stored on
                                      # local rsync server

@@ -1184,7 +1184,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                             FilteringDlg.DialogType.TYPE_SOURCE,
                             physicalElementCbo.getItem(physicalElementCbo
                                     .getSelectionIndex()));
-                    typeSourceDlg.setCloseCallback(new ICloseCallback() {
+                    typeSourceDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -1261,7 +1261,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 if (serviceDlg == null) {
                     serviceDlg = new FilteringDlg(shell, "Service Area",
                             FilteringDlg.DialogType.SERVICE_AREA);
-                    serviceDlg.setCloseCallback(new ICloseCallback() {
+                    serviceDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -1305,7 +1305,7 @@ public class PointDataControlDlg extends CaveSWTDialog {
                 if (dataSourceDlg == null) {
                     dataSourceDlg = new FilteringDlg(shell, "Data Source",
                             FilteringDlg.DialogType.DATA_SOURCE);
-                    dataSourceDlg.setCloseCallback(new ICloseCallback() {
+                    dataSourceDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {

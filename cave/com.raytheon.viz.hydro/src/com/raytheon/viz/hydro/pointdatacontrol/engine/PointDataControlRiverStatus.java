@@ -26,30 +26,30 @@ import java.util.Map;
 
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.viz.hydro.pointdatacontrol.PDCConstants;
+import com.raytheon.viz.hydro.pointdatacontrol.PointDataControlManager;
 import com.raytheon.viz.hydro.pointdatacontrol.PDCConstants.QueryMode;
 import com.raytheon.viz.hydro.pointdatacontrol.PDCConstants.TimeModeType;
 import com.raytheon.viz.hydro.pointdatacontrol.PDCConstants.ValueType;
-import com.raytheon.viz.hydro.pointdatacontrol.PointDataControlManager;
 import com.raytheon.viz.hydro.pointdatacontrol.db.PDCDataManager;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.data.GageData;
-import com.raytheon.viz.hydrocommon.data.GageData.ThreatIndex;
 import com.raytheon.viz.hydrocommon.data.RiverStat;
+import com.raytheon.viz.hydrocommon.data.GageData.ThreatIndex;
 import com.raytheon.viz.hydrocommon.pdc.PDCOptionData;
 import com.raytheon.viz.hydrocommon.pdc.PDCRiverOptions;
 
 /**
- * Point Data Control River Status
+ * TODO Add Description
  * 
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 23, 2008            mpduff     Initial creation
- * Jul 28, 2016 4623       skorolev   Cleanup.
  * </pre>
  * 
  * @author mpduff
+ * @version 1.0
  */
 
 public class PointDataControlRiverStatus {
@@ -63,21 +63,13 @@ public class PointDataControlRiverStatus {
 
     private static boolean stageBasisChanged = false;
 
-    private static PointDataControlManager pdcManager = PointDataControlManager
-            .getInstance();
+    private static PointDataControlManager pdcManager = PointDataControlManager.getInstance();
 
-    /**
-     * Processes River Threat Index
-     * 
-     * @param repList
-     * @param forceRetrieval
-     * @return
-     */
-    public static List<GageData> processRiverThreatIndex(
-            List<GageData> repList, boolean forceRetrieval) {
+    public static ArrayList<GageData> processRiverThreatIndex(
+            ArrayList<GageData> repList, boolean forceRetrieval) {
         PDCOptionData pcOptions = PDCOptionData.getInstance();
         PDCDataManager dataManager = PDCDataManager.getInstance();
-        List<GageData> riverStatusList = null;
+        ArrayList<GageData> riverStatusList = null;
         double riverValue;
         double actionValue;
         double floodValue;
@@ -119,51 +111,44 @@ public class PointDataControlRiverStatus {
          * information
          */
         if ((pcOptionsRiver == null) || stageBasisChanged || forceRetrieval) {
-            /*
-             * Call "pc_process_onetime" to retrieve the latest river status
-             * colors
-             */
-            riverStatusList = pdcManager.pcProcessOnetime(pcOptionsRiver);
-
+            /* Call "pc_process_onetime" to retrieve the latest river status
+               colors */
+            riverStatusList = pdcManager
+                    .pcProcessOnetime(pcOptionsRiver);
+            
             if (riverStatusList == null) {
-                /*
-                 * Note that all of the threat indexes should already be set to
-                 * missing ('Z') at this point in the report list. Just exit
-                 * this function. No more work should be required.
-                 */
+                /* Note that all of the threat indexes should already be set to
+                missing ('Z') at this point in the report list. Just exit this
+                function.  No more work should be required. */
                 return repList;
             }
         }
-
+        
         for (int i = 0; i < riverStatusList.size(); i++) {
             GageData gd = riverStatusList.get(i);
             riverStatusMap.put(gd.getLid(), gd);
         }
-
-        /*
-         * For each station in the report list passed into this routine, check
-         * to see if it has a corresponding entry in the river data list. If it
-         * does, then find the flood stage, flood flow, action stage, and action
-         * flow data for the station and determine the threat index.
-         */
+        
+        /* For each station in the report list passed into this routine,
+        check to see if it has a corresponding entry in the river data
+        list.  If it does, then find the flood stage, flood flow, action
+        stage, and action flow data for the station and determine the 
+        threat index. */
         for (int i = 0; i < repList.size(); i++) {
             if (riverStatusMap.containsKey(repList.get(i).getLid())) {
                 /* RiverStatus data are available for this lid */
-                riverValue = riverStatusMap.get(repList.get(i).getLid())
-                        .getValue();
-
+                riverValue = riverStatusMap.get(repList.get(i).getLid()).getValue();
+                
                 if (riverValue != PDCConstants.MISSING_VALUE) {
-                    repList.get(i).setThreatIndex(
-                            ThreatIndex.THREAT_MISSING_STAGE);
-
-                    /*
-                     * Retrieve the river status information for this node. This
-                     * is what colors the icons on the display.
+                    repList.get(i).setThreatIndex(ThreatIndex.THREAT_MISSING_STAGE);
+                    
+                    /* 
+                     * Retrieve the river status information for this node.
+                     * This is what colors the icons on the display. 
                      */
-                    rsInfo = dataManager
-                            .getRiverStatus(repList.get(i).getLid());
+                    rsInfo = dataManager.getRiverStatus(repList.get(i).getLid());
                     if (rsInfo != null) {
-
+                    
                         /* Determine if the station is reporting stage or flow. */
                         if (rsInfo.getPe() != null) {
                             if (rsInfo.getPe().toUpperCase().startsWith("Q")) {
@@ -175,27 +160,20 @@ public class PointDataControlRiverStatus {
                                 floodValue = rsInfo.getFs();
                                 actionValue = rsInfo.getAs();
                             }
-
-                            if ((actionValue != PDCConstants.MISSING_VALUE)
-                                    && (actionValue != 0.0)) {
+                            
+                            if ((actionValue != PDCConstants.MISSING_VALUE) && (actionValue != 0.0)) {
                                 if (riverValue < actionValue) {
-                                    repList.get(i).setThreatIndex(
-                                            ThreatIndex.THREAT_NONE);
+                                    repList.get(i).setThreatIndex(ThreatIndex.THREAT_NONE);
                                 } else {
-                                    repList.get(i).setThreatIndex(
-                                            ThreatIndex.THREAT_ACTION);
+                                    repList.get(i).setThreatIndex(ThreatIndex.THREAT_ACTION);
                                 }
                             }
-
-                            if ((floodValue != PDCConstants.MISSING_VALUE)
-                                    && (floodValue != 0.0)) {
-                                if ((riverValue < floodValue)
-                                        && (actionValue == PDCConstants.MISSING_VALUE)) {
-                                    repList.get(i).setThreatIndex(
-                                            ThreatIndex.THREAT_NONE);
+                            
+                            if ((floodValue != PDCConstants.MISSING_VALUE) && (floodValue != 0.0)) {
+                                if ((riverValue < floodValue) && (actionValue == PDCConstants.MISSING_VALUE)) {
+                                    repList.get(i).setThreatIndex(ThreatIndex.THREAT_NONE);
                                 } else if (riverValue >= floodValue) {
-                                    repList.get(i).setThreatIndex(
-                                            ThreatIndex.THREAT_FLOOD);
+                                    repList.get(i).setThreatIndex(ThreatIndex.THREAT_FLOOD);
                                 }
                             }
                         }
@@ -203,13 +181,10 @@ public class PointDataControlRiverStatus {
                 }
             }
         }
-
+        
         return repList;
     }
 
-    /**
-     * Gets River Options
-     */
     private static synchronized void getRiverOptions() {
         if (!initialized) {
             if (pcOptionsRiver == null) {
@@ -247,8 +222,7 @@ public class PointDataControlRiverStatus {
             /* Time mode settings. The duration is set later in this function. */
             pcOptionsRiver.setTimeMode(TimeModeType.LATEST.getTimeMode());
 
-            pcOptionsRiver
-                    .setValidTime(SimulatedTime.getSystemTime().getTime());
+            pcOptionsRiver.setValidTime(SimulatedTime.getSystemTime().getTime());
 
             pcOptionsRiver.setDurHours(24);
 
@@ -258,12 +232,12 @@ public class PointDataControlRiverStatus {
             pcOptionsRiver.setFilterByDataSource(0);
             pcOptionsRiver.setDataSourceChosenCount(0);
 
-            List<String> al = new ArrayList<String>();
+            ArrayList<String> al = new ArrayList<String>();
             for (int i = 0; i < pcOptionsRiver.getDataSourceChosenCount(); i++) {
                 al.add("dummy");
             }
-            pcOptionsRiver
-                    .setDataSourcesChosen(al.toArray(new String[al.size()]));
+            pcOptionsRiver.setDataSourcesChosen(al
+                    .toArray(new String[al.size()]));
 
             /*
              * data filter settings. get the data for all locations, not just

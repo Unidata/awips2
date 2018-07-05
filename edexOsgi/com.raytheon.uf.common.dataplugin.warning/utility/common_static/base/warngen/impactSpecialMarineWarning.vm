@@ -1,14 +1,15 @@
-######################################################################
-## SPECIAL MARINE WARNING TEMPLATE                                  ##
-## FOR CR IMPACT BASED WARNING INITIATIVE                           ##   
-## CREATED BY PHIL KURIMSKI - WFO GRB                               ##
-## UPDATED PHIL KURIMSKI -- SEP 17 2013 OB13.5.2-4                  ##
-##         EVAN BOOKBINDER -- SEP 18 2013 Implemented config.vm     ##
-##         PHIL KURIMSKI -- JUN 26 2014 OB14.2.2-9 ADDED DSS EVENTS ##
-##         PHIL KURIMSKI -- FEB 18 2015 Implemented updated CTAs    ##
-## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case                  ##
-##         Evan Bookbinder - 9/4/2015 Fixed line of storms grammar  ##
-######################################################################
+#############################################################################
+## SPECIAL MARINE WARNING TEMPLATE                                         ##
+## FOR CR IMPACT BASED WARNING INITIATIVE                                  ##   
+## CREATED BY PHIL KURIMSKI - WFO GRB                                      ##
+## UPDATED PHIL KURIMSKI -- SEP 17 2013 OB13.5.2-4                         ##
+##         EVAN BOOKBINDER -- SEP 18 2013 Implemented config.vm            ##
+##         PHIL KURIMSKI -- JUN 26 2014 OB14.2.2-9 ADDED DSS EVENTS        ##
+##         PHIL KURIMSKI -- FEB 18 2015 Implemented updated CTAs           ##
+## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case                         ##
+##         Evan Bookbinder - 9/4/2015 Fixed line of storms grammar         ##
+##         Phil Kurimski -- JAN 30 2017 Additional Basis options, DCS19347 ##
+#############################################################################
 #parse("config.vm")
 ################################################
 ## Set null variables used in the template
@@ -161,24 +162,25 @@ THIS IS A TEST MESSAGE. ##
 	#set($severeType = "severe")
 	#set($windCTA = "${windType}")
 #end
+#set($windCTA = "#capitalize(${windCTA} 'FIRST')")
 #set($hailTag = "0.00")
 #set($hailCTA = "")
 #if(${list.contains(${bullets}, "smallHail")})
 	#set($hailTag = "<.75")
 	#set($hailType = "small hail")
-	#set($hailCTA = "#commaOrEllipsis()${hailType}")
+	#set($hailCTA = ", ${hailType}")
 #end
 #if(${list.contains(${bullets}, "largeHail")})
 	#set($hailTag = ">.75")
 	#set($hailType = "large hail")
 	#set($severeType = "severe")
-	#set($hailCTA = "#commaOrEllipsis()${hailType}")
+	#set($hailCTA = ", ${hailType}")
 #end
 #if(${list.contains(${bullets}, "destructiveHail")})
 	#set($hailTag = ">2.0")
 	#set($hailType = "large destructive hail")
 	#set($severeType = "severe")
-	#set($hailCTA = "#commaOrEllipsis()${hailType}")
+	#set($hailCTA = ", ${hailType}")
 #end
 #if(${list.contains(${bullets}, "sightedSpout")})
 	#set($spoutTag = "WATERSPOUT...OBSERVED")
@@ -199,18 +201,18 @@ THIS IS A TEST MESSAGE. ##
 	#set($ashfallPath = "volcanic ash")
 	#set($ctaSelected = "YES")
 	#set($ashfallCTA = "Ash is an eye and respiratory irritant and is abrasive. Those with respiratory sensitivities should take extra precautions to minimize exposure. Protect electronics and cover air intakes if ashfall is expected or confirmed. Remove ash from surfaces with water if possible to prevent excessive accumulation.")
-	#set($ashfallInfo = "An ashfall warning means that the volcano is undergoing a major eruption. It is very likely that mariners will be affected by volcanic hazards in the warning areas such as significant debris#commaOrEllipsis()ashfall one quarter inch or greater#commaOrEllipsis()lava#commaOrEllipsis()or lahar and debris flows.")
+	#set($ashfallInfo = "An ashfall warning means that the volcano is undergoing a major eruption. It is very likely that mariners will be affected by volcanic hazards in the warning areas such as significant debris, ashfall one quarter inch or greater, lava, or lahar and debris flows.")
 #end
 #if(${list.contains(${bullets}, "debrisFlow")})
 	#set($debrisflowType = "debris flow")
 	#set($debrisflowPath = "debris flow")
-	#set($debrisflowInfo = "The eruption of the volcano can cause a sudden melting of snow and ice on the mountain. This will result in a torrent of mud#commaOrEllipsis()ash#commaOrEllipsis()rock#commaOrEllipsis()and hot water to flow down the mountain and into the nearby waters.")
+	#set($debrisflowInfo = "The eruption of the volcano can cause a sudden melting of snow and ice on the mountain. This will result in a torrent of mud, ash, rock, and hot water to flow down the mountain and into the nearby waters.")
 #end
 ##################################################################################
 ## Logic to put together the threats based on Wind...Hail and Waterspout sections.
 ##################################################################################
 #if(${spoutType} && ${windType} && ${hailType})
-	#set($threat = "${spoutType}#commaOrEllipsis()${windType}#commaOrEllipsis()and ${hailType}")
+	#set($threat = "${spoutType}, ${windType}, and ${hailType}")
 #elseif(${spoutType} && ${hailType})
 	#set($threat = "${spoutType} and ${hailType}")
 #elseif(${spoutType} && ${windType})
@@ -260,13 +262,13 @@ THIS IS A TEST MESSAGE. ##
 #set($waswere="was")
 #set($stormline = "a ${eventType}")
 #set($pathheader = "The ${eventType}")
-#set($specialEvent = "This ${eventType}")
+#set($specialEvent = "this ${eventType}")
 #set($reportType2 = "The ${eventType} was")
 #if(${stormType} == "line")
 	#set($waswere="were")
 	#set($stormline = "${eventType}s")
 	#set($pathheader = "${eventType}s")
-	#set($specialEvent = "These ${eventType}s")
+	#set($specialEvent = "these ${eventType}s")
 	#set($reportType2 = "The ${eventType}s were")
 #end
 ###########################################################################
@@ -276,7 +278,7 @@ THIS IS A TEST MESSAGE. ##
 	#set($waswere="was")
 	#set($stormline = "a ${eventType}")
 	#set($pathheader = "The ${eventType}")
-	#set($specialEvent = "This ${eventType}")
+	#set($specialEvent = "this ${eventType}")
 	#set($reportType2 = "The ${eventType} was")
 ##	#set($stormType = "")
 #end
@@ -289,7 +291,7 @@ THIS IS A TEST MESSAGE. ##
 	#set($stormline = "an eruption of !** NAME OF VOLCANO**! volcano")
 	#set($pathheader = "The ${volcanoPath}")
 	#set($reportType2 = "The ${volcanoPath} was")
-	#set($specialEvent = "The ${volcanoPath}")
+	#set($specialEvent = "the ${volcanoPath}")
 ##	#set($stormType = "")
 	#set($impacted = "Locations impacted by ${volcanoPath} include...")
 #end
@@ -299,7 +301,7 @@ THIS IS A TEST MESSAGE. ##
 ##########################################################################
 #set($report = "!** YOU DIDN'T SELECT A REPORTER **! ${eventType}")
 #if(${list.contains(${bullets}, "doppler")})
-  #set($source = "Radar indicated.")
+  #set($source = "Radar.")
   #set($capable = "capable of ")
 ##  #set($report = "Doppler radar indicated ${stormline}...${capable}producing ${threat}...")
 #end
@@ -322,8 +324,28 @@ THIS IS A TEST MESSAGE. ##
   #set($source = "Pilot.")
 ##  #set($report = "a pilot reported ${stormline}...${capable}producing ${threat}...") 
 #end
+#if(${list.contains(${bullets}, "coastGuard")})
+  #set($source = "Coast Guard.")
+##  #set($report = "the Coast Guard reported ${stormline}...${capable}producing ${threat}...") 
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")})
+  #set($source = "Law enforcement.")
+##  #set($report = "law enforcement reported ${stormline}...${capable}producing ${threat}...") 
+#end
+#if(${list.contains(${bullets}, "emergencyManagement")})
+  #set($source = "Emergency management.")
+##  #set($report = "emergency management reported ${stormline}...${capable}producing ${threat}...") 
+#end
+#if(${list.contains(${bullets}, "ship")})
+  #set($source = "Ship.")
+##  #set($report = "a ship reported ${stormline}...${capable}producing ${threat}...") 
+#end
+#if(${list.contains(${bullets}, "buoy")})
+  #set($source = "Buoy.")
+##  #set($report = "a buoy reported ${stormline}...${capable}producing ${threat}...") 
+#end
 #if(${list.contains(${bullets}, "satellite")})
-  #set($source = "Satellite imagery indicated.")
+  #set($source = "Satellite imagery.")
   #set($capable = "capable of ")
 ##  #set($report = "satellite imagery indicated ${stormline}...${capable}producing ${threat}...")
 #end
@@ -346,7 +368,7 @@ THIS IS A TEST MESSAGE. ##
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#commaOrEllipsis()${stormline}${spoutThreat} ${waswere} located ##
+, ${stormline}${spoutThreat} ${waswere} located ##
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
 #else
@@ -357,14 +379,14 @@ THIS IS A TEST MESSAGE. ##
 #elseif(${movementSpeed} < ${marineStationary} || ${stationary})
 . ${reportType2} nearly stationary.
 #else
-#commaOrEllipsis()moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
 #end
 
 #############################################
 ######## GENERATE ADDITIONAL REPORTS  #######
 #############################################
 #if(${list.contains(${bullets}, "addlRpt")})
-#set($extraSource = " At !**enter time#commaOrEllipsis()phenomena**! was reported !**enter location**!.")
+#set($extraSource = " At !**enter time, phenomena**! was reported !**enter location**!.")
 #end
 ##########################################################################
 ## Command to parse the impact statements into the template
@@ -450,15 +472,15 @@ Move to safe harbor immediately as gusty winds and high waves are expected.
 #end
 #if(${list.contains(${bullets}, "hailWindsCTA")})
 #if(${stormType} == "line")
-Boaters should seek safe harbor immediately until these storms pass. ${windCTA}${hailCTA}#commaOrEllipsis()high waves#commaOrEllipsis()dangerous lightning#commaOrEllipsis()and heavy rain are possible with these storms. 
+Boaters should seek safe harbor immediately until these storms pass. ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rain are possible with these storms. 
 
 #else
-Boaters should seek safe harbor immediately until this storm passes. ${windCTA}${hailCTA}#commaOrEllipsis()high waves#commaOrEllipsis()dangerous lightning#commaOrEllipsis()and heavy rain are possible with this storm. 
+Boaters should seek safe harbor immediately until this storm passes. ${windCTA}${hailCTA}, high waves, dangerous lightning, and heavy rain are possible with this storm. 
 
 #end
 #end
 #if(${list.contains(${bullets}, "nonThunderstormCTA")})
-Seek safe shelter#commaOrEllipsis()mariners can expect gusty winds and increasing waves.
+Seek safe shelter, mariners can expect gusty winds and increasing waves.
 
 #end
 #if(${list.contains(${bullets}, "waterspoutCTA")})
@@ -472,10 +494,10 @@ Waterspouts can easily overturn boats and create locally hazardous seas. Seek sa
 #end
 #if(${list.contains(${bullets}, "lightningCTA")})
 #if(${stormType} == "line")
-Frequent lightning is occurring with these storms. If caught on the open water stay below deck if possible#commaOrEllipsis()keep away from ungrounded metal objects.
+Frequent lightning is occurring with these storms. If caught on the open water stay below deck if possible, keep away from ungrounded metal objects.
 
 #else
-Frequent lightning is occurring with this storm. If caught on the open water stay below deck if possible#commaOrEllipsis()keep away from ungrounded metal objects.
+Frequent lightning is occurring with this storm. If caught on the open water stay below deck if possible, keep away from ungrounded metal objects.
 
 #end
 #end

@@ -60,6 +60,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Sep 4, 2008				lvenable	Initial creation
  * Apr 19,2013  1790        rferrel     Make dialog non-blocking.
  * Feb 08, 2016 14232       amoore      Expand locarea area column to 500 characters.
+ * 10/20/2017   DR17436     qzhu        HydroBase, River Gage, Desc, Topo field needs more space
  * 
  * </pre>
  * 
@@ -71,6 +72,11 @@ public class DescriptionDlg extends CaveSWTDialog {
      * Maximum characters of affected area.
      */
     private static final int MAX_AFFECTED_AREA_SIZE = 500;
+
+    /**
+     * Maximum number of characters of topography field.
+     */
+    private static final int MAX_TOPOGRAPHY_SIZE = 255;
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DescriptionDlg.class);
@@ -381,7 +387,7 @@ public class DescriptionDlg extends CaveSWTDialog {
         currentTopoText = topoTF.getText();
         ModifyListener listenerT = new ModifyListener() {
             public void modifyText(ModifyEvent e) {
-                if (topoTF.getText().length() > 230) {
+                if (topoTF.getText().length() > MAX_TOPOGRAPHY_SIZE) {
                     topoTF.setText(currentTopoText);
                     shell.getDisplay().beep();
                 } else {

@@ -89,7 +89,7 @@
             editor="com.raytheon.viz.radar.ui.xy.RadarXYEditor">
       </descriptor>
    </extension>
-   <extension point="com.raytheon.uf.viz.core.alterBundle">
+   <extension point="com.raytheon.uf.viz.d2d.core.alterBundle">
    	  <alterBundle class="com.raytheon.viz.radar.ui.RadarAlterBundleContributor"/>
    </extension>
    <extension

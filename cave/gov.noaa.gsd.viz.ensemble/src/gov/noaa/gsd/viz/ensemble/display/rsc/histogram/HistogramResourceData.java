@@ -1,9 +1,5 @@
 package gov.noaa.gsd.viz.ensemble.display.rsc.histogram;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleResourceManager;
-import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -24,6 +20,10 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.viz.grid.rsc.general.D2DGridResource;
 
+import gov.noaa.gsd.viz.ensemble.control.EnsembleResourceIngester;
+import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
+
 /**
  * Construct D2D ensamle Sampling resources and provide data.
  * 
@@ -38,11 +38,11 @@ import com.raytheon.viz.grid.rsc.general.D2DGridResource;
  * ------------ ---------- ----------- --------------------------
  * July, 2014     5056       jing       Initial creation
  * 
- * </pre>
+ *          </pre>
  */
 
-public class HistogramResourceData extends AbstractResourceData implements
-        IInitListener {
+public class HistogramResourceData extends AbstractResourceData
+        implements IInitListener {
 
     private IDescriptor mapDescriptor = null;
 
@@ -98,8 +98,8 @@ public class HistogramResourceData extends AbstractResourceData implements
 
         AbstractVizResource<?, ?> rsc = null;
 
-        rsc = new HistogramResource<HistogramResourceData>(this,
-                loadProperties, descriptor, level, unit, mode);
+        rsc = new HistogramResource<HistogramResourceData>(this, loadProperties,
+                descriptor, level, unit, mode);
 
         resource = (HistogramResource<HistogramResourceData>) rsc;
         resource.registerListener(this);
@@ -153,7 +153,8 @@ public class HistogramResourceData extends AbstractResourceData implements
         // Use frame time instead real data time
         DataTime[] dataTimes = this.mapDescriptor.getFramesInfo()
                 .getFrameTimes();
-        List<DataTime> times = new ArrayList<DataTime>(Arrays.asList(dataTimes));
+        List<DataTime> times = new ArrayList<DataTime>(
+                Arrays.asList(dataTimes));
 
         return times;
     }
@@ -195,11 +196,8 @@ public class HistogramResourceData extends AbstractResourceData implements
         if (level != null && !level.equals("") && unit != null
                 && !unit.equals("")) {
             // Same level and unit case
-            dataHolders = EnsembleResourceManager
-                    .getInstance()
-                    .getResourceList(toolLayer)
-                    .getUserLoadedRscs((IDescriptor) new MapDescriptor(), true,
-                            level, unit);
+            dataHolders = toolLayer.getResourceList()
+                    .getUserLoadedRscs(MapDescriptor.class, true, level, unit);
 
         } else if (unit != null && !unit.equals("")) {
             // TODO: same unit whatever level case
@@ -218,8 +216,8 @@ public class HistogramResourceData extends AbstractResourceData implements
     @Override
     public void inited(AbstractVizResource<?, ?> rsc) {
         // Register to the ensemble resource manager
-        EnsembleResourceManager.getInstance().registerGenerated(
-                (AbstractVizResource<?, ?>) resource);
+        EnsembleResourceIngester.getInstance()
+                .register((AbstractVizResource<?, ?>) resource);
 
     }
 

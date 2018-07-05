@@ -49,8 +49,8 @@ import com.raytheon.viz.grid.rsc.general.GridMemoryManager;
  * ------------ ---------- ----------- --------------------------
  * Jan 5 2014     5056      jing     Initial creation
  * Jan 15 2014    12301     jing     Fixed unit matching
- * 
- * </pre>
+ * Dec 29 2016    19325     jing     Added image flag
+ *          </pre>
  */
 
 public abstract class EnsembleCalculator {
@@ -70,23 +70,19 @@ public abstract class EnsembleCalculator {
     protected DisplayType displayType;
 
     /**
-     * Data unit, comes frome data.
+     * Data unit, comes from data.
      */
-    protected Unit dataUnit = null;
-
-    public void setDataUnit(Unit dataUnit) {
-        this.dataUnit = dataUnit;
-    }
+    protected Unit<?> dataUnit = null;
 
     /**
      * Data display unit as configured
      */
-    protected Unit dispUnit = null;
+    protected Unit<?> dispUnit = null;
 
     /**
-     * Result data unit, defult is from the inputed data unit
+     * Result data unit, default is from the inputed data unit
      */
-    protected Unit resultUnit = null;
+    protected Unit<?> resultUnit = null;
 
     /**
      * Define the display type.
@@ -95,17 +91,26 @@ public abstract class EnsembleCalculator {
         PLANVIEW, TIMESERIES
     }
 
+    /**
+     * Flag if this is an image.
+     */
+    protected boolean isImage = false;
+
     public EnsembleCalculator(Calculation c, DisplayType displayType) {
         calculationType = c;
         this.displayType = displayType;
     }
 
-    public void setDispUnit(Unit dispUnit) {
+    public void setDispUnit(Unit<?> dispUnit) {
         this.dispUnit = dispUnit;
     }
 
-    public Unit getResultUnit() {
+    public Unit<?> getResultUnit() {
         return resultUnit;
+    }
+
+    public void setDataUnit(Unit<?> dataUnit) {
+        this.dataUnit = dataUnit;
     }
 
     /**
@@ -136,6 +141,14 @@ public abstract class EnsembleCalculator {
         return calculationType;
     }
 
+    public boolean isImage() {
+        return isImage;
+    }
+
+    public void setImage(boolean isImage) {
+        this.isImage = isImage;
+    }
+
     /**
      * Calculate grid data for plan view display. The input data may with
      * different geometries, need do the geometry matching process before
@@ -149,10 +162,11 @@ public abstract class EnsembleCalculator {
      *            - loaded grid data of all members in one frame
      * @return - Calculation result grid data
      */
-    public List<GeneralGridData> calculate(List<List<GeneralGridData>> inputData) {
+    public List<GeneralGridData> calculate(
+            List<List<GeneralGridData>> inputData) {
 
-        if (inputData == null || inputData.size() == 0
-                || inputData.get(0) == null || inputData.get(0).size() == 0) {
+        if (inputData == null || inputData.isEmpty() || inputData.get(0) == null
+                || inputData.get(0).isEmpty()) {
             return null;
         }
 
@@ -163,14 +177,14 @@ public abstract class EnsembleCalculator {
          * size of the result is same as any input member.
          * 
          */
-        GeneralGridData[] resaultGridData = new GeneralGridData[inputData
-                .get(0).size()];
+        GeneralGridData[] resultGridData = new GeneralGridData[inputData.get(0)
+                .size()];
 
         /**
          * The data and display units of output are same as input if the result
          * unit is not specified,
          */
-        Unit rUnit = resultUnit;
+        Unit<?> rUnit = resultUnit;
         if (rUnit == null) {
             rUnit = dataUnit;
         }
@@ -199,15 +213,14 @@ public abstract class EnsembleCalculator {
                 }
 
                 // Do Calculation
-                GeneralGridData resultData = GeneralGridData
-                        .createVectorDataUV(geometry,
-                                doGridCalculation(dataU, imax, geometry),
-                                doGridCalculation(dataV, imax, geometry), rUnit);
+                GeneralGridData resultData = GeneralGridData.createVectorDataUV(
+                        geometry, doGridCalculation(dataU, imax, geometry),
+                        doGridCalculation(dataV, imax, geometry), rUnit);
 
                 // To be monitored by GridMemoryManager
                 resultData = GridMemoryManager.getInstance().manage(resultData);
 
-                resaultGridData[k] = resultData;
+                resultGridData[k] = resultData;
 
             } else {
 
@@ -229,11 +242,11 @@ public abstract class EnsembleCalculator {
                 // To be monitored by GridMemoryManager
                 resultData = GridMemoryManager.getInstance().manage(resultData);
 
-                resaultGridData[k] = resultData;
+                resultGridData[k] = resultData;
             }
         }
 
-        return Arrays.asList(resaultGridData);
+        return Arrays.asList(resultGridData);
 
     }
 
@@ -297,7 +310,8 @@ public abstract class EnsembleCalculator {
      *            - loaded grid data of all members in one frame
      * @return-
      */
-    private GridGeometry2D matchGeometry(List<List<GeneralGridData>> inputData) {
+    private GridGeometry2D matchGeometry(
+            List<List<GeneralGridData>> inputData) {
 
         /**
          * Search the biggest one as main geometry, if the members are with
@@ -338,16 +352,15 @@ public abstract class EnsembleCalculator {
 
             for (int i = 0; i < imax; i++) {
 
-                if (geometry.equals(inputData.get(i).get(k).getGridGeometry()) == true) {
+                if (geometry
+                        .equals(inputData.get(i).get(k).getGridGeometry())) {
                     // do nothing for same geometry
                 } else {
 
                     // Do re-projection
                     try {
-                        inputData.get(i).set(
-                                k,
-                                (inputData.get(i).get(k).reproject(geometry,
-                                        bilinear)));
+                        inputData.get(i).set(k, (inputData.get(i).get(k)
+                                .reproject(geometry, bilinear)));
                     } catch (FactoryException | TransformException e) {
                         statusHandler.handle(Priority.PROBLEM,
                                 e.getLocalizedMessage(), e);
@@ -394,7 +407,8 @@ public abstract class EnsembleCalculator {
                         // Remove different object with same valid time
                         if (((DataTime) xlist.get(k)).getValidTime()
                                 .getTimeInMillis() == ((DataTime) (data.get(j)
-                                .getX())).getValidTime().getTimeInMillis()) {
+                                        .getX())).getValidTime()
+                                                .getTimeInMillis()) {
                             matched = true;
                             break;
                         }
@@ -460,10 +474,11 @@ public abstract class EnsembleCalculator {
                     if (data.get(j).getX() == null
                             && data.get(j).getY() == null)
                         continue;
-                    if (((DataTime) xValues[i]).getValidTime().compareTo(
-                            ((DataTime) (data.get(j).getX())).getValidTime()) == 0) {
-                        yValues.add(Float.parseFloat(data.get(j).getY()
-                                .toString()));
+
+                    if (((DataTime) xValues[i]).getValidTime().equals(
+                            ((DataTime) (data.get(j).getX())).getValidTime())) {
+                        yValues.add(Float
+                                .parseFloat(data.get(j).getY().toString()));
 
                         break;
                     }
@@ -478,8 +493,8 @@ public abstract class EnsembleCalculator {
             float[] workValue = new float[yValues.size()];
             for (int k = 0; k < yValues.size(); k++)
                 workValue[k] = (float) yValues.get(k);
-            XYData xy = new XYData(xValues[i], calculatePoint(workValue,
-                    yValues.size()));
+            XYData xy = new XYData(xValues[i],
+                    calculatePoint(workValue, yValues.size()));
 
             dataList.add(xy);
 

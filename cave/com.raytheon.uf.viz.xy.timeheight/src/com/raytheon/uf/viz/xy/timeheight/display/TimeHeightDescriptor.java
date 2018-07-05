@@ -31,9 +31,9 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.xy.graph.IGraph;
 import com.raytheon.uf.viz.xy.graph.XyGraphDescriptor;
 import com.raytheon.uf.viz.xy.map.rsc.IGraphableResource;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.raytheon.uf.viz.xy.timeheight.graph.TimeHeightGraph;
 import com.raytheon.uf.viz.xy.timeheight.rsc.AbstractTimeHeightResource;
-import com.raytheon.viz.core.slice.request.HeightScale;
 
 /**
  * TODO Add Description

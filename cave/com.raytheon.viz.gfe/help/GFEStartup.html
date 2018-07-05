@@ -21,9 +21,8 @@ Table of Contents<br>
 <hr width="100%">
 <h2><a name="cmdline"></a>Command Line Options</h2>
 <p><br>
-<tt>cave.sh [-server hostname:port/services] [-mode TEST|PRACTICE|OPERATIONAL] [-site xxx] 
-[-u user] [-component componentName] [-perspective perspecitiveName] [-noredirect]
-[-consoleLog]<br>
+<tt>cave.sh [-server serverURL] [-mode TEST|PRACTICE|OPERATIONAL] [-site xxx] 
+[-u user] [-component componentName] [-perspective perspecitiveName] [-noredirect]<br>
 <br>
 <table nosave="" border="1" width="100%">
   <tbody>
@@ -33,9 +32,12 @@ Table of Contents<br>
       <td><b>Meaning</b></td>
     </tr>
     <tr>
-      <td>-server hostname:port/services</td>
+      <td>-server serverURL</td>
       <td>YES</td>
-      <td>Overrides the hostname and port settings in the localization preferences.</td>
+      <td>
+          Overrides the http server URL in the localization preferences.<br>
+          The URL should match the HTTP_SERVER setting in /awips2/edex/bin/setup.env of the desired server.
+      </td>
     </tr>
     <tr>
       <td>-mode TEST|PRACTICE|OPERATIONAL</td>
@@ -70,12 +72,6 @@ Table of Contents<br>
       <td>YES</td>
       <td>Causes stdout and stderr to not be redirected but instead display in the terminal window
       for debugging use.</td>
-    </tr>
-    <tr>
-      <td>-consoleLog</td>
-      <td>YES</td>
-      <td>Causes the CAVE log to be output to the console for monitoring/debugging.
-      </td>
     </tr>
   </tbody>
 </table>

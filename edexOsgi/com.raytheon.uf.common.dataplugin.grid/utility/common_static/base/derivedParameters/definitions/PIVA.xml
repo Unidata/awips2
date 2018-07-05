@@ -18,12 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter unit="/s" name="Thermal Wind Vort Adv" abbreviation="PIVA" xmlns:ns2="group">
     <Method levels="MB" name="VorticityAdv">
-        <Field abbreviation="tWindU"/>
-        <Field abbreviation="tWindV"/>
-        <Field abbreviation="dx"/>
-        <Field abbreviation="dy"/>
-        <Field abbreviation="coriolis"/>
+        <Field abbreviation="tWindU" />
+        <Field abbreviation="tWindV" />
+        <Field abbreviation="dx" />
+        <Field abbreviation="dy" />
+        <Field abbreviation="coriolis" />
     </Method>
 </DerivedParameter>

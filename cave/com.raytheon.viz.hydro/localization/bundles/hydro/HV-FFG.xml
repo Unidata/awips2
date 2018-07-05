@@ -18,42 +18,54 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle xmlns:ns2="group">
     <displayList>
-        <displays xsi:type="hydroMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-96.867249 40.47502100000001 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xsi:type="hydroMapRenderableDisplay" scale="CONUS" density="1.0"
+            magnification="1.0" zoomLevel="1.0" mapCenter="-96.867249 40.47502100000001 0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="mapDescriptor">
                 <resource>
-                    <loadProperties xsi:type="ffgGridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                    <loadProperties xsi:type="ffgGridLoadProperties" displayType="IMAGE"
+                        loadWithoutData="false">
                         <capabilities>
-                            <capability xsi:type="colorableCapability" colorAsString="#00ff00"/>
-                            <capability xsi:type="imagingCapability" alpha="1.0" interpolationState="false" brightness="0.8" contrast="1.0"/>
+                            <capability xsi:type="colorableCapability" colorAsString="#00ff00" />
+                            <capability xsi:type="imagingCapability" alpha="1.0"
+                                interpolationState="false" brightness="0.8" contrast="1.0" />
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-                    <properties renderingOrderId="IMAGE_COUNTRY" isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
-                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0"/>
+                    <properties renderingOrderId="IMAGE_COUNTRY" isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                        <pdProps maxDisplayWidth="100000000" minDisplayWidth="0" />
                     </properties>
-                    <resourceData xsi:type="ffgGridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                    <resourceData xsi:type="ffgGridResourceData" retrieveData="true"
+                        isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="${timespan}" constraintType="EQUALS"/>
+                                <constraint constraintValue="${timespan}" constraintType="EQUALS" />
                             </mapping>
                             <mapping key="dataTime.refTime">
-                                <constraint constraintValue="${reftime}" constraintType="EQUALS"/>
+                                <constraint constraintValue="${reftime}" constraintType="EQUALS" />
                             </mapping>
                             <mapping key="info.secondaryId">
-                                <constraint constraintValue="Version0" constraintType="EQUALS"/>
+                                <constraint constraintValue="Version0" constraintType="EQUALS" />
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS" />
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="${model}" constraintType="EQUALS"/>
+                                <constraint constraintValue="${model}" constraintType="EQUALS" />
                             </mapping>
                         </metadataMap>
                     </resourceData>
                 </resource>
-                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ" deltaFilter="0" forecastFilter="0"/>
+                <timeMatcher xsi:type="d2DTimeMatcher" loadMode="VALID_TIME_SEQ"
+                    deltaFilter="0" forecastFilter="0" />
                 <numberOfFrames>12</numberOfFrames>
             </descriptor>
         </displays>

@@ -1,3 +1,8 @@
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
 <!-- Severe Weather Statement configuration -->
 <!-- MODIFIED BY EVAN BOOKBINDER WFO EAX 3-24-2011 - INITIAL REWRITE
                                          4-12-2011 - OB11.4 MODIFICATIONS
@@ -5,21 +10,21 @@
      Mike Dangelo    WFO CTP 9-22-2011 to add in remarks and lines which will allow Zone-based products (Alaska TIM)
      EVAN BOOKBINDER WFO EAX 11-4-2011 removed bulletDefaults that prevented auto selection
      PHIL KURIMSKI   WFO DTX  2-12-2012 OB12.1.1-1 FOR IMPACT BASED TOR/SVR WARNINGS
-     PHIL KURIMSKI   WFO DTX  2-29-2012 OB12.2.1-4 
+     PHIL KURIMSKI   WFO DTX  2-29-2012 OB12.2.1-4
      PHIL KURIMSKI   04-20-2012
      MIKE REGA 5-10-2012 DR 14525 added timeZoneField
                          DR 14691 added feAreaField
-     Evan Bookbinder 09-11-2012 Added settings for locations shapefile   
-                                Added new areaSource object 
+     Evan Bookbinder 09-11-2012 Added settings for locations shapefile
+                                Added new areaSource object
      Phil Kurimski   02-04-2013 OB13.2.1-5 Changed Sig Tor to Considerable
-	 Phil Kurimski   05-20-2013 Added selection for very weak tornadoes and landspouts  
-	 Phil Kurimski   09-19-2013 added geospatialConfig.xml     
+     Phil Kurimski   05-20-2013 Added selection for very weak tornadoes and landspouts
+     Phil Kurimski   09-19-2013 added geospatialConfig.xml
 	 Evan Bookbinder 2-18-2014 corrected supercell CTA typo & added DSSEvents & 2014 IBW impacts
      Evan Bookbinder 2-27-2014 parseStrings for Tornado Emergency and Default CTAs
      Evan Bookbinder 9-5-2014 fixed parseStrings for law enf CTA
      Evan Bookbinder 10-24-2014 fixed parseString for SqLn embedded TOR
-     Evan Bookbinder 6-15-2015 fixed softball and grapefruit hail sizes     
-	 Phil Kurimski   10-20-2015 Added waterspout option to tornado basis               
+     Evan Bookbinder 6-15-2015 fixed softball and grapefruit hail sizes
+     Phil Kurimski   10-20-2015 Added waterspout option to tornado basis
 -->
 <!--
 	Velocity Variables:
@@ -319,7 +324,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** CALL TO ACTIONS (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
   <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
-  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" bulletDefault="true" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
   <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
   <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
   <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
@@ -456,7 +461,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** CALL TO ACTIONS (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
   <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
-  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" bulletDefault="true" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
   <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
   <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
   <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>

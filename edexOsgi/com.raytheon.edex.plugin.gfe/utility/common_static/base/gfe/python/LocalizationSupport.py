@@ -29,6 +29,13 @@
 #                                                 Re-exported Java enums for easier use.
 #    Apr 25, 2015     4952         njensen        Updated for new JEP API
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
 from LockingFile import File
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext

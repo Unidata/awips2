@@ -81,7 +81,7 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * 09 Sep 2013  #2349      lvenable    Fixed Font memory leak.
  * Mar 31, 2014 #2970      lvenable    Put dispose checks in the runAsync calls.
  * May 04, 2016 #5483      dgilling    Removed fixed pixel layouts, code cleanup.
- * 
+ * 09/01/2017   DR20030    qzhu        Show two digits in spinner for hours
  * </pre>
  * 
  * @author lvenable
@@ -399,15 +399,17 @@ public class StationReportingStatusDlg extends CaveJFACEDialog {
         hoursAgoSpnr.setSelection(6);
         hoursAgoSpnr.setMinimum(1);
         hoursAgoSpnr.setEnabled(false);
+
+        GridData gd = new GridData(20, SWT.DEFAULT);
+        hoursAgoSpnr.setLayoutData(gd);
+
         hoursAgoSpnr.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
                 scheduleLoadRecords();
             }
         });
-        hoursAgoSpnr.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false,
-                true));
-
+        
         Label hoursAgoLbl = new Label(topComp, SWT.NONE);
         hoursAgoLbl.setText("Hours Ago");
         listLbl.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, true, true));

@@ -1,14 +1,16 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="fxaCommonDbPluginProperties" class="com.raytheon.uf.edex.database.DatabasePluginProperties">
         <property name="pluginFQN" value="com.raytheon.uf.edex.database" />
         <property name="database" value="fxa" />
         <property name="forceCheck" value="true" />
     </bean>
-    
+
     <bean id="fxaCommonDbRegistered" factory-bean="dbPluginRegistry" factory-method="register">
         <constructor-arg value="com.raytheon.uf.edex.database.fxa" />
         <constructor-arg ref="fxaCommonDbPluginProperties" />
@@ -42,7 +44,7 @@
     <bean id="fxaSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa/hibernate.cfg.xml</value>
+            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa.hibernate.cfg.xml</value>
         </property>
         <property name="databaseSessionConfiguration" ref="fxaDbSessionConfig"/>
     </bean>
@@ -55,7 +57,7 @@
     <bean id="admin_fxaSessionFactory"
         class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa/hibernate.admin.cfg.xml</value>
+            <value>file:///${edex.home}/conf/db/hibernateConfig/fxa.hibernate.admin.cfg.xml</value>
         </property>
         <property name="databaseSessionConfiguration" ref="fxaDbSessionConfig"/>
     </bean>

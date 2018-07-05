@@ -20,7 +20,7 @@ echo usage: `basename $0` filePath fileName schema tableName [AWIPS2_install_dir
     echo "       schema    - database schema, usually mapdata, where the GeoJSON file is to be imported"
     echo "       tableName - database table name where the GeoJSON file is to be imported"
     echo "       AWIPS2_install_dir    - optional special AWIPS2 install directory if not /awips2"
-    echo "       dbUser    - optional database user id, default to awips"
+    echo "       dbUser    - optional database user id, default to awipsadmin"
     echo "       dbPort    - optional database port number"
     echo "       simplev   - optional list of geometry simplification levels to be created"
 }
@@ -43,14 +43,14 @@ else
     PSQLBINDIR=${5}/psql/bin/
 fi
 
-if [ -z "${DB_ADDR}" ] ; then
+if [ -z "${DB_HOST}" ] ; then
     DBHOST=localhost
 else
-    DBHOST="${DB_ADDR}"
+    DBHOST="${DB_HOST}"
 fi
 
 if [ -z "${6}" ] ; then
-    PGUSER=awips
+    PGUSER=awipsadmin
 else
     PGUSER=${6}
 fi

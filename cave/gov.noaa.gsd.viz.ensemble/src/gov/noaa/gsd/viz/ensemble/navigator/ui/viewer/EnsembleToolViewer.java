@@ -1,18 +1,9 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool.EnsembleToolMode;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common.DistributionViewerComposite;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.legend.LegendBrowserComposite;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix.MatrixNavigatorComposite;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix.VizMatrixEditor.MatrixNavigationOperation;
-import gov.noaa.gsd.viz.ensemble.util.EnsembleToolImageStore;
-import gov.noaa.gsd.viz.ensemble.util.GlobalColor;
-import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
+import java.util.List;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabItem;
@@ -22,7 +13,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -36,11 +26,21 @@ import org.eclipse.ui.part.ViewPart;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
-import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.viz.ui.editor.AbstractEditor;
+
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool.EnsembleToolMode;
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool.MatrixNavigationOperation;
+import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common.DistributionViewerComposite;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.legend.LegendBrowserComposite;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix.MatrixNavigatorComposite;
+import gov.noaa.gsd.viz.ensemble.util.EnsembleToolImageStore;
+import gov.noaa.gsd.viz.ensemble.util.GlobalColor;
+import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
 
 /**
  * This class represents the Ensemble Tool navigator widget, which is an RCP
@@ -69,8 +69,8 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * 
  * 5) Allow users to change interactivity behavior via a Preferences control.
  * 
- * 6) Allow users to display meta-information for a selected resource via an
- * Information pane.
+ * Information pane. 6) Allow users to display meta-information for a selected
+ * resource via an
  * 
  * 
  * <pre>
@@ -87,6 +87,10 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * Oct 15, 2015   12565      polster     Decompose this class into sub-components
  * Nov 13, 2015   13211      polster     Initiate the matrix vs legend task
  * Jan 15, 2016   12301      jing        Added distribution feature
+ * Oct 12, 2016   19443      polster     Create matrix contents on first request to open
+ * Mar 01, 2017   19443      polster     Fixed invalid thread access problem on cursor change
+ * Mar 01, 2017   19443      polster     Fixed clear of Matrix navigator problem.
+ * Dec 01, 2017   41520      polster     Added update matrix controls when view is refreshed
  * 
  * </pre>
  * 
@@ -114,8 +118,6 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
 
     private CTabItem itemMatrixTabItem = null;
 
-    private boolean isDisabled = false;
-
     private EnsembleToolViewerPartListener viewPartListener = null;
 
     protected Composite matrixRootContainerComposite = null;
@@ -127,8 +129,6 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
     /**
      * Static members
      */
-    // public static EnsembleToolMode currentToolMode =
-    // EnsembleToolMode.LEGENDS_PLAN_VIEW;
 
     public static final String NAME = "Ensembles";
 
@@ -146,25 +146,17 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
 
     public static int SAMPLING_COLUMN_INDEX = 3;
 
-    public static AbstractVizResource<?, ?> LAST_HIGHLIGHTED_RESOURCE = null;
+    private static Cursor selectionModeCursor = null;
 
-    public static RGB LAST_HIGHLIGHTED_RESOURCE_RGB = null;
+    private static Cursor normalCursor = null;
 
-    public static int LAST_HIGHLIGHTED_RESOURCE_WIDTH = 1;
-
-    public static boolean LAST_HIGHLIGHTED_RESOURCE_OUTLINE_ASSERTED = false;
-
-    public static Cursor selectionModeCursor = null;
-
-    public static Cursor normalCursor = null;
-
-    public static Cursor waitCursor = null;
-
-    // public static ResourceType editorResourceType = ResourceType.PLAN_VIEW;
+    private static Cursor waitCursor = null;
 
     private static boolean isDisposing = false;
 
-    private static boolean viewEditable = true;
+    private static boolean isEditable = true;
+
+    private IToolBarManager toolbarMgr = null;
 
     public EnsembleToolViewer() {
     }
@@ -177,11 +169,13 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
      */
     public void createPartControl(Composite parent) {
 
-        /* the layout of the parent must be a Grid Layout */
-        setupRoot(parent);
+        toolbarMgr = getViewSite().getActionBars().getToolBarManager();
 
         /* fonts, images, and cursors */
         setupResources();
+
+        /* the layout of the parent must be a Grid Layout */
+        setupRoot(parent);
 
         /* this upper sash main tab folder is for all major ET tools */
         createMainToolsTabFolder();
@@ -194,9 +188,6 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
 
         /* create the contents of the Legend Browser tab */
         createLegendToolContents();
-
-        /* create the contents of the Matrix Navigator tab */
-        createMatrixToolContents();
 
         /*
          * Change the toolbar actions and tooltip text depending upon whether
@@ -223,8 +214,8 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
     private void setupRoot(Composite parent) {
 
         rootComposite = new Composite(parent, SWT.NONE);
-        GridData rootComposite_gd = new GridData(SWT.FILL, SWT.FILL, true,
-                true, 1, 1);
+        GridData rootComposite_gd = new GridData(SWT.FILL, SWT.FILL, true, true,
+                1, 1);
         rootComposite.setLayoutData(rootComposite_gd);
 
         /* Set the grid layout for the root of all composites/controls */
@@ -233,7 +224,8 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
         rootComposite_gl.marginWidth = 0;
         rootComposite.setLayout(rootComposite_gl);
 
-        rootComposite.setBackground(GlobalColor.get(GlobalColor.YELLOW));
+        rootComposite.setBackground(parent.getDisplay()
+                .getSystemColor(SWT.COLOR_WIDGET_BACKGROUND));
     }
 
     private void setupResources() {
@@ -246,25 +238,74 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
         smallViewFont = SWTResourceManager.getFont("Dialog", 8, SWT.NONE);
 
         /* Create cursors */
-        selectionModeCursor = rootComposite.getDisplay().getSystemCursor(
-                SWT.CURSOR_HAND);
 
-        normalCursor = rootComposite.getDisplay().getSystemCursor(
-                SWT.CURSOR_ARROW);
+    }
 
-        waitCursor = rootComposite.getDisplay()
-                .getSystemCursor(SWT.CURSOR_WAIT);
+    /* Fixed in association with AWIPS2_GSD repository Issue #29526 */
+    public static Cursor getNormalCursor() {
 
+        if (normalCursor == null) {
+            VizApp.runSync(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (rootComposite != null && !rootComposite.isDisposed()) {
+                        normalCursor = rootComposite.getDisplay()
+                                .getSystemCursor(SWT.CURSOR_ARROW);
+                    }
+                }
+            });
+        }
+        return normalCursor;
+    }
+
+    /* Fixed in association with AWIPS2_GSD repository Issue #29526 */
+    public static Cursor getSelectionCursor() {
+
+        if (selectionModeCursor == null) {
+
+            VizApp.runSync(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (rootComposite != null && !rootComposite.isDisposed()) {
+                        selectionModeCursor = rootComposite.getDisplay()
+                                .getSystemCursor(SWT.CURSOR_HAND);
+                    }
+                }
+            });
+        }
+        return selectionModeCursor;
+    }
+
+    /* Fixed in association with AWIPS2_GSD repository Issue #29526 */
+    public static Cursor getWaitCursor() {
+
+        if (waitCursor == null) {
+            VizApp.runSync(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (rootComposite != null && !rootComposite.isDisposed()) {
+                        waitCursor = rootComposite.getDisplay()
+                                .getSystemCursor(SWT.CURSOR_WAIT);
+
+                    }
+                }
+            });
+
+        }
+        return waitCursor;
     }
 
     private void createLegendToolContents() {
-        legendBrowser = new LegendBrowserComposite(mainToolsTabFolder,
-                SWT.NONE, this, itemLegendsTabItem);
+        legendBrowser = new LegendBrowserComposite(mainToolsTabFolder, SWT.NONE,
+                this, itemLegendsTabItem);
     }
 
     private void createMainToolsTabToolBar() {
-        ensembleToolBar = new EnsembleToolBar(mainToolsTabFolder, SWT.None,
-                this);
+        ensembleToolBar = new EnsembleToolBar(mainToolsTabFolder, toolbarMgr,
+                SWT.None, this);
     }
 
     private void createMainToolsTabFolder() {
@@ -274,14 +315,12 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
          */
         mainToolsTabFolder = new CTabFolder(rootComposite, SWT.NONE);
         mainToolsTabFolder.setFont(viewFont);
-        mainToolsTabFolder.setSelectionBackground(GlobalColor
-                .get(GlobalColor.PALE_DULL_AZURE));
-        mainToolsTabFolder.setTabHeight(42);
+        mainToolsTabFolder.setSelectionBackground(
+                GlobalColor.get(GlobalColor.PALE_LIGHT_AZURE));
+        mainToolsTabFolder.setTabHeight(46);
         mainToolsTabFolder.setBorderVisible(false);
-        mainToolsTabFolder.setFont(SWTResourceManager.getFont("SansSerif", 10,
-                SWT.NONE));
         mainToolsTabFolder
-                .addSelectionListener(new MainToolsTabSelectionListener());
+                .setFont(SWTResourceManager.getFont("SansSerif", 11, SWT.NONE));
 
         GridData mainToolsTabFolder_gd = new GridData(SWT.FILL, SWT.FILL, true,
                 true, 1, 1);
@@ -289,16 +328,17 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
 
         /* Tab item for Legend browse tool */
         itemLegendsTabItem = new CTabItem(mainToolsTabFolder, SWT.NONE);
-        itemLegendsTabItem
-                .setImage(EnsembleToolImageStore.TAB_LEGENDS_ENABLED_UNSELECTED_IMG);
+        itemLegendsTabItem.setText("  Legends  ");
 
         /* Tab item for Matrix navigator tool */
         itemMatrixTabItem = new CTabItem(mainToolsTabFolder, SWT.NONE);
-        itemMatrixTabItem
-                .setImage(EnsembleToolImageStore.TAB_MATRIX_ENABLED_UNSELECTED_IMG);
-
+        itemMatrixTabItem.setText("  Matrix  ");
     }
 
+    /**
+     * Did the user select the Legend or Matrix tab then change the editor and
+     * refresh the tool (this viewer).
+     */
     private void handleChangeInTool() {
 
         mainToolsTabFolder.addSelectionListener(new SelectionAdapter() {
@@ -306,59 +346,66 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
             public void widgetSelected(SelectionEvent e) {
 
                 IDisplayPaneContainer idpc = null;
-                String s = null;
                 if (mainToolsTabFolder.getSelection() == itemLegendsTabItem) {
-                    s = "Legend";
-                    idpc = (IDisplayPaneContainer) EnsembleTool.getInstance()
-                            .getCurrentLegendsToolEditor();
+                    idpc = EnsembleTool.getInstance().getCurrentLegendsEditor();
                 }
                 if (mainToolsTabFolder.getSelection() == itemMatrixTabItem) {
-                    s = "Matrix";
-                    try {
-                        idpc = (IDisplayPaneContainer) matrixNavigator
-                                .getMatrixEditor();
-                    } catch (InstantiationException e1) {
 
-                        MessageDialog.openInformation(rootComposite.getShell(),
-                                "Matrix Editor Error",
-                                "Unable to create the Matrix editor. Returning to the Legend browser.");
+                    /*
+                     * create the contents of the Matrix Navigator tab the first
+                     * time it is requested
+                     */
+                    if (matrixNavigator == null) {
 
-                        mainToolsTabFolder.setSelection(itemLegendsTabItem);
+                        try {
+                            matrixNavigator = new MatrixNavigatorComposite(
+                                    mainToolsTabFolder, SWT.BORDER,
+                                    itemMatrixTabItem);
+                        } catch (InstantiationException ex) {
+                            statusHandler
+                                    .handle(Priority.PROBLEM,
+                                            "Unable to create the Matrix Editor: "
+                                                    + ex.getLocalizedMessage(),
+                                            ex);
+                        }
+                        mainToolsTabFolder.redraw();
+
                     }
+                    idpc = (IDisplayPaneContainer) matrixNavigator
+                            .getMatrixEditor();
+
                 }
 
                 if (idpc != null) {
                     EnsembleTool.getInstance().setEditor(idpc);
                     EnsembleTool.getInstance().refreshTool(true);
-                    EnsembleTool.getInstance().showEditor(
-                            ((AbstractEditor) idpc));
-                } else {
-                    MessageDialog.openInformation(rootComposite.getShell(),
-                            "Editor Error", "Happened in " + s + " mode.");
-
+                    EnsembleTool.getInstance().showEditor(idpc);
                 }
-
             }
-
         });
-
     }
 
+    /**
+     * Set the state of the viewer based on the given tool mode.
+     */
     public void setToolMode(EnsembleTool.EnsembleToolMode mode) {
-        if (mode == EnsembleTool.EnsembleToolMode.LEGENDS_PLAN_VIEW
-                | mode == EnsembleTool.EnsembleToolMode.LEGENDS_TIME_SERIES) {
-            mainToolsTabFolder.setSelection(itemLegendsTabItem);
-            legendBrowser.setToolMode(mode);
-        } else if (mode == EnsembleTool.EnsembleToolMode.MATRIX) {
-            mainToolsTabFolder.setSelection(itemMatrixTabItem);
-        }
-        ensembleToolBar.setToolbarMode(mode);
-    }
 
-    private void createMatrixToolContents() {
+        VizApp.runSync(new Runnable() {
 
-        matrixNavigator = new MatrixNavigatorComposite(mainToolsTabFolder,
-                SWT.BORDER, itemMatrixTabItem);
+            @Override
+            public void run() {
+                if (isWidgetReady()) {
+                    if (mode == EnsembleTool.EnsembleToolMode.LEGENDS_PLAN_VIEW
+                            | mode == EnsembleTool.EnsembleToolMode.LEGENDS_TIME_SERIES) {
+                        mainToolsTabFolder.setSelection(itemLegendsTabItem);
+                        legendBrowser.setToolMode(mode);
+                    } else if (mode == EnsembleTool.EnsembleToolMode.MATRIX) {
+                        mainToolsTabFolder.setSelection(itemMatrixTabItem);
+                    }
+                    ensembleToolBar.setToolbarMode(mode);
+                }
+            }
+        });
 
     }
 
@@ -378,7 +425,7 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
         return matrixNavigator;
     }
 
-    /*
+    /**
      * Clean up all resources, fonts, providers, etc.
      * 
      * @see org.eclipse.ui.part.WorkbenchPart#dispose()
@@ -388,13 +435,25 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
 
         super.dispose();
 
+        if (ensembleToolBar != null) {
+            ensembleToolBar.dispose();
+        }
+
         EnsembleToolViewer.setDisposing(true);
 
-        legendBrowser.dispose();
+        if (legendBrowser != null) {
+            legendBrowser.dispose();
+            legendBrowser = null;
+        }
 
-        matrixNavigator.dispose();
+        if (matrixNavigator != null) {
+            matrixNavigator.dispose();
+            matrixNavigator = null;
+        }
 
         SWTResourceManager.dispose();
+
+        EnsembleTool.getInstance().handleViewerDisposed();
 
         EnsembleToolViewer.setDisposing(false);
 
@@ -408,257 +467,160 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
         isDisposing = id;
     }
 
-    @Override
-    public void doSave(IProgressMonitor monitor) {
-        /**
-         * TODO Currently we don't have any way to Save the loaded products as a
-         * bundle, that is in a way that would allow the user to reopen the
-         * products back into the Ensemble Tool.
-         */
+    public static boolean isEditable() {
+        return isEditable;
     }
 
-    @Override
-    public void doSaveAs() {
-        /**
-         * TODO Currently we don't have any way to Save As the loaded products
-         * as a bundle, that is in a way that would allow the user to reopen the
-         * products back into the Ensemble Tool.
-         */
-    }
-
-    @Override
-    public boolean isDirty() {
-
-        if (PlatformUI.getWorkbench().isClosing()) {
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean isSaveAsAllowed() {
-        return false;
-    }
-
-    @Override
-    public boolean isSaveOnCloseNeeded() {
-        boolean saveOnClose = true;
-        if (PlatformUI.getWorkbench().isClosing()) {
-            saveOnClose = false;
-        }
-        return saveOnClose;
-    }
-
-    @Override
-    public int promptToSaveOnClose() {
-
-        if (PlatformUI.getWorkbench().isClosing()) {
-            return ISaveablePart2.NO;
-        } else if (isDisabled) {
-            return ISaveablePart2.CANCEL;
-        }
-
-        int userResponseToClose = EnsembleTool.getInstance().verifyCloseTool();
-        return userResponseToClose;
-
-    }
-
-    public static boolean isViewEditable() {
-        return viewEditable;
-    }
-
-    public void toggleViewEditable() {
-        viewEditable = !viewEditable;
-        EnsembleTool.getInstance().setEditable(viewEditable);
-    }
-
-    public void disableTool() {
-        setViewEditable(false);
-        isDisabled = true;
-
-    }
-
-    public boolean isDisabled() {
-        return isDisabled;
-    }
-
-    synchronized public boolean isEnabled() {
-        return viewEditable;
-    }
-
-    /*
+    /**
      * The ViewPart should be enabled when an ensemble tool layer is editable in
      * the currently active editor, and disabled when the tool layer is set to
-     * 'not editable'.
+     * not-editable.
      */
-    synchronized public void setViewEditable(boolean enabled) {
+    public void setEditable(boolean enabled) {
 
-        isDisabled = false;
-        viewEditable = enabled;
+        isEditable = enabled;
 
-        legendBrowser.setViewEditable(enabled);
-        ensembleToolBar.setViewEditable(enabled);
-        matrixNavigator.setViewEditable(enabled);
+        if (legendBrowser != null) {
+            legendBrowser.setEditable(enabled);
+        }
+        if (ensembleToolBar != null) {
+            ensembleToolBar.setEditable(enabled);
+        }
+        if (matrixNavigator != null) {
+            matrixNavigator.setEditable(enabled);
+        }
 
-        VizApp.runSync(new Runnable() {
+    }
 
-            @Override
-            public void run() {
-                if (viewEditable) {
-                    mainToolsTabFolder.setSelectionBackground(GlobalColor
-                            .get(GlobalColor.PALE_DULL_AZURE));
+    /**
+     * Is the tool for the active tool mode ready to be acted against?
+     */
+    public boolean isWidgetReady() {
+        boolean isReady = false;
 
-                    if (mainToolsTabFolder.getSelection() == itemLegendsTabItem) {
-                        itemLegendsTabItem
-                                .setImage(EnsembleToolImageStore.TAB_LEGENDS_ENABLED_SELECTED_IMG);
-                        itemMatrixTabItem
-                                .setImage(EnsembleToolImageStore.TAB_MATRIX_ENABLED_UNSELECTED_IMG);
-                    } else if (mainToolsTabFolder.getSelection() == itemMatrixTabItem) {
-                        mainToolsTabFolder.setSelection(itemMatrixTabItem);
-                        itemLegendsTabItem
-                                .setImage(EnsembleToolImageStore.TAB_LEGENDS_ENABLED_UNSELECTED_IMG);
-                        itemMatrixTabItem
-                                .setImage(EnsembleToolImageStore.TAB_MATRIX_ENABLED_SELECTED_IMG);
-                    }
+        if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.NONE) {
+            isReady = true;
+        } else {
+            if (mainToolsTabFolder == null || mainToolsTabFolder.isDisposed()) {
+                // || !ensembleToolBar.isWidgetReady()) {
+                isReady = false;
+            } else {
+                EnsembleToolMode mode = EnsembleTool.getInstance()
+                        .getToolMode();
+                if (mode == EnsembleToolMode.LEGENDS_PLAN_VIEW
+                        || mode == EnsembleToolMode.LEGENDS_TIME_SERIES) {
+                    isReady = legendBrowser.isWidgetReady();
                 } else {
-                    mainToolsTabFolder.setSelectionBackground(GlobalColor
-                            .get(GlobalColor.GRAY));
-                    if (mainToolsTabFolder.getSelection() == itemLegendsTabItem) {
-                        itemLegendsTabItem
-                                .setImage(EnsembleToolImageStore.TAB_LEGENDS_DISABLED_SELECTED_IMG);
-                        itemMatrixTabItem
-                                .setImage(EnsembleToolImageStore.TAB_MATRIX_DISABLED_IMG);
-                    } else if (mainToolsTabFolder.getSelection() == itemMatrixTabItem) {
-                        itemLegendsTabItem
-                                .setImage(EnsembleToolImageStore.TAB_LEGENDS_DISABLED_IMG);
-                        itemMatrixTabItem
-                                .setImage(EnsembleToolImageStore.TAB_MATRIX_DISABLED_SELECTED_IMG);
+                    /*
+                     * when the matrix navigator is still being initialized it
+                     * is still considered ready.
+                     */
+                    if (matrixNavigator == null
+                            && MatrixNavigatorComposite.isInitializing) {
+                        isReady = true;
+                    } else {
+                        isReady = matrixNavigator.isWidgetReady();
                     }
                 }
+            }
+        }
+        return isReady;
+    }
 
-                if (isViewerTreeReady()) {
+    /**
+     * The plan view and time series editors are brand new so call inner mgrs to
+     * inform.
+     */
+    public void prepareForNewToolInput() {
+
+        EnsembleToolMode mode = EnsembleTool.getInstance().getToolMode();
+        if (mode == EnsembleToolMode.LEGENDS_PLAN_VIEW
+                || mode == EnsembleToolMode.LEGENDS_TIME_SERIES) {
+            legendBrowser.prepareForNewToolInput();
+        }
+    }
+
+    /**
+     * Given a tool layer, refresh the input of the respective inner tool.
+     */
+    public void refreshInput(final List<AbstractResourceHolder> list) {
+
+        VizApp.runSync(new Runnable() {
+            @Override
+            public void run() {
+                if (isWidgetReady()) {
+
+                    EnsembleToolMode mode = EnsembleTool.getInstance()
+                            .getToolMode();
+
+                    if (mode == EnsembleToolMode.LEGENDS_PLAN_VIEW
+                            || mode == EnsembleToolMode.LEGENDS_TIME_SERIES) {
+                        legendBrowser.refreshInput(list);
+                        mainToolsTabFolder.setSelection(itemLegendsTabItem);
+                    } else if (mode == EnsembleToolMode.MATRIX) {
+                        if (matrixNavigator != null) {
+                            mainToolsTabFolder.setSelection(itemMatrixTabItem);
+                            matrixNavigator.updateControls();
+                        }
+                    }
+                }
+                if (isWidgetReady()) {
                     mainToolsTabFolder.getSelection().reskin(SWT.ALL);
-                    mainToolsTabFolder.redraw();
                 }
             }
         });
     }
 
-    public RGB getStartColor(RGB inColor) {
-
-        RGB maxHue = null;
-        float[] hsb = inColor.getHSB();
-        maxHue = new RGB(hsb[0], 1.0f, 0.35f);
-
-        return maxHue;
-    }
-
-    // wouldn't it be nice if when we attempt to automatically
-    // assign a color to a resource it would be somewhat dis-
-    // tinct from any previously assigned color?
-    public RGB getNextShadeColor(RGB inColor) {
-
-        RGB shadeDown = null;
-
-        float[] hsb = inColor.getHSB();
-
-        float brightness = hsb[2];
-        float saturation = hsb[1];
-
-        brightness = (float) Math.min(1.0f, (brightness + 0.05f));
-        saturation = (float) Math.max(0.15f, (saturation - 0.05f));
-
-        shadeDown = new RGB(hsb[0], saturation, brightness);
-
-        return shadeDown;
-    }
-
-    public boolean isViewerTreeReady() {
-        boolean isReady = false;
-
-        if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_PLAN_VIEW
-                || EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_TIME_SERIES) {
-            isReady = legendBrowser.isViewerTreeReady();
-        } else {
-            isReady = matrixNavigator.isViewerTreeReady();
-        }
-        return isReady;
-    }
-
-    public void prepareForNewToolInput() {
-
-        if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_PLAN_VIEW
-                || EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_TIME_SERIES) {
-            legendBrowser.prepareForNewToolInput();
-        }
-    }
-
-    synchronized public void refreshInput(EnsembleToolLayer toolLayer) {
-
-        if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_PLAN_VIEW
-                || EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_TIME_SERIES) {
-            legendBrowser.refreshInput(toolLayer);
-        } else if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.MATRIX) {
-            matrixNavigator.refreshInput(toolLayer);
-        }
-    }
-
-    /*
-     * Called from a class that is listening to the frameChange event.
+    /**
+     * Called from a class that is listening to the frameChange event. Let the
+     * inner tools know of the event.
      */
     public void frameChanged(FramesInfo framesInfo) {
 
-        if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_PLAN_VIEW
-                || EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_TIME_SERIES) {
+        EnsembleToolMode mode = EnsembleTool.getInstance().getToolMode();
+        if (mode == EnsembleToolMode.LEGENDS_PLAN_VIEW
+                || mode == EnsembleToolMode.LEGENDS_TIME_SERIES) {
             legendBrowser.frameChanged(framesInfo);
 
-        } else if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.MATRIX) {
+        } else if (mode == EnsembleToolMode.MATRIX) {
             matrixNavigator.frameChanged(framesInfo);
         }
     }
 
-    public void clearAll() {
+    /**
+     * Clear all resources of the active tool.
+     */
+    public void clearAllByActiveMode() {
 
-        if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_PLAN_VIEW
-                || EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_TIME_SERIES) {
+        clearAllByMode(EnsembleTool.getInstance().getToolMode());
+
+    }
+
+    /**
+     * Clear all resources for the given mode.
+     */
+    public void clearAllByMode(EnsembleToolMode mode) {
+
+        switch (mode) {
+        case LEGENDS_PLAN_VIEW:
+        case LEGENDS_TIME_SERIES:
             legendBrowser.clearAll();
-        } else if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.MATRIX) {
-            matrixNavigator.clearAllResources();
+            break;
+        case MATRIX:
+            if (matrixNavigator != null) {
+                matrixNavigator.clearAllResources();
+            }
+            break;
+        default:
+            break;
         }
     }
 
-    protected class MainToolsTabSelectionListener extends SelectionAdapter {
-
-        @Override
-        public void widgetSelected(SelectionEvent e) {
-
-            CTabItem ti = mainToolsTabFolder.getSelection();
-            if (viewEditable) {
-                if (ti == itemLegendsTabItem) {
-                    itemLegendsTabItem
-                            .setImage(EnsembleToolImageStore.TAB_LEGENDS_ENABLED_SELECTED_IMG);
-                    itemMatrixTabItem
-                            .setImage(EnsembleToolImageStore.TAB_MATRIX_ENABLED_UNSELECTED_IMG);
-                }
-                if (ti == itemMatrixTabItem) {
-                    itemLegendsTabItem
-                            .setImage(EnsembleToolImageStore.TAB_LEGENDS_ENABLED_UNSELECTED_IMG);
-                    itemMatrixTabItem
-                            .setImage(EnsembleToolImageStore.TAB_MATRIX_ENABLED_SELECTED_IMG);
-                }
-            } else {
-                if (mainToolsTabFolder.getSelection() == itemLegendsTabItem) {
-                    itemLegendsTabItem
-                            .setImage(EnsembleToolImageStore.TAB_LEGENDS_DISABLED_SELECTED_IMG);
-                    itemMatrixTabItem
-                            .setImage(EnsembleToolImageStore.TAB_MATRIX_DISABLED_IMG);
-                } else if (mainToolsTabFolder.getSelection() == itemMatrixTabItem) {
-                    itemLegendsTabItem
-                            .setImage(EnsembleToolImageStore.TAB_LEGENDS_DISABLED_IMG);
-                    itemMatrixTabItem
-                            .setImage(EnsembleToolImageStore.TAB_MATRIX_DISABLED_SELECTED_IMG);
-                }
-            }
+    /* Fixed in association with AWIPS2_GSD repository Issue #29204 */
+    public void resetMatrixNavigator() {
+        if (matrixNavigator != null) {
+            matrixNavigator.dispose();
+            matrixNavigator = null;
         }
     }
 
@@ -670,23 +632,31 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
         return GlobalColor.get(GlobalColor.MEDIUM_GRAY);
     }
 
+    /**
+     * Set the focus to the inner tool depending upon the tool mode. Abstract in
+     * WorkbenchPart.
+     */
+    @Override
     public void setFocus() {
-        if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_PLAN_VIEW
-                || EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_TIME_SERIES) {
+        EnsembleToolMode mode = EnsembleTool.getInstance().getToolMode();
+        if (mode == EnsembleToolMode.LEGENDS_PLAN_VIEW
+                || mode == EnsembleToolMode.LEGENDS_TIME_SERIES) {
             legendBrowser.setFocus();
         }
-        if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.MATRIX) {
+        if (mode == EnsembleToolMode.MATRIX) {
             matrixNavigator.setFocus();
         }
     }
 
-    public void matchLikeResources() {
-        if (matrixNavigator != null) {
-            matrixNavigator.matchLikeResources();
-        }
-    }
-
-    public void matrixNavigationRequest(MatrixNavigationOperation operationmode) {
+    /**
+     * The navigation operation is one of: UP_ARROW, DOWN_ARROW, RIGHT_ARROW, or
+     * LEFT_ARROW. It is generated by the ensemble tool plugin extensions.
+     * Delegation method for the matrix navigation inner tool.
+     * 
+     * @param operationmode
+     */
+    public void matrixNavigationRequest(
+            MatrixNavigationOperation operationmode) {
         if (matrixNavigator != null) {
             matrixNavigator.matrixNavigationRequest(operationmode);
         }
@@ -696,24 +666,90 @@ public class EnsembleToolViewer extends ViewPart implements ISaveablePart2 {
         return legendBrowser.getDistributionViewer();
     }
 
-    public void refreshResources() {
-        if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_PLAN_VIEW
-                || EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.LEGENDS_TIME_SERIES) {
-            /**
-             * TODO: Save for future use
-             */
-        } else if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.MATRIX) {
-            matrixNavigator.refreshResources();
-        }
-
-    }
-
+    /**
+     * Returns the active resource time so the active ensemble tool layer legend
+     * displays the time as it is displayed in the current frame of the active
+     * editor.
+     */
     public String getActiveRscTime() {
         String rscTime = null;
-        if (EnsembleTool.getInstance().getToolMode() == EnsembleToolMode.MATRIX) {
+        if (EnsembleTool.getInstance()
+                .getToolMode() == EnsembleToolMode.MATRIX) {
             rscTime = matrixNavigator.getActiveRscTime();
         }
         return rscTime;
+    }
+
+    @Override
+    public void doSave(IProgressMonitor monitor) {
+        // TODO Not yet needed
+    }
+
+    @Override
+    public void doSaveAs() {
+        // TODO Not yet needed
+    }
+
+    /**
+     * TODO: Until there is an actual save capability in the Ensemble Tool,
+     * always make the view dirty so as to make sure Eclipse calls the saving
+     * framework (i.e. promptToSaveOnClose).
+     */
+    @Override
+    public boolean isDirty() {
+        return true;
+    }
+
+    @Override
+    public boolean isSaveAsAllowed() {
+        return false;
+    }
+
+    /**
+     * TODO: As of this release, there is no way to save the state of the active
+     * editor and viewer. Therefore, it is imperative to always prompt to make
+     * sure the user really wants to close the viewer, because closing the
+     * viewer will, for convenience, close the tool layer in the active editor.
+     */
+    @Override
+    public boolean isSaveOnCloseNeeded() {
+        return true;
+    }
+
+    /**
+     * The user has requested to close this view (by pressing the 'x' button in
+     * the view tab). Check to make sure that's okay. If not then cancel the
+     * request by returning ISaveablePart2.CANCEL.
+     */
+    @Override
+    public int promptToSaveOnClose() {
+        return EnsembleTool.getInstance().verifyCloseTool();
+    }
+
+    /**
+     * When the matrix editor is closed by the user then dispose of the inner
+     * matrix tool.
+     */
+    public void removeMatrixComponent() {
+
+        if (matrixNavigator != null && !matrixNavigator.isDisposed()) {
+            matrixNavigator.dispose();
+            matrixNavigator = null;
+        }
+    }
+
+    public void updateElementInTree(AbstractResourceHolder arh) {
+        EnsembleToolMode mode = EnsembleTool.getInstance().getToolMode();
+        if (mode == EnsembleToolMode.LEGENDS_PLAN_VIEW
+                || mode == EnsembleToolMode.LEGENDS_TIME_SERIES) {
+            legendBrowser.updateElementInTree(arh);
+        }
+        if (mode == EnsembleToolMode.MATRIX) {
+            if (EnsembleTool.getInstance().getToolLayer() != null) {
+                /* no need to repopulate on refresh */
+                EnsembleTool.getInstance().getToolLayer().forceRefresh(false);
+            }
+        }
     }
 
 }

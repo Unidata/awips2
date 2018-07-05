@@ -3,19 +3,19 @@ package com.raytheon.uf.common.monitor.scan;
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -43,6 +43,8 @@ import com.raytheon.uf.common.dataplugin.binlightning.impl.LtgStrikeType;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObs;
 import com.raytheon.uf.common.dataplugin.bufrua.UAObsAdapter;
 import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
+import com.raytheon.uf.common.dataplugin.radar.RadarStation;
+import com.raytheon.uf.common.dataplugin.radar.request.GetRadarSpatialRequest;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarConstants.DHRValues;
 import com.raytheon.uf.common.geospatial.CRSCache;
 import com.raytheon.uf.common.geospatial.ISpatialQuery;
@@ -50,6 +52,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.common.geospatial.SpatialException;
 import com.raytheon.uf.common.geospatial.SpatialQueryFactory;
+import com.raytheon.uf.common.serialization.comm.RequestRouter;
 import com.raytheon.uf.common.sounding.VerticalSounding;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -64,252 +67,249 @@ import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTWriter;
 
 /**
- * 
+ *
  * SCAN Utilities, mostly static methods.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 02/11/2009   1981       dhladky    Initial Creation.
- * 09/03/2013   DR 13083   gzhang	  Added getZRvalue2() to fix an error.
+ * 09/03/2013   DR 13083   gzhang     Added getZRvalue2() to fix an error.
  * 12/20/2013   DR 16894   gzhang     Fixed getZRvalue2() bias issue.
  * 05/12/2014   3133       njensen    Extracted getLightningRecord
  * 05/13/2014   3133       njensen    Moved convertStrankValue here from ScanConfig
  * Jun 05, 2014 3226       bclement   BinLightning refactor
  *                                    compare lightning strike type by id instead of ordinal
- * May 17, 2016 19009      dhladky (code ckecked in by zhao) Modified decodeDPRValue() 
+ * May 17, 2016 19009      dhladky    (code ckecked in by zhao) Modified decodeDPRValue()
+ * May 23, 2017 6266       nabowle    Use GetRadarSpatialRequest. Code cleanup.
  * </pre>
- * 
+ *
  * @author dhladky
- * @version 1.0
  */
 
 public class ScanUtils {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ScanUtils.class);
 
-    private static String MAPS_DB = "maps";
+    private static final String MAPS_DB = "maps";
 
-    public static String MAXVIL = "maxvil";
+    public static final String MAXVIL = "maxvil";
 
-    public static String HVYPR = "hvypr";
+    public static final String HVYPR = "hvypr";
 
-    public static String SVRWX = "svrwx";
+    public static final String SVRWX = "svrwx";
 
-    public static String POLH = "polh";
+    public static final String POLH = "polh";
 
-    public static String VIL10 = "vil>10";
+    public static final String VIL10 = "vil>10";
 
-    public static String VIL20 = "vil>20";
+    public static final String VIL20 = "vil>20";
 
-    public static double meterToNM = 0.000539956803;
+    public static final double meterToNM = 0.000539956803;
 
-    public static float NMI_TO_KM = 1.852f;
+    public static final float NMI_TO_KM = 1.852f;
 
-    public static double KM_TO_NMI = 0.539956803;
+    public static final double KM_TO_NMI = 0.539956803;
 
-    public static float KM_TO_KFT = 3.28084f;
+    public static final float KM_TO_KFT = 3.28084f;
 
-    public static double M_PER_SEC_TO_KTS = 1.94384449;
+    public static final double M_PER_SEC_TO_KTS = 1.94384449;
 
-    public static double KTS_TO_M_PER_SEC = 0.514444445;
+    public static final double KTS_TO_M_PER_SEC = 0.514444445;
 
-    public static int MIN_TO_SEC = 60;
+    public static final int MIN_TO_SEC = 60;
 
-    public static double R_EARTH = 6371.009;
+    public static final double R_EARTH = 6371.009;
 
-    public static int SCAN_STI_HALFWORD_INDEX = 3;
+    public static final int SCAN_STI_HALFWORD_INDEX = 3;
 
-    public static int SCAN_GRID_DIM = 116; // square SCAN 4km grid
+    /** square SCAN 4km grid */
+    public static final int SCAN_GRID_DIM = 116;
 
-    public static int SCAN_GRID_DIM_RESOLUTION = 4000; // 4km resolution in
-                                                       // meters
+    /** 4km resolution in meters */
+    public static final int SCAN_GRID_DIM_RESOLUTION = 4000;
 
-    public static int SCAN_GRID_1K_DIM_RESOLUTION = 1000; // 1km resolution in
-                                                          // meters
+    /** 1km resolution in meters */
+    public static final int SCAN_GRID_1K_DIM_RESOLUTION = 1000;
 
-    public static int SCAN_GRID_HALFK_DIM_RESOLUTION = 500; // 1/2km resolution
-                                                            // in meters
+    /** 1/2km resolution in meters */
+    public static final int SCAN_GRID_HALFK_DIM_RESOLUTION = 500;
 
-    public static int SCAN_GRID_DIM_HALFKM = 928; // square SCAN 1km grid
+    /** square SCAN 1km grid */
+    public static final int SCAN_GRID_DIM_HALFKM = 928;
 
-    public static int SCAN_GRID_DIM_1KM = 464; // square SCAN 1km grid
+    /** square SCAN 1km grid */
+    public static final int SCAN_GRID_DIM_1KM = 464;
 
-    public static int SCAN_GRID_DIM_2KM = 232; // square SCAN 2km grid
+    /** square SCAN 2km grid */
+    public static final int SCAN_GRID_DIM_2KM = 232;
 
-    public static int SCAN_GRID_DIM_SQ = SCAN_GRID_DIM * SCAN_GRID_DIM; // 1D
+    /** 1D array length 4KM array */
+    public static final int SCAN_GRID_DIM_SQ = SCAN_GRID_DIM * SCAN_GRID_DIM;
 
-    // array
-    // length 4KM array
+    /** 1D array length 1KM array */
+    public static final int SCAN_GRID_DIM_1KM_SQ = SCAN_GRID_DIM_1KM
+            * SCAN_GRID_DIM_1KM;
 
-    public static int SCAN_GRID_DIM_1KM_SQ = SCAN_GRID_DIM_1KM
-            * SCAN_GRID_DIM_1KM; // 1D array length 1KM array
+    /** 1D array length 1/2KM array */
+    public static final int SCAN_GRID_DIM_HALFKM_SQ = SCAN_GRID_DIM_HALFKM
+            * SCAN_GRID_DIM_HALFKM;
 
-    public static int SCAN_GRID_DIM_HALFKM_SQ = SCAN_GRID_DIM_HALFKM
-            * SCAN_GRID_DIM_HALFKM; // 1D array length 1/2KM array
+    /** 1D array length 2KM array */
+    public static final int SCAN_GRID_DIM_2KM_SQ = SCAN_GRID_DIM_2KM
+            * SCAN_GRID_DIM_2KM;
 
-    public static int SCAN_GRID_DIM_2KM_SQ = SCAN_GRID_DIM_2KM
-            * SCAN_GRID_DIM_2KM; // 1D array length 2KM array
+    // km.
+    public static final float SCAN_GRID_SIZE = 4.0f;
 
-    public static float SCAN_GRID_SIZE = 4.0f; // km.
+    // km.
+    public static final float SCAN_GRID_SIZE_1KM = 1.0f;
 
-    public static float SCAN_GRID_SIZE_1KM = 1.0f; // km.
+    /** old definition still used by QPF */
+    public static final int A_LEN = SCAN_GRID_DIM_SQ;
 
-    public static int A_LEN = SCAN_GRID_DIM_SQ; // old definition still used by
+    /** Precip mode for RADAR */
+    public static final int STORM_MODE = 2;
 
-    // QPF
+    /** Clear Air mode for RADAR */
+    public static final int CLEAR_AIR_MODE = 1;
 
-    public static int STORM_MODE = 2; // Precip mode for RADAR
+    /** TEST MODE for radar */
+    public static final int TEST_MODE = 0;
 
-    public static int CLEAR_AIR_MODE = 1; // Clear Air mode for RADAR
+    public static final int IRDRWE4KM = 58;
 
-    public static int TEST_MODE = 0; // TEST MODE for radar
+    public static final int IRDRNS4KM = 58;
 
-    public static int IRDRWE4KM = 58;
+    public static final int IRDRWE1KM = 232;
 
-    public static int IRDRNS4KM = 58;
+    public static final int IRDRNS1KM = 232;
 
-    public static int IRDRWE1KM = 232;
+    /** square HRAP (DPA) grid. */
+    public static final int HRAP_GRID_DIM = 131;
 
-    public static int IRDRNS1KM = 232;
+    /** Maximum number of radials handled in a radar radial product. */
+    public static final int MAX_RADIALS = 400;
 
-    public static int HRAP_GRID_DIM = 131; // square HRAP (DPA) grid.
+    /** Maximum radar bins (range). */
+    public static final int MAX_RANGEBINS = 230;
 
-    public static int MAX_RADIALS = 400; // Maximum number of radials handled in
+    /** Max radar bins for 8-bit prods (range). */
+    public static final int MAX_RANGEBINS_8BIT = 460;
 
-    // a radar radial product.
+    /** Max number grid points for 4-bit polar grid */
+    public static final int MAX_POLGRID = MAX_RADIALS * MAX_RANGEBINS;
 
-    public static int MAX_RANGEBINS = 230; // Maximum radar bins (range).
+    public static final GeometryFactory factory = new GeometryFactory();
 
-    public static int MAX_RANGEBINS_8BIT = 460; // Max radar bins for 8-bit
+    /** Max number grid points for 8-bit polar grid */
+    public static final int MAX_POLGRID_8BIT = MAX_RADIALS * MAX_RANGEBINS_8BIT;
 
-    // prods (range).
+    /** km per nautical mile. */
+    public static final float KM_PER_NM = 1.852f;
 
-    public static int MAX_POLGRID = MAX_RADIALS * MAX_RANGEBINS; // Max number
+    /**
+     * length of the county name char string, also used with the alphanumeric
+     * zones & counties.
+     */
+    public static final int CO_LENGTH = 20;
 
-    public static GeometryFactory factory = new GeometryFactory();
+    /**
+     * the number of seconds for the time bins to calculate the max SCTI values
+     * for locations with multiple radars.
+     */
+    public static final int SCTI_BIN = 600;
 
-    // grid points
+    /** low threshold for SCTI button color. */
+    public static final int SCTI_LOW_THRESH = 10;
 
-    // for 4-bit polar grid
-    public static int MAX_POLGRID_8BIT = MAX_RADIALS * MAX_RANGEBINS_8BIT; // Max
+    /** middle threshold for SCTI button color. */
+    public static final int SCTI_MID_THRESH = 30;
 
-    // number
-
-    // grid points for 8-bit polar grid
-    public static float KM_PER_NM = 1.852f; // km per nautical mile.
-
-    public static int CO_LENGTH = 20; // length of the county name char string,
-
-    // also
-
-    // used with the alphanumeric zones & counties.
-    public static int SCTI_BIN = 600; // the number of seconds for the time bins
-
-    // to
-
-    // calculate the max SCTI values for locations
-    // with multiple radars.
-    public static int SCTI_LOW_THRESH = 10; // low threshold for SCTI button
-
-    // color.
-
-    public static int SCTI_MID_THRESH = 30; // middle threshold for SCTI button
-
-    // color.
-
-    public static int SCTI_UPP_THRESH = 80; // upper threshold for SCTI button
-
-    // color.
+    /** upper threshold for SCTI button color. */
+    public static final int SCTI_UPP_THRESH = 80;
 
     /** Radius of WFO in nm for comparison in SCAN **/
-    public static double RADIUS_OF_WFO = 120;
+    public static final double RADIUS_OF_WFO = 120;
 
-    public static int RADIUS_OF_30NM = 30;
+    public static final int RADIUS_OF_30NM = 30;
 
-    public static int RADIUS_OF_10NM = 10;
+    public static final int RADIUS_OF_10NM = 10;
 
-    public static float LOWPCT = 10.0f; // Low-range percentage for use in areal
+    /** Low-range percentage for use in areal summary message. */
+    public static final float LOWPCT = 10.0f;
 
-    // summary message.
+    /** Mid-range percentage for use in areal summary message */
+    public static final float MIDPCT = 25.0f;
 
-    public static float MIDPCT = 25.0f; // Mid-range percentage "" "".
+    /** High-range percentage for use in areal summary message */
+    public static final float HIGHPCT = 55.0f;
 
-    public static float HIGHPCT = 55.0f; // High-range percentage "" "" .
+    /**
+     * The number of seconds after the due time of the next cycle. Ex: If we are
+     * in clear air mode, the _vsLength should be 10 min. If data traveled
+     * instantaneously, we would get the next CZ product exactly 600 sec after
+     * the previous one, but, due to various lagging times it can be received a
+     * number of seconds later. So, in order to not switch to ltg only
+     * prematurely, we extend the wait time this number of seconds, which has
+     * been arbitrarily chosen.
+     */
+    public static final int CUSHION = 60;
 
-    public static int CUSHION = 60; // The number of seconds after the due time
+    /** Message code for Echo Tops product */
+    public static final int ET_MSG_CODE = 41;
 
-    // of the next
+    /** Message code for Enhanced Echo Tops product */
+    public static final int EET_MSG_CODE = 135;
 
-    // cycle. Ex: If we are in clear air mode, the _vsLength should be 10 min.
-    // If data traveled instantaneously, we would get the next CZ product
-    // exactly
-    // 600 sec after the previous one, but, due to various lagging times it can
-    // be
-    // received a number of seconds later. So, in order to not switch to ltg
-    // only
-    // prematurely, we extend the wait time this number of seconds, which has
-    // been
-    // artbitrarily chosen.
+    /** Message code for STI radar product */
+    public static final int STI_MSG_CODE = 58;
 
-    public static int ET_MSG_CODE = 41; // Message code for Echo Tops product
+    /** Message code for MD radar product */
+    public static final int MESO_MSG_CODE = 141;
 
-    public static int EET_MSG_CODE = 135; // Message code for Enhanced Echo Tops
+    /** Message code for TVS radar product */
+    public static final int TVS_MSG_CODE = 61;
 
-    // product
+    /** Used in key munging. */
+    public static final int POW2_16 = 65536;
 
-    public static int STI_MSG_CODE = 58; // Message code for STI radar product
+    /** 1 km Compositive Reflectivity template depict key */
+    public static final int CZ_DEPICT_TEMPLATE = 50404;
 
-    public static int MESO_MSG_CODE = 141; // Message code for MD radar product
+    // old C code used these
+    public static final double DEG_TO_RAD = 180.0 / Math.PI;
 
-    public static int TVS_MSG_CODE = 61; // Message code for TVS radar product
-
-    // res).
-
-    public static int POW2_16 = 65536; // Used in key munging.
-
-    public static int CZ_DEPICT_TEMPLATE = 50404; // 1 km Compositive
-
-    // Reflectivity template
-    // depict key
-
-    public static final double DEG_TO_RAD = 180.0 / Math.PI; // old C code used
-                                                             // these
-
-    public static final double RAD_TO_DEG = Math.PI / 180.0; // old C code uses
-                                                             // this.
+    // old C code uses this.
+    public static final double RAD_TO_DEG = Math.PI / 180.0;
 
     public static final double COSELE = Math.cos(0.5 * DEG_TO_RAD);
 
-    public static double LIGHTNING_STORM_RANGE = 10.0;
+    public static final double LIGHTNING_STORM_RANGE = 10.0;
 
     /** MM to inch **/
-    public static double MM_TO_INCH = 0.03937;
+    public static final double MM_TO_INCH = 0.03937;
 
-    public static double MAX_DHR_DBZ = 94.5;
+    public static final double MAX_DHR_DBZ = 94.5;
 
-    public static double MIN_DHR_DBZ = -32.0;
+    public static final double MIN_DHR_DBZ = -32.0;
 
-    public static double DHR_DBZ_STEP = 0.5;
+    public static final double DHR_DBZ_STEP = 0.5;
 
-    public static String TORNADO_WARNING_PHENSIG = "TO.W";
+    public static final String TORNADO_WARNING_PHENSIG = "TO.W";
 
-    public static String SEVERE_THUNDERSTORM_PHENSIG = "SV.W";
+    public static final String SEVERE_THUNDERSTORM_PHENSIG = "SV.W";
 
-    private static Map<String, String> tableStdResLevels = new HashMap<String, String>();
+    private static Map<String, String> tableStdResLevels = new HashMap<>();
 
-    // private static String standardResolutionLevel = null;
+    private static Map<String, String> tableHighResLevels = new HashMap<>();
 
-    private static Map<String, String> tableHighResLevels = new HashMap<String, String>();
-
-    // private static String highResolutionLevel = null;
-
-    private static String prevTable = "";
+    private static volatile String prevTable = "";
 
     /**
      * Populate the sounding record for the listener strategy
-     * 
+     *
      * @param uri
      * @return
      */
@@ -325,14 +325,15 @@ public class ScanUtils {
                 soundingRec = new VerticalSounding[] { s };
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Unable to get the sounding record for " + uri,
+                    e);
         }
         return soundingRec;
     }
 
     /**
      * Translated to Java D Hladky 16Feb2009
-     * 
+     *
      * @param n_radials
      * @param iazm_array
      * @param i_ref
@@ -354,46 +355,48 @@ public class ScanUtils {
         short jrefl;
         short[] ireflGrid = new short[SCAN_GRID_DIM_SQ];
 
-        //
         // Initialize reflectivty grid values to 0
-        //
         for (int aa = 0; aa < SCAN_GRID_DIM_SQ; aa++) {
             ireflGrid[aa] = 0;
         }
-        //
         // Get one radial of reflectivity data at a time.
-        //
         for (int nrad = 0; nrad < n_radials; nrad++) {
             // Convert azimuths from tenth-of-degrees integers to float degrees.
             azm = (float) (iazm_array[nrad] / 10.0);
-            if (azm < 0)
+            if (azm < 0) {
                 azm += 360.0;
+            }
             cosazm = (float) Math.cos((azm - 90.) * DEG_TO_RAD);
             sinazm = (float) Math.sin((azm - 90.) * DEG_TO_RAD);
 
-            // Map this radial's data to grid.
-            // Follow apparent OSF convention - distance of radar volume
-            // from radar is at far boundary of range bin, minus 0.5 km.
-
+            /*
+             * Map this radial's data to grid. Follow apparent OSF convention -
+             * distance of radar volume from radar is at far boundary of range
+             * bin, minus 0.5 km.
+             */
             for (nbin = 0; nbin < MAX_RANGEBINS; nbin++) {
 
-                // In the FORTRAN code, range is nbin -0.5; however, since our
-                // bin counter (in C) starts at 0 (as opposed to 1 in FORTRAN),
-                // we add +0.5 instead of subtracting.
+                /*
+                 * In the FORTRAN code, range is nbin -0.5; however, since our
+                 * bin counter (in C) starts at 0 (as opposed to 1 in FORTRAN),
+                 * we add +0.5 instead of subtracting.
+                 */
                 range = (float) (nbin + 0.5);
                 grange = (float) (range * COSELE);
                 rwedisp = grange * cosazm;
                 rnsdisp = grange * sinazm;
 
-                if (rwedisp >= 0)
+                if (rwedisp >= 0) {
                     iwebox = IRDRWE4KM + (int) (rwedisp / SCAN_GRID_SIZE);
-                else
+                } else {
                     iwebox = IRDRWE4KM + (int) (rwedisp / SCAN_GRID_SIZE) - 1;
+                }
 
-                if (rnsdisp >= 0)
+                if (rnsdisp >= 0) {
                     insbox = IRDRNS4KM + (int) (rnsdisp / SCAN_GRID_SIZE);
-                else
+                } else {
                     insbox = IRDRNS4KM + (int) (rnsdisp / SCAN_GRID_SIZE) - 1;
+                }
 
                 jrefl = i_ref[(MAX_RANGEBINS * nrad) + nbin];
                 if (jrefl > ireflGrid[(SCAN_GRID_DIM * insbox) + iwebox]) {
@@ -406,15 +409,15 @@ public class ScanUtils {
     }
 
     /**
-     * 
+     *
      * makeReflGrid1km Greg Stumpf, CIMMS/MDL January 2005 Modelled after
      * makeReflGrid (for 4 km grids) For this version, each Cartesian grid cell
      * is used to compute nearest radial grid cell, and and the assigment is
      * made. In the previous version, it was done opposite, which left large
      * portions of the cartesian grid empty especially for 1 km grids.
-     * 
+     *
      * Translated to Java D Hladky 16Feb2009
-     * 
+     *
      * @param n_radials
      * @param iazm_array
      * @param i_ref
@@ -436,7 +439,8 @@ public class ScanUtils {
         // Loop for all cartesian grid points
 
         for (int aa = 0; aa < SCAN_GRID_DIM_1KM_SQ; aa++) {
-            ireflGrid[aa] = 0; // Initialize reflectivty grid values to 0
+            // Initialize reflectivty grid values to 0
+            ireflGrid[aa] = 0;
 
             // Compute nearest radial grid point
 
@@ -449,26 +453,31 @@ public class ScanUtils {
             range = (float) Math.sqrt(rwedisp * rwedisp + rnsdisp * rnsdisp);
             nbin = (int) (range - 0.5);
 
-            if (rwedisp >= 0)
+            if (rwedisp >= 0) {
                 azm = (float) (Math.atan2(rwedisp, rnsdisp) * RAD_TO_DEG);
-            else
-                azm = (float) ((Math.atan2(rwedisp, rnsdisp) * RAD_TO_DEG) + 360);
+            } else {
+                azm = (float) ((Math.atan2(rwedisp, rnsdisp) * RAD_TO_DEG)
+                        + 360);
+            }
 
             azm = (float) (azm + 0.5);
-            if (azm > 360.0)
+            if (azm > 360.0) {
                 azm = (float) (azm - 360.0);
-            if (azm < 0.0)
+            }
+            if (azm < 0.0) {
                 azm = (float) (azm + 360.0);
+            }
 
             for (nrad = 0; nrad < n_radials; nrad++) {
-                if (iazm_array[nrad] == (int) azm * 10.0)
+                if (iazm_array[nrad] == (int) azm * 10.0) {
                     break;
+                }
             }
 
             // Assign radial value to cartesian grid value
             ireflGrid[aa] = i_ref[(n_bins * nrad) + nbin];
 
-            // logEvent << "aa,web,nsb,wed,nsd,range,nbin,azm,nrad,val=\n  "
+            // logEvent << "aa,web,nsb,wed,nsd,range,nbin,azm,nrad,val=\n "
             // << aa << "," << iwebox << "," << insbox << "," << rwedisp << ","
             // << rnsdisp << "," << range << "," << nbin << "," << azm << ","
             // << nrad << "," << ireflGrid[aa] << std::endl;
@@ -479,13 +488,13 @@ public class ScanUtils {
     }
 
     /**
-     * 
+     *
      * makeReflGrid4km Greg Stumpf, CIMMS/MDL January 2005 Modelled after
      * makeReflGrid (for 4 km grids) For this version, each Cartesian grid cell
      * is used to compute nearest radial grid cell, and and the assigment is
      * made. In the previous version, it was done opposite, which left large
      * portions of the cartesian grid empty especially for 1 km grids.
-     * 
+     *
      * @param n_radials
      * @param iazm_array
      * @param i_ref
@@ -507,8 +516,8 @@ public class ScanUtils {
         // Loop for all cartesian grid points
 
         for (int aa = 0; aa < SCAN_GRID_DIM_SQ; aa++) {
-
-            ireflGrid[aa] = 0; // Initialize reflectivty grid values to 0
+            // Initialize reflectivty grid values to 0
+            ireflGrid[aa] = 0;
 
             // Compute nearest radial grid point
 
@@ -518,29 +527,35 @@ public class ScanUtils {
             rwedisp = SCAN_GRID_SIZE * (iwebox - IRDRWE4KM);
             rnsdisp = SCAN_GRID_SIZE * (insbox - IRDRNS4KM);
 
-            range = (float) (Math.sqrt(rwedisp * rwedisp + rnsdisp * rnsdisp) / COSELE);
+            range = (float) (Math.sqrt(rwedisp * rwedisp + rnsdisp * rnsdisp)
+                    / COSELE);
             nbin = (int) (range - 0.5);
 
-            if (rwedisp >= 0)
+            if (rwedisp >= 0) {
                 azm = (float) (Math.atan2(rwedisp, rnsdisp) * RAD_TO_DEG);
-            else
-                azm = (float) ((Math.atan2(rwedisp, rnsdisp) * RAD_TO_DEG) + 360);
+            } else {
+                azm = (float) ((Math.atan2(rwedisp, rnsdisp) * RAD_TO_DEG)
+                        + 360);
+            }
 
             azm = (float) (azm + 0.5);
-            if (azm > 360.)
+            if (azm > 360.) {
                 azm = (float) (azm - 360.0);
-            if (azm < 0.)
+            }
+            if (azm < 0.) {
                 azm = (float) (azm + 360.0);
+            }
 
             for (nrad = 0; nrad < n_radials; nrad++) {
-                if (iazm_array[nrad] == (int) azm * 10.0)
+                if (iazm_array[nrad] == (int) azm * 10.0) {
                     break;
+                }
             }
 
             // Assign radial value to cartesian grid value
             ireflGrid[aa] = i_ref[(n_bins * nrad) + nbin];
 
-            // logEvent << "aa,web,nsb,wed,nsd,range,nbin,azm,nrad,val=\n  "
+            // logEvent << "aa,web,nsb,wed,nsd,range,nbin,azm,nrad,val=\n "
             // << aa << "," << iwebox << "," << insbox << "," << rwedisp << ","
             // << rnsdisp << "," << range << "," << nbin << "," << azm << ","
             // << nrad << "," << ireflGrid[aa] << std::endl;
@@ -552,7 +567,7 @@ public class ScanUtils {
 
     /**
      * Used to re size raster reflectivity grids for comparison in SCAN
-     * 
+     *
      * @param inputGrid
      * @param outputGridSize
      * @param nx
@@ -575,11 +590,12 @@ public class ScanUtils {
                         for (int x = 0; x < 4; x++) {
                             for (int y = 0; y < 4; y++) {
                                 // average the grid values
-                                avValue += inputGrid[(SCAN_GRID_DIM_1KM * (i * 4 + x))
-                                        + (j * 4 + y)];
+                                avValue += inputGrid[(SCAN_GRID_DIM_1KM
+                                        * (i * 4 + x)) + (j * 4 + y)];
                             }
                         }
-                        outputGrid[(SCAN_GRID_DIM * i) + j] = (short) (avValue / 16);
+                        outputGrid[(SCAN_GRID_DIM * i)
+                                + j] = (short) (avValue / 16);
                     }
                 }
             }
@@ -596,11 +612,12 @@ public class ScanUtils {
                         for (int x = 0; x < 2; x++) {
                             for (int y = 0; y < 2; y++) {
                                 // average the grid values
-                                avValue += inputGrid[(SCAN_GRID_DIM_2KM * (i * 2 + x))
-                                        + (j * 2 + y)];
+                                avValue += inputGrid[(SCAN_GRID_DIM_2KM
+                                        * (i * 2 + x)) + (j * 2 + y)];
                             }
                         }
-                        outputGrid[(SCAN_GRID_DIM * i) + j] = (short) (avValue / 4);
+                        outputGrid[(SCAN_GRID_DIM * i)
+                                + j] = (short) (avValue / 4);
                     }
                 }
             }
@@ -626,9 +643,10 @@ public class ScanUtils {
                         for (int x = 0; x < 4; x++) {
                             for (int y = 0; y < 4; y++) {
                                 // average the grid values
-                                mxValue = (short) Math
-                                        .max(inputGrid[(SCAN_GRID_DIM_1KM * (i * 4 + x))
-                                                + (j * 4 + y)], mxValue);
+                                mxValue = (short) Math.max(
+                                        inputGrid[(SCAN_GRID_DIM_1KM
+                                                * (i * 4 + x)) + (j * 4 + y)],
+                                        mxValue);
                             }
                         }
                         outputGrid[(SCAN_GRID_DIM * i) + j] = mxValue;
@@ -648,9 +666,10 @@ public class ScanUtils {
                         for (int x = 0; x < 2; x++) {
                             for (int y = 0; y < 2; y++) {
                                 // average the grid values
-                                mxValue = (short) Math
-                                        .max(inputGrid[(SCAN_GRID_DIM_2KM * (i * 2 + x))
-                                                + (j * 2 + y)], mxValue);
+                                mxValue = (short) Math.max(
+                                        inputGrid[(SCAN_GRID_DIM_2KM
+                                                * (i * 2 + x)) + (j * 2 + y)],
+                                        mxValue);
                             }
                         }
                         outputGrid[(SCAN_GRID_DIM * i) + j] = mxValue;
@@ -665,7 +684,7 @@ public class ScanUtils {
 
     /**
      * Converts the raw bytes array into DBZ short arrays
-     * 
+     *
      * @param inputArray
      * @param radRec
      * @return
@@ -676,7 +695,7 @@ public class ScanUtils {
 
     /**
      * Converts the raw bytes array into DBZ short arrays
-     * 
+     *
      * @param inputArray
      * @param radRec
      * @return
@@ -686,7 +705,7 @@ public class ScanUtils {
 
         short[] grid = null;
 
-        if (radRec.getFormat().equals("Radial")) {
+        if ("Radial".equals(radRec.getFormat())) {
 
             short[] iazm_array = new short[radRec.getNumRadials()];
             short[] irad_array = new short[radRec.getNumBins()
@@ -706,7 +725,7 @@ public class ScanUtils {
                     radRec.getNumBins(), iazm_array, irad_array);
         }
 
-        else if (radRec.getFormat().equals("Raster")) {
+        else if ("Raster".equals(radRec.getFormat())) {
 
             short[] ogrid = new short[radRec.getNumBins()
                     * radRec.getNumRadials()];
@@ -719,18 +738,19 @@ public class ScanUtils {
             }
 
             if ((radRec.getNumBins() * radRec.getNumRadials()) != gridSize) {
-                if (max)
+                if (max) {
                     grid = ScanUtils.reSizeGridMax(ogrid, gridSize,
                             radRec.getNumRadials(), radRec.getNumBins());
-                else
+                } else {
                     grid = ScanUtils.reSizeGrid(ogrid, gridSize,
                             radRec.getNumRadials(), radRec.getNumBins());
+                }
             } else {
                 grid = ogrid;
             }
         }
 
-        else if (radRec.getFormat().equals("Graphic")) {
+        else if ("Graphic".equals(radRec.getFormat())) {
 
             short[] ogrid = new short[radRec.getNumBins()
                     * radRec.getNumRadials()];
@@ -743,12 +763,13 @@ public class ScanUtils {
                 }
             }
             if ((radRec.getNumBins() * radRec.getNumRadials()) != gridSize) {
-                if (max)
+                if (max) {
                     grid = ScanUtils.reSizeGridMax(ogrid, gridSize,
                             radRec.getNumRadials(), radRec.getNumBins());
-                else
+                } else {
                     grid = ScanUtils.reSizeGrid(ogrid, gridSize,
                             radRec.getNumRadials(), radRec.getNumBins());
+                }
             } else {
                 grid = ogrid;
             }
@@ -759,7 +780,7 @@ public class ScanUtils {
 
     /**
      * Find the direct DBz conversion, gets you the threshold data falls into.
-     * 
+     *
      * @param radRec
      * @param irad
      * @param ibin
@@ -785,7 +806,7 @@ public class ScanUtils {
 
     /**
      * Find the direct ET value
-     * 
+     *
      * @param radRec
      * @param dataValue
      * @return
@@ -808,18 +829,18 @@ public class ScanUtils {
 
     /**
      * Find the direct DPR value
-     * 
+     *
      * @param dataValue
      * @return
      */
     public static float decodeDPRValue(int dataValue) {
         // DPR is shown in 1000th of an inch
-        return (float) (dataValue / 1000.0f);
+        return dataValue / 1000.0f;
     }
 
     /**
      * Find the direct ET value
-     * 
+     *
      * @param radRec
      * @param dataValue
      * @return
@@ -844,7 +865,7 @@ public class ScanUtils {
 
     /**
      * Finds the Double value of the radar data
-     * 
+     *
      * @param orig_val
      * @return
      */
@@ -857,24 +878,28 @@ public class ScanUtils {
         if (orig_val >= 0) {
             comp_val = orig_val;
         } else {
-            comp_val = 65536 + orig_val;
+            comp_val = 65_536 + orig_val;
         }
 
         hex1 = (int) (comp_val / 16);
         hex2 = (hex1 / 16);
         hex3 = (hex2 / 16);
         hex4 = (hex3 / 16);
-        dig1 = hex3 - (16 * hex4); // combine with above
-        dig2 = hex2 - (16 * hex3); // combine with above
-        dig3 = hex1 - (16 * hex2); // combine with above
-        dig4 = (int) comp_val - (16 * hex1); // combine with above
+        // combine with above
+        dig1 = hex3 - (16 * hex4);
+        // combine with above
+        dig2 = hex2 - (16 * hex3);
+        // combine with above
+        dig3 = hex1 - (16 * hex2);
+        // combine with above
+        dig4 = (int) comp_val - (16 * hex1);
         bin1 = hex2bin(dig1);
         bin2 = hex2bin(dig2);
         bin3 = hex2bin(dig3);
         bin4 = hex2bin(dig4);
         cS = (bin1 / 1000);
         cE = ((bin1 - (cS * 1000)) * 100) + ((bin2 / 100));
-        cF = ((bin2 - ((bin2 / 100) * 100)) * 100000000) + (bin3 * 10000)
+        cF = ((bin2 - ((bin2 / 100) * 100)) * 100_000_000) + (bin3 * 10_000)
                 + (bin4);
         dS = bin2dec(cS);
         dE = bin2dec(cE);
@@ -893,7 +918,7 @@ public class ScanUtils {
 
     /**
      * Gets the hexidecimal 2 binary conversion.
-     * 
+     *
      * @param hex
      * @return
      */
@@ -938,7 +963,7 @@ public class ScanUtils {
 
     /**
      * Get the binary to decimal conversion
-     * 
+     *
      * @param binary
      * @return
      */
@@ -957,7 +982,7 @@ public class ScanUtils {
 
     /**
      * Takes radar radials and values and converts to SCAN grid.
-     * 
+     *
      * @param record
      * @return
      */
@@ -978,7 +1003,7 @@ public class ScanUtils {
 
     /**
      * Gets the Hail prob for a particular freezing level, Eastern algorithm
-     * 
+     *
      * @param frzLevel
      * @return
      */
@@ -988,7 +1013,7 @@ public class ScanUtils {
 
     /**
      * Gets the Hail prob for a particular freezing level, Western algorithm
-     * 
+     *
      * @param frzLevel
      * @param thick1000_500
      * @return
@@ -999,11 +1024,11 @@ public class ScanUtils {
     }
 
     /**
-     * 
+     *
      * Obtain the max VIL around the cell and count the number of grid points
      * with >10 and >20 kg/m2. First, check the bounds to make sure 'around'
      * does not include grid points outside the SCAN grid.
-     * 
+     *
      * @param vilRec
      * @param storms
      * @return
@@ -1030,21 +1055,23 @@ public class ScanUtils {
         Coordinate cellCorr = null;
         try {
             cellCorr = rc.asGridCell(stationGeometry, PixelInCell.CELL_CENTER);
-        } catch (TransformException e) {
-            e.printStackTrace();
-        } catch (FactoryException e) {
-            e.printStackTrace();
+        } catch (FactoryException | TransformException e) {
+            statusHandler.error("Unable to convert to cell coordinate.", e);
         }
 
         Coordinate gridPt = new Coordinate(cellCorr.x, cellCorr.y, 0);
-        if (gridPt.x < lower)
+        if (gridPt.x < lower) {
             gridPt.x = lower;
-        if (gridPt.x > upper)
+        }
+        if (gridPt.x > upper) {
             gridPt.x = upper;
-        if (gridPt.y < lower)
+        }
+        if (gridPt.y < lower) {
             gridPt.y = lower;
-        if (gridPt.y > upper)
+        }
+        if (gridPt.y > upper) {
             gridPt.y = upper;
+        }
 
         for (ii = (int) (gridPt.x - 1); ii <= (int) (gridPt.x + 1); ii++) {
             for (jj = (int) (gridPt.y - 1); jj <= (int) (gridPt.y + 1); jj++) {
@@ -1064,10 +1091,12 @@ public class ScanUtils {
                         || (jj >= SCAN_GRID_DIM)) {
                     continue;
                 }
-                if (vilGrid[(ii * SCAN_GRID_DIM) + jj] > 20)
+                if (vilGrid[(ii * SCAN_GRID_DIM) + jj] > 20) {
                     isvg20++;
-                if (vilGrid[(ii * SCAN_GRID_DIM) + jj] > 10)
+                }
+                if (vilGrid[(ii * SCAN_GRID_DIM) + jj] > 10) {
                     isvg10++;
+                }
             }
         }
 
@@ -1076,22 +1105,23 @@ public class ScanUtils {
         if ((thick1000_500 != null) && (frzLevel != null) && (u500 != null)) {
 
             if (coor.x > -85.0) {
-                svrWxProb = (float) (-16.37 + (2.33 * isvg20) + (1.02 * spd700) + (0.646 * maxvil));
+                svrWxProb = (float) (-16.37 + (2.33 * isvg20) + (1.02 * spd700)
+                        + (0.646 * maxvil));
 
                 if (maxvil == 10.0) {
-                    polh = (float) (14.22 + maxvil
-                            * ((0.03 * maxvil) - (0.0031 * frzLevel)));
+                    polh = (float) (14.22
+                            + maxvil * ((0.03 * maxvil) - (0.0031 * frzLevel)));
                 } else {
                     polh = (float) (maxvil * getHail10East(frzLevel) * 0.1);
                 }
             } else {
-                svrWxProb = (float) Math.abs((-16.49 + maxvil
-                        * ((0.025 * maxvil) - (0.00206 * frzLevel))
+                svrWxProb = (float) Math.abs((-16.49
+                        + maxvil * ((0.025 * maxvil) - (0.00206 * frzLevel))
                         + (0.365 * u500) + (0.341 * totalTotals)));
 
                 if (maxvil >= 10.0) {
-                    polh = (float) (-375.43 + maxvil
-                            * ((0.019 * maxvil) - (0.00619 * frzLevel))
+                    polh = (float) (-375.43
+                            + maxvil * ((0.019 * maxvil) - (0.00619 * frzLevel))
                             + (2.057 * maxvil) + (0.066 * thick1000_500));
                 } else {
                     polh = (float) (maxvil
@@ -1102,9 +1132,7 @@ public class ScanUtils {
             // System.out.println("svrWxProb: " + svrWxProb);
             // System.out.println("POLH: " + polh);
 
-            //
             // Truncate probabilities to the range 0-100
-            //
             if (polh < 0.0) {
                 polh = 0.0f;
             } else if (polh > 100.0) {
@@ -1116,11 +1144,11 @@ public class ScanUtils {
                 svrWxProb = 100.0f;
             }
 
-        } // end if envDataBad
-          //
-          // If environmental data is missing or bizarre, use VIL-Only
-          // relationships.
-          //
+        }
+        /*
+         * If environmental data is missing or bizarre, use VIL-Only
+         * relationships.
+         */
         else {
             if (maxvil >= 70) {
                 polh = svrWxProb = 99.0f;
@@ -1159,7 +1187,7 @@ public class ScanUtils {
 
         // System.out.println("hvyprProb: " + hvyPrProb);
 
-        HashMap<String, Float> vals = new HashMap<String, Float>();
+        HashMap<String, Float> vals = new HashMap<>();
         vals.put(MAXVIL, maxvil);
         vals.put(VIL10, isvg10);
         vals.put(VIL20, isvg20);
@@ -1172,7 +1200,7 @@ public class ScanUtils {
 
     /**
      * Construct a 2D GridGeometry representing the SCAN GRID
-     * 
+     *
      * @return
      */
     public static GridGeometry2D getStationGeometry(Coordinate c, int res,
@@ -1189,15 +1217,17 @@ public class ScanUtils {
         generalEnvelope.setRange(0, -maxExtent, maxExtent);
         generalEnvelope.setRange(1, -maxExtent, maxExtent);
 
-        gridGeometry2D = new GridGeometry2D(new GeneralGridEnvelope(new int[] {
-                0, 0 }, new int[] { dim, dim }, false), generalEnvelope);
+        gridGeometry2D = new GridGeometry2D(
+                new GeneralGridEnvelope(new int[] { 0, 0 },
+                        new int[] { dim, dim }, false),
+                generalEnvelope);
 
         return gridGeometry2D;
     }
 
     /**
      * Gets the maximum Scan radar extent
-     * 
+     *
      * @return
      */
     public static double getMaxExtent() {
@@ -1206,7 +1236,7 @@ public class ScanUtils {
 
     /**
      * Gets the projected CRS
-     * 
+     *
      * @return
      */
     public static ProjectedCRS getCRS(Coordinate c) {
@@ -1217,7 +1247,7 @@ public class ScanUtils {
 
     /**
      * Increment for byte data offsets
-     * 
+     *
      * @param topValue
      * @param total_increments
      * @return
@@ -1229,7 +1259,7 @@ public class ScanUtils {
 
     /**
      * figures out your total based on value, inc, total number of incs
-     * 
+     *
      * @param value
      * @param inc
      * @param tot_inc
@@ -1247,7 +1277,7 @@ public class ScanUtils {
 
     /**
      * Gets the distance of two points point
-     * 
+     *
      * @param coor1
      * @param coor2
      * @return
@@ -1264,7 +1294,7 @@ public class ScanUtils {
 
     /***
      * Collect lightning strikes for this particular cellCoor radius
-     * 
+     *
      * @param rec
      * @param cellCoor
      * @param radarSite
@@ -1272,12 +1302,11 @@ public class ScanUtils {
      * @return
      * @throws Exception
      */
-    public static LightningReport getStrikeList(
-            ArrayList<BinLightningRecord> recs, Coordinate stormCoor,
-            GridGeometry2D geometry, double distance, Date previousVolScanTime,
-            Date currVolScanTime) {
+    public static LightningReport getStrikeList(List<BinLightningRecord> recs,
+            Coordinate stormCoor, GridGeometry2D geometry, double distance,
+            Date previousVolScanTime, Date currVolScanTime) {
 
-        ArrayList<LightningStrike> strikeList = new ArrayList<LightningStrike>();
+        List<LightningStrike> strikeList = new ArrayList<>();
         GeodeticCalculator gc = new GeodeticCalculator(getCRS(stormCoor));
 
         for (BinLightningRecord rec : recs) {
@@ -1306,13 +1335,14 @@ public class ScanUtils {
         int totalCGStrikes = 0;
         int totalStrikes = 0;
 
-        if (strikeList.size() > 0) {
+        if (!strikeList.isEmpty()) {
 
             for (LightningStrike ls : strikeList) {
                 if (ls.getIntensity() > 0) {
                     totalPosStrikes++;
                 }
-                if (ls.getStrikeType() == LtgStrikeType.CLOUD_TO_GROUND.getId()) {
+                if (ls.getStrikeType() == LtgStrikeType.CLOUD_TO_GROUND
+                        .getId()) {
                     totalCGStrikes++;
                 }
                 totalStrikes++;
@@ -1326,13 +1356,15 @@ public class ScanUtils {
         // only need int precision
 
         if (totalCGStrikes > 0) {
-            lr.setCgRate((int) (totalCGStrikes / ((stop_time - start_time) / (1000.0 * 60.0))));
+            lr.setCgRate((int) (totalCGStrikes
+                    / ((stop_time - start_time) / (1000.0 * 60.0))));
         } else {
             lr.setCgRate(0);
         }
 
         if (totalPosStrikes > 0) {
-            lr.setPercentPos(((double) totalPosStrikes / (double) totalStrikes) * 100.0);
+            lr.setPercentPos(
+                    ((double) totalPosStrikes / (double) totalStrikes) * 100.0);
         } else {
             lr.setPercentPos(0.0);
         }
@@ -1342,13 +1374,14 @@ public class ScanUtils {
 
     /**
      * Gets the text string of the polygon describing the radar areal coverage
-     * 
+     *
      * @param Coordinate
      * @param maxExtent
      * @return
      * @throws IOException
      */
-    public static String getRadarPolygonText(Coordinate coor, double maxExtent) {
+    public static String getRadarPolygonText(Coordinate coor,
+            double maxExtent) {
 
         GeodeticCalculator gc = new GeodeticCalculator();
         gc.setStartingGeographicPoint(coor.x, coor.y);
@@ -1381,7 +1414,7 @@ public class ScanUtils {
 
     /**
      * Write geometry as text
-     * 
+     *
      * @param coor
      * @return
      */
@@ -1394,7 +1427,7 @@ public class ScanUtils {
 
     /**
      * Gets the sites under CWA umbrella
-     * 
+     *
      * @param cwa
      * @return
      */
@@ -1402,13 +1435,14 @@ public class ScanUtils {
             ProjectedCRS crs) {
 
         WKBReader wkbReader = new WKBReader();
-        String sql = "select stationid, name, AsBinary(the_geom) from common_obs_spatial where "
+        String sql = "select stationid, name, ST_AsBinary(the_geom) from common_obs_spatial where "
                 + "ST_Contains(ST_GeomFromText('"
                 + ScanUtils.getRadarPolygonText(sitePoint,
-                        ScanUtils.getMaxExtent()) + "', -1), the_geom)";
+                        ScanUtils.getMaxExtent())
+                + "', -1), the_geom)";
         // System.out.println("Sites SQL:" + sql);
         ISpatialQuery sq = null;
-        ArrayList<ThreatLocation> sites = new ArrayList<ThreatLocation>();
+        ArrayList<ThreatLocation> sites = new ArrayList<>();
         GeodeticCalculator gc = null;
         try {
             sq = SpatialQueryFactory.create();
@@ -1442,7 +1476,7 @@ public class ScanUtils {
                 }
             }
         } catch (SpatialException e) {
-            e.printStackTrace();
+            statusHandler.error("Unable to get CWA sites.", e);
         }
 
         return sites;
@@ -1450,13 +1484,13 @@ public class ScanUtils {
 
     /**
      * Check for Coordinates that are the same
-     * 
+     *
      * @param threat
      * @param threats
      * @return
      */
     public static boolean checkUnique(ThreatLocation threat,
-            ArrayList<ThreatLocation> threats, GeodeticCalculator gc) {
+            List<ThreatLocation> threats, GeodeticCalculator gc) {
         for (ThreatLocation loc : threats) {
 
             double dist = getDistance(loc.getCoor(), threat.getCoor(), gc)
@@ -1471,23 +1505,25 @@ public class ScanUtils {
 
     /**
      * fix translation of geodetic degrees to true degrees
-     * 
+     *
      * @param dir
      * @return
      */
     public static double getGeodeticDirection(double dir) {
         if (dir > 180.0) {
-            dir = dir * (-1); // switch it to negative
+            // switch it to negative
+            dir = dir * (-1);
             dir = -180.0 - dir;
         } else {
-            dir = (180 - dir) * -1;// switch it to positive
+            // switch it to positive
+            dir = (180 - dir) * -1;
         }
         return dir;
     }
 
     /**
      * extract geometry
-     * 
+     *
      * @param obj
      * @return
      */
@@ -1496,7 +1532,7 @@ public class ScanUtils {
         try {
             geometry = wkbReader.read((byte[]) obj);
         } catch (ParseException e) {
-            e.printStackTrace();
+            statusHandler.error("Unable to read geometry.", e);
         }
 
         return geometry.getCoordinate();
@@ -1504,7 +1540,7 @@ public class ScanUtils {
 
     /**
      * get coordinate
-     * 
+     *
      * @param obj
      * @return
      */
@@ -1514,7 +1550,7 @@ public class ScanUtils {
         try {
             geometry = wkbReader.read((byte[]) obj);
         } catch (ParseException e) {
-            e.printStackTrace();
+            statusHandler.error("Unable to read coordinate.", e);
         }
 
         return geometry;
@@ -1522,7 +1558,7 @@ public class ScanUtils {
 
     /**
      * Used by PrecipRate
-     * 
+     *
      * @param dhrRec
      * @return
      */
@@ -1536,8 +1572,8 @@ public class ScanUtils {
         for (int radial = 0; radial < dhrRec.getNumRadials(); radial++) {
             for (int bin = 0; bin < dhrRec.getNumBins(); bin++) {
                 float value = 0.0f;
-                float fvalue = (float) getDecodedDHRValue(dhrRec
-                        .getRawIntDataValue(radial, bin));
+                float fvalue = (float) getDecodedDHRValue(
+                        dhrRec.getRawIntDataValue(radial, bin));
 
                 if (fvalue > 0.0) {
                     value = ScanUtils.getZRvalue(fvalue,
@@ -1556,7 +1592,7 @@ public class ScanUtils {
 
     /**
      * Gets the value decoded for the record
-     * 
+     *
      * @param radarRec
      * @param dataValue
      * @return
@@ -1564,15 +1600,11 @@ public class ScanUtils {
     public static double getDecodedDHRValue(int dataValue) {
         double value = 0.0;
 
-        try {
-            if (dataValue < 2) {
-                return value;
-            } else {
-                // it has a value
-                value = MIN_DHR_DBZ + ((dataValue - 2) * DHR_DBZ_STEP);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (dataValue < 2) {
+            return value;
+        } else {
+            // it has a value
+            value = MIN_DHR_DBZ + ((dataValue - 2) * DHR_DBZ_STEP);
         }
         return value;
     }
@@ -1587,9 +1619,8 @@ public class ScanUtils {
         if (zValue > 0.0f) {
 
             double rlogMult = Math.log10(coefficent);
-            rValue = bias
-                    * (Math.pow(10.0,
-                            ((zValue - 10.0 * rlogMult) / (10.0 * power))));
+            rValue = bias * (Math.pow(10.0,
+                    ((zValue - 10.0 * rlogMult) / (10.0 * power))));
 
             // hail cap check
             if (rValue > hailCap) {
@@ -1604,7 +1635,7 @@ public class ScanUtils {
 
     /**
      * direct port of NWS code to find height of beam location
-     * 
+     *
      * @param range
      * @param elevAngle
      * @return
@@ -1616,7 +1647,8 @@ public class ScanUtils {
         // System.out.println("Range: "+range);
         // System.out.println("ELEVATION: "+elevAngle);
 
-        double frange = range * NMI_TO_KM; // Conversion from nmi to // km.
+        // Conversion from nmi to // km.
+        double frange = range * NMI_TO_KM;
         double term1 = frange * Math.sin(Math.toRadians(elevAngle));
         double term2 = Math.pow(frange, 2.0) / (2 * (1.21 * R_EARTH));
         double height = (term1 + term2) * KM_TO_KFT;
@@ -1628,7 +1660,7 @@ public class ScanUtils {
 
     /**
      * converts the vil value from the short
-     * 
+     *
      * @param x
      * @return
      */
@@ -1641,15 +1673,15 @@ public class ScanUtils {
         if (e == 0) {
             value = (float) (Math.pow(-1, s) * 2 * (f / Math.pow(2, 10)));
         } else {
-            value = (float) ((Math.pow(-1, s) * Math.pow(2, e - 16) * (1 + f
-                    / Math.pow(2, 10))));
+            value = (float) ((Math.pow(-1, s) * Math.pow(2, e - 16)
+                    * (1 + f / Math.pow(2, 10))));
         }
         return value;
     }
 
     /**
-     * threhold consideration of DVIL values
-     * 
+     * threshold consideration of DVIL values
+     *
      * @param rec
      * @param dataValue
      * @return
@@ -1675,7 +1707,7 @@ public class ScanUtils {
 
     /**
      * decode the EET value
-     * 
+     *
      * @param dataValue
      * @return
      */
@@ -1697,21 +1729,23 @@ public class ScanUtils {
 
     /**
      * parse the MDA SR
-     * 
+     *
      * @param cellText
      * @return
      */
     public static double parseMDASR(String cellText) {
         double value = 0.0;
         String suffix = null;
-        if (cellText.matches("[0-9.]+") == true) {
+        if (cellText.matches("[0-9.]+")) {
             value = Double.valueOf(cellText);
         } else if (cellText.endsWith("L") || cellText.endsWith("M")) {
             try {
                 suffix = cellText.substring(cellText.length() - 1);
-                value = Double.valueOf(cellText.substring(0,
-                        cellText.length() - 1));
+                value = Double
+                        .valueOf(cellText.substring(0, cellText.length() - 1));
             } catch (Exception ex) {
+                statusHandler.handle(Priority.WARN,
+                        "Unable to parse " + cellText, ex);
                 value = -999.0;
                 suffix = null;
             }
@@ -1731,10 +1765,9 @@ public class ScanUtils {
         ISpatialQuery sq = null;
         String sql = "SELECT f_geometry_column FROM public.geometry_columns "
                 + "WHERE f_table_schema='mapdata' AND f_table_name='"
-                + tablename
-                + "' "
+                + tablename + "' "
                 + "AND f_geometry_column LIKE 'the_geom_%' order by f_geometry_column desc;";
-        List<String> levelList = new ArrayList<String>();
+        List<String> levelList = new ArrayList<>();
         try {
             sq = SpatialQueryFactory.create();
             Object[] results = sq.dbRequest(sql, MAPS_DB);
@@ -1749,14 +1782,15 @@ public class ScanUtils {
                 String columnName = obj.toString();
                 levelList.add(columnName);
                 String s = (columnName).substring(9).replace('_', '.');
-                levels[i++] = Double.parseDouble(s);
+                levels[i] = Double.parseDouble(s);
+                i++;
             }
         } catch (SpatialException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error querying available levels", e);
         }
 
-        if (levelList == null || levelList.size() == 0) {
+        if (levelList == null || levelList.isEmpty()) {
             statusHandler.handle(Priority.ERROR, "Error querrying " + tablename
                     + " table.  No geometries found.");
             return;
@@ -1770,23 +1804,21 @@ public class ScanUtils {
                 break;
             }
         }
-
         prevTable = tablename;
     }
 
     /**
      * @return the levels
      */
-    public static ArrayList<String> getResolutionLevels(String tablename) {
+    public static List<String> getResolutionLevels(String tablename) {
 
         double[] levels = null;
         ISpatialQuery sq = null;
         String sql = "SELECT f_geometry_column FROM public.geometry_columns "
                 + "WHERE f_table_schema='mapdata' AND f_table_name='"
-                + tablename
-                + "' "
+                + tablename + "' "
                 + "AND f_geometry_column LIKE 'the_geom_%' order by f_geometry_column asc;";
-        ArrayList<String> levelList = new ArrayList<String>();
+        List<String> levelList = new ArrayList<>();
         try {
             sq = SpatialQueryFactory.create();
             Object[] results = sq.dbRequest(sql, MAPS_DB);
@@ -1800,14 +1832,15 @@ public class ScanUtils {
                 String columnName = obj.toString();
                 levelList.add(columnName);
                 String s = (columnName).substring(9).replace('_', '.');
-                levels[i++] = Double.parseDouble(s);
+                levels[i] = Double.parseDouble(s);
+                i++;
             }
         } catch (SpatialException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error querying available levels", e);
         }
 
-        if (levelList == null || levelList.size() == 0) {
+        if (levelList == null || levelList.isEmpty()) {
             statusHandler.handle(Priority.ERROR, "Error querrying " + tablename
                     + " table.  No geometries found.");
             return null;
@@ -1818,7 +1851,7 @@ public class ScanUtils {
 
     /**
      * Get the standard resolution level.
-     * 
+     *
      * @param tablename
      *            the name of the table
      * @return the standardResolutionLevel column name
@@ -1834,7 +1867,7 @@ public class ScanUtils {
 
     /**
      * Get the high resolution level.
-     * 
+     *
      * @param tablename
      *            the name of the table
      * @return the highResolutionLevel column name
@@ -1850,7 +1883,7 @@ public class ScanUtils {
 
     /**
      * Gets the WMO number for nearest upper air station
-     * 
+     *
      * @return
      */
     public static String getNearestWMO(Coordinate coor) {
@@ -1858,7 +1891,7 @@ public class ScanUtils {
         String wmo = null;
         @SuppressWarnings("unused")
         Geometry geo = null;
-        String sql = "select wmoindex, asBinary(upperairgeom) from common_obs_spatial where "
+        String sql = "select wmoindex, ST_AsBinary(upperairgeom) from common_obs_spatial where "
                 + "ST_Contains(ST_GeomFromText('"
                 + ScanUtils.getRadarPolygonText(coor, ScanUtils.getMaxExtent())
                 + "', -1), upperairgeom) and catalogtype = 22";
@@ -1873,45 +1906,42 @@ public class ScanUtils {
                 wmo = results2[0].toString();
             }
         } catch (Exception e) {
-            System.out
-                    .println("No BUFRUA data for stations near Radar, none will be used...");
+            statusHandler.handle(Priority.WARN,
+                    "No BUFRUA data for stations near Radar, none will be used...",
+                    e);
         }
 
         return wmo;
     }
 
     public static ArrayList<Object> getStationGeometry(String icao) {
-        ArrayList<Object> returns = new ArrayList<Object>(2);
-        String sql = "select AsBinary(the_geom) from radar_spatial where rda_id = \'"
-                + icao.toUpperCase() + "\'";
-        ISpatialQuery sq = null;
+        ArrayList<Object> returns = new ArrayList<>(2);
+        GetRadarSpatialRequest request = new GetRadarSpatialRequest();
+        request.setIcao(icao);
         try {
-            sq = SpatialQueryFactory.create();
-            Object[] results = sq.dbRequest(sql, "metadata");
-            if (results.length > 0) {
-                WKBReader reader = new WKBReader();
-                Geometry stationGeo = reader.read((byte[]) results[0]);
-                Coordinate stationCoor = stationGeo.getCoordinate();
-                returns.add(stationCoor);
-                returns.add(ScanUtils.getStationGeometry(stationCoor,
+            RadarStation radarStation = (RadarStation) RequestRouter
+                    .route(request);
+            if (radarStation != null) {
+                Coordinate coord = radarStation.getGeometry().getCoordinate();
+                returns.add(coord);
+                returns.add(ScanUtils.getStationGeometry(coord,
                         ScanUtils.SCAN_GRID_DIM_RESOLUTION,
                         ScanUtils.SCAN_GRID_DIM));
             }
         } catch (Exception e) {
-            System.out.println("Station geometry for " + icao
-                    + " setter failed.....");
+            statusHandler.error(
+                    "Station geometry for " + icao + " setter failed.....", e);
         }
-
         return returns;
     }
 
     /**
      * DR 13083: the first parameter zValue will use a radar bin's raw data
      * since old version handles value 66 wrong in getDecodedDHRValue(int).
-     * 
+     *
      * Usage: to be called in
      * FFMPProcessor.processRADAR(ArrayList<SourceBinEntry>):
-     * 
+     *
      * 1). comment out fval line; 2). call ScanUtils.getZRvalue2; 3). use
      * dataVals[j] as the first parameter in the step 2 above.
      */
@@ -1938,20 +1968,22 @@ public class ScanUtils {
 
     /**
      * Convert strength rank from string to double
-     * 
+     *
      * @param stRank
      * @return
      */
     public static double convertStrankValue(String stRank) {
         double tmpValue = Double.NaN;
 
-        if (stRank.matches("[0-9.]+") == true) {
+        if (stRank.matches("[0-9.]+")) {
             tmpValue = Double.valueOf(stRank);
         } else if (stRank.endsWith("L") || stRank.endsWith("M")) {
             try {
-                tmpValue = Double.valueOf(stRank.substring(0,
-                        stRank.length() - 1));
+                tmpValue = Double
+                        .valueOf(stRank.substring(0, stRank.length() - 1));
             } catch (Exception ex) {
+                statusHandler.handle(Priority.WARN,
+                        "Unable to convert st ranke " + stRank, ex);
                 tmpValue = -999.0;
             }
         }

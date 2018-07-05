@@ -77,6 +77,12 @@
          version="0.0.0"/>
 
    <plugin
+         id="com.raytheon.uf.common.dataplugin.ldadhydro"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
          id="com.raytheon.uf.viz.app.launcher"
          download-size="0"
          install-size="0"
@@ -91,7 +97,32 @@
          unpack="false"/>
 
    <plugin
+         id="com.raytheon.uf.viz.hpe"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.plugin.hpe"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
          id="com.raytheon.uf.common.xmrg"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.viz.xdat"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.dataplugin.mpe"
          download-size="0"
          install-size="0"
          version="0.0.0"

@@ -55,9 +55,9 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData.CombineOperation;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
-import com.raytheon.viz.core.rsc.ICombinedResourceData.CombineOperation;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

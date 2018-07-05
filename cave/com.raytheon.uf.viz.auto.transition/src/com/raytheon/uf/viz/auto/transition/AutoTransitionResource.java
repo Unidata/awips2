@@ -30,7 +30,7 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.BlendableCapability;
-import com.raytheon.viz.core.rsc.BlendedResource;
+import com.raytheon.uf.viz.core.rsc.groups.BlendedResource;
 
 /**
  * 

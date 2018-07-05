@@ -35,6 +35,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -45,11 +47,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.viz.mpe.MPEDateFormatter;
-import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.dialogs.polygon.RubberPolyData.PolygonEditAction;
@@ -71,30 +74,35 @@ import com.raytheon.viz.mpe.ui.dialogs.polygon.RubberPolyData.PolygonEditAction;
  *                                     removed unneeded Constant for Backward compatibility.
  * Feb 15, 2016  5338      bkowal      Keep track of the remaining persistent polygons just
  *                                     in case a refresh is required.
+ * Oct 06, 2017  6407      bkowal      Cleanup. Updates to support GOES-R SATPRE.
  * 
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 public class PolygonEditManager {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(PolygonEditManager.class);
+    
+    private PolygonEditManager() {
+    }
 
     /**
      * Comparator class that looks at mpe_polygon_action_order for ordering
      * preferences
      */
-    private static class ActionOrderingComparator implements
-            Comparator<RubberPolyData> {
+    private static class ActionOrderingComparator
+            implements Comparator<RubberPolyData> {
 
-        private static List<PolygonEditAction> actionPrecedence = new ArrayList<PolygonEditAction>();
+        private static List<PolygonEditAction> actionPrecedence = new ArrayList<>();
 
         static {
             String none = "None";
-            String actionOrder = AppsDefaults.getInstance().getToken(
-                    "mpe_polygon_action_order", none);
-            if (actionOrder != null
-                    && actionOrder.equalsIgnoreCase(none) == false) {
+            String actionOrder = AppsDefaults.getInstance()
+                    .getToken("mpe_polygon_action_order", none);
+            if (actionOrder != null && !actionOrder.equalsIgnoreCase(none)) {
                 String[] actions = actionOrder.split("[,]");
                 for (String action : actions) {
                     try {
@@ -118,17 +126,16 @@ public class PolygonEditManager {
      * Comparator class that looks at mpe_polygon_field_order for substitution
      * ordering preferences
      */
-    private static class SubOrderingComparator implements
-            Comparator<RubberPolyData> {
+    private static class SubOrderingComparator
+            implements Comparator<RubberPolyData> {
 
-        private static Map<DisplayFieldData, Integer> subPrecedence = new HashMap<DisplayFieldData, Integer>();
+        private static Map<DisplayFieldData, Integer> subPrecedence = new HashMap<>();
 
         static {
             String none = "None";
-            String fieldOrder = AppsDefaults.getInstance().getToken(
-                    "mpe_polygon_field_order", none);
-            if (fieldOrder != null
-                    && fieldOrder.equalsIgnoreCase(none) == false) {
+            String fieldOrder = AppsDefaults.getInstance()
+                    .getToken("mpe_polygon_field_order", none);
+            if (fieldOrder != null && !fieldOrder.equalsIgnoreCase(none)) {
                 int order = 0;
                 String[] fields = fieldOrder.split("[,]");
                 for (String field : fields) {
@@ -157,7 +164,7 @@ public class PolygonEditManager {
         }
     }
 
-    private final static Set<IPolygonEditsChangedListener> listeners = new LinkedHashSet<IPolygonEditsChangedListener>();
+    private static final Set<IPolygonEditsChangedListener> listeners = new LinkedHashSet<>();
 
     public static void registerListener(IPolygonEditsChangedListener listener) {
         synchronized (listeners) {
@@ -165,7 +172,8 @@ public class PolygonEditManager {
         }
     }
 
-    public static void unregisterListener(IPolygonEditsChangedListener listener) {
+    public static void unregisterListener(
+            IPolygonEditsChangedListener listener) {
         synchronized (listeners) {
             listeners.remove(listener);
         }
@@ -181,7 +189,7 @@ public class PolygonEditManager {
      */
     public static List<RubberPolyData> getPolygonEdits(
             DisplayFieldData fieldData, Date date) {
-        List<RubberPolyData> polygonEdits = new ArrayList<RubberPolyData>();
+        List<RubberPolyData> polygonEdits = new ArrayList<>();
 
         /* Check to see if the hourly polygon file exists. */
         File hourlyFile = getHourlyEditFile(fieldData, date);
@@ -213,6 +221,7 @@ public class PolygonEditManager {
     public static void writePolygonEdits(DisplayFieldData fieldData, Date date,
             List<RubberPolyData> polygonEdits, boolean persistentRemoved) {
         orderPolygonEdits(polygonEdits);
+        List<RubberPolyData> notifyPolygonEdits = new ArrayList<>(polygonEdits);
         File hourlyFile = getHourlyEditFile(fieldData, date);
         StringBuilder hourlyBuffer = new StringBuilder();
 
@@ -220,7 +229,7 @@ public class PolygonEditManager {
         File persistentFile = getPersistentEditFile(fieldData, date);
         StringBuilder persistentBuffer = new StringBuilder();
 
-        if (polygonEdits.size() > 0) {
+        if (!polygonEdits.isEmpty()) {
             int persistOrder = 0;
             int hourlyOrder = 0;
 
@@ -244,11 +253,10 @@ public class PolygonEditManager {
                 Point[] editPoints = polyEdit.getEditPoints();
                 boolean visible = polyEdit.isVisible();
 
-                String polyEditStr = editAction.toPrettyName()
-                        + " "
+                String polyEditStr = editAction.toPrettyName() + " "
                         + (subDrawSource != null ? subDrawSource.getFieldName()
-                                : String.format("%6.2f", precipValue)) + " "
-                        + editPoints.length + " " + (visible ? "1" : "0");
+                                : String.format("%6.2f", precipValue))
+                        + " " + editPoints.length + " " + (visible ? "1" : "0");
                 toUse.append(idx + " " + polyEditStr + "\n");
                 for (Point p : editPoints) {
                     toUse.append(p.x + " " + p.y + "\n");
@@ -256,19 +264,37 @@ public class PolygonEditManager {
             }
         }
 
+        Path containingPath = null;
         // Write persistent file
         if (persistentFile.exists()) {
             persistentFile.delete();
         }
         if (persistentBuffer.length() > 0) {
             try {
-                BufferedWriter out = new BufferedWriter(new FileWriter(
-                        persistentFile));
-                out.write(persistentBuffer.toString());
-                out.close();
+                containingPath = persistentFile.toPath().getParent();
+                if (!Files.exists(containingPath)) {
+                    Files.createDirectories(containingPath);
+                }
             } catch (IOException e) {
-                Activator.statusHandler.handle(Priority.PROBLEM,
-                        e.getLocalizedMessage(), e);
+                statusHandler.error("Failed to create directory: "
+                        + containingPath.toString() + ".", e);
+                return;
+            }
+            if (Files.exists(containingPath)) {
+                /*
+                 * Only write the file if the containing directory exists (was
+                 * successfully created).
+                 */
+                try (BufferedWriter out = new BufferedWriter(
+                        new FileWriter(persistentFile))) {
+                    out.write(persistentBuffer.toString());
+                } catch (IOException e) {
+                    statusHandler.error(
+                            "Failed to write persistent polygon file: "
+                                    + persistentFile.getAbsolutePath() + ".",
+                            e);
+                    return;
+                }
             }
         }
 
@@ -276,35 +302,81 @@ public class PolygonEditManager {
         if (hourlyFile.exists()) {
             hourlyFile.delete();
         }
+
         if (hourlyBuffer.length() > 0) {
+            boolean written = false;
             try {
-                BufferedWriter out = new BufferedWriter(new FileWriter(
-                        hourlyFile));
-                out.write(hourlyBuffer.toString());
-                out.close();
+                containingPath = hourlyFile.toPath().getParent();
+                if (!Files.exists(containingPath)) {
+                    Files.createDirectories(containingPath);
+                }
             } catch (IOException e) {
-                Activator.statusHandler.handle(Priority.PROBLEM,
-                        e.getLocalizedMessage(), e);
+                statusHandler.error("Failed to create directory: "
+                        + containingPath.toString() + ".", e);
+                if (persistentBuffer.length() <= 0) {
+                    /*
+                     * No persistent polygons have been written.
+                     */
+                    return;
+                }
+                /*
+                 * Cannot just exit on failure here due to the subset of
+                 * polygons that have successfully been written.
+                 */
+            }
+            if (Files.exists(containingPath)) {
+                /*
+                 * Only write the file if the containing directory exists (was
+                 * successfully created).
+                 */
+                try (BufferedWriter out = new BufferedWriter(
+                        new FileWriter(hourlyFile))) {
+                    out.write(hourlyBuffer.toString());
+                    written = true;
+                } catch (IOException e) {
+                    statusHandler.error(
+                            "Failed to write hourly polygon file: "
+                                    + persistentFile.getAbsolutePath() + ".",
+                            e);
+                    if (persistentBuffer.length() <= 0) {
+                        /*
+                         * No persistent polygons have been written.
+                         */
+                        return;
+                    }
+                    /*
+                     * Cannot just exit on failure here due to the subset of
+                     * polygons that have successfully been written.
+                     */
+                }
+            }
+            if (!written) {
+                /*
+                 * Remove all of the non-persistent polygons from the
+                 * notification list.
+                 */
+                notifyPolygonEdits = notifyPolygonEdits.stream()
+                        .filter((p) -> !p.isPersistent())
+                        .collect(Collectors.toList());
             }
         }
 
         // Notify listeners of the polygon edit changes
         Collection<IPolygonEditsChangedListener> toNotify;
         synchronized (listeners) {
-            toNotify = new LinkedHashSet<IPolygonEditsChangedListener>(
-                    listeners);
+            toNotify = new LinkedHashSet<>(listeners);
         }
         if (!persistentRemoved) {
             persistentRemaining = null;
         }
         for (IPolygonEditsChangedListener listener : toNotify) {
             listener.polygonEditsChanged(fieldData, date,
-                    new ArrayList<RubberPolyData>(polygonEdits),
-                    persistentRemaining);
+                    new ArrayList<>(notifyPolygonEdits), persistentRemaining);
         }
     }
 
-    public static File getHourlyEditFile(DisplayFieldData fieldData, Date date) {
+    public static File getHourlyEditFile(DisplayFieldData fieldData,
+            Date date) {
         String fieldname = fieldData.getFieldName();
         String polygonDir = MPEDisplayManager.getPolygonEditDir();
 
@@ -330,11 +402,10 @@ public class PolygonEditManager {
      */
     private static List<RubberPolyData> readPolygonEdits(File polygonEditFile,
             boolean persistent) {
-        List<RubberPolyData> polygonEdits = new ArrayList<RubberPolyData>();
+        List<RubberPolyData> polygonEdits = new ArrayList<>();
         String delimeter = "\\s+";
-        try {
-            BufferedReader in = new BufferedReader(new FileReader(
-                    polygonEditFile));
+        try (BufferedReader in = new BufferedReader(
+                new FileReader(polygonEditFile))) {
             String line = null;
             while ((line = in.readLine()) != null) {
                 String[] pieces = line.trim().split(delimeter);
@@ -355,22 +426,21 @@ public class PolygonEditManager {
                             editPoints[i] = new Point(hrapx, hrapy);
                         }
                     }
-                    boolean visible = (pieces[4].equals("0") == false);
+                    boolean visible = (!"0".equals(pieces[4]));
 
                     if (editAction == PolygonEditAction.SUB) {
                         String subCvUse = pieces[2];
                         DisplayFieldData subData = null;
                         for (DisplayFieldData fieldData : DisplayFieldData
                                 .values()) {
-                            if (fieldData.getFieldName().equalsIgnoreCase(
-                                    subCvUse)) {
+                            if (fieldData.getFieldName()
+                                    .equalsIgnoreCase(subCvUse)) {
                                 subData = fieldData;
                                 break;
                             }
                         }
-                        polygonEdits.add(new RubberPolyData(editAction,
-                                subData, -999.0, editPoints, visible,
-                                persistent));
+                        polygonEdits.add(new RubberPolyData(editAction, subData,
+                                -999.0, editPoints, visible, persistent));
                     } else {
                         double precipValue = Double.parseDouble(pieces[2]);
                         polygonEdits.add(new RubberPolyData(editAction, null,
@@ -378,12 +448,11 @@ public class PolygonEditManager {
                     }
                 }
             }
-            in.close();
         } catch (IOException e) {
-            Activator.statusHandler.handle(Priority.PROBLEM,
-                    "Error polygon edits from " + polygonEditFile, e);
+            statusHandler.error("Failed to read the polygon edits from: "
+                    + polygonEditFile + ".", e);
+
         }
         return polygonEdits;
     }
-
 }

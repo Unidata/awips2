@@ -37,6 +37,11 @@
 #    11/30/2015          #5129     dgilling       Support new IFPClient.
 #    03/02/2016          #5411     randerso       Fixed exception in exception handler
 #    07/19/2016          #5749     randerso       Fix issue with new Jep in __createArea()
+#    10/31/2016          #5979     njensen        Cast to primitives for compatibility
+
+##
+# This is a base file that is not intended to be overridden.
+##
 
 import string, getopt, sys, time, os, types, math
 import ModuleAccessor
@@ -194,6 +199,7 @@ class TextFormatter:
             # Translator
             language = forecastDef.get('language', None)
             if language is not None:
+                self.log.info("Translating product to %s" % language)
                 text = product.translateForecast(text, language)
             # Convert to Upper Case
             if not forecastDef.get('lowerCase', True):
@@ -628,8 +634,8 @@ class TextFormatter:
             from com.raytheon.uf.common.dataplugin.gfe.grid import Grid2DBit
             # Get grid cell coordinates for lat/lon
             gridLoc = self.ifpClient.getDBGridLocation()
-            nx = gridLoc.getNx().intValue()
-            ny = gridLoc.getNy().intValue()
+            nx = int(gridLoc.getNx())
+            ny = int(gridLoc.getNy())
             cc2D = gridLoc.gridCell(float(lat), float(lon))
             # convert grid cell to Grid2DBit with single bit set
             grid2Dbit = Grid2DBit(nx, ny)

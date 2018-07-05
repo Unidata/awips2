@@ -2,17 +2,17 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Redbook Plug-in
 Bundle-SymbolicName: com.raytheon.viz.redbook;singleton:=true
-Bundle-Version: 1.16.0.qualifier
+Bundle-Version: 1.16.1.qualifier
 Bundle-Activator: com.raytheon.viz.redbook.Activator
 Bundle-Vendor: Raytheon
-Require-Bundle: org.apache.batik,
- org.eclipse.ui,
- org.eclipse.core.runtime,
- com.raytheon.viz.core,
- org.geotools,
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.datastorage,
  com.raytheon.viz.ui,
  org.apache.commons.lang3;bundle-version="3.4.0",
- com.raytheon.uf.common.serialization,
  com.raytheon.uf.common.pointdata;bundle-version="1.11.26",
  com.raytheon.viz.pointdata,
  com.raytheon.uf.viz.productbrowser;bundle-version="1.11.31",
@@ -24,6 +24,5 @@ Export-Package: com.raytheon.viz.redbook,
  com.raytheon.viz.redbook.blocks,
  com.raytheon.viz.redbook.rsc,
  com.raytheon.viz.redbookua.rsc
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: com.raytheon.uf.common.colormap.prefs
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ClassPath: com.raytheon.viz.redbook.jar

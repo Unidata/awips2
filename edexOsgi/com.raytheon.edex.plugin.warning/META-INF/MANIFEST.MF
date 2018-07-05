@@ -18,6 +18,6 @@ Require-Bundle: org.geotools,
  com.raytheon.uf.edex.database,
  com.raytheon.uf.edex.python.decoder
 Export-Package: com.raytheon.edex.plugin.warning.tools
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.time,
  org.hibernate.annotations

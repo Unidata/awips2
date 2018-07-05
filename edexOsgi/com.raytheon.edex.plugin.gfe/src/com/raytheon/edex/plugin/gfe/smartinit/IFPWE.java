@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -30,10 +30,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TimeZone;
 
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfig;
-import com.raytheon.edex.plugin.gfe.config.IFPServerConfigManager;
-import com.raytheon.edex.plugin.gfe.reference.ReferenceMgr;
 import com.raytheon.edex.plugin.gfe.server.GridParmManager;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.plugin.gfe.server.lock.LockManager;
 import com.raytheon.edex.plugin.gfe.util.SendNotifications;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
@@ -48,6 +46,7 @@ import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData.RefType;
 import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceID;
+import com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceMgr;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg;
@@ -70,31 +69,39 @@ import com.raytheon.uf.common.util.Pair;
 
 /**
  * IFP Weather Element, originally a C++ <--> python bridge, ported to Java
- * 
+ *
  * <pre>
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * May 7, 2008              njensen     Initial creation
- * Jan 22, 2010  4248       njensen     Better error msgs
- * Jul 25, 2012  #957       dgilling    Implement getEditArea().
- * Apr 23, 2013  #1937      dgilling    Implement get().
- * Apr 23, 2013  #1941      dgilling    Implement put(), add methods to build
- *                                      Scalar/VectorGridSlices, refactor
- *                                      Discrete/WeatherGridSlices builders.
- * Jun 05, 2013  #2063      dgilling    Port history() from A1.
- * Jun 13, 2013  #2044      randerso    Refactored to use non-singleton 
- *                                      GridParmManager and LockManager
- * Nov 11, 2013  #2517      randerso    Changed put() to support multiple discontiguous saves
- *                                      Added getKeys(tr) to get grid times overlapping a time range
- *                                      Removed caching of inventory as it was not being updated when 
- *                                      grids were updated/deleted
- * Jul 01, 2014  #3149      randerso    Changed to use updated GetGridRequest. Cleaned up code
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 07, 2008           njensen   Initial creation
+ * Jan 22, 2010  4248     njensen   Better error msgs
+ * Jul 25, 2012  957      dgilling  Implement getEditArea().
+ * Apr 23, 2013  1937     dgilling  Implement get().
+ * Apr 23, 2013  1941     dgilling  Implement put(), add methods to build
+ *                                  Scalar/VectorGridSlices, refactor
+ *                                  Discrete/WeatherGridSlices builders.
+ * Jun 05, 2013  2063     dgilling  Port history() from A1.
+ * Jun 13, 2013  2044     randerso  Refactored to use non-singleton
+ *                                  GridParmManager and LockManager
+ * Nov 11, 2013  2517     randerso  Changed put() to support multiple
+ *                                  discontiguous saves Added getKeys(tr) to get
+ *                                  grid times overlapping a time range Removed
+ *                                  caching of inventory as it was not being
+ *                                  updated when grids were updated/deleted
+ * Jul 01, 2014  3149     randerso  Changed to use updated GetGridRequest.
+ *                                  Cleaned up code
+ * Sep 12, 2016  5861     randerso  Remove references to IFPServerConfigManager
+ *                                  which was largely redundant with IFPServer.
+ * Jun 12, 2017  6298     mapeters  Update references to refactored ReferenceMgr
+ * Jul 31, 2017  6342     randerso  Get ReferenceMgr from IFPServer. Code
+ *                                  cleanup
+ *
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
 public class IFPWE {
@@ -109,6 +116,8 @@ public class IFPWE {
 
     private final String siteId;
 
+    private final IFPServer ifpServer;
+
     private final GridParmManager gridParmMgr;
 
     private final LockManager lockMgr;
@@ -119,26 +128,25 @@ public class IFPWE {
 
     /**
      * Constructor
-     * 
-     * @param parm
+     *
+     * @param parmId
      * @param userName
-     * @param gridParmMgr
-     * @param lockMgr
+     * @param ifpServer
      */
-    public IFPWE(ParmID parm, String userName, GridParmManager gridParmMgr,
-            LockManager lockMgr) {
-        parmId = parm;
-        siteId = parm.getDbId().getSiteId();
-        this.gridParmMgr = gridParmMgr;
-        this.lockMgr = lockMgr;
+    public IFPWE(ParmID parmId, String userName, IFPServer ifpServer) {
+        this.parmId = parmId;
+        this.siteId = parmId.getDbId().getSiteId();
+        this.ifpServer = ifpServer;
+        this.gridParmMgr = ifpServer.getGridParmMgr();
+        this.lockMgr = ifpServer.getLockMgr();
 
-        gpi = gridParmMgr.getGridParmInfo(parmId).getPayload();
+        gpi = this.gridParmMgr.getGridParmInfo(parmId).getPayload();
         wsId = new WsId(null, userName, "EDEX");
     }
 
     /**
      * Returns all available times of data for the parm
-     * 
+     *
      * @return the time ranges of all available data for the parm
      */
     public List<TimeRange> getKeys() {
@@ -156,15 +164,15 @@ public class IFPWE {
 
     /**
      * Returns available times of data for the parm that overlap a time range
-     * 
+     *
      * @param tr
      *            the desired time range
      * @return the time ranges of data that overlap the desired time range
      */
     public List<TimeRange> getKeys(TimeRange tr) {
         List<TimeRange> overlappingTimes;
-        ServerResponse<List<TimeRange>> sr = gridParmMgr.getGridInventory(
-                parmId, tr);
+        ServerResponse<List<TimeRange>> sr = gridParmMgr
+                .getGridInventory(parmId, tr);
         if (sr.isOkay()) {
             overlappingTimes = sr.getPayload();
         } else {
@@ -175,8 +183,8 @@ public class IFPWE {
 
     /**
      * Returns the grid parm info
-     * 
-     * @return
+     *
+     * @return the GridParmInfo
      */
     public GridParmInfo getGpi() {
         return gpi;
@@ -184,10 +192,10 @@ public class IFPWE {
 
     /**
      * Returns a time range constrained by the grid parm info
-     * 
+     *
      * @param time
      *            the time in seconds
-     * @return
+     * @return the constrained TimeRange
      */
     public TimeRange getTimeRange(long time) {
         return gpi.getTimeConstraints().constraintTime(new Date(time * 1000));
@@ -195,16 +203,16 @@ public class IFPWE {
 
     /**
      * Returns an IGridSlice of data for the specified time range
-     * 
+     *
      * @param timeRange
      *            the time range to retrieve data for
-     * @return
+     * @return the IGridSlice
      * @throws GfeException
      */
     public IGridSlice getItem(TimeRange timeRange) throws GfeException {
         GetGridRequest req = new GetGridRequest(parmId,
                 Arrays.asList(timeRange));
-        ArrayList<GetGridRequest> reqList = new ArrayList<GetGridRequest>();
+        ArrayList<GetGridRequest> reqList = new ArrayList<>();
         reqList.add(req);
 
         ServerResponse<List<IGridSlice>> ssr = gridParmMgr.getGridData(reqList);
@@ -218,11 +226,22 @@ public class IFPWE {
         return slice;
     }
 
+    /**
+     * Retrieves IGridSlices and optionally GridDataHistorys for a list of
+     * TimeRanges
+     *
+     * @param times
+     *            the desired TimeRanges
+     * @param histories
+     *            true if histories should be returned
+     * @return list of pairs of IGridSlices and GridDataHistorys for the desired
+     *         times
+     */
     public List<Pair<IGridSlice, List<GridDataHistory>>> get(
             List<TimeRange> times, boolean histories) {
         GetGridRequest ggr = new GetGridRequest(parmId, times);
-        ServerResponse<List<IGridSlice>> sr = gridParmMgr.getGridData(Arrays
-                .asList(ggr));
+        ServerResponse<List<IGridSlice>> sr = gridParmMgr
+                .getGridData(Arrays.asList(ggr));
 
         if (!sr.isOkay()) {
             String msg = "Could not retrieve grid data for parm [" + parmId
@@ -232,18 +251,18 @@ public class IFPWE {
         }
 
         List<IGridSlice> data = sr.getPayload();
-        List<Pair<IGridSlice, List<GridDataHistory>>> rval = new ArrayList<Pair<IGridSlice, List<GridDataHistory>>>(
+        List<Pair<IGridSlice, List<GridDataHistory>>> rval = new ArrayList<>(
                 data.size());
         for (IGridSlice grid : data) {
             List<GridDataHistory> hists = Collections.emptyList();
             if (histories) {
                 GridDataHistory[] h = grid.getHistory();
-                hists = new ArrayList<GridDataHistory>(h.length);
+                hists = new ArrayList<>(h.length);
                 for (GridDataHistory entry : h) {
                     hists.add(entry);
                 }
             }
-            rval.add(new Pair<IGridSlice, List<GridDataHistory>>(grid, hists));
+            rval.add(new Pair<>(grid, hists));
         }
 
         return rval;
@@ -252,7 +271,7 @@ public class IFPWE {
     /**
      * Stores the provided grid slices into this weather element's permanent
      * storage.
-     * 
+     *
      * @param inventory
      *            A Map of TimeRanges to List of IGridSlices. TimeRange is the
      *            replacement time range
@@ -277,13 +296,12 @@ public class IFPWE {
                 statusHandler.error("Could not lock TimeRange " + timeRangeSpan
                         + " for parm [" + parmId + "]: "
                         + lockResponse.message());
-                throw new GfeException("Request lock failed. "
-                        + lockResponse.message());
+                throw new GfeException(
+                        "Request lock failed. " + lockResponse.message());
             }
 
             List<IGridSlice> gridSlices = entry.getValue();
-            List<GFERecord> records = new ArrayList<GFERecord>(
-                    gridSlices.size());
+            List<GFERecord> records = new ArrayList<>(gridSlices.size());
             for (IGridSlice slice : gridSlices) {
                 GFERecord rec = new GFERecord(parmId, slice.getValidTime());
                 rec.setGridHistory(slice.getHistory());
@@ -294,8 +312,8 @@ public class IFPWE {
                     records);
 
             try {
-                ServerResponse<?> sr = gridParmMgr.saveGridData(
-                        Arrays.asList(sgr), wsId);
+                ServerResponse<?> sr = gridParmMgr
+                        .saveGridData(Arrays.asList(sgr), wsId);
                 if (sr.isOkay()) {
                     SendNotifications.send(sr.getNotifications());
                 } else {
@@ -323,7 +341,7 @@ public class IFPWE {
 
     /**
      * Returns the grid history for a specified time range.
-     * 
+     *
      * @param tr
      *            The time for which the history is being requested.
      * @return The grid history entries for the specified time range in coded
@@ -347,7 +365,7 @@ public class IFPWE {
         }
 
         List<GridDataHistory> hist = payload.get(tr);
-        List<String> retVal = new ArrayList<String>(hist.size());
+        List<String> retVal = new ArrayList<>(hist.size());
         for (GridDataHistory entry : hist) {
             retVal.add(entry.getCodedString());
         }
@@ -357,8 +375,8 @@ public class IFPWE {
     private void setItem(TimeRange time, IGridSlice gridSlice,
             List<GridDataHistory> gdh) throws GfeException {
         GFERecord rec = new GFERecord(parmId, time);
-        rec.setGridHistory(gdh.toArray(new GridDataHistory[] {}));
-        List<GFERecord> records = new ArrayList<GFERecord>();
+        rec.setGridHistory(gdh);
+        List<GFERecord> records = new ArrayList<>();
         if (gridSlice != null) {
             rec.setMessageData(gridSlice);
             records.add(rec);
@@ -366,7 +384,7 @@ public class IFPWE {
 
         SaveGridRequest req = new SaveGridRequest(parmId, time, records);
         req.setParmId(parmId);
-        List<SaveGridRequest> reqList = new ArrayList<SaveGridRequest>();
+        List<SaveGridRequest> reqList = new ArrayList<>();
         reqList.add(req);
         boolean combineLocks = this.wsId.getUserName().equals(SMART_INIT_USER);
         if (!combineLocks) {
@@ -375,13 +393,13 @@ public class IFPWE {
         }
         ServerResponse<List<LockTable>> lockResponse = lockMgr
                 .requestLockChange(
-                        new LockRequest(req.getParmId(), req
-                                .getReplacementTimeRange(), LockMode.LOCK),
+                        new LockRequest(req.getParmId(),
+                                req.getReplacementTimeRange(), LockMode.LOCK),
                         wsId, combineLocks);
 
         if (!lockResponse.isOkay()) {
-            throw new GfeException("Request lock failed. "
-                    + lockResponse.message());
+            throw new GfeException(
+                    "Request lock failed. " + lockResponse.message());
         } else {
             statusHandler.debug("LOCKING: Lock granted for: " + wsId
                     + " for time range: " + req.getReplacementTimeRange());
@@ -414,13 +432,12 @@ public class IFPWE {
                         + " TR: " + req.getReplacementTimeRange());
             }
             ServerResponse<List<LockTable>> unLockResponse = lockMgr
-                    .requestLockChange(
-                            new LockRequest(req.getParmId(), req
-                                    .getReplacementTimeRange(), LockMode.UNLOCK),
+                    .requestLockChange(new LockRequest(req.getParmId(),
+                            req.getReplacementTimeRange(), LockMode.UNLOCK),
                             wsId, combineLocks);
             if (!unLockResponse.isOkay()) {
-                throw new GfeException("Request unlock failed. "
-                        + unLockResponse.message());
+                throw new GfeException(
+                        "Request unlock failed. " + unLockResponse.message());
             } else {
                 statusHandler.debug("LOCKING: Unlocked for: " + wsId + " TR: "
                         + req.getReplacementTimeRange());
@@ -429,64 +446,104 @@ public class IFPWE {
         }
     }
 
+    /**
+     * @param timeRange
+     * @throws GfeException
+     */
     public void removeItem(TimeRange timeRange) throws GfeException {
         setItem(timeRange, null, new ArrayList<GridDataHistory>());
     }
 
+    /**
+     * @param time
+     * @param scalarData
+     * @throws GfeException
+     */
     public void setItemScalar(TimeRange time, float[] scalarData)
             throws GfeException {
-        Calendar lastSentTime = Calendar.getInstance(TimeZone
-                .getTimeZone("GMT"));
+        Calendar lastSentTime = Calendar
+                .getInstance(TimeZone.getTimeZone("GMT"));
 
-        List<GridDataHistory> gdhList = new ArrayList<GridDataHistory>();
+        List<GridDataHistory> gdhList = new ArrayList<>();
         gdhList.add(new GridDataHistory(GridDataHistory.OriginType.INITIALIZED,
-                this.parmId, time, lastSentTime.getTime(), lastSentTime
-                        .getTime()));
+                this.parmId, time, lastSentTime.getTime(),
+                lastSentTime.getTime()));
         setItemScalar(time, scalarData, gdhList);
     }
 
+    /**
+     * @param time
+     * @param scalarData
+     * @param gdhList
+     * @throws GfeException
+     */
     public void setItemScalar(TimeRange time, float[] scalarData,
             List<GridDataHistory> gdhList) throws GfeException {
-        IGridSlice gridSlice = new ScalarGridSlice(time, gpi,
-                gdhList.toArray(new GridDataHistory[gdhList.size()]),
-                new Grid2DFloat(gpi.getGridLoc().getNx(), gpi.getGridLoc()
-                        .getNy(), scalarData));
+        IGridSlice gridSlice = new ScalarGridSlice(time, gpi, gdhList,
+                new Grid2DFloat(gpi.getGridLoc().getNx(),
+                        gpi.getGridLoc().getNy(), scalarData));
         setItem(time, gridSlice, gdhList);
     }
 
+    /**
+     * @param time
+     * @param magData
+     * @param dirData
+     * @throws GfeException
+     */
     public void setItemVector(TimeRange time, float[] magData, float[] dirData)
             throws GfeException {
-        Calendar lastSentTime = Calendar.getInstance(TimeZone
-                .getTimeZone("GMT"));
+        Calendar lastSentTime = Calendar
+                .getInstance(TimeZone.getTimeZone("GMT"));
 
-        List<GridDataHistory> gdhList = new ArrayList<GridDataHistory>();
+        List<GridDataHistory> gdhList = new ArrayList<>();
         gdhList.add(new GridDataHistory(GridDataHistory.OriginType.INITIALIZED,
-                this.parmId, time, lastSentTime.getTime(), lastSentTime
-                        .getTime()));
+                this.parmId, time, lastSentTime.getTime(),
+                lastSentTime.getTime()));
         setItemVector(time, magData, dirData, gdhList);
     }
 
+    /**
+     * @param time
+     * @param magData
+     * @param dirData
+     * @param gdhList
+     * @throws GfeException
+     */
     public void setItemVector(TimeRange time, float[] magData, float[] dirData,
             List<GridDataHistory> gdhList) throws GfeException {
-        IGridSlice gridSlice = new VectorGridSlice(time, gpi,
-                gdhList.toArray(new GridDataHistory[gdhList.size()]),
-                new Grid2DFloat(gpi.getGridLoc().getNx(), gpi.getGridLoc()
-                        .getNy(), magData), new Grid2DFloat(gpi.getGridLoc()
-                        .getNx(), gpi.getGridLoc().getNy(), dirData));
+        IGridSlice gridSlice = new VectorGridSlice(time, gpi, gdhList,
+                new Grid2DFloat(gpi.getGridLoc().getNx(),
+                        gpi.getGridLoc().getNy(), magData),
+                new Grid2DFloat(gpi.getGridLoc().getNx(),
+                        gpi.getGridLoc().getNy(), dirData));
         setItem(time, gridSlice, gdhList);
     }
 
-    public void setItemDiscrete(TimeRange time, byte[] discreteData, String keys)
-            throws GfeException {
+    /**
+     * @param time
+     * @param discreteData
+     * @param keys
+     * @throws GfeException
+     */
+    public void setItemDiscrete(TimeRange time, byte[] discreteData,
+            String keys) throws GfeException {
         Date lastSentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
                 .getTime();
 
-        List<GridDataHistory> gdhList = new ArrayList<GridDataHistory>();
+        List<GridDataHistory> gdhList = new ArrayList<>();
         gdhList.add(new GridDataHistory(GridDataHistory.OriginType.INITIALIZED,
                 this.parmId, time, lastSentTime, lastSentTime));
         setItemDiscrete(time, discreteData, keys, gdhList);
     }
 
+    /**
+     * @param time
+     * @param discreteData
+     * @param keys
+     * @param gdhList
+     * @throws GfeException
+     */
     public void setItemDiscrete(TimeRange time, byte[] discreteData,
             String keys, List<GridDataHistory> gdhList) throws GfeException {
         IGridSlice gridSlice = buildDiscreteSlice(time, discreteData, keys,
@@ -494,17 +551,30 @@ public class IFPWE {
         setItem(time, gridSlice, gdhList);
     }
 
+    /**
+     * @param time
+     * @param weatherData
+     * @param keys
+     * @throws GfeException
+     */
     public void setItemWeather(TimeRange time, byte[] weatherData, String keys)
             throws GfeException {
         Date lastSentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
                 .getTime();
 
-        List<GridDataHistory> gdhList = new ArrayList<GridDataHistory>();
+        List<GridDataHistory> gdhList = new ArrayList<>();
         gdhList.add(new GridDataHistory(GridDataHistory.OriginType.INITIALIZED,
                 this.parmId, time, lastSentTime, lastSentTime));
         setItemWeather(time, weatherData, keys, gdhList);
     }
 
+    /**
+     * @param time
+     * @param weatherData
+     * @param keys
+     * @param gdhList
+     * @throws GfeException
+     */
     public void setItemWeather(TimeRange time, byte[] weatherData, String keys,
             List<GridDataHistory> gdhList) throws GfeException {
         IGridSlice gridSlice = buildWeatherSlice(time, weatherData, keys,
@@ -513,42 +583,37 @@ public class IFPWE {
     }
 
     /**
-     * Returns the parm's type
-     * 
-     * @return
+     * @return the parm's type as a string
      */
     public String getGridType() {
         return gpi.getGridType().toString();
     }
 
     /**
-     * Returns the minimum allowed value for the grid
-     * 
-     * @return
+     * @return the minimum allowed value for the grid
      */
     public float getMinAllowedValue() {
         return gpi.getMinValue();
     }
 
     /**
-     * Returns the max allowed value for the grid
-     * 
-     * @return
+     * @return the max allowed value for the grid
      */
     public float getMaxAllowedValue() {
         return gpi.getMaxValue();
     }
 
-    public String[] getDiscreteKeys() {
+    /**
+     * @return theDiscreteKeys for the parm
+     */
+    public List<String> getDiscreteKeys() {
         List<String> keys = gpi.getDiscreteKeys();
-        // returning an array allows us to access this return value as a normal
-        // python list and not a PyJObject
-        return keys.toArray(new String[keys.size()]);
+        return keys;
     }
 
     /**
      * Builds a ScalarGridSlice to store.
-     * 
+     *
      * @param time
      *            The valid time of the slice.
      * @param data
@@ -560,13 +625,13 @@ public class IFPWE {
      */
     public ScalarGridSlice buildScalarSlice(TimeRange time, float[] data,
             List<GridDataHistory> history) {
-        return new ScalarGridSlice(time, gpi, history, new Grid2DFloat(gpi
-                .getGridLoc().getNx(), gpi.getGridLoc().getNy(), data));
+        return new ScalarGridSlice(time, gpi, history, new Grid2DFloat(
+                gpi.getGridLoc().getNx(), gpi.getGridLoc().getNy(), data));
     }
 
     /**
      * Builds a VectorGridSlice to store.
-     * 
+     *
      * @param time
      *            The valid time of the slice.
      * @param magData
@@ -581,15 +646,16 @@ public class IFPWE {
      */
     public VectorGridSlice buildVectorSlice(TimeRange time, float[] magData,
             float[] dirData, List<GridDataHistory> history) {
-        return new VectorGridSlice(time, gpi, history, new Grid2DFloat(gpi
-                .getGridLoc().getNx(), gpi.getGridLoc().getNy(), magData),
-                new Grid2DFloat(gpi.getGridLoc().getNx(), gpi.getGridLoc()
-                        .getNy(), dirData));
+        return new VectorGridSlice(time, gpi, history,
+                new Grid2DFloat(gpi.getGridLoc().getNx(),
+                        gpi.getGridLoc().getNy(), magData),
+                new Grid2DFloat(gpi.getGridLoc().getNx(),
+                        gpi.getGridLoc().getNy(), dirData));
     }
 
     /**
      * Builds a discrete grid slice to store
-     * 
+     *
      * @param time
      *            The valid time of the data.
      * @param bytes
@@ -598,24 +664,25 @@ public class IFPWE {
      *            Python encoded form of discrete keys.
      * @param history
      *            histories for this grid.
-     * @return
+     * @return the discrete grid slice
      */
     public DiscreteGridSlice buildDiscreteSlice(TimeRange time, byte[] bytes,
             String keyString, List<GridDataHistory> history) {
-        List<DiscreteKey> discreteKeyList = new ArrayList<DiscreteKey>();
+        List<DiscreteKey> discreteKeyList = new ArrayList<>();
         List<String> keys = GfeUtil.discreteKeyStringToList(keyString);
 
         for (String k : keys) {
             discreteKeyList.add(new DiscreteKey(siteId, k, parmId));
         }
-        return new DiscreteGridSlice(time, gpi, history, new Grid2DByte(gpi
-                .getGridLoc().getNx(), gpi.getGridLoc().getNy(), bytes),
+        return new DiscreteGridSlice(time, gpi, history,
+                new Grid2DByte(gpi.getGridLoc().getNx(),
+                        gpi.getGridLoc().getNy(), bytes),
                 discreteKeyList);
     }
 
     /**
      * Builds a weather grid slice to store
-     * 
+     *
      * @param time
      *            The valid time of the data.
      * @param bytes
@@ -624,17 +691,18 @@ public class IFPWE {
      *            Python encoded form of weather keys.
      * @param history
      *            histories for this grid.
-     * @return
+     * @return the weather grid slice
      */
     public WeatherGridSlice buildWeatherSlice(TimeRange time, byte[] bytes,
             String keyString, List<GridDataHistory> history) {
-        List<WeatherKey> weatherKeyList = new ArrayList<WeatherKey>();
+        List<WeatherKey> weatherKeyList = new ArrayList<>();
         List<String> keys = GfeUtil.discreteKeyStringToList(keyString);
         for (String k : keys) {
             weatherKeyList.add(new WeatherKey(siteId, k));
         }
-        return new WeatherGridSlice(time, gpi, history, new Grid2DByte(gpi
-                .getGridLoc().getNx(), gpi.getGridLoc().getNy(), bytes),
+        return new WeatherGridSlice(time, gpi, history,
+                new Grid2DByte(gpi.getGridLoc().getNx(),
+                        gpi.getGridLoc().getNy(), bytes),
                 weatherKeyList);
     }
 
@@ -643,20 +711,27 @@ public class IFPWE {
         return "IFPWE " + parmId.toString();
     }
 
+    /**
+     * @return the ParmID
+     */
     public ParmID getParmid() {
         return parmId;
     }
 
+    /**
+     * Retrieve edit area by name
+     *
+     * @param name
+     * @return the editArea as a bit mask
+     */
     public Grid2DBit getEditArea(String name) {
         try {
-            IFPServerConfig config = IFPServerConfigManager
-                    .getServerConfig(siteId);
-            ReferenceMgr refMgr = new ReferenceMgr(config);
+            ReferenceMgr refMgr = ifpServer.getReferenceMgr();
 
-            ServerResponse<List<ReferenceData>> sr = refMgr.getData(Arrays
-                    .asList(new ReferenceID(name)));
+            ServerResponse<ReferenceData> sr = refMgr
+                    .getData(new ReferenceID(name));
             if (sr.isOkay()) {
-                ReferenceData data = sr.getPayload().get(0);
+                ReferenceData data = sr.getPayload();
                 if (data.refType() != RefType.POLYGON) {
                     throw new Exception("Edit area is not a polygon");
                 }

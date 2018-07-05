@@ -71,7 +71,6 @@ fi
 
 _ldm_destination=%{_build_root}/awips2/ldm
 _ldm_destination_source=${_ldm_destination}/SOURCES
-_NATIVELIB_PROJECTS=( 'decrypt_file' )
 _Installer_ldm=%{_baseline_workspace}/rpms/awips2.upc/Installer.ldm
 _ldm_root_dir=/awips2/ldm
 
@@ -103,25 +102,10 @@ cd  ${_Installer_ldm}/src
 if [ $? -ne 0 ]; then
    exit 1
 fi
-# package nativelib projects
 cd %{_baseline_workspace}
 if [ $? -ne 0 ]; then
    exit 1
 fi
-for nativeProject in ${_NATIVELIB_PROJECTS[*]};
-do
-   /bin/tar -cf ${nativeProject}.tar ${nativeProject}
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-   # move nativeLib to LDM SOURCES for post-installation
-   # build.
-   /bin/mv ${nativeProject}.tar \
-      ${_ldm_destination_source}/${nativeProject}.tar
-   if [ $? -ne 0 ]; then
-      exit 1
-   fi
-done
 
 #
 if [[ $(uname -r |grep el6) ]];then
@@ -241,27 +225,6 @@ do
 done
 /bin/chmod a+x ${_ldm_dir}/bin/*
 
-# build decrypt_file
-cd ${_ldm_dir}/SOURCES
-/bin/tar -xf decrypt_file.tar
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to untar decrypt_file.tar!"
-   exit 1
-fi
-cd decrypt_file
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-gcc -D_GNU_SOURCE -o decrypt_file decrypt_file.c
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to build decrypt_file!"
-   exit 1
-fi
-/bin/mv decrypt_file ${_ldm_dir}/decoders/decrypt_file
-if [ $? -ne 0 ]; then
-   echo "FATAL: failed to move built decrypt_file to ldm decoders directory!"
-   exit 1
-fi
 #cd ../edexBridge
 #if [ $? -ne 0 ]; then
 #   exit 1
@@ -295,7 +258,7 @@ fi
 if getent passwd awips &>/dev/null; then
   /bin/chown -R awips:fxalpha ${_ldm_dir}
   cd /awips2/ldm/src/
-  make install_setuids
+  make install_setuids > /dev/null 2>&1
 else
   echo "--- Warning: group fxalpha does not exist"
   echo "--- you will need to check owner/group/permissions for /awips2/ldm"

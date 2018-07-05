@@ -47,6 +47,8 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Monitor;
 
+import com.raytheon.uf.common.menus.vb.VbSourceList;
+import com.raytheon.uf.common.menus.vb.ViewMenu;
 import com.raytheon.uf.common.menus.xml.CommonToolBarContribution;
 import com.raytheon.uf.common.menus.xml.VariableSubstitution;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -60,11 +62,9 @@ import com.raytheon.viz.awipstools.IToolChangedListener;
 import com.raytheon.viz.awipstools.ToolsDataManager;
 import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogManager;
 import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.raytheon.viz.volumebrowser.widget.MenuContributionItem;
 import com.raytheon.viz.volumebrowser.xml.MenuContribution;
 import com.raytheon.viz.volumebrowser.xml.ToolBarContribution;
-import com.raytheon.viz.volumebrowser.xml.VbSourceList;
 
 /**
  * This class manages the Sources, Fields, and Planes data lists and toolbar

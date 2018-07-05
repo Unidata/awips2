@@ -12,7 +12,7 @@ Require-Bundle: com.raytheon.edex.common,
  javax.measure,
  com.raytheon.uf.edex.pointdata;bundle-version="1.11.7",
  org.slf4j;bundle-version="1.7.12"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.dataplugin.obs.metar,
  com.raytheon.uf.common.dataplugin.obs.metar.util,
  com.raytheon.uf.common.status,

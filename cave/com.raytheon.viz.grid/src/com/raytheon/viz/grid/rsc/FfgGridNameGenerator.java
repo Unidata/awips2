@@ -23,7 +23,7 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.viz.core.rsc.VizGroupResourceData;
+import com.raytheon.uf.viz.core.rsc.groups.VizGroupResourceData;
 
 /**
  * FFG Grid Name Generator.

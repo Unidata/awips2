@@ -16,6 +16,6 @@ Export-Package: com.raytheon.uf.viz.app.launcher.bundle,
  com.raytheon.uf.viz.app.launcher.handlers,
  com.raytheon.uf.viz.app.launcher.runner,
  com.raytheon.uf.viz.app.launcher.utilities
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.util

@@ -4,7 +4,7 @@ Bundle-Name: Wes2Bridge Manager
 Bundle-SymbolicName: com.raytheon.wes2bridge.manager
 Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.raytheon.wes2bridge.common;bundle-version="1.0.0",
  org.apache.commons.lang3,
  com.fasterxml.jackson;bundle-version="2.6.5"

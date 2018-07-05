@@ -30,6 +30,10 @@
 # Author: hansen
 # ----------------------------------------------------------------------------
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 import string, getopt, sys, time, types
 import TextRules
 import SampleAnalysis

@@ -54,6 +54,12 @@
 #              be MUCH further apart.
 # 2006/10/10 - Reduce memory in the Serp routines
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 import numpy as np
 import SmartScript
 import sys,types,math,os,gc

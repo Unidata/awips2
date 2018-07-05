@@ -1,4 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
     <fcst>0</fcst>
@@ -19,7 +44,7 @@
     <valid_range>1.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>30</n3D>
-    <levelsDesc>FH 305 610 914 1219 1524 1829 2134 2438 2743 3048 3353 3658 3962 
+    <levelsDesc>FH 305 610 914 1219 1524 1829 2134 2438 2743 3048 3353 3658 3962
             4267 4572 4877 5182 5486 5791 6096 6401 6706 7010 7315 7620 7925 8230 8534 8839 9144</levelsDesc>
     <levels>
       <level>FH305</level>
@@ -76,7 +101,7 @@
     <valid_range>4.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>30</n3D>
-    <levelsDesc>FH 304 610 914 1219 1524 1828 2133 2438 2743 3048 3352 3657 3962 
+    <levelsDesc>FH 304 610 914 1219 1524 1828 2133 2438 2743 3048 3352 3657 3962
             4267 4572 4876 5181 5486 5791 6096 6400 6705 7010 7315 7620 7924 8229 8534 8839 9144</levelsDesc>
     <levels>
       <level>FH304</level>
@@ -127,7 +152,7 @@
     <valid_range>1.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>30</n3D>
-    <levelsDesc>FH 304 610 914 1219 1524 1828 2133 2438 2743 3048 3352 3657 3962 
+    <levelsDesc>FH 304 610 914 1219 1524 1828 2133 2438 2743 3048 3352 3657 3962
             4267 4572 4876 5181 5486 5791 6096 6400 6705 7010 7315 7620 7924 8229 8534 8839 9144</levelsDesc>
     <levels>
       <level>FH304</level>
@@ -172,7 +197,7 @@
     <valid_range>1.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>30</n3D>
-    <levelsDesc>FH 304 610 914 1219 1524 1828 2133 2438 2743 3048 3352 3657 3962 
+    <levelsDesc>FH 304 610 914 1219 1524 1828 2133 2438 2743 3048 3352 3657 3962
             4267 4572 4876 5181 5486 5791 6096 6400 6705 7010 7315 7620 7924 8229 8534 8839 9144</levelsDesc>
     <levels>
       <level>FH304</level>
@@ -217,8 +242,8 @@
     <valid_range>1.0</valid_range>
     <fillValue>-99999.0</fillValue>
     <n3D>36</n3D>
-    <levelsDesc>FH 3048 3353 3658 3962 4267 4572 4877 5182 5486 5791 6096 6400 6705 
-             7010 7315 7620 7924 8229 8534 8839 9144 9448 9753 10058 10363 10668 10972 11277 
+    <levelsDesc>FH 3048 3353 3658 3962 4267 4572 4877 5182 5486 5791 6096 6400 6705
+             7010 7315 7620 7924 8229 8534 8839 9144 9448 9753 10058 10363 10668 10972 11277
              11582 11887 12192 12496 12801 13106 13411 13716 EA</levelsDesc>
     <levels>
       <level>FH3048</level>

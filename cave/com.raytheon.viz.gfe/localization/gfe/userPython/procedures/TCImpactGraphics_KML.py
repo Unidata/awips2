@@ -18,13 +18,20 @@
 # read from TCVDictionary (in Utilities) and formatted on-the-fly! 
 # Modified 21 Oct 2014 - J. Maloney - products now go in /awips2/GFESuite/hti/
 # data.
-#
+# Modified 9 June, 2017: Remove old labels for 2018. PS
+# Modified 21 June 2017 - JCM - added CDATA tags to Placemark descriptions
+# Modified 25 July 2017 - PS/SEW - added EA config and threatPhrase dicts
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 MenuItems = ["Populate"]
 
 import SmartScript
-from numpy import *
+import numpy as np
 import time
 import os
 import TimeRange
@@ -32,6 +39,63 @@ import AbsTime
 from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData
 CoordinateType = ReferenceData.CoordinateType 
 import TCVDictionary
+
+###      CONFIG section READ         ########## 
+
+# The kml txt files will be placed in /awips2/GFESuite/hti/data/'threatWEName'.kml.txt.
+# From there it is synchronized to the web servers along with the graphics. 
+# In the servers a php script will convert the # file name so that a browser can properly interpret 
+# it as a kml file to be open with Google Earth or equivalent application.
+
+# Also, make sure the ownership of the kml.txt files created is fxa:fxalpha with permissions set
+# to 666.
+
+# You can test the files created by copying them outside AWIPS and renaming them .kml. 
+# Then open them with Google Earth.
+
+###   Make the edit areas below for Wind, FloodingRain, and Tornado 
+###    your local Land-only CWA edit area
+######################################################################
+
+editAreaDict = { 
+                "StormSurgeThreat" : "StormSurgeWW_EditArea_Local", # Leave as-is
+                   "WindThreat" : "MHX",            # Land-only EA
+                   "FloodingRainThreat" : "MHX",    # Land-only EA
+                   "TornadoThreat" : "MHX"          # Land-only EA
+                }
+
+##### End Config #########
+
+threatPhraseDict = {
+            "Wind": {
+                "Extreme": "Potential for wind greater than 110 mph",
+                "High": "Potential for wind 74 to 110 mph",
+                "Mod": "Potential for wind 58 to 73 mph",
+                "Elevated": "Potential for wind 39 to 57 mph",
+                "None": "Wind less than 39 mph"
+                },
+            "Storm Surge": {
+                "Extreme": "Potential for storm surge flooding greater than 9 feet above ground",
+                "High": "Potential for storm surge flooding greater than 6 feet above ground",
+                "Mod": "Potential for storm surge flooding greater than 3 feet above ground",
+                "Elevated": "Potential for storm surge flooding greater than 1 foot above ground",
+                "None": "Little to no storm surge flooding"
+                },
+            "Flooding Rain": {
+                "Extreme": "Potential for extreme flooding rain",
+                "High": "Potential for major flooding rain",
+                "Mod": "Potential for moderate flooding rain",
+                "Elevated": "Potential for localized flooding rain",
+                "None": "Little or no potential for flooding rain"
+                },
+            "Tornado": {
+                "Extreme": "Potential for an outbreak of tornadoes",
+                "High": "Potential for many tornadoes",
+                "Mod": "Potential for several tornadoes",
+                "Elevated": "Potential for a few tornadoes",
+                "None": "Tornadoes not expected"
+                }
+            }
 
 class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
@@ -47,20 +111,6 @@ class Procedure (SmartScript.SmartScript):
 
     def makeThreatKML(self,threatWEName,threatKeys,threatGrid_kml):
         
-# COMMENTS CONFIG READ: the directory below is the directory where the kml txt files will be dumped.
-# From there it is synchronized to the web servers along with the graphics. If you set up
-# your gHLS scripts and data directories in a different place than recommended in the install
-# instructions, you would need to change that directory here. Do not change .kml.txt to .kml.
-# Only .txt file can be uploaded as include files. In the servers a php script will convert the
-# file name so that a browser can properly interpret it as a kml file to be open with Google
-# Earth or equivalent application.
-
-# Also, make sure the ownership of the kml.txt files created below is fxa:fxalpha with permissions set
-# to 666.
-
-# You can test the kml files created by copying them outside AWIPS and renaming them .kml. Then open them with
-# Google Earth.
-
         kml_filename = '/awips2/GFESuite/hti/data/' + threatWEName + '.kml.txt'
         kml = open(kml_filename, 'w')
         kml.write('<?xml version="1.0" encoding="UTF-8"?>\n')
@@ -102,7 +152,7 @@ class Procedure (SmartScript.SmartScript):
             hazIndex = self.getIndex(key, threatKeys)
             #print "hazIndex:", hazIndex
 
-            mask = equal(threatGrid_kml, hazIndex)
+            mask = np.equal(threatGrid_kml, hazIndex)
             
             #print "Number of Grid Points: ", sum(sum(mask))
                 
@@ -126,31 +176,34 @@ class Procedure (SmartScript.SmartScript):
                 threat='Wind'
             else:
                 threat='Flooding Rain'
-                
+
+
+            if key =="Extreme":
+                styleUrl = '#extreme'
+            elif key == "High":
+                styleUrl = '#high'
+            elif key =="Mod":
+                styleUrl = '#moderate'
+            elif key =="Elevated":
+                styleUrl = '#low'
+            else:
+                styleUrl = '#none'
+
+#         Retrieve the new threat description from the dictionary
+            threatPhrase = threatPhraseDict[threat][key]
+
             # Extract the appropriate list from the dictionary, join them
             # into a string, and make them separate bullets
-            impactStatement = ""                
+            impactStatement = ""
             impactList = TCVDictionary.PotentialImpactStatements[threat][key]
             impactStatement = "<br />* ".join(impactList)
             impactStatement = "* " + impactStatement
 #            print "impactList:", impactList
 #            print "impactStatement:", impactStatement
-            
-            if key == "None":
-                kmlHeader='<Placemark><name>Threat Level - None to Little</name><description><b>Potential for None to Little Impact:</b><br />' + impactStatement + '</description>\n<styleUrl>#none</styleUrl>\n'
-            
-            elif key == "Elevated":
-                kmlHeader='<Placemark><name>Threat Level - Elevated</name><description><b>Potential for Limited Impact:</b><br />' + impactStatement + '</description>\n<styleUrl>#low</styleUrl>\n'
 
-            elif key == "Mod":
-                kmlHeader='<Placemark><name>Threat Level - Moderate</name><description><b>Potential for Significant Impact:</b><br />' + impactStatement + '</description>\n<styleUrl>#moderate</styleUrl>\n'
-
-            elif key == "High":
-                kmlHeader='<Placemark><name>Threat Level - High</name><description><b>Potential for Extensive Impact:</b><br />' + impactStatement + '</description>\n<styleUrl>#high</styleUrl>\n'
-
-            else:
-                kmlHeader='<Placemark><name>Threat Level - Extreme</name><description><b>Potential for Devastating to Catastrophic Impact:</b><br />' + impactStatement + '</description>\n<styleUrl>#extreme</styleUrl>\n'
-
+        #  Put our kml header together    
+            kmlHeader = '<Placemark><name>Threat Level - ' + threatPhrase + '</name><description><![CDATA[<b>Potential Impacts Include:</b><br />' + impactStatement + ']]></description>\n<styleUrl>' + styleUrl + '</styleUrl>\n'        
+                                
             for i in xrange(polygons.getNumGeometries()):
                 poly = polygons.getGeometryN(i)
                 shell = poly.getExteriorRing();
@@ -195,36 +248,20 @@ class Procedure (SmartScript.SmartScript):
         
         tr = self.makeTimeRange()
         threatlist = ['StormSurgeThreat','WindThreat','FloodingRainThreat','TornadoThreat'] 
-        #threatlist = ['TornadoThreat'] # Took out MarineThreat 8/6/12 S.O. # READDED MARINE THREAT JCM 5/21/14
 
         for grid in threatlist:
             threatWEName = grid
-            #print "Doing grid for time range: ", tr
             threatGrid, threatKeys = self.getGrids("Fcst", threatWEName, "SFC", tr)
 
-# COMMENTS CONFIG READ: For each threat element below, you need to change the edit area to the mask you are using 
-# in the config file to generate that impact graphic. For example, for CoastalThreat that would be
-# XXXCoastalThreat where XXX is the 3 letter ID for your office. For WindThreat it would be XXXWindThreat.
-# And so on.
-
-            if threatWEName == "StormSurgeThreat":
-                editArea = self.getEditArea("StormSurgeWW_EditArea")
-            elif threatWEName == "WindThreat":
-                editArea = self.getEditArea("MFL")
-            elif threatWEName == "FloodingRainThreat":
-                editArea = self.getEditArea("MFL")
-            elif threatWEName == "TornadoThreat":
-                editArea = self.getEditArea("MFL")
-            else:
-                editArea = self.getEditArea("Marinezones")         
-
+            localEditArea = editAreaDict[threatWEName]
+#            print "EDIT AREA DICT IS: ", EditArea           
+            editArea = self.getEditArea(localEditArea)    
+            
             threatEditArea = self.encodeEditArea(editArea)
-            threatGrid_kml = where(threatEditArea, threatGrid, threatGrid-9.0)
-
+            threatGrid_kml = np.where(threatEditArea, threatGrid, threatGrid-9.0) 
+            
             self.makeThreatKML(threatWEName,threatKeys,threatGrid_kml)
-
-        # COMMENTS CONFIG READ: This path should be double-checked
+            
         os.system("/awips2/GFESuite/hti/bin/kml_legend.sh")
         
         return
-

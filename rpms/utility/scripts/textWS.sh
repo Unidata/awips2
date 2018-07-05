@@ -23,11 +23,21 @@ do
 done
 
 CAVE_DIR=/awips2/cave
-$CAVE_DIR/cave.sh -component textws &
+$CAVE_DIR/cave.sh -component textws "$@" &
 
+extra_textws_args=()
+args=("$@")
+i=0
+while ((i < $#)); do
+    if [[ ${args[$i]} == -monitor ]]; then
+        (( i+=1 ))
+        extra_textws_args+=(-monitor "${args[$i]}")
+    fi
+    (( i+= 1 ))
+done
 FXA_HOME=/awips/fxa
 . /awips/fxa/readenv.sh
 #If WFO, launch legacy A1 hmMonitor
 if [ "$SITE_TYPE" = "wfo" ]; then
-   $FXA_HOME/bin/hmMonitor.tcl --forTextWS &
+   $FXA_HOME/bin/hmMonitor.tcl --forTextWS "${extra_textws_args[@]}" &
 fi

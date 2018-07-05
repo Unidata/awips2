@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -38,46 +38,47 @@ import com.raytheon.uf.common.dataplugin.gfe.server.request.LockRequest;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.edex.esb.camel.jms.IBrokerConnectionsProvider;
+import com.raytheon.uf.edex.esb.camel.jms.IBrokerRestProvider;
 
 /**
- * GFE task to clear orphaned locks from the database table.  Orphaned
- * locks are locks whose session ID is not in the list of current Qpid
- * sessions.
+ * GFE task to clear orphaned locks from the database table. Orphaned locks are
+ * locks whose session ID is not in the list of current Qpid sessions.
  *
  * <pre>
  *
  * SOFTWARE HISTORY
  *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 03, 2015  629    mgamazaychikov Initial creation
+ * Date          Ticket#  Engineer        Description
+ * ------------- -------- --------------- --------------------------------------
+ * Mar 03, 2015  629      mgamazaychikov  Initial creation
+ * Jan 25, 2017  6092     randerso        Renamed interface to
+ *                                        IBrokerRestProvider
  *
  * </pre>
  *
  * @author mgamazaychikov
- * @version 1.0
  */
 
 public class ClearGfeOrphanedLocks {
-    private static IBrokerConnectionsProvider provider;
+    private static IBrokerRestProvider provider;
+
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ClearGfeOrphanedLocks.class);
 
-    public static void setProvider(IBrokerConnectionsProvider provider) {
+    public static void setProvider(IBrokerRestProvider provider) {
         ClearGfeOrphanedLocks.provider = provider;
     }
 
     private void breakLocks(Set<String> clients, List<Lock> lockList,
             LockManager lockMgr, String siteId) {
         boolean foundOrpanedLocks = false;
-        List<LockRequest> lreq = new ArrayList<LockRequest>();
+        List<LockRequest> lreq = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
         for (Lock lock : lockList) {
             String lockWsid = lock.getWsId().toString();
             if (!clients.contains(lockWsid)) {
                 foundOrpanedLocks = true;
-                List<Lock> lst = new ArrayList<Lock>();
+                List<Lock> lst = new ArrayList<>();
                 lst.add(lock);
                 // Inactive clients found
                 lreq.add(new LockRequest(lock.getParmId(), lock.getTimeRange(),
@@ -91,12 +92,12 @@ public class ClearGfeOrphanedLocks {
         if (foundOrpanedLocks) {
             statusHandler.info(sb.toString());
             WsId requestor = new WsId(null, null, "ClearGfeOrphanedLocks");
-            ServerResponse<List<LockTable>> sr = lockMgr.requestLockChange(
-                    lreq, requestor);
+            ServerResponse<List<LockTable>> sr = lockMgr.requestLockChange(lreq,
+                    requestor);
             if (sr.isOkay()) {
                 try {
                     List<LockTable> lockTables = sr.getPayload();
-                    List<GfeNotification> notes = new ArrayList<GfeNotification>(
+                    List<GfeNotification> notes = new ArrayList<>(
                             lockTables.size());
 
                     for (LockTable table : lockTables) {
@@ -109,7 +110,8 @@ public class ClearGfeOrphanedLocks {
                     }
 
                     // send out grid update notifications
-                    notifyResponse = SendNotifications.send(sr.getNotifications());
+                    notifyResponse = SendNotifications
+                            .send(sr.getNotifications());
                     if (!notifyResponse.isOkay()) {
                         statusHandler.error(notifyResponse.message());
                     }
@@ -118,11 +120,11 @@ public class ClearGfeOrphanedLocks {
                 }
             } else {
                 statusHandler.error(sr.message());
-            } 
+            }
             return;
         } else {
-            statusHandler.info(" No orphaned locks found for site " + siteId
-                    + ".");
+            statusHandler
+                    .info(" No orphaned locks found for site " + siteId + ".");
             return;
         }
     }
@@ -130,18 +132,18 @@ public class ClearGfeOrphanedLocks {
     public void clearLocksCron() throws Exception {
         statusHandler
                 .info("Started at " + new Date(System.currentTimeMillis()));
-        Set<String> clients = new HashSet<String>(provider.getConnections());
         if (IFPServer.getActiveServers().size() == 0) {
             statusHandler.info("No active IFPServer found.");
             return;
         }
-        List<IFPServer> ifpServers = IFPServer.getActiveServers();
-        for (IFPServer ifps : ifpServers) {
+
+        Set<String> clients = new HashSet<>(provider.getConnections());
+        for (IFPServer ifps : IFPServer.getActiveServers()) {
             LockManager lockMgr = ifps.getLockMgr();
             String siteId = ifps.getSiteId();
-            List<Lock> lockList;
             try {
-                lockList = (List<Lock>) lockMgr.getAllLocks(siteId);
+                List<Lock> lockList = lockMgr.getAllLocks(siteId);
+
                 // find orphaned locks and break them
                 breakLocks(clients, lockList, lockMgr, siteId);
             } catch (GfeException e) {

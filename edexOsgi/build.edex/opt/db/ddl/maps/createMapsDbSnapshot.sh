@@ -17,36 +17,30 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+#
+#
+# SOFTWARE HISTORY
+# Date         Ticket#    Engineer    Description
+# ------------ ---------- ----------- --------------------------
+# 01/23/2017    #6097     randerso    Removed unnecessary command line parameters.
+# 
 ##
 if [ $# -lt 1 ] ; then
     echo
-    echo usage: `basename $0` installDir [dbUser [dbPort] [outfile]]
-    echo "       installDir- directory path to awips installation"
-    echo "       dbUser    - optional database user id"
-    echo "       dbPort    - optional database port number"
-    echo "       outfile   - optional output file"
-    echo "example: `basename $0` /awips2 awips 5432"
+    echo usage: `basename $0` [outfile]
+    echo "       outfile   - optional output file (default=maps.db"
+    echo "example: `basename $0` /tmp/maps.db"
     exit -1
 fi
 
-PGBINDIR=${1}/postgresql/bin
+PGBINDIR=/awips2/postgresql/bin
+PGUSER=awipsadmin
+PGPORT=5432
 
-if [ -z $2 ] ; then
-    PGUSER=awips
-else
-    PGUSER=${2}
-fi
-
-if [ -z $3 ] ; then
-    PGPORT=5432
-else
-    PGPORT=${3}
-fi
-
-if [ -z $4 ] ; then
+if [ -z $1 ] ; then
     OUTFILE=maps.db
 else
-    OUTFILE=${4}
+    OUTFILE=${1}
 fi
 
 ${PGBINDIR}/pg_dump -Fc maps -U ${PGUSER} -p ${PGPORT} > $OUTFILE

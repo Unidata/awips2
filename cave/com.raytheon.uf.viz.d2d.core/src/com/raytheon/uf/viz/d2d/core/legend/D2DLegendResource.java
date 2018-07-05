@@ -48,9 +48,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.GroupNamingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
+import com.raytheon.uf.viz.core.rsc.groups.BestResResource;
 import com.raytheon.uf.viz.core.rsc.legend.AbstractLegendResource;
 import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
-import com.raytheon.viz.core.rsc.BestResResource;
 import com.raytheon.viz.ui.actions.DummyAction;
 
 /**
@@ -75,6 +75,7 @@ import com.raytheon.viz.ui.actions.DummyAction;
  *                                      InputPriority.SYSTEM_RESOURCE_LOW in initInternal().
  * Jun 30, 2015 RM14663    kshresth     Font size increased for Contour labels.
  * Nov 05, 2015 5070       randerso     Removed incorrect magnification limits
+ * Sep 28, 2017 DR 20316   D. Friemdan  Refresh on mode change.
  * 
  * </pre>
  * 
@@ -522,6 +523,7 @@ public class D2DLegendResource extends
         } else {
             this.mode = mode;
         }
+        issueRefresh();
     }
 
     public LegendMode getLegendMode() {

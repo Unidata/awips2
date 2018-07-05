@@ -72,13 +72,12 @@ import de.micromata.opengis.kml.v_2_2_0.Vec2;
  * Jun 26, 2012           bsteffen    Initial creation
  * Jan 14, 2013  2313     bsteffen    Add image rendering
  * Apr 04, 2014  2920     bsteffen    Allow strings to use mulitple styles.
+ * Jan 16, 2017  5976     bsteffen    Update Usage of DrawableString styles.
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-
 public class KmlCanvasRenderingExtension extends
         GraphicsExtension<KmlGraphicsTarget> implements
         ICanvasRenderingExtension {
@@ -153,7 +152,7 @@ public class KmlCanvasRenderingExtension extends
 
         private final Rectangle canvasBounds;
 
-        private final List<Object> objects = new ArrayList<Object>();
+        private final List<Object> objects = new ArrayList<>();
 
         public Generator(Rectangle canvasBounds) {
             this.canvasBounds = canvasBounds;
@@ -177,8 +176,8 @@ public class KmlCanvasRenderingExtension extends
 
         @Override
         public void addFeature(KmlOutputManager outputManager) {
-            Map<Object, Rectangle2D> boundsMap = new IdentityHashMap<Object, Rectangle2D>();
-            List<Rectangle2D> combinedBounds = new ArrayList<Rectangle2D>();
+            Map<Object, Rectangle2D> boundsMap = new IdentityHashMap<>();
+            List<Rectangle2D> combinedBounds = new ArrayList<>();
             for (Object object : objects) {
                 Rectangle2D bounds = getBounds(object);
                 boundsMap.put(object, bounds);
@@ -310,8 +309,14 @@ public class KmlCanvasRenderingExtension extends
                 } else if (VerticalAlignment.MIDDLE == string.verticalAlignment) {
                     realY -= bounds.getY() / 2;
                 }
-                if (string.getTextStyles().contains(TextStyle.BLANKED)) {
-                    setColor(graphics, backgroundColor);
+                Map<TextStyle, RGB> textStyleColors = string
+                        .getTextStyleColorMap();
+                if (textStyleColors.containsKey(TextStyle.BLANKED)) {
+                    RGB blankColor = textStyleColors.get(TextStyle.BLANKED);
+                    if (blankColor == null) {
+                        blankColor = backgroundColor;
+                    }
+                    setColor(graphics, blankColor);
                     graphics.fillRect((int) realX,
                             (int) (realY + bounds.getY()),
                             (int) bounds.getWidth(),
@@ -406,6 +411,9 @@ public class KmlCanvasRenderingExtension extends
                     bounds.add(point[0], point[1]);
                 }
             }
+            if (bounds == null) {
+                return null;
+            }
             /*
              * add a buffer region to ensure we have room for wide lines on the
              * edge.
@@ -436,6 +444,9 @@ public class KmlCanvasRenderingExtension extends
                 } else {
                     bounds.add(b);
                 }
+            }
+            if (bounds == null) {
+                return null;
             }
             if (HorizontalAlignment.RIGHT == string.horizontalAlignment) {
                 bounds.setFrame(bounds.getMinX() - bounds.getWidth(),

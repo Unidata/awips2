@@ -18,6 +18,12 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <latLonGridCoverage>
     <name>161</name>
     <description>Lat/Lon grid for Puerto Rico</description>
@@ -29,6 +35,6 @@
     <dx>0.5</dx>
     <dy>0.5</dy>
     <spacingUnit>degree</spacingUnit>
-    <la2>-0.25</la2>
+    <la2>-0.250</la2>
     <lo2>340.25</lo2>
 </latLonGridCoverage>

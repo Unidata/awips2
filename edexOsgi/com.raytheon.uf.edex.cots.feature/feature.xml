@@ -85,12 +85,6 @@
          unpack="false"/>
 
    <plugin
-         id="ucar.nc2.bufrsplitter"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
-
-   <plugin
          id="org.apache.commons.cxf"
          download-size="0"
          install-size="0"
@@ -176,6 +170,39 @@
 
    <plugin
          id="org.jasypt"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.common.nc4"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="edu.mit.ll.netcdf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"/>
+
+   <plugin
+         id="com.beust.jcommander"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.google.protobuf"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="org.jdom2"
          download-size="0"
          install-size="0"
          version="0.0.0"/>

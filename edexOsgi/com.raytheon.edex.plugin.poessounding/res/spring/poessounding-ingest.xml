@@ -1,30 +1,31 @@
-<beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
 
-	<bean id="poessoundingDecoder" class="com.raytheon.edex.plugin.poessounding.POESSoundingDecoder"/>
+    <bean id="poessoundingDecoder" class="com.raytheon.edex.plugin.poessounding.POESSoundingDecoder"/>
 
     <bean id="poessoundingDistRegistry" factory-bean="distributionSrv"
-		factory-method="register">
-		<constructor-arg ref="poessoundingPluginName" />
-		<constructor-arg value="jms-durable:queue:Ingest.poessounding"/>
-	</bean>
-    
-    <camelContext id="poessounding-camel" 
-                  xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler">
+        factory-method="register">
+        <constructor-arg ref="poessoundingPluginName" />
+        <constructor-arg value="jms-durable:queue:Ingest.poessounding"/>
+    </bean>
+
+    <camelContext id="poessounding-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
         <!--
-	    <endpoint id="poessndgFileEndpoint" uri="file:${edex.home}/data/sbn/poessndg?noop=true&amp;idempotent=false"/>
-        
+        <endpoint id="poessndgFileEndpoint" uri="file:${edex.home}/data/sbn/poessndg?noop=true&amp;idempotent=false"/>
+
         <route id="poessndgFileConsumerRoute">
             <from ref="poessndgFileEndpoint"/>
             <bean ref="fileToString" />
             <setHeader headerName="pluginName">
                 <constant>poessounding</constant>
             </setHeader>
-            <to uri="jms-durable:queue:Ingest.poessounding"/> 
+            <to uri="jms-durable:queue:Ingest.poessounding"/>
         </route>
         -->
 
@@ -36,7 +37,7 @@
             </setHeader>
             <doTry>
                 <pipeline>
-		            <bean ref="stringToFile" />
+                    <bean ref="stringToFile" />
                     <bean ref="poessoundingDecoder" method="decode"/>
                     <to uri="direct-vm:persistIndexAlert"/>
                 </pipeline>
@@ -46,5 +47,5 @@
                 </doCatch>
             </doTry>
         </route>
-	</camelContext>
+    </camelContext>
 </beans>

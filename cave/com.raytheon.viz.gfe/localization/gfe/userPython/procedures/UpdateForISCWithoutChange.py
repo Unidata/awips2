@@ -20,6 +20,11 @@
 #
 ##
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 THRESHOLD = 6 * 60 * 60 # 6 hours in seconds
 
 MenuItems = ["Edit"]

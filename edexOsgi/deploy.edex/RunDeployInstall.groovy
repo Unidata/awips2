@@ -28,7 +28,6 @@ import java.util.ArrayList
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 import DeployESB
-import DeployPythonPackages
 import DeployEdexSiteLocalization
 import IPluginCustomDeployer
 
@@ -43,8 +42,9 @@ import IPluginCustomDeployer
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 4, 2014  3836       bkowal      Initial Commit
- * Dec 9, 2015  5388       dhladky     Fix multi WA deploy
+ * Dec 04, 2014  3836       bkowal      Initial Commit
+ * Dec 09, 2015  5388       dhladky     Fix multi WA deploy
+ * Jun 26, 2018             mjames      No python deployment
  *
  * </pre>
  *
@@ -71,9 +71,6 @@ class DeployInstall
    private List<String> edexFeaturesToDeploy
    private String edexRootDirectory
    private String[] localizationSitesToDeploy = []
-   private boolean deployPythonPackages
-   private String pythonRootDirectory
-   private String[] pythonPackagesToDeploy = []
    private String architecture
    private List<IPluginCustomDeployer> customPluginDeployers
    
@@ -86,11 +83,7 @@ class DeployInstall
    // verify that a plugin is not listed in more than one feature.
    private pluginToFeatureMap = [:]
 
-   public DeployInstall(final String workspaceDirectory,
-   final String localizationSites, final boolean deployPythonPackages, 
-   final String edexRootDirectory, final String pythonRootDirectory, final String pythonPackages,
-   final String architecture)
-   {
+   public DeployInstall(final String workspaceDirectory, final String localizationSites, final String edexRootDirectory, final String architecture) {
       blacklistedEdexFeatures = new ArrayList<String>()
       // never deploy these features
       blacklistedEdexFeatures.add("com.raytheon.edex.wa.feature")
@@ -101,13 +94,7 @@ class DeployInstall
       {
          this.localizationSitesToDeploy = localizationSites.trim().split(":")
       }
-      this.deployPythonPackages = deployPythonPackages
       this.edexRootDirectory = edexRootDirectory.trim()
-      this.pythonRootDirectory = pythonRootDirectory.trim()
-      if (pythonPackages.trim() != "")
-      {
-         this.pythonPackagesToDeploy = pythonPackages.trim().split(":")
-      }
       this.architecture = architecture.trim()
    }
 
@@ -136,11 +123,6 @@ class DeployInstall
 
       DeployESB.deploy(this.edexRootDirectory, esbDirectory, this.architecture)
       DeployESB.deployEdexConfiguration(this.edexRootDirectory, esbDirectory)
-      if (this.deployPythonPackages)
-      {
-         DeployPythonPackages.deploy(this.pythonRootDirectory, 
-            this.projectInformationMap["pythonPackages"], this.pythonPackagesToDeploy)
-      }
 
       String localizationProject = "localization"
       DeployEdexSiteLocalization.deploy(this.edexRootDirectory, 

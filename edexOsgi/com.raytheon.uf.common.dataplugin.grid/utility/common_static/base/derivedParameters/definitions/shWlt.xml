@@ -18,11 +18,15 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="℃" name="Showalter Index" abbreviation="shWlt" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="℃" name="Showalter Index" abbreviation="shWlt">
     <Method levels="850MB" name="LiftedIndex">
-        <Field abbreviation="P"/>
-        <Field abbreviation="T"/>
-        <Field abbreviation="RH"/>
-        <Field level="500MB" abbreviation="T"/>
+        <Field abbreviation="P" />
+        <Field abbreviation="T" />
+        <Field abbreviation="RH" />
+        <Field level="500MB" abbreviation="T" />
     </Method>
 </DerivedParameter>

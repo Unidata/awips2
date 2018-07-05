@@ -23,13 +23,13 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Formatter;
 import java.util.List;
-
-import ucar.nc2.iosp.bufr.writer.BufrSplitter;
-import ucar.nc2.iosp.bufr.writer.BufrSplitter.Options;
 
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+
+import ucar.nc2.iosp.bufr.writer.BufrSplitter2;
 
 /**
  * Utility to split mixed-type BUFR files into separate messages. Creates a new
@@ -41,12 +41,12 @@ import com.raytheon.uf.common.status.UFStatus;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Apr 1, 2014  2905      bclement     Initial creation
+ * Apr 01, 2014  2905      bclement     Initial creation
+ * Sep 11, 2017  6406      bsteffen     Upgrade ucar
  * 
  * </pre>
  * 
  * @author bclement
- * @version 1.0
  */
 public class BufrFileSeparator {
 
@@ -67,6 +67,13 @@ public class BufrFileSeparator {
                     "processing");
         }
     }
+
+    private static final FilenameFilter CAT_FILTER = new FilenameFilter() {
+        @Override
+        public boolean accept(File dir, String name) {
+            return name.startsWith("Category-");
+        }
+    };
 
     private static final FilenameFilter BUFR_FILTER = new FilenameFilter() {
         @Override
@@ -90,25 +97,17 @@ public class BufrFileSeparator {
             log.warn("BUFR splitter output directory already exists, is file "
                     + mixedBufrFile + " being processed twice?");
         }
-        Options options = new Options() {
-            @Override
-            public String getFileSpec() {
-                return inputFile;
+        Formatter out = new Formatter();
+        BufrSplitter2 splitter = new BufrSplitter2(outputDir.getAbsolutePath(),
+                out);
+        splitter.execute(inputFile);
+        File[] catDirs = outputDir.listFiles(CAT_FILTER);
+        List<String> rval = new ArrayList<>();
+        for (File catDir : catDirs) {
+            File[] files = catDir.listFiles(BUFR_FILTER);
+            for (File f : files) {
+                rval.add(f.getAbsolutePath());
             }
-
-            @Override
-            public String getDirOut() {
-                return outputDir.getAbsolutePath();
-            }
-        };
-
-        BufrSplitter splitter = new BufrSplitter(options);
-        splitter.execute();
-
-        File[] files = outputDir.listFiles(BUFR_FILTER);
-        List<String> rval = new ArrayList<String>(files.length);
-        for (File f : files) {
-            rval.add(f.getAbsolutePath());
         }
         return rval;
     }
@@ -142,9 +141,17 @@ public class BufrFileSeparator {
             log.debug("Split output directory removed before clean");
             return;
         }
-        for (File f : outputDir.listFiles(BUFR_FILTER)) {
-            if (!f.delete() && f.exists()) {
-                log.error("Unable to clean up temporary BUFR file: " + f);
+        for (File catDir : outputDir.listFiles(CAT_FILTER)) {
+
+            for (File f : catDir.listFiles(BUFR_FILTER)) {
+                if (!f.delete() && f.exists()) {
+                    log.error("Unable to clean up temporary BUFR file: " + f);
+                }
+            }
+            if (!catDir.delete() && catDir.exists()) {
+                log.error(
+                        "Unable to clean up temporary BUFR Category directory: "
+                                + outputDir);
             }
         }
         if (!outputDir.delete() && outputDir.exists()) {

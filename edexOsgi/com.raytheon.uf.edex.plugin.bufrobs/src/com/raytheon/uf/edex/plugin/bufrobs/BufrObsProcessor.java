@@ -26,14 +26,15 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import ucar.nc2.Attribute;
-import ucar.nc2.NetcdfFile;
-
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.nc.bufr.BufrParser;
+import com.raytheon.uf.common.nc.bufr.util.BufrTableFixer;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryKey;
+
+import ucar.nc2.Attribute;
+import ucar.nc2.NetcdfFile;
 
 /**
  * Entry point for BUFR obs decoding. Determines the correct decoder instance
@@ -49,11 +50,11 @@ import com.raytheon.uf.edex.plugin.bufrobs.category.CategoryKey;
  * Apr 29, 2014 2906       bclement     close parser when finished
  * Jun 12, 2014 3229       bclement     changed subcat attribute to use local to handle override
  *                                      added registerAll()
+ * Sep 13, 2017  6406      bsteffen     Upgrade ucar
  * 
  * </pre>
  * 
  * @author bclement
- * @version 1.0
  */
 public class BufrObsProcessor {
 
@@ -64,7 +65,7 @@ public class BufrObsProcessor {
 
     public static final String BUFR_SUBCAT_ATTRIBUTE = "BUFR:localSubCategory";
 
-    private static final List<AbstractBufrSfcObsDecoder> decoders = new ArrayList<AbstractBufrSfcObsDecoder>();
+    private static final List<AbstractBufrSfcObsDecoder> decoders = new ArrayList<>();
 
     /**
      * @param bufrFile
@@ -76,6 +77,7 @@ public class BufrObsProcessor {
         BufrParser parser = null;
         PluginDataObject[] rval;
         try {
+            BufrTableFixer.fix();
             parser = new BufrParser(bufrFile);
             CategoryKey key = getBufrCategory(parser);
             AbstractBufrSfcObsDecoder decoder = getDecoder(key);
@@ -89,16 +91,17 @@ public class BufrObsProcessor {
                 rval = decoder.decode(parser, key);
             }
         } catch (IOException e) {
-            throw new BufrObsDecodeException("Unable to read BUFR file: "
-                    + bufrFile, e);
+            throw new BufrObsDecodeException(
+                    "Unable to read BUFR file: " + bufrFile, e);
         } finally {
-            if (parser != null)
+            if (parser != null) {
                 try {
                     parser.close();
                 } catch (IOException e) {
                     throw new BufrObsDecodeException(
                             "Unable to close parser for file: " + bufrFile, e);
                 }
+            }
         }
         return rval;
     }

@@ -77,6 +77,13 @@
 #              handling of vector parms
 # 2004-02-11 - Cleaned up old tool used in BOI for quite some time.
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
+# ----------------------------------------------------------------------------
 #
 #  C O N F I G U R A T I O N   S E C T I O N
 #

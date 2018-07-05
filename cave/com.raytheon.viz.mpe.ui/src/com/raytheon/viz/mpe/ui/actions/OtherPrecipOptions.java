@@ -62,15 +62,19 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  * ------------ ---------- ----------- --------------------------
  * Mar 30, 2009            snaples     Initial creation
  * Jul 9, 2015  14618      snaples     Updated render_options to be more efficient, and resolve an error.
+ * Feb 28, 2017 6157       bkowal      Minor cleanup; formatting.
+ * Apr 17, 2017 6148       bkowal      Limit data access when an additional day worth of data has
+ *                                     been retrieved.
+ * Dec 15, 2017 6547       bkowal      Remove unnecessary adjustment now that the larger underlying problem
+ *                                     has been resolved.  
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class OtherPrecipOptions {
-    
+
     private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     private static final int DEFAULT_ENDING_6HOUR_OBS_TIME = 6;
@@ -191,7 +195,8 @@ public class OtherPrecipOptions {
 
         DailyQcUtils.pcpn_day = DailyQcUtils.pcp_flag / 4;
 
-        DailyQcUtils.pcpn_time = 3 - (DailyQcUtils.pcp_flag - DailyQcUtils.pcpn_day * 4);
+        DailyQcUtils.pcpn_time = 3
+                - (DailyQcUtils.pcp_flag - DailyQcUtils.pcpn_day * 4);
 
         if (MPEDisplayManager.pcpn_time_step == 0) {
             time_pos = DailyQcUtils.pcp_flag;
@@ -202,8 +207,8 @@ public class OtherPrecipOptions {
         QcPrecipOptionsDialog.dataSet.clear();
         QcPrecipOptionsDialog.dataSet.addAll(QcPrecipOptionsDialog.dataType);
         String[] a = new String[QcPrecipOptionsDialog.dataSet.size()];
-        QcPrecipOptionsDialog.setDataSetCombo(QcPrecipOptionsDialog.dataSet
-                .toArray(a));
+        QcPrecipOptionsDialog
+                .setDataSetCombo(QcPrecipOptionsDialog.dataSet.toArray(a));
 
         if (DailyQcUtils.pcp_in_use[time_pos] == -1) {
             QcPrecipOptionsDialog.dataSet.clear();
@@ -212,8 +217,8 @@ public class OtherPrecipOptions {
             QcPrecipOptionsDialog.dataSet.add(1,
                     QcPrecipOptionsDialog.dataType.get(7));
             a = new String[QcPrecipOptionsDialog.dataSet.size()];
-            QcPrecipOptionsDialog.setDataSetCombo(QcPrecipOptionsDialog.dataSet
-                    .toArray(a));
+            QcPrecipOptionsDialog
+                    .setDataSetCombo(QcPrecipOptionsDialog.dataSet.toArray(a));
         }
 
         if (points_flag == 1 && DailyQcUtils.pcp_in_use[time_pos] == -1) {
@@ -245,7 +250,10 @@ public class OtherPrecipOptions {
         QcPrecipOptionsDialog.pntScnCbo.select(i);
 
         if ((DailyQcUtils.pcp_in_use[time_pos] == -1)
-                && ((((MPEDisplayManager.pcpn_time_step == 1) && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] != 0))) || ((MPEDisplayManager.pcpn_time_step == 0) && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[DailyQcUtils.pcpn_time] != 0)))) {
+                && ((((MPEDisplayManager.pcpn_time_step == 1)
+                        && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] != 0)))
+                        || ((MPEDisplayManager.pcpn_time_step == 0)
+                                && (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[DailyQcUtils.pcpn_time] != 0)))) {
             QcPrecipOptionsDialog.renderGridsBtn.setEnabled(true);
         } else {
             QcPrecipOptionsDialog.renderGridsBtn.setEnabled(false);
@@ -261,8 +269,11 @@ public class OtherPrecipOptions {
             QcPrecipOptionsDialog.pcpTypeCbo.select(1);
         } else {
 
-            if ((DailyQcUtils.pcp_flag != 0 && (DailyQcUtils.pcp_in_use[time_pos] == 1 || DailyQcUtils.pcp_in_use[time_pos - 1] == 1))
-                    || (DailyQcUtils.pcp_flag == 0 && DailyQcUtils.pcp_in_use[time_pos] != -1)) {
+            if ((DailyQcUtils.pcp_flag != 0
+                    && (DailyQcUtils.pcp_in_use[time_pos] == 1
+                            || DailyQcUtils.pcp_in_use[time_pos - 1] == 1))
+                    || (DailyQcUtils.pcp_flag == 0
+                            && DailyQcUtils.pcp_in_use[time_pos] != -1)) {
 
                 for (i = 0; i < 1; i++) {
                     QcPrecipOptionsDialog.pcpTypeCbo.setEnabled(true);
@@ -315,7 +326,6 @@ public class OtherPrecipOptions {
                 down_arrow.setEnabled(true);
             }
             if (dqc.curHr18_00 == 1) {
-
                 if (pcp_flag - 3 < 0) {
                     /* Grey out the up arrow. */
                     up_arrow.setEnabled(false);
@@ -348,13 +358,21 @@ public class OtherPrecipOptions {
                     up_arrow.setEnabled(true);
                 }
             }
-            Calendar currentTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+            Calendar currentTime = Calendar
+                    .getInstance(TimeZone.getTimeZone("GMT"));
             Calendar tmpDate = (Calendar) currentTime.clone();
-            tmpDate.setTime(DailyQcUtils.pdata[DailyQcUtils.pcpn_day].data_time);
-            tmpDate.add(Calendar.HOUR_OF_DAY, (DailyQcUtils.pcpn_time-3)*6);
-
-            if (currentTime.before(tmpDate)){
-            	up_arrow.setEnabled(false);
+            tmpDate.setTime(
+                    DailyQcUtils.pdata[DailyQcUtils.pcpn_day].data_time);
+            int tmpDateMultiplier = 6;
+            /*
+             * If it is after 18Z, an additional day of data is retrieved (due
+             * to limitations of the current design). So, need to ensure that
+             * the data is limited even more.
+             */
+            tmpDate.add(Calendar.HOUR_OF_DAY,
+                    (DailyQcUtils.pcpn_time - 3) * tmpDateMultiplier);
+            if (currentTime.before(tmpDate)) {
+                up_arrow.setEnabled(false);
             }
         } else {
             /* 24 hour mode. */
@@ -444,9 +462,6 @@ public class OtherPrecipOptions {
             dqc_ending_6hour_obstime = DEFAULT_ENDING_6HOUR_OBS_TIME;
         }
         dqcTimeStringIndex = (dqc_ending_6hour_obstime / 6) + 1;
-        // if (DailyQcUtils.mpe_td_details_set == 1) {
-        // // do nothing
-        // }
 
         /* Rendering the grids and MAPs. */
         if (clientdata == 0) {
@@ -458,9 +473,8 @@ public class OtherPrecipOptions {
              * do not estimate daily and partial point precipitation from each
              * other if run DQC on partial time frame and pcpn_day=0
              */
-            if (DailyQcUtils.pcpn_day == 0
-                    && (dqc.curHr00_06 == 1
-                            || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
+            if (DailyQcUtils.pcpn_day == 0 && (dqc.curHr00_06 == 1
+                    || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
                 // don't estimate
             } else {
 
@@ -488,24 +502,23 @@ public class OtherPrecipOptions {
              * curHr06_12, for precipitation, do not display the 24 hr
              * precipiation if the pcpn_day=0
              */
-            if ((DailyQcUtils.pcpn_day == 0)
-                    && (dqc.curHr18_00 == 1
-                            || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
+            if ((DailyQcUtils.pcpn_day == 0) && (dqc.curHr18_00 == 1
+                    || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] = 0;
             }
 
             if (DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] != 0) {
 
-                rpc.render_pcp(DailyQcUtils.pcpn_day, DailyQcUtils.pcpn_time,
-                        1, num_stations, DailyQcUtils.precip_stations,
-                        DailyQcUtils.getHrap_grid(), DailyQcUtils.pdata, DailyQcUtils.pcp_in_use);
+                rpc.render_pcp(DailyQcUtils.pcpn_day, DailyQcUtils.pcpn_time, 1,
+                        num_stations, DailyQcUtils.precip_stations,
+                        DailyQcUtils.getHrap_grid(), DailyQcUtils.pdata,
+                        DailyQcUtils.pcp_in_use);
 
                 old_time = DailyQcUtils.pdata[DailyQcUtils.pcpn_day].data_time;
                 tmtime.setTime(old_time);
 
-                dbuf = String.format("%s%s_%04d%02d%02d",
-                        dqc.grid_file, dqc.timefile[2][4],
-                        tmtime.get(Calendar.YEAR),
+                dbuf = String.format("%s%s_%04d%02d%02d", dqc.grid_file,
+                        dqc.timefile[2][4], tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
                         tmtime.get(Calendar.DAY_OF_MONTH));
 
@@ -537,12 +550,10 @@ public class OtherPrecipOptions {
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[1] = 0;
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[2] = 0;
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[3] = 0;
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && dqc.curHr00_06 == 1) {
+            } else if (DailyQcUtils.pcpn_day == 0 && dqc.curHr00_06 == 1) {
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[2] = 0;
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[3] = 0;
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && dqc.curHr06_12 == 1) {
+            } else if (DailyQcUtils.pcpn_day == 0 && dqc.curHr06_12 == 1) {
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[3] = 0;
             }
 
@@ -553,8 +564,9 @@ public class OtherPrecipOptions {
                 }
 
                 rpc.render_pcp(DailyQcUtils.pcpn_day, m, 0, num_stations,
-                        DailyQcUtils.precip_stations, DailyQcUtils.getHrap_grid(),
-                        DailyQcUtils.pdata, DailyQcUtils.pcp_in_use);
+                        DailyQcUtils.precip_stations,
+                        DailyQcUtils.getHrap_grid(), DailyQcUtils.pdata,
+                        DailyQcUtils.pcp_in_use);
 
                 if (m < 2) {
                     old_time = DailyQcUtils.pdata[DailyQcUtils.pcpn_day].data_time;
@@ -565,9 +577,8 @@ public class OtherPrecipOptions {
                     tmtime.setTime(old_time);
                 }
 
-                dbuf = String.format("%s%s_%04d%02d%02d",
-                        dqc.grid_file, dqc.timefile[2][m],
-                        tmtime.get(Calendar.YEAR),
+                dbuf = String.format("%s%s_%04d%02d%02d", dqc.grid_file,
+                        dqc.timefile[2][m], tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
                         tmtime.get(Calendar.DAY_OF_MONTH));
 
@@ -601,9 +612,8 @@ public class OtherPrecipOptions {
             bv.restore_bad_values(DailyQcUtils.pcpn_day,
                     DailyQcUtils.precip_stations, num_stations);
 
-            if ((DailyQcUtils.pcpn_day == 0)
-                    && (dqc.curHr18_00 == 1
-                            || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
+            if ((DailyQcUtils.pcpn_day == 0) && (dqc.curHr18_00 == 1
+                    || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] = 0;
             } else {
                 DailyQcUtils.pdata[DailyQcUtils.pcpn_day].used[4] = 3;
@@ -613,8 +623,8 @@ public class OtherPrecipOptions {
             QcPrecipOptionsDialog.dataSet
                     .addAll(QcPrecipOptionsDialog.dataType);
             String[] a = new String[QcPrecipOptionsDialog.dataSet.size()];
-            QcPrecipOptionsDialog.setDataSetCombo(QcPrecipOptionsDialog.dataSet
-                    .toArray(a));
+            QcPrecipOptionsDialog
+                    .setDataSetCombo(QcPrecipOptionsDialog.dataSet.toArray(a));
 
             if (MPEDisplayManager.pcpn_time_step == 0) {
                 time_pos = DailyQcUtils.pcp_flag;
@@ -679,8 +689,6 @@ public class OtherPrecipOptions {
             num_zstations = rfl.getNumZstations();
             RenderZ rz = new RenderZ();
 
-            // logMessage ("Gridding freezing level and building MAZs" );
-
             /* render Grids and MAZ for four 6hr precipitation */
             /*
              * m=0 represents the time frame 12 - 18, m=1 represents time frame
@@ -691,12 +699,10 @@ public class OtherPrecipOptions {
                 DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[1] = 0;
                 DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[2] = 0;
                 DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[3] = 0;
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && dqc.curHr00_06 == 1) {
+            } else if (DailyQcUtils.pcpn_day == 0 && dqc.curHr00_06 == 1) {
                 DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[2] = 0;
                 DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[3] = 0;
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && dqc.curHr06_12 == 1) {
+            } else if (DailyQcUtils.pcpn_day == 0 && dqc.curHr06_12 == 1) {
                 DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[3] = 0;
             }
 
@@ -704,19 +710,16 @@ public class OtherPrecipOptions {
 
                 if (DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] == 0
                         || DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] == 3
-                        || (DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] == 1 && DailyQcUtils.zdata[DailyQcUtils.pcpn_day].level[m] == 2)
+                        || (DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] == 1
+                                && DailyQcUtils.zdata[DailyQcUtils.pcpn_day].level[m] == 2)
                         || DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] == 4) {
-                    /*
-                     * logMessage(
-                     * "\n in other pcpn zdata used = %d pcpn_dauy=%d m=%d\n"
-                     * ,zdata[pcpn_day].used[m],pcpn_day, m);
-                     */
                     continue;
                 }
 
                 rz.render_z(DailyQcUtils.pcpn_day, m, 0, num_zstations,
-                        DailyQcUtils.freezing_stations, DailyQcUtils.getHrap_grid(),
-                        DailyQcUtils.zdata, DailyQcUtils.pcp_in_use);
+                        DailyQcUtils.freezing_stations,
+                        DailyQcUtils.getHrap_grid(), DailyQcUtils.zdata,
+                        DailyQcUtils.pcp_in_use);
                 /*
                  * dqcEndingObsTime is controlled by the
                  * dqc_ending_6hour_obstime token. It should only be 06 or 12
@@ -743,8 +746,7 @@ public class OtherPrecipOptions {
                         tmtime.setTime(old_time);
                     }
                 }
-                dbuf = String.format("%s%s_%04d%02d%02d",
-                        dqc.zgrid_file,
+                dbuf = String.format("%s%s_%04d%02d%02d", dqc.zgrid_file,
                         dqc.ztimefile[dqcTimeStringIndex][m],
                         tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
@@ -757,11 +759,6 @@ public class OtherPrecipOptions {
                 DailyQcUtils.zdata[DailyQcUtils.pcpn_day].used[m] = 3;
 
                 mr.make_rsel(num, num - 100);
-                /*
-                 * logMessage(
-                 * "\n other pcpn end of loop zdata use = %d pcpn_day=%d m=%d\n"
-                 * ,zdata[pcpn_day].used[m], pcpn_day, m);
-                 */
             }
 
             QcFreezeOptionsDialog.dataSet.clear();
@@ -836,9 +833,8 @@ public class OtherPrecipOptions {
              * other if run DQC on partial time frame and pcpn_day=0
              */
 
-            if (DailyQcUtils.pcpn_day == 0
-                    && (dqc.curHr00_06 == 1
-                            || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
+            if (DailyQcUtils.pcpn_day == 0 && (dqc.curHr00_06 == 1
+                    || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
                 // do not run estimate on stations
             } else {
                 EstDailyTStations edt = new EstDailyTStations();
@@ -854,13 +850,11 @@ public class OtherPrecipOptions {
                 DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[2] = 0;
                 DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[3] = 0;
 
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && dqc.curHr00_06 == 1) {
+            } else if (DailyQcUtils.pcpn_day == 0 && dqc.curHr00_06 == 1) {
                 DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[2] = 0;
                 DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[3] = 0;
 
-            } else if (DailyQcUtils.pcpn_day == 0
-                    && dqc.curHr06_12 == 1) {
+            } else if (DailyQcUtils.pcpn_day == 0 && dqc.curHr06_12 == 1) {
                 DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[3] = 0;
 
             }
@@ -870,13 +864,13 @@ public class OtherPrecipOptions {
 
                 rent.render_t(DailyQcUtils.pcpn_day, DailyQcUtils.pcpn_time, 1,
                         num_tstations, DailyQcUtils.temperature_stations,
-                        DailyQcUtils.getHrap_grid(), DailyQcUtils.tdata, DailyQcUtils.pcp_in_use);
+                        DailyQcUtils.getHrap_grid(), DailyQcUtils.tdata,
+                        DailyQcUtils.pcp_in_use);
 
                 old_time = DailyQcUtils.tdata[DailyQcUtils.pcpn_day].data_time;
                 tmtime.setTime(old_time);
 
-                dbuf = String.format("%s%s_%04d%02d%02d",
-                        dqc.tgrid_file,
+                dbuf = String.format("%s%s_%04d%02d%02d", dqc.tgrid_file,
                         dqc.ttimefile[dqcTimeStringIndex][4],
                         tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
@@ -892,14 +886,14 @@ public class OtherPrecipOptions {
 
                 rent.render_t(DailyQcUtils.pcpn_day, DailyQcUtils.pcpn_time, 2,
                         num_tstations, DailyQcUtils.temperature_stations,
-                        DailyQcUtils.getHrap_grid(), DailyQcUtils.tdata, DailyQcUtils.pcp_in_use);
+                        DailyQcUtils.getHrap_grid(), DailyQcUtils.tdata,
+                        DailyQcUtils.pcp_in_use);
 
                 old_time = DailyQcUtils.tdata[DailyQcUtils.pcpn_day].data_time;
 
                 tmtime.setTime(old_time);
 
-                dbuf = String.format("%s%s_%04d%02d%02d",
-                        dqc.tgrid_file,
+                dbuf = String.format("%s%s_%04d%02d%02d", dqc.tgrid_file,
                         dqc.ttimefile[dqcTimeStringIndex][5],
                         tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
@@ -915,15 +909,17 @@ public class OtherPrecipOptions {
 
                 if (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] == 0
                         || DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] == 3
-                        || (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] == 1 && DailyQcUtils.tdata[DailyQcUtils.pcpn_day].level[m] == 2)
+                        || (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] == 1
+                                && DailyQcUtils.tdata[DailyQcUtils.pcpn_day].level[m] == 2)
                         || DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[m] == 4) {
                     continue;
                 }
 
                 RenderT6 rt6 = new RenderT6();
                 rt6.render_t6(DailyQcUtils.pcpn_day, m, 0, num_tstations,
-                        DailyQcUtils.temperature_stations, DailyQcUtils.getHrap_grid(),
-                        DailyQcUtils.tdata, DailyQcUtils.pcp_in_use);
+                        DailyQcUtils.temperature_stations,
+                        DailyQcUtils.getHrap_grid(), DailyQcUtils.tdata,
+                        DailyQcUtils.pcp_in_use);
 
                 /*
                  * dqcEndingObsTime is controlled by the
@@ -953,8 +949,7 @@ public class OtherPrecipOptions {
                     }
                 }
 
-                dbuf = String.format("%s%s_%04d%02d%02d",
-                        dqc.tgrid_file,
+                dbuf = String.format("%s%s_%04d%02d%02d", dqc.tgrid_file,
                         dqc.ttimefile[dqcTimeStringIndex][m],
                         tmtime.get(Calendar.YEAR),
                         tmtime.get(Calendar.MONTH) + 1,
@@ -1036,8 +1031,6 @@ public class OtherPrecipOptions {
 
         if (MPEDisplayManager.getCurrent().isQpf() == true) {
             QcPrecipOptionsDialog.renderGridsBtn.setEnabled(false);
-        } else if (MPEDisplayManager.getCurrent().isZflag() == true) {
-            // QcFreezingOptionsDialog.renderGridsBtn.setEnabled(false);
         } else if (MPEDisplayManager.getCurrent().isMaxmin() == true) {
             QcTempOptionsDialog.renderGridsBtn.setEnabled(false);
         }

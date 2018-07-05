@@ -72,7 +72,7 @@ public class DeleteAWIPSProcedure extends AbstractHandler {
                     HandlerUtil.getActiveShell(event), Mode.DELETE,
                     ProcedureDlg.PROCEDURES_DIR, "procedures",
                     LocalizationType.CAVE_STATIC);
-            listDlg.setCloseCallback(new ICloseCallback() {
+            listDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {

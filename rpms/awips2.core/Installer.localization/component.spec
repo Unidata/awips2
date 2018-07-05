@@ -145,8 +145,16 @@ fi
 %pre
 
 %post
+# only import the shapefiles and/or hydro databases, if we are on 
+# the same machine as the db.
 # verify the following exists:
-if [ ! -d /awips2/data/maps ] ||
+#   1) /awips2/database/tablespaces/maps
+#   2) /awips2/postgresql/bin/postmaster
+#   3) /awips2/postgresql/bin/pg_ctl
+#   4) /awips2/psql/bin/psql
+#   5) /awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh
+#   6) /awips2/postgresql/bin/pg_restore
+if [ ! -d /awips2/database/tablespaces/maps ] ||
    [ ! -f /awips2/postgresql/bin/postmaster ] ||
    [ ! -f /awips2/postgresql/bin/pg_ctl ] ||
    [ ! -f /awips2/psql/bin/psql ] ||
@@ -172,26 +180,39 @@ function prepare()
    if [ "${POSTGRESQL_RUNNING}" = "YES" ]; then
       return 0
    fi
+   
    local a2_postmaster="/awips2/postgresql/bin/postmaster"
    local a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
-   DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
+   
+   # retrieve the owner of the database
+   DB_OWNER=$(stat -c %U /awips2/database/data)
+   
+   # determine if PostgreSQL is running
    I_STARTED_POSTGRESQL="NO"
+   echo "Determining if PostgreSQL is running ..." >> ${log_file}
    su - ${DB_OWNER} -c \
-      "${a2_pg_ctl} status -D /awips2/data &" > /dev/null 2>&1
+      "${a2_pg_ctl} status -D /awips2/database/data >> ${log_file} 2>&1"
    RC=$?
-   if [ ${RC} -ne 0 ]; then
-      echo "Starting PostgreSQL as user: ${DB_OWNER} ..."
+   echo "" >> ${log_file}
+   
+   # start PostgreSQL if it is not running as the user that owns data
+   if [ ${RC} -eq 0 ]; then
+      echo "INFO: PostgreSQL is running." >> ${log_file}
+   else
+      echo "Starting PostgreSQL as User: ${DB_OWNER} ..." >> ${log_file}
       su - ${DB_OWNER} -c \
-         "${a2_postmaster} -D /awips2/data &" > /dev/null 2>&1
+         "${a2_postmaster} -D /awips2/database/data >> ${log_file} 2>&1 &"
       if [ $? -ne 0 ]; then
-         echo "FATAL: Failed to start PostgreSQL."
+         echo "FATAL: Failed to start PostgreSQL." >> ${log_file}
          return 0
       fi
+   
       # give PostgreSQL time to start.
       /bin/sleep 10
       I_STARTED_POSTGRESQL="YES"
    fi
    POSTGRESQL_RUNNING="YES"
+   
    return 0  
 }
 
@@ -200,13 +221,17 @@ function restartPostgreSQL()
    if [ "${POSTGRESQL_RUNNING}" = "NO" ]; then
       return 0
    fi
+   
    local a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
-   DB_OWNER=`ls -l /awips2/ | grep -w 'data' | awk '{print $3}'`
-   echo "Restarting PostgreSQL ..." 
+   
+   # retrieve the owner of the database
+   DB_OWNER=$(stat -c %U /awips2/database/data)
+   
+   echo "Restarting PostgreSQL ..." >> ${log_file}
    su - ${DB_OWNER} -c \
-      "${a2_pg_ctl} restart -D /awips2/data &" 
+      "${a2_pg_ctl} restart -D /awips2/database/data" >> ${log_file}
    sleep 20
-   echo "PostgreSQL restart complete ..." 
+   echo "PostgreSQL restart complete ..." >> ${log_file}
 }
 
 function importShapefiles()
@@ -221,34 +246,45 @@ function importShapefiles()
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shp ]; then
       return 0
    fi
+   
+   # verify that the files the streams and basins shapefile depend on
+   # are present.
    if [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.dbf ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_aggr_basins.shx ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.dbf ] ||
       [ ! -f ${ffmp_shp_directory}/FFMP_ref_sl.shx ]; then
-      return 0
-   fi
-   local a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
-   echo "Importing the FFMP Shapefiles ... Please Wait."
-   echo "Preparing to import the FFMP shapefiles ..." 
-
-   /bin/bash ${a2_shp_script} \
-      ${ffmp_shp_directory}/FFMP_aggr_basins.shp \
-      mapdata ffmp_basins 0.064,0.016,0.004,0.001 \
-      awips 5432 /awips2 
-   if [ $? -ne 0 ]; then
-      echo "FATAL: failed to import the FFMP basins."
+      # if they are not, exit
       return 0
    fi
    
+   local a2_shp_script="/awips2/database/sqlScripts/share/sql/maps/importShapeFile.sh"
+   
+   echo "Importing the FFMP Shapefiles ... Please Wait."
+   /bin/date >> ${log_file}
+   echo "Preparing to import the FFMP shapefiles ..." >> ${log_file}   
+   
+   echo "" >> ${log_file}
+   # import the shapefiles; log the output
+   
+   # import the ffmp basins
    /bin/bash ${a2_shp_script} \
-      ${ffmp_shp_directory}/FFMP_ref_sl.shp \
-      mapdata ffmp_streams 0.064,0.016,0.004,0.001 \
-      awips 5432 /awips2 
+      ${ffmp_shp_directory}/FFMP_aggr_basins.shp ffmp_basins >> ${log_file} 2>&1
    if [ $? -ne 0 ]; then
-      echo "FATAL: failed to import the FFMP streams." 
+      echo "FATAL: failed to import the FFMP basins." >> ${log_file}
       return 0
    fi
-   echo "INFO: The FFMP shapefiles were successfully imported." 
+   
+   # import the ffmp streams
+   /bin/bash ${a2_shp_script} \
+      ${ffmp_shp_directory}/FFMP_ref_sl.shp ffmp_streams >> ${log_file} 2>&1
+   if [ $? -ne 0 ]; then
+      echo "FATAL: failed to import the FFMP streams." >> ${log_file}
+      return 0
+   fi
+   
+   # indicate success
+   echo "INFO: The FFMP shapefiles were successfully imported." >> ${log_file}
+   return 0
 }
 
 function removeHydroDbDirectory()
@@ -296,14 +332,15 @@ function restoreHydroDb()
       [ "${DAMCAT_SQL_DUMP}" = "" ] ||
       [ "${IHFS_DATABASE}" = "" ] ||
       [ "${IHFS_SQL_DUMP}" = "" ]; then
-      echo "Sufficient information has not been provided for the Hydro Restoration!"
+      echo "Sufficient information has not been provided for the Hydro Restoration!" \
+         >> ${log_file}
       return 0
    fi
    
    # ensure that the specified databases are available for import
    if [ ! -f ${hydro_db_directory}/${DAMCAT_DATABASE} ] ||
       [ ! -f ${hydro_db_directory}/${IHFS_DATABASE} ]; then
-      echo "The expected Hydro Database Exports are not present!"
+      echo "The expected Hydro Database Exports are not present!" >> ${log_file}
       return 0
    fi
    
@@ -311,19 +348,19 @@ function restoreHydroDb()
    
    local default_damcat="dc_ob7oax"
    local default_ihfs="hd_ob92oax"
-   local pg_hba_conf="/awips2/data/pg_hba.conf"
+   local pg_hba_conf="/awips2/database/data/pg_hba.conf"
    
    # update the entry for the damcat database
    perl -p -i -e "s/${default_damcat}/${DAMCAT_DATABASE}/g" ${pg_hba_conf}
    if [ $? -ne 0 ]; then
-      echo "Failed to update damcat database in ${pg_hba_conf}!" 
+      echo "Failed to update damcat database in ${pg_hba_conf}!" >> ${log_file}
       return 0
    fi
    
    # update the entry for the ihfs database
    perl -p -i -e "s/${default_ihfs}/${IHFS_DATABASE}/g" ${pg_hba_conf}
    if [ $? -ne 0 ]; then
-      echo "Failed to update ihfs database in ${pg_hba_conf}!" 
+      echo "Failed to update ihfs database in ${pg_hba_conf}!" >> ${log_file}
       return 0
    fi
    
@@ -331,44 +368,50 @@ function restoreHydroDb()
    restartPostgreSQL
    
    echo "Restoring the Hydro Databases ... Please Wait."
-   echo "Preparing to restore the Hydro databases ..." 
+   /bin/date >> ${log_file}
+   echo "Preparing to restore the Hydro databases ..." >> ${log_file}
    
    local a2_pg_restore="/awips2/postgresql/bin/pg_restore"
    
    # perform the restoration
-   echo "Restoring Database ${DAMCAT_DATABASE} ..." 
-   ${a2_pg_restore} -U awips -C -d postgres ${hydro_db_directory}/${DAMCAT_DATABASE}
+   echo "Restoring Database ${DAMCAT_DATABASE} ..." >> ${log_file}
+   ${a2_pg_restore} -U awipsadmin -C -d postgres ${hydro_db_directory}/${DAMCAT_DATABASE} \
+      >> ${log_file} 2>&1
    # do not check the return code because any errors encountered during
    # the restoration may cause the return code to indicate a failure even
    # though the database was successfully restored.
    
-   echo "Restoring Database ${IHFS_DATABASE} ..." 
-   ${a2_pg_restore} -U awips -C -d postgres ${hydro_db_directory}/${IHFS_DATABASE}
+   echo "" >> ${log_file} 
+   
+   echo "Restoring Database ${IHFS_DATABASE} ..." >> ${log_file}
+   ${a2_pg_restore} -U awipsadmin -C -d postgres ${hydro_db_directory}/${IHFS_DATABASE} \
+      >> ${log_file} 2>&1
    # do not check the return code because any errors encountered during
    # the restoration may cause the return code to indicate a failure even
    # though the database was successfully restored.
    
    # indicate success
-   echo "INFO: The Hydro databases were successfully restored."
+   echo "INFO: The Hydro databases were successfully restored." >> ${log_file}
 }
 
 importShapefiles
-#restoreHydroDb
-#removeHydroDbDirectory
+restoreHydroDb
+removeHydroDbDirectory
 
 a2_pg_ctl="/awips2/postgresql/bin/pg_ctl"
 # if we started PostgreSQL, shutdown PostgreSQL
 if [ "${I_STARTED_POSTGRESQL}" = "YES" ]; then
    su - ${DB_OWNER} -c \
-      "${a2_pg_ctl} stop -D /awips2/data &" 
+      "${a2_pg_ctl} stop -D /awips2/database/data" >> ${log_file}
    if [ $? -ne 0 ]; then
-      echo "WARNING: Failed to shutdown PostgreSQL." 
-      echo "         PostgreSQL will need to manually be shutdown." 
+      echo "WARNING: Failed to shutdown PostgreSQL." >> ${log_file}
+      echo "         PostgreSQL will need to manually be shutdown." >> ${log_file}
    else
       # Give PostgreSQL time to shutdown.
       /bin/sleep 10
    fi
 fi
+
 exit 0
 
 %preun

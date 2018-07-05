@@ -1,7 +1,9 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="acarsAirports" class="com.raytheon.uf.edex.plugin.acarssounding.tools.AirportsBean" depends-on="acarsSoundingPluginName" >
     </bean>
@@ -9,7 +11,7 @@
     <bean id="acarsPersistObs" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSPersistObs" depends-on="acarsRegistered, acarsAirports" >
     </bean>
 
-    <bean id="acarsSounding" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSSounding" depends-on="acarsAirports, acarsRegistered" >
+    <bean id="acarsSounding" class="com.raytheon.uf.edex.plugin.acarssounding.ACARSSounding" depends-on="acarsRegistered" >
         <constructor-arg ref="acarsSoundingPluginName" />
         <constructor-arg ref="acarsAirports" />
     </bean>
@@ -21,11 +23,11 @@
         <constructor-arg ref="clusteredAcarsPersistObs" />
     </bean>
 
-    <camelContext id="acarsSoundingSrv-camel" 
-                  xmlns="http://camel.apache.org/schema/spring" 
-                  errorHandlerRef="errorHandler">
+    <camelContext id="acarsSoundingSrv-camel"
+        xmlns="http://camel.apache.org/schema/spring"
+        errorHandlerRef="errorHandler">
 
-        <endpoint id="scheduledSoundingCron" uri="clusteredquartz://acars/createSounding/?cron=${acarssounding.cron}"/>        
+        <endpoint id="scheduledSoundingCron" uri="clusteredquartz://acars/createSounding/?cron=${acarssounding.cron}"/>
 
         <!-- Schedule sounding creation -->
         <route id="scheduledSounding">

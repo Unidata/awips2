@@ -29,7 +29,7 @@ import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationPermissionDeniedException;
-import com.raytheon.viz.volumebrowser.xml.VbSourceList;
+import com.raytheon.uf.common.menus.vb.VbSourceList;
 
 /**
  * 

@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.colormap.ColorMap;
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
 import com.raytheon.uf.common.colormap.IColorMap;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
@@ -33,9 +35,7 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo.GridType;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.viz.gfe.Activator;
@@ -58,17 +58,18 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 9, 2009            njensen     Initial creation
- * Jan 9, 2013  15648     ryu         Update colormap when new discrete colrmap is selected.
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 09, 2009           njensen   Initial creation
+ * Jan 09, 2013  15648    ryu       Update colormap when new discrete colrmap is
+ *                                  selected.
+ * Jan 16, 2017  5976     bsteffen  Update Usage of ColorMapLoader
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
-
 public class DiscreteDisplayUtil {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(DiscreteDisplayUtil.class);
@@ -107,7 +108,7 @@ public class DiscreteDisplayUtil {
      */
     public static synchronized void deleteParmColorMap(Parm parm) {
         if (discreteColorTable == null) {
-            discreteColorTable = new HashMap<String, DiscreteColorTable>();
+            discreteColorTable = new HashMap<>();
         }
         String compositeName = parm.getParmID().getCompositeName();
         discreteColorTable.remove(compositeName);
@@ -193,7 +194,7 @@ public class DiscreteDisplayUtil {
         if (cmap != null) {
             try {
                 cm = ColorMapLoader.loadColorMap(cmap);
-            } catch (VizException e) {
+            } catch (ColorMapException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error loading colormap \"" + cmap
                                 + "\"--using default", e);
@@ -257,7 +258,7 @@ public class DiscreteDisplayUtil {
     private static synchronized DiscreteColorTable getDiscreteColorTable(
             Parm parm) {
         if (discreteColorTable == null) {
-            discreteColorTable = new HashMap<String, DiscreteColorTable>();
+            discreteColorTable = new HashMap<>();
         }
 
         String compName = parm.getParmID().getCompositeName();

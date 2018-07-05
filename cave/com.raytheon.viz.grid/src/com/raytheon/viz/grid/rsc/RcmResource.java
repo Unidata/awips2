@@ -20,7 +20,6 @@
 package com.raytheon.viz.grid.rsc;
 
 import java.text.ParsePosition;
-import java.util.Map;
 
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
@@ -31,26 +30,32 @@ import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
 import com.raytheon.viz.grid.rsc.general.D2DGridResource;
 
 /**
- * TODO This whole class should be handled from style rules
+ * This is used for 10km Radar Coded Message.
+ * 
+ * TODO Rather than have a class dedicated for this one type of data, it would
+ * be better to use the {@link DataMappedGridResource} and configure the mapping
+ * in style rules.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Dec 16, 2009           mnash       Initial creation
- * Feb 07, 2014  2211     bsteffen    Fix sampling
- * Feb 28, 2791  2211     bsteffen    Move data conversion to DataSource
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -----------------------------------
+ * Dec 16, 2009  790      mnash     Initial creation
+ * Feb 07, 2014  2211     bsteffen  Fix sampling
+ * Feb 28, 2791  2211     bsteffen  Move data conversion to DataSource
+ * Aug 30, 2016  3240     bsteffen  Use Interrogatable for inspect
  * 
  * </pre>
  * 
  * @author mnash
- * @version 1.0
  */
-
 public class RcmResource extends D2DGridResource {
 
     private static Unit<?> DBZ;
@@ -69,11 +74,12 @@ public class RcmResource extends D2DGridResource {
 
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
-        Map<String, Object> map = interrogate(coord);
-        if (map == null) {
+        InterrogateMap map = interrogate(coord, getTimeForResource(),
+                Interrogator.VALUE);
+        if (map == null || map.isEmpty()) {
             return "NO DATA";
         }
-        float val = ((Number) map.get(INTERROGATE_VALUE)).floatValue();
+        float val = map.get(Interrogator.VALUE).getValue().floatValue();
         String sampleVal = "";
         if (val < 1f) {
             sampleVal = "No Data";

@@ -3,6 +3,7 @@
 1:1:Current speed:m/s:SPC
 2:2:u-component of current:m/s:UOGRD
 3:3:v-component of current:m/s:VOGRD
-# 4-191 Reserved
+4:4:Rip Current Occurrence Probability:%:RIPCOP
+# 5-191 Reserved
 #192-254 Reserved for local use
 255:255:Missing

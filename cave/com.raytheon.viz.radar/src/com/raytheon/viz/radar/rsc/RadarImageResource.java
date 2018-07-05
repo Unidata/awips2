@@ -57,7 +57,6 @@ import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableImage;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IMesh;
-import com.raytheon.uf.viz.core.IMeshCallback;
 import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
@@ -72,7 +71,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.uf.viz.core.rsc.hdf5.ImageTile;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 import com.raytheon.viz.radar.util.DataUtilities;
@@ -85,20 +83,19 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Aug 04, 2010           mnash       Initial creation
- * Jun 11, 2014  2061     bsteffen    Move rangeable capability to radial
- *                                    resource
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 04, 2010           mnash     Initial creation
+ * Jun 11, 2014  2061     bsteffen  Move rangeable capability to radial resource
+ * Nov 08, 2016  5976     bsteffen  Remove IMeshCallback interface
  * 
  * </pre>
  * 
  * @author mnash
- * @version 1.0
  */
-
-public class RadarImageResource<D extends IDescriptor> extends
-        AbstractRadarResource<D> implements IMeshCallback {
+public class RadarImageResource<D extends IDescriptor>
+        extends AbstractRadarResource<D> {
     protected static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RadarImageResource.class);
 
@@ -106,18 +103,12 @@ public class RadarImageResource<D extends IDescriptor> extends
 
     protected Map<Float, IWireframeShape> rangeCircle;
 
-    protected Map<DataTime, DrawableImage> images = new ConcurrentHashMap<DataTime, DrawableImage>();
+    protected Map<DataTime, DrawableImage> images = new ConcurrentHashMap<>();
 
-    /**
-     * @param resourceData
-     * @param loadProperties
-     * @throws VizException
-     */
     protected RadarImageResource(RadarResourceData resourceData,
-            LoadProperties loadProperties, IRadarInterrogator interrogator)
-            throws VizException {
+            LoadProperties loadProperties, IRadarInterrogator interrogator) {
         super(resourceData, loadProperties, interrogator);
-        rangeCircle = new HashMap<Float, IWireframeShape>();
+        rangeCircle = new HashMap<>();
     }
 
     @Override
@@ -136,13 +127,6 @@ public class RadarImageResource<D extends IDescriptor> extends
         images.clear();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.rsc.AbstractRadarResource#initInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
@@ -185,7 +169,7 @@ public class RadarImageResource<D extends IDescriptor> extends
      */
     protected void createTile(IGraphicsTarget target,
             VizRadarRecord populatedRecord) throws StorageException,
-            IOException, ClassNotFoundException, VizException {
+                    IOException, ClassNotFoundException, VizException {
         ColorMapParameters params = getColorMapParameters(target,
                 populatedRecord);
 
@@ -230,8 +214,8 @@ public class RadarImageResource<D extends IDescriptor> extends
         Unit<?> dataUnit = record.getDataUnit();
 
         try {
-            params = ColorMapParameterFactory.build((Object) null, ""
-                    + prodCode, dataUnit, null, resourceData.mode);
+            params = ColorMapParameterFactory.build((Object) null,
+                    "" + prodCode, dataUnit, null, resourceData.mode);
         } catch (StyleException e) {
             throw new VizException(e.getLocalizedMessage(), e);
         }
@@ -250,8 +234,8 @@ public class RadarImageResource<D extends IDescriptor> extends
 
                 // Set the data value
                 if (thresholds[i] instanceof Float) {
-                    entry.setDisplayValue(params.getDataToDisplayConverter()
-                            .convert(i));
+                    entry.setDisplayValue(
+                            params.getDataToDisplayConverter().convert(i));
                 } else if (thresholds[i] instanceof String) {
                     entry.setLabel((String) thresholds[i]);
                 } else if (thresholds[i] == null) {
@@ -295,14 +279,6 @@ public class RadarImageResource<D extends IDescriptor> extends
         return params;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -562,10 +538,9 @@ public class RadarImageResource<D extends IDescriptor> extends
 
     protected IImage createImage(IGraphicsTarget target,
             ColorMapParameters params, RadarRecord record, Rectangle rect)
-            throws VizException {
+                    throws VizException {
         byte[] table = createConversionTable(params, record);
-        return target
-                .getExtension(IColormappedImageExtension.class)
+        return target.getExtension(IColormappedImageExtension.class)
                 .initializeRaster(
                         new RadarImageDataRetrievalAdapter(record, table, rect),
                         params);
@@ -581,25 +556,6 @@ public class RadarImageResource<D extends IDescriptor> extends
         return new PixelCoverage(new Coordinate(0, 0), 0, 0);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.IMeshCallback#meshCalculated(com.raytheon.uf
-     * .viz.core.rsc.hdf5.ImageTile)
-     */
-    @Override
-    public void meshCalculated(ImageTile tile) {
-        issueRefresh();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
-     * referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         for (IWireframeShape ring : rangeCircle.values()) {
@@ -636,8 +592,8 @@ public class RadarImageResource<D extends IDescriptor> extends
         });
     }
 
-    protected static class RadarImageDataRetrievalAdapter implements
-            IColorMapDataRetrievalCallback {
+    protected static class RadarImageDataRetrievalAdapter
+            implements IColorMapDataRetrievalCallback {
 
         protected final RadarRecord record;
 
@@ -664,8 +620,8 @@ public class RadarImageResource<D extends IDescriptor> extends
 
         @Override
         public ColorMapData getColorMapData() {
-            return new ColorMapData(ByteBuffer.wrap(convertData()), new int[] {
-                    rect.width, rect.height });
+            return new ColorMapData(ByteBuffer.wrap(convertData()),
+                    new int[] { rect.width, rect.height });
         }
 
         public byte[] convertData() {

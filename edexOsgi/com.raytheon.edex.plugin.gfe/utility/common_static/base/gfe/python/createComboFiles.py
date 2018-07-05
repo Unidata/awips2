@@ -18,9 +18,6 @@
 # further licensing information.
 ##
 
-import os, glob, string, tempfile, stat
-import LogStream, pprint
-
 #
 #  Creates combination files specific to a site.  Somewhat ported from AWIPS-I.
 #  
@@ -33,7 +30,16 @@ import LogStream, pprint
 #    
 # 
 #
-        
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
+import os, glob, string, tempfile, stat
+import LogStream, pprint
+  
 
 # Creation of combination files
 def createComboFiles(definitionDir, outputDir, mapDict):

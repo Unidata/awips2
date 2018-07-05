@@ -61,6 +61,8 @@ import com.raytheon.uf.common.gridcoverage.exception.GridCoverageException;
 import com.raytheon.uf.common.gridcoverage.subgrid.SubGrid;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 
@@ -89,10 +91,11 @@ import com.vividsolutions.jts.geom.Geometry;
  *                                    coverage percent.
  * Feb 26, 2016  5414     rjpeter      Fix subgrids along boundary.
  * Jun 24, 2016  ASM18440 dfriedman   Fix spatial tolerance for degree values.
+ * Aug 28, 2017  6378     bsteffen    Remove cached lower left ordinates.
+ *
  * </pre>
  * 
  * @author bphillip
- * @version 1
  */
 @Entity
 @Table
@@ -108,13 +111,18 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
 
     private static final long serialVersionUID = -1355232934065074837L;
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GridCoverage.class);
+
     protected static final String SUBGRID_TOKEN = "SubGrid-";
 
     public static final double SPATIAL_TOLERANCE_KM = 0.1;
 
     public static final double SPATIAL_TOLERANCE_DEG = 0.0025;
 
-    /** The id for this grid. This value is generated in the initialize method **/
+    /**
+     * The id for this grid. This value is generated in the initialize method
+     **/
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "GRIDCOVERAGE_GENERATOR")
     @DynamicSerializeElement
@@ -157,14 +165,6 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     @XmlElement
     @DynamicSerializeElement
     protected double lo1;
-
-    /** Latitude of the lower left grid point */
-    @Transient
-    protected Double lowerLeftLat;
-
-    /** Longitude of the lower left grid point */
-    @Transient
-    protected Double lowerLeftLon;
 
     /** Corner of the first grid point */
     @XmlElement
@@ -434,9 +434,10 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     public CoordinateReferenceSystem getCrs() {
         if (crs == null) {
             try {
-                this.crs = CRSCache.getInstance().getCoordinateReferenceSystem(
-                        crsWKT);
+                this.crs = CRSCache.getInstance()
+                        .getCoordinateReferenceSystem(crsWKT);
             } catch (FactoryException e) {
+                statusHandler.debug("Unable to initialize crs", e);
                 this.crs = null;
             }
         }
@@ -516,8 +517,10 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
      * @param crsWKT
      */
     public void setCrsWKT(String crsWKT) {
+        if (crsWKT == null || !crsWKT.equals(this.crsWKT)) {
+            this.crs = null;
+        }
         this.crsWKT = crsWKT;
-
     }
 
     /**
@@ -568,18 +571,28 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         this.lo1 = lo1;
     }
 
+    /**
+     * @deprecated Use getLowerLeft().y instead, usually lat and lon are needed
+     *             together and getLowerLeft() can be called once for both
+     *             values to improve performance.
+     */
+    @Deprecated
     public Double getLowerLeftLat() throws GridCoverageException {
-        if (lowerLeftLat == null) {
-            generateLowerLeft();
-        }
-        return lowerLeftLat;
+        return generateLowerLeft().y;
     }
 
+    /**
+     * @deprecated Use getLowerLeft().x instead, usually lat and lon are needed
+     *             together and getLowerLeft() can be called once for both
+     *             values to improve performance.
+     */
+    @Deprecated
     public Double getLowerLeftLon() throws GridCoverageException {
-        if (lowerLeftLon == null) {
-            generateLowerLeft();
-        }
-        return lowerLeftLon;
+        return generateLowerLeft().x;
+    }
+
+    public Coordinate getLowerLeft() throws GridCoverageException {
+        return generateLowerLeft();
     }
 
     public Corner getFirstGridPointCorner() {
@@ -659,34 +672,35 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
     /**
      *
      */
-    protected void generateLowerLeft() throws GridCoverageException {
+    protected Coordinate generateLowerLeft() throws GridCoverageException {
+        Coordinate lowerLeft = new Coordinate();
         try {
             if ("degree".equals(spacingUnit)) {
                 switch (firstGridPointCorner) {
                 case LowerLeft: {
-                    lowerLeftLat = la1;
-                    lowerLeftLon = lo1;
+                    lowerLeft.y = la1;
+                    lowerLeft.x = lo1;
                     break;
                 }
                 case UpperLeft: {
-                    lowerLeftLat = la1 - (dy * (ny - 1));
-                    lowerLeftLon = lo1;
+                    lowerLeft.y = la1 - (dy * (ny - 1));
+                    lowerLeft.x = lo1;
                     break;
                 }
                 case UpperRight: {
-                    lowerLeftLat = la1 - (dy * (ny - 1));
-                    lowerLeftLon = lo1 - (dx * (nx - 1));
+                    lowerLeft.y = la1 - (dy * (ny - 1));
+                    lowerLeft.x = lo1 - (dx * (nx - 1));
                     break;
                 }
                 case LowerRight: {
-                    lowerLeftLat = la1;
-                    lowerLeftLon = lo1 - (dx * (nx - 1));
+                    lowerLeft.y = la1;
+                    lowerLeft.x = lo1 - (dx * (nx - 1));
                     break;
                 }
                 }
             } else if (Corner.LowerLeft.equals(firstGridPointCorner)) {
-                lowerLeftLat = la1;
-                lowerLeftLon = lo1;
+                lowerLeft.y = la1;
+                lowerLeft.x = lo1;
             } else {
                 if (getCrs() == null) {
                     throw new GridCoverageException("CRS is null.");
@@ -727,27 +741,28 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
                     }
                     }
                     toLatLon.transform(lonLatInMeters, 0, lonLat, 0, 1);
-                    lowerLeftLon = lonLat[0];
-                    lowerLeftLat = lonLat[1];
+                    lowerLeft.x = lonLat[0];
+                    lowerLeft.y = lonLat[1];
                 } else {
-                    throw new GridCoverageException("Cannot convert "
-                            + spacingUnit + " to meters");
+                    throw new GridCoverageException(
+                            "Cannot convert " + spacingUnit + " to meters");
                 }
             }
         } catch (Exception e) {
             throw new GridCoverageException(
-                    "Cannot determine LowerLeft and UpperRight points of grid",
-                    e);
+                    "Cannot determine LowerLeft point of grid", e);
         }
-        lowerLeftLon = MapUtil.correctLon(lowerLeftLon);
+        lowerLeft.x = MapUtil.correctLon(lowerLeft.x);
+        return lowerLeft;
     }
 
     protected void generateGeometry() throws GridCoverageException {
         if ("degree".equals(spacingUnit)) {
             // lower left is cell center, we want cell corners.
-            double minLat = getLowerLeftLat() - (dy / 2);
+            Coordinate lowerLeft = generateLowerLeft();
+            double minLat = lowerLeft.y - (dy / 2);
             double maxLat = minLat + (dy * ny);
-            double minLon = getLowerLeftLon() - (dx / 2);
+            double minLon = lowerLeft.x - (dx / 2);
             if ((dx * nx) <= 360) {
                 // Do not correct lon if larger than worldwide, most notably the
                 // grid range for ECMWF-LowRes goes from -181.25 to 181.25 but
@@ -787,15 +802,16 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
             try {
                 Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
                 if (spacingUnitObj.isCompatible(SI.METRE)) {
+                    Coordinate lowerLeft = generateLowerLeft();
                     UnitConverter converter = spacingUnitObj
                             .getConverterTo(SI.METRE);
-                    geometry = MapUtil.createGeometry(crs, getLowerLeftLat(),
-                            getLowerLeftLon(), converter.convert(dx),
+                    geometry = MapUtil.createGeometry(crs, lowerLeft.y,
+                            lowerLeft.x, converter.convert(dx),
                             converter.convert(dy), nx, ny);
                 } else {
-                    throw new GridCoverageException("Unable to convert "
-                            + spacingUnit
-                            + " to meters while creating geometry!");
+                    throw new GridCoverageException(
+                            "Unable to convert " + spacingUnit
+                                    + " to meters while creating geometry!");
                 }
             } catch (Exception e) {
                 throw new GridCoverageException("Error creating geometry", e);
@@ -811,7 +827,7 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof GridCoverage)) {
+        if (this.getClass() != obj.getClass()) {
             return false;
         }
         GridCoverage other = (GridCoverage) obj;
@@ -821,10 +837,12 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         if (Double.doubleToLongBits(dy) != Double.doubleToLongBits(other.dy)) {
             return false;
         }
-        if (Double.doubleToLongBits(la1) != Double.doubleToLongBits(other.la1)) {
+        if (Double.doubleToLongBits(la1) != Double
+                .doubleToLongBits(other.la1)) {
             return false;
         }
-        if (Double.doubleToLongBits(lo1) != Double.doubleToLongBits(other.lo1)) {
+        if (Double.doubleToLongBits(lo1) != Double
+                .doubleToLongBits(other.lo1)) {
             return false;
         }
         if (nx == null) {
@@ -910,7 +928,8 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         } else {
             Unit<?> spacingUnitObj = Unit.valueOf(spacingUnit);
             if (spacingUnitObj.isCompatible(SI.KILOMETER)) {
-                UnitConverter converter = SI.KILOMETER.getConverterTo(spacingUnitObj);
+                UnitConverter converter = SI.KILOMETER
+                        .getConverterTo(spacingUnitObj);
                 return converter.convert(SPATIAL_TOLERANCE_KM);
             } else {
                 return SPATIAL_TOLERANCE_KM;
@@ -949,8 +968,6 @@ public abstract class GridCoverage extends PersistableDataObject<Integer>
         this.crsWKT = coverage.crsWKT;
         this.la1 = coverage.la1;
         this.lo1 = coverage.lo1;
-        this.lowerLeftLat = coverage.lowerLeftLat;
-        this.lowerLeftLon = coverage.lowerLeftLon;
         this.firstGridPointCorner = coverage.firstGridPointCorner;
         this.crs = coverage.crs;
         this.gridGeometry = coverage.gridGeometry;

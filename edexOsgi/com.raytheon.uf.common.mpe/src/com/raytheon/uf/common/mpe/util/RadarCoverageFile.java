@@ -29,6 +29,8 @@ import java.nio.channels.FileChannel.MapMode;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
+import com.raytheon.uf.common.mpe.constants.DPAConstants;
+
 /**
  * Radar Coverage File. Misbin files.
  * 
@@ -38,18 +40,15 @@ import java.util.TimeZone;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 10, 2009 2675       mpduff     Initial creation
+ * Sep 16, 2016 5631       bkowal      Cleanup. Eliminated duplicated
+ *                                     DPA Constants.
  * 
  * </pre>
  * 
  * @author mpduff
- * @version 1.0
  */
 
 public class RadarCoverageFile {
-    private static final int NUM_DPA_COLS = 131;
-
-    private static final int NUM_DPA_ROWS = 131;
-
     /**
      * Radar Coverage field.
      */
@@ -60,6 +59,7 @@ public class RadarCoverageFile {
 
     /** Date format */
     private static SimpleDateFormat sdf;
+
     static {
         sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -116,8 +116,8 @@ public class RadarCoverageFile {
         byteBuf.order(ByteOrder.BIG_ENDIAN);
         byteBuf.rewind();
 
-        for (int i = 0; i < NUM_DPA_ROWS; i++) {
-            for (int j = 0; j < NUM_DPA_COLS; j++) {
+        for (int i = 0; i < DPAConstants.NUM_DPA_ROWS; i++) {
+            for (int j = 0; j < DPAConstants.NUM_DPA_COLS; j++) {
                 short f = byteBuf.getShort();
                 radCov[i][j] = f;
             }
@@ -139,5 +139,4 @@ public class RadarCoverageFile {
     public double[][] getRadCov() {
         return radCov;
     }
-
 }

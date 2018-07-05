@@ -1,11 +1,11 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common;
 
-import gov.noaa.gsd.viz.ensemble.display.distribution.DistributionViewUI;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+
+import gov.noaa.gsd.viz.ensemble.display.distribution.DistributionViewUI;
 
 /**
  * 
@@ -18,8 +18,9 @@ import org.eclipse.swt.widgets.Composite;
  * 
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- ----------- --------------------------
- * Jan 12, 2016    12301       poster   Initial skeletal creation
- * Jan 16, 2016    12301       jing     Add functioning body
+ * Jan 12, 2016    12301    poster      Initial skeletal creation
+ * Jan 16, 2016    12301    jing        Add functioning body
+ * Nov 12, 2016    19443    polster     Format of text change
  * 
  * </pre>
  * 
@@ -49,9 +50,9 @@ public class DistributionViewerComposite extends Composite {
         return ghGUI;
     }
 
-    synchronized public void setViewEditable(boolean enabled) {
+    synchronized public void setEditable(boolean enabled) {
         setEnabled(enabled);
-        ghGUI.setViewEditable(enabled);
+        ghGUI.setEditable(enabled);
     }
 
 }

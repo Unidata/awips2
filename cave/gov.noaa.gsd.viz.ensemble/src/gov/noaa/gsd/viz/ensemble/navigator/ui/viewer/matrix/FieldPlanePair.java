@@ -1,6 +1,11 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix;
 
+import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+
+import gov.noaa.gsd.viz.ensemble.util.RequestableResourceMetadata;
 
 /**
  * An element is defined as a field and plane pair.
@@ -12,6 +17,8 @@ import com.raytheon.uf.viz.core.rsc.DisplayType;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 10, 2015  12372      polster     Initial creation
+ * Nov 20, 2016  19443      polster     Rename method to include resource type
+ * Dec 01, 2017  41520      polster     Added isCompatible method.
  * 
  * </pre>
  * 
@@ -40,17 +47,17 @@ public class FieldPlanePair {
         sourceParent = "";
         plane = p;
         displayType = dt;
-        setVisible(v);
+        setResourceVisible(v);
     }
 
-    public FieldPlanePair(String fieldAbbreviation, String fieldLongName, String p,
-            boolean v, DisplayType dt) {
+    public FieldPlanePair(String fieldAbbreviation, String fieldLongName,
+            String p, boolean v, DisplayType dt) {
         fieldAbbrev = fieldAbbreviation;
         fieldFullName = fieldLongName;
         sourceParent = "";
         plane = p;
         displayType = dt;
-        setVisible(v);
+        setResourceVisible(v);
     }
 
     public String getFieldAbbrev() {
@@ -77,11 +84,11 @@ public class FieldPlanePair {
         return plane + " " + fieldAbbrev;
     }
 
-    public boolean isVisible() {
+    public boolean isResourceVisible() {
         return isVisible;
     }
 
-    public void setVisible(boolean isVisible) {
+    public void setResourceVisible(boolean isVisible) {
         this.isVisible = isVisible;
     }
 
@@ -95,6 +102,32 @@ public class FieldPlanePair {
 
     public void setSourceParent(String sourceParent) {
         this.sourceParent = sourceParent;
+    }
+
+    /**
+     * Is the formal argument the same product name and plane as this FPP?
+     * 
+     * @param rsc
+     * @return true if the resource is kindred with this field plan pair
+     */
+    public boolean isCompatible(AbstractVizResource<?, ?> rsc) {
+        boolean isCompatible = false;
+        if (rsc.getResourceData() instanceof AbstractRequestableResourceData) {
+
+            AbstractRequestableResourceData ard = (AbstractRequestableResourceData) rsc
+                    .getResourceData();
+            RequestableResourceMetadata rrd = new RequestableResourceMetadata(
+                    ard);
+            String fullName = rrd.getFieldFullName();
+            String rscPlane = rrd.getPlane();
+            if (fullName != null && rscPlane != null) {
+                if (fullName.equals(getFieldLongName())
+                        && rscPlane.equals(getPlane())) {
+                    isCompatible = true;
+                }
+            }
+        }
+        return isCompatible;
     }
 
 }

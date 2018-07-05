@@ -34,7 +34,7 @@ Import-Package: com.raytheon.uf.common.dataplugin,
  org.geotools.referencing.datum,
  org.opengis.referencing.crs,
  org.osgi.framework
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.aviation.advisory,
  com.raytheon.uf.viz.aviation.advisory.adapter,

@@ -428,15 +428,6 @@ The file `/awips2/ldm/etc/pqact.conf` defines which grids the LDM will request f
             FILE    -edex -log
             /awips2/data_store/grid/ECMWF/ECMWF-\1_\2_\3_\4_\5-(seq).grib
     
-
-### ECMWF HiRes
-
-    HDS     ^([LM].Z.{1,3}) KWBX (..)(..)(..)
-            PIPE    -close /awips2/ldm/decoders/decrypt_file
-            /awips2/data_store/grid/ECMWF_HiRes/ecmwf_decrypted_\1_KWBX_\2\3\4-(seq).grib2
-    EXP     (.*ecmwf_decrypted.*)
-            FILE    -edex -log \1
-
 ## Other
 
 ### Canadian GEM Regional Model (CMC)

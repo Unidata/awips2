@@ -18,18 +18,22 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="K" name="Virtual Temperature" abbreviation="TV" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="K" name="Virtual Temperature" abbreviation="TV">
     <Method levels="0.5kmAgl&gt;10kmAgl" name="Slice">
-        <Field level="3D" abbreviation="TV"/>
-        <Field abbreviation="P"/>
-        <ConstantField value="-1.0"/>
+        <Field level="3D" abbreviation="TV" />
+        <Field abbreviation="P" />
+        <ConstantField value="-1.0" />
     </Method>
     <Method levels="0FHAG" name="Alias">
-        <Field level="Surface" abbreviation="TV"/>
+        <Field level="Surface" abbreviation="TV" />
     </Method>
     <Method name="TV">
-    	<Field abbreviation="P"/>
-        <Field abbreviation="T"/>
-        <Field abbreviation="RH"/>
+        <Field abbreviation="P" />
+        <Field abbreviation="T" />
+        <Field abbreviation="RH" />
     </Method>
 </DerivedParameter>

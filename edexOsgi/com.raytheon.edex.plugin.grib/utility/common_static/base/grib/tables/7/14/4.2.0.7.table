@@ -1,5 +1,7 @@
 # Product Discipline 0: Meteorological products, Parameter Category 7: Thermodynamic Stability Indices
 #192-254 Reserved for local use
+6:6:Bourgouin Positive Energy Aloft:J/kg:PBE
+7:7:Bourgouin Negative Energy Low Level:J/kg:NBE
 192:192:Surface Lifted Index:K:LFTX:SLI
 193:193:Best (4 layer) Lifted Index:K:4LFTX:BLI
 194:194:Richardson Number:Numeric:RI

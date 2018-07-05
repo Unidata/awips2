@@ -1,4 +1,28 @@
-# Version 2017.01.9-0
+#
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+# Version 2017.12.13-0
 
 import GenericHazards
 import JsonSupport
@@ -49,6 +73,38 @@ class TextProduct(HLSTCV_Common.TextProduct):
         "URGENT - IMMEDIATE BROADCAST REQUESTED" # Optional EAS phrase to be include in product header
     Definition["callToAction"] = 1
     Definition["hazardSamplingThreshold"] = (3, None)
+
+
+    Definition["threatPhrase"] = {
+            "Wind": {
+                "Extreme": "Potential for wind greater than 110 mph",
+                "High": "Potential for wind 74 to 110 mph",
+                "Moderate": "Potential for wind 58 to 73 mph",
+                "Elevated": "Potential for wind 39 to 57 mph",
+                "None": "Wind less than 39 mph"
+                },
+            "Storm Surge": {
+                "Extreme": "Potential for storm surge flooding greater than 9 feet above ground",
+                "High": "Potential for storm surge flooding greater than 6 feet above ground",
+                "Moderate": "Potential for storm surge flooding greater than 3 feet above ground",
+                "Elevated": "Potential for storm surge flooding greater than 1 foot above ground",
+                "None": "Little to no storm surge flooding"
+                },
+            "Flooding Rain": {
+                "Extreme": "Potential for extreme flooding rain",
+                "High": "Potential for major flooding rain",
+                "Moderate": "Potential for moderate flooding rain",
+                "Elevated": "Potential for localized flooding rain",
+                "None": "Little or no potential for flooding rain"
+                },
+            "Tornado": {
+                "Extreme": "Potential for an outbreak of tornadoes",
+                "High": "Potential for many tornadoes",
+                "Moderate": "Potential for several tornadoes",
+                "Elevated": "Potential for a few tornadoes",
+                "None": "Tornadoes not expected"
+                }
+            }
         
     Definition["debug"] = {
                           #TextProduct
@@ -182,7 +238,6 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_advisoryHasValidKey": 0,
                           "_isMagnitudeIncreasing": 0,
                           "_calculateThreatStatementTr": 0,
-                          "_pastWindHazardWasCAN": 0,
                           "_pastThreatsNotNone": 0,
                           "_setThreatStatementsProductParts": 0,
                           "_getThreatStatements": 0,
@@ -191,7 +246,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
                           "_potentialImpactsStatements": 0,
                           "_getPotentialImpactsStatements": 0,
                           "_preparationStatement": 0,
-                          
+
                           #Unique to each section, but common method name
                           "sectionParts": 0,
                           "_forecastSubsection": 0,
@@ -805,20 +860,32 @@ class TextProduct(HLSTCV_Common.TextProduct):
         
         definition = "A " + headline + " means "
         
-        if phen == "HU":
-            definition += "Hurricane wind conditions"
-        elif phen == "TR":
-            definition += "Tropical storm wind conditions"
-        elif phen == "SS":
-            definition += "life-threatening inundation levels"
+        if phenSig == "HU.W":
+            definition += "hurricane-force winds are expected"
+
+        elif phenSig == "HU.A":
+            definition += "hurricane-force winds are possible"
+
+        elif phenSig == "TR.W":
+            definition += "tropical storm-force winds are expected"
+
+        elif phenSig == "TR.A":
+            definition += "tropical storm-force winds are possible"
+
+        elif phenSig == "SS.W":
+            definition += "there is a danger of life-threatening inundation, from rising water moving inland from the coastline,"
+
+        elif phenSig == "SS.A":
+            definition += "life-threatening inundation, from rising water moving inland from the coastline, is possible"
+
         else:
             return ""
-        
+
         if sig == "W": # Warning
-            definition += " are expected somewhere within this area and within the next 36 hours"
+            definition += " somewhere within this area within the next 36 hours"
         elif sig == "A": # Watch
-            definition += " are possible somewhere within this area and within the next 48 hours"
-        
+            definition += " somewhere within this area within the next 48 hours"
+
         return definition
     
     ###############################################################
@@ -1134,14 +1201,36 @@ class TextProduct(HLSTCV_Common.TextProduct):
             "WindThreat":                    None,
             "WindForecast":                  None,
             "WindHighestPhaseReached":       None,
+            "highestHunkerDownWindThreat":   "None",
             "StormSurgeThreat":              None,
             "StormSurgeForecast":            None,
             "StormSurgeHighestPhaseReached": None,
+            "highestHunkerDownSurgeThreat":  "None",
             "FloodingRainThreat":            None,
             "FloodingRainForecast":          None,
             "TornadoThreat":                 None,
         }
-    
+
+        # Make sure our highest threats and phases aren't lost
+        previousSegmentAdvisory = None
+        if self._previousAdvisory is not None:
+            previousSegmentAdvisory = self._previousAdvisory['ZoneData'][segment]
+
+        if previousSegmentAdvisory is not None:
+            currentSegmentAdvisory = self._currentAdvisory['ZoneData'][segment]
+
+            currentSegmentAdvisory["WindHighestPhaseReached"] = \
+                previousSegmentAdvisory["WindHighestPhaseReached"]
+
+            currentSegmentAdvisory["highestHunkerDownWindThreat"] = \
+                previousSegmentAdvisory["highestHunkerDownWindThreat"]
+
+            currentSegmentAdvisory["StormSurgeHighestPhaseReached"] = \
+                previousSegmentAdvisory["StormSurgeHighestPhaseReached"]
+
+            currentSegmentAdvisory["highestHunkerDownSurgeThreat"] = \
+                previousSegmentAdvisory["highestHunkerDownSurgeThreat"]
+
     def _getPreviousAdvisories(self):
         stormAdvisories = self._getStormAdvisoryNames()
         
@@ -1199,17 +1288,17 @@ class TextProduct(HLSTCV_Common.TextProduct):
 
         self.debug_print("Saving %s to %s" % (advisoryName, fileName), 1)
         self.debug_print("advisoryDict: %s" % (self._pp.pformat(advisoryDict)), 1)
-         
+
         try:
             JsonSupport.saveToJson(LocalizationSupport.CAVE_STATIC,
                                    self._site,
                                    fileName,
                                    advisoryDict)
         except Exception, e:
-            self.debug_print("Save Exception for %s : %s" % (fileName, e), 1)
+            LogStream.logProblem("Exception saving %s: %s" % (fileName, LogStream.exc()))
         else: # No exceptions occurred
             self.debug_print("Wrote file contents for: %s" % (fileName), 1)
-            
+
             # Purposely allow this to throw
             self._synchronizeAdvisories()
     
@@ -1369,7 +1458,7 @@ class SectionCommon():
         self._segment = segment
         self._tr = None
         self.isThreatNoneForEntireStorm = True
-        
+
     def _isThreatNoneForEntireStorm(self, threatName):
         previousAdvisories = self._textProduct._getPreviousAdvisories()
 
@@ -1409,8 +1498,10 @@ class SectionCommon():
             if threatLevel == "Mod":
                 threatLevel = "Moderate"
 
-            self._setProductPartValue(segmentDict, 'lifePropertyThreatSummary',
-                                      "CURRENT THREAT TO LIFE AND PROPERTY: " + threatLevel)
+            threatStatement = \
+                  self._textProduct._threatPhrase[self._sectionHeaderName][threatLevel]
+
+            self._setProductPartValue(segmentDict, 'lifePropertyThreatSummary', "POTENTIAL THREAT TO LIFE AND PROPERTY: " + threatStatement)
 
     #  This new method will convert the single word threat trend into 
     #  an appropriate sentence 
@@ -1546,106 +1637,124 @@ class SectionCommon():
             return False
         
     def _calculateThreatStatementTr(self, onsetHour, endHour, section):
-        tr = "default"
-        
+        phase = "default"
+
+        self._textProduct.debug_print("section = %s" % (section), 1)
         self._textProduct.debug_print("onset hour = %s" % (onsetHour), 1)
         self._textProduct.debug_print("end hour = %s" % (endHour), 1)
-        
-        if (onsetHour is not None):
-            if onsetHour > 36:
-                tr = "check plans"
-            elif onsetHour > 6:
-                tr = "complete preparations"
-            elif (onsetHour <= 6) and (endHour is not None) and (endHour > 0):
-                tr = "hunker down"
-        
-        self._textProduct.debug_print("Before default section. %s tr is currently -> %s for %s" % (section, tr, self._segment), 1)
 
-        # Will need to redo this logic when SS hazards are used
         if section == "Wind":
             threatGrid = "WindThreat"
+            highestHunkerDownThreatKey = "highestHunkerDownWindThreat"
         elif section == "Surge":
             threatGrid = "StormSurgeThreat"
-        
-        # we are here because we had no onset time
-        if tr == "default":
-            if self._textProduct._currentAdvisory['ZoneData'][self._segment][threatGrid] in \
+            highestHunkerDownThreatKey = "highestHunkerDownSurgeThreat"
+
+        previousSegmentAdvisory = None
+        if self._textProduct._previousAdvisory is not None:
+            previousSegmentAdvisory = \
+                self._textProduct._previousAdvisory['ZoneData'][self._segment]
+        currentSegmentAdvisory = \
+            self._textProduct._currentAdvisory['ZoneData'][self._segment]
+
+        if (onsetHour is not None):
+            if onsetHour > 36:
+                phase = "check plans"
+            elif onsetHour > 6:
+                phase = "complete preparations"
+            elif (onsetHour <= 6) and (endHour is not None) and (endHour > 0):
+                phase = "hunker down"
+
+                previousHighestHunkerDownThreat = None
+                if previousSegmentAdvisory is not None:
+                    previousHighestHunkerDownThreat = \
+                        previousSegmentAdvisory[highestHunkerDownThreatKey]
+
+                self._textProduct.debug_print(
+                    "%s previous highest hunker down threat is -> %s for %s"
+                    % (section, previousHighestHunkerDownThreat, self._segment), 1)
+
+                currentHunkerDownThreat = currentSegmentAdvisory[threatGrid]
+
+                threatSeverity = {threat:severity for severity,threat in
+                                  enumerate(self._textProduct._threatKeyOrder())}
+
+                if threatSeverity.get(currentHunkerDownThreat) > \
+                   threatSeverity.get(previousHighestHunkerDownThreat):
+
+                    currentSegmentAdvisory[highestHunkerDownThreatKey] = \
+                        currentHunkerDownThreat
+
+                self._textProduct.debug_print(
+                    "%s current highest hunker down threat is -> %s for %s"
+                    % (section, currentSegmentAdvisory[highestHunkerDownThreatKey], self._segment), 1)
+
+        self._textProduct.debug_print(
+            "Before default phase handling. %s phase is currently -> %s for %s"
+            % (section, phase, self._segment), 1)
+
+        # We are here because we had no onset time
+        if phase == "default":
+            if currentSegmentAdvisory[threatGrid] in \
                ["Elevated", "Mod", "High", "Extreme"]:
-                tr = "check plans"
+
+                phase = "check plans"
 
             # Checking to see if we ever had a threat. If so, set to recovery
             elif self._pastThreatsNotNone(threatGrid):
-                    tr = "recovery"
-                                
-            # If we are still default, that means we have no onset and never had any threat
-            if tr == "default":
-                tr = "check plans"
-        
-        self._textProduct.debug_print("After default section. %s tr is -> %s for %s" % (section, tr, self._segment), 1)
-                           
+                phase = "recovery"
+
+            # If we are still default, that means we have no onset and have
+            # never had any threat
+            if phase == "default":
+                phase = "check plans"
+
+        self._textProduct.debug_print(
+            "After default phase handling. %s phase is -> %s for %s"
+            % (section, phase, self._segment), 1)
+
         # ---------------------------------------------------------------------
-        # Don't allow the event to regress to an earlier phase for this section
-        
-        # "default" isn't ordered because it can occur at multiple points before the recovery phase
-        phaseOrder = [None, "check plans", "complete preparations", "hunker down", "recovery"]
-        
+
+        # "default" isn't ordered because it can occur at multiple points
+        # before the recovery phase
+        phaseOrder = [None, "check plans", "complete preparations",
+                      "hunker down", "recovery"]
+
         if self._sectionHeaderName == "Storm Surge":
-            highestPhaseReachedField = "StormSurgeHighestPhaseReached"
-        else: # Flooding Rain and Tornado are tied to Wind so that's why they use Wind's phase
-            highestPhaseReachedField = "WindHighestPhaseReached"
+            highestPhaseReachedKey = "StormSurgeHighestPhaseReached"
+        else:
+            # Flooding Rain and Tornado are tied to Wind so that's why they use
+            # Wind's phase
+            highestPhaseReachedKey = "WindHighestPhaseReached"
 
         previousHighestPhaseReached = None
-        if self._textProduct._previousAdvisory is not None:
-            previousHighestPhaseReached = self._textProduct._previousAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
-              
-        currentHighestPhaseReached = self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
-        
-        if phaseOrder.index(currentHighestPhaseReached) >= phaseOrder.index(previousHighestPhaseReached):
-            highestPhaseReached = currentHighestPhaseReached
-        else:
-            highestPhaseReached = previousHighestPhaseReached
-               
-        if tr == "default":
-            if highestPhaseReached == "recovery":
-                tr = "recovery"
-        else:
-            highestPhaseIndex = phaseOrder.index(highestPhaseReached)
-            
-            self._textProduct.debug_print("highestPhaseReached so far for %s is -> '%s' for '%s'" \
-                                          % (self._sectionHeaderName, highestPhaseReached, self._segment), 1)
-            
-            currentPhaseIndex = phaseOrder.index(tr)
-            if currentPhaseIndex < highestPhaseIndex:
-                tr = highestPhaseReached
-                if currentHighestPhaseReached is None:
-                    self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField] = tr
-            elif currentPhaseIndex >= highestPhaseIndex:
-                self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField] = tr
-                
-        dict = self._textProduct._currentAdvisory['ZoneData'][self._segment][highestPhaseReachedField]
-        self._textProduct.debug_print("End of method. %s tr is -> %s for %s" % (section, tr, self._segment), 1)
-        self._textProduct.debug_print("End of method. %s dict tr is -> %s for %s" % (section, dict, self._segment), 1)
-        
-        return tr
-    
-    def _pastWindHazardWasCAN(self):
-        previousAdvisories = self._textProduct._getPreviousAdvisories()
-        
-        #  If there are NOT any advisories to process - no need to continue
-        if len(previousAdvisories) == 0:
-            return False
-        
-        #  Look at all past advisories for this storm
-        for advisory in previousAdvisories:
+        if previousSegmentAdvisory is not None:
+            previousHighestPhaseReached = \
+                previousSegmentAdvisory[highestPhaseReachedKey]
 
-            for hazard in advisory["HazardsForHLS"]:
-                if self._segment in hazard["id"] and \
-                   hazard["phen"] in ["TR", "HU"] and \
-                   hazard["sig"] == "W" and \
-                   hazard["act"] == "CAN":
-                    return True
-        
-        return False
+        self._textProduct.debug_print(
+            "%s previous highestPhaseReached is -> '%s' for '%s'" %
+            (self._sectionHeaderName, previousHighestPhaseReached, self._segment), 1)
+
+        # Don't allow the event to regress to an earlier phase
+        if previousHighestPhaseReached == "recovery":
+            phase = "recovery"
+
+        previousHighestPhaseIndex = phaseOrder.index(previousHighestPhaseReached)
+        currentPhaseIndex = phaseOrder.index(phase)
+
+        if currentPhaseIndex > previousHighestPhaseIndex:
+            currentSegmentAdvisory[highestPhaseReachedKey] = phase
+
+        currentHighestPhaseReached = currentSegmentAdvisory[highestPhaseReachedKey]
+        self._textProduct.debug_print(
+            "End of method. %s current phase is -> %s for %s" %
+            (section, phase, self._segment), 1)
+        self._textProduct.debug_print(
+            "End of method. %s current highestPhaseReached is -> %s for %s" %
+            (section, currentHighestPhaseReached, self._segment), 1)
+
+        return currentHighestPhaseReached
     
     def _pastThreatsNotNone(self, threatGrid):
         
@@ -1692,6 +1801,13 @@ class SectionCommon():
         
         # ThreatStatements comes from TCVDictionary.py when it is exec'ed
         threatStatements = ThreatStatements
+
+        if tr == "recovery":
+            if "Surge" in sectionName:
+                maxThreat = self._textProduct._currentAdvisory['ZoneData'][self._segment]['highestHunkerDownSurgeThreat']
+            elif "Wind" in sectionName:
+                maxThreat = self._textProduct._currentAdvisory['ZoneData'][self._segment]['highestHunkerDownWindThreat']
+
         
         self._textProduct.debug_print(40*"-", 1)
         self._textProduct.debug_print("sectionName = %s, maxThreat = %s, tr = %s" % 
@@ -2252,17 +2368,17 @@ class FloodingRainSection(SectionCommon):
             minAccum, maxAccum = (1, 3)
         elif sumAccum == 3:
             minAccum, maxAccum = (2, 4)
-        elif sumAccum == 4:
-            minAccum, maxAccum = (3, 5)
-        elif sumAccum in [5,6,7]:
+        elif sumAccum in [4,5]:
+            minAccum, maxAccum = (3, 6)
+        elif sumAccum in [6,7]:
             minAccum, maxAccum = (4, 8)
         elif sumAccum in [8,9]:
             minAccum, maxAccum = (6, 10)
         elif sumAccum in [10,11]:
             minAccum, maxAccum = (8, 12)
-        elif sumAccum in [12,13]:
-            minAccum, maxAccum = (10, 14)
-        elif sumAccum in [14,15,16,17]:
+        elif sumAccum in [12,13,14]:
+            minAccum, maxAccum = (10, 15)
+        elif sumAccum in [15,16,17]:
             minAccum, maxAccum = (12, 18)
         elif 17 < sumAccum and sumAccum < 25:
             minAccum, maxAccum = (18, 24)

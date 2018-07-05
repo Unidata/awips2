@@ -24,16 +24,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import ucar.grib.grib2.Grib2IndicatorSection;
-import ucar.unidata.io.KMPMatch;
-import ucar.unidata.io.RandomAccessFile;
-
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.edex.plugin.grib.spatial.GribSpatialCache;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
+
+import ucar.nc2.grib.GribNumbers;
+import ucar.unidata.io.KMPMatch;
+import ucar.unidata.io.RandomAccessFile;
 
 /**
  * 
@@ -46,24 +43,20 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Oct 07, 2013  2402     bsteffen    Rewritten to output GribDecodeMessage.
+ * Sep 11, 2017  6406     bsteffen    Upgrade ucar
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 2.0
  */
 public class GribSplitter {
-
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GribSplitter.class);
 
     private static final KMPMatch matcher = new KMPMatch("GRIB".getBytes());
 
     public List<GribDecodeMessage> split(File file) throws GribException {
-        List<GribDecodeMessage> messages = new ArrayList<GribDecodeMessage>();
-        RandomAccessFile raf = null;
-        try {
-            raf = new RandomAccessFile(file.getAbsolutePath(), "r");
+        List<GribDecodeMessage> messages = new ArrayList<>();
+        try (RandomAccessFile raf = new RandomAccessFile(file.getAbsolutePath(),
+                "r")) {
             raf.order(RandomAccessFile.BIG_ENDIAN);
             while (raf.searchForward(matcher, Integer.MAX_VALUE)) {
                 GribDecodeMessage message = new GribDecodeMessage();
@@ -71,46 +64,48 @@ public class GribSplitter {
                 long startPosition = raf.getFilePointer();
                 message.setStartPosition(startPosition);
                 raf.skipBytes(4);
-                Grib2IndicatorSection is = new Grib2IndicatorSection(raf);
-                message.setGribEdition((byte) is.getGribEdition());
-                long length = is.getGribLength();
-                message.setMessageLength(length);
-                switch (is.getGribEdition()) {
+                raf.skipBytes(3);
+                byte edition = raf.readByte();
+                message.setGribEdition(edition);
+                long length;
+                switch (edition) {
                 case 1:
-                    message.setGridPointCount(getGrib1GridPointCount(raf,
-                            startPosition));
+                    message.setGridPointCount(
+                            getGrib1GridPointCount(raf, startPosition));
+                    raf.seek(startPosition + 4);
+                    length = GribNumbers.uint3(raf);
+                    raf.skipBytes(1);
                     break;
                 case 2:
-                    message.setGridPointCount(getGrib2GridPointCount(raf,
-                            startPosition, length));
+                    length = GribNumbers.int8(raf);
+                    message.setGridPointCount(
+                            getGrib2GridPointCount(raf, startPosition, length));
                     break;
                 default:
-                    /* This is not a grid we can handle. Let the message proceed to the decoder to throw errors.*/
+                    /*
+                     * This is not a grid we can handle. Let the message proceed
+                     * to the decoder to throw errors.
+                     */
                     message.setGridPointCount(0);
+                    length = 8;
                     break;
                 }
+                message.setMessageLength(length);
                 messages.add(message);
-                raf.seek(startPosition + length);
                 /*
                  * A significant amount of files contain one grib record with
                  * several bytes of gibberish on the end. This prevents us from
                  * reading the gibberish if it is too small to be a grib record
                  * anyway.
                  */
-                if (raf.length() - raf.getFilePointer() < 24) {
+                if (raf.length() < startPosition + length + 24) {
                     break;
                 }
+                raf.seek(startPosition + length);
             }
         } catch (IOException e) {
-            throw new GribException("Unable to split file: "
-                    + file.getAbsolutePath(), e);
-        } finally {
-            try {
-                raf.close();
-            } catch (Throwable e) {
-                statusHandler.handle(Priority.DEBUG, "Cannot close grib file: "
-                        + file.getAbsolutePath(), e);
-            }
+            throw new GribException(
+                    "Unable to split file: " + file.getAbsolutePath(), e);
         }
         return messages;
     }
@@ -141,8 +136,7 @@ public class GribSplitter {
     }
 
     private long getGrib1GridPointCount(RandomAccessFile raf,
- long startPosition)
-            throws IOException {
+            long startPosition) throws IOException {
         raf.seek(startPosition + 8);
         int pdsLength = (raf.readUnsignedShort() << 8) + raf.readUnsignedByte();
         raf.skipBytes(3);
@@ -159,14 +153,18 @@ public class GribSplitter {
             raf.seek(startPosition + 8 + pdsLength + 6);
             /*
              * Note: for Quasi-regular grids nx or ny may be coded as 0xFFFF
-             * which will result ina dramatic overestimate of the number of grid
-             * points. All such known grids are identified by grid number above.
+             * which will result in a dramatic overestimate of the number of
+             * grid points. All such known grids are identified by grid number
+             * above.
              */
             int nx = raf.readUnsignedShort();
             int ny = raf.readUnsignedShort();
             return nx * ny;
         }
-        /* This is not a grid we can handle. Let the message proceed to the decoder to throw errors.*/
+        /*
+         * This is not a grid we can handle. Let the message proceed to the
+         * decoder to throw errors.
+         */
         return 0;
     }
 

@@ -10,5 +10,5 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.dataplugin.redbook;bundle-version="1.14.0"
 Export-Package: com.raytheon.uf.edex.plugin.redbook,
  com.raytheon.uf.edex.plugin.redbook.decoder
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.wmo

@@ -18,6 +18,15 @@
 # further licensing information.
 ##
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
+
 #
 # System Diagnostics
 #

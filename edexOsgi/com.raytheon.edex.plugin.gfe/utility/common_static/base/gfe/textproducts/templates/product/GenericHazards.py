@@ -30,6 +30,11 @@
 #    02/24/2016      5411          randerso       Make bullet headers upper case
 #    07/15/2016      5749          randerso       Replaced ellipses with commas in hazardBodyText
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 #-------------------------------------------------------------------------
 # Description: This product is a template for creating Hazard Products.
 #-------------------------------------------------------------------------

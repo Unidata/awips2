@@ -319,7 +319,7 @@ public class MonitorAreaUtils {
          * "forecast zone" table for an OCONUS site]
          */
         if (isMarineZone(zone)) {
-            sql = "select distinct AsBinary("
+            sql = "select distinct ST_AsBinary("
                     + ScanUtils.getStandardResolutionLevel("marinezones")
                     + ") from "
                     + FSSObsMonitorConfigurationManager.MARINE_ZONE_TABLE
@@ -332,7 +332,7 @@ public class MonitorAreaUtils {
              * "101" indicate zone ID
              */
             String state_zone = zone.substring(0, 2) + zone.substring(3);
-            sql = "select AsBinary("
+            sql = "select ST_AsBinary("
                     + ScanUtils.getStandardResolutionLevel("zone") + ") from "
                     + FSSObsMonitorConfigurationManager.FORECAST_ZONE_TABLE
                     + " where state_zone = '" + state_zone + "'";
@@ -347,7 +347,7 @@ public class MonitorAreaUtils {
              */
             String state = zone.substring(0, 2);
             String fipsLike = "%" + zone.substring(3);
-            sql = "select distinct AsBinary("
+            sql = "select distinct ST_AsBinary("
                     + ScanUtils.getStandardResolutionLevel("county")
                     + ") from "
                     + FSSObsMonitorConfigurationManager.COUNTY_TABLE
@@ -508,20 +508,20 @@ public class MonitorAreaUtils {
         String sql = "";
         ISpatialQuery sq = null;
         if (isMarineZone(zone)) {
-            sql = "select AsBinary("
+            sql = "select ST_AsBinary("
                     + ScanUtils.getStandardResolutionLevel("marinezones")
                     + ") from " + MARINE_ZONE_TABLE + " where id = '" + zone
                     + "'";
         } else if (zone.charAt(2) == 'Z') { // "forecast zone"
             String state_zone = zone.substring(0, 2) + zone.substring(3);
-            sql = "select AsBinary("
+            sql = "select ST_AsBinary("
                     + ScanUtils.getStandardResolutionLevel("zone") + ") from "
                     + FORECAST_ZONE_TABLE + " where state_zone = '"
                     + state_zone + "'";
         } else { // "county"
             String state = zone.substring(0, 2);
             String fipsLike = "%" + zone.substring(3);
-            sql = "select AsBinary("
+            sql = "select ST_AsBinary("
                     + ScanUtils.getStandardResolutionLevel("county")
                     + ") from " + COUNTY_TABLE + " where state = '" + state
                     + "' and fips like '" + fipsLike + "'";
@@ -598,7 +598,7 @@ public class MonitorAreaUtils {
             throws SpatialException, ParseException {
         Coordinate stnCenter = null;
         ISpatialQuery sq = null;
-        String sql = "select AsBinary(the_geom) from common_obs_spatial where stationid = '"
+        String sql = "select ST_AsBinary(the_geom) from common_obs_spatial where stationid = '"
                 + stationid + "'";
         sq = SpatialQueryFactory.create();
         Object results[] = sq.dbRequest(sql, "metadata");

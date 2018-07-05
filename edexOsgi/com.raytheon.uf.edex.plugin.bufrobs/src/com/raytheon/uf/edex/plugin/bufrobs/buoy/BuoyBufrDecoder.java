@@ -40,33 +40,30 @@ import com.raytheon.uf.edex.plugin.bufrobs.BufrObsDecodeException;
  * ------------ ---------- ----------- --------------------------
  * Jun 11, 2014 3229       bclement     Initial creation
  * Jul 23, 2014 3410       bclement    location changed to floats
+ * Sep 11, 2017 6406       bsteffen    Upgrade ucar
  * 
  * </pre>
  * 
  * @author bclement
- * @version 1.0
  */
 public class BuoyBufrDecoder extends AbstractBufrSfcObsDecoder {
 
     public static final String BUOY_NAMESPACE = "buoy";
 
-    public static final String ALIAS_FILE_NAME = BUOY_NAMESPACE
-            + "-alias.xml";
+    public static final String ALIAS_FILE_NAME = BUOY_NAMESPACE + "-alias.xml";
 
     public static final String CATEGORY_FILE_NAME = BUOY_NAMESPACE
             + "-category.xml";
 
     public static final String PRECIP_FIELD = "precip";
 
-    public static final String PRECIP_TIME_PERIOD_FIELD = "Time period or displacement-2";
+    public static final String FALLBACK_LAT_FIELD = "Latitude_high_accuracy";
 
-    public static final String FALLBACK_LAT_FIELD = "Latitude (high accuracy)";
+    public static final String FALLBACK_LON_FIELD = "Longitude_high_accuracy";
 
-    public static final String FALLBACK_LON_FIELD = "Longitude (high accuracy)";
+    public static final String WMO_SUB_AREA_FIELD = "WMO_Region_sub-area";
 
-    public static final String WMO_SUB_AREA_FIELD = "WMO Region sub-area";
-
-    public static final String BUOY_ID_FIELD = "Buoy/platform identifier";
+    public static final String BUOY_ID_FIELD = "Buoy-Platform_identifier";
 
     public static final String STATION_ID_FORMAT = "%d%d%03d";
 
@@ -78,14 +75,6 @@ public class BuoyBufrDecoder extends AbstractBufrSfcObsDecoder {
         super(pluginName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrSfcObsDecoder#processField
-     * (com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon,
-     * com.raytheon.uf.common.nc.bufr.BufrParser)
-     */
     @Override
     protected void processField(ObsCommon record, BufrParser parser)
             throws BufrObsDecodeException {
@@ -100,27 +89,20 @@ public class BuoyBufrDecoder extends AbstractBufrSfcObsDecoder {
             if (DEFAULT_LOCATION_FIELDS.contains(baseName)) {
                 processLocationField(record.getLocation(), parser, baseName);
             } else if (PRECIP_FIELD.equalsIgnoreCase(baseName)) {
-                processPrecip(record, parser, PRECIP_TIME_PERIOD_FIELD);
+                processPrecip(record, parser);
             } else {
                 processGeneralFields(record, parser, baseName);
             }
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrSfcObsDecoder#createStationId
-     * (com.raytheon.uf.common.nc.bufr.BufrParser)
-     */
     @Override
     protected String createStationId(BufrParser parser)
             throws BufrObsDecodeException {
         /* WMO number is split into three parts */
         Number region = (Number) getFieldValue(parser, false);
-        BufrDataItem subAreaData = parser.scanForStructField(
-                WMO_SUB_AREA_FIELD, false);
+        BufrDataItem subAreaData = parser.scanForStructField(WMO_SUB_AREA_FIELD,
+                false);
         Number subArea = (Number) subAreaData.getValue();
         BufrDataItem buoyIdData = parser.scanForStructField(BUOY_ID_FIELD,
                 false);
@@ -136,14 +118,6 @@ public class BuoyBufrDecoder extends AbstractBufrSfcObsDecoder {
                 subArea.intValue(), bouyId.intValue());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrSfcObsDecoder#finalizeRecord
-     * (com.raytheon.uf.common.nc.bufr.BufrParser,
-     * com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon)
-     */
     @Override
     protected ObsCommon finalizeRecord(BufrParser parser, ObsCommon record)
             throws BufrObsDecodeException {
@@ -162,11 +136,11 @@ public class BuoyBufrDecoder extends AbstractBufrSfcObsDecoder {
         SurfaceObsLocation location = record.getLocation();
         if (location.getLocation() == null) {
             /* Argos not available, fallback to coarse lon/lat */
-            BufrDataItem lonData = parser.scanForStructField(
-                    FALLBACK_LON_FIELD, false);
+            BufrDataItem lonData = parser.scanForStructField(FALLBACK_LON_FIELD,
+                    false);
             Number lon = (Number) lonData.getValue();
-            BufrDataItem latData = parser.scanForStructField(
-                    FALLBACK_LAT_FIELD, false);
+            BufrDataItem latData = parser.scanForStructField(FALLBACK_LAT_FIELD,
+                    false);
             Number lat = (Number) latData.getValue();
             if (lon == null || lat == null) {
                 throw new BufrObsDecodeException("BUFR file '"
@@ -176,20 +150,14 @@ public class BuoyBufrDecoder extends AbstractBufrSfcObsDecoder {
         }
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrSfcObsDecoder#getAliasMapFile()
-     */
     @Override
     protected String getAliasMapFile() {
         return ALIAS_FILE_NAME;
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrSfcObsDecoder#getCategoryFile()
-     */
     @Override
     protected String getCategoryFile() {
         return CATEGORY_FILE_NAME;
     }
-    
+
 }

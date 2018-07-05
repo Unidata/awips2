@@ -30,6 +30,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.HashMap;
@@ -59,6 +61,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
+import com.raytheon.uf.common.util.file.Files;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.dataplugin.PluginRegistry;
 import com.raytheon.uf.edex.core.exception.ShutdownException;
@@ -82,10 +85,11 @@ import com.raytheon.uf.edex.database.processor.IDatabaseProcessor;
  * Feb 12, 2014 2784       rjpeter     Update logging for dup elim scenarios.
  * Apr 23, 2014 2726       rjpeter     Add shutdown checks to allow for timely shutdown.
  * Feb 29, 2016 5420       tgurney     Remove timestampCheck arg from IDataStore.copy()
+ * May 05, 2017 6256       tgurney     Restrict file and dir permissions
+ * Jun 16, 2017 6256       tgurney     Do not createFile if file already exists
  * </pre>
  * 
  * @author rjpeter
- * @version 1.0
  */
 
 public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
@@ -102,6 +106,20 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
 
     private static final Pattern FILE_COUNT_PATTERN = Pattern
             .compile("^(.*\\.bin\\.)(\\d+)(?:\\.gz)?$");
+
+    private static final Set<PosixFilePermission> FILE_PERMISSIONS = new HashSet<>();
+
+    private static final Set<PosixFilePermission> DIR_PERMISSIONS = new HashSet<>();
+    static {
+        // in octal: 0640
+        FILE_PERMISSIONS.add(PosixFilePermission.OWNER_READ);
+        FILE_PERMISSIONS.add(PosixFilePermission.OWNER_WRITE);
+        FILE_PERMISSIONS.add(PosixFilePermission.GROUP_READ);
+        // directories have 0750
+        DIR_PERMISSIONS.addAll(FILE_PERMISSIONS);
+        DIR_PERMISSIONS.add(PosixFilePermission.OWNER_EXECUTE);
+        DIR_PERMISSIONS.add(PosixFilePermission.GROUP_EXECUTE);
+    }
 
     protected final String archivePath;
 
@@ -364,12 +382,8 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
                     .append(entry.getKey()).append(File.separator);
             File dir = new File(baseDir.toString());
 
-            if (!dir.exists()) {
-                if (!dir.mkdirs() && !dir.exists()) {
-                    throw new IOException("Cannot create directory "
-                            + baseDir.toString());
-                }
-            }
+            Files.createDirectories(dir.toPath(),
+                    PosixFilePermissions.asFileAttribute(DIR_PERMISSIONS));
 
             List<PersistableDataObject<?>> pdos = entry.getValue();
             if (identifierSet == null) {
@@ -625,7 +639,8 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
 
         try {
             if (!file.getParentFile().exists()) {
-                file.getParentFile().mkdirs();
+                Files.createDirectories(file.getParentFile().toPath(),
+                        PosixFilePermissions.asFileAttribute(DIR_PERMISSIONS));
             }
 
             if (compressDatabaseFiles) {
@@ -638,7 +653,10 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
                     }
                     baseFile.delete();
                 }
-
+                if (!gzipFile.exists()) {
+                    Files.createFile(gzipFile.toPath(), PosixFilePermissions
+                            .asFileAttribute(FILE_PERMISSIONS));
+                }
                 os = new GZIPOutputStream(new FileOutputStream(gzipFile),
                         CHUNK_SIZE);
             } else {
@@ -651,7 +669,10 @@ public class DatabaseArchiveProcessor<T extends PersistableDataObject<?>>
                     }
                     gzipFile.delete();
                 }
-
+                if (!baseFile.exists()) {
+                    Files.createFile(baseFile.toPath(), PosixFilePermissions
+                            .asFileAttribute(FILE_PERMISSIONS));
+                }
                 os = new BufferedOutputStream(new FileOutputStream(baseFile),
                         CHUNK_SIZE);
             }

@@ -94,6 +94,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                     are in inappropriateWords.txt blacklist
  * Sep 21, 2016  5901     randerso     Fix dialog centering issue introduced in
  *                                     Eclipse 4. Changed to extend CaveSWTDialog
+ * Jun 26, 2017  19706    hzhang       Allow spell check to add more than one word
+ *                                     by retrieving a new LocalizationFile from
+ *                                     IPathManager for every save operation
  *
  * </pre>
  *
@@ -592,7 +595,12 @@ implements ISpellingProblemCollector {
                      * with multiple users trying to update the SITE-level
                      * dictionary.
                      */
-                    siteDictionary.save();
+                    IPathManager pathManager = PathManagerFactory.getPathManager();
+                    LocalizationContext siteCtx = pathManager.getContext(
+                            LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+                    LocalizationFile newSiteDictionary = pathManager.getLocalizationFile(
+                            siteCtx, SPELLDICT);
+                    newSiteDictionary.save();
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error saving user dictionary", e);

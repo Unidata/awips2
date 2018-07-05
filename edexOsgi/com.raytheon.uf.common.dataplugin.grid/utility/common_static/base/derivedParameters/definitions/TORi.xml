@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--
 COMMENT:
 // Super Tornado Icons defined by BRNSHR>60m/s, EHI>2.5, 1000-850MB LR>3C/KM,
@@ -29,16 +33,16 @@ FIELD: |0.|
 
 NEW FILE - TORi.xml
 -->
-<DerivedParameter name="BRNSHR,EHI,LRate&gt;3C/km,CIN &lt; 150" abbreviation="TORi" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="BRNSHR,EHI,LRate&gt;3C/km,CIN &lt; 150" abbreviation="TORi">
     <Method levels="Layer" name="Test">
-        <Field level="Surface" abbreviation="NBE"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="-150.0"/>
-        <ConstantField value="1.0E37"/>
-        <Field abbreviation="TORi2"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="-1.0E37"/>
-        <ConstantField value="-150.0"/>
-        <ConstantField value="0.0"/>
+        <Field level="Surface" abbreviation="NBE" />
+        <ConstantField value="1.0" />
+        <ConstantField value="-150.0" />
+        <ConstantField value="1.0E37" />
+        <Field abbreviation="TORi2" />
+        <ConstantField value="1.0" />
+        <ConstantField value="-1.0E37" />
+        <ConstantField value="-150.0" />
+        <ConstantField value="0.0" />
     </Method>
 </DerivedParameter>

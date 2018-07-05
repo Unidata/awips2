@@ -33,6 +33,11 @@
 # Version: 1.0    Date: 02/21/2003
 # ----------------------------------------------------------------------------
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 ToolType = "numeric"
 WeatherElementEdited = "variableElement"
 from numpy import *

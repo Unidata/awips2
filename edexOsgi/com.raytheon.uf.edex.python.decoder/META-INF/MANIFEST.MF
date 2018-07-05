@@ -12,4 +12,4 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.common.python;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.python.decoder
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

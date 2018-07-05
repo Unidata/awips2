@@ -18,6 +18,11 @@
 # further licensing information.
 ##
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 # Table for conversions from the old map file names to table names in the maps
 # database. The map file name from the config file has the CWA removed and is
 # converted to uppercase.

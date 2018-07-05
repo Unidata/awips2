@@ -19,6 +19,10 @@
         further_licensing_information.
     -->
     <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+    <!-- 
     cCape|0| |Computed CAPE             |J/Kg     |CONTOUR,IMAGE,OTHER|| \
     *Alias,475MB>10MB,K,Ke,FH,TILT,5kftAgl>70kftAgl,5kft>70kft| \
     *Alias,S,TEMP| \
@@ -29,111 +33,111 @@
                  T,3D|P,lower|PoT|SHx|0.0| \
     *Max,MaxCape|cCape,3D
      -->
-<DerivedParameter unit="J/kg" name="Computed CAPE" abbreviation="cCape" xmlns:ns2="group">
+<DerivedParameter unit="J/kg" name="Computed CAPE"
+    abbreviation="cCape">
     <Method name="Difference" levels="C,TEMP">
-        <Field abbreviation="capeToLvl" level="upper"/>
-        <Field abbreviation="capeToLvl" level="lower"/>
+        <Field abbreviation="capeToLvl" level="upper" />
+        <Field abbreviation="capeToLvl" level="lower" />
     </Method>
-    <Method  name="Cape" levels="S">
+    <Method name="Cape" levels="S">
         <Field abbreviation="T" level="3D" />
-        <Field abbreviation="P"/>
-        <Field abbreviation="PoT"/>
-        <Field abbreviation="SHx"/>
-        <ConstantField value="0.0"/>
+        <Field abbreviation="P" />
+        <Field abbreviation="PoT" />
+        <Field abbreviation="SHx" />
+        <ConstantField value="0.0" />
     </Method>
-    <Method  name="Cape" levels="B">
+    <Method name="Cape" levels="B">
         <Field abbreviation="T" level="3D" />
-        <Field abbreviation="P"/>
-        <Field abbreviation="PoT"/>
-        <Field abbreviation="SHx"/>
-        <ConstantField value="0.0"/>
+        <Field abbreviation="P" />
+        <Field abbreviation="PoT" />
+        <Field abbreviation="SHx" />
+        <ConstantField value="0.0" />
     </Method>
-    <Method  name="Cape" levels="Surface">
+    <Method name="Cape" levels="Surface">
         <Field abbreviation="T" level="3D" />
-        <Field abbreviation="P"/>
-        <Field abbreviation="PoT"/>
-        <Field abbreviation="SHx"/>
-        <ConstantField value="0.0"/>
+        <Field abbreviation="P" />
+        <Field abbreviation="PoT" />
+        <Field abbreviation="SHx" />
+        <ConstantField value="0.0" />
     </Method>
     <Method name="Cape" levels="C,FHAG">
         <Field abbreviation="T" level="3D" />
         <Field abbreviation="P" level="lower" />
-        <Field abbreviation="PoT"/>
-        <Field abbreviation="SHx"/>
-        <ConstantField value="0.0"/>
+        <Field abbreviation="PoT" />
+        <Field abbreviation="SHx" />
+        <ConstantField value="0.0" />
     </Method>
     <Method name="Cape" levels="1000MB-850MB,850MB-700MB,925MB-850MB,925MB-700MB">
         <Field abbreviation="T" level="3D" />
         <Field abbreviation="P" level="lower" />
-        <Field abbreviation="PoT"/>
-        <Field abbreviation="SHx"/>
-        <ConstantField value="0.0"/>
+        <Field abbreviation="PoT" />
+        <Field abbreviation="SHx" />
+        <ConstantField value="0.0" />
     </Method>
     <Method name="Max" levels="MaxCape">
         <Field abbreviation="cCape" level="3D" />
     </Method>
-	<!-- For Composite Agl levels it is better to explicitly list the levels 
-		to Average to avoid pulling in extra levels, specifically levels defined at 
-		kft heights. -->
-	<Method name="Average" levels="0-1kmAgl">
-
-				<Field abbreviation="cCape" level="0FHAG" />
-		<Field abbreviation="cCape" level="0.5kmAgl" />
-		<Field abbreviation="cCape" level="1kmAgl" />
-	</Method>
-	<Method name="Average" levels="0-2kmAgl">
-		<Field abbreviation="cCape" level="0FHAG" />
-		<Field abbreviation="cCape" level="0.5kmAgl" />
-		<Field abbreviation="cCape" level="1kmAgl" />
-		<Field abbreviation="cCape" level="1.5kmAgl" />
-		<Field abbreviation="cCape" level="2kmAgl" />
-	</Method>
-	<Method name="Average" levels="0-3kmAgl">
-		<Field abbreviation="cCape" level="0FHAG" />
-		<Field abbreviation="cCape" level="0.5kmAgl" />
-		<Field abbreviation="cCape" level="1kmAgl" />
-		<Field abbreviation="cCape" level="1.5kmAgl" />
-		<Field abbreviation="cCape" level="2kmAgl" />
-		<Field abbreviation="cCape" level="2.5kmAgl" />
-		<Field abbreviation="cCape" level="3kmAgl" />
-	</Method>
-	<Method name="Average" levels="0-4kmAgl">
-		<Field abbreviation="cCape" level="0FHAG" />
-		<Field abbreviation="cCape" level="0.5kmAgl" />
-		<Field abbreviation="cCape" level="1kmAgl" />
-		<Field abbreviation="cCape" level="1.5kmAgl" />
-		<Field abbreviation="cCape" level="2kmAgl" />
-		<Field abbreviation="cCape" level="2.5kmAgl" />
-		<Field abbreviation="cCape" level="3kmAgl" />
-		<Field abbreviation="cCape" level="3.5kmAgl" />
-		<Field abbreviation="cCape" level="4kmAgl" />
-	</Method>
-	<Method name="Average" levels="0-5kmAgl">
-		<Field abbreviation="cCape" level="0FHAG" />
-		<Field abbreviation="cCape" level="0.5kmAgl" />
-		<Field abbreviation="cCape" level="1kmAgl" />
-		<Field abbreviation="cCape" level="1.5kmAgl" />
-		<Field abbreviation="cCape" level="2kmAgl" />
-		<Field abbreviation="cCape" level="2.5kmAgl" />
-		<Field abbreviation="cCape" level="3kmAgl" />
-		<Field abbreviation="cCape" level="3.5kmAgl" />
-		<Field abbreviation="cCape" level="4kmAgl" />
-		<Field abbreviation="cCape" level="4.5kmAgl" />
-		<Field abbreviation="cCape" level="5kmAgl" />
-	</Method>
-	<Method name="Average" levels="0-6kmAgl">
-		<Field abbreviation="cCape" level="0FHAG" />
-		<Field abbreviation="cCape" level="0.5kmAgl" />
-		<Field abbreviation="cCape" level="1kmAgl" />
-		<Field abbreviation="cCape" level="1.5kmAgl" />
-		<Field abbreviation="cCape" level="2kmAgl" />
-		<Field abbreviation="cCape" level="2.5kmAgl" />
-		<Field abbreviation="cCape" level="3kmAgl" />
-		<Field abbreviation="cCape" level="3.5kmAgl" />
-		<Field abbreviation="cCape" level="4kmAgl" />
-		<Field abbreviation="cCape" level="4.5kmAgl" />
-		<Field abbreviation="cCape" level="5kmAgl" />
-		<Field abbreviation="cCape" level="5.5kmAgl" />
-		<Field abbreviation="cCape" level="6kmAgl" />
-	</Method>
+    <!-- For Composite Agl levels it is better to explicitly list the levels 
+        to Average to avoid pulling in extra levels, specifically levels defined at 
+        kft heights. -->
+    <Method name="Average" levels="0-1kmAgl">
+        <Field abbreviation="cCape" level="0FHAG" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-2kmAgl">
+        <Field abbreviation="cCape" level="0FHAG" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-3kmAgl">
+        <Field abbreviation="cCape" level="0FHAG" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+        <Field abbreviation="cCape" level="3kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-4kmAgl">
+        <Field abbreviation="cCape" level="0FHAG" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+        <Field abbreviation="cCape" level="3kmAgl" />
+        <Field abbreviation="cCape" level="3.5kmAgl" />
+        <Field abbreviation="cCape" level="4kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-5kmAgl">
+        <Field abbreviation="cCape" level="0FHAG" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+        <Field abbreviation="cCape" level="3kmAgl" />
+        <Field abbreviation="cCape" level="3.5kmAgl" />
+        <Field abbreviation="cCape" level="4kmAgl" />
+        <Field abbreviation="cCape" level="4.5kmAgl" />
+        <Field abbreviation="cCape" level="5kmAgl" />
+    </Method>
+    <Method name="Average" levels="0-6kmAgl">
+        <Field abbreviation="cCape" level="0FHAG" />
+        <Field abbreviation="cCape" level="0.5kmAgl" />
+        <Field abbreviation="cCape" level="1kmAgl" />
+        <Field abbreviation="cCape" level="1.5kmAgl" />
+        <Field abbreviation="cCape" level="2kmAgl" />
+        <Field abbreviation="cCape" level="2.5kmAgl" />
+        <Field abbreviation="cCape" level="3kmAgl" />
+        <Field abbreviation="cCape" level="3.5kmAgl" />
+        <Field abbreviation="cCape" level="4kmAgl" />
+        <Field abbreviation="cCape" level="4.5kmAgl" />
+        <Field abbreviation="cCape" level="5kmAgl" />
+        <Field abbreviation="cCape" level="5.5kmAgl" />
+        <Field abbreviation="cCape" level="6kmAgl" />
+    </Method>
 </DerivedParameter>

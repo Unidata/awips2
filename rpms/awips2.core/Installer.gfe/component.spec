@@ -18,9 +18,10 @@ Packager: %{_build_site}
 
 AutoReq: no
 Provides: awips2-data.gfe
+Requires: awips2-edex
 
 %description
-AWIPS II gfe Distribution - Contains the AWIP II gfe netcdf files.
+AWIPS II gfe Distribution - Contains the AWIPS II gfe netcdf files.
 
 %prep
 # Verify That The User Has Specified A BuildRoot.

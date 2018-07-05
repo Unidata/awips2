@@ -35,7 +35,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.core.rsc.VizGroupResourceData;
+import com.raytheon.uf.viz.core.rsc.groups.VizGroupResourceData;
 
 
 /**

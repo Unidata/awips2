@@ -30,7 +30,6 @@ import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
 import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.common.inventory.TimeAndSpace;
@@ -50,6 +49,7 @@ import com.raytheon.uf.common.time.DataTime;
  * ------------- -------- ----------- --------------------------
  * Apr 09, 2014  2947     bsteffen    Initial creation
  * Aug 04, 2015  4701     njensen     Check time agnosticism in getDataRequest()
+ * Mar 27, 2017  6193     bsteffen    Remove duplicate times from data query.
  * 
  * </pre>
  * 
@@ -74,7 +74,7 @@ public class SatelliteRequestableLevelNode extends AbstractBaseDataNode {
 
     protected DbQueryRequest getBaseRequest(
             Map<String, RequestConstraint> originalConstraints) {
-        Map<String, RequestConstraint> constraints = new HashMap<String, RequestConstraint>(
+        Map<String, RequestConstraint> constraints = new HashMap<>(
                 originalConstraints);
         constraints.putAll(requestConstraints);
         constraints.remove(SatelliteDataCubeAdapter.DERIVED);
@@ -99,17 +99,17 @@ public class SatelliteRequestableLevelNode extends AbstractBaseDataNode {
             Map<String, RequestConstraint> originalConstraints,
             Set<TimeAndSpace> availability) {
         DbQueryRequest request = getBaseRequest(originalConstraints);
-        RequestConstraint timeRc = new RequestConstraint();
-        timeRc.setConstraintType(ConstraintType.IN);
+        Set<String> times = new HashSet<>();
         boolean timeAgnostic = false;
         for (TimeAndSpace time : availability) {
             if (!time.isTimeAgnostic()) {
-                timeRc.addToConstraintValueList(time.getTime().toString());
+                times.add(time.getTime().toString());
             } else {
                 timeAgnostic = true;
             }
         }
         if (!timeAgnostic) {
+            RequestConstraint timeRc = new RequestConstraint(times);
             request.addConstraint(PluginDataObject.DATATIME_ID, timeRc);
         }
         return request;
@@ -119,14 +119,14 @@ public class SatelliteRequestableLevelNode extends AbstractBaseDataNode {
     public Set<TimeAndSpace> getAvailability(
             Map<String, RequestConstraint> originalConstraints, Object response)
             throws DataCubeException {
-        Set<TimeAndSpace> result = new HashSet<TimeAndSpace>();
+        Set<TimeAndSpace> result = new HashSet<>();
         DbQueryResponse dbresponse = (DbQueryResponse) response;
         for (Map<String, Object> map : dbresponse.getResults()) {
             DataTime time = (DataTime) map.get(PluginDataObject.DATATIME_ID);
             int gid = ((Number) map.get(SatelliteInventory.GID)).intValue();
             SatMapCoverage coverage = coverages.get(gid);
-            result.add(new TimeAndSpace(time, new ComparableSatMapCoverage(
-                    coverage)));
+            result.add(new TimeAndSpace(time,
+                    new ComparableSatMapCoverage(coverage)));
         }
         return result;
     }
@@ -138,8 +138,7 @@ public class SatelliteRequestableLevelNode extends AbstractBaseDataNode {
             throws DataCubeException {
         DbQueryResponse queryResponse = (DbQueryResponse) response;
         List<Map<String, Object>> results = queryResponse.getResults();
-        Set<AbstractRequestableData> data = new HashSet<AbstractRequestableData>(
-                results.size());
+        Set<AbstractRequestableData> data = new HashSet<>(results.size());
         SatelliteRecord[] records = queryResponse
                 .getEntityObjects(SatelliteRecord.class);
         for (SatelliteRecord record : records) {
@@ -152,27 +151,30 @@ public class SatelliteRequestableLevelNode extends AbstractBaseDataNode {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        result = prime
-                * result
-                + ((requestConstraints == null) ? 0 : requestConstraints
-                        .hashCode());
+        result = prime * result + ((requestConstraints == null) ? 0
+                : requestConstraints.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         SatelliteRequestableLevelNode other = (SatelliteRequestableLevelNode) obj;
         if (requestConstraints == null) {
-            if (other.requestConstraints != null)
+            if (other.requestConstraints != null) {
                 return false;
-        } else if (!requestConstraints.equals(other.requestConstraints))
+            }
+        } else if (!requestConstraints.equals(other.requestConstraints)) {
             return false;
+        }
         return true;
     }
 

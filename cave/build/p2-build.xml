@@ -218,6 +218,9 @@
 			<param name="feature" value="com.raytheon.uf.viz.ncep.dataplugins.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.viz.hydro.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.xy.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
@@ -239,7 +242,10 @@
 			<param name="feature" value="com.raytheon.uf.viz.thinclient.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
-			<param name="feature" value="com.raytheon.uf.viz.useradmin.feature" />
+			<param name="feature" value="com.raytheon.uf.viz.registry.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.uf.viz.datadelivery.feature" />
 		</antcall>
         <antcall target="p2.build.repo">
             <param name="feature" value="com.raytheon.uf.viz.npp.feature" />
@@ -292,11 +298,15 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="gov.noaa.nws.obs.viz.geodata.feature" />
 		</antcall>
-	<!--
+	
 		<antcall target="p2.build.repo">
 			<param name="feature" value="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature" />
 		</antcall>
-	-->
+
+        <antcall target="p2.build.repo">
+            <param name="feature" value="com.raytheon.uf.viz.d2d.damagepath.feature" />
+        </antcall>
+
 		<antcall target="cleanup.features" />
 	</target>
 
@@ -473,5 +483,6 @@
 		</if>
 	</target>
 
-	<taskdef resource="net/sf/antcontrib/antlib.xml" classpath="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
 </project>

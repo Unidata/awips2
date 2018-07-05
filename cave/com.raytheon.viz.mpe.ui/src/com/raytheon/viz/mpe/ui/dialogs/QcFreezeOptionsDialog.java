@@ -75,14 +75,14 @@ import com.raytheon.viz.ui.perspectives.VizPerspectiveListener;
  *                                  closing this dialog.
  * Sep 21, 2016  5901     randerso  Fix dialog centering issue introduced in
  *                                  Eclipse 4
+ * Mar 02, 2017  6164     bkowal    Updated to extend {@link AbstractDailyQCDialog}.
  *
  * </pre>
  *
  * @author snaples
- * @version 1.0
  */
 
-public class QcFreezeOptionsDialog extends AbstractMPEDialog {
+public class QcFreezeOptionsDialog extends AbstractDailyQCDialog {
 
     public static Combo freezeTimeCbo;
 
@@ -133,10 +133,6 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
 
     OtherFreezeOptions ozo = new OtherFreezeOptions();
 
-    // Zdata[] zdata = new Zdata[0];
-
-    // Ts[] ts;
-
     private int time_pos;
 
     public static Button[] tsbuttons = null;
@@ -173,16 +169,19 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
                 && DailyQcUtils.contour_flag == -1) {
             ik = 0;
         } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+                && DailyQcUtils.grids_flag == 1
+                && DailyQcUtils.map_flag == -1) {
             ik = 1;
         } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+                && DailyQcUtils.grids_flag == -1
+                && DailyQcUtils.map_flag == 1) {
             ik = 2;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+        } else if (DailyQcUtils.points_flag == 1 && DailyQcUtils.grids_flag == 1
+                && DailyQcUtils.map_flag == -1) {
             ik = 3;
         } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+                && DailyQcUtils.grids_flag == -1
+                && DailyQcUtils.map_flag == 1) {
             ik = 4;
         } else if (DailyQcUtils.points_flag == -1
                 && DailyQcUtils.contour_flag == 1) {
@@ -191,7 +190,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
                 && DailyQcUtils.contour_flag == 1) {
             ik = 6;
         } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1) {
+                && DailyQcUtils.grids_flag == -1
+                && DailyQcUtils.map_flag == -1) {
             ik = 7;
         }
         return ik;
@@ -271,6 +271,7 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
                 if (mgr != null) {
                     mgr.removePespectiveDialog(QcFreezeOptionsDialog.this);
                 }
+                revertDisplayModeToPrevious();
             }
         });
 
@@ -397,8 +398,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         dataOptionsGroup.setLayoutData(gd);
         final Shell shell = this.getParent();
         final Cursor prevCursor = shell.getCursor();
-        final Cursor waitCursor = Display.getDefault().getSystemCursor(
-                SWT.CURSOR_WAIT);
+        final Cursor waitCursor = Display.getDefault()
+                .getSystemCursor(SWT.CURSOR_WAIT);
 
         // Create a container to hold the label and the combo box.
         Composite freezeTimeComp = new Composite(dataOptionsGroup, SWT.NONE);
@@ -442,7 +443,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         GridData dd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
 
         String[] a = new String[dataSet.size()];
-        dataDispCbo = new Combo(dataOptionsGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
+        dataDispCbo = new Combo(dataOptionsGroup,
+                SWT.DROP_DOWN | SWT.READ_ONLY);
         dataDispCbo.setTextLimit(30);
         dataDispCbo.setLayoutData(dd);
         dataDispCbo.removeAll();
@@ -500,8 +502,8 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
         pcpLbl.setText("Filter Z:");
 
         gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
-        filterZTypeCbo = new Combo(filterTypeComp, SWT.DROP_DOWN
-                | SWT.READ_ONLY);
+        filterZTypeCbo = new Combo(filterTypeComp,
+                SWT.DROP_DOWN | SWT.READ_ONLY);
         filterZTypeCbo.setTextLimit(30);
         filterZTypeCbo.setLayoutData(gd);
         filterZTypeCbo.add("Above");
@@ -618,13 +620,13 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
             }
         });
         pntRevFilter
-        .addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
-            @Override
-            public void mouseUp(MouseEvent e) {
-                opo.refresh_exposure();
-            }
+                .addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
+                    @Override
+                    public void mouseUp(MouseEvent e) {
+                        opo.refresh_exposure();
+                    }
 
-        });
+                });
 
         /**
          * Pxtemp scale
@@ -656,15 +658,15 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
             }
         });
         pxTempFilter
-        .addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
-            @Override
-            public void mouseUp(MouseEvent e) {
-                int sel = pxTempFilter.getSelection() - 100;
-                dqc.pxtemp = (float) sel / 100;
-                dqc.dmvalue = (int) (dqc.pxtemp * 100 * 3.28 / .55);
-                opo.refresh_exposure();
-            }
-        });
+                .addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
+                    @Override
+                    public void mouseUp(MouseEvent e) {
+                        int sel = pxTempFilter.getSelection() - 100;
+                        dqc.pxtemp = (float) sel / 100;
+                        dqc.dmvalue = (int) (dqc.pxtemp * 100 * 3.28 / .55);
+                        opo.refresh_exposure();
+                    }
+                });
 
         OtherPrecipOptions.change_pcpn_flag = -1;
         OtherPrecipOptions.change_rpcpn_flag = -1;
@@ -698,9 +700,9 @@ public class QcFreezeOptionsDialog extends AbstractMPEDialog {
     }
 
     public static boolean isOpen() {
-    	return isOpen;
+        return isOpen;
     }
-    
+
     public static boolean isFinished() {
         return isfinished;
     }

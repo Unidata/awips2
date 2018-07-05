@@ -27,7 +27,7 @@
 -Dlogback.configurationFile=logback-viz-alertview.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
 -Dthrift.stream.maxsize=200
--Dviz.memory.warn.threshold=98
+-Dviz.memory.warn.threshold=10M
 -Dhttps.certificate.check=true
 -XX:+UnlockExperimentalVMOptions
 -XX:G1HeapRegionSize=4M
@@ -36,6 +36,7 @@
 -XX:G1MixedGCLiveThresholdPercent=25
 -XX:G1OldCSetRegionThresholdPercent=25
 -XX:G1HeapWastePercent=5
+-XX:SoftRefLRUPolicyMSPerMB=1000
       </vmArgs>
       <vmArgsLin>-Xmx6144M -XX:MaxDirectMemorySize=2G
 -XX:OnOutOfMemoryError=&quot;capture -t no -p $pid &amp;&quot;
@@ -78,31 +79,33 @@
       <feature id="com.raytheon.uf.viz.dataplugin.obs.feature"/>
       <feature id="com.raytheon.uf.viz.sounding.feature"/>
       <feature id="com.raytheon.uf.viz.cots.feature"/>
+      <feature id="com.raytheon.uf.viz.registry.feature"/>
       <feature id="com.raytheon.uf.viz.common.core.feature"/>
       <feature id="com.raytheon.uf.viz.dataplugins.feature"/>
       <feature id="com.raytheon.viz.feature.awips"/>
       <feature id="com.raytheon.uf.viz.application.feature"/>
       <feature id="com.raytheon.uf.viz.base.feature"/>
-      <feature id="com.raytheon.uf.viz.nwsauth.feature"/>
       <feature id="com.raytheon.uf.viz.archive.feature"/>
       <feature id="com.raytheon.uf.viz.gisdatastore.feature"/>
-      <feature id="com.raytheon.uf.viz.useradmin.feature"/>
       <feature id="com.raytheon.viz.dataaccess.feature"/>
       <feature id="com.raytheon.uf.viz.localization.perspective.feature"/>
       <feature id="com.raytheon.uf.viz.core.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.core.feature"/>
       <feature id="com.raytheon.uf.viz.aviation.advisory.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.core.feature"/>
+      <feature id="com.raytheon.uf.viz.kml.export.feature"/>
       <feature id="com.raytheon.viz.radar.feature"/>
       <feature id="com.raytheon.uf.viz.grid.feature"/>
       <feature id="com.raytheon.uf.viz.displays.feature"/>
       <feature id="com.raytheon.viz.hydro.feature"/>
-      <feature id="com.raytheon.uf.viz.kml.export.feature"/>
+      <feature id="com.raytheon.uf.viz.d2d.damagepath.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.xy.feature"/>
       <feature id="com.raytheon.viz.volumebrowser.feature"/>
       <feature id="com.raytheon.uf.viz.core.maps.feature"/>
       <feature id="com.raytheon.uf.viz.thinclient.feature"/>
       <feature id="com.raytheon.uf.viz.npp.feature"/>
+      <feature id="com.raytheon.viz.warnings.feature"/>
+      <feature id="com.raytheon.uf.viz.vtec.feature"/>
       <feature id="com.raytheon.viz.text.feature"/>
       <feature id="com.raytheon.viz.warngen.feature"/>
       <feature id="com.raytheon.viz.gfe.feature"/>
@@ -119,7 +122,7 @@
       <feature id="com.raytheon.uf.viz.ncep.npp.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.perspective.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.skewt.feature"/>
-      <feature id="com.raytheon.uf.viz.grib.feature" version="1.16.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.server.edex.feature"/>
    </features>
 
    <configurations>

@@ -232,7 +232,7 @@ public class CacheDbMapQuery extends DefaultDbMapQuery {
         }
         if (tree == null) {
             // request the envelope
-            String envColumn = "AsBinary(ST_Envelope(" + geomField + ")) as "
+            String envColumn = "ST_AsBinary(ST_Envelope(" + geomField + ")) as "
                     + GEOM_ENV;
             columns.add(envColumn);
             QueryResult result = getColumns(columns);

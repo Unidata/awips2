@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -48,28 +48,29 @@ import com.raytheon.uf.viz.alertview.ui.view.AlertView;
 import com.raytheon.uf.viz.alertview.ui.view.OpenAlertViewHandler;
 
 /**
- * 
+ *
  * An {@link AlertDestination} which displays {@link Alert}s in a small popup
  * window. The window only display for a few seconds(exact time is configurable)
  * and then disappears. If the user clicks the popup it will open the displayed
  * alert in the {@link AlertView}
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------
  * Jun 17, 2015  4474     bsteffen  Initial creation
  * Aug 20, 2015  4717     mapeters  Added null check on Alert's message
- * 
+ * Feb 14, 2017  6029     randerso  Ensure AlertPopup appears on primary monitor
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  * @version 1.0
  */
-public class AlertPopup implements AlertDestination,
-        PreferenceFile.Listener<PopUpPreferences> {
+public class AlertPopup
+        implements AlertDestination, PreferenceFile.Listener<PopUpPreferences> {
 
     private final PopupAlertTask task = new PopupAlertTask();
 
@@ -210,15 +211,16 @@ public class AlertPopup implements AlertDestination,
                 nextDelayUnblockKey = 2;
             }
             this.displayedAlert = this.alert;
-            if (displayedAlert != null && (shell == null || shell.isDisposed())) {
-                shell = new Shell(Display.getDefault(), SWT.NO_FOCUS
-                        | SWT.NO_TRIM | SWT.ON_TOP);
+            if (displayedAlert != null
+                    && (shell == null || shell.isDisposed())) {
+                shell = new Shell(Display.getDefault(),
+                        SWT.NO_FOCUS | SWT.NO_TRIM | SWT.ON_TOP);
                 GridLayout layout = new GridLayout(1, false);
                 layout.marginHeight = 0;
                 layout.marginWidth = 0;
                 shell.setLayout(layout);
-                shell.setForeground(Display.getDefault().getSystemColor(
-                        SWT.COLOR_BLACK));
+                shell.setForeground(
+                        Display.getDefault().getSystemColor(SWT.COLOR_BLACK));
                 shell.addListener(SWT.Dispose, new Listener() {
                     @Override
                     public void handleEvent(Event event) {
@@ -247,7 +249,7 @@ public class AlertPopup implements AlertDestination,
                 });
                 shell.setSize(prefs.getWidth(), prefs.getHeight());
 
-                Rectangle clientArea = Display.getDefault().getMonitors()[0]
+                Rectangle clientArea = Display.getDefault().getPrimaryMonitor()
                         .getClientArea();
 
                 int offset = 2;
@@ -259,8 +261,8 @@ public class AlertPopup implements AlertDestination,
                     startY = clientArea.y + offset;
                     break;
                 case UPPER_RIGHT:
-                    startX = clientArea.x + clientArea.width
-                            - shell.getSize().x - offset;
+                    startX = clientArea.x + clientArea.width - shell.getSize().x
+                            - offset;
                     startY = clientArea.y + offset;
                     break;
                 case LOWER_LEFT:
@@ -269,8 +271,8 @@ public class AlertPopup implements AlertDestination,
                             - shell.getSize().y - offset;
                     break;
                 case LOWER_RIGHT:
-                    startX = clientArea.x + clientArea.width
-                            - shell.getSize().x - offset;
+                    startX = clientArea.x + clientArea.width - shell.getSize().x
+                            - offset;
                     startY = clientArea.y + clientArea.height
                             - shell.getSize().y - offset;
                     break;
@@ -286,10 +288,10 @@ public class AlertPopup implements AlertDestination,
                 }
             } else {
                 Display display = shell.getDisplay();
-                label.setBackground(styles.getBackgroundColor(display,
-                        displayedAlert));
-                label.setForeground(styles.getForegroundColor(display,
-                        displayedAlert));
+                label.setBackground(
+                        styles.getBackgroundColor(display, displayedAlert));
+                label.setForeground(
+                        styles.getForegroundColor(display, displayedAlert));
                 label.setFont(styles.getFont(display, displayedAlert));
                 label.setText(displayedAlert.getMessage() == null ? "null"
                         : displayedAlert.getMessage());
@@ -366,8 +368,8 @@ public class AlertPopup implements AlertDestination,
 
         private void activate() {
             if (!active) {
-                shell.setCursor(shell.getDisplay().getSystemCursor(
-                        SWT.CURSOR_HAND));
+                shell.setCursor(
+                        shell.getDisplay().getSystemCursor(SWT.CURSOR_HAND));
                 if (activeColor == null
                         || !inactiveColor.equals(label.getBackground())) {
                     inactiveColor = label.getBackground();
@@ -398,8 +400,8 @@ public class AlertPopup implements AlertDestination,
 
         private void deactivate() {
             if (active) {
-                shell.setCursor(shell.getDisplay().getSystemCursor(
-                        SWT.CURSOR_ARROW));
+                shell.setCursor(
+                        shell.getDisplay().getSystemCursor(SWT.CURSOR_ARROW));
                 label.setBackground(inactiveColor);
                 active = false;
                 task.unblockChanges();

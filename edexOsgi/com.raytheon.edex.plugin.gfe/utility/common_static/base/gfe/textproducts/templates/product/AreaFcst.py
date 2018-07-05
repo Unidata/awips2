@@ -25,6 +25,10 @@
 #
 ##
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 #-------------------------------------------------------------------------
 # Description: This product creates a ZFP-type series of text phrases 
 # for consecutive time periods for a list of edit areas. It can be 
@@ -1462,16 +1466,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ('IS.W', allActions, 'WinterWx'),     # ICE STORM WARNING
             ('LE.W', allActions, 'WinterWx'),     # LAKE EFFECT SNOW WARNING
             ('WS.W', allActions, 'WinterWx'),     # WINTER STORM WARNING
-            ('ZR.Y', allActions, 'WinterWx'),     # FREEZING RAIN ADVISORY
-            ('LE.Y', allActions, 'WinterWx'),     # LAKE EFFECT SNOW ADVISORY
             ('WW.Y', allActions, 'WinterWx'),     # WINTER WEATHER ADVISORY
-            ('BZ.A', allActions, 'WinterWx'),     # BLIZZARD WATCH
-            ('LE.A', allActions, 'WinterWx'),     # LAKE EFFECT SNOW WATCH
             ('WS.A', allActions, 'WinterWx'),     # WINTER STORM WATCH
             ('WC.W', allActions, 'WindChill'),    # WIND CHILL WARNING
             ('WC.Y', allActions, 'WindChill'),    # WIND CHILL ADVISORY
             ('WC.A', allActions, 'WindChill'),    # WIND CHILL WATCH
-            ('DS.W', allActions, 'Dust'),         # DUST STORM WARNING
+            ('DU.W', allActions, 'Dust'),         # BLOWING DUST WARNING
             ('DU.Y', allActions, 'Dust'),         # BLOWING DUST ADVISORY
             ('EC.W', allActions, 'Cold'),         # EXTREME COLD WARNING
             ('EC.A', allActions, 'Cold'),         # EXTREME COLD WATCH

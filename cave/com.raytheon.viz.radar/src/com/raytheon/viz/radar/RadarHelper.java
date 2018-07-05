@@ -75,6 +75,7 @@ import com.raytheon.viz.awipstools.common.StormTrackData;
  * 08/20/2014   DR17214    zwang       Report more status for VCP supplemental Info
  *                                     according to RPG B16 ICD 
  * 03/30/2016   DR 18798   jdynina     Added Backup Comms RPG Alarm
+ * 01/05/2017   DCS19663   jdynina     Added MRLE
  * 
  * </pre>
  * 
@@ -140,8 +141,6 @@ public class RadarHelper {
 
     public static RGB color = YELLOW;
 
-    private static char DEGREE_SYMBOL = 0xB0;
-
     public static final String[] rdaOpStatusStr = {
             null, "Online",
             "Maintenance Action Required", "Maintenance Action Mandatory",
@@ -181,7 +180,7 @@ public class RadarHelper {
             "RDA 1", "RDA 2" };
     
     public static final String[] vcpInfoStr = { "AVSET",
-        " SAILS", " Site-Specific VCP", " RxRN", " CBT" };
+        " SAILS", " Site-Specific VCP", " RxRN", " CBT", null, null, "MRLE" };
 
 	/**
 	 * The default maximimum difference in time used when retrieving STI data (15 minutes.)

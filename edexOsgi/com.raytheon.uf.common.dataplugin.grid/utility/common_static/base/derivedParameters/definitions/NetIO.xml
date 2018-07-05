@@ -18,11 +18,15 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="Pa/s" name="Net Isen Adiabatic Omega" abbreviation="NetIO" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="Pa/s" name="Net Isen Adiabatic Omega" abbreviation="NetIO">
     <Method name="LinTrans" levels="K,Surface">
-        <Field abbreviation="DpDt"/>
-        <ConstantField value="100"/>
-        <Field abbreviation="PAdv"/>
-        <ConstantField value="-100"/>
+        <Field abbreviation="DpDt" />
+        <ConstantField value="100" />
+        <Field abbreviation="PAdv" />
+        <ConstantField value="-100" />
     </Method>
 </DerivedParameter>

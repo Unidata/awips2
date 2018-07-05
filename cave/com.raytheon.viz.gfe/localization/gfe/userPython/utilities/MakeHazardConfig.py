@@ -11,9 +11,16 @@
 #  Jul 10,2012 436        randerso     Separated configuration data from the 
 #                                      MakeHazard procedure
 # Jul 29, 2015 17770      lshi         Add tcmList template for WP basin
+# Jun 23, 2017 6138       dgilling     Changes for Winter Weather VTEC
+#                                      consolidation.
 #
 # Author: randerso
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 def sortHazardList(dict):
     #sorts the entries in the menus in alphabetical order, returns sorted
@@ -46,16 +53,15 @@ def sortHazardList(dict):
 #
 from collections import OrderedDict
 hazardDict = OrderedDict([
-    ('Winter Weather', ["BZ.W", "BZ.A", "ZR.Y", 
-          "IS.W", "LE.Y", "LE.W", "LE.A",
+    ('Winter Weather', ["BZ.W", "IS.W", "LE.W", 
           "WC.Y", "WC.W", "WC.A", "WS.W", "WS.A", "WW.Y"]),
     ('Hydrology', ["FF.A", "FA.A"]),
     ('Fire Weather', ["FW.A", "FW.W"]),
     ('Convective Watches', ["SV.A", "TO.A"]),
     ('Coastal Flood', ["CF.S", "LS.S", "CF.Y", "CF.W", "CF.A", 
           "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "BH.S", "RP.S"]),
-    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.Y", 
-          "DS.W", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W", "FZ.A", 
+    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.W", 
+          "DU.Y", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W", "FZ.A", 
           "HZ.W", "HZ.A", "ZF.Y", "FR.Y", "HT.Y", "HW.W", "HW.A", 
           "LW.Y", "SM.Y", "WI.Y"]),
     ('Marine', ["MA.S", "MH.W", "MH.Y", "BW.Y", "UP.Y", "MF.Y",
@@ -75,8 +81,8 @@ hazardDict = OrderedDict([
 #    ('Fire Weather', ["FW.A", "FW.W"]),
 #    ('Coastal Flood', ["CF.S", "LS.S", "CF.Y", "CF.W", "CF.A", 
 #          "SU.Y", "SU.W", "LS.Y", "LS.W", "LS.A", "RP.S", "BH.S"]),
-#    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.Y", 
-#          "DS.W", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W", "FZ.A", 
+#    ('Non-Precipitation', ["AF.W", "AF.Y", "AQ.Y", "AS.O", "AS.Y", "DU.W", 
+#          "DU.Y", "EH.W", "EH.A", "EC.W", "EC.A", "FG.Y", "FZ.W", "FZ.A", 
 #          "HZ.W", "HZ.A", "ZF.Y", "FR.Y", "HT.Y", "HW.W", "HW.A", 
 #          "LW.Y", "SM.Y", "WI.Y"]),
 #    ('Marine', ["MA.S", "MH.W", "MH.Y", "BW.Y", "UP.Y", "MF.Y",

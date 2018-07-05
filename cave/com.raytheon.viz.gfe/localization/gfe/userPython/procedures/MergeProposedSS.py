@@ -17,8 +17,15 @@
 # Feb 09, 2017  6128       randerso    Fix removal from combined hazards.
 #                                      Correctly handle multiple grids in the 
 #                                      48 hour window
+# Mar 30, 2017             swhite      Precvnts from running if hazard grids are not merged or are not locked
+# Nov 16, 2017             RA/PS       Fixed problem with ProposedSSnc TR not properly reflected on Final Hazards grid.
 #
 ########################################################################
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -96,6 +103,25 @@ class Procedure (TropicalUtility.TropicalUtility):
 
 
     def execute(self):
+        
+        #see if the Hazards WE is loaded in the GFE, if not abort the tool
+        if not self._hazUtils._hazardsLoaded():
+            self.statusBarMsg("Hazards Weather Element must be loaded in "+\
+              "the GFE before running MergeProposedSS.", "S")
+            self.cancel()
+
+        #ensure there are no temp grids loaded, refuse to run
+        if self._hazUtils._tempWELoaded():
+            self.statusBarMsg("There are temporary hazard grids loaded. " + \
+                "Please merge all hazards grids before running MergeProposedSS.", "S")
+            self.cancel()
+
+        #ensure grid is not locked by another user
+        if self.lockedByOther('Hazards', 'SFC'):
+            self.statusBarMsg("There are conflicting locks (red locks - owned by others) on Hazards.  " + \
+                "Please resolve these before running MergeProposedSS", "S")
+            self.cancel()
+
         start = int(self._gmtime().unixTime() / 3600) * 3600
         end= start + 48 * 3600
         propTR = self.GM_makeTimeRange(start, end)
@@ -107,6 +133,9 @@ class Procedure (TropicalUtility.TropicalUtility):
             self.statusBarMsg("No ProposedSS Fcst grid found. Tool aborting.", "S")
             return
 
+        # set propTR to span the full inventory of ProposedSS grids
+        propTR = self.GM_makeTimeRange(propTRList[0].startTime().unixTime(), propTRList[-1].endTime().unixTime())
+
         # Make the cwa mask
         siteID = self.getSiteID()
         cwaMask = self.encodeEditArea(siteID)
@@ -115,6 +144,10 @@ class Procedure (TropicalUtility.TropicalUtility):
         if self.checkForAnyConflicts(cwaMask):
             self.statusBarMsg("Hazard ETN conflicts between " + siteID + " and ProposedSS from NHC ISC database.", "U")
             return
+
+        # First remove all SS hazards from the Hazard grid
+        ssKeys = ["SS.A", "SS.W"]
+        self.removeHazards(ssKeys)
 
         # If there were not any wfo hazards found, make empty grid(s) based on the ProposedSS timeRange
         hazTRList = self.GM_getWEInventory("Hazards")
@@ -144,12 +177,6 @@ class Procedure (TropicalUtility.TropicalUtility):
         # Get the ProposedSS grid
         propGrid, propKeys = self.getGrids(self._ssDbName, self._ssWeName, "SFC", propTRList[-1])
 
-        # First remove all SS hazards from the Hazard grid
-        ssKeys = ["SS.A", "SS.W"]
-
-        # Remove all Hazards matching any SS key
-        self.removeHazards(ssKeys)
-
         # Now add ProposedSS keys back into the hazard grids
         for hazTR in hazTRList:
 
@@ -158,7 +185,8 @@ class Procedure (TropicalUtility.TropicalUtility):
                 continue
 
             for propKey in propKeys:
-                propIndex = self.getIndex(propKey, propKeys)
-                mask = propGrid == propIndex
-                self._hazUtils._addHazard("Hazards", hazTR, propKey, mask, combine=1)
+                if propKey != "<None>":
+                    propIndex = self.getIndex(propKey, propKeys)
+                    mask = propGrid == propIndex
+                    self._hazUtils._addHazard("Hazards", hazTR, propKey, mask, combine=1)
 

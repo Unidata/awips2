@@ -18,10 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <lambertConformalGridCoverage>
     <name>241</name>
     <description>Regional - NOAMHI - High Resolution North American
-		Grid (Lambert Conformal)</description>
+        Grid (Lambert Conformal)</description>
     <la1>-4.85</la1>
     <lo1>-151.1</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>

@@ -18,12 +18,15 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="MaxUVV" name="Max 1hr Updraft Vertical Velocity" unit="m/s" >
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter abbreviation="MaxUVV" name="Max 1hr Updraft Vertical Velocity" unit="m/s">
     <Method name="Alias">
-      <Field abbreviation="MAXUVV1hr"/>
+        <Field abbreviation="MAXUVV1hr" />
     </Method>
-     <Method name="Alias">
-      <Field abbreviation="UPDFTMX1hr"/>
-    </Method>    
+    <Method name="Alias">
+        <Field abbreviation="UPDFTMX1hr" />
+    </Method>
 </DerivedParameter>
-

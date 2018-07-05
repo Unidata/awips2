@@ -4,7 +4,7 @@ Bundle-Name: Thinclient
 Bundle-SymbolicName: com.raytheon.uf.viz.thinclient;singleton:=true
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-Activator: com.raytheon.uf.viz.thinclient.Activator
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14",

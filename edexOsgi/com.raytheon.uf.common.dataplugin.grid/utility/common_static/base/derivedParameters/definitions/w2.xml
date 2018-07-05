@@ -18,4 +18,8 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter abbreviation="w2" name="Vert Variance" unit="m^2/s^2"/>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter abbreviation="w2" name="Vert Variance" unit="m^2/s^2" />

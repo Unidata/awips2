@@ -37,14 +37,18 @@ import com.raytheon.viz.ui.EditorUtil;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * May 23, 2011            rgeorge     Initial creation
+ * May 23, 2011  ?         rgeorge     Initial creation
  * Jan 25, 2017  19504     snaples     Fixed issue with Save Level 2 not being
  *                                     active during Daily QC.
+ * Feb 28, 2017   6152     bkowal      Extracted {@link #menuItemEnabled(List, DisplayFieldData)} to
+ *                                     allow for customized determinations of whether a menu item
+ *                                     should be enabled.
+ * Sep 21, 2017   6407     bkowal      Added override to ensure that the GOES-R SATPRE menu item would always
+ *                                     be enabled when present.
  * 
  * </pre>
  * 
  * @author rgeorge
- * @version 1.0
  */
 public abstract class FieldsPopulator extends CompoundContributionItem {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -110,36 +114,54 @@ public abstract class FieldsPopulator extends CompoundContributionItem {
     protected IContributionItem[] getContributionItems() {
         AppsDefaults defaults = AppsDefaults.getInstance();
         String list = defaults.getToken("mpe_generate_list");
-        List<String> fields = new ArrayList<String>();
+        List<String> fields = new ArrayList<>();
         if (list != null) {
             fields = new ArrayList<String>(Arrays.asList(list.split("[,]")));
             Collections.sort(fields);
         }
         for (DisplayFieldData data : getMenuItems()) {
-            final int found = Collections.binarySearch(fields, data.name(),
-                    new Comparator<String>() {
-                        @Override
-                        public int compare(String o1, String o2) {
-                            return o1.compareToIgnoreCase(o2);
-                        }
-                    });
-            boolean enabled = found >= 0;
+            boolean enabled = menuItemEnabled(fields, data);
+            if (data == DisplayFieldData.goesRSatPre) {
+                enabled = true;
+            }
             ActionContributionItem itemFound = (ActionContributionItem) getMenuManger()
                     .find(getTexMap().get(data).handler);
             if (itemFound == null) {
-                itemFound = (ActionContributionItem) getMenuManger().find(
-                        getTexMap().get(data).text);
+                itemFound = (ActionContributionItem) getMenuManger()
+                        .find(getTexMap().get(data).text);
             }
             if (itemFound == null) {
-                getMenuManger().add(
-                        new ActionContributionItem(new DisplayFieldAction(data,
-                                enabled)));
+                getMenuManger().add(new ActionContributionItem(
+                        new DisplayFieldAction(data, enabled)));
             } else {
                 itemFound.getAction().setEnabled(enabled);
             }
         }
 
         return getMenuManger().getItems();
+    }
+
+    /**
+     * Determines if the menu item associated with the specified
+     * {@link DisplayFieldData} should be enabled.
+     * 
+     * @param fields
+     *            {@link List} of fields to generate defined by the
+     *            'mpe_generate_list' Apps_defaults token
+     * @param data
+     *            the specified {@link DisplayFieldData}
+     * @return {code true} if the menu item should be enabled; {@code false},
+     *         otherwise.
+     */
+    protected boolean menuItemEnabled(final List<String> fields,
+            final DisplayFieldData data) {
+        return (Collections.binarySearch(fields, data.name(),
+                new Comparator<String>() {
+                    @Override
+                    public int compare(String o1, String o2) {
+                        return o1.compareToIgnoreCase(o2);
+                    }
+                }) >= 0);
     }
 
     protected class DisplayFieldAction extends Action {
@@ -180,7 +202,8 @@ public abstract class FieldsPopulator extends CompoundContributionItem {
                             .getWorkbench().getService(ICommandService.class);
                     Command command = commandService
                             .getCommand(menuData.handler);
-                    // This is to allow Save Level 2 menu option to be used while in Daily QC,
+                    // This is to allow Save Level 2 menu option to be used
+                    // while in Daily QC,
                     // but only while in DailyQC, and no other menu options.
                     if (command != null) {
                         boolean inDqc = isDailyQC();
@@ -191,11 +214,11 @@ public abstract class FieldsPopulator extends CompoundContributionItem {
                             command.executeWithChecks(event);
                         } else {
                             if ((inDqc) && (l2Cmd)) {
-                                ExecutionEvent event = new ExecutionEvent(command,
-                                        menuData.params, null, null);
+                                ExecutionEvent event = new ExecutionEvent(
+                                        command, menuData.params, null, null);
                                 command.executeWithChecks(event);
                             }
-                            
+
                         }
                     }
                 } catch (CommandException e) {
@@ -221,30 +244,32 @@ public abstract class FieldsPopulator extends CompoundContributionItem {
      * @return The map of MenuData items
      */
     protected abstract Map<DisplayFieldData, MenuData> getTexMap();
-    
+
     /**
      * Check to see if Daily QC is open
      * 
-     * @return true if Daily QC is running 
-     * otherwise is false
+     * @return true if Daily QC is running otherwise is false
      */
     private boolean isDailyQC() {
         boolean dqc = false;
-        if ((QcPrecipOptionsDialog.isOpen()) || (QcTempOptionsDialog.isOpen()) || (QcFreezeOptionsDialog.isOpen())){
+        if ((QcPrecipOptionsDialog.isOpen()) || (QcTempOptionsDialog.isOpen())
+                || (QcFreezeOptionsDialog.isOpen())) {
             dqc = true;
         }
         return dqc;
     }
-    
+
     /**
      * Check to see if menu command is for Save Level 2 data
-     * @param cmd Menu command called
+     * 
+     * @param cmd
+     *            Menu command called
      * @return true if Menu option is Save Level 2
      * 
      */
-    private boolean isLevel2(Command cmd){
+    private boolean isLevel2(Command cmd) {
         boolean level2 = false;
-        if (cmd.getId().equals("com.raytheon.viz.mpe.ui.actions.savelevel2")){
+        if (cmd.getId().equals("com.raytheon.viz.mpe.ui.actions.savelevel2")) {
             level2 = true;
         }
         return level2;

@@ -43,10 +43,10 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IPointsToolContainer;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData;
+import com.raytheon.uf.viz.d2d.core.procedures.IPointsToolContainer;
 import com.raytheon.uf.viz.xy.varheight.adapter.AbstractVarHeightAdapter;
-import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

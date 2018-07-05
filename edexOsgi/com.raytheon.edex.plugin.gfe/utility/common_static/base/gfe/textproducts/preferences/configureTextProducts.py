@@ -29,6 +29,7 @@
 # 10/31/2016      25946         randerso       Changed to keep Hazard_TCVNHC from 
 #                                              overwriting Hazard_TCV
 # 01/19/2017       6096         randerso       Added FWFNHC to producsPerDomain for NH1, NH2
+# 07/27/2017      20187         bwhunder       Added additional productsPerDomain for NHC and OPC
 #
 ##
 
@@ -82,8 +83,8 @@ NWSProducts = ['ADR', 'AFD', 'AFM', 'AQA', 'AVA', 'AVW', 'CAE', 'CCF', 'CDW', 'C
 
 
 productsPerDomain = {
-    'ONA':  ['OFFN01', 'OFFN02', 'OFFN03', 'MIMATN'],
-    'ONP':  ['OFFN07', 'OFFN08', 'OFFN09', 'MIMPAC'],
+    'ONA':  ['OFFN01', 'OFFN02', 'OFFN03', 'OFFNT1', 'OFFNT2', 'OFFN31', 'OFFN32','MIMATN'],
+    'ONP':  ['OFFN07', 'OFFN08', 'OFFN09', 'OFFPZ5', 'OFFPZ6', 'OFFN35', 'OFFN36', 'MIMPAC'],
     'NH1':  ['HSFEP2', 'HSFEP3', 'FWFNHC', 'FWSNHC', 'TWDEP', 
              'OFFPZ7', 'OFFPZ8'],
     'NH2':  ['OFFN04', 'OFFN05', 'OFFN06', 'OFFN20', 'OFFN21', 'OFFNT3',               

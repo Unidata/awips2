@@ -66,7 +66,7 @@ public class ToggleTimeSeriesDlg extends CaveHydroSWTDialog {
             Collection<TraceData> traceLst, TimeSeriesDisplayCanvas tsdc) {
         if (dialogSingleton != null) {
             dialogSingleton.close();
-            dialogSingleton.setCloseCallback(new ICloseCallback() {
+            dialogSingleton.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {

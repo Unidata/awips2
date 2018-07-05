@@ -63,6 +63,9 @@ import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.PointStyle;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -73,9 +76,6 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.LabelableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler.JTSGeometryData;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -866,7 +866,7 @@ public class ZoneSelectorResource extends DbMapResource {
         String geometryField = resourceData.getGeomField() + suffix;
 
         // get the geometry field
-        StringBuilder query = new StringBuilder("SELECT AsBinary(");
+        StringBuilder query = new StringBuilder("SELECT ST_AsBinary(");
         query.append(geometryField);
         query.append(") as ");
         query.append(geometryField);
@@ -1044,7 +1044,7 @@ public class ZoneSelectorResource extends DbMapResource {
                 this.boundingEnvelope = new Envelope();
                 StringBuilder query = new StringBuilder("SELECT ");
 
-                query.append("asBinary(ST_Envelope(");
+                query.append("ST_AsBinary(ST_Envelope(");
                 query.append(resourceData.getGeomField());
                 query.append(")) as extent");
 

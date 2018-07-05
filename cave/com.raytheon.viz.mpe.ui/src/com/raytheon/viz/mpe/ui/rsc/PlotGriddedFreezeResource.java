@@ -77,24 +77,25 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
- * TODO Add Description
+ * The MPE Gridded Freeze Resource.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 09, 2009  2589          snaples     Initial creation
+ * Jul 09, 2009  2589      snaples     Initial creation
+ * Feb 28, 2017  6157      bkowal      No longer alter the data when legend filtering
+ *                                     is enabled.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
-public class PlotGriddedFreezeResource extends
-        AbstractVizResource<AbstractResourceData, MapDescriptor> implements
-        IMpeResource {
+public class PlotGriddedFreezeResource
+        extends AbstractVizResource<AbstractResourceData, MapDescriptor>
+        implements IMpeResource {
 
     MPEDisplayManager displayMgr = null;
 
@@ -129,10 +130,6 @@ public class PlotGriddedFreezeResource extends
     private static final GeometryFactory gf = new GeometryFactory();
 
     private List<Colorvalue> colorSet;
-
-    // Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
-
-    // Pcp pcp = DailyQcUtils.pcp;
 
     public PlotGriddedFreezeResource(MPEDisplayManager displayMgr,
             LoadProperties loadProperties, List<Colorvalue> colorSet) {
@@ -213,8 +210,8 @@ public class PlotGriddedFreezeResource extends
 
         cm.read_file(file, num, dqc.pcp);
 
-        buf = FloatBuffer.allocate(dqc.getHrap_grid().maxi
-                * dqc.getHrap_grid().maxj);
+        buf = FloatBuffer
+                .allocate(dqc.getHrap_grid().maxi * dqc.getHrap_grid().maxj);
 
         /* Get value in the HRAP grid bins. */
         for (j = dqc.getHrap_grid().maxj - 1; j >= 0; j--) {
@@ -248,17 +245,6 @@ public class PlotGriddedFreezeResource extends
                     fg = -99.0f;
                 }
                 float f = (float) Math.floor(fg);
-                if (MPELegendResource.dVal != 0) {
-                    if (MPELegendResource.up == true) {
-                        if (f >= MPELegendResource.dVal) {
-                            f = (float) MPELegendResource.dVal;
-                        }
-                    } else {
-                        if (f < MPELegendResource.dVal) {
-                            f = -99.0f;
-                        }
-                    }
-                }
                 buf.put(f);
             }
         }
@@ -298,13 +284,6 @@ public class PlotGriddedFreezeResource extends
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Map<String, Object> Values = interrogate(coord);
@@ -316,13 +295,6 @@ public class PlotGriddedFreezeResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.viz.core.geospatial.ReferencedCoordinate)
-     */
     @Override
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
@@ -333,8 +305,9 @@ public class PlotGriddedFreezeResource extends
         Map<String, Object> values = new HashMap<String, Object>();
 
         try {
-            Coordinate gridCell = coord.asGridCell(HRAP.getInstance()
-                    .getGridGeometry(), PixelInCell.CELL_CORNER);
+            Coordinate gridCell = coord.asGridCell(
+                    HRAP.getInstance().getGridGeometry(),
+                    PixelInCell.CELL_CORNER);
             Coordinate l = coord.asLatLon();
 
             Point p = new Point((int) gridCell.x, (int) gridCell.y);
@@ -363,8 +336,8 @@ public class PlotGriddedFreezeResource extends
 
             ISpatialQuery query = SpatialQueryFactory.create();
 
-            com.vividsolutions.jts.geom.Point point = gf.createPoint(coord
-                    .asLatLon());
+            com.vividsolutions.jts.geom.Point point = gf
+                    .createPoint(coord.asLatLon());
 
             SpatialQueryResult[] results = query.query("county",
                     new String[] { "countyname" }, point, null, false,
@@ -435,7 +408,8 @@ public class PlotGriddedFreezeResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        if (buf == null || dqc.grids_flag != 1 || displayMgr.isZflag() != true) {
+        if (buf == null || dqc.grids_flag != 1
+                || displayMgr.isZflag() != true) {
             return;
         }
 
@@ -446,8 +420,9 @@ public class PlotGriddedFreezeResource extends
                 gridDisplay = new GriddedImageDisplay(buf, descriptor,
                         gridGeometry);
 
-                gridDisplay.setColorMapParameters(getCapability(
-                        ColorMapCapability.class).getColorMapParameters());
+                gridDisplay.setColorMapParameters(
+                        getCapability(ColorMapCapability.class)
+                                .getColorMapParameters());
             }
 
             GriddedImagePaintProperties giProps = new GriddedImagePaintProperties(
@@ -471,11 +446,6 @@ public class PlotGriddedFreezeResource extends
         first = 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         if (ddq.qcmode == "") {

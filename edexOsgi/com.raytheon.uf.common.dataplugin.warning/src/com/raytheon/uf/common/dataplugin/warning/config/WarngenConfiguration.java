@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -41,34 +41,35 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.AreaSourceConfiguration.AreaType;
 import com.raytheon.uf.common.dataplugin.warning.util.WarnFileUtil;
-import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
+import com.raytheon.uf.common.serialization.JAXBManager;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * WarngenConfiguration
- * 
+ *
  * <pre>
- * 
+ *
  *    SOFTWARE HISTORY
- *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Nov 21, 2007             chammack    Initial Creation.
- *    Aug 26, 2008 #1502       bclement    Added JAXB annotations
- *    May 26, 2010 #4649       Qinglu Lin  Made including TO.A and SV.A mandatory
- *    Apr 24, 2013  1943       jsanchez    Marked areaConfig as Deprecated.
- *    Oct 22, 2013  2361       njensen     Removed ISerializableObject
- *    Apr 28, 2014  3033       jsanchez    Properly handled back up configuration (*.xml) files.
- *    Aug 28, 2014 ASM #15658  D. Friedman Add marine zone watch wording option.
- *    Dec 21, 2015 DCS 17942   D. Friedman Add extension area specification.
- *    Mar 10, 2015  5411       randerso    Added productId to configuration
- * 
+ *
+ * Date          Ticket#  Engineer     Description
+ * ------------- -------- ------------ -----------------------------------------
+ * Nov 21, 2007           chammack     Initial Creation.
+ * Aug 26, 2008  1502     bclement     Added JAXB annotations
+ * May 26, 2010  4649     Qinglu Lin   Made including TO.A and SV.A mandatory
+ * Apr 24, 2013  1943     jsanchez     Marked areaConfig as Deprecated.
+ * Oct 22, 2013  2361     njensen      Removed ISerializableObject
+ * Apr 28, 2014  3033     jsanchez     Properly handled back up configuration
+ *                                     (*.xml) files.
+ * Aug 28, 2014  15658    D. Friedman  Add marine zone watch wording option.
+ * Dec 21, 2015  17942    D. Friedman  Add extension area specification.
+ * Mar 10, 2015  5411     randerso     Added productId to configuration
+ * Aug 29, 2017  6328     randerso     Convert to use PresetInfoBullet
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1
  */
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement(name = "warngenConfig")
@@ -77,11 +78,10 @@ public class WarngenConfiguration {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WarngenConfiguration.class);
 
-    private static final SingleTypeJAXBManager<WarngenConfiguration> jaxb = SingleTypeJAXBManager
-            .createWithoutException(WarngenConfiguration.class);
-
     private static final Pattern p = Pattern
             .compile("<\\s{0,}include\\s{1,}file\\s{0,}=\\s{0,}\"(.*)\"\\s{0,}/>");
+
+    private final JAXBManager jaxb;
 
     @XmlElement
     private GeospatialConfiguration geospatialConfig;
@@ -101,7 +101,9 @@ public class WarngenConfiguration {
 
     private Bullet[] bullets;
 
-    private DamInfoBullet[] damInfoBullets;
+    /* TODO: remove in later release */
+    @Deprecated
+    private PresetInfoBullet[] presetInfoBullets;
 
     @XmlElementWrapper(name = "includedWatches")
     @XmlElement(name = "includedWatch")
@@ -129,22 +131,22 @@ public class WarngenConfiguration {
     @XmlElement
     private boolean trackEnabled = true;
 
-    @XmlElement(name = "defaultDuration")
+    @XmlElement
     private int defaultDuration;
 
-    @XmlElement(name = "enableDuration")
+    @XmlElement
     private boolean enableDuration = true;
 
-    @XmlElement(name = "enableRestart")
+    @XmlElement
     private boolean enableRestart;
 
-    @XmlElement(name = "enableDamBreakThreat")
-    private boolean enableDamBreakThreat;
+    @XmlElement
+    private boolean enablePresetThreat;
 
-    @XmlElement(name = "autoLockText")
+    @XmlElement
     private boolean autoLockText;
 
-    @XmlElement(name = "productId")
+    @XmlElement
     private String productId;
 
     @XmlElementWrapper(name = "phensigs")
@@ -157,7 +159,7 @@ public class WarngenConfiguration {
     @XmlElement(name = "areaSource")
     private AreaSourceConfiguration[] areaSources;
 
-    @XmlElement(name = "lockedGroupsOnFollowup")
+    @XmlElement
     private String lockedGroupsOnFollowup;
 
     @XmlElement
@@ -166,7 +168,7 @@ public class WarngenConfiguration {
     /**
      * Method used to load a configuration file for a newly selected Warngen
      * template.
-     * 
+     *
      * @param templateName
      *            - the name of the warngen template
      * @param localSite
@@ -178,7 +180,7 @@ public class WarngenConfiguration {
      */
     public static WarngenConfiguration loadConfig(String templateName,
             String localSite, String backupSite) throws FileNotFoundException,
-            IOException, JAXBException {
+    IOException, JAXBException {
         WarngenConfiguration config = new WarngenConfiguration();
         // Open the template file
         String xml = WarnFileUtil.convertFileContentsToString(templateName
@@ -197,18 +199,63 @@ public class WarngenConfiguration {
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred trying to include " + includeFile
-                            + " in template " + templateName, e);
+                    + " in template " + templateName, e);
         }
 
-        config = jaxb.unmarshalFromXml(xml);
+        /*
+         * TODO: remove in later release
+         *
+         * Convert damInfoBullets to presetInfoBullets for backward
+         * compatibility This can eventually be removed when 18.1.1 is fully
+         * deployed and templates have all been updated to use presetInfoBullets
+         */
+        String xmlOrig = xml;
+        xml = xml.replaceAll("damInfoBullet", "presetInfoBullet");
+        if (!xmlOrig.equals(xml)) {
+            statusHandler.handle(Priority.EVENTB, templateName
+                    + " contains deprecated <damInfoBullet> tags. These should be changed to <presetInfoBullet>.");
+        }
 
-        // Sets the lists of bullets and dam bullets
+        xmlOrig = xml;
+        xml = xml.replaceAll("enableDamBreakThreat", "enablePresetThreat");
+        if (!xmlOrig.equals(xml)) {
+            statusHandler.handle(Priority.EVENTB, templateName
+                    + " contains deprecated <enableDamBreakThreat> tags. These should be changed to <enablePresetThreat>.");
+        }
+
+        xmlOrig = xml;
+        m = Pattern.compile("(?i)(DAM)(?: BREAK)?( THREAT AREA BUTTON)")
+                .matcher(xml);
+        while (m.find()) {
+            if ("DAM".equals(m.group(1))) {
+                xml = m.replaceFirst("PRESET$2");
+            } else if ("dam".equals(m.group(1))) {
+                xml = m.replaceFirst("preset$2");
+            } else {
+                /*
+                 * either initial capital or some non-standard capitalization,
+                 * just replace with initial capital
+                 */
+                xml = m.replaceFirst("Preset$2");
+            }
+        }
+        if (!xmlOrig.equals(xml)) {
+            statusHandler.handle(Priority.EVENTB, templateName
+                    + " contains references to the deprecated Dam Break Threat Area button. These should be changed to Preset Threat Area");
+        }
+
+
+        config = (WarngenConfiguration) config.jaxb.unmarshalFromXml(xml);
+
+        // Sets the lists of bullets and preset bullets
         if (config.getBulletActionGroups() != null) {
             for (BulletActionGroup group : config.getBulletActionGroups()) {
                 if (group.getAction() == null
                         || WarningAction.valueOf(group.getAction()) == WarningAction.NEW) {
                     config.setBullets(group.getBullets());
-                    config.setDamInfoBullets(group.getDamInfoBullets());
+
+                    /* TODO: remove in later release */
+                    config.setPresetInfoBullets(group.getPresetInfoBullets());
                     break;
                 }
             }
@@ -232,13 +279,13 @@ public class WarngenConfiguration {
             ArrayList<AreaSourceConfiguration> areaSources = null;
 
             if (config.getAreaSources() == null) {
-                areaSources = new ArrayList<AreaSourceConfiguration>();
+                areaSources = new ArrayList<>();
             } else {
-                areaSources = new ArrayList<AreaSourceConfiguration>(
+                areaSources = new ArrayList<>(
                         Arrays.asList(config.getAreaSources()));
             }
             areaSources
-                    .add(new AreaSourceConfiguration(config.getAreaConfig()));
+            .add(new AreaSourceConfiguration(config.getAreaConfig()));
             config.setAreaSources(areaSources
                     .toArray(new AreaSourceConfiguration[areaSources.size()]));
         }
@@ -262,6 +309,16 @@ public class WarngenConfiguration {
         return config;
     }
 
+    /**
+     * Constructor
+     *
+     * @throws JAXBException
+     */
+    public WarngenConfiguration() throws JAXBException {
+        jaxb = new JAXBManager(WarngenConfiguration.class, Bullet.class,
+                PresetInfoBullet.class);
+    }
+
     public String[] getMaps() {
         return maps;
     }
@@ -273,7 +330,7 @@ public class WarngenConfiguration {
     /**
      * This method is depreciated. Please use AreaSourceConfiguration. The type
      * AreaType.HATCHING will determine which area source is for hatching.
-     * 
+     *
      * @return the areaConfig
      */
     @Deprecated
@@ -343,12 +400,16 @@ public class WarngenConfiguration {
         this.bulletActionGroups = bulletActionGroups;
     }
 
-    public DamInfoBullet[] getDamInfoBullets() {
-        return damInfoBullets;
+    /* TODO: remove in later release */
+    @Deprecated
+    public PresetInfoBullet[] getPresetInfoBullets() {
+        return presetInfoBullets;
     }
 
-    public void setDamInfoBullets(DamInfoBullet[] damInfoBullets) {
-        this.damInfoBullets = damInfoBullets;
+    /* TODO: remove in later release */
+    @Deprecated
+    public void setPresetInfoBullets(PresetInfoBullet[] presetInfoBullets) {
+        this.presetInfoBullets = presetInfoBullets;
     }
 
     /**
@@ -437,12 +498,12 @@ public class WarngenConfiguration {
         this.enableRestart = enableRestart;
     }
 
-    public boolean getEnableDamBreakThreat() {
-        return enableDamBreakThreat;
+    public boolean getEnablePresetThreat() {
+        return enablePresetThreat;
     }
 
-    public void setEnableDamBreakThreat(boolean enableDamBreakThreat) {
-        this.enableDamBreakThreat = enableDamBreakThreat;
+    public void setEnablePresetThreat(boolean enablePresetThreat) {
+        this.enablePresetThreat = enablePresetThreat;
     }
 
     public boolean getAutoLockText() {

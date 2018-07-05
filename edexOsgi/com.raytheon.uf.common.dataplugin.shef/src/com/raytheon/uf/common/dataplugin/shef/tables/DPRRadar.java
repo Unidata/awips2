@@ -1,27 +1,28 @@
 package com.raytheon.uf.common.dataplugin.shef.tables;
 
-
 import java.io.Serializable;
+import java.util.Date;
 
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * 
- * 
+ * POJO representative of a dprradar record.
  * 
  * <pre>
  * 
@@ -29,196 +30,221 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/22/2014   Redmine #3454 (A2 14.3.1) new dualpol-related table DPRRadar
+ * 09/22/2016   5631       bkowal      Remove ISerializableObject.
  * 
  * </pre>
  * 
  * @author OHD
- * @version 1.1
  */
+@NamedQueries({
+        @NamedQuery(name = DPRRadar.SELECT_BY_RAD_ID_BETWEEN_OBS_TIME, query = DPRRadar.SELECT_BY_RAD_ID_BETWEEN_OBS_TIME_HQL) })
+@Entity
+@Table(name = "dprradar")
+@XmlRootElement
+@XmlAccessorType(XmlAccessType.NONE)
+@DynamicSerialize
+public class DPRRadar extends PersistableDataObject<DPRRadarId>
+        implements Serializable, IGriddedRadarRecord {
 
-	@Entity
-	@Table(name = "dprradar")
-	@XmlRootElement
-	@XmlAccessorType(XmlAccessType.NONE)
-	@DynamicSerialize
-	public class DPRRadar extends PersistableDataObject implements Serializable, ISerializableObject 
-	{
+    private static final long serialVersionUID = 1L;
 
-	    private static final long serialVersionUID = 1L;
+    public static final String SELECT_BY_RAD_ID_BETWEEN_OBS_TIME = "selectDPRRadarByRadIdBetweenObsTime";
 
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private DPRRadarId id;
+    protected static final String SELECT_BY_RAD_ID_BETWEEN_OBS_TIME_HQL = "FROM DPRRadar r WHERE r.id.radid = :radid AND r.id.obstime >= :startObsTime AND r.id.obstime <= :endObsTime";
 
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private Short volcovpat;
+    @XmlElement
+    @DynamicSerializeElement
+    private DPRRadarId id;
 
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private Short opermode;
+    @XmlElement
+    @DynamicSerializeElement
+    private Short volcovpat;
 
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private Float maxval;
+    @XmlElement
+    @DynamicSerializeElement
+    private Short opermode;
 
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private Float scale;
+    @XmlElement
+    @DynamicSerializeElement
+    private Float maxval;
 
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private Float setoff;
+    @XmlElement
+    @DynamicSerializeElement
+    private Float scale;
 
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private Integer jEndDate;
+    @XmlElement
+    @DynamicSerializeElement
+    private Float setoff;
 
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private Integer jEndTime;
+    @XmlElement
+    @DynamicSerializeElement
+    private Integer jEndDate;
 
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private Short meanFieldBias;
+    @XmlElement
+    @DynamicSerializeElement
+    private Integer jEndTime;
 
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private Short precipDetectedFlag;
-	    
-	    @XmlElement
-	    @DynamicSerializeElement
-	    private String gridFilename;
+    @XmlElement
+    @DynamicSerializeElement
+    private Short meanFieldBias;
 
-	    public DPRRadar() {
-	    }
+    @XmlElement
+    @DynamicSerializeElement
+    private Short precipDetectedFlag;
 
-	    public DPRRadar(DPRRadarId id)
-	    {
-	        this.id = id;
-	    }
+    @XmlElement
+    @DynamicSerializeElement
+    private String gridFilename;
 
-	    public DPRRadar(DPRRadarId id,
-	    		Short volcovpat, Short opermode,
-	    		Float maxval, Float scale, Float setoff,
-	            Integer jEndDate, Integer jEndTime,
-	            Short meanFieldBias, Short precipDetectedFlag,
-	            String gridFilename)
-	    
-	    {
-	        this.id = id;
-	        this.volcovpat = volcovpat;
-	        this.opermode = opermode;
-	        this.maxval = maxval;
-	        this.scale = scale;
-	        this.setoff = setoff;
-	        this.jEndDate = jEndDate;
-	        this.jEndTime = jEndTime;
-	        this.meanFieldBias = meanFieldBias;
-	        this.precipDetectedFlag = precipDetectedFlag;
-	        this.gridFilename = gridFilename;
-	    }
+    public DPRRadar() {
+    }
 
-	    @EmbeddedId
-	    @AttributeOverrides( {
-	            @AttributeOverride(name = "radid", column = @Column(name = "radid", nullable = false, length = 3)),
-	            @AttributeOverride(name = "obstime", column = @Column(name = "obstime", nullable = false, length = 29)) })
-	    public DPRRadarId getId() {
-	        return this.id;
-	    }
+    public DPRRadar(DPRRadarId id) {
+        this.id = id;
+    }
 
-	    public void setId(DPRRadarId id) {
-	        this.id = id;
-	    }
+    public DPRRadar(DPRRadarId id, Short volcovpat, Short opermode,
+            Float maxval, Float scale, Float setoff, Integer jEndDate,
+            Integer jEndTime, Short meanFieldBias, Short precipDetectedFlag,
+            String gridFilename) {
+        this.id = id;
+        this.volcovpat = volcovpat;
+        this.opermode = opermode;
+        this.maxval = maxval;
+        this.scale = scale;
+        this.setoff = setoff;
+        this.jEndDate = jEndDate;
+        this.jEndTime = jEndTime;
+        this.meanFieldBias = meanFieldBias;
+        this.precipDetectedFlag = precipDetectedFlag;
+        this.gridFilename = gridFilename;
+    }
 
-	    @Column(name = "volcovpat")
-	    public Short getVolcovpat() {
-	        return this.volcovpat;
-	    }
+    @Transient
+    @Override
+    public Date getObsTime() {
+        return id.getObstime();
+    }
 
-	    public void setVolcovpat(Short volcovpat) {
-	        this.volcovpat = volcovpat;
-	    }
+    @EmbeddedId
+    @AttributeOverrides({
+            @AttributeOverride(name = "radid", column = @Column(name = "radid", nullable = false, length = 3) ),
+            @AttributeOverride(name = "obstime", column = @Column(name = "obstime", nullable = false, length = 29) ) })
+    public DPRRadarId getId() {
+        return this.id;
+    }
 
-	    @Column(name = "opermode")
-	    public Short getOpermode() {
-	        return this.opermode;
-	    }
+    public void setId(DPRRadarId id) {
+        this.id = id;
+    }
 
-	    public void setOpermode(Short opermode) {
-	        this.opermode = opermode;
-	    }
+    @Column(name = "volcovpat")
+    public Short getVolcovpat() {
+        return this.volcovpat;
+    }
 
-	    @Column(name = "maxval", precision = 8, scale = 8)
-	    public Float getMaxval() {
-	        return this.maxval;
-	    }
+    public void setVolcovpat(Short volcovpat) {
+        this.volcovpat = volcovpat;
+    }
 
-	    public void setMaxval(Float maxval) {
-	        this.maxval = maxval;
-	    }
+    @Column(name = "opermode")
+    public Short getOpermode() {
+        return this.opermode;
+    }
 
-	    @Column(name = "scale", precision = 8, scale = 8)
-	    public Float getScale() {
-	        return this.scale;
-	    }
+    public void setOpermode(Short opermode) {
+        this.opermode = opermode;
+    }
 
-	    public void setScale(Float scale) {
-	        this.scale = scale;
-	    }
+    @Column(name = "maxval", precision = 8, scale = 8)
+    public Float getMaxval() {
+        return this.maxval;
+    }
 
-	    @Column(name = "setoff", precision = 8, scale = 8)
-	    public Float getSetOff() {
-	        return this.setoff;
-	    }
+    public void setMaxval(Float maxval) {
+        this.maxval = maxval;
+    }
 
-	    public void setSetOff(Float setoff) {
-	        this.setoff = setoff;
-	    }
+    @Column(name = "scale", precision = 8, scale = 8)
+    public Float getScale() {
+        return this.scale;
+    }
 
-	    @Column(name = "j_end_date")
-	    public Integer getJEndDate() {
-	        return this.jEndDate;
-	    }
+    public void setScale(Float scale) {
+        this.scale = scale;
+    }
 
-	    public void setJEndDate(Integer jEndDate) {
-	        this.jEndDate = jEndDate;
-	    }
+    @Column(name = "setoff", precision = 8, scale = 8)
+    public Float getSetOff() {
+        return this.setoff;
+    }
 
-	    @Column(name = "j_end_time")
-	    public Integer getJEndTime() {
-	        return this.jEndTime;
-	    }
+    public void setSetOff(Float setoff) {
+        this.setoff = setoff;
+    }
 
-	    public void setJEndTime(Integer jEndTime) {
-	        this.jEndTime = jEndTime;
-	    }
+    @Column(name = "j_end_date")
+    public Integer getJEndDate() {
+        return this.jEndDate;
+    }
 
-	    @Column(name = "mean_field_bias")
-	    public Short getMeanFieldBias() {
-	        return this.meanFieldBias;
-	    }
+    public void setJEndDate(Integer jEndDate) {
+        this.jEndDate = jEndDate;
+    }
 
-	    public void setMeanFieldBias(Short meanFieldBias) {
-	        this.meanFieldBias = meanFieldBias;
-	    }
-	    
-	    @Column(name = "precipdetectedflag")
-	    public Short getPrecipDetectedFlag() {
-	        return this.precipDetectedFlag;
-	    }
+    @Column(name = "j_end_time")
+    public Integer getJEndTime() {
+        return this.jEndTime;
+    }
 
-	    public void setPrecipDetectedFlag(Short precipDetectedFlag) {
-	        this.precipDetectedFlag = precipDetectedFlag;
-	    }
+    public void setJEndTime(Integer jEndTime) {
+        this.jEndTime = jEndTime;
+    }
 
-	    @Column(name = "grid_filename", length = 20)
-	    public String getGridFilename() {
-	        return this.gridFilename;
-	    }
+    @Override
+    @Column(name = "mean_field_bias")
+    public Short getMeanFieldBias() {
+        return this.meanFieldBias;
+    }
 
-	    public void setGridFilename(String gridFilename) {
-	        this.gridFilename = gridFilename;
-	    }
+    public void setMeanFieldBias(Short meanFieldBias) {
+        this.meanFieldBias = meanFieldBias;
+    }
 
-	}
+    @Column(name = "precipdetectedflag")
+    public Short getPrecipDetectedFlag() {
+        return this.precipDetectedFlag;
+    }
+
+    public void setPrecipDetectedFlag(Short precipDetectedFlag) {
+        this.precipDetectedFlag = precipDetectedFlag;
+    }
+
+    @Override
+    @Column(name = "grid_filename", length = 20)
+    public String getGridFilename() {
+        return this.gridFilename;
+    }
+
+    public void setGridFilename(String gridFilename) {
+        this.gridFilename = gridFilename;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("DPRRadar [");
+        sb.append("id=").append(id.toString());
+        sb.append(", volcovpat=").append(volcovpat);
+        sb.append(", opermode=").append(opermode);
+        sb.append(", maxval=").append(maxval);
+        sb.append(", scale=").append(scale);
+        sb.append(", setoff=").append(setoff);
+        sb.append(", jEndDate=").append(jEndDate);
+        sb.append(", jEndTime=").append(jEndTime);
+        sb.append(", meanFieldBias=").append(meanFieldBias);
+        sb.append(", precipDetectedFlag=").append(precipDetectedFlag);
+        sb.append(", gridFilename=").append(gridFilename);
+        sb.append("]");
+        return sb.toString();
+    }
+}

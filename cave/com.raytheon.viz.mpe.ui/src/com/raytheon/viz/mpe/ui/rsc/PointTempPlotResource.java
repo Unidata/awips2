@@ -19,19 +19,13 @@
  **/
 package com.raytheon.viz.mpe.ui.rsc;
 
-import java.awt.AlphaComposite;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.geom.Rectangle2D;
-import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.measure.unit.NonSI;
 import javax.measure.unit.Unit;
@@ -49,18 +43,16 @@ import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences;
 import com.raytheon.uf.common.colormap.prefs.DataMappingPreferences.DataMappingEntry;
 import com.raytheon.uf.common.dataplugin.shef.tables.Colorvalue;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.viz.core.DrawableCircle;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
-import com.raytheon.uf.viz.core.PixelCoverage;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.data.IRenderedImageCallback;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
@@ -73,7 +65,6 @@ import com.raytheon.viz.mpe.ui.dialogs.EditTempStationsDialog;
 import com.raytheon.viz.mpe.ui.dialogs.QcTempOptionsDialog;
 import com.raytheon.viz.mpe.util.DailyQcUtils;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
-import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Ts;
 import com.raytheon.viz.mpe.util.DailyQcUtils.Ttn;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -95,6 +86,8 @@ import com.vividsolutions.jts.index.strtree.STRtree;
  *                                      and removed unused modifyStation() method.
  * Nov 26, 2014 16889      snaples     Daily QC does not display SNOTEL data.
  * Dec  3, 2014 16889      snaples     Fixed colorvalue_use warning and cleaned up some code.
+ * Mar 08, 2017 6149       mduff       Performance fixes for painting.
+ * Jun 21, 2017 6149       mduff       Fix circle size.
  * </pre>
  * 
  * @author snaples
@@ -104,11 +97,38 @@ import com.vividsolutions.jts.index.strtree.STRtree;
 public class PointTempPlotResource extends
         HydroPointResource<PointTempResourceData> implements IMpeResource {
 
+    private static final String[] COLOR_MAP_A = { "Cyan1", "Salmon", "Orange1",
+            "Yellow1", "Magenta1", "Green1", "Green4", "Gray74", "White",
+            "Cyan1" };
+
+    private static final String[] COLOR_MAP_N = { "Grey10", "Grey", "Blue",
+            "Aquamarine", "LightGreen", "DarkGreen", "Violet", "Purple", "Blue",
+            "Blue", "Yellow1", "Yellow", "Yellow2", "VioletRed", "Red",
+            "White" };
+
+    private static final RGB[] RGB_COLOR_MAP_A = new RGB[COLOR_MAP_A.length];
+
+    private static final RGB[] RGB_COLOR_MAP_N = new RGB[COLOR_MAP_N.length];
+
+    private static final int TEXT_WIDTH_PADDING = 9;
+
+    private static final double VERTICAL_SPACING_FACTOR = 1.5;
+
     private static Hashtable<String, Station> dataMap = null;
 
     private static STRtree strTree = null;
 
     private static Coordinate selectedCoordinate;
+
+    static {
+        for (int i = 0; i < COLOR_MAP_A.length; i++) {
+            RGB_COLOR_MAP_A[i] = RGBColors.getRGBColor(COLOR_MAP_A[i]);
+        }
+
+        for (int i = 0; i < COLOR_MAP_N.length; i++) {
+            RGB_COLOR_MAP_N[i] = RGBColors.getRGBColor(COLOR_MAP_N[i]);
+        }
+    }
 
     private MPEFontFactory fontFactory;
 
@@ -117,17 +137,6 @@ public class PointTempPlotResource extends
     private double scaleWidthValue = 0.0;
 
     private double scaleHeightValue = 0.0;
-
-    private Station gageData = null;
-
-    private static final String[] color_map_a = { "Cyan1", "Salmon", "Orange1",
-            "Yellow1", "Magenta1", "Green1", "Green4", "Gray74", "White",
-            "Cyan1" };
-
-    private static final String[] color_map_n = { "Grey10", "Grey", "Blue",
-            "Aquamarine", "LightGreen", "DarkGreen", "Violet", "Purple",
-            "Blue", "Blue", "Yellow1", "Yellow", "Yellow2", "VioletRed", "Red",
-            "White" };
 
     private int time_pos = 0;
 
@@ -139,17 +148,23 @@ public class PointTempPlotResource extends
 
     private final DailyQcUtils dqc = DailyQcUtils.getInstance();
 
+    private List<DrawableString> drawableStrings = new ArrayList<>();
+
+    private List<DrawableCircle> drawableCircles = new ArrayList<>();
+
+    private List<DrawableLine> lines = new ArrayList<>(typename.length);
+
+    private double circleSize;
+
+    private IFont font;
+
+    private RGB circleColor;
+
     /**
      * Constructor.
      * 
-     * @param name
-     *            Resource name
-     * @param color
-     *            Resource color
-     * @param coord
-     *            Resource Coordinate
-     * @param style
-     *            Resource Style
+     * @param resourceData
+     * @param props
      */
     public PointTempPlotResource(PointTempResourceData resourceData,
             LoadProperties props) {
@@ -158,36 +173,16 @@ public class PointTempPlotResource extends
         df.setMaximumIntegerDigits(4);
     }
 
-    /**
-     * Add a point to this resource.
-     * 
-     * @param x
-     *            The point's x coordinate
-     * @param y
-     *            The point's y coordinate
-     * @param inspectString
-     *            String to display when inspection is enabled
-     * @param color
-     *            The point's color
-     */
-    public void addPoints() {
-
+    private void addPoints() {
         dataMap = new Hashtable<String, Station>();
         tdataMap = new Hashtable<String, Ttn>();
         strTree = new STRtree();
-        gageData = dqc.new Station();
-        ArrayList<Station> station = dqc.temperature_stations;
-        Tdata[] tdata = dqc.tdata;
         prevPcpnDay = 0;
 
-        if (!dqc.temperature_stations.isEmpty()) {
+        if (!DailyQcUtils.temperature_stations.isEmpty()) {
             int i = 0;
-            for (ListIterator<Station> it = dqc.temperature_stations.listIterator(); it
-                    .hasNext();) {
-                gageData = it.next();
-                Coordinate xy = new Coordinate();
-                xy.x = gageData.lon;
-                xy.y = gageData.lat;
+            for (Station gageData : DailyQcUtils.temperature_stations) {
+                Coordinate xy = new Coordinate(gageData.lon, gageData.lat);
                 String pm = gageData.parm;
                 StringBuilder kv = new StringBuilder(String.valueOf(xy.x));
                 kv.append(":");
@@ -195,7 +190,8 @@ public class PointTempPlotResource extends
                 kv.append(":");
                 kv.append(pm);
                 dataMap.put(kv.toString(), gageData);
-                tdataMap.put(kv.toString(), dqc.tdata[dqc.pcpn_day].tstn[i]);
+                tdataMap.put(kv.toString(),
+                        DailyQcUtils.tdata[DailyQcUtils.pcpn_day].tstn[i]);
 
                 /* Create a small envelope around the point */
                 Coordinate p1 = new Coordinate(xy.x + .02, xy.y + .02);
@@ -204,33 +200,12 @@ public class PointTempPlotResource extends
                 ArrayList<Object> data = new ArrayList<Object>();
                 data.add(xy);
                 data.add("STATION: " + gageData.hb5 + " VALUE: "
-                        + dqc.tdata[dqc.pcpn_day].tstn[i].tlevel2[time_pos].data);
+                        + DailyQcUtils.tdata[DailyQcUtils.pcpn_day].tstn[i].tlevel2[time_pos].data);
                 strTree.insert(env, data);
                 i++;
             }
-            prevPcpnDay = dqc.pcpn_day;
+            prevPcpnDay = DailyQcUtils.pcpn_day;
         }
-    }
-
-    /**
-     * gets the pixel coverage for this image
-     * 
-     * @return
-     */
-    private PixelCoverage getPixelCoverage(Coordinate c) {
-
-        double[] centerpixels = descriptor
-                .worldToPixel(new double[] { c.x, c.y });
-        Coordinate ul = new Coordinate(centerpixels[0] - getScaleWidth(),
-                centerpixels[1] - getScaleHeight());
-        Coordinate ur = new Coordinate(centerpixels[0] + getScaleWidth(),
-                centerpixels[1] - getScaleHeight());
-        Coordinate lr = new Coordinate(centerpixels[0] + getScaleWidth(),
-                centerpixels[1] + getScaleHeight());
-        Coordinate ll = new Coordinate(centerpixels[0] - getScaleWidth(),
-                centerpixels[1] + getScaleHeight());
-
-        return new PixelCoverage(ul, ur, lr, ll);
     }
 
     /**
@@ -242,49 +217,46 @@ public class PointTempPlotResource extends
     private PixelExtent getPixelExtent(Coordinate c) {
         double[] pixels = descriptor.worldToPixel(new double[] { c.x, c.y });
         Coordinate[] coors = new Coordinate[4];
-        coors[0] = new Coordinate((pixels[0] - this.getScaleWidth())
-                - (this.getScaleWidth() / 2),
+        coors[0] = new Coordinate(
+                (pixels[0] - this.getScaleWidth()) - (this.getScaleWidth() / 2),
                 (pixels[1] - this.getScaleHeight())
                         - (this.getScaleHeight() / 2));
-        coors[1] = new Coordinate((pixels[0] + this.getScaleWidth())
-                - (this.getScaleWidth() / 2),
+        coors[1] = new Coordinate(
+                (pixels[0] + this.getScaleWidth()) - (this.getScaleWidth() / 2),
                 (pixels[1] - this.getScaleHeight())
                         - (this.getScaleHeight() / 2));
-        coors[2] = new Coordinate((pixels[0] + this.getScaleWidth())
-                - (this.getScaleWidth() / 2),
+        coors[2] = new Coordinate(
+                (pixels[0] + this.getScaleWidth()) - (this.getScaleWidth() / 2),
                 (pixels[1] + this.getScaleHeight())
                         - (this.getScaleHeight() / 2));
-        coors[3] = new Coordinate((pixels[0] - this.getScaleWidth())
-                - (this.getScaleWidth() / 2),
+        coors[3] = new Coordinate(
+                (pixels[0] - this.getScaleWidth()) - (this.getScaleWidth() / 2),
                 (pixels[1] + this.getScaleHeight())
                         - (this.getScaleHeight() / 2));
         return new PixelExtent(coors);
     }
 
-    /**
-     * Draws the plot information
-     * 
-     * @param c
-     * @param gageData
-     * @throws VizException
-     */
     private void drawPlotInfo(Coordinate c, String key, Station station,
-            IGraphicsTarget target, PaintProperties paintProps, RGB color,
-            IFont font) throws VizException {
+            IGraphicsTarget target, PaintProperties paintProps, IFont font)
+                    throws VizException {
 
         if ((MPEDisplayManager.getCurrent().isMaxmin() == true)
-                && (dqc.points_flag == 1)) {
-            int type = dqc.plot_view;
+                && (DailyQcUtils.points_flag == 1)) {
+            int type = DailyQcUtils.plot_view;
+            if (type == 0) {
+                return;
+            }
+
             int i = 0;
             int m = 0;
             float reverse_filter_value = 0;
             int elevation_filter_value = 0;
-            Ts ts[] = dqc.ts;
-            int tsmax = dqc.tsmax;
+            Ts ts[] = DailyQcUtils.ts;
+            int tsmax = DailyQcUtils.tsmax;
             float temp_filter_value = 0;
             int find_station_flag = dqc.find_station_flag;
-            int dflag[] = dqc.dflag;
-            int qflag[] = dqc.qflag;
+            int dflag[] = DailyQcUtils.dflag;
+            int qflag[] = DailyQcUtils.qflag;
             String mbuf = "";
             String tbuf = "";
 
@@ -293,39 +265,33 @@ public class PointTempPlotResource extends
             } else if (MPEDisplayManager.pcpn_time_step == 2) {
                 time_pos = 5;
             } else {
-                time_pos = dqc.pcpn_time;
+                time_pos = DailyQcUtils.pcpn_time;
             }
 
-            if (type == 0) {
-                return;
-            }
+            double[] centerpixels = descriptor
+                    .worldToPixel(new double[] { c.x, c.y });
 
-            double[] centerpixels = descriptor.worldToPixel(new double[] { c.x,
-                    c.y });
-            color = RGBColors.getRGBColor(color_map_a[8]);
-
-            if ((dqc.points_flag == 1) && (QcTempOptionsDialog.isOpen == true)
-                    && (MPEDisplayManager.getCurrent().isMaxmin() == true)) {
+            if ((DailyQcUtils.points_flag == 1) && (QcTempOptionsDialog.isOpen)
+                    && (MPEDisplayManager.getCurrent().isMaxmin())) {
 
                 reverse_filter_value = QcTempOptionsDialog
                         .getPointFilterReverseValue();
-                elevation_filter_value = dqc.elevation_filter_value;
+                elevation_filter_value = DailyQcUtils.elevation_filter_value;
                 temp_filter_value = QcTempOptionsDialog.getPointFilterValue();
-
             } else {
                 return;
             }
-            if ((station.elev >= 0) && (station.elev < elevation_filter_value)) {
+
+            if ((station.elev >= 0)
+                    && (station.elev < elevation_filter_value)) {
                 return;
             }
 
             for (m = 0; m < tsmax; m++) {
-
                 if (station.parm.substring(3, 5).equalsIgnoreCase(ts[m].abr)
                         && (dflag[m + 1] == 1)) {
                     break;
                 }
-
             }
 
             if (m == tsmax) {
@@ -336,10 +302,13 @@ public class PointTempPlotResource extends
                 if ((m == tdataMap.get(key).tlevel2[time_pos].qual)
                         && (qflag[m] == 1)) {
                     break;
-                } else if (((m == 7) && (qflag[7] == 1) && ((tdataMap.get(key).tlevel2[time_pos].data == -99) && (tdataMap
-                        .get(key).tlevel2[time_pos].qual == -99)))
-                        || ((tdataMap.get(key).tlevel2[time_pos].data == -99) && (tdataMap
-                                .get(key).tlevel2[time_pos].qual == 0))) {
+                } else if (((m == 7) && (qflag[7] == 1)
+                        && ((tdataMap.get(key).tlevel2[time_pos].data == -99)
+                                && (tdataMap
+                                        .get(key).tlevel2[time_pos].qual == -99)))
+                        || ((tdataMap.get(key).tlevel2[time_pos].data == -99)
+                                && (tdataMap.get(
+                                        key).tlevel2[time_pos].qual == 0))) {
                     break;
                 }
             }
@@ -349,66 +318,59 @@ public class PointTempPlotResource extends
             }
 
             /* locate station in data stream */
-            if (((type == 4) || (type == 5))
-                    && (dqc.tdata[dqc.pcpn_day].used[time_pos] == 0)
-                    && (dqc.tdata[dqc.pcpn_day].level[0] == 0)) {
-                return;
-            }
-            if (((type == 4) || (type == 5))
-                    && (tdataMap.get(key).tlevel2[time_pos].data < temp_filter_value)
-                    && (tdataMap.get(key).tlevel2[time_pos].data != -99)) {
-                return;
+            if (type == 4 || type == 5) {
+                if (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[time_pos] == 0
+                        && DailyQcUtils.tdata[DailyQcUtils.pcpn_day].level[0] == 0) {
+                    return;
+                }
+                if (tdataMap.get(key).tlevel2[time_pos].data < temp_filter_value
+                        && tdataMap.get(key).tlevel2[time_pos].data != -99) {
+                    return;
+                }
+
+                if (tdataMap
+                        .get(key).tlevel2[time_pos].data > reverse_filter_value
+                        && tdataMap.get(key).tlevel2[time_pos].data < 125) {
+                    return;
+                }
             }
 
-            if (((type == 4) || (type == 5))
-                    && (tdataMap.get(key).tlevel2[time_pos].data > reverse_filter_value)
-                    && (tdataMap.get(key).tlevel2[time_pos].data < 125)) {
-                return;
-            }
-
-            if ((type == 4)
-                    && (tdataMap.get(key).tlevel2[time_pos].data == -99)
+            if ((type == 4) && (tdataMap.get(key).tlevel2[time_pos].data == -99)
                     && (qflag[7] != 1)) {
                 return;
             }
 
-            final RGB circleColor = color;
-            IImage image = target
-                    .initializeRaster(new IRenderedImageCallback() {
-                        @Override
-                        public RenderedImage getImage() throws VizException {
-                            return drawMPECircle(circleColor);
-                        }
-                    });
-
-            target.drawRaster(image, getPixelCoverage(c), paintProps);
+            DrawableCircle circle = new DrawableCircle();
+            circle.basics.color = this.circleColor;
+            circle.setCoordinates(centerpixels[0], centerpixels[1]);
+            double pixelRatio = paintProps.getView().getExtent().getWidth()
+                    / paintProps.getCanvasBounds().width;
+            circle.radius = circleSize * pixelRatio;
+            circle.filled = true;
+            drawableCircles.add(circle);
 
             tbuf = "";
             if (type == 1) {
                 tbuf = station.hb5;
-            }
-
-            else if (type == 2) {
+            } else if (type == 2) {
                 tbuf = station.parm.substring(3, 5);
-            }
-
-            else if (type == 3) {
+            } else if (type == 3) {
                 tbuf = station.name;
 
             } else if (type == 4) {
-                if ((dqc.tdata[dqc.pcpn_day].used[time_pos] == 0)
-                        && (dqc.tdata[dqc.pcpn_day].level[0] == 0)) {
+                if ((DailyQcUtils.tdata[DailyQcUtils.pcpn_day].used[time_pos] == 0)
+                        && (DailyQcUtils.tdata[DailyQcUtils.pcpn_day].level[0] == 0)) {
                     return;
-
                 }
 
                 /* if point data is missing, use character 'm' */
 
                 mbuf = "";
-                if (((tdataMap.get(key).tlevel2[time_pos].data == -99) && (tdataMap
-                        .get(key).tlevel2[time_pos].qual == -99))
-                        || ((tdataMap.get(key).tlevel2[time_pos].data == -99) && (tdataMap
-                                .get(key).tlevel2[time_pos].qual == 0))) {
+                if (((tdataMap.get(key).tlevel2[time_pos].data == -99)
+                        && (tdataMap.get(key).tlevel2[time_pos].qual == -99))
+                        || ((tdataMap.get(key).tlevel2[time_pos].data == -99)
+                                && (tdataMap.get(
+                                        key).tlevel2[time_pos].qual == 0))) {
                     if (qflag[7] == 1) {
                         mbuf = "m";
                     } else {
@@ -418,10 +380,9 @@ public class PointTempPlotResource extends
                 } else {
                     mbuf = String.format("%d",
                             (int) tdataMap.get(key).tlevel2[time_pos].data);
-
                 }
-                tbuf = mbuf;
 
+                tbuf = mbuf;
             } else if (type == 5) {
                 if (station.tip == 0) {
                     return;
@@ -431,15 +392,15 @@ public class PointTempPlotResource extends
                 tbuf = mbuf;
 
             } else if (type == 6) {
-
                 mbuf = String.format("%d", station.elev);
                 tbuf = mbuf;
             }
 
             m = tdataMap.get(key).tlevel2[time_pos].qual;
 
+            RGB color = null;
             if ((m <= 9) && (m >= 0)) {
-                color = RGBColors.getRGBColor(color_map_a[m]);
+                color = RGB_COLOR_MAP_A[m];
             }
             /* set font color for missing data */
 
@@ -447,39 +408,35 @@ public class PointTempPlotResource extends
                     && (tdataMap.get(key).tlevel2[time_pos].data == -99)
                     && (tdataMap.get(key).tlevel2[time_pos].qual == -99)) {
 
-                color = RGBColors.getRGBColor(color_map_a[7]);
+                color = RGB_COLOR_MAP_A[7];
             }
 
             int xadd = station.xadd;
             int yadd = station.yadd;
-            // int xc = 0;
-            // int yc = 0;
+
             IExtent screenExtent = paintProps.getView().getExtent();
-            double scale = (screenExtent.getHeight() / paintProps
-                    .getCanvasBounds().height);
+            double scale = (screenExtent.getHeight()
+                    / paintProps.getCanvasBounds().height);
             DrawableString string = new DrawableString("0", color);
             string.font = font;
             double textHeight = target.getStringsBounds(string).getHeight()
                     * scale;
-            Coordinate valCoor = new Coordinate(centerpixels[0]
-                    + (this.getScaleWidth() / 3), centerpixels[1]
-                    - this.getScaleHeight());
-            final int textWidthPadding = 9;
-            final double verticalSpacingFactor = 1.5;
+            Coordinate valCoor = new Coordinate(
+                    centerpixels[0] + (this.getScaleWidth() / 3),
+                    centerpixels[1] - this.getScaleHeight());
             double textWidth = target.getStringsBounds(string).getWidth();
-            double scaledTextWidth = (textWidth + textWidthPadding) * scale;
+            double scaledTextWidth = (textWidth + TEXT_WIDTH_PADDING) * scale;
             double textX = valCoor.x + (xadd * scaledTextWidth);
             double textY = valCoor.y
-                    + ((yadd) * verticalSpacingFactor * textHeight)
+                    + ((yadd) * VERTICAL_SPACING_FACTOR * textHeight)
                     + (textHeight / 2);
             string.setText(tbuf, color);
             string.setCoordinates(textX, textY);
-            target.drawStrings(string);
+            drawableStrings.add(string);
             if (i == find_station_flag) {
                 find_station_flag = -1;
             }
         }
-
     }
 
     /**
@@ -536,57 +493,58 @@ public class PointTempPlotResource extends
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
+        this.circleSize = resourceData.getDpi().x / 34;
+
         MPEDisplayManager displayMgr = getResourceData().getMPEDisplayManager();
         // Fonts are shared and cached, no need to init or dispose
-        IFont font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
+        font = fontFactory.getMPEFont(MPEDisplayManager.getFontId());
 
-        if ((dqc.points_flag == 1) && (displayMgr.isMaxmin() == true)) {
-            Iterator<String> iter = dataMap.keySet().iterator();
+        drawableStrings.clear();
+        drawableCircles.clear();
 
-            while (iter.hasNext()) {
+        if ((DailyQcUtils.points_flag == 1)
+                && (displayMgr.isMaxmin() == true)) {
+            for (Entry<String, Station> entry : dataMap.entrySet()) {
+                String key = entry.getKey();
+                Coordinate c = new Coordinate();
+                String[] spKey = key.split(":", 5);
+                c.x = Double.parseDouble(spKey[0]);
+                c.y = Double.parseDouble(spKey[1]);
+                double[] pixel = descriptor
+                        .worldToPixel(new double[] { c.x, c.y });
 
-                if (displayMgr.isMaxmin() == true) {
-                    String key = iter.next();
-                    Coordinate c = new Coordinate();
-                    String[] spKey = key.split(":", 5);
-                    c.x = Double.parseDouble(spKey[0]);
-                    c.y = Double.parseDouble(spKey[1]);
-                    double[] pixel = descriptor.worldToPixel(new double[] {
-                            c.x, c.y });
+                if (paintProps.getView().getExtent().contains(pixel)) {
+                    setScaleWidth(paintProps);
+                    setScaleHeight(paintProps);
 
-                    if (paintProps.getView().getExtent().contains(pixel)) {
-                        setScaleWidth(paintProps);
-                        setScaleHeight(paintProps);
+                    drawPlotInfo(c, key, dataMap.get(key), target, paintProps,
+                            font);
 
-                        RGB color = new RGB(255, 255, 255);
-                        drawPlotInfo(c, key, dataMap.get(key), target,
-                                paintProps, color, font);
-
-                        if (getSelectedCoordinate() != null) {
-                            Envelope env = new Envelope(getSelectedCoordinate());
-                            List<?> elements = strTree.query(env);
-                            if (elements.size() > 0) {
-                                Iterator<?> iter2 = elements.iterator();
-                                /* Take the first one in the list */
-                                if (iter2.hasNext()) {
-                                    /* element 0 = Coordinate, 1 = inspectString */
-                                    ArrayList<?> data = (ArrayList<?>) iter2
-                                            .next();
-                                    PixelExtent pe = this
-                                            .getPixelExtent((Coordinate) data
-                                                    .get(0));
-                                    target.drawRect(pe,
-                                            HydroConstants.SQUARE_COLOR, 2, 1);
-                                }
+                    if (getSelectedCoordinate() != null) {
+                        Envelope env = new Envelope(getSelectedCoordinate());
+                        List<?> elements = strTree.query(env);
+                        if (elements.size() > 0) {
+                            Iterator<?> iter2 = elements.iterator();
+                            /* Take the first one in the list */
+                            if (iter2.hasNext()) {
+                                /*
+                                 * element 0 = Coordinate, 1 = inspectString
+                                 */
+                                ArrayList<?> data = (ArrayList<?>) iter2.next();
+                                PixelExtent pe = this.getPixelExtent(
+                                        (Coordinate) data.get(0));
+                                target.drawRect(pe, HydroConstants.SQUARE_COLOR,
+                                        2, 1);
                             }
                         }
                     }
-                } else {
-                    return;
                 }
             }
             target.clearClippingPlane();
             drawQCLegend(target, paintProps, font);
+            target.drawStrings(drawableStrings);
+            target.drawCircle(drawableCircles.toArray(new DrawableCircle[0]));
+            target.drawLine(lines.toArray(new DrawableLine[0]));
             target.setupClippingPlane(paintProps.getClippingPane());
         }
     }
@@ -598,10 +556,12 @@ public class PointTempPlotResource extends
         // properties method?
 
         IExtent screenExtent = paintProps.getView().getExtent();
-        double scale = (screenExtent.getHeight() / paintProps.getCanvasBounds().height);
-        DrawableString string = new DrawableString("0");
-        string.font = font;
-        double textHeight = target.getStringsBounds(string).getHeight() * scale;
+        double scale = (screenExtent.getHeight()
+                / paintProps.getCanvasBounds().height);
+        DrawableString drawableString = new DrawableString("0");
+        drawableString.font = font;
+        double textHeight = target.getStringsBounds(drawableString).getHeight()
+                * scale;
         double padding = 3.2 * scale;
         double textSpace = textHeight + padding;
         double cmapHeight = textHeight * 1.25;
@@ -612,30 +572,33 @@ public class PointTempPlotResource extends
         String label = "";
         int[] funct = dqc.funct;
         int temp = 0;
-        int x = 0;
-        DrawableLine[] lines = new DrawableLine[typename.length - 1];
+        lines.clear();
+
         for (int i = 0; i < typename.length; i++) {
             if (i == 5) {
                 continue;
             }
-            color = RGBColors.getRGBColor(color_map_a[funct[i]]);
-            lines[x] = new DrawableLine();
-            lines[x].setCoordinates(x1, y1 + (temp * textSpace));
-            lines[x].addPoint(x1 + (2.5 * padding), y1 + (temp * textSpace));
-            lines[x].basics.color = color;
-            lines[x++].width = 35;
+            color = RGB_COLOR_MAP_A[funct[i]];
+            DrawableLine dl = new DrawableLine();
+
+            dl.setCoordinates(x1, y1 + (temp * textSpace));
+            dl.addPoint(x1 + (2.5 * padding), y1 + (temp * textSpace));
+            dl.basics.color = color;
+            dl.width = 35;
+            lines.add(dl);
+
             label = typename[i];
-            color = RGBColors.getRGBColor(color_map_n[15]);
+            color = RGB_COLOR_MAP_N[15];
             double xLoc = x1 + (4 * padding);
             double yLoc = y1 + ((temp + .5) * textSpace);
-            string.setText(label, color);
+            DrawableString string = new DrawableString(label, color);
+            string.font = font;
             string.setCoordinates(xLoc, yLoc);
             string.horizontalAlignment = HorizontalAlignment.LEFT;
             string.verticalAlignment = VerticalAlignment.BOTTOM;
-            target.drawStrings(string);
+            drawableStrings.add(string);
             temp++;
         }
-        target.drawLine(lines);
     }
 
     /**
@@ -734,7 +697,10 @@ public class PointTempPlotResource extends
      */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
+
         fontFactory = new MPEFontFactory(target, this);
+        this.circleColor = RGB_COLOR_MAP_A[8];
+
         List<Colorvalue> colorSet = getResourceData().getColorSet();
         /* Retrieve the temp colormap. */
         ColorMap colorMap = new ColorMap(colorSet.size());
@@ -785,11 +751,6 @@ public class PointTempPlotResource extends
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         if (DrawDQCStations.qcmode == "") {
@@ -797,33 +758,6 @@ public class PointTempPlotResource extends
         }
 
         return DrawDQCStations.qcmode;
-    }
-
-    /**
-     * draw the station circle
-     * 
-     * @param image
-     * @return
-     */
-    private static BufferedImage drawMPECircle(RGB color) {
-        // make circle in center
-        BufferedImage image = new BufferedImage(IMAGE_WIDTH, IMAGE_HEIGHT,
-                BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D) image.getGraphics();
-
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
-        Rectangle2D.Double rect = new Rectangle2D.Double(0, 0,
-                image.getWidth(), image.getHeight());
-        g.fill(rect);
-
-        g.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC, 1.0f));
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-                RenderingHints.VALUE_ANTIALIAS_ON);
-        // always red
-        g.setColor(convertR(color));
-        g.fillOval(0, 0, IMAGE_WIDTH / 2, IMAGE_HEIGHT / 2);
-
-        return image;
     }
 
     /**
@@ -854,11 +788,6 @@ public class PointTempPlotResource extends
         return new RGB(red, green, blue);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
-     */
     @Override
     protected void disposeInternal() {
         fontFactory.dispose();

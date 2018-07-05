@@ -18,13 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter  abbreviation="SPBARO" name="Barotropic Velocity" unit="m/s">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter abbreviation="SPBARO" name="Barotropic Velocity" unit="m/s">
     <Method name="Magnitude">
-    	<Field abbreviation="UBARO" unit="m/sec"/>
-    	<Field abbreviation="VOGRD" unit="m/sec"/>
+        <Field abbreviation="UBARO" unit="m/sec" />
+        <Field abbreviation="VOGRD" unit="m/sec" />
     </Method>
     <Method name="Magnitude">
-    	<Field abbreviation="BARO" unit="m/sec"/>
+        <Field abbreviation="BARO" unit="m/sec" />
     </Method>
 </DerivedParameter>
-

@@ -18,23 +18,27 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter name="Present Weather" abbreviation="presWeather" xmlns:ns2="group">
     <Method name="presWeather.execute1">
-        <Field abbreviation="QPF6hr_bestCat"/>
-        <Field abbreviation="obVis_bestCat"/>
-        <Field abbreviation="precipType"/>
-        <Field abbreviation="tstorm6hr"/>
-        <Field abbreviation="severe6hr"/>
+        <Field abbreviation="QPF6hr_bestCat" />
+        <Field abbreviation="obVis_bestCat" />
+        <Field abbreviation="precipType" />
+        <Field abbreviation="tstorm6hr" />
+        <Field abbreviation="severe6hr" />
     </Method>
     <Method name="presWeather.execute2">
-        <Field abbreviation="precipType"/>
-        <Field abbreviation="QPF12hr_bestCat"/>
-        <Field abbreviation="POP12hr"/>
-        <Field abbreviation="tstorm12hr"/>
+        <Field abbreviation="precipType" />
+        <Field abbreviation="QPF12hr_bestCat" />
+        <Field abbreviation="POP12hr" />
+        <Field abbreviation="tstorm12hr" />
     </Method>
     <Method name="presWeather.execute3">
-        <Field abbreviation="obVis_bestCat"/>
-        <Field abbreviation="precipType"/>
-        <Field abbreviation="POP_hour_bestCat"/>
+        <Field abbreviation="obVis_bestCat" />
+        <Field abbreviation="precipType" />
+        <Field abbreviation="POP_hour_bestCat" />
     </Method>
 </DerivedParameter>

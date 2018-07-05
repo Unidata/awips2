@@ -46,6 +46,14 @@
 # Additional Information:
 #-------------------------------------------------------------------------
 
+##
+# This is a base file that is not intended to be overridden.
+#
+# This file can be subclassed to override behavior. Please see the
+# GFE Training Guide->GFE Text Products User Guide section of the GFE Online
+# Help for guidance on creating a new text product.
+##
+
 import TextRules
 import SampleAnalysis
 import string, time, types

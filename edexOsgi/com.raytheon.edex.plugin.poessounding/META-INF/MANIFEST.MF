@@ -13,7 +13,7 @@ Require-Bundle: com.raytheon.edex.common,
  org.slf4j;bundle-version="1.7.12"
 Export-Package: com.raytheon.edex.plugin.poessounding,
  com.raytheon.edex.plugin.poessounding.decoder
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.dataplugin.poessounding,
  com.raytheon.uf.common.geospatial.spi,
  com.raytheon.uf.common.pointdata,

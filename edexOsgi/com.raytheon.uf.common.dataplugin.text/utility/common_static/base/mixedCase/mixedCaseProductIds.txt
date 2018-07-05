@@ -22,3 +22,6 @@
 
 # Phase 3 WarnGen Products
 #AWW EWW FFS FFW FLS FLW FRW MWS NOW SMW SPS SVR SVS TOR
+
+# Alaska Aviation Guidance added in 18.1.1
+AAG

@@ -37,7 +37,13 @@
 #    ------------    ----------    -----------    --------------------------
 #    08/09/13        1856          dgilling       Fix script so it runs correctly
 #                                                 in SimulatedTime.
+#    10/12/16        5936          dgilling       Add additional phensigs to skipPhenSig
+#                                                 in getActiveTable.
 ########################################################################
+
+##
+# This is a base file that is not intended to be overridden.
+##
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -68,8 +74,9 @@ class Procedure (SmartScript.SmartScript):
         actionList = ["NEW", "EXA", "EXB", "EXT", "CON"]
         tropicalPhens = ["HU", "TY", "TR"]
         SPCPhens = ["TO", "SV"]
-        skipPhenSig = [('FA','W'), ('FF','W'), ('FL','W'), ('FL','Y'), 
-                       ('MA','W'), ('SV','W'), ('TO','W'), ('EW','W')]
+        skipPhenSig = {('FA','W'), ('FA', 'Y'), ('FF','W'), 
+                       ('FL','W'), ('FL', 'A'), ('FL','Y'), 
+                       ('MA','W'), ('SV','W'), ('TO','W'), ('EW','W')}
 
         currentTime = self._gmtime().unixTime()
         

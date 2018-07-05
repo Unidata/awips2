@@ -21,16 +21,22 @@
  			value="${builder}/../../../" />
  		<path id="ant.classpath">
  			<fileset dir="${builder}/../lib/ant">
- 		    	<include name="*.jar" />
+ 				<include name="*.jar" />
  			</fileset>
  		</path>
+ 		<path id="ant.contrib.path">
+ 			<fileset dir="/awips2/ant/lib/">
+ 				<include name="ant-contrib-*.jar" />
+ 			</fileset>
+ 		</path>
+
  		
-    	<taskdef
-    		name="includegen"
-    		classname="com.raytheon.uf.anttasks.includesgen.GenerateIncludesFromFeature" 
-    		classpathref="ant.classpath" />
-    	<taskdef resource="net/sf/antcontrib/antlib.xml" 
-    		classpath="${builder}/../lib/ant/ant-contrib-1.0b3.jar" />
+ 		<taskdef
+ 			name="includegen"
+ 			classname="com.raytheon.uf.anttasks.includesgen.GenerateIncludesFromFeature"
+ 			classpathref="ant.classpath" />
+ 		<taskdef resource="net/sf/antcontrib/antlib.xml"
+ 			classpathref="ant.contrib.path" />
  		<propertyselector property="baseline.variables"
  			delimiter="${path.separator}"
  			match="dir.([0-9][0-9])"

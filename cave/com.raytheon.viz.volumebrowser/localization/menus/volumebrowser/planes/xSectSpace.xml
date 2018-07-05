@@ -18,17 +18,18 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
     <!-- Lon Menu Item -->
     <contribute xsi:type="toolBarItem" toolItemName="Lon">
-        <contribute xsi:type="menuItem" menuText="All Lon"
-            key="LONS" />
+        <contribute xsi:type="menuItem" menuText="All Lon" key="LONS" />
     </contribute>
-
     <!-- Lat Menu Item -->
     <contribute xsi:type="toolBarItem" toolItemName="Lat">
-        <contribute xsi:type="menuItem" menuText="All Lat"
-            key="LATS" />
+        <contribute xsi:type="menuItem" menuText="All Lat" key="LATS" />
     </contribute>
 </menuTemplate>

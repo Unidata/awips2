@@ -31,57 +31,90 @@ import java.util.Date;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 16, 2008 #1520      mpduff     Initial creation.
- *
+ * Oct  5, 2017 #18261     qzhu       copy time-series
  * </pre>
  *
  * @author mpduff
- * @version 1.0	
+ * @version 1.0
  */
 
 public class DataRecord {
     /** Location Id */
     private String lid = null;
-    
+
     /** Observation time */
     private Date obsTime = null;
-    
+
     /** Data value */
     private double value;
-    
+
     /** Revised data, 1 = yes */
     private int revision;
-    
+
     private String shefQualCode = null;
-    
+
     /** The quality code */
     private long qualityCode;
-    
+
     /** Product ID */
     private String productId = null;
-    
+
     /** Product time */
     private Date productTime = null;
-    
+
     /** Posting time */
     private Date postingTime = null;
-    
+
     /** Physical Element */
     private String pe = null;
-    
+
     /** Duration */
     private int dur;
-    
+
     /** Type Source */
     private String ts = null;
-    
+
     /** Extremum */
     private String ext = null;
-    
+
     /** Forecast Basis Time */
     private String basisTime = null;
-    
+
     /** Valid Time of Data */
     private Date validTime = null;
+
+    /** Probability */
+    private float probability = -1;
+
+    /**
+     * constructor.
+     */
+    public DataRecord() {
+    }
+
+    /**
+     * constructor.
+     * 
+     * @param parentShell
+     * @param fcstDataAtt
+     */
+    public DataRecord(final TabularData td, final SiteInfo si) {
+        this.lid = td.getLid();
+        this.pe = si.getPe();
+        this.dur = si.getDur();
+        this.ts = si.getTs();
+        this.ext = si.getExt();
+        this.probability = td.getProbability();
+        this.validTime = td.getValidTime();
+        this.basisTime = si.getBasisTime();
+        this.value = td.getValue();
+        this.qualityCode = td.getQualityCode();
+        this.shefQualCode = td.getShefQualCode();
+        this.revision = td.getRevision();
+        this.productId = td.getProductId();
+        this.productTime = td.getProductTime();
+        this.obsTime = td.getObsTime();
+    }
 
     /**
      * @return the lid
@@ -91,7 +124,8 @@ public class DataRecord {
     }
 
     /**
-     * @param lid the lid to set
+     * @param lid
+     *            the lid to set
      */
     public void setLid(String lid) {
         this.lid = lid;
@@ -105,7 +139,8 @@ public class DataRecord {
     }
 
     /**
-     * @param obsTime the obsTime to set
+     * @param obsTime
+     *            the obsTime to set
      */
     public void setObsTime(Date obsTime) {
         this.obsTime = obsTime;
@@ -119,7 +154,8 @@ public class DataRecord {
     }
 
     /**
-     * @param value the value to set
+     * @param value
+     *            the value to set
      */
     public void setValue(double value) {
         this.value = value;
@@ -133,7 +169,8 @@ public class DataRecord {
     }
 
     /**
-     * @param revision the revision to set
+     * @param revision
+     *            the revision to set
      */
     public void setRevision(int revision) {
         this.revision = revision;
@@ -147,7 +184,8 @@ public class DataRecord {
     }
 
     /**
-     * @param shefQualCode the shefQualCode to set
+     * @param shefQualCode
+     *            the shefQualCode to set
      */
     public void setShefQualCode(String shefQualCode) {
         this.shefQualCode = shefQualCode;
@@ -161,7 +199,8 @@ public class DataRecord {
     }
 
     /**
-     * @param qualityCode the qualityCode to set
+     * @param qualityCode
+     *            the qualityCode to set
      */
     public void setQualityCode(long qualityCode) {
         this.qualityCode = qualityCode;
@@ -175,7 +214,8 @@ public class DataRecord {
     }
 
     /**
-     * @param productId the productId to set
+     * @param productId
+     *            the productId to set
      */
     public void setProductId(String productId) {
         this.productId = productId;
@@ -189,7 +229,8 @@ public class DataRecord {
     }
 
     /**
-     * @param productTime the productTime to set
+     * @param productTime
+     *            the productTime to set
      */
     public void setProductTime(Date productTime) {
         this.productTime = productTime;
@@ -203,7 +244,8 @@ public class DataRecord {
     }
 
     /**
-     * @param postingTime the postingTime to set
+     * @param postingTime
+     *            the postingTime to set
      */
     public void setPostingTime(Date postingTime) {
         this.postingTime = postingTime;
@@ -217,7 +259,8 @@ public class DataRecord {
     }
 
     /**
-     * @param pe the pe to set
+     * @param pe
+     *            the pe to set
      */
     public void setPe(String pe) {
         this.pe = pe;
@@ -231,7 +274,8 @@ public class DataRecord {
     }
 
     /**
-     * @param dur the dur to set
+     * @param dur
+     *            the dur to set
      */
     public void setDur(int dur) {
         this.dur = dur;
@@ -245,7 +289,8 @@ public class DataRecord {
     }
 
     /**
-     * @param ts the ts to set
+     * @param ts
+     *            the ts to set
      */
     public void setTs(String ts) {
         this.ts = ts;
@@ -259,7 +304,8 @@ public class DataRecord {
     }
 
     /**
-     * @param ext the ext to set
+     * @param ext
+     *            the ext to set
      */
     public void setExt(String ext) {
         this.ext = ext;
@@ -273,7 +319,8 @@ public class DataRecord {
     }
 
     /**
-     * @param basisTime the basisTime to set
+     * @param basisTime
+     *            the basisTime to set
      */
     public void setBasisTime(String basisTime) {
         this.basisTime = basisTime;
@@ -287,10 +334,26 @@ public class DataRecord {
     }
 
     /**
-     * @param validTime the validTime to set
+     * @param validTime
+     *            the validTime to set
      */
     public void setValidTime(Date validTime) {
         this.validTime = validTime;
+    }
+
+    /**
+     * @return the probability
+     */
+    public float getProbability() {
+        return probability;
+    }
+
+    /**
+     * @param probability
+     *            the probability to set
+     */
+    public void setProbability(float probability) {
+        this.probability = probability;
     }
 
 }

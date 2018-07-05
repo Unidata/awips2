@@ -17,6 +17,7 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -50,13 +51,14 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Date         Ticket#     Engineer    Description
  * ----------   ----------  ----------- --------------------------
  * 6/10/2015    DCS15095    wkwock      Initial creation
+ * Feb 21, 2017  6035       njensen     Fixed sizing issues
  * 
  * </pre>
  * 
  * @author wkwock
- * @version 1.0
  */
 public class AddEditFloodEventDlg extends CaveSWTDialog implements ITSCompositeAction {
+
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AddEditFloodEventDlg.class);
 
@@ -112,14 +114,9 @@ public class AddEditFloodEventDlg extends CaveSWTDialog implements ITSCompositeA
 
         dateFormat = new SimpleDateFormat("MM/dd/yyyy HH:mm");
         dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-        tsLinkedList = new LinkedList<TSComposite>();
-    };
+        tsLinkedList = new LinkedList<>();
+    }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -130,23 +127,6 @@ public class AddEditFloodEventDlg extends CaveSWTDialog implements ITSCompositeA
         return mainLayout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
-    @Override
-    protected void disposed() {
-
-    }
-
-    /*
-     * initialize components
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -186,7 +166,10 @@ public class AddEditFloodEventDlg extends CaveSWTDialog implements ITSCompositeA
         listLbl.setText("Select a LID");
 
         if (selectedKey == null) {
-            gd = new GridData(50, 400);
+            GC gc = new GC(listLbl);
+            int textWidth = gc.getFontMetrics().getAverageCharWidth() * 14;
+            gc.dispose();
+            gd = new GridData(textWidth, 400);
             gd.horizontalSpan = 2;
             lidsLst = new List(leftComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
             lidsLst.setLayoutData(gd);
@@ -210,12 +193,12 @@ public class AddEditFloodEventDlg extends CaveSWTDialog implements ITSCompositeA
         obsListLbl.setText("Observation");
         obsListLbl.setLayoutData(gd);
 
-        obsSComp = new ScrolledComposite(rightComp, SWT.BORDER | SWT.V_SCROLL);
+        obsSComp = new ScrolledComposite(rightComp,
+                SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         obsSComp.setLayoutData(new GridData(350, 400));
         obsComp = new Composite(obsSComp, SWT.NONE);
         obsComp.setLayout(new FormLayout());
 
-        obsSComp.setAlwaysShowScrollBars(true);
         obsSComp.setContent(obsComp);
         obsSComp.setExpandHorizontal(true);
         obsSComp.setExpandVertical(true);
@@ -252,11 +235,8 @@ public class AddEditFloodEventDlg extends CaveSWTDialog implements ITSCompositeA
         buttonComp.setLayout(new GridLayout(2, true));
         buttonComp.setLayoutData(gd);
 
-        int buttonWidth = 120;
-
-        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
-        Button saveBtn = new Button(buttonComp, SWT.PUSH|SWT.LEFT);
+        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
+        Button saveBtn = new Button(buttonComp, SWT.PUSH);
         saveBtn.setText("Save Event");
         saveBtn.setLayoutData(gd);
         saveBtn.addSelectionListener(new SelectionAdapter() {
@@ -270,9 +250,9 @@ public class AddEditFloodEventDlg extends CaveSWTDialog implements ITSCompositeA
             }
         });
 
-        gd = new GridData(SWT.RIGHT, SWT.DEFAULT, true, false);
-        gd.widthHint = buttonWidth;
-        Button cancelBtn = new Button(buttonComp, SWT.PUSH|SWT.RIGHT);
+        gd = new GridData(SWT.LEFT, SWT.DEFAULT, true, false);
+        gd.widthHint = saveBtn.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+        Button cancelBtn = new Button(buttonComp, SWT.PUSH);
         cancelBtn.setText("Cancel");
         cancelBtn.setLayoutData(gd);
         cancelBtn.addSelectionListener(new SelectionAdapter() {
@@ -436,7 +416,10 @@ public class AddEditFloodEventDlg extends CaveSWTDialog implements ITSCompositeA
             tsComp=listIterator.next();
             FormData tfd = new FormData();
             if (lastTSComp==null) {
-                tfd.top = new FormAttachment(0, 20);
+                GC gc = new GC(tsComp);
+                int height = gc.stringExtent("0.0").y;
+                gc.dispose();
+                tfd.top = new FormAttachment(0, height);
             } else {
                 tfd.top = new FormAttachment(lastTSComp, 1);
             }

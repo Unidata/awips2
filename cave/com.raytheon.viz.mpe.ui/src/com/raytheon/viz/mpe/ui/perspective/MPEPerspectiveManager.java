@@ -79,10 +79,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jan 29, 2013  1550     mpduff      Add ability to preload maps on open.
  * Oct 22, 2013  2491     bsteffen    Switch serialization to 
  *                                    ProcedureXmlManager
+ * Aug 11, 2017  6148     bkowal      Cleanup.
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
 
 public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
@@ -95,13 +95,13 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
     @Override
     public void open() {
         // First time opened, set perspective default background color
-        String cval = AppsDefaults.getInstance().getToken(
-                "mpe_map_background_color");
+        String cval = AppsDefaults.getInstance()
+                .getToken("mpe_map_background_color");
         if (cval != null) {
             RGB color = RGBColors.getRGBColor(AppsDefaults.getInstance()
                     .getToken("mpe_map_background_color"));
-            BackgroundColor.getInstance(page.getPerspective()).setColor(
-                    BGColorMode.EDITOR, color);
+            BackgroundColor.getInstance(page.getPerspective())
+                    .setColor(BGColorMode.EDITOR, color);
         }
 
         openNewEditor();
@@ -111,30 +111,20 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
         dialog.open();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#openNewEditor
-     * ()
-     */
     @Override
     public AbstractEditor openNewEditor() {
         try {
             // Unmarshal default bundle xml
-            Bundle b = ProcedureXmlManager.getInstance().unmarshal(
-                    Bundle.class,
-                    PathManagerFactory.getPathManager()
-                            .getStaticFile(
-                                    MPE + IPathManager.SEPARATOR
-                                            + "default-bundle.xml"));
+            Bundle b = ProcedureXmlManager.getInstance().unmarshal(Bundle.class,
+                    PathManagerFactory.getPathManager().getStaticFile(MPE
+                            + IPathManager.SEPARATOR + "default-bundle.xml"));
             // Load Bundle to perspective window in new editor
             String editorId = b.getEditor();
             if (editorId != null) {
                 IRenderableDisplay[] displays = b.getDisplays();
                 if (displays.length > 0) {
-                    editorId = DescriptorMap.getEditorId(displays[0]
-                            .getDescriptor().getClass().getName());
+                    editorId = DescriptorMap.getEditorId(
+                            displays[0].getDescriptor().getClass().getName());
                     AbstractEditor editor = UiUtil.createEditor(
                             perspectiveWindow, editorId, displays);
                     if (editor != null) {
@@ -157,7 +147,8 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                                 .getActiveVizContainer();
                         MapManager mapMgr = MapManager
                                 .getInstance((IMapDescriptor) currentEditor
-                                        .getActiveDisplayPane().getDescriptor());
+                                        .getActiveDisplayPane()
+                                        .getDescriptor());
 
                         // Load the configured maps
                         for (String map : maps) {
@@ -197,11 +188,10 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
      */
     @Override
     public IInputHandler[] getPerspectiveInputHandlers(AbstractEditor editor) {
-        IInputHandler[] superHandlers = super
-                .getPerspectiveInputHandlers(editor);
+        IInputHandler[] superHandlers = super.getPerspectiveInputHandlers(
+                editor);
 
         IInputHandler handler = new InputAdapter() {
-
             @Override
             public boolean handleMouseDown(int x, int y, int mouseButton) {
                 IDisplayPaneContainer container = EditorUtil
@@ -213,17 +203,18 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                 if (mouseButton == 1) {
                     Coordinate ll = container.translateClick(x, y);
                     if (MPEDisplayManager.getCurrent().isQpf() == true) {
-                        if (MPEDisplayManager.getCurrent().isGroupedt() == true) {
+                        if (MPEDisplayManager.getCurrent().isGroupedt()) {
                             GroupEditPrecipStns ges = new GroupEditPrecipStns();
-                            ges.group_edit_precip_stations(new ReferencedCoordinate(
-                                    ll));
+                            ges.group_edit_precip_stations(
+                                    new ReferencedCoordinate(ll));
                             return true;
                         }
-                    } else if (MPEDisplayManager.getCurrent().isMaxmin() == true) {
-                        if (MPEDisplayManager.getCurrent().isGroupedt() == true) {
+                    } else if (MPEDisplayManager.getCurrent().isMaxmin()) {
+                        if (MPEDisplayManager.getCurrent()
+                                .isGroupedt() == true) {
                             GroupEditTempStns get = new GroupEditTempStns();
-                            get.group_edit_temp_stations(new ReferencedCoordinate(
-                                    ll));
+                            get.group_edit_temp_stations(
+                                    new ReferencedCoordinate(ll));
                             return true;
                         }
                     }
@@ -236,14 +227,16 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                                 shell, new ReferencedCoordinate(ll));
                         epd.open();
                         return true;
-                    } else if (MPEDisplayManager.getCurrent().isMaxmin() == true) {
+                    } else if (MPEDisplayManager.getCurrent()
+                            .isMaxmin() == true) {
                         Shell shell = PlatformUI.getWorkbench()
                                 .getActiveWorkbenchWindow().getShell();
                         EditTempStationsDialog etd = new EditTempStationsDialog(
                                 shell, new ReferencedCoordinate(ll));
                         etd.open();
                         return true;
-                    } else if (MPEDisplayManager.getCurrent().isZflag() == true) {
+                    } else if (MPEDisplayManager.getCurrent()
+                            .isZflag() == true) {
                         Shell shell = PlatformUI.getWorkbench()
                                 .getActiveWorkbenchWindow().getShell();
                         EditFreezeStationsDialog ezd = new EditFreezeStationsDialog(
@@ -300,7 +293,8 @@ public class MPEPerspectiveManager extends AbstractCAVEPerspectiveManager {
                     selectPaneAction.setSelectedRsc(null);
                     menuManager.add(selectPaneAction);
                 }
-                if (editor.getSelectedPane(IMultiPaneEditor.LOAD_ACTION) != null) {
+                if (editor.getSelectedPane(
+                        IMultiPaneEditor.LOAD_ACTION) != null) {
                     MPESelectPaneAction selectPaneAction = new MPESelectPaneAction(
                             null, IMultiPaneEditor.LOAD_ACTION);
                     selectPaneAction.setContainer(container);

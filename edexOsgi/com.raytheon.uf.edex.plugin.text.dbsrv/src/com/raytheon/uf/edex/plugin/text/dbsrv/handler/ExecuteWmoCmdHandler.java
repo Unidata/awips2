@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.plugin.text.dbsrv.handler;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.text.db.StdTextProduct;
-import com.raytheon.uf.common.dataplugin.text.request.ExecuteAwipsCmdRequest;
+import com.raytheon.uf.common.dataplugin.text.request.ExecuteWmoCmdRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.edex.plugin.text.db.TextDB;
 
@@ -35,22 +35,22 @@ import com.raytheon.uf.edex.plugin.text.db.TextDB;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Aug 5, 2011             rferrel     Initial creation
+ * Aug 05, 2011            rferrel     Initial creation
  * May 20, 2014 2536       bclement    moved from edex.textdb to edex.plugin.text
  * Jan 18, 2016 4562       tjensen     Moved from edex.plugin.text to 
  *                                     edex.plugin.text.dbsrv
  * Aug 28, 2016 5839       rferrel     Added past version.
+ * Feb 14, 2017 6111       njensen     Corrected generics
  * 
  * </pre>
  * 
  * @author rferrel
- * @version 1.0
  */
 public class ExecuteWmoCmdHandler implements
-        IRequestHandler<ExecuteAwipsCmdRequest> {
+        IRequestHandler<ExecuteWmoCmdRequest> {
 
     @Override
-    public Object handleRequest(ExecuteAwipsCmdRequest request)
+    public Object handleRequest(ExecuteWmoCmdRequest request)
             throws Exception {
         String wmoId = request.getWmoId();
         String site = request.getSite();

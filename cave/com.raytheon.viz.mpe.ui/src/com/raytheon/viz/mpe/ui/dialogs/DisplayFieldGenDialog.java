@@ -37,6 +37,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.mpe.core.RegenHrFlds;
 import com.raytheon.viz.mpe.ui.Activator;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
+import com.raytheon.viz.mpe.ui.dialogs.gagetable.GageTableDataManager;
 import com.raytheon.viz.mpe.ui.rsc.MPEFieldResource;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
@@ -50,10 +51,10 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Oct 27, 2008            snaples     Initial creation
  * Nov 10, 2008  1649      snaples     Added handlers for Yes button
  * Apr 18, 2013  1920      mpduff      Call back to MPEDisplayManager to reload the gages.
+ * Nov 16, 2017  6524      bkowal      Notify {@link GageTableDataManager} that it needs to reload the gages.
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class DisplayFieldGenDialog extends CaveJFACEDialog {
@@ -77,8 +78,8 @@ public class DisplayFieldGenDialog extends CaveJFACEDialog {
 
         Composite composite = (Composite) super.createDialogArea(parent);
         composite.setLayout(new GridLayout(2, false));
-        composite
-                .setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        composite.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         Composite comp1 = new Composite(composite, SWT.NONE);
         comp1.setLayout(new GridLayout(2, false));
@@ -105,12 +106,18 @@ public class DisplayFieldGenDialog extends CaveJFACEDialog {
                     // were regenerated to keep CAVEs in sync with each other.
                     // TODO: Should this clear polygon edits/does it delete them
                     // on the file system?
+
                     RegenHrFlds.getInstance().regenFields(dt);
                     MPEFieldResource rsc = instance.getDisplayedFieldResource();
                     if (rsc != null) {
                         rsc.getResourceData().update(dt);
                     }
 
+                    /*
+                     * Ensure that gages will be reloaded the next time they are
+                     * accessed.
+                     */
+                    GageTableDataManager.getInstance().clearCachedGages();
                     instance.updateGages();
                 } catch (VizException ex) {
                     Activator.statusHandler.handle(Priority.PROBLEM,

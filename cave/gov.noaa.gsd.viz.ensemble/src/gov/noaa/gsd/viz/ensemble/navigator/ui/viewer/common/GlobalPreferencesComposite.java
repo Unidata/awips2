@@ -1,9 +1,5 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.common;
 
-import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.EnsembleToolViewer;
-import gov.noaa.gsd.viz.ensemble.util.GlobalColor;
-import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
@@ -22,6 +18,10 @@ import org.eclipse.swt.widgets.Spinner;
 
 import com.raytheon.uf.viz.core.VizApp;
 
+import gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.EnsembleToolViewer;
+import gov.noaa.gsd.viz.ensemble.util.GlobalColor;
+import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
+
 /***
  * This composite contains the global preferences controls for the Ensemble
  * Tool.
@@ -33,6 +33,8 @@ import com.raytheon.uf.viz.core.VizApp;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 16, 2015   12565     polster     Initial creation
+ * Nov 12, 2016   19443     polster     Removed pref (new-tool-on-new-editor)
+ * Dec 14, 2016   19443     polster     added isWidgetReady method
  * 
  * </pre>
  * 
@@ -69,8 +71,6 @@ public class GlobalPreferencesComposite extends Composite {
 
     private Button minimizeOnToggleUneditableBtn = null;
 
-    private Button createToolLayerOnNewEditorBtn = null;
-
     /**
      * Ensemble Tool Preferences
      */
@@ -84,8 +84,6 @@ public class GlobalPreferencesComposite extends Composite {
 
     private static boolean minimizeOnToggleUneditable = false;
 
-    private static boolean createToolLayerOnNewEditor = false;
-
     private static boolean thickenOnSelection = false;
 
     private static boolean useResourceColorOnThicken = false;
@@ -97,7 +95,6 @@ public class GlobalPreferencesComposite extends Composite {
     public GlobalPreferencesComposite(Composite parent, int style) {
         super(parent, style);
 
-        createToolLayerOnNewEditor = true;
         useResourceColorOnThicken = true;
         minimizeOnForeignToolLoad = true;
         editableOnRestore = true;
@@ -137,8 +134,8 @@ public class GlobalPreferencesComposite extends Composite {
         thickenOnSelectionBtn.setSelection(true);
         setThickenOnSelectionPreference(true);
         thickenOnSelectionBtn.setText("  Thicken On Selection");
-        thickenOnSelectionBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER,
-                false, false, 4, 1));
+        thickenOnSelectionBtn.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, false, false, 4, 1));
         thickenOnSelectionBtn.setFont(EnsembleToolViewer.getViewFontNormal());
 
         Label separatorLbl_1 = new Label(thickenOnSelectionComposite,
@@ -155,8 +152,8 @@ public class GlobalPreferencesComposite extends Composite {
         useResourceColorRdo = new Button(useResourceColorComposite, SWT.RADIO);
         useResourceColorRdo.setSelection(true);
         useResourceColorRdo.setText("Use Product Color");
-        useResourceColorRdo.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER,
-                true, false, 1, 1));
+        useResourceColorRdo.setLayoutData(
+                new GridData(SWT.RIGHT, SWT.CENTER, true, false, 1, 1));
         useResourceColorRdo.setFont(EnsembleToolViewer.getViewFontSmall());
 
         Composite chooseColorComposite = new Composite(
@@ -176,8 +173,8 @@ public class GlobalPreferencesComposite extends Composite {
 
         colorChooserLbl = new Label(chooseColorComposite, SWT.BORDER);
         colorChooserLbl.setBackground(getThickenOnSelectionColorPreference());
-        colorChooserLbl.setFont(SWTResourceManager.getFont("Dialog", 12,
-                SWT.NONE));
+        colorChooserLbl
+                .setFont(SWTResourceManager.getFont("Dialog", 12, SWT.NONE));
         colorChooserLbl.setAlignment(SWT.CENTER);
         GridData colorChooserLbl_gd = new GridData(SWT.FILL, SWT.CENTER, true,
                 false, 3, 1);
@@ -194,11 +191,11 @@ public class GlobalPreferencesComposite extends Composite {
         thicknessWidgetComposite.setLayout(new GridLayout(9, false));
 
         Label spacerLbl = new Label(thicknessWidgetComposite, SWT.None);
-        GridData spacerLbl_gd = new GridData(SWT.LEFT, SWT.CENTER, false,
-                false, 1, 1);
+        GridData spacerLbl_gd = new GridData(SWT.LEFT, SWT.CENTER, false, false,
+                1, 1);
         spacerLbl.setLayoutData(spacerLbl_gd);
-        thicknessChooserLbl = new Label(thicknessWidgetComposite, SWT.BORDER
-                | SWT.CENTER);
+        thicknessChooserLbl = new Label(thicknessWidgetComposite,
+                SWT.BORDER | SWT.CENTER);
 
         GridData thicknessChooserLbl_gd = new GridData(SWT.FILL, SWT.CENTER,
                 true, false, 5, 1);
@@ -235,8 +232,8 @@ public class GlobalPreferencesComposite extends Composite {
 
             public void mouseUp(MouseEvent e) {
                 if (!isUseResourceColorOnThickenPreference()) {
-                    ColorDialog cd = new ColorDialog(EnsembleToolViewer
-                            .getShell());
+                    ColorDialog cd = new ColorDialog(
+                            EnsembleToolViewer.getShell());
                     cd.setRGB(getThickenOnSelectionColorPreference().getRGB());
                     cd.setText("Choose Selection Color");
                     RGB result = cd.open();
@@ -260,12 +257,12 @@ public class GlobalPreferencesComposite extends Composite {
                     chooseColorRdo.setEnabled(true);
                     colorChooserLbl.setEnabled(true);
                     if (isResourceColorBeingUsed) {
-                        colorChooserLbl.setBackground(GlobalColor
-                                .get(GlobalColor.LIGHT_GRAY));
+                        colorChooserLbl.setBackground(
+                                GlobalColor.get(GlobalColor.LIGHT_GRAY));
                         colorChooserLbl.setText("X");
                     } else {
-                        colorChooserLbl
-                                .setBackground(getThickenOnSelectionColorPreference());
+                        colorChooserLbl.setBackground(
+                                getThickenOnSelectionColorPreference());
                         colorChooserLbl.setText("");
                     }
                     thicknessChooserLbl.setEnabled(true);
@@ -275,8 +272,8 @@ public class GlobalPreferencesComposite extends Composite {
                     useResourceColorRdo.setEnabled(false);
                     chooseColorRdo.setEnabled(false);
                     colorChooserLbl.setEnabled(false);
-                    colorChooserLbl.setBackground(GlobalColor
-                            .get(GlobalColor.LIGHT_GRAY));
+                    colorChooserLbl.setBackground(
+                            GlobalColor.get(GlobalColor.LIGHT_GRAY));
                     colorChooserLbl.setText("X");
                     thicknessChooserLbl.setEnabled(false);
                     thicknessChooserSpinner.setEnabled(false);
@@ -292,8 +289,8 @@ public class GlobalPreferencesComposite extends Composite {
                 boolean isSelected = ((Button) e.getSource()).getSelection();
                 if (isSelected) {
                     chooseColorRdo.setSelection(false);
-                    colorChooserLbl.setBackground(GlobalColor
-                            .get(GlobalColor.LIGHT_GRAY));
+                    colorChooserLbl.setBackground(
+                            GlobalColor.get(GlobalColor.LIGHT_GRAY));
                     colorChooserLbl.setText("X");
                     colorChooserLbl.setEnabled(false);
                     setUseResourceColorOnThickenPreference(true);
@@ -309,15 +306,15 @@ public class GlobalPreferencesComposite extends Composite {
                 boolean isSelected = ((Button) e.getSource()).getSelection();
                 if (isSelected) {
                     useResourceColorRdo.setSelection(false);
-                    colorChooserLbl
-                            .setBackground(getThickenOnSelectionColorPreference());
+                    colorChooserLbl.setBackground(
+                            getThickenOnSelectionColorPreference());
                     colorChooserLbl.setText("");
                     colorChooserLbl.setEnabled(true);
                     setUseResourceColorOnThickenPreference(false);
                 } else {
                     colorChooserLbl.setEnabled(false);
-                    colorChooserLbl.setBackground(GlobalColor
-                            .get(GlobalColor.LIGHT_GRAY));
+                    colorChooserLbl.setBackground(
+                            GlobalColor.get(GlobalColor.LIGHT_GRAY));
                     colorChooserLbl.setText("X");
                     colorChooserLbl.setImage(null);
                 }
@@ -329,8 +326,8 @@ public class GlobalPreferencesComposite extends Composite {
 
         smallFlagsComposite = new Composite(this, SWT.SHADOW_ETCHED_IN);
         smallFlagsComposite.setLayout(new GridLayout(1, false));
-        GridData smallFlagsComposite_gd = new GridData(SWT.FILL, SWT.FILL,
-                true, true, 1, 10);
+        GridData smallFlagsComposite_gd = new GridData(SWT.FILL, SWT.FILL, true,
+                true, 1, 10);
         smallFlagsComposite.setLayoutData(smallFlagsComposite_gd);
 
         /*
@@ -340,8 +337,8 @@ public class GlobalPreferencesComposite extends Composite {
         editableOnRestoreBtn = new Button(smallFlagsComposite, SWT.CHECK);
         editableOnRestoreBtn.setSelection(isEditableOnRestorePreference());
         editableOnRestoreBtn.setText("Make editable on restore");
-        editableOnRestoreBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER,
-                true, false, 1, 1));
+        editableOnRestoreBtn.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
         editableOnRestoreBtn.setFont(EnsembleToolViewer.getViewFontSmall());
         editableOnRestoreBtn.setEnabled(true);
         editableOnRestoreBtn.addSelectionListener(new SelectionAdapter() {
@@ -363,8 +360,8 @@ public class GlobalPreferencesComposite extends Composite {
         minimizeOnForeignToolBtn
                 .setSelection(isMinimizeOnForeignToolLoadPreference());
         minimizeOnForeignToolBtn.setText("Minimize on foreign tool");
-        minimizeOnForeignToolBtn.setLayoutData(new GridData(SWT.LEFT,
-                SWT.CENTER, true, false, 1, 1));
+        minimizeOnForeignToolBtn.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
         minimizeOnForeignToolBtn.setFont(EnsembleToolViewer.getViewFontSmall());
         minimizeOnForeignToolBtn.setEnabled(true);
         minimizeOnForeignToolBtn.addSelectionListener(new SelectionAdapter() {
@@ -373,7 +370,8 @@ public class GlobalPreferencesComposite extends Composite {
             public void widgetSelected(SelectionEvent e) {
                 boolean minimizeOnForeignToolLoad = ((Button) e.getSource())
                         .getSelection();
-                setMinimizeOnForeignToolLoadPreference(minimizeOnForeignToolLoad);
+                setMinimizeOnForeignToolLoadPreference(
+                        minimizeOnForeignToolLoad);
             }
 
         });
@@ -387,10 +385,10 @@ public class GlobalPreferencesComposite extends Composite {
         minimizeOnToggleUneditableBtn
                 .setSelection(isMinimizeOnToggleUneditablePreference());
         minimizeOnToggleUneditableBtn.setText("Minimize on toggle uneditable");
-        minimizeOnToggleUneditableBtn.setLayoutData(new GridData(SWT.LEFT,
-                SWT.CENTER, true, false, 1, 1));
-        minimizeOnToggleUneditableBtn.setFont(EnsembleToolViewer
-                .getViewFontSmall());
+        minimizeOnToggleUneditableBtn.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
+        minimizeOnToggleUneditableBtn
+                .setFont(EnsembleToolViewer.getViewFontSmall());
         minimizeOnToggleUneditableBtn.setEnabled(true);
         minimizeOnToggleUneditableBtn
                 .addSelectionListener(new SelectionAdapter() {
@@ -399,7 +397,8 @@ public class GlobalPreferencesComposite extends Composite {
                     public void widgetSelected(SelectionEvent e) {
                         boolean minimizeOnToggleUneditable = ((Button) e
                                 .getSource()).getSelection();
-                        setMinimizeOnToggleUneditablePreference(minimizeOnToggleUneditable);
+                        setMinimizeOnToggleUneditablePreference(
+                                minimizeOnToggleUneditable);
                     }
 
                 });
@@ -412,8 +411,8 @@ public class GlobalPreferencesComposite extends Composite {
         setEditableOnSwapInPreference(false);
         editableOnSwapInBtn.setSelection(isEditableOnSwapInPreference());
         editableOnSwapInBtn.setText("Make editable on swap-in");
-        editableOnSwapInBtn.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER,
-                true, false, 1, 1));
+        editableOnSwapInBtn.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
         editableOnSwapInBtn.setFont(EnsembleToolViewer.getViewFontSmall());
         // btnEditableOnSwapIn.setEnabled(true);
         editableOnSwapInBtn.setEnabled(false);
@@ -438,8 +437,8 @@ public class GlobalPreferencesComposite extends Composite {
         uneditableOnMinimizeBtn
                 .setSelection(isUneditableOnMinimizePreference());
         uneditableOnMinimizeBtn.setText("Make uneditable on minimize");
-        uneditableOnMinimizeBtn.setLayoutData(new GridData(SWT.LEFT,
-                SWT.CENTER, true, false, 1, 1));
+        uneditableOnMinimizeBtn.setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 1));
         uneditableOnMinimizeBtn.setFont(EnsembleToolViewer.getViewFontSmall());
         // btnUneditableOnMinimize.setEnabled(true);
         uneditableOnMinimizeBtn.setEnabled(false);
@@ -455,65 +454,35 @@ public class GlobalPreferencesComposite extends Composite {
 
         });
 
-        /*
-         * Allow the user to control, when a new editor is opened, whether a new
-         * ensemble tool layer is created and made editable.
-         */
-
-        createToolLayerOnNewEditorBtn = new Button(smallFlagsComposite,
-                SWT.CHECK);
-        setCreateToolLayerOnNewEditorPreference(true);
-        createToolLayerOnNewEditorBtn
-                .setSelection(isCreateToolLayerOnNewEditorPreference());
-        createToolLayerOnNewEditorBtn
-                .setSelection(isCreateToolLayerOnNewEditorPreference());
-        createToolLayerOnNewEditorBtn.setText("New tool layer on new editor");
-        createToolLayerOnNewEditorBtn.setLayoutData(new GridData(SWT.LEFT,
-                SWT.CENTER, true, false, 1, 1));
-        createToolLayerOnNewEditorBtn.setFont(EnsembleToolViewer
-                .getViewFontSmall()); //
-        createToolLayerOnNewEditorBtn.setEnabled(false);
-        createToolLayerOnNewEditorBtn
-                .addSelectionListener(new SelectionAdapter() {
-                    @Override
-                    public void widgetSelected(SelectionEvent e) {
-                        boolean createToolLayerOnNewEditor = ((Button) e
-                                .getSource()).getSelection();
-
-                        setCreateToolLayerOnNewEditorPreference(createToolLayerOnNewEditor);
-                    }
-
-                });
-
     }
 
-    public void setViewEditable(final boolean enabled) {
+    public void setEditable(final boolean enabled) {
 
         VizApp.runSync(new Runnable() {
 
             @Override
             public void run() {
 
-                thickenOnSelectionComposite.setEnabled(enabled);
-                smallFlagsComposite.setEnabled(enabled);
-                thickenOnSelectionBtn.setEnabled(enabled);
-                useResourceColorRdo.setEnabled(enabled);
-                chooseColorRdo.setEnabled(enabled);
-                colorChooserLbl.setEnabled(enabled);
-                thicknessChooserLbl.setEnabled(enabled);
-                thicknessChooserSpinner.setEnabled(enabled);
+                if (isWidgetReady()) {
+                    thickenOnSelectionComposite.setEnabled(enabled);
+                    smallFlagsComposite.setEnabled(enabled);
+                    thickenOnSelectionBtn.setEnabled(enabled);
+                    useResourceColorRdo.setEnabled(enabled);
+                    chooseColorRdo.setEnabled(enabled);
+                    colorChooserLbl.setEnabled(enabled);
+                    thicknessChooserLbl.setEnabled(enabled);
+                    thicknessChooserSpinner.setEnabled(enabled);
 
-                editableOnRestoreBtn.setEnabled(enabled);
-                minimizeOnForeignToolBtn.setEnabled(enabled);
-                minimizeOnToggleUneditableBtn.setEnabled(enabled);
+                    editableOnRestoreBtn.setEnabled(enabled);
+                    minimizeOnForeignToolBtn.setEnabled(enabled);
+                    minimizeOnToggleUneditableBtn.setEnabled(enabled);
 
-                /* TODO: Remaining preferences */
-                // btnEditableOnSwapIn.setEnabled(viewEditable);
-                // btnUneditableOnMinimize.setEnabled(viewEditable);
-                // btnCreateToolLayerOnNewEditor.setEnabled(viewEditable);
-                createToolLayerOnNewEditorBtn.setEnabled(false);
-                editableOnSwapInBtn.setEnabled(false);
-                uneditableOnMinimizeBtn.setEnabled(false);
+                    /* TODO: Remaining preferences */
+                    // btnEditableOnSwapIn.setEnabled(viewEditable);
+                    // btnUneditableOnMinimize.setEnabled(viewEditable);
+                    editableOnSwapInBtn.setEnabled(false);
+                    uneditableOnMinimizeBtn.setEnabled(false);
+                }
 
             }
         });
@@ -553,14 +522,6 @@ public class GlobalPreferencesComposite extends Composite {
 
     public static void setMinimizeOnToggleUneditablePreference(boolean m) {
         minimizeOnToggleUneditable = m;
-    }
-
-    public static boolean isCreateToolLayerOnNewEditorPreference() {
-        return createToolLayerOnNewEditor;
-    }
-
-    public static void setCreateToolLayerOnNewEditorPreference(boolean c) {
-        createToolLayerOnNewEditor = c;
     }
 
     public static boolean isThickenOnSelectionPreference() {
@@ -611,4 +572,38 @@ public class GlobalPreferencesComposite extends Composite {
         thickenOnSelectionColor = c;
     }
 
+    private boolean isWidgetReady() {
+        boolean isReady = false;
+
+        if (thickenOnSelectionComposite != null
+                && !thickenOnSelectionComposite.isDisposed()
+                && smallFlagsComposite != null
+                && !smallFlagsComposite.isDisposed()
+                && thickenOnSelectionBtn != null
+                && !thickenOnSelectionBtn.isDisposed()
+                && useResourceColorRdo != null
+                && !useResourceColorRdo.isDisposed() //
+                && colorChooserLbl != null //
+                && !colorChooserLbl.isDisposed() //
+                && chooseColorRdo != null //
+                && !chooseColorRdo.isDisposed()
+                && thicknessChooserSpinner != null //
+                && !thicknessChooserSpinner.isDisposed()
+                && thicknessChooserLbl != null //
+                && !thicknessChooserLbl.isDisposed()
+                && editableOnRestoreBtn != null //
+                && !editableOnRestoreBtn.isDisposed()
+                && editableOnSwapInBtn != null //
+                && !editableOnSwapInBtn.isDisposed()
+                && uneditableOnMinimizeBtn != null //
+                && !uneditableOnMinimizeBtn.isDisposed()
+                && minimizeOnForeignToolBtn != null //
+                && !minimizeOnForeignToolBtn.isDisposed()
+                && minimizeOnToggleUneditableBtn != null //
+                && !minimizeOnToggleUneditableBtn.isDisposed()) {
+
+            isReady = true;
+        }
+        return isReady;
+    }
 }

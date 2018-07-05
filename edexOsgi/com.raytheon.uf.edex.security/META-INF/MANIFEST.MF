@@ -4,7 +4,7 @@ Bundle-Name: Security
 Bundle-SymbolicName: com.raytheon.uf.edex.security
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.jetty;bundle-version="9.2.14",
  com.raytheon.uf.edex.core;bundle-version="1.14.0",
  com.raytheon.uf.common.util;bundle-version="1.14.0",

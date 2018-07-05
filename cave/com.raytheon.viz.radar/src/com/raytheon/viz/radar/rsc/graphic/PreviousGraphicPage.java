@@ -30,7 +30,8 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Nov 19, 2010            mnash     Initial creation
+ * Nov 19, 2010            mnash       Initial creation
+ * Sep 28, 2017 DR 20316   D. Friemdan Refresh on change.
  * 
  * </pre>
  * 
@@ -77,5 +78,6 @@ public class PreviousGraphicPage extends AbstractRightClickAction {
         } else {
             rgd.setCurrentPage(rgd.getCurrentPage() - 1);
         }
+        resource.issueRefresh();
     }
 }

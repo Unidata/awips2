@@ -28,13 +28,19 @@
 #      to override variables, definitions, thresholds, and methods
 ##
 ##########################################################################
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 import MultipleElementTable
 import string, time, re, os, types, copy
 
 class TextProduct(MultipleElementTable.TextProduct):
     Definition = copy.deepcopy(MultipleElementTable.TextProduct.Definition)
 
-    Definition["displayName"] = "MultipleElementTable"
+    #Definition["displayName"] = "MultipleElementTable"
     #Definition["outputFile"] = "/awips/GFESuite/products/TEXT/MultipleElementTable.txt"
     #Definition["regionList"] = [
     #        ("area1","AREA 1"),
@@ -52,7 +58,7 @@ class TextProduct(MultipleElementTable.TextProduct):
     #Definition["elementList"] = ["Temp", "PoP", "Humidity"] 
     #Definition["elementList"] = ["PoP", "Humidity", "Temp"] 
     #Definition["singleValueFormat"] = 1 # Default is 0
-    #Definition["introLetters"] = "&&"
+    #Definition["introLetters"] = "&&\n  "
 
     def __init__(self):
         MultipleElementTable.TextProduct.__init__(self)

@@ -47,11 +47,11 @@ import com.raytheon.uf.viz.pointset.image.PointSetLocationCallback;
  * Aug 28, 2015  4709     bsteffen  Initial creation
  * Jan 25, 2016  5208     bsteffen  Ensure correct units are used for conversion
  * Jun 07, 2016  5452     bsteffen  Handle null data units
+ * Sep 29, 2016  5581     bsteffen  Ensure image is not reused after dispose.
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class PointSetFrame {
 
@@ -83,11 +83,10 @@ public class PointSetFrame {
      * be called concurrently with paint.
      */
     public void dispose() {
-        ITriangulatedImage image = this.image;
         if (image != null) {
             image.dispose();
+            image = null;
         }
-        image = null;
         staged = false;
     }
 

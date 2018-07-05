@@ -39,6 +39,8 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -48,7 +50,6 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.ui.actions.OtherPrecipOptions;
@@ -73,23 +74,24 @@ import com.vividsolutions.jts.geom.Polygon;
  * May 02, 2013 15970      snaples     Updated setColor to use the correct color.
  * Aug 01, 2014 3471       mapeters    Updated deprecated createShadedShape() calls.
  * Aug 13, 2014 3492       mapeters    Updated deprecated createWireframeShape() calls.
+ * Sep 14, 2016 3241       bsteffen    Update deprecated JTSCompiler method calls
+ * Feb 28, 2017 6157       bkowal      No longer alter the data when legend filtering
+ *                                     is enabled.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
-
-public class PlotMeanAreaPrecipResource extends
-        AbstractVizResource<AbstractResourceData, MapDescriptor> implements
-        IMpeResource {
+public class PlotMeanAreaPrecipResource
+        extends AbstractVizResource<AbstractResourceData, MapDescriptor>
+        implements IMpeResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotMeanAreaPrecipResource.class);
 
     private DailyQcUtils dqc = DailyQcUtils.getInstance();
-    
+
     private DrawDQCStations ddq = DrawDQCStations.getInstance();
-    
+
     MPEDisplayManager displayMgr = null;
 
     int first = 1;
@@ -125,24 +127,15 @@ public class PlotMeanAreaPrecipResource extends
 
     GeometryFactory jtsGeometryFactory;
 
-    Hrap_Grid hrap_grid = dqc.getHrap_grid();
-
-//    Pcp pcp = DailyQcUtils.pcp;
-
-//    Pcp spf = DailyQcUtils.spf;
-
-//    Pcp tpf = DailyQcUtils.tpf;
+    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
 
     public void plot_mean_areal_precip(int num) {
-
         double[][] dqc_precip_delim = ddq.dqc_precip_delim;
         int dqc_precip_numcol = 0;
         Maps mean_areal_precip_global[] = dqc.mean_areal_precip_global;
-//        int pcp_in_use[] = DailyQcUtils.pcp_in_use;
         int pcpn_time_step = MPEDisplayManager.pcpn_time_step;
         int rsmode = OtherPrecipOptions.rsmode;
         boolean wfo_all = dqc.wfo_all;
-//        int[] wfo_in_use = DailyQcUtils.wfo_in_use;
         CreateMap cm = new CreateMap();
 
         double mapvalue;
@@ -229,7 +222,7 @@ public class PlotMeanAreaPrecipResource extends
         outlineShape = target.createWireframeShape(false, descriptor);
 
         shadedShape = target.createShadedShape(false,
-                descriptor.getGridGeometry(), true);
+                descriptor.getGridGeometry());
 
         JTSCompiler jtsCompiler = new JTSCompiler(shadedShape, outlineShape,
                 descriptor);
@@ -242,13 +235,15 @@ public class PlotMeanAreaPrecipResource extends
                 i1 = 0;
             }
 
-            if (dqc.pcp_in_use[num + 100] != -1 && dqc.pcp_in_use[num + 100 - i1] != -1) {
+            if (dqc.pcp_in_use[num + 100] != -1
+                    && dqc.pcp_in_use[num + 100 - i1] != -1) {
                 cm.read_file(file, num + 100, dqc.spf);
                 cm.read_file(file, num + 100 - i1, dqc.pcp);
 
                 for (i = 0; i < hrap_grid.maxi - hrap_grid.hrap_minx; i++) {
                     for (j = 0; j < hrap_grid.maxj - hrap_grid.hrap_miny; j++) {
-                        dqc.spf.value[i][j] = (dqc.spf.value[i][j] + dqc.pcp.value[i][j]) / 2;
+                        dqc.spf.value[i][j] = (dqc.spf.value[i][j]
+                                + dqc.pcp.value[i][j]) / 2;
                     }
                 }
             } else if (dqc.pcp_in_use[num + 100] == 1) {
@@ -316,18 +311,22 @@ public class PlotMeanAreaPrecipResource extends
                     && (rsmode == 1)) {
                 mapvalue = lz;
 
-                /* If the value is smaller than 0, then do not draw this basin. */
+                /*
+                 * If the value is smaller than 0, then do not draw this basin.
+                 */
                 if (mapvalue < 0) {
                     continue;
                 }
 
                 color = setColor(mapvalue);
+                JTSGeometryData jtsData = jtsCompiler.createGeometryData();
+                jtsData.setGeometryColor(color);
 
                 /* Draw a filled basin. */
                 LinearRing lr = jtsGeometryFactory.createLinearRing(points);
                 Polygon pg = jtsGeometryFactory.createPolygon(lr, null);
                 try {
-                    jtsCompiler.handle(pg, color);
+                    jtsCompiler.handle(pg, jtsData);
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error reprojecting MAP outline", e);
@@ -380,24 +379,14 @@ public class PlotMeanAreaPrecipResource extends
                 ix = x - minx;
                 iy = y - miny;
 
-                if (ix < 0 || iy < 0 || ix >= maxx - minx || iy >= maxy - miny) {
+                if (ix < 0 || iy < 0 || ix >= maxx - minx
+                        || iy >= maxy - miny) {
                     /* The HRAP grid cell is out of range. Don't draw it. */
                     continue;
                 }
 
                 if (rsmode == 1) {
                     for (k = 0; k < dqc_precip_numcol - 1; k++) {
-                        if (MPELegendResource.dVal != 0) {
-                            if (MPELegendResource.up == true) {
-                                if (mapvalue >= MPELegendResource.dVal) {
-                                    mapvalue = (float) MPELegendResource.dVal;
-                                }
-                            } else {
-                                if (mapvalue < MPELegendResource.dVal) {
-                                    continue;
-                                }
-                            }
-                        }
                         if (mapvalue >= dqc_precip_delim[kscale][k]
                                 && mapvalue < dqc_precip_delim[kscale][k + 1]) {
                             color = convertC(colorMap.getColors().get(k));
@@ -408,23 +397,11 @@ public class PlotMeanAreaPrecipResource extends
                         continue;
 
                     } else if (k == (dqc_precip_numcol - 1)) {
-                        color = convertC(colorMap.getColors().get(
-                                dqc_precip_numcol - 1));
+                        color = convertC(colorMap.getColors()
+                                .get(dqc_precip_numcol - 1));
                     }
                 } else {
                     for (k = 0; k < 4; k++) {
-                        if (MPELegendResource.dVal != 0) {
-                            if (MPELegendResource.up == true) {
-                                if (mapvalue >= MPELegendResource.dVal) {
-                                    mapvalue = (float) MPELegendResource.dVal;
-                                }
-                            } else {
-                                if (mapvalue < MPELegendResource.dVal) {
-                                    continue;
-                                }
-                            }
-                        }
-
                         if (mapvalue >= dqc_precip_delim[kscale][k]
                                 && mapvalue < dqc_precip_delim[kscale][k + 1]) {
                             color = convertC(colorMap.getColors().get(k));
@@ -448,11 +425,11 @@ public class PlotMeanAreaPrecipResource extends
                     }
                 }
 
-                if (rsmode != 1
-                        && (dqc.pcp_in_use[100 + num] == 1 || dqc.pcp_in_use[100 + num
-                                - i1] == 1)) {
+                if (rsmode != 1 && (dqc.pcp_in_use[100 + num] == 1
+                        || dqc.pcp_in_use[100 + num - i1] == 1)) {
 
-                    if ((dqc.spf.value[ix][iy] * 10 - dqc.dmvalue < hrap_grid.elev[ix][iy])
+                    if ((dqc.spf.value[ix][iy] * 10
+                            - dqc.dmvalue < hrap_grid.elev[ix][iy])
                             && dqc.spf.value[ix][iy] >= 0) {
                         color = convertC(colorMap.getColors().get(k + 5));
                     }
@@ -495,8 +472,11 @@ public class PlotMeanAreaPrecipResource extends
                 LinearRing lr = jtsGeometryFactory.createLinearRing(PolyPoints);
                 Polygon pg = jtsGeometryFactory.createPolygon(lr, null);
 
+                JTSGeometryData jtsData = jtsCompiler.createGeometryData();
+                jtsData.setGeometryColor(color);
+
                 try {
-                    jtsCompiler.handle(pg, color);
+                    jtsCompiler.handle(pg, jtsData);
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error reprojecting MAP basin outline", e);
@@ -553,19 +533,19 @@ public class PlotMeanAreaPrecipResource extends
             // Adjusted the index value of the color returned, was
             // returning one level higher than value should have.
             if (value == entry.getDisplayValue()) {
-            	if (i == 0){
-                gcol = convertC(colorMap.getColors().get(i));
-            	} else {
-            		gcol = convertC(colorMap.getColors().get(i - 1));
-            	}
+                if (i == 0) {
+                    gcol = convertC(colorMap.getColors().get(i));
+                } else {
+                    gcol = convertC(colorMap.getColors().get(i - 1));
+                }
                 break;
             } else if (value < entry.getDisplayValue()) {
-            	if (i == 0){
+                if (i == 0) {
                     gcol = convertC(colorMap.getColors().get(i));
-                	} else {
-                		gcol = convertC(colorMap.getColors().get(i - 1));
-                	}
-            	break;
+                } else {
+                    gcol = convertC(colorMap.getColors().get(i - 1));
+                }
+                break;
             }
             i++;
         }
@@ -610,11 +590,6 @@ public class PlotMeanAreaPrecipResource extends
         plot_mean_areal_precip(time_pos);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         if (ddq.qcmode == "") {

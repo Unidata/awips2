@@ -33,9 +33,9 @@ import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.core.rsc.groups.BlendedResource;
 import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
 import com.raytheon.viz.awipstools.ui.layer.RangeRingsOverlayLayer;
-import com.raytheon.viz.core.rsc.BlendedResource;
 
 /**
  * A resource with this capability can have a range rings layer overlayed on it.
@@ -49,6 +49,7 @@ import com.raytheon.viz.core.rsc.BlendedResource;
  *                                      for radius in km and miles and
  *                                      labels for elevation in ftMSL and
  *                                      kmAgl.
+ *  10-28-17     DR 20316  D. Friemdan  Refresh on change.
  * 
  * </pre>
  * 
@@ -116,6 +117,7 @@ public class RangeRingsOverlayCapability extends AbstractCapability implements
         } else {
             isLayerPainted = true;
         }
+        resource.issueRefresh();
     }
 
     @Override

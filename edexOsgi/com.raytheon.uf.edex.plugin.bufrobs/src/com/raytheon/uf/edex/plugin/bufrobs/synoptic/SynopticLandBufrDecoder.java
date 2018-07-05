@@ -24,14 +24,12 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.raytheon.edex.plugin.sfcobs.SfcObsPointDataTransform;
-import com.raytheon.uf.common.dataplugin.PluginException;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
 import com.raytheon.uf.common.nc.bufr.BufrParser;
 import com.raytheon.uf.common.nc.bufr.util.BufrMapper;
 import com.raytheon.uf.common.pointdata.PointDataView;
 import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
-import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.decodertools.core.IDecoderConstants;
 import com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrSfcObsDecoder;
@@ -54,15 +52,15 @@ import com.vividsolutions.jts.geom.Point;
  * Jun 12, 2014 3229       bclement     moved location fields to parent class
  *                                      moved processGeneralFields() and processPrecip() to parent class
  *                                      override parent createStationId(), removed getTranslationFile() override
+ * Sep 11, 2017 6406       bsteffen     Upgrade ucar
  * 
  * </pre>
  * 
  * @author bclement
- * @version 1.0
  */
 public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
 
-    public static final Set<String> SUB_STRUCT_FIELDS = new HashSet<String>(
+    protected static final Set<String> SUB_STRUCT_FIELDS = new HashSet<>(
             Arrays.asList(SfcObsPointDataTransform.WIND_GUST));
 
     public static final String SYNOPTIC_LAND_NAMESPACE = "synoptic_land";
@@ -75,29 +73,13 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
 
     public static final String PRECIP_FIELD = "precip";
 
-    public static final String PRECIP_TIME_PERIOD_FIELD = "Time period or displacement";
-
     private final ObStationDao stationDao = new ObStationDao();
 
-    /**
-     * @param pluginName
-     * @throws BufrObsDecodeException
-     * @throws PluginException
-     * @throws SerializationException
-     */
     public SynopticLandBufrDecoder(String pluginName)
             throws BufrObsDecodeException {
         super(pluginName);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrObsDecoder#processField
-     * (com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon,
-     * com.raytheon.uf.common.nc.bufr.BufrParser, int)
-     */
     @Override
     protected void processField(ObsCommon record, BufrParser parser)
             throws BufrObsDecodeException {
@@ -113,14 +95,15 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
             if (level == 1) {
                 /* process top level fields */
                 if (DEFAULT_LOCATION_FIELDS.contains(baseName)) {
-                    processLocationField(record.getLocation(), parser, baseName);
+                    processLocationField(record.getLocation(), parser,
+                            baseName);
                 } else {
                     processGeneralFields(record, parser, baseName);
                 }
             } else if (level > 1) {
                 /* process substructure fields */
                 if (PRECIP_FIELD.equalsIgnoreCase(baseName)) {
-                    processPrecip(record, parser, PRECIP_TIME_PERIOD_FIELD);
+                    processPrecip(record, parser);
                 } else if (SUB_STRUCT_FIELDS.contains(baseName)) {
                     processGeneralFields(record, parser, baseName);
                 }
@@ -128,13 +111,6 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrSfcObsDecoder#createStationId
-     * (com.raytheon.uf.common.nc.bufr.BufrParser)
-     */
     @Override
     protected String createStationId(BufrParser parser)
             throws BufrObsDecodeException {
@@ -155,14 +131,6 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
         return String.format(WMO_INDEX_FORMAT, block, id);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrSfcObsDecoder#finalizeRecord
-     * (com.raytheon.uf.common.nc.bufr.BufrParser,
-     * com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon)
-     */
     @Override
     protected ObsCommon finalizeRecord(BufrParser parser, ObsCommon record)
             throws BufrObsDecodeException {
@@ -215,7 +183,8 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
                     + parser.getFile());
             try {
                 Integer type = ObStation.CAT_TYPE_SFC_FXD;
-                if (record.getReportType() == IDecoderConstants.SYNOPTIC_MOBILE_LAND) {
+                if (record
+                        .getReportType() == IDecoderConstants.SYNOPTIC_MOBILE_LAND) {
                     type = ObStation.CAT_TYPE_SFC_MOB;
                 }
                 String gid = ObStation.createGID(type, stationId);
@@ -238,25 +207,11 @@ public class SynopticLandBufrDecoder extends AbstractBufrSfcObsDecoder {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrObsDecoder#getAliasMapFile
-     * ()
-     */
     @Override
     protected String getAliasMapFile() {
         return ALIAS_FILE_NAME;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.edex.plugin.bufrobs.AbstractBufrObsDecoder#getCategoryFile
-     * ()
-     */
     @Override
     protected String getCategoryFile() {
         return CATEGORY_FILE_NAME;

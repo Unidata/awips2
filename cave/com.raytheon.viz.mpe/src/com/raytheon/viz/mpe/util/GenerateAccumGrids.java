@@ -20,8 +20,6 @@
 package com.raytheon.viz.mpe.util;
 
 import java.awt.Rectangle;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -49,16 +47,16 @@ import com.raytheon.uf.common.xmrg.XmrgFile;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 26, 2011            snaples     Initial creation
+ * Mar 23, 2017 6145       bkowal      Fix file name pattern-based determination.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class GenerateAccumGrids {
     AppsDefaults appsDefaults = AppsDefaults.getInstance();
-    
+
     DailyQcUtils dqc = DailyQcUtils.getInstance();
 
     String qpe_files_dir = appsDefaults.getToken("rfcwide_xmrg_dir");
@@ -78,8 +76,6 @@ public class GenerateAccumGrids {
     private static final SimpleDateFormat yyyyMMddHH = new SimpleDateFormat(
             "yyyyMMddHH");
 
-//    Hrap_Grid hrap_grid = DailyQcUtils.getHrap_grid();
-
     int grid_xor = dqc.getHrap_grid().hrap_minx;
 
     int grid_yor = dqc.getHrap_grid().hrap_miny;
@@ -88,9 +84,6 @@ public class GenerateAccumGrids {
 
     int grid_maxy = dqc.getHrap_grid().maxj;
 
-    // int maxx = grid_maxx - grid_xor;
-
-    // int maxy = grid_maxy - grid_yor;
     static {
         yyyyMMddHH.setTimeZone(TimeZone.getTimeZone("GMT"));
         MMddyyyyHH.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -109,20 +102,14 @@ public class GenerateAccumGrids {
         Date endTimeTemp = new Date(dqc.btime.getTimeInMillis());
         obsdate = new Date[qcDays + 1];
         ColorMapParameters cmc = new ColorMapParameters();
-        // if not empty clear them
-        // if (DailyQcUtils.QPEaccum24hr != null) {
         dqc.QPEaccum24hr = new double[qcDays][grid_maxy][grid_maxx];
-        // }
         Unit<?> displayUnit = Unit.ONE;
         Unit<?> dataUnit = Unit.ONE;
         displayUnit = NonSI.INCH;
         dataUnit = SI.MILLIMETER.divide(100);
         cmc.setDisplayUnit(displayUnit);
         cmc.setDataUnit(dataUnit);
-        // if not initialized, clear and initialize array
-        // if (DailyQcUtils.QPEgrid1hr != null) {
         dqc.QPEgrid1hr = new short[grid_maxy][grid_maxx];
-        // }
         for (int i = 0; i < grid_maxy; i++) {
             for (int j = 0; j < grid_maxx; j++) {
                 dqc.QPEgrid1hr[i][j] = (short) dqc.MOSAIC_DEFAULT;
@@ -188,17 +175,14 @@ public class GenerateAccumGrids {
                                 f = (float) cmc.getDataToDisplayConverter()
                                         .convert(s);
                             }
-                            float aa = (float) ((Math.floor((int) (f * 100))) / 100.0);
-                            if (dqc.QPEaccum24hr[j][i][k] < 0
-                                    && s >= 0) {
+                            float aa = (float) ((Math.floor((int) (f * 100)))
+                                    / 100.0);
+                            if (dqc.QPEaccum24hr[j][i][k] < 0 && s >= 0) {
                                 dqc.QPEaccum24hr[j][i][k] = aa;
                             } else if (dqc.QPEaccum24hr[j][i][k] >= 0
                                     && s > 0) {
                                 dqc.QPEaccum24hr[j][i][k] += aa;
                             }
-                            // DailyQcUtils.QPEaccum24hr[j][i][k] =
-                            // DailyQcUtils.QPEaccum24hr[j][i][k]
-                            // + aa;
                         }
                     }
 
@@ -243,13 +227,16 @@ public class GenerateAccumGrids {
         String qpe_filename;
         Date ts = kal.getTime();
         if (date_form.charAt(0) == 'm') {
-            qpe_filename = FileUtil.join(qpe_files_dir + "/", "xmrg"
-                    + MMddyyyyHH.format(ts) + "z");
-
-            // qpe_filename = String.format("%s/xmrg%s%s%s%02dz", qpe_files_dir,
-            // MMddyyyyHH.format(ts));
+            qpe_filename = FileUtil.join(qpe_files_dir + "/",
+                    "xmrg" + MMddyyyyHH.format(ts) + "z");
         } else {
-            qpe_filename = String.format("%s/xmrg%s%s%s%02dz", qpe_files_dir,
+            /*
+             * Change was necessary just to load the QC Precipitation data when
+             * Post Analysis is enabled. Change does make sense because only two
+             * arguments are being specified for the format String. The previous
+             * format was probably valid before the use of Java date formatting.
+             */
+            qpe_filename = String.format("%s/xmrg%s02dz", qpe_files_dir,
                     yyyyMMddHH.format(ts));
         }
 
@@ -258,11 +245,7 @@ public class GenerateAccumGrids {
             xmrg.load();
             Rectangle extent = xmrg.getHrapExtent();
             dqc.QPEgrid1hr = xmrg.getData(extent);
-        } catch (FileNotFoundException e) {
-            System.out.println("xmrg file not found: " + qpe_filename);
-
-        } catch (IOException e) {
-            // TODO Auto-generated catch block. Please revise as appropriate.
+        } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
             return 1;
         }

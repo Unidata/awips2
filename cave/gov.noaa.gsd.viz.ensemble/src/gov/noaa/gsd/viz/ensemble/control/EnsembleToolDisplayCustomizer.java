@@ -1,7 +1,5 @@
 package gov.noaa.gsd.viz.ensemble.control;
 
-import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +18,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceList.RemoveListener;
 import com.raytheon.uf.viz.core.rsc.capabilities.EditableCapability;
 import com.raytheon.viz.ui.perspectives.IRenderableDisplayCustomizer;
 
+import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
+
 /**
  * The ensemble tool renderable display customizer classes contain the event
  * handlers that keeps track of when new displays are created or removed, and
@@ -37,7 +37,8 @@ import com.raytheon.viz.ui.perspectives.IRenderableDisplayCustomizer;
  * 
  * Date         Ticket#    Engineer          Description
  * ------------ ---------- -----------    --------------------------
- * Dec 9, 2014    5056    epolster jing      Initial creation
+ * Dec 9, 2014    5056     polster jing      Initial creation
+ * Dec 1, 2017    41520    polster           Fixed approach to ingest registration
  * 
  * </pre>
  * 
@@ -45,8 +46,8 @@ import com.raytheon.viz.ui.perspectives.IRenderableDisplayCustomizer;
  * @author jing
  * @version 1.0
  */
-public class EnsembleToolDisplayCustomizer implements
-        IRenderableDisplayCustomizer {
+public class EnsembleToolDisplayCustomizer
+        implements IRenderableDisplayCustomizer {
 
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(EnsembleToolDisplayCustomizer.class);
@@ -99,8 +100,8 @@ public class EnsembleToolDisplayCustomizer implements
         }
     }
 
-    private static class EnsembleToolRscLoadListener implements AddListener,
-            RemoveListener, IInitListener {
+    private static class EnsembleToolRscLoadListener
+            implements AddListener, RemoveListener, IInitListener {
 
         // the display we are listening to
         private final IRenderableDisplay display;
@@ -144,11 +145,12 @@ public class EnsembleToolDisplayCustomizer implements
         @Override
         public void notifyAdd(ResourcePair rp) throws VizException {
 
-            EnsembleToolLayer toolLayer = EnsembleResourceManager
+            EnsembleToolLayer toolLayer = EnsembleTool
                     .getToolLayer(rp.getResource());
             if (toolLayer != null && toolLayer.isEditable()) {
 
-                if ((rp.getResource().hasCapability(EditableCapability.class) == true)
+                if ((rp.getResource()
+                        .hasCapability(EditableCapability.class) == true)
                         && (!(rp.getResource() instanceof EnsembleToolLayer))) {
                     EnsembleTool.getInstance().setForeignEditableToolLoading();
                 }
@@ -156,19 +158,17 @@ public class EnsembleToolDisplayCustomizer implements
                 AbstractVizResource<?, ?> rsc = rp.getResource();
                 if ((rsc != null) && (toolLayer.isResourceCompatible(rp))) {
 
-                    /**
-                     * TODO: This needs to be controlled/vetted by the tool
-                     * layer
+                    /*
+                     * TODO: Is this going to catch every resource or can one
+                     * slip through the cracks?
                      */
-                    if (toolLayer.getToolMode() == EnsembleTool.EnsembleToolMode.MATRIX) {
-                        rsc.getProperties().setVisible(false);
+                    if (rsc.getStatus() == ResourceStatus.INITIALIZED) {
+                        EnsembleResourceIngester.getInstance()
+                                .addResourceForRegistration(rsc);
+                    } else {
+                        rsc.registerListener(this);
                     }
 
-                    rsc.registerListener(this);
-                    if (rsc.getStatus() == ResourceStatus.INITIALIZED) {
-                        EnsembleResourceManager.getInstance()
-                                .addResourceForRegistration(rsc);
-                    }
                 }
             }
         }
@@ -183,7 +183,7 @@ public class EnsembleToolDisplayCustomizer implements
         @Override
         public synchronized void inited(AbstractVizResource<?, ?> rsc) {
             if (rsc != null) {
-                EnsembleResourceManager.getInstance()
+                EnsembleResourceIngester.getInstance()
                         .addResourceForRegistration(rsc);
             }
         }

@@ -21,7 +21,6 @@ AutoReq: no
 Provides: awips2-gfesuite
 Requires: awips2-python-numpy
 Requires: awips2-java
-Requires: awips2-cave
 Requires: xorg-x11-server-Xvfb
 
 BuildRequires: awips2-ant

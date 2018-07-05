@@ -1,6 +1,5 @@
 package com.raytheon.uf.common.dataplugin.shef.tables;
 
-
 import java.io.Serializable;
 import java.util.Date;
 import javax.persistence.Column;
@@ -10,13 +9,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * 
+ * Id for DAA Radar Result.
  * 
  * 
  * <pre>
@@ -25,18 +22,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/22/2014   Redmine #3454 (A2 14.3.1) new dualpol-related table ID
+ * 09/21/2016   5631       bkowal      Remove ISerializableObject.
  * 
  * </pre>
  * 
  * @author OHD
- * @version 1.1
  */
 
 @Embeddable
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class DAARadarResultId extends PersistableDataObject implements Serializable, ISerializableObject {
+public class DAARadarResultId implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -83,13 +80,14 @@ public class DAARadarResultId extends PersistableDataObject implements Serializa
             return false;
         DAARadarResultId castOther = (DAARadarResultId) other;
 
-        return ((this.getRadid() == castOther.getRadid()) || (this.getRadid() != null
-                && castOther.getRadid() != null && this.getRadid().equals(
-                castOther.getRadid())))
-                && ((this.getObstime() == castOther.getObstime()) || (this
-                        .getObstime() != null
-                        && castOther.getObstime() != null && this.getObstime()
-                        .equals(castOther.getObstime())));
+        return ((this.getRadid() == castOther.getRadid())
+                || (this.getRadid() != null && castOther.getRadid() != null
+                        && this.getRadid().equals(castOther.getRadid())))
+                && ((this.getObstime() == castOther.getObstime())
+                        || (this.getObstime() != null
+                                && castOther.getObstime() != null
+                                && this.getObstime()
+                                        .equals(castOther.getObstime())));
     }
 
     public int hashCode() {
@@ -103,4 +101,3 @@ public class DAARadarResultId extends PersistableDataObject implements Serializa
     }
 
 }
-

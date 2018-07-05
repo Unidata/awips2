@@ -33,6 +33,7 @@ import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.dataplugin.shef.data.ObsHqlConstants;
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Oct 07, 2013       2361     njensen Removed XML annotations
  * May 23, 2016       5590     bkowal  Cleanup.
  * Jun 24, 2016       5699     bkowal  Defined the observation retrieval named queries.
+ * Dec 18, 2017       6554     bkowal  Implemented {@link ICheckValue}.
  * 
  * </pre>
  * 
@@ -67,7 +69,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Table(name = "agricultural")
 @DynamicSerialize
 public class Agricultural extends PersistableDataObject<AgriculturalId>
-        implements Serializable {
+        implements Serializable, ICheckValue {
 
     private static final String ORDER_BY_HQL = " ORDER BY o.id.lid, o.id.pe, o.id.obstime ASC";
 
@@ -250,4 +252,12 @@ public class Agricultural extends PersistableDataObject<AgriculturalId>
         this.postingtime = postingtime;
     }
 
+    @Transient
+    @Override
+    public String getCompareValue() {
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
+    }
 }

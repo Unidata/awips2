@@ -32,10 +32,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Shell;
@@ -63,6 +63,7 @@ import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
+import com.raytheon.uf.common.protectedfiles.ProtectedFileLookup;
 import com.raytheon.uf.common.python.concurrent.IPythonExecutor;
 import com.raytheon.uf.common.python.concurrent.IPythonJobListener;
 import com.raytheon.uf.common.python.concurrent.PythonInterpreterFactory;
@@ -118,16 +119,17 @@ import com.vividsolutions.jts.geom.Envelope;
  * Dec 14, 2015       4816  dgilling    Support refactored PythonJobCoordinator API.
  * Jun 30, 2016      #5723  dgilling    Move safety check from saveRefSet to 
  *                                      IFPClient.saveReferenceData.
+ * Jun 14, 2017       6297  bsteffen    Make listeners thread safe.
+ * Aug 07, 2017       6379  njensen     Use ProtectedFileLookup
  * 
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
 public class ReferenceSetManager implements IReferenceSetManager,
         IMessageClient, ISpatialEditorTimeChangedListener {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ReferenceSetManager.class);
 
     private static final String QUERY_THREAD_POOL_NAME = "gfequeryscript";
@@ -220,11 +222,11 @@ public class ReferenceSetManager implements IReferenceSetManager,
                         Shell shell = window.getShell();
 
                         if (state == 0) {
-                            shell.setCursor(shell.getDisplay().getSystemCursor(
-                                    SWT.CURSOR_WAIT));
+                            shell.setCursor(shell.getDisplay()
+                                    .getSystemCursor(SWT.CURSOR_WAIT));
                         } else {
-                            shell.setCursor(shell.getDisplay().getSystemCursor(
-                                    SWT.CURSOR_ARROW));
+                            shell.setCursor(shell.getDisplay()
+                                    .getSystemCursor(SWT.CURSOR_ARROW));
                         }
                     }
                 }
@@ -268,30 +270,27 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         // update the available sets and send notifications
         if (!refIDs.equals(availableSets)) {
-            List<ReferenceID> additions = new ArrayList<ReferenceID>(refIDs);
+            List<ReferenceID> additions = new ArrayList<>(refIDs);
             additions.removeAll(availableSets);
 
-            List<ReferenceID> deletions = new ArrayList<ReferenceID>(
-                    availableSets);
+            List<ReferenceID> deletions = new ArrayList<>(availableSets);
             deletions.removeAll(refIDs);
 
             availableSets = refIDs;
 
-            sendReferenceSetInvChanged(getAvailableSets(), additions,
-                    deletions, new ArrayList<ReferenceID>());
+            sendReferenceSetInvChanged(getAvailableSets(), additions, deletions,
+                    new ArrayList<ReferenceID>());
         }
         checkGroupConsistency();
     }
 
-    /**
-     * @param lf
-     */
     private void loadGroup(LocalizationFile lf) {
-        String groupName = LocalizationUtil.extractName(lf.getPath()).replace(
-                ".txt", "");
-        GroupID group = new GroupID(groupName, lf.isProtected(), lf
-                .getContext().getLocalizationLevel());
-        if (group.equals("Misc")) {
+        String groupName = LocalizationUtil.extractName(lf.getPath())
+                .replace(".txt", "");
+        GroupID group = new GroupID(groupName,
+                ProtectedFileLookup.isProtected(lf),
+                lf.getContext().getLocalizationLevel());
+        if ("Misc".equals(group)) {
             statusHandler.handle(Priority.EVENTA,
                     "\"Misc\" is a reserved group name. Please rename or delete this group file: "
                             + lf);
@@ -312,13 +311,13 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         List<String> groupList = groupMap.get(group.getName());
         if (groupList == null) {
-            groupList = new ArrayList<String>();
+            groupList = new ArrayList<>();
             groupMap.put(group.getName(), groupList);
         }
         groupList.clear();
 
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(
-                lf.openInputStream()))) {
+        try (BufferedReader in = new BufferedReader(
+                new InputStreamReader(lf.openInputStream()))) {
             String s = in.readLine();
             int count = Integer.parseInt(s);
             for (int i = 0; i < count; i++) {
@@ -326,17 +325,11 @@ public class ReferenceSetManager implements IReferenceSetManager,
                 groupList.add(area);
             }
         } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, "Error reading group file: "
-                    + lf.toString(), e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error reading group file: " + lf, e);
         }
     }
 
-    /**
-     * @param inventory
-     * @param additions
-     * @param deletions
-     * @param changes
-     */
     private void sendReferenceSetInvChanged(List<ReferenceID> inventory,
             List<ReferenceID> additions, List<ReferenceID> deletions,
             List<ReferenceID> changes) {
@@ -346,16 +339,11 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IReferenceSetManager#getGroupInventory()
-     */
     @Override
     public List<String> getGroupInventory() {
         // Return the list of Edit Area groups
 
-        ArrayList<String> groupInv = new ArrayList<String>();
+        ArrayList<String> groupInv = new ArrayList<>();
         for (String group : groupMap.keySet()) {
             groupInv.add(group);
         }
@@ -364,21 +352,14 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return groupInv;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IReferenceSetManager#getGroupData(java.lang
-     * .String)
-     */
     @Override
     public List<String> getGroupData(final String groupName) {
-        if (groupName.equals("Misc")) {
+        if ("Misc".equals(groupName)) {
             return getMisc();
         }
 
         List<String> groupList = groupMap.get(groupName);
-        ArrayList<String> areas = new ArrayList<String>();
+        List<String> areas = new ArrayList<>();
         if (groupList != null) {
             areas.addAll(groupList);
             Collections.sort(areas);
@@ -400,16 +381,16 @@ public class ReferenceSetManager implements IReferenceSetManager,
         // Return a list of areas that are not in any group
 
         // Make list of group lists
-        List<List<String>> groupLists = new ArrayList<List<String>>();
+        List<List<String>> groupLists = new ArrayList<>();
         List<String> groupNames = getGroupInventory();
         for (String groupName : groupNames) {
-            if (!groupName.equals("Misc")) {
+            if (!"Misc".equals(groupName)) {
                 groupLists.add(getGroupData(groupName));
             }
         }
 
         // Check each area to be in group
-        List<String> areas = new ArrayList<String>();
+        List<String> areas = new ArrayList<>();
         for (ReferenceID id : getAvailableSets()) {
             String areaName = id.getName();
             boolean areaFound = false;
@@ -429,11 +410,11 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     @Override
     public void saveGroup(String groupName, List<String> areaNames) {
-        statusHandler.handle(Priority.VERBOSE, "Save Edit Area Group: "
-                + groupName + " areas:" + areaNames);
-        if (groupName.isEmpty() || groupName.equals("Misc")) {
-            statusHandler.handle(Priority.PROBLEM, "GroupName \"" + groupName
-                    + "\" is an invalid name");
+        statusHandler.handle(Priority.VERBOSE,
+                "Save Edit Area Group: " + groupName + " areas:" + areaNames);
+        if (groupName.isEmpty() || "Misc".equals(groupName)) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "GroupName \"" + groupName + "\" is an invalid name");
         }
         IPathManager pm = PathManagerFactory.getPathManager();
 
@@ -445,8 +426,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         // write out the local file
         try (SaveableOutputStream lfOut = lf.openOutputStream();
-                BufferedWriter out = new BufferedWriter(new OutputStreamWriter(
-                        lfOut))) {
+                BufferedWriter out = new BufferedWriter(
+                        new OutputStreamWriter(lfOut))) {
             out.write(Integer.toString(areaNames.size()));
             out.write('\n');
             for (String name : areaNames) {
@@ -475,7 +456,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         } catch (LocalizationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to delete edit area group " + groupName
-                            + " from server.", e);
+                            + " from server.",
+                    e);
         }
     }
 
@@ -489,7 +471,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         // Check that all areas listed within a group exist
         // If not, remove them from the group
         List<ReferenceID> availSets = getAvailableSets();
-        List<String> setNames = new ArrayList<String>();
+        List<String> setNames = new ArrayList<>();
         for (ReferenceID id : availSets) {
             setNames.add(id.getName());
         }
@@ -501,7 +483,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         for (String group : groupInv) {
             List<String> areas = this.groupMap.get(group);
             boolean changedFlag = false;
-            List<String> newAreas = new ArrayList<String>();
+            List<String> newAreas = new ArrayList<>();
             for (String area : areas) {
                 if (setNames.contains(area)) {
                     newAreas.add(area);
@@ -525,7 +507,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
      * @param changes
      */
     private void updateCache(final List<ReferenceID> additions,
-            final List<ReferenceID> deletions, final List<ReferenceID> changes) {
+            final List<ReferenceID> deletions,
+            final List<ReferenceID> changes) {
 
         // remove any deletions and changes from the cache.
         for (ReferenceID del : deletions) {
@@ -557,8 +540,9 @@ public class ReferenceSetManager implements IReferenceSetManager,
         // MessageClient("ReferenceSetMgr", msgHandler);
         this.dataManager = dataManager;
 
-        EMPTY = new ReferenceData(dataManager.getParmManager()
-                .compositeGridLocation(), new ReferenceID("empty"), null,
+        EMPTY = new ReferenceData(
+                dataManager.getParmManager().compositeGridLocation(),
+                new ReferenceID("empty"), null,
                 ReferenceData.CoordinateType.GRID);
         EMPTY.getGrid();
 
@@ -570,20 +554,20 @@ public class ReferenceSetManager implements IReferenceSetManager,
         activeRefSet = EMPTY;
         prevRefSet = EMPTY;
 
-        refDataCache = new HashMap<String, WeakReference<ReferenceData>>();
+        refDataCache = new HashMap<>();
 
-        refSetInvChangedListeners = new HashSet<IReferenceSetInvChangedListener>();
+        refSetInvChangedListeners = new CopyOnWriteArraySet<>();
 
-        refSetChangedListeners = new HashSet<IReferenceSetChangedListener>();
+        refSetChangedListeners = new CopyOnWriteArraySet<>();
 
-        refSetChangedIDListeners = new HashSet<IReferenceSetIDChangedListener>();
+        refSetChangedIDListeners = new CopyOnWriteArraySet<>();
 
-        editAreaGroupInvChangedListeners = new HashSet<IEditAreaGroupInvChangedListener>();
+        editAreaGroupInvChangedListeners = new CopyOnWriteArraySet<>();
 
         // Get the inventory of Reference sets
-        availableSets = new ArrayList<ReferenceID>();
-        groupMap = new HashMap<String, List<String>>();
-        groupIdList = new ArrayList<GroupID>();
+        availableSets = new ArrayList<>();
+        groupMap = new HashMap<>();
+        groupIdList = new ArrayList<>();
         getInventory();
 
         editAreaObserver = new ILocalizationFileObserver() {
@@ -596,8 +580,9 @@ public class ReferenceSetManager implements IReferenceSetManager,
         };
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        editAreaDir = pathMgr.getLocalizationFile(pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
+        editAreaDir = pathMgr.getLocalizationFile(
+                pathMgr.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.BASE),
                 EDIT_AREAS_DIR);
         editAreaDir.addFileUpdatedObserver(editAreaObserver);
 
@@ -610,12 +595,13 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         };
 
-        editAreaGroupDir = pathMgr.getLocalizationFile(pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE),
+        editAreaGroupDir = pathMgr.getLocalizationFile(
+                pathMgr.getContext(LocalizationType.COMMON_STATIC,
+                        LocalizationLevel.BASE),
                 EDIT_AREA_GROUPS_DIR);
         editAreaGroupDir.addFileUpdatedObserver(editAreaGroupObserver);
 
-        historyStack = new ArrayList<String>(STACK_LIMIT);
+        historyStack = new ArrayList<>(STACK_LIMIT);
 
         this.dataManager.getSpatialDisplayManager()
                 .addSpatialEditorTimeChangedListener(this);
@@ -628,8 +614,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
                 @Override
                 public void run() {
-                    final ICommandService service = (ICommandService) PlatformUI
-                            .getWorkbench().getService(ICommandService.class);
+                    final ICommandService service = PlatformUI.getWorkbench()
+                            .getService(ICommandService.class);
 
                     service.refreshElements(
                             "com.raytheon.viz.gfe.actions.quickSet", null);
@@ -649,27 +635,15 @@ public class ReferenceSetManager implements IReferenceSetManager,
         coordinator.shutdown();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#getActiveRefSet()
-     */
     @Override
     public ReferenceData getActiveRefSet() {
         return new ReferenceData(activeRefSet);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#setActiveRefSet
-     * (com.raytheon.edex.plugin.gfe.reference.ReferenceData)
-     */
     @Override
     public void setActiveRefSet(final ReferenceData refData) {
-        refData.getGrid(); // force it to a grid
+        // force it to a grid
+        refData.getGrid();
 
         // statusHandler.handle(Priority.VERBOSE, "PrevActiveSet = "
         // + activeRefSet.getId());
@@ -686,7 +660,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
 
         // Find the domains that are affected by the change
-        ArrayList<Envelope> domains = new ArrayList<Envelope>(
+        ArrayList<Envelope> domains = new ArrayList<>(
                 prevRefSet.getDomains(CoordinateType.LATLON));
         domains.addAll(activeRefSet.getDomains(CoordinateType.LATLON));
 
@@ -701,46 +675,21 @@ public class ReferenceSetManager implements IReferenceSetManager,
         // "NewActiveSet = " + activeRefSet.getId());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#getAvailableSets
-     * ()
-     */
     @Override
     public List<ReferenceID> getAvailableSets() {
         return Collections.unmodifiableList(availableSets);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#emptyRefSet()
-     */
     @Override
     public ReferenceData emptyRefSet() {
         return EMPTY;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#fullRefSet()
-     */
     @Override
     public ReferenceData fullRefSet() {
         return FULL;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#loadRefSet(com
-     * .raytheon.edex.plugin.gfe.reference.ReferenceID)
-     */
     @Override
     public ReferenceData loadRefSet(final ReferenceID refSetID) {
         // statusHandler.debug("LoadRefSet: " + refSetID);
@@ -774,7 +723,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
             // add to cache
             refDataCache.put(refData.getId().getName(),
-                    new WeakReference<ReferenceData>(refData));
+                    new WeakReference<>(refData));
         }
         return refData;
     }
@@ -788,20 +737,13 @@ public class ReferenceSetManager implements IReferenceSetManager,
      */
     @Override
     public List<ReferenceData> getReferenceData(List<ReferenceID> need) {
-        List<ReferenceData> refData = new ArrayList<ReferenceData>();
+        List<ReferenceData> refData = new ArrayList<>();
         for (int i = 0; i < need.size(); i++) {
             refData.add(loadRefSet(need.get(i)));
         }
         return refData;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#saveActiveRefSet
-     * (com.raytheon.edex.plugin.gfe.reference.ReferenceID)
-     */
     @Override
     public boolean saveActiveRefSet(final ReferenceID refID) {
         statusHandler.handle(Priority.VERBOSE, "saveActiveRefSet req=" + refID);
@@ -815,30 +757,20 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return saveRefSet(activeRefSet);
     }
 
-    /**
-     * @param refID
-     */
     private void sendReferenceSetIDChanged(final ReferenceID refID) {
         for (IReferenceSetIDChangedListener listener : refSetChangedIDListeners) {
             listener.referenceSetIDChanged(refID);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#saveRefSet(com
-     * .raytheon.edex.plugin.gfe.reference.ReferenceData)
-     */
     @Override
     public boolean saveRefSet(final ReferenceData orefData) {
         statusHandler.handle(Priority.VERBOSE,
                 "SaveRefSet id=" + orefData.getId());
 
         ReferenceData refData = new ReferenceData(orefData);
-        ServerResponse<?> sr = dataManager.getClient().saveReferenceData(
-                Arrays.asList(refData));
+        ServerResponse<?> sr = dataManager.getClient()
+                .saveReferenceData(Arrays.asList(refData));
         if (!sr.isOkay()) {
             statusHandler.error(String.format(
                     "UNable to save ReferenceData: %s with IFPServer: %s",
@@ -848,22 +780,15 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
         // cache it temporarily
         refDataCache.put(refData.getId().getName(),
-                new WeakReference<ReferenceData>(refData));
+                new WeakReference<>(refData));
 
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#deleteRefSet(
-     * com.raytheon.edex.plugin.gfe.reference.ReferenceID)
-     */
     @Override
     public boolean deleteRefSet(final ReferenceID refID) {
-        ServerResponse<?> sr = dataManager.getClient().deleteReferenceData(
-                Arrays.asList(refID));
+        ServerResponse<?> sr = dataManager.getClient()
+                .deleteReferenceData(Arrays.asList(refID));
         if (!sr.isOkay()) {
             statusHandler.error(String.format(
                     "Unable to delete ReferenceData: %s with IFPServer: %s",
@@ -874,11 +799,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#undoRefSet()
-     */
     @Override
     public void undoRefSet() {
         ReferenceData newRefSet = prevRefSet;
@@ -904,18 +824,18 @@ public class ReferenceSetManager implements IReferenceSetManager,
     private void networkNotification(final List<ReferenceID> additions,
             final List<ReferenceID> deletions, final List<ReferenceID> changes,
             boolean bypassActiveCheck) {
-        statusHandler.handle(Priority.VERBOSE, "NetworkNotify: oldInv="
-                + availableSets);
-        statusHandler.handle(Priority.VERBOSE, "NetworkNotify: additions="
-                + additions);
-        statusHandler.handle(Priority.VERBOSE, "NetworkNotify: deletions="
-                + deletions);
-        statusHandler.handle(Priority.VERBOSE, "NetworkNotify: changes="
-                + changes);
+        statusHandler.handle(Priority.VERBOSE,
+                "NetworkNotify: oldInv=" + availableSets);
+        statusHandler.handle(Priority.VERBOSE,
+                "NetworkNotify: additions=" + additions);
+        statusHandler.handle(Priority.VERBOSE,
+                "NetworkNotify: deletions=" + deletions);
+        statusHandler.handle(Priority.VERBOSE,
+                "NetworkNotify: changes=" + changes);
         statusHandler.handle(Priority.VERBOSE,
                 "ActiveSet = " + activeRefSet.getId());
-        statusHandler.handle(Priority.VERBOSE, "BypassActiveCheck = "
-                + bypassActiveCheck);
+        statusHandler.handle(Priority.VERBOSE,
+                "BypassActiveCheck = " + bypassActiveCheck);
 
         // update the inventory
         availableSets.removeAll(deletions);
@@ -959,8 +879,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
 
         // inventory changed?
-        if ((additions.size() > 0) || (deletions.size() > 0)
-                || (changes.size() > 0)) {
+        if ((!additions.isEmpty()) || (!deletions.isEmpty())
+                || (!changes.isEmpty())) {
             sendReferenceSetInvChanged(availableSets, additions, deletions,
                     changes);
             checkGroupConsistency();
@@ -972,8 +892,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
             @Override
             public void run() {
                 if (PlatformUI.isWorkbenchRunning()) {
-                    final ICommandService service = (ICommandService) PlatformUI
-                            .getWorkbench().getService(ICommandService.class);
+                    final ICommandService service = PlatformUI.getWorkbench()
+                            .getService(ICommandService.class);
 
                     service.refreshElements(
                             "com.raytheon.viz.gfe.actions.quickSet", null);
@@ -982,13 +902,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#taperGrid(com
-     * .raytheon.edex.plugin.gfe.reference.ReferenceData, int)
-     */
     @Override
     public Grid2DFloat taperGrid(final ReferenceData refData, int taperFactor) {
         // Make a grid of zeros
@@ -999,8 +912,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         boolean pointyTaper = false;
         if (taperFactor == 0) {
             pointyTaper = true;
-            taperFactor = (dim.x + dim.y) * 10; // just a large
-            // number
+            // just a large number
+            taperFactor = (dim.x + dim.y) * 10;
         }
 
         // Get the Grid2DBit
@@ -1023,8 +936,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
                     continue;
                 }
                 minDist = taperFactor;
-                for (d = 0; d < dirs.length; d++) // look in all directions
-                {
+                // look in all directions
+                for (d = 0; d < dirs.length; d++) {
                     loc.x = i + dirs[d].x;
                     loc.y = j + dirs[d].y;
                     dist = 1;
@@ -1040,12 +953,14 @@ public class ReferenceSetManager implements IReferenceSetManager,
                         if (dist >= minDist) {
                             break;
                         }
-                        loc.translate(dirs[d].x, dirs[d].y); // inc. location
-                        dist++; // inc dist
+                        // inc. location
+                        loc.translate(dirs[d].x, dirs[d].y);
+                        // inc dist
+                        dist++;
                     }
                 }
-                grid.set(i, j, (float) minDist / (float) taperFactor); // calc
-                // value
+                // calc value
+                grid.set(i, j, (float) minDist / (float) taperFactor);
                 if (minDist > maxDist) {
                     maxDist = minDist;
                 }
@@ -1064,13 +979,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return grid;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#directionTaperGrid
-     * (com.raytheon.edex.plugin.gfe.reference.ReferenceData, java.lang.String)
-     */
     @Override
     public Grid2DFloat directionTaperGrid(final ReferenceData refData,
             final String direction) {
@@ -1103,8 +1011,10 @@ public class ReferenceSetManager implements IReferenceSetManager,
             }
         }
 
-        Point v = new Point(i, j); // primary direction
-        Point av = new Point(-i, -j); // opposite direction
+        // primary direction
+        Point v = new Point(i, j);
+        // opposite direction
+        Point av = new Point(-i, -j);
         Grid2DBit bitGrid = refData.getGrid();
 
         Point dim = refData.getGloc().gridSize();
@@ -1145,13 +1055,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return grid;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#siteGridpoints
-     * (java.lang.String[], boolean)
-     */
     @Override
     public Grid2DBit siteGridpoints(final List<String> sites,
             boolean includeOwnSite) {
@@ -1186,13 +1089,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return out;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#mySiteGridpoints
-     * ()
-     */
     @Override
     public Grid2DBit mySiteGridpoints() {
         return siteGridpoints(Arrays.asList(dataManager.getSiteID()), true);
@@ -1212,46 +1108,21 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return currentNumber;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#toString()
-     */
     @Override
     public String toString() {
         return "--- ReferenceSetMgr ---";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.internal.IReferenceSetManager#getMode()
-     */
     @Override
     public RefSetMode getMode() {
         return mode;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.internal.IReferenceSetManager#setMode(com.raytheon
-     * .viz.gfe.core.internal.ReferenceSetManager.RefSetMode)
-     */
     @Override
     public void setMode(RefSetMode mode) {
         this.mode = mode;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IReferenceSetManager#incomingRefSet(com.raytheon
-     * .edex.plugin.gfe.reference.ReferenceData,
-     * com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode)
-     */
     @Override
     public void incomingRefSet(ReferenceData refData, final RefSetMode mode) {
         // Evaluate the Incoming refData if necessary
@@ -1279,10 +1150,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
     }
 
-    /**
-     * @param ref
-     * @param mode
-     */
     private void setRefSet(ReferenceData ref, RefSetMode mode) {
         mode = determineMode(mode);
         // Incorporate the Incoming refData
@@ -1307,10 +1174,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         setActiveRefSet(active);
     }
 
-    /**
-     * @param mode
-     * @return
-     */
     private RefSetMode determineMode(RefSetMode mode) {
         // Determine the mode to use for an incoming Reference Set
         // The mode defines whether the incoming refData replaces,
@@ -1330,21 +1193,11 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return mode;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IReferenceSetManager#clearRefSet()
-     */
     @Override
     public void clearRefSet() {
         incomingRefSet(emptyRefSet(), RefSetMode.REPLACE);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IReferenceSetManager#toggleRefSet()
-     */
     @Override
     public void toggleRefSet() {
         ReferenceData rs = new ReferenceData(getActiveRefSet());
@@ -1352,115 +1205,54 @@ public class ReferenceSetManager implements IReferenceSetManager,
         incomingRefSet(rs, RefSetMode.REPLACE);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
-     * addReferenceSetInvChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener)
-     */
     @Override
     public void addReferenceSetInvChangedListener(
             IReferenceSetInvChangedListener listener) {
         refSetInvChangedListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
-     * removeReferenceSetInvChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IReferenceSetInvChangedListener)
-     */
     @Override
     public void removeReferenceSetInvChangedListener(
             IReferenceSetInvChangedListener listener) {
         refSetInvChangedListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.IReferenceSetManager#addReferenceSetChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IReferenceSetChangedListener)
-     */
     @Override
     public void addReferenceSetChangedListener(
             IReferenceSetChangedListener listener) {
         refSetChangedListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
-     * removeReferenceSetChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IReferenceSetChangedListener)
-     */
     @Override
     public void removeReferenceSetChangedListener(
             IReferenceSetChangedListener listener) {
         refSetChangedListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
-     * addReferenceSetIDChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IReferenceSetIDChangedListener)
-     */
     @Override
     public void addReferenceSetIDChangedListener(
             IReferenceSetIDChangedListener listener) {
         refSetChangedIDListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
-     * removeReferenceSetIDChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IReferenceSetIDChangedListener)
-     */
     @Override
     public void removeReferenceSetIDChangedListener(
             IReferenceSetIDChangedListener listener) {
         refSetChangedIDListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
-     * addEditAreaGroupInvChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IEditAreaGroupInvChangedListener)
-     */
     @Override
     public void addEditAreaGroupInvChangedListener(
             IEditAreaGroupInvChangedListener listener) {
         editAreaGroupInvChangedListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.IReferenceSetManager#
-     * removeEditAreaGroupInvChangedListener
-     * (com.raytheon.viz.gfe.core.msgs.IEditAreaGroupInvChangedListener)
-     */
     @Override
     public void removeEditAreaGroupInvChangedListener(
             IEditAreaGroupInvChangedListener listener) {
         editAreaGroupInvChangedListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IReferenceSetManager#handleQuickSet(int)
-     */
     @Override
     public void handleQuickSet(int button) {
         switch (quickSetMode) {
@@ -1476,10 +1268,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
     }
 
-    /**
-     * @param slot
-     * @return the quickset area
-     */
     @Override
     public ReferenceData getQuickSet(int slot) {
         // Return the ReferenceData contents of the given quickSet button
@@ -1494,9 +1282,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return result;
     }
 
-    /**
-     * @param button
-     */
     private void setQuickSet(int button) {
         // Make a copy of the activeRefSet to store in quickset Button
         // Then save the quickset
@@ -1507,21 +1292,12 @@ public class ReferenceSetManager implements IReferenceSetManager,
         saveRefSet(refData);
     }
 
-    /**
-     * @param button
-     * @return
-     */
     private ReferenceID getQuickID(int button) {
         ReferenceID id = new ReferenceID("QuickSet" + button, true,
                 LocalizationLevel.UNKNOWN);
         return id;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IReferenceSetManager#toggleQuickSetMode()
-     */
     @Override
     public void toggleQuickSetMode() {
         switch (quickSetMode) {
@@ -1536,18 +1312,13 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
 
         // update button state
-        final ICommandService service = (ICommandService) PlatformUI
-                .getWorkbench().getService(ICommandService.class);
+        final ICommandService service = PlatformUI.getWorkbench()
+                .getService(ICommandService.class);
 
         service.refreshElements("com.raytheon.viz.gfe.actions.quickSetMode",
                 null);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.IReferenceSetManager#getQuickSetMode()
-     */
     @Override
     public QuickSetMode getQuickSetMode() {
         return quickSetMode;
@@ -1560,12 +1331,12 @@ public class ReferenceSetManager implements IReferenceSetManager,
         if (pos >= 0) {
             name = name.substring(pos + 1);
         }
-        ReferenceID refId = new ReferenceID(name, false, message.getContext()
-                .getLocalizationLevel());
+        ReferenceID refId = new ReferenceID(name, false,
+                message.getContext().getLocalizationLevel());
 
-        List<ReferenceID> additions = new ArrayList<ReferenceID>();
-        List<ReferenceID> deletions = new ArrayList<ReferenceID>();
-        List<ReferenceID> changes = new ArrayList<ReferenceID>();
+        List<ReferenceID> additions = new ArrayList<>();
+        List<ReferenceID> deletions = new ArrayList<>();
+        List<ReferenceID> changes = new ArrayList<>();
 
         switch (message.getChangeType()) {
         case ADDED:
@@ -1578,8 +1349,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
             break;
         case DELETED:
             // check to see if there is a file at another localization level
-            String filePath = FileUtil.join(EDIT_AREAS_DIR, refId.getName()
-                    + ".xml");
+            String filePath = FileUtil.join(EDIT_AREAS_DIR,
+                    refId.getName() + ".xml");
             LocalizationFile lf = PathManagerFactory.getPathManager()
                     .getStaticLocalizationFile(LocalizationType.COMMON_STATIC,
                             filePath);
@@ -1592,8 +1363,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
             break;
 
         default:
-            statusHandler.error("Unknown FileChangeType: "
-                    + message.getChangeType());
+            statusHandler.error(
+                    "Unknown FileChangeType: " + message.getChangeType());
             break;
         }
 
@@ -1641,7 +1412,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     private void evaluateQuery(String query,
             IPythonJobListener<ReferenceData> listener) {
-        Map<String, Object> argMap = new HashMap<String, Object>();
+        Map<String, Object> argMap = new HashMap<>();
 
         argMap.put("expression", query);
 
@@ -1665,7 +1436,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
     public ReferenceData evaluateQuery(String query) {
         ReferenceData ea = null;
 
-        Map<String, Object> argMap = new HashMap<String, Object>();
+        Map<String, Object> argMap = new HashMap<>();
         argMap.put("expression", query);
 
         IPythonExecutor<QueryScript, ReferenceData> executor = new QueryScriptExecutor(
@@ -1673,8 +1444,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         try {
             ea = coordinator.submitJob(executor).get();
         } catch (Exception e) {
-            statusHandler.handle(Priority.ERROR, "Failed to evaluate query: "
-                    + query, e);
+            statusHandler.handle(Priority.ERROR,
+                    "Failed to evaluate query: " + query, e);
         }
 
         return ea;
@@ -1682,7 +1453,7 @@ public class ReferenceSetManager implements IReferenceSetManager,
 
     @Override
     public boolean willRecurse(String name, String query) {
-        Map<String, Object> argMap = new HashMap<String, Object>();
+        Map<String, Object> argMap = new HashMap<>();
         argMap.put("name", name);
         argMap.put("str", query);
         IPythonExecutor<QueryScript, Integer> executor = new QueryScriptRecurseExecutor(
@@ -1698,7 +1469,8 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return result != 0;
     }
 
-    private void evaluateActiveRefSet(IPythonJobListener<ReferenceData> listener) {
+    private void evaluateActiveRefSet(
+            IPythonJobListener<ReferenceData> listener) {
         ReferenceData active = getActiveRefSet();
         if (active.isQuery()) {
             // Re-evaluate the activeRefSet
@@ -1710,13 +1482,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.Message.IMessageClient#receiveMessage(
-     * com.raytheon.viz.gfe.core.msgs.Message)
-     */
     @Override
     public void receiveMessage(final Message message) {
         IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {
@@ -1765,12 +1530,6 @@ public class ReferenceSetManager implements IReferenceSetManager,
         return Collections.unmodifiableList(historyStack);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.msgs.ISpatialEditorTimeChangedListener#
-     * spatialEditorTimeChanged(java.util.Date)
-     */
     @Override
     public void spatialEditorTimeChanged(Date date) {
         IPythonJobListener<ReferenceData> listener = new IPythonJobListener<ReferenceData>() {

@@ -17,6 +17,11 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 ########################################################################
 # Hazard_NPW.py
 #
@@ -87,7 +92,7 @@ class TextProduct(GenericHazards.TextProduct):
     def allowedHazards(self):
         allActions = ["NEW", "EXA", "EXB", "EXT", "CAN", "CON", "EXP"]
         return [
-            ('DS.W', allActions, 'Dust'),         # DUST STORM WARNING
+            ('DU.W', allActions, 'Dust'),         # DUST STORM WARNING
             ('DU.Y', allActions, 'Dust'),         # BLOWING DUST ADVISORY
             ('EC.W', allActions, 'Cold'),         # EXTREME COLD WARNING
             ('EC.A', allActions, 'Cold'),         # EXTREME COLD WATCH
@@ -123,7 +128,6 @@ class TextProduct(GenericHazards.TextProduct):
         "WI" : ("Timing,Winds,Impacts"),            ## Wind Advisory
         "HW" : ("Timing,Winds,Impacts"),            ## High Wind
         "DU" : ("Timing,Winds,Visibility,Impacts"), ## Blowing Dust
-        "DS" : ("Timing,Winds,Visibility,Impacts"), ## Dust Storm
         "FG" : ("Visibility,Impacts"),              ## Dense Fog
         "FZ" : ("Temperature,Impacts"),             ## Freeze
         "AF" : ("Ash info,Impacts"),                ## Ashfall

@@ -2,11 +2,16 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Hydrocommon Plug-in
 Bundle-SymbolicName: com.raytheon.viz.hydrocommon;singleton:=true
-Bundle-Version: 1.14.1.qualifier
+Bundle-Version: 1.17.0.qualifier
 Bundle-Vendor: Raytheon
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: org.eclipse.core.runtime,
- com.raytheon.viz.core,
+ com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
+ com.raytheon.uf.viz.core;bundle-version="1.16.0",
+ com.raytheon.uf.common.datastorage;bundle-version="1.15.2",
+ com.raytheon.uf.common.util;bundle-version="1.15.0",
+ com.raytheon.uf.common.geospatial;bundle-version="1.15.1",
+ javax.measure;bundle-version="1.0.0",
  com.raytheon.viz.ui,
  com.raytheon.uf.common.hydro;bundle-version="1.0.0",
  com.raytheon.uf.common.colormap;bundle-version="1.11.13",
@@ -15,7 +20,8 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.datacube,
  com.raytheon.uf.viz.core.grid;bundle-version="1.15.0",
  com.raytheon.uf.common.xmrg;bundle-version="1.16.0",
- com.raytheon.uf.viz.core.maps
+ com.raytheon.uf.viz.core.maps,
+ com.raytheon.uf.common.mpe;bundle-version="1.15.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.hydrocommon,
  com.raytheon.viz.hydrocommon.actions,

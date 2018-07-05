@@ -18,10 +18,14 @@
 # further licensing information.
 ##
 
+##
+# This is a base file that is not intended to be overridden.
+##
 
-from java.util import ArrayList
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
-
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Gfe Task script 
@@ -36,33 +40,38 @@ from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 # 
 
 
+
+from java.util import ArrayList
+from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+
+
 class GfeTask():
 
-	def __init__(self, wsId, task):
-		self.wsId = wsId
-		self.task = task
-	
-	def addArgument(self, xml):
-		self.task.addXml(xml)
+    def __init__(self, wsId, task):
+        self.wsId = wsId
+        self.task = task
 
-	def execute(self):
-		self.task.setWorkstationID(self.wsId)
-		
-		result = self.task.execute()
-		payload = result.getPayload()
-		messages = result.getMessages()
-		notifications = result.getNotifications()
-		response = ArrayList()
+    def addArgument(self, xml):
+        self.task.addXml(xml)
 
-		if payload is not None:
-			for i in range(payload.size()):				
-				response.add(ResponseMessageGeneric(payload.get(i)))
-	
-		for i in range(messages.size()):
-			response.add(ResponseMessageGeneric(messages.get(i)))
-			
-		for i in range(notifications.size()):
-			response.add(ResponseMessageGeneric(notifications.get(i)))		
-		
-		return response
-	
+    def execute(self):
+        self.task.setWorkstationID(self.wsId)
+
+        result = self.task.execute()
+        payload = result.getPayload()
+        messages = result.getMessages()
+        notifications = result.getNotifications()
+        response = ArrayList()
+
+        if payload is not None:
+            for i in range(payload.size()):                
+                response.add(ResponseMessageGeneric(payload.get(i)))
+
+        for i in range(messages.size()):
+            response.add(ResponseMessageGeneric(messages.get(i)))
+
+        for i in range(notifications.size()):
+            response.add(ResponseMessageGeneric(notifications.get(i)))        
+
+        return response
+    

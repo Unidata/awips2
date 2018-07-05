@@ -46,8 +46,8 @@ FAILOVER
 To promote a standby to master:
 
   1. Stop PostgreSQL on the master if it is running.
-  2. On the standby, create the file "/awips2/data/promote". The standby will
-     stop replication and recognize itself as the new master.
+  2. On the standby, create the file "/awips2/database/data/promote". The
+     standby will stop replication and recognize itself as the new master.
   3. On the old master and the other standbys, run setup-standby.sh with the
      hostname of the new master, to re-initialize them and start replicating
      from the new master.

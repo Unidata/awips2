@@ -18,20 +18,24 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter name="HI1 Index Assign" abbreviation="HI3" xmlns:ns2="group">
     <Method levels="Layer" name="Test">
-        <Field abbreviation="HI1"/>
-        <ConstantField value="1"/>
-        <ConstantField value="-1e37"/>
-        <ConstantField value="3.5"/>
-        <ConstantField value="1"/>
-        <ConstantField value="1"/>
-        <ConstantField value="3.0"/>
-        <ConstantField value="7.5"/>
-        <ConstantField value="2"/>
-        <ConstantField value="1"/>
-        <ConstantField value="7.0"/>
-        <ConstantField value="1e37"/>
-        <ConstantField value="3"/>
+        <Field abbreviation="HI1" />
+        <ConstantField value="1" />
+        <ConstantField value="-1e37" />
+        <ConstantField value="3.5" />
+        <ConstantField value="1" />
+        <ConstantField value="1" />
+        <ConstantField value="3.0" />
+        <ConstantField value="7.5" />
+        <ConstantField value="2" />
+        <ConstantField value="1" />
+        <ConstantField value="7.0" />
+        <ConstantField value="1e37" />
+        <ConstantField value="3" />
     </Method>
 </DerivedParameter>

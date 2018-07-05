@@ -11,5 +11,5 @@ Require-Bundle: com.raytheon.uf.common.serialization,
  javax.persistence,
  javax.measure,
  com.raytheon.uf.common.dataplugin
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

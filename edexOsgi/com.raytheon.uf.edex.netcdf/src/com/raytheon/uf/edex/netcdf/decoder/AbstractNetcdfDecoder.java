@@ -79,6 +79,7 @@ import com.raytheon.uf.edex.netcdf.description.product.NetcdfProductDescriptions
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * May 19, 2016  5584     nabowle  Initial creation
+ * July 5, 2018           mjames   Remove logger.info messages.
  *
  * </pre>
  *
@@ -623,8 +624,6 @@ public abstract class AbstractNetcdfDecoder {
                 this.localizationPath, new String[] { ".xml" }, true, true);
         List<NetcdfProductDescriptions> descriptions = new ArrayList<>();
         for (LocalizationFile file : files) {
-            logger.info("Loading netcdf product descriptions from "
-                    + file.getPath());
             try (InputStream inputStream = file.openInputStream()) {
                 NetcdfProductDescriptions unmarshalled = (NetcdfProductDescriptions) jaxb
                         .unmarshalFromInputStream(inputStream);

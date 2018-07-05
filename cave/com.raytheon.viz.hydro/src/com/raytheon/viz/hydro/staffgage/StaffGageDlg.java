@@ -52,8 +52,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 09 FEB 2011  4383       lbousaidi   changed createStaffGageData
  * 15 MAR 2013  1790       rferrel     Made dialog non-blocking.
  * 05 May 2016  5483       bkowal      Fix GUI sizing issues.
- * 
- * 
+ * 12 June 2017 20048      jingtaoD    Hydroview missing Moderate Flood Category
+ *
  * </pre>
  * 
  * @author lvenable
@@ -115,6 +115,13 @@ public class StaffGageDlg extends CaveSWTDialog {
     private Label majorCategoryStageLbl;
 
     private Label majorCategoryFlowLbl;
+
+    /*
+     * Moderate Category ? labels
+     */
+    private Label moderateCategoryStageLbl;
+
+    private Label moderateCategoryFlowLbl;
 
     /*
      * Minor Category ? labels
@@ -408,6 +415,22 @@ public class StaffGageDlg extends CaveSWTDialog {
         majorCategoryFlowLbl.setLayoutData(gd);
         majorCategoryFlowLbl.setAlignment(SWT.CENTER);
 
+        // Moderate Category
+        Label moderateCategoryHeaderLbl = new Label(rowsComp, SWT.NONE);
+        gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+        moderateCategoryHeaderLbl.setLayoutData(gd);
+        moderateCategoryHeaderLbl.setText("Moderate Category:");
+
+        moderateCategoryStageLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        moderateCategoryStageLbl.setLayoutData(gd);
+        moderateCategoryStageLbl.setAlignment(SWT.CENTER);
+
+        moderateCategoryFlowLbl = new Label(rowsComp, SWT.BORDER);
+        gd = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        moderateCategoryFlowLbl.setLayoutData(gd);
+        moderateCategoryFlowLbl.setAlignment(SWT.CENTER);
+
         // Minor Category
         Label minorCategoryHeaderLbl = new Label(rowsComp, SWT.NONE);
         gd = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
@@ -549,6 +572,8 @@ public class StaffGageDlg extends CaveSWTDialog {
         recordFlowLbl.setText(gageData.getRecordFlow());
         majorCategoryStageLbl.setText(gageData.getMajorCatStage());
         majorCategoryFlowLbl.setText(gageData.getMajorCatFlow());
+        moderateCategoryStageLbl.setText(gageData.getModCatStage());
+        moderateCategoryFlowLbl.setText(gageData.getModCatFlow());
         minorCategoryStageLbl.setText(gageData.getMinorCatStage());
         minorCategoryFlowLbl.setText(gageData.getMinorCatFlow());
         floodStageLbl.setText(gageData.getFloodStage());
@@ -597,7 +622,8 @@ public class StaffGageDlg extends CaveSWTDialog {
             gageData.setCounty(rdp.getCounty());
             gageData.setState(rdp.getState());
             if (rdp.getCrestTime() != null) {
-                gageData.setRecordDate(sdf.format(rdp.getCrestTime().getTime()));
+                gageData.setRecordDate(
+                        sdf.format(rdp.getCrestTime().getTime()));
             }
             if (rdp.getCrestValue() != HydroConstants.MISSING_VALUE) {
                 gageData.setRecordStage(df.format(rdp.getCrestValue()));

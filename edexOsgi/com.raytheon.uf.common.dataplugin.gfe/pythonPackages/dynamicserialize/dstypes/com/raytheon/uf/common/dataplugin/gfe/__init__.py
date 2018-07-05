@@ -23,6 +23,7 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06/22/2015       4573         randerso       Added svcbu package
+#    06/29/2018                    mjames@ucar    Removed svcbu package
 #
 ##    
 
@@ -35,7 +36,6 @@ __all__ = [
             'request',
             'server',
             'slice',
-            'svcbu',
             'weather'
           ]
 

@@ -73,7 +73,13 @@
 #               CWA.
 #  2004-06-20 - Version 1.1 - Modified to use modified ISC_Utility_Local
 #               routines to give discrepancies identical (close) to NDFD.
-#  
+# ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 # ----------------------------------------------------------------------------
 #  C O N F I G U R A T I O N   S E C T I O N
 #

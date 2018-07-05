@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -30,10 +30,7 @@ import java.util.TreeMap;
 import javax.xml.bind.JAXB;
 
 import org.eclipse.swt.graphics.RGB;
-import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GeneralGridGeometry;
-import org.geotools.geometry.GeneralEnvelope;
-import org.opengis.referencing.crs.ProjectedCRS;
 
 import com.raytheon.uf.common.dataplugin.HDF5Util;
 import com.raytheon.uf.common.dataplugin.radar.RadarDataKey;
@@ -43,6 +40,7 @@ import com.raytheon.uf.common.dataplugin.radar.level3.GraphicBlock;
 import com.raytheon.uf.common.dataplugin.radar.level3.Layer;
 import com.raytheon.uf.common.dataplugin.radar.level3.SymbologyPacket;
 import com.raytheon.uf.common.dataplugin.radar.util.RadarDataRetriever;
+import com.raytheon.uf.common.dataplugin.radar.util.RadarRecordUtil;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.localization.LocalizationFile;
@@ -60,21 +58,23 @@ import com.raytheon.viz.radar.util.GraphicDataUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * TODO Add Description
- * 
+ * Main class for displaying radar graphics products. Most of the actual drawing
+ * logic is in {@link RadarGraphicsPage}.
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 13, 2009            chammack     Initial creation
  * 03/04/2013   DCS51      zwang        Handle GFM product
  * Sep 03, 2014  3574      njensen      Properly dispose objects
- * 
+ * Aug 31, 2016  2671      tgurney      Factor out some logic to RadarRecordUtil
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 
 public class RadarGraphicsDisplay implements IRenderable {
@@ -87,30 +87,17 @@ public class RadarGraphicsDisplay implements IRenderable {
 
     private int currentPage;
 
-    /**
-     * The offset needed to bring the radar coordinate system into something
-     * geotools can handle
-     */
-    public static final int X_OFFSET = 2048;
-
-    /**
-     * The offset needed to bring the radar coordinate system into something
-     * geotools can handle
-     */
-    public static final int Y_OFFSET = 2048;
-
-    public RadarGraphicsDisplay(RadarRecord radarRecord,
-            IGraphicsTarget target, IMapDescriptor mapDescriptor,
-            Set<String> filteredStormIds, double magnification, RGB color)
-            throws VizException {
-        this.pageMap = new HashMap<Integer, RadarGraphicsPage>();
-        this.symbologyPages = new ArrayList<RadarGraphicsPage>();
+    public RadarGraphicsDisplay(RadarRecord radarRecord, IGraphicsTarget target,
+            IMapDescriptor mapDescriptor, Set<String> filteredStormIds,
+            double magnification, RGB color) throws VizException {
+        this.pageMap = new HashMap<>();
+        this.symbologyPages = new ArrayList<>();
         this.currentPage = 0;
 
         // Only retrieve if this record has not been retrieved.
-        if (((radarRecord.getSymbologyData() == null) || radarRecord
-                .getSymbologyData().isEmpty())
-                && (radarRecord.getGraphicBlock() == null)) {
+        if ((radarRecord.getSymbologyData() == null
+                || radarRecord.getSymbologyData().isEmpty())
+                && radarRecord.getGraphicBlock() == null) {
             File loc = HDF5Util.findHDF5Location(radarRecord);
 
             IDataStore dataStore = DataStoreFactory.getDataStore(loc);
@@ -121,34 +108,23 @@ public class RadarGraphicsDisplay implements IRenderable {
                 throw new VizException("Unable to retrieve radar graphics", e);
             }
         }
-
-        ProjectedCRS crs = radarRecord.getCRS();
-        GeneralEnvelope generalEnvelope = new GeneralEnvelope(2);
-        // Per section 3.3.3
-        generalEnvelope.setCoordinateReferenceSystem(crs);
-        generalEnvelope.setRange(0, -256000 * 2, 256000 * 2);
-        generalEnvelope.setRange(1, -256000 * 2, 256000 * 2);
-
-        // [-2048, 2048] == range of 4095 (inclusive 0), plus 1 because
-        // GGR is exclusive (?)
-        GeneralGridGeometry gg = new GeneralGridGeometry(
-                new GeneralGridEnvelope(new int[] { 0, 0 }, new int[] { 4096,
-                        4096 }, false), generalEnvelope);
+        GeneralGridGeometry gg = RadarRecordUtil
+                .getRadarGraphicsGridGeometry(radarRecord);
         IWireframeShape ws = target.createWireframeShape(true, mapDescriptor);
 
         // Used for GFM forecast positions
-        IWireframeShape gfmWs = target
-                .createWireframeShape(true, mapDescriptor);
+        IWireframeShape gfmWs = target.createWireframeShape(true,
+                mapDescriptor);
 
         symbologyData = radarRecord.getSymbologyData();
         if (symbologyData != null) {
-            RadarGraphicsPage rgp = new RadarGraphicsPage(mapDescriptor, gg,
-                    ws, gfmWs, target, color);
+            RadarGraphicsPage rgp = new RadarGraphicsPage(mapDescriptor, gg, ws,
+                    gfmWs, target, color);
 
             this.symbologyPages.add(rgp);
             // Determine if each set of Storm data should be displayed
             RadarDataPoint currStorm;
-            TreeMap<Integer, TreeMap<Integer, String>> tableData = new TreeMap<Integer, TreeMap<Integer, String>>(
+            TreeMap<Integer, TreeMap<Integer, String>> tableData = new TreeMap<>(
                     Collections.reverseOrder());
             String featureData = null;
             boolean processTableData = false;
@@ -183,7 +159,8 @@ public class RadarGraphicsDisplay implements IRenderable {
             int pageNum = 0;
             int currentNumRecords = 0;
             if (processTableData) {
-                for (TreeMap<Integer, String> strengthRank : tableData.values()) {
+                for (TreeMap<Integer, String> strengthRank : tableData
+                        .values()) {
                     for (String stormData : strengthRank.values()) {
                         this.currentPage = pageNum;
 
@@ -250,8 +227,7 @@ public class RadarGraphicsDisplay implements IRenderable {
             }
 
         }
-        if (((symbologyData == null) || symbologyData.isEmpty())
-                && (gb == null)) {
+        if ((symbologyData == null || symbologyData.isEmpty()) && gb == null) {
             String nullLegend = null;
             switch (radarRecord.getProductCode()) {
             case 139:
@@ -278,7 +254,7 @@ public class RadarGraphicsDisplay implements IRenderable {
     /**
      * This method adds data to a row in the table. This is currently tailored
      * to DMD.
-     * 
+     *
      * @param featureData
      *            Data to put in a new row in the table.
      */
@@ -297,13 +273,13 @@ public class RadarGraphicsDisplay implements IRenderable {
 
             String[] values = sortValues.trim().split("\\s+");
 
-            if ((values.length > 0) && (values[0].length() > 1)) {
+            if (values.length > 0 && values[0].length() > 1) {
                 try {
-                    strengthRank = Integer.parseInt(values[0].substring(1,
-                            values[0].length()));
+                    strengthRank = Integer.parseInt(
+                            values[0].substring(1, values[0].length()));
                 } catch (NumberFormatException e) {
-                    strengthRank = Integer.parseInt(values[0].substring(1,
-                            values[0].length() - 1));
+                    strengthRank = Integer.parseInt(
+                            values[0].substring(1, values[0].length() - 1));
                 }
             } else {
                 strengthRank = 0;
@@ -318,8 +294,7 @@ public class RadarGraphicsDisplay implements IRenderable {
         if (tableData.containsKey(strengthRank)) {
             secondLevel = tableData.get(strengthRank);
         } else {
-            secondLevel = new TreeMap<Integer, String>(
-                    Collections.reverseOrder());
+            secondLevel = new TreeMap<>(Collections.reverseOrder());
             tableData.put(strengthRank, secondLevel);
         }
 
@@ -354,18 +329,11 @@ public class RadarGraphicsDisplay implements IRenderable {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
-     * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-     */
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         synchronized (pageMap) {
-            if ((currentPage < 0) || (currentPage >= this.pageMap.size())) {
+            if (currentPage < 0 || currentPage >= this.pageMap.size()) {
                 return;
             }
 
@@ -413,8 +381,8 @@ public class RadarGraphicsDisplay implements IRenderable {
     private DmdModifier initializeDmdTablePreferences() {
         PathManager pm = (PathManager) PathManagerFactory.getPathManager();
 
-        LocalizationFile file = pm.getStaticLocalizationFile("styleRules"
-                + File.separator + "dmdModifier.xml");
+        LocalizationFile file = pm.getStaticLocalizationFile(
+                "styleRules" + File.separator + "dmdModifier.xml");
         if (file.exists()) {
             return JAXB.unmarshal(file.getFile(), DmdModifier.class);
         }

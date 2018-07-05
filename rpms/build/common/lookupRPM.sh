@@ -101,14 +101,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ncep-database"
       return 0
    fi
-   if [ "${1}" = "awips2-aviation-shared" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.aviation"
-      return 0
-   fi
-   if [ "${1}" = "awips2-cli" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.cli"
-      return 0
-   fi
    if [ "${1}" = "awips2-database" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.database"
       return 0
@@ -141,12 +133,8 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.common-base"
       return 0
    fi
-   if [ "${1}" = "awips2-rehost-support-postgresql" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.rehost-support"
-      return 0
-   fi
    if [ "${1}" = "awips2-tools" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.tools"
+      export RPM_SPECIFICATION="${installer_dir}/tools"
       return 0
    fi
    # FOSS RPMs
@@ -219,7 +207,7 @@ function lookupRPM()
       return 0
    fi
    if [ "${1}" = "awips2-localization" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/localization"
+      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.localization"
       return 0
    fi
    if [ "${1}" = "awips2-python-awips" ]; then

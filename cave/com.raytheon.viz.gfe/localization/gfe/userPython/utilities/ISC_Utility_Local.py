@@ -27,6 +27,12 @@
 #   Allows local overrides to configuration and routines in ISC_Utility
 #
 #-----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 import ISC_Utility
 import numpy
 import SmartScript

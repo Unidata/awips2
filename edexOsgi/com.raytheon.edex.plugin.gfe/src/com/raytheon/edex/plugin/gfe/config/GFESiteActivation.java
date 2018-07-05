@@ -19,6 +19,7 @@
  **/
 package com.raytheon.edex.plugin.gfe.config;
 
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.UnknownHostException;
@@ -30,7 +31,18 @@ import com.raytheon.edex.plugin.gfe.isc.IscServiceProvider;
 import com.raytheon.edex.plugin.gfe.server.IFPServer;
 import com.raytheon.edex.site.SiteUtil;
 import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteDefinition;
+import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
+import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
+import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherSubKey;
+import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
+import com.raytheon.uf.common.localization.IPathManager;
+import com.raytheon.uf.common.localization.LocalizationContext;
+import com.raytheon.uf.common.localization.LocalizationUtil;
+import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonEval;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONSTATUS;
 import com.raytheon.uf.common.site.notify.SiteActivationNotification.ACTIVATIONTYPE;
@@ -49,47 +61,55 @@ import com.raytheon.uf.edex.site.notify.SendSiteActivationNotifications;
 
 /**
  * Activates the GFE server capabilities for a site
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 9, 2009            njensen      Initial creation
- * Oct 26, 2010  #6811    jclark       changed listener type
- * Apr 06, 2012  #457     dgilling     Clear site's ISCSendRecords on
- *                                     site deactivation.
- * Jul 12, 2012  15162    ryu          added check for invalid db at activation
- * Dec 11, 2012  14360    ryu          log a clean message in case of
- *                                     missing configuration (no stack trace).
- * Feb 15, 2013  1638      mschenke    Moved sending of site notification messages to edex plugin
- * Feb 28, 2013  #1447    dgilling     Enable active table fetching on site
- *                                     activation.
- * Mar 20, 2013  #1774    randerso     Changed to use GFED2DDao
- * May 02, 2013  #1969    randerso     Moved updateDbs method into IFPGridDatabase
- * Jun 13, 2013  #2044    randerso     Refactored to use IFPServer
- * Oct 16, 2013  #2475    dgilling     Better error handling for IRT activation.
- * Mar 21, 2014  #2726    rjpeter      Updated wait for running loop.
- * May 15, 2014  #3157    dgilling     Mark getActiveSites() as deprecated.
- * Jul 09, 2014  #3146    randerso     Eliminated redundant evaluation of serverConfig
- *                                     Sent activation failure message to alertViz
- * Oct 07, 2014  #3684    randerso     Restructured IFPServer start up
- * Dec 10, 2014  #4953    randerso     Added requestTCVFiles call at site activation
- * Feb 25, 2015  #4128    dgilling     Simplify activation of active table sharing.
- * Mar 11, 2015  #4128    dgilling     Refactor activation and management of ISC services.
- * Dec 22, 2015  #4262    dgilling     Implement EdexAsyncStartupBean.
- * Dec 21, 2017           mjames@ucar  Cleaner activation messages.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jul 09, 2009           njensen   Initial creation
+ * Oct 26, 2010  6811     jclark    changed listener type
+ * Apr 06, 2012  457      dgilling  Clear site's ISCSendRecords on site
+ *                                  deactivation.
+ * Jul 12, 2012  15162    ryu       added check for invalid db at activation
+ * Dec 11, 2012  14360    ryu       log a clean message in case of missing
+ *                                  configuration (no stack trace).
+ * Feb 15, 2013  1638     mschenke  Moved sending of site notification messages
+ *                                  to edex plugin
+ * Feb 28, 2013  1447     dgilling  Enable active table fetching on site
+ *                                  activation.
+ * Mar 20, 2013  1774     randerso  Changed to use GFED2DDao
+ * May 02, 2013  1969     randerso  Moved updateDbs method into IFPGridDatabase
+ * Jun 13, 2013  2044     randerso  Refactored to use IFPServer
+ * Oct 16, 2013  2475     dgilling  Better error handling for IRT activation.
+ * Mar 21, 2014  2726     rjpeter   Updated wait for running loop.
+ * May 15, 2014  3157     dgilling  Mark getActiveSites() as deprecated.
+ * Jul 09, 2014  3146     randerso  Eliminated redundant evaluation of
+ *                                  serverConfig Sent activation failure message
+ *                                  to alertViz
+ * Oct 07, 2014  3684     randerso  Restructured IFPServer start up
+ * Dec 10, 2014  4953     randerso  Added requestTCVFiles call at site
+ *                                  activation
+ * Feb 25, 2015  4128     dgilling  Simplify activation of active table sharing.
+ * Mar 11, 2015  4128     dgilling  Refactor activation and management of ISC
+ *                                  services.
+ * Dec 22, 2015  4262     dgilling  Implement EdexAsyncStartupBean.
+ * Sep 12, 2016  5861     randerso  Remove references to IFPServerConfigManager
+ *                                  which was largely redundant with IFPServer.
+ *
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
-public class GFESiteActivation implements ISiteActivationListener,
-        EdexAsyncStartupBean {
+public class GFESiteActivation
+        implements ISiteActivationListener, EdexAsyncStartupBean {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFESiteActivation.class);
+
+    private static final String CONFIG_PATH = LocalizationUtil.join("gfe",
+            "config");
 
     protected static final String TASK_NAME = "GFESiteActivation";
 
@@ -112,7 +132,7 @@ public class GFESiteActivation implements ISiteActivationListener,
     /**
      * Builds a GFESiteActivation instance with an associated
      * {@code IscServiceProvider} instance. Should only be used on request JVM.
-     * 
+     *
      * @param iscServices
      *            {@code IscServiceProvider} instance
      */
@@ -135,9 +155,9 @@ public class GFESiteActivation implements ISiteActivationListener,
                         ACTIVATIONTYPE.ACTIVATE, ACTIVATIONSTATUS.BEGIN);
                 SendSiteActivationNotifications.send(notification);
             } catch (EdexException e) {
-                statusHandler
-                        .error("Error sending site activation begin notification message!",
-                                e);
+                statusHandler.error(
+                        "Error sending site activation begin notification message!",
+                        e);
             }
 
         }
@@ -151,11 +171,10 @@ public class GFESiteActivation implements ISiteActivationListener,
                         SiteUtil.getSite(), siteID, "gfe",
                         ACTIVATIONTYPE.ACTIVATE, ACTIVATIONSTATUS.SUCCESS);
                 SendSiteActivationNotifications.send(notification);
-                IFPServerConfigManager.addActiveSite(siteID);
             } catch (EdexException e) {
-                statusHandler
-                        .error("Error sending site activation complete notification message!",
-                                e);
+                statusHandler.error(
+                        "Error sending site activation complete notification message!",
+                        e);
             }
         }
     }
@@ -167,11 +186,10 @@ public class GFESiteActivation implements ISiteActivationListener,
                         SiteUtil.getSite(), siteID, "gfe",
                         ACTIVATIONTYPE.ACTIVATE, ACTIVATIONSTATUS.FAILURE);
                 SendSiteActivationNotifications.send(notification);
-                IFPServerConfigManager.removeActiveSite(siteID);
             } catch (Exception e) {
-                statusHandler
-                        .error("Error sending site activation failed notification message!",
-                                e);
+                statusHandler.error(
+                        "Error sending site activation failed notification message!",
+                        e);
             }
         }
     }
@@ -184,9 +202,9 @@ public class GFESiteActivation implements ISiteActivationListener,
                         ACTIVATIONTYPE.DEACTIVATE, ACTIVATIONSTATUS.BEGIN);
                 SendSiteActivationNotifications.send(notification);
             } catch (Exception e) {
-                statusHandler
-                        .error("Error sending site deactivation begin notification message!",
-                                e);
+                statusHandler.error(
+                        "Error sending site deactivation begin notification message!",
+                        e);
             }
 
         }
@@ -200,9 +218,9 @@ public class GFESiteActivation implements ISiteActivationListener,
                         ACTIVATIONTYPE.DEACTIVATE, ACTIVATIONSTATUS.SUCCESS);
                 SendSiteActivationNotifications.send(notification);
             } catch (Exception e) {
-                statusHandler
-                        .error("Error sending site deactivation complete notification message!",
-                                e);
+                statusHandler.error(
+                        "Error sending site deactivation complete notification message!",
+                        e);
             }
         }
     }
@@ -214,11 +232,10 @@ public class GFESiteActivation implements ISiteActivationListener,
                         SiteUtil.getSite(), siteID, "gfe",
                         ACTIVATIONTYPE.DEACTIVATE, ACTIVATIONSTATUS.FAILURE);
                 SendSiteActivationNotifications.send(notification);
-                IFPServerConfigManager.addActiveSite(siteID);
             } catch (Exception e) {
-                statusHandler
-                        .error("Error sending site deactivation failed notification message!",
-                                e);
+                statusHandler.error(
+                        "Error sending site deactivation failed notification message!",
+                        e);
             }
         }
     }
@@ -226,7 +243,7 @@ public class GFESiteActivation implements ISiteActivationListener,
     /**
      * Activates a site by reading its server config and generating maps, topo,
      * and text products for the site
-     * 
+     *
      * @param siteID
      */
     @Override
@@ -234,8 +251,8 @@ public class GFESiteActivation implements ISiteActivationListener,
 
         sendActivationBeginNotification(siteID);
         if (getActiveSites().contains(siteID)) {
-            statusHandler.handle(Priority.EVENTB, "Site " + siteID
-                    + " is already activated.");
+            statusHandler.handle(Priority.EVENTB,
+                    "Site " + siteID + " is already activated.");
             sendActivationCompleteNotification(siteID);
             return;
         }
@@ -265,11 +282,96 @@ public class GFESiteActivation implements ISiteActivationListener,
     }
 
     /**
+     * Initializes a site's serverConfig by reading in the site's localConfig
+     *
+     * @param siteID
+     *            the site
+     * @return the site's configuration
+     * @throws GfeConfigurationException
+     */
+    private static IFPServerConfig initializeSite(String siteID)
+            throws GfeConfigurationException {
+        IFPServerConfig siteConfig = null;
+        siteConfig = initializeConfig(siteID);
+
+        WxDefinition wxDef = siteConfig.getWxDefinition();
+        WeatherSubKey.setWxDefinition(siteID, wxDef);
+
+        DiscreteDefinition dxDef = siteConfig.getDiscreteDefinition();
+        DiscreteKey.setDiscreteDefinition(siteID, dxDef);
+
+        return siteConfig;
+    }
+
+    /**
+     * Initialize an IFPServerConfig object for a site
+     *
+     * @param siteID
+     *            the desired site
+     * @return the IFPServerConfig object
+     * @throws GfeConfigurationException
+     */
+    private static IFPServerConfig initializeConfig(String siteID)
+            throws GfeConfigurationException {
+        String baseDir = "";
+        String siteDir = "";
+        IFPServerConfig siteConfig = null;
+
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext baseCtx = pathMgr.getContext(
+                LocalizationContext.LocalizationType.COMMON_STATIC,
+                LocalizationContext.LocalizationLevel.BASE);
+        LocalizationContext siteCtx = pathMgr.getContextForSite(
+                LocalizationContext.LocalizationType.COMMON_STATIC, siteID);
+
+        baseDir = pathMgr.getFile(baseCtx, CONFIG_PATH).getPath();
+        File siteDirFile = pathMgr.getFile(siteCtx, CONFIG_PATH);
+        if (siteDirFile.exists()) {
+            File[] siteFiles = siteDirFile.listFiles();
+            boolean siteConfigFound = false;
+            for (File f : siteFiles) {
+                if (f.getName().equals("siteConfig.py")) {
+                    siteConfigFound = true;
+                    break;
+                }
+            }
+            if (!siteConfigFound) {
+                throw new GfeMissingConfigurationException(
+                        "No siteConfig.py file found for " + siteID);
+            }
+        } else {
+            throw new GfeMissingConfigurationException(
+                    "No site config directory found for " + siteID);
+        }
+        siteDir = siteDirFile.getPath();
+
+        String gfeCommonPath = GfePyIncludeUtil.getCommonGfeIncludePath();
+
+        String vtecPath = GfePyIncludeUtil.getVtecIncludePath(siteID);
+
+        try (PythonEval py = new PythonEval(PyUtil.buildJepIncludePath(siteDir,
+                baseDir, gfeCommonPath, vtecPath),
+                IFPServerConfig.class.getClassLoader())) {
+            py.eval("from serverConfig import *");
+            SimpleServerConfig simpleConfig = (SimpleServerConfig) py
+                    .execute("getSimpleConfig", null);
+            siteConfig = new IFPServerConfig(simpleConfig);
+        } catch (Throwable e) {
+            throw new GfeConfigurationException(
+                    "Exception occurred while processing serverConfig for site "
+                            + siteID,
+                    e);
+        }
+
+        return siteConfig;
+    }
+
+    /**
      * Activate site routine for internal use.
-     * 
+     *
      * Doesn't update the site list so it is preserved when loading sites at
      * start up
-     * 
+     *
      * @param siteID
      * @throws PluginException
      * @throws GfeException
@@ -281,13 +383,13 @@ public class GFESiteActivation implements ISiteActivationListener,
             throws PluginException, GfeException, UnknownHostException,
             DataAccessLayerException {
         ClusterTask ct = null;
-        while (!(ct = ClusterLockUtils.lock(TASK_NAME, INIT_TASK_DETAILS
-                + siteID, LOCK_TASK_TIMEOUT, false)).getLockState().equals(
-                LockState.SUCCESSFUL)) {
+        while (!(ct = ClusterLockUtils.lock(TASK_NAME,
+                INIT_TASK_DETAILS + siteID, LOCK_TASK_TIMEOUT, false))
+                        .getLockState().equals(LockState.SUCCESSFUL)) {
             try {
-                statusHandler
-                        .handle(Priority.EVENTA,
-                                "Activation task in progress by another EDEX instance.  Waiting...");
+                statusHandler.handle(Priority.EVENTA, "Activation task for "
+                        + siteID
+                        + " in progress by another EDEX instance.  Waiting...");
                 Thread.sleep(10000);
             } catch (InterruptedException e) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -298,14 +400,16 @@ public class GFESiteActivation implements ISiteActivationListener,
         IFPServerConfig config = null;
 
         try {
-            statusHandler.info("Initializing IFPServerConfigManager for " + siteID);
-            config = IFPServerConfigManager.initializeSite(siteID);
-            statusHandler.info("Activating IFPServer for " + siteID);
+            statusHandler.info("Activating " + siteID + "...");
+
+            statusHandler.info("IFPServerConfigManager initializing...");
+            config = initializeSite(siteID);
+            statusHandler.info("Activating IFPServer...");
             IFPServer.activateServer(siteID, config);
         } finally {
-            statusHandler
-                    .handle(Priority.INFO,
-                            "Cluster locked site activation tasks complete.  Releasing Site Activation lock.");
+            statusHandler.handle(Priority.INFO,
+                    "Cluster locked site activation tasks for " + siteID
+                            + " complete.  Releasing site activation lock.");
             ClusterLockUtils.unlock(ct, false);
         }
 
@@ -313,14 +417,12 @@ public class GFESiteActivation implements ISiteActivationListener,
             iscServices.activateSite(siteID, config);
         }
 
-        statusHandler.info("Adding " + siteID + " to active sites list.");
-        IFPServerConfigManager.addActiveSite(siteID);
         statusHandler.info(siteID + " successfully activated");
     }
 
     /**
      * Deactivates a site's GFE services
-     * 
+     *
      * @param siteID
      */
     @Override
@@ -328,8 +430,8 @@ public class GFESiteActivation implements ISiteActivationListener,
 
         sendDeactivationBeginNotification(siteID);
         if (!IFPServer.getActiveSites().contains(siteID)) {
-            statusHandler.handle(Priority.DEBUG, "Site [" + siteID
-                    + "] not active.  Cannot deactivate.");
+            statusHandler.handle(Priority.DEBUG,
+                    "Site [" + siteID + "] not active.  Cannot deactivate.");
             sendDeactivationCompleteNotification(siteID);
             return;
         }
@@ -337,12 +439,12 @@ public class GFESiteActivation implements ISiteActivationListener,
         ClusterTask ct = null;
         try {
 
-            while (!(ct = ClusterLockUtils.lock(TASK_NAME, INIT_TASK_DETAILS
-                    + siteID, LOCK_TASK_TIMEOUT, true)).getLockState().equals(
-                    LockState.SUCCESSFUL)) {
-                statusHandler
-                        .handle(Priority.EVENTA,
-                                "Activation task in progress by another EDEX instance.  Waiting...");
+            while (!(ct = ClusterLockUtils.lock(TASK_NAME,
+                    INIT_TASK_DETAILS + siteID, LOCK_TASK_TIMEOUT, true))
+                            .getLockState().equals(LockState.SUCCESSFUL)) {
+                statusHandler.handle(Priority.EVENTA, "Activation task for "
+                        + siteID
+                        + " in progress by another EDEX instance.  Waiting...");
                 Thread.sleep(10000);
 
             }
@@ -353,10 +455,6 @@ public class GFESiteActivation implements ISiteActivationListener,
 
             IFPServer.deactivateServer(siteID);
             statusHandler.info(siteID + " successfully deactivated");
-
-            // TODO eventually this should go away
-            IFPServerConfigManager.removeSite(siteID);
-            IFPServerConfigManager.removeActiveSite(siteID);
 
         } catch (GfeConfigurationException e) {
             statusHandler.handle(Priority.PROBLEM,
@@ -374,30 +472,20 @@ public class GFESiteActivation implements ISiteActivationListener,
 
     /**
      * Returns the currently active GFE sites the server is running
-     * 
+     *
      * @return the active sites
-     * 
-     * @deprecated It is preferred that you use the method
-     *             {@link IFPServer#getActiveSites()} to retrieve the list of
-     *             GFE active sites.
+     *
      */
     @Override
-    @Deprecated
     public Set<String> getActiveSites() {
-        return IFPServerConfigManager.getActiveSites();
+        return IFPServer.getActiveSites();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.edex.site.ISiteActivationListener#validateConfig()
-     */
     @Override
     public String validateConfig(String site) {
         String retVal = site + " siteConfig and localConfig ";
         try {
-            IFPServerConfig config = IFPServerConfigManager
-                    .initializeConfig(site);
+            IFPServerConfig config = initializeConfig(site);
             if (config != null) {
                 retVal += "validate ok!";
             } else {
@@ -407,11 +495,8 @@ public class GFESiteActivation implements ISiteActivationListener,
             retVal += "failed validation.\n";
             retVal += e.getMessage() + "\n";
             if (e.getCause() != null) {
-                retVal += e
-                        .getCause()
-                        .toString()
-                        .replaceFirst(
-                                "jep\\.JepException: jep\\.JepException: ", "");
+                retVal += e.getCause().toString().replaceFirst(
+                        "jep\\.JepException: jep\\.JepException: ", "");
             }
         }
         return retVal;

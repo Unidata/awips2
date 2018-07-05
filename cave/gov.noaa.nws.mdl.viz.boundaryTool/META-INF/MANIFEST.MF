@@ -33,4 +33,4 @@ Export-Package: gov.noaa.nws.mdl.viz.boundaryTool,
 Import-Package: com.raytheon.uf.common.topo,
  com.raytheon.uf.viz.d2d.core,
  com.raytheon.uf.viz.d2d.ui.dialogs.procedures
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

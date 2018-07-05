@@ -103,9 +103,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  *                                   graph
  * May 14, 2014  16388    xwei       updated the insertion of rejecteddata
  *                                   table.
- * 29 Jan 2016 5289      tgurney       Add missing maximize button in trim
- * Feb 16, 2016  5342     bkowal     Ensure rejected data keys are unique.
- * Oct 24, 2016  5955     randerso   Code/JavaDoc cleanup
+ * 29 Jan 2016 5289      tgurney     Add missing maximize button in trim
+ * Feb 16, 2016  5342    bkowal      Ensure rejected data keys are unique.
+ * Oct 24, 2016  5955    randerso    Code/JavaDoc cleanup
+ * Mar 08, 2017 17643    jdeng       Fix errors when deleting/setting data to
+ *                                   missing
+ * Mar 23, 2017  6117    bsteffen    Workaround crash when printing images.
  *
  * </pre>
  *
@@ -416,7 +419,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
      *            Parent dialog.
      */
     public TimeSeriesDisplayDlg(TimeSeriesDlg parentDialog) {
-        super(parentDialog.getShell(), SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE,
+        super(parentDialog.getShell(),
+                SWT.DIALOG_TRIM | SWT.MIN | SWT.MAX | SWT.RESIZE,
                 CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
         setText("Time Series Display");
 
@@ -856,7 +860,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                             .getInstance(TimeZone.getTimeZone("GMT")).getTime();
                     if (deleteList.size() > 0) {
                         try {
-                            dataManager.insertRejectedData(deleteList,
+                            dataManager.insertDelRejectedData(deleteList,
                                     rejectedSecondsMap, insertStartTime);
                             dataManager.delete(deleteList);
                             updateMaxFcst(deleteList);
@@ -889,7 +893,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
 
                     if (editList.size() > 0) {
                         try {
-                            dataManager.insertRejectedData(editList,
+                            dataManager.insertSetMRejectedData(editList,
                                     rejectedSecondsMap, insertStartTime);
                             dataManager.edit(editList);
                             updateMaxFcst(editList);
@@ -1643,9 +1647,9 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                     gc.drawImage(printerImage, -trim.x, -trim.y);
                     printer.endPage();
                 }
-                printerImage.dispose();
                 printer.endJob();
                 printer.dispose();
+                printerImage.dispose();
                 gc.dispose();
 
                 /* Refresh the Image */

@@ -415,7 +415,7 @@
 								<constraint constraintValue="500.0" constraintType="IN" />
 							</mapping>
 							<mapping key="info.datasetId">
-								<constraint constraintValue="SREF212" constraintType="EQUALS" />
+								<constraint constraintValue="SREF40" constraintType="EQUALS" />
 							</mapping>
 						</metadataMap>
 						<alertParser xsi:type="dataCubeAlertMessageParser" />

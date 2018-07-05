@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -35,6 +36,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import javax.persistence.Table;
 
@@ -42,19 +44,14 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.opengis.metadata.spatial.PixelOrientation;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypc;
-import com.raytheon.uf.common.dataplugin.shef.tables.HourlypcId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hourlypp;
-import com.raytheon.uf.common.dataplugin.shef.tables.HourlyppId;
-import com.raytheon.uf.common.dataplugin.shef.tables.Ingestfilter;
 import com.raytheon.uf.common.dataplugin.shef.tables.Pseudogageval;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rawpp;
-import com.raytheon.uf.common.hydro.CommonHydroConstants;
-import com.raytheon.uf.common.hydro.data.PrecipTotal;
-import com.raytheon.uf.common.mpe.util.PrecipUtil;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.xmrg.hrap.HRAP;
@@ -64,13 +61,13 @@ import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.hydrocommon.HydroConstants;
-import com.raytheon.viz.hydrocommon.util.HydroQC;
-import com.raytheon.viz.hydrocommon.whfslib.IHFSDbGenerated;
+import com.raytheon.viz.hydrocommon.whfslib.PrecipUtil;
+import com.raytheon.viz.hydrocommon.whfslib.PrecipUtil.total_precip;
 import com.raytheon.viz.mpe.core.MPEDataManager.MPERadarData.RadarAvailability;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * MPE Data Manager
+ * TODO Add Description
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -86,11 +83,13 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Jul 29, 2015  17471     snaples     Added logging for Radar Bias results table query.
  * Aug 11, 2015 4500       rjpeter     Fix type casts.
  * Sep 29, 2015 17975      snaples     Fixed an issue with getDateMap query sometimes throwing errors.
- * Jul 25, 2016 4623       skorolev    Replaced total_precip with PrecipTotal. Cleanup.
+ * Sep 21, 2017 6407       bkowal      Cleanup.
+ * Oct 06, 2017 6407       bkowal      Cleanup. Updates to support GOES-R SATPRE.
  * 
  * </pre>
  * 
  * @author randerso
+ * @version 1.0
  */
 
 public class MPEDataManager {
@@ -99,9 +98,6 @@ public class MPEDataManager {
 
     private static final int TOP_OF_HOUR_WINDOW = 10;
 
-    /**
-     * MPE Date Information
-     */
     public static class MPEDateInfo {
         private final Date lastSaveTime;
 
@@ -109,13 +105,6 @@ public class MPEDataManager {
 
         private final boolean autoSave;
 
-        /**
-         * Constructor.
-         * 
-         * @param lastSaveTime
-         * @param lastExecTime
-         * @param autoSave
-         */
         public MPEDateInfo(Date lastSaveTime, Date lastExecTime,
                 boolean autoSave) {
             this.lastSaveTime = lastSaveTime;
@@ -137,21 +126,11 @@ public class MPEDataManager {
 
     }
 
-    /**
-     * MPE Radar Location
-     */
     public static class MPERadarLoc {
         private String id;
 
         private Coordinate latLon;
 
-        /**
-         * Constructor.
-         * 
-         * @param id
-         * @param lat
-         * @param lon
-         */
         public MPERadarLoc(String id, double lat, double lon) {
             this.id = id;
             latLon = new Coordinate(lon, lat);
@@ -166,9 +145,6 @@ public class MPEDataManager {
         }
     }
 
-    /**
-     * MPE Radar Data
-     */
     public static class MPERadarData {
         public static enum RadarAvailability {
             AVAILABLE, MISSING, ZERO
@@ -194,9 +170,6 @@ public class MPEDataManager {
 
         private boolean radarDataAvailable;
 
-        /**
-         * Constructor
-         */
         public MPERadarData() {
             radAvail = RadarAvailability.MISSING;
             ignoreRadar = true;
@@ -301,57 +274,66 @@ public class MPEDataManager {
         public void setRadarDataAvailable(boolean radarDataAvailable) {
             this.radarDataAvailable = radarDataAvailable;
         }
-
     }
 
-    /**
-     * MPE Gage Data
-     */
     public static class MPEGageData {
 
-        String id;
+        /*
+         * A few of the fields must be public based on how they are used in the
+         * current (09/2017) MPE baseline.
+         */
+        public String id;
 
-        String rid;
+        private String rid;
 
-        String edit;
+        public String edit;
 
-        float gval;
+        private float gval;
 
-        float xmrgVal;
+        private float xmrg_val;
 
-        float mval;
+        private float mval;
 
-        float rval;
+        private float rval;
 
-        float bval;
+        private float bval;
 
-        float locVal;
+        private float loc_val;
 
-        float gageOnly;
+        private float gage_only;
 
-        float satVal;
+        private float sat_val;
 
-        Coordinate latLon;
+        private Coordinate latLon;
 
-        Coordinate hrap; /* The national HRAP grid */
+        /*
+         * The national HRAP grid.
+         */
+        private Coordinate hrap;
 
-        Coordinate hrapLoc; /* The local HRAP grid */
+        /*
+         * The local HRAP grid.
+         */
+        private Coordinate hrap_loc;
 
-        boolean td;
+        private boolean td;
 
-        boolean manedit;
+        private boolean manedit;
 
-        int qc; /* quality control */
+        /*
+         * quality control
+         */
+        private int qc;
 
-        String ts;
+        public String ts;
 
-        String pe;
+        private String pe;
 
-        boolean reported_missing;
+        private boolean reported_missing;
 
-        boolean useInP3;
+        private boolean use_in_p3;
 
-        boolean isBad;
+        private boolean is_bad;
 
         /**
          * @return the id
@@ -382,10 +364,10 @@ public class MPEDataManager {
         }
 
         /**
-         * @return the xmrgVal
+         * @return the xmrg_val
          */
-        public float getXmrgVal() {
-            return xmrgVal;
+        public float getXmrg_val() {
+            return xmrg_val;
         }
 
         /**
@@ -410,24 +392,24 @@ public class MPEDataManager {
         }
 
         /**
-         * @return the locVal
+         * @return the loc_val
          */
-        public float getLocVal() {
-            return locVal;
+        public float getLoc_val() {
+            return loc_val;
         }
 
         /**
-         * @return the gageOnly
+         * @return the gage_only
          */
-        public float getGageOnly() {
-            return gageOnly;
+        public float getGage_only() {
+            return gage_only;
         }
 
         /**
-         * @return the satVal
+         * @return the sat_val
          */
-        public float getSatVal() {
-            return satVal;
+        public float getSat_val() {
+            return sat_val;
         }
 
         /**
@@ -447,8 +429,8 @@ public class MPEDataManager {
         /**
          * @return the hrap_loc
          */
-        public Coordinate getHrapLoc() {
-            return hrapLoc;
+        public Coordinate getHrap_loc() {
+            return hrap_loc;
         }
 
         /**
@@ -487,10 +469,17 @@ public class MPEDataManager {
         }
 
         /**
-         * @return the useInP3
+         * @return the use_in_p3
          */
-        public boolean isUseInP3() {
-            return useInP3;
+        public boolean isUse_in_p3() {
+            return use_in_p3;
+        }
+
+        /**
+         * @return the is_bad
+         */
+        public boolean isIs_bad() {
+            return is_bad;
         }
 
         /**
@@ -526,11 +515,11 @@ public class MPEDataManager {
         }
 
         /**
-         * @param xmrgVal
-         *            the xmrgVal to set
+         * @param xmrg_val
+         *            the xmrg_val to set
          */
-        public void setXmrgVal(float xmrgVal) {
-            this.xmrgVal = xmrgVal;
+        public void setXmrg_val(float xmrg_val) {
+            this.xmrg_val = xmrg_val;
         }
 
         /**
@@ -558,27 +547,27 @@ public class MPEDataManager {
         }
 
         /**
-         * @param locVal
-         *            the locVal to set
+         * @param loc_val
+         *            the loc_val to set
          */
-        public void setLocVal(float locVal) {
-            this.locVal = locVal;
+        public void setLoc_val(float loc_val) {
+            this.loc_val = loc_val;
         }
 
         /**
-         * @param gageOnly
-         *            the gageOnly to set
+         * @param gage_only
+         *            the gage_only to set
          */
-        public void setGageOnly(float gageOnly) {
-            this.gageOnly = gageOnly;
+        public void setGage_only(float gage_only) {
+            this.gage_only = gage_only;
         }
 
         /**
-         * @param satVal
-         *            the satVal to set
+         * @param sat_val
+         *            the sat_val to set
          */
-        public void setSatVal(float satVal) {
-            this.satVal = satVal;
+        public void setSat_val(float sat_val) {
+            this.sat_val = sat_val;
         }
 
         /**
@@ -598,11 +587,11 @@ public class MPEDataManager {
         }
 
         /**
-         * @param hrapLoc
-         *            the hrapLoc to set
+         * @param hrap_loc
+         *            the hrap_loc to set
          */
-        public void setHrap_loc(Coordinate hrapLoc) {
-            this.hrapLoc = hrapLoc;
+        public void setHrap_loc(Coordinate hrap_loc) {
+            this.hrap_loc = hrap_loc;
         }
 
         /**
@@ -646,11 +635,19 @@ public class MPEDataManager {
         }
 
         /**
-         * @param useInP3
-         *            the useInP3 to set
+         * @param use_in_p3
+         *            the use_in_p3 to set
          */
-        public void setUseInP3(boolean useInP3) {
-            this.useInP3 = useInP3;
+        public void setUse_in_p3(boolean use_in_p3) {
+            this.use_in_p3 = use_in_p3;
+        }
+
+        /**
+         * @param is_bad
+         *            the is_bad to set
+         */
+        public void setIs_bad(boolean is_bad) {
+            this.is_bad = is_bad;
         }
 
         /**
@@ -668,17 +665,11 @@ public class MPEDataManager {
             this.pe = pe;
         }
 
-        public boolean isBad() {
-            return isBad;
-        }
-
-        public void setBad(boolean isBad) {
-            this.isBad = isBad;
-        }
-
     }
 
     private static final int MAX_GAGEQC_DAYS = 10;
+
+    private static final SimpleDateFormat sdf;
 
     private static MPEDataManager instance;
 
@@ -688,7 +679,7 @@ public class MPEDataManager {
 
     private List<MPERadarLoc> radarList;
 
-    private Map<String, MPEGageData> editGages = new HashMap<>();
+    private HashMap<String, MPEGageData> editGages = new HashMap<String, MPEGageData>();
 
     private List<String> badGages = new ArrayList<>();
 
@@ -700,12 +691,10 @@ public class MPEDataManager {
 
     private Rectangle HRAPExtent;
 
-    private int dqcdays = Integer.parseInt(appsDefaults
-            .getToken("mpe_dqc_num_days"));
+    private int dqcdays = Integer
+            .parseInt(appsDefaults.getToken("mpe_dqc_num_days"));
 
     private HRAPSubGrid subGrid;
-
-    private PrecipUtil pu = PrecipUtil.getInstance();
 
     /**
      * Retrieve singleton instance
@@ -720,34 +709,30 @@ public class MPEDataManager {
         return instance;
     }
 
+    static {
+        sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+    }
+
     /**
      * private constructor for singleton
      */
     private MPEDataManager() {
         RFC = appsDefaults.getToken("st3_rfc");
-        pu.setIngestList(this.getIngestInfoList());
     }
 
-    /**
-     * Gets Dates
-     * 
-     * @param update
-     */
     private void getDates(boolean update) {
         String starttime = "";
         String endtime = "";
         if (update && latestAvailableDate != null) {
-            starttime = TimeUtil.formatToSqlTimestamp(latestAvailableDate);
+            starttime = sdf.format(latestAvailableDate);
         } else {
             dateMap = new HashMap<>();
-            starttime = TimeUtil.formatToSqlTimestamp(getEarliestDate());
+            starttime = sdf.format(getEarliestDate());
         }
-        endtime = TimeUtil.formatToSqlTimestamp(getLatestDate());
+        endtime = sdf.format(getLatestDate());
         String sqlQuery = "select obstime,last_save_time,last_exec_time,auto_save from rwresult where rfc='"
-                + RFC
-                + "' and obstime between '"
-                + starttime
-                + "' and '"
+                + RFC + "' and obstime between '" + starttime + "' and '"
                 + endtime + "'";
 
         try {
@@ -763,25 +748,20 @@ public class MPEDataManager {
                     latestAvailableDate = obstime;
                 }
             }
-
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Record not found in rwresult ", e);
+            statusHandler
+                    .error("Failed to retrieve MPE Date Information for RFC: "
+                            + RFC + ".", e);
         }
     }
 
     public Map<Date, MPEDateInfo> getDateMap(boolean update) {
-
         getDates(update);
         return dateMap;
     }
 
-    /**
-     * Reads Radar Location
-     */
     public void readRadarLoc() {
         String sqlQuery = "select radid, lat, lon from radarloc where use_radar='T' order by radid asc";
-
         radarList = new ArrayList<>();
         try {
             List<Object[]> results = DirectDbQuery.executeQuery(sqlQuery,
@@ -794,22 +774,17 @@ public class MPEDataManager {
                 radarList.add(radarLoc);
             }
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Record not found in radarloc ", e);
+            statusHandler.error("Failed to retrieve the active radars.", e);
         }
     }
 
-    /**
-     * OrigReadRadarData
-     * 
-     * @param date
-     * @return
-     */
     public Map<String, MPERadarData> OrigReadRadarData(Date date) {
         getRadars();
-        StringBuffer sqlQuery = new StringBuffer();
-        sqlQuery.append("select radid,num_gages,rad_avail, rw_bias_val_used,mem_span_used, edit_bias, ignore_radar from rwradarresult where obstime='"
-                + TimeUtil.formatToSqlTimestamp(date) + "' and radid in(");
+        StringBuilder sqlQuery = new StringBuilder();
+        sqlQuery.append(
+                "select radid,num_gages,rad_avail, rw_bias_val_used,mem_span_used, edit_bias, ignore_radar from rwradarresult where obstime='");
+        sqlQuery.append(sdf.format(date));
+        sqlQuery.append("' and radid in(");
         for (int i = 0; i < radarList.size(); i++) {
             sqlQuery.append("'");
             sqlQuery.append(radarList.get(i).getId());
@@ -823,20 +798,18 @@ public class MPEDataManager {
         Map<String, MPERadarData> radarResultList = new HashMap<>(
                 radarList.size());
         try {
-            List<Object[]> results = DirectDbQuery
-                    .executeQuery(sqlQuery.toString(), HydroConstants.IHFS,
-                            QueryLanguage.SQL);
+            List<Object[]> results = DirectDbQuery.executeQuery(
+                    sqlQuery.toString(), HydroConstants.IHFS,
+                    QueryLanguage.SQL);
             Iterator<Object[]> iter = results.iterator();
             Object[] item = iter.hasNext() ? iter.next() : null;
             for (MPERadarLoc radarLoc : radarList) {
                 MPERadarData radarData = new MPERadarData();
 
-                int compareResult = item == null ? -1 : radarLoc.getId()
-                        .compareTo((String) item[0]);
-
+                int compareResult = item == null ? -1
+                        : radarLoc.getId().compareTo((String) item[0]);
                 if (compareResult < 0) {
                     radarData.setProductDate(date);
-
                 } else if (compareResult == 0) {
                     radarData.setNumGages(((Number) item[1]).intValue());
 
@@ -856,24 +829,23 @@ public class MPEDataManager {
 
                     if (radAvail.equals(RadarAvailability.AVAILABLE)
                             || radAvail.equals(RadarAvailability.ZERO)) {
-                        radarData.setProductDate(readProductDateTime(
-                                radarLoc.getId(), date));
+                        radarData.setProductDate(
+                                readProductDateTime(radarLoc.getId(), date));
                     }
 
                     item = iter.hasNext() ? iter.next() : null;
                 } else {
-                    statusHandler.handle(
-                            Priority.PROBLEM,
+                    statusHandler.handle(Priority.PROBLEM,
                             "Record not found in RWRadarResult table for "
                                     + radarLoc.getId() + " for time "
-                                    + date.toString() + "Z");
+                                    + sdf.format(date) + "Z");
                 }
 
                 radarResultList.put(radarLoc.getId(), radarData);
             }
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Record not found in RWRadarResult ", e);
+            statusHandler.error("Failed to retrieve the radar data for: "
+                    + sdf.format(date) + ".", e);
         }
 
         return radarResultList;
@@ -885,35 +857,24 @@ public class MPEDataManager {
 
     }
 
-    /**
-     * Reads DPRadarData
-     * 
-     * @param date
-     * @return
-     */
     public Map<String, MPERadarData> readDPRadarData(Date date) {
         // reads DAA radar data
         return readRadarData(date, "daaradarresult");
     }
 
-    /**
-     * Reads Radar Data
-     * 
-     * @param date
-     * @param tableName
-     * @return
-     */
-    public Map<String, MPERadarData> readRadarData(Date date, String tableName) {
+    public Map<String, MPERadarData> readRadarData(Date date,
+            String tableName) {
         getRadars();
-        StringBuffer sqlQuery = new StringBuffer();
-        sqlQuery.append("select radid,num_gages, rad_avail, rw_bias_val_used, mem_span_used, edit_bias, ignore_radar from "
-                + tableName
-                + " where obstime='"
-                + TimeUtil.formatToSqlTimestamp(date) + "' and radid in(");
-        statusHandler.handle(
-                Priority.DEBUG,
-                "Date string actually passed in query to radar table: "
-                        + date.toString());
+        StringBuilder sqlQuery = new StringBuilder();
+        sqlQuery.append(
+                "select radid,num_gages, rad_avail, rw_bias_val_used, mem_span_used, edit_bias, ignore_radar from ");
+        sqlQuery.append(tableName);
+        sqlQuery.append(" where obstime='");
+        sqlQuery.append(sdf.format(date));
+        sqlQuery.append("' and radid in(");
+        statusHandler
+                .debug("Datestring actually passed in query to radar table: "
+                        + sdf.format(date));
         for (int i = 0; i < radarList.size(); i++) {
             sqlQuery.append("'");
             sqlQuery.append(radarList.get(i).getId());
@@ -927,20 +888,18 @@ public class MPEDataManager {
         Map<String, MPERadarData> radarResultList = new HashMap<>(
                 radarList.size());
         try {
-            List<Object[]> results = DirectDbQuery
-                    .executeQuery(sqlQuery.toString(), HydroConstants.IHFS,
-                            QueryLanguage.SQL);
+            List<Object[]> results = DirectDbQuery.executeQuery(
+                    sqlQuery.toString(), HydroConstants.IHFS,
+                    QueryLanguage.SQL);
             Iterator<Object[]> iter = results.iterator();
             Object[] item = iter.hasNext() ? iter.next() : null;
             for (MPERadarLoc radarLoc : radarList) {
                 MPERadarData radarData = new MPERadarData();
 
-                int compareResult = item == null ? -1 : radarLoc.getId()
-                        .compareTo((String) item[0]);
-
+                int compareResult = item == null ? -1
+                        : radarLoc.getId().compareTo((String) item[0]);
                 if (compareResult < 0) {
                     radarData.setProductDate(date);
-
                 } else if (compareResult == 0) {
                     radarData.setNumGages(((Number) item[1]).intValue());
 
@@ -960,75 +919,63 @@ public class MPEDataManager {
 
                     if (radAvail.equals(RadarAvailability.AVAILABLE)
                             || radAvail.equals(RadarAvailability.ZERO)) {
-                        radarData.setProductDate(readProductDateTime(
-                                radarLoc.getId(), date));
+                        radarData.setProductDate(
+                                readProductDateTime(radarLoc.getId(), date));
                     }
 
                     item = iter.hasNext() ? iter.next() : null;
                 } else {
-                    statusHandler.handle(
-                            Priority.PROBLEM,
+                    statusHandler.handle(Priority.PROBLEM,
                             "Record not found in " + tableName + " table for "
                                     + radarLoc.getId() + " for time "
-                                    + date.toString() + "Z");
+                                    + sdf.format(date) + "Z");
                 }
+
                 radarResultList.put(radarLoc.getId(), radarData);
             }
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, "Record not found in "
-                    + tableName + " ", e);
+            statusHandler.error("Failed to retrieve radar data from table: "
+                    + tableName + " for: " + sdf.format(date) + ".", e);
         }
+
         return radarResultList;
     }
 
-    /**
-     * Reads Product DateTime
-     * 
-     * @param radarId
-     * @param date
-     * @return
-     */
     public Date readProductDateTime(String radarId, Date date) {
         Date productDate = null;
 
         StringBuilder query = new StringBuilder("select obstime");
-        // query.append(",minoff,radid,abs(minoff) as abs");
         query.append(" from dparadar where radid = '");
         query.append(radarId);
         query.append("' and supplmess in (0,4) and obstime between '");
 
-        Calendar cal = TimeUtil.newGmtCalendar(date);
+        Calendar cal = Calendar.getInstance(TimeUtil.GMT_TIME_ZONE);
+        cal.setTime(date);
         cal.add(Calendar.MINUTE, -TOP_OF_HOUR_WINDOW);
         Date start = cal.getTime();
-        query.append(TimeUtil.formatToSqlTimestamp(start));
+        query.append(sdf.format(start));
         query.append("' and '");
 
         cal.setTime(date);
         cal.add(Calendar.MINUTE, TOP_OF_HOUR_WINDOW);
         Date end = cal.getTime();
-        query.append(TimeUtil.formatToSqlTimestamp(end));
+        query.append(sdf.format(end));
 
         query.append("' order by abs(minoff) asc limit 1;");
         try {
             List<Object[]> results = DirectDbQuery.executeQuery(
                     query.toString(), HydroConstants.IHFS, QueryLanguage.SQL);
-
-            if (results.size() > 0) {
+            if (!results.isEmpty()) {
                 productDate = (Date) results.get(0)[0];
             }
-
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Could not read records from dparadar ", e);
+            statusHandler
+                    .error("Failed to retrieve the observation time for radar: "
+                            + radarId + ".", e);
         }
         return productDate;
     }
 
-    /**
-     * Gets Radar's locations from DB
-     * 
-     * @return
-     */
     public List<MPERadarLoc> getRadars() {
         if (radarList == null) {
             readRadarLoc();
@@ -1037,101 +984,76 @@ public class MPEDataManager {
         return radarList;
     }
 
-    /**
-     * Gets Latest Date
-     * 
-     * @return latest date
-     */
     public Date getLatestDate() {
-        Calendar cal = TimeUtil.newGmtCalendar();
+        Date latestDate = SimulatedTime.getSystemTime().getTime();
+        Calendar cal = Calendar.getInstance(TimeUtil.GMT_TIME_ZONE);
+        cal.setTime(latestDate);
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
-        Date latestDate = cal.getTime();
+        latestDate = cal.getTime();
         return latestDate;
     }
 
-    /**
-     * Gets Earliest Date
-     * 
-     * @return Earliest Date
-     */
     public Date getEarliestDate() {
-        Calendar cal = TimeUtil.newGmtCalendar(getLatestDate());
+        Calendar cal = Calendar.getInstance(TimeUtil.GMT_TIME_ZONE);
+        cal.setTime(getLatestDate());
         cal.add(Calendar.DAY_OF_MONTH, -MAX_GAGEQC_DAYS);
         Date earliestDate = cal.getTime();
+
         return earliestDate;
     }
 
-    /**
-     * Gets HRAP SubGrid
-     * 
-     * @return
-     */
     public HRAPSubGrid getHRAPSubGrid() {
         if (subGrid == null) {
             try {
                 subGrid = HRAP.getInstance().getHRAPSubGrid(getHRAPExtent());
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error getting HRAP SubGrid ", e);
+                statusHandler.handle(Priority.PROBLEM, "Error reading ", e);
             }
         }
         return subGrid;
     }
 
-    /**
-     * Gets HRAP Extent
-     * 
-     * @return
-     */
     public Rectangle getHRAPExtent() {
         if (HRAPExtent == null) {
             try {
                 HRAPExtent = HRAPCoordinates.getHRAPCoordinates();
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM, "Error getting HRAP. ",
+                statusHandler.error("Failed to retrieve the HRAP coordinates.",
                         e);
             }
         }
         return HRAPExtent;
     }
 
-    /**
-     * Reads Gage Data
-     * 
-     * @param startTime
-     * @param endTime
-     * @return
-     */
     public List<MPEGageData> readGageData(Date startTime, Date endTime) {
+        PrecipUtil pu = PrecipUtil.getInstance();
 
         /* read process PC token from .Apps_defaults */
         String processpc = appsDefaults.getToken("mpe_process_PC");
 
         boolean process_PC;
-        if (processpc.equalsIgnoreCase("OFF")) {
+        if ("OFF".equalsIgnoreCase(processpc)) {
             process_PC = false;
-            statusHandler.handle(Priority.INFO, "Process PC Data = OFF ");
         } else {
             process_PC = true;
-            statusHandler.handle(Priority.INFO, "Process PC Data = ON ");
         }
 
         // Read all records from the HourlyPC and HourlyPP tables for this
         // datetime.
         int[] pc_record_cnt = new int[] { 0 };
-        List<Hourlypc> hourlyPCList = new ArrayList<>();
-        if (process_PC == true) {
-            hourlyPCList = loadPCHourly(startTime, endTime, null, null);
+        ArrayList<Hourlypc> hourlyPCList = new ArrayList<>();
+        if (process_PC) {
+            hourlyPCList = pu.load_PC_hourly(startTime, endTime, null, null);
         } else {
-            System.out.println("Processing of PC data turned off ");
+            statusHandler.debug("Processing of PC data turned off.");
         }
         pc_record_cnt[0] = hourlyPCList.size();
 
         int[] pp_record_cnt = new int[] { 0 };
-        List<Hourlypp> hourlyPPList = loadPPHourly(startTime, endTime, null,
-                null);
+        ArrayList<Hourlypp> hourlyPPList = pu.load_PP_hourly(startTime, endTime,
+                null, null);
         pp_record_cnt[0] = hourlyPPList.size();
 
         // This is a PP/PC record count. It is not an actual count of stations
@@ -1139,8 +1061,7 @@ public class MPEDataManager {
         int proc_count = pc_record_cnt[0] + pp_record_cnt[0];
 
         // read all records from PseudoGageVal table for this datetime
-        String where = " WHERE obstime='"
-                + TimeUtil.formatToSqlTimestamp(endTime) + "' ";
+        String where = " WHERE obstime='" + sdf.format(endTime) + "' ";
 
         List<Pseudogageval> pseudoList = getPseudoGageVal(where);
         int pseudoCount = pseudoList.size();
@@ -1149,7 +1070,7 @@ public class MPEDataManager {
 
         badGages = readBadGageList();
 
-        boolean bad_gages_exist = badGages.size() > 0;
+        boolean bad_gages_exist = !badGages.isEmpty();
 
         // TODO: implement this function
         // get_snow_polygons (&PolyList, date_st3.cdate);
@@ -1163,14 +1084,13 @@ public class MPEDataManager {
         // process the regular gage values first
         while ((pHourlyPPIdx[0] < hourlyPPList.size())
                 || (pHourlyPCIdx[0] < hourlyPCList.size())) {
-            PrecipTotal totalPrecip = pu.getTotalHourlyPrecip(hourlyPCList,
+            total_precip total_precip = pu.get_total_hourly_precip(hourlyPCList,
                     pHourlyPCIdx, hourlyPPList, pHourlyPPIdx, endTime, 1, 0f,
-                    CommonHydroConstants.PRECIP_TS_RANK
-                            | CommonHydroConstants.PRECIP_PP, true,
+                    PrecipUtil.PRECIP_TS_RANK | PrecipUtil.PRECIP_PP, true,
                     pc_record_cnt, pp_record_cnt);
 
             /* Retrieve the Latitude/Longitude of the station. */
-            Coordinate latLon = getMpeLocLatLon(totalPrecip.getLid());
+            Coordinate latLon = get_mpe_loc_latlon(total_precip.lid);
 
             if (latLon == null) {
                 continue;
@@ -1186,22 +1106,25 @@ public class MPEDataManager {
                         PixelOrientation.LOWER_LEFT);
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM,
-                        "error computing hrap coordinate ", e);
+                        "error computing hrap coordinate", e);
             }
 
             /* make sure the gage is within the area. if so load the info */
             MPEGageData gage = new MPEGageData();
-            gage.id = totalPrecip.getLid();
-            gage.pe = totalPrecip.getPe();
-            gage.ts = totalPrecip.getTs();
-            gage.gval = totalPrecip.getValue();
+            gage.id = total_precip.lid;
+            gage.pe = total_precip.PE;
+            gage.ts = total_precip.TS;
+            gage.gval = total_precip.value;
 
             /* Test if the gage is in the bad gage list */
             if (bad_gages_exist) {
                 int pBadTest = Collections.binarySearch(badGages,
-                        totalPrecip.getLid());
+                        total_precip.lid);
 
                 if (pBadTest >= 0) {
+                    // logMessage ( "Gage %s is in bad gage file. Skipped
+                    // ...\n",
+                    // total_precip.lid );
                     continue;
                 }
 
@@ -1216,25 +1139,25 @@ public class MPEDataManager {
             gage.latLon = latLon;
 
             gage.hrap = hrap_point;
-            gage.hrapLoc = new Coordinate(hrap_point.x
-                    - getHRAPSubGrid().getExtent().x, hrap_point.y
-                    - getHRAPSubGrid().getExtent().y);
+            gage.hrap_loc = new Coordinate(
+                    hrap_point.x - getHRAPSubGrid().getExtent().x,
+                    hrap_point.y - getHRAPSubGrid().getExtent().y);
 
-            gage.manedit = totalPrecip.getQc() == 'M';
+            gage.manedit = total_precip.qc == 'M';
 
-            gage.td = totalPrecip.getQc() == 'D';
+            gage.td = total_precip.qc == 'D';
 
-            if (totalPrecip.getQc() == 'L') {
+            if (total_precip.qc == 'L') {
                 gage.qc = 2;
             }
 
-            if (totalPrecip.getQc() == 'C') {
+            if (total_precip.qc == 'C') {
                 gage.qc = 1;
             }
 
-            gage.reported_missing = totalPrecip.isReportedMissing();
+            gage.reported_missing = total_precip.reported_missing;
 
-            gage.setBad(false);
+            gage.is_bad = false;
 
             gageData.add(gage);
         }
@@ -1247,7 +1170,7 @@ public class MPEDataManager {
 
         /* process the pseudo gage values */
 
-        if (pseudoList.size() > 0) {
+        if (!pseudoList.isEmpty()) {
             int pseudoIdx = 0;
             while (pseudoIdx < pseudoList.size()) {
                 Pseudogageval pseudoGage = pseudoList.get(pseudoIdx);
@@ -1262,7 +1185,7 @@ public class MPEDataManager {
                             latLon, PixelOrientation.LOWER_LEFT);
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Error computing HRAP ", e);
+                            "error computing hrap coordinate", e);
                 }
 
                 /* make sure the gage is within the area. if so load the info */
@@ -1287,11 +1210,11 @@ public class MPEDataManager {
                 }
 
                 gage.hrap = hrap_point;
-                gage.hrapLoc = new Coordinate(hrap_point.x
-                        - getHRAPSubGrid().getExtent().x, hrap_point.y
-                        - getHRAPSubGrid().getExtent().y);
+                gage.hrap_loc = new Coordinate(
+                        hrap_point.x - getHRAPSubGrid().getExtent().x,
+                        hrap_point.y - getHRAPSubGrid().getExtent().y);
 
-                gage.hrapLoc = hrap_point;
+                gage.hrap_loc = hrap_point;
 
                 gage.manedit = "T".equals(pseudoGage.getManEdited());
 
@@ -1313,7 +1236,7 @@ public class MPEDataManager {
          * the value
          */
         for (MPEGageData gage : gageData) {
-            if (gage.gval == CommonHydroConstants.MISSING_PRECIP) {
+            if (gage.gval == PrecipUtil.MISSING_PRECIP) {
                 /*
                  * If the value is missing, set the gage value to the MPE
                  * missing representation.
@@ -1322,339 +1245,25 @@ public class MPEDataManager {
             }
 
             gage.rid = "ZZZ";
-            gage.xmrgVal = CommonHydroConstants.MPE_MISSING;
-            gage.mval = CommonHydroConstants.MPE_MISSING;
-            gage.rval = CommonHydroConstants.MPE_MISSING;
+            gage.xmrg_val = -999f;
+            gage.mval = -999f;
+            gage.rval = -999f;
             gage.edit = "";
-            gage.bval = CommonHydroConstants.MPE_MISSING;
-            gage.locVal = CommonHydroConstants.MPE_MISSING;
-            gage.gageOnly = CommonHydroConstants.MPE_MISSING;
-            gage.useInP3 = true;
+            gage.bval = -999f;
+            gage.loc_val = -999f;
+            gage.gage_only = -999f;
+            gage.use_in_p3 = true;
         }
 
         return gageData;
     }
 
-    /**
-     * Gets ingest info.
-     * 
-     * @return
-     */
-    public List<Ingestfilter> getIngestInfoList() {
-
-        /*
-         * Construct the where clause used to retrieve rows from the
-         * IngestFilter table.
-         */
-        String whereClause = "WHERE ingest = 'T' ORDER by ts ASC";
-
-        List<Ingestfilter> pIngestHead = null;
-        pIngestHead = IHFSDbGenerated.GetIngestFilter(whereClause);
-
-        return pIngestHead;
-    }
-
-    /**
-     * Loads PChourly
-     * 
-     * @param queryBeginTime
-     * @param queryEndTime
-     * @param lid
-     * @param ts
-     * @return
-     */
-    public List<Hourlypc> loadPCHourly(Date queryBeginTime, Date queryEndTime,
-            String lid, List<String> ts) {
-
-        final String fullQuery = pu.buildHourlyHQL(queryBeginTime,
-                queryEndTime, lid, ts, Hourlypc.class.getName(), null);
-        List<Object[]> results = null;
-        try {
-            results = DirectDbQuery.executeQuery(fullQuery, "ihfs",
-                    QueryLanguage.HQL);
-        } catch (VizException e) {
-            statusHandler.error("Failed to retrieve the Hourly PC data. ", e);
-        }
-
-        if (results == null || results.isEmpty()) {
-            return new ArrayList<>(0);
-        }
-
-        List<Hourlypc> hourlyPcRecords = new ArrayList<>(results.size());
-        for (Object object : results) {
-            Object[] dataValues = (Object[]) object;
-
-            /*
-             * First few fields are needed to build an {@link HourlypcId}.
-             */
-            HourlypcId id = new HourlypcId((String) dataValues[0],
-                    (String) dataValues[1], (Date) dataValues[2]);
-            Hourlypc record = new Hourlypc(id, (String) dataValues[3],
-                    (String) dataValues[4], (Short) dataValues[5],
-                    (Short) dataValues[6], (Short) dataValues[7],
-                    (Short) dataValues[8], (Short) dataValues[9],
-                    (Short) dataValues[10], (Short) dataValues[11],
-                    (Short) dataValues[12], (Short) dataValues[13],
-                    (Short) dataValues[14], (Short) dataValues[15],
-                    (Short) dataValues[16], (Short) dataValues[17],
-                    (Short) dataValues[18], (Short) dataValues[19],
-                    (Short) dataValues[20], (Short) dataValues[21],
-                    (Short) dataValues[22], (Short) dataValues[23],
-                    (Short) dataValues[24], (Short) dataValues[25],
-                    (Short) dataValues[26], (Short) dataValues[27],
-                    (Short) dataValues[28]);
-            hourlyPcRecords.add(record);
-        }
-
-        return hourlyPcRecords;
-    }
-
-    /**
-     * Loads PPhourly
-     * 
-     * @param queryBeginTime
-     * @param queryEndTime
-     * @param lid
-     * @param ts
-     * @return
-     */
-    public List<Hourlypp> loadPPHourly(Date queryBeginTime, Date queryEndTime,
-            String lid, List<String> ts) {
-
-        final String selectAdditional = ", b.sixhr06, b.sixhr12, b.sixhr18, b.sixhr24, b.sixhrqc, b.sixhroffset ";
-        final String fullQuery = pu.buildHourlyHQL(queryBeginTime,
-                queryEndTime, lid, ts, Hourlypp.class.getName(),
-                selectAdditional);
-        List<Object[]> results = null;
-        try {
-            results = DirectDbQuery.executeQuery(fullQuery, "ihfs",
-                    QueryLanguage.HQL);
-        } catch (VizException e) {
-            statusHandler.error("Failed to retrieve the Hourly PP data. ", e);
-        }
-
-        if (results == null || results.isEmpty()) {
-            return new ArrayList<>(0);
-        }
-
-        List<Hourlypp> hourlyPpRecords = new ArrayList<>(results.size());
-        for (Object object : results) {
-            Object[] dataValues = (Object[]) object;
-
-            /*
-             * First few fields are needed to build an {@link HourlypcId}.
-             */
-            HourlyppId id = new HourlyppId((String) dataValues[0],
-                    (String) dataValues[1], (Date) dataValues[2]);
-            Hourlypp record = new Hourlypp(id, (String) dataValues[3],
-                    (String) dataValues[4], (Short) dataValues[5],
-                    (Short) dataValues[6], (Short) dataValues[7],
-                    (Short) dataValues[8], (Short) dataValues[9],
-                    (Short) dataValues[10], (Short) dataValues[11],
-                    (Short) dataValues[12], (Short) dataValues[13],
-                    (Short) dataValues[14], (Short) dataValues[15],
-                    (Short) dataValues[16], (Short) dataValues[17],
-                    (Short) dataValues[18], (Short) dataValues[19],
-                    (Short) dataValues[20], (Short) dataValues[21],
-                    (Short) dataValues[22], (Short) dataValues[23],
-                    (Short) dataValues[24], (Short) dataValues[25],
-                    (Short) dataValues[26], (Short) dataValues[27],
-                    (Short) dataValues[28], (Short) dataValues[29],
-                    (Short) dataValues[30], (Short) dataValues[31],
-                    (Short) dataValues[32], (String) dataValues[33],
-                    (String) dataValues[34]);
-            hourlyPpRecords.add(record);
-        }
-
-        return hourlyPpRecords;
-    }
-
-    /**
-     * loadPeRaw
-     * 
-     * Method to load data from current precipitation table of IHFS database.
-     * Combines legacy load_PC_raw and load_PP_raw methods in load_PCPP_data.
-     * 
-     * @param beginstr
-     *            - string representing beginning time
-     * @param endstr
-     *            -- string representing ending time
-     * @param locId
-     *            -- location identifier
-     * @param typeSource
-     *            -- type source
-     * @param pe
-     *            -- physical element, either PC or PP
-     * @return -- list of objects from IHFS database query
-     */
-    public List<Object[]> loadPeRaw(String beginstr, String endstr,
-            String locId, java.util.List<String> typeSource,
-            HydroConstants.PhysicalElement pe) {
-
-        List<Object[]> retVal = null;
-        String tsClause = "";
-        StringBuilder query = new StringBuilder();
-        StringBuilder where = new StringBuilder();
-        String lid = "";
-        String value = "";
-        String obstime = "";
-        String ts = "";
-        String physElt = "";
-        String qcwhere = "";
-        String dur = "";
-
-        if ((typeSource != null) && !typeSource.isEmpty()) {
-            tsClause = pu.buildTsClause(typeSource, "id.ts");
-            if (tsClause == null) {
-                return null;
-            }
-        }
-
-        switch (pe) {
-        case PC:
-            query.append("select pc.lid, pc.pe, pc.dur, pc.ts, pc.extremum, pc.value, pc.shef_qual_code, pc.quality_code, pc.revision, pc.product_id, pc.producttime, pc.postingtime, pc.obstime, location.name from location, curpc pc where location.lid = pc.lid");
-            lid = "pc.lid";
-            value = "pc.value";
-            obstime = "pc.obstime";
-            ts = "pc.ts";
-            physElt = " pc.";
-            qcwhere = "";
-            dur = "";
-            break;
-        case PP:
-            query.append("select pp.lid, pp.pe, pp.dur, pp.ts, pp.extremum, pp.value, pp.shef_qual_code, pp.quality_code, pp.revision, pp.product_id, pp.producttime, pp.postingtime, pp.obstime, location.name from location, curpp pp where location.lid = pp.lid");
-            lid = "pp.lid";
-            value = "pp.value";
-            obstime = "pp.obstime";
-            ts = "pp.ts";
-            physElt = " pp.";
-            qcwhere = "pp.quality_code >= "
-                    + HydroQC.QUESTIONABLE_BAD_THRESHOLD;
-            dur = "pp.dur";
-            break;
-        }
-
-        if ((locId != null) && !locId.isEmpty() && (typeSource != null)
-                && !typeSource.isEmpty()) {
-            where.append(" AND ");
-            where.append(lid).append(" = '");
-            where.append(locId).append("' AND ");
-            where.append(tsClause).append(" AND ");
-            where.append(value).append(" != '-9999.0' AND ");
-            where.append(obstime).append(" >= '");
-            where.append(beginstr).append("' AND ");
-            where.append(obstime).append(" <= '");
-            where.append(endstr);
-            switch (pe) {
-            case PC:
-                where.append("' ORDER BY ");
-                where.append(obstime).append(" DESC ");
-                break;
-            case PP:
-                where.append("' AND ");
-                where.append(qcwhere).append(" ORDER BY ");
-                where.append(dur).append(" DESC, ");
-                where.append(obstime).append(" DESC ");
-                break;
-            }
-        } else if ((typeSource != null) && !typeSource.isEmpty()) {
-            where.append(" AND ");
-            where.append(tsClause).append(" AND ");
-            where.append(value).append(" != '-9999.0' AND ");
-            where.append(obstime).append(" >= '");
-            where.append(beginstr).append("' AND ");
-            where.append(obstime + " <= '");
-            where.append(endstr);
-            switch (pe) {
-            case PC:
-                where.append("' ORDER BY ");
-                where.append(lid).append(" ASC, ");
-                where.append(obstime).append(" DESC ");
-                break;
-            case PP:
-                where.append("' AND ");
-                where.append(qcwhere).append(" ORDER BY ");
-                where.append(lid).append(" ASC, ");
-                where.append(dur).append(" DESC, ");
-                where.append(obstime).append(" DESC ");
-                break;
-            }
-        } else if ((locId != null) && !locId.isEmpty()) {
-            where.append(" AND ");
-            where.append(lid).append(" = '");
-            where.append(locId).append("' AND ");
-            where.append(value).append(" != '-9999.0' AND ");
-            where.append(obstime).append(" >= '");
-            where.append(beginstr).append("' AND ");
-            where.append(obstime).append(" <= '");
-            where.append(endstr);
-            switch (pe) {
-            case PC:
-                where.append("' ORDER BY ");
-                where.append(ts).append(" ASC, ");
-                where.append(obstime).append(" DESC ");
-                break;
-            case PP:
-                where.append("' AND ");
-                where.append(qcwhere).append(" ORDER BY ");
-                where.append(ts).append(" ASC, ");
-                where.append(dur).append(" DESC, ");
-                where.append(obstime).append(" DESC ");
-                break;
-            }
-        } else {
-            where.append(" AND ");
-            where.append(value).append(" != '-9999.0' AND ");
-            where.append(obstime).append(" >= '");
-            where.append(beginstr).append("' AND ");
-            where.append(obstime + " <= '");
-            where.append(endstr);
-            switch (pe) {
-            case PC:
-                where.append("' ORDER BY ");
-                where.append(lid).append(" ASC, ");
-                where.append(ts).append(" ASC, ");
-                where.append(obstime).append(" DESC ");
-                break;
-            case PP:
-                where.append("' AND ");
-                where.append(qcwhere).append(" ORDER BY ");
-                where.append(lid).append(" ASC, ");
-                where.append(ts).append(" ASC, ");
-                where.append(dur).append(" DESC, ");
-                where.append(obstime).append(" DESC ");
-                break;
-            }
-        }
-
-        if ((typeSource != null) && !typeSource.isEmpty()) {
-            where.replace(where.indexOf(" id."), where.indexOf(" id.") + 4,
-                    physElt);
-
-        }
-
-        query.append(where.toString());
-
-        try {
-            retVal = (ArrayList<Object[]>) DirectDbQuery.executeQuery(
-                    query.toString(), HydroConstants.IHFS, QueryLanguage.SQL);
-        } catch (VizException e) {
-            statusHandler.error("Failed to retrieve the PE raw data. ", e);
-        }
-
-        return retVal;
-    }
-
-    /**
-     * Reads Gage Data
-     * 
-     * @param endTime
-     * @return
-     */
     public List<MPEGageData> readGageData(Date endTime) {
-        Calendar cal = TimeUtil.newGmtCalendar(endTime);
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
+        cal.setTime(endTime);
         cal.add(Calendar.HOUR_OF_DAY, -1);
         Date startTime = cal.getTime();
+
         return readGageData(startTime, endTime);
     }
 
@@ -1714,11 +1323,6 @@ public class MPEDataManager {
         return gageData;
     }
 
-    /**
-     * Removes Bad Gage.
-     * 
-     * @param gageId
-     */
     public void removeBadGage(String gageId) {
         if (badGages.contains(gageId)) {
             badGages.remove(gageId);
@@ -1726,8 +1330,6 @@ public class MPEDataManager {
     }
 
     /**
-     * Reads Bad Gage List
-     * 
      * @return
      */
     public List<String> readBadGageList() {
@@ -1737,27 +1339,20 @@ public class MPEDataManager {
         File file = new File(FileUtil.join(dirname, "mpe_bad_gage_list"));
 
         if (file.exists()) {
-
             try (BufferedReader badGageFile = new BufferedReader(
                     new FileReader(file))) {
-
                 while (badGageFile.ready()) {
                     badGages.add(badGageFile.readLine());
                 }
-
+                Collections.sort(badGages);
             } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error get Bad Gage list " + file, e);
+                statusHandler.error("Failed to read bad gage file: "
+                        + file.getAbsolutePath() + ".", e);
             }
-
-            Collections.sort(badGages);
         }
         return badGages;
     }
 
-    /**
-     * Writes Bad Gage List
-     */
     public void writeBadGageList() {
         String dirname = appsDefaults.getToken("mpe_bad_gages_dir");
         File file = new File(FileUtil.join(dirname, "mpe_bad_gage_list"));
@@ -1768,25 +1363,18 @@ public class MPEDataManager {
         if (file != null) {
             try (BufferedWriter badGageFile = new BufferedWriter(
                     new FileWriter(file))) {
-
                 for (int i = 0; i < badGages.size(); i++) {
                     badGageFile.write(badGages.get(i));
                     badGageFile.newLine();
                 }
             } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM, "Error writing file "
-                        + file.toString() + " ", e);
+                statusHandler.error("Failed to write bad gage file: "
+                        + file.getAbsolutePath() + ".", e);
             }
         }
     }
 
-    /**
-     * Gets MPE Location coordinates
-     * 
-     * @param lid
-     * @return
-     */
-    public Coordinate getMpeLocLatLon(String lid) {
+    public Coordinate get_mpe_loc_latlon(String lid) {
         boolean status = false;
         /*
          * the first time, read the station information from the station file
@@ -1794,7 +1382,7 @@ public class MPEDataManager {
          */
         if (locationMap == null) {
             status = readStationFile();
-            if (status == false) {
+            if (!status) {
                 return null;
             }
         }
@@ -1805,21 +1393,17 @@ public class MPEDataManager {
         return latLon;
     }
 
-    /**
-     * Reads Station File
-     * 
-     * @return
-     */
     public boolean readStationFile() {
         boolean status = false;
         String stationDir = appsDefaults.getToken("rfcwide_gageloc_dir");
-        String stationPathname = FileUtil
-                .join(stationDir, "mpe_gage_locations");
-        try (BufferedReader in = new BufferedReader(new FileReader(
-                stationPathname))) {
+        String stationPathname = FileUtil.join(stationDir,
+                "mpe_gage_locations");
 
+        try (BufferedReader in = new BufferedReader(
+                new FileReader(stationPathname))) {
             int stationCount = Integer.parseInt(in.readLine());
-            locationMap = new HashMap<>(stationCount);
+
+            locationMap = new HashMap<>(stationCount, 1.0f);
 
             for (int i = 0; i < stationCount; i++) {
                 String[] tokens = in.readLine().split(" ");
@@ -1831,58 +1415,45 @@ public class MPEDataManager {
                     continue;
                 }
             }
-
         } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.PROBLEM, "MPE Station File "
-                    + stationPathname + " not found. ", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "MPE Station File not found: " + stationPathname + ".", e);
             return status;
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Could not open/read MPE Station file " + stationPathname
-                            + " ", e);
+                    "Could not open/read MPE Station file: " + stationPathname
+                            + ".",
+                    e);
             return status;
         } catch (NumberFormatException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error parsing string ", e);
+            statusHandler.error("Failed to parse MPE Station file: "
+                    + stationPathname + ".", e);
             return status;
         }
-
         return status = true;
     }
 
-    /**
-     * Gets RawPP data
-     * 
-     * @param where
-     * @return
-     */
-    public List<Rawpp> getRawPP(String where) {
-        List<Rawpp> retVal = null;
-
+    public ArrayList<Rawpp> getRawPP(String where) {
         StringBuilder query = new StringBuilder("FROM ");
         query.append(Rawpp.class.getName());
         query.append(" ");
         query.append(where);
 
-        List<Object[]> results;
+        ArrayList<Rawpp> retVal = new ArrayList<>();
         try {
-            results = DirectDbQuery.executeQuery(query.toString(),
-                    HydroConstants.IHFS, QueryLanguage.HQL);
-            retVal = new ArrayList<>(results.size());
+            List<Object[]> results = DirectDbQuery.executeQuery(
+                    query.toString(), HydroConstants.IHFS, QueryLanguage.HQL);
+            retVal.ensureCapacity(results.size());
             for (Object[] item : results) {
                 retVal.add((Rawpp) item[0]);
             }
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Could not get records from Rawpp ", e);
+            statusHandler.error("Failed to retrieve the rawpp data.", e);
         }
+
         return retVal;
     }
 
-    /**
-     * Updates RawPP
-     * 
-     * @param where
-     */
     public void updateRawPP(String where) {
         StringBuilder query = new StringBuilder("UPDATE ");
         query.append(Rawpp.class.getAnnotation(Table.class).name());
@@ -1893,8 +1464,7 @@ public class MPEDataManager {
             DirectDbQuery.executeStatement(query.toString(),
                     HydroConstants.IHFS, QueryLanguage.SQL);
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Could not update records in Rawpp ", e);
+            statusHandler.error("Failed to update the rawpp data.", e);
         }
     }
 
@@ -1914,45 +1484,33 @@ public class MPEDataManager {
             DirectDbQuery.executeStatement(query.toString(),
                     HydroConstants.IHFS, QueryLanguage.SQL);
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Could not insert records to Rawpp ", e);
+            statusHandler.error("Failed to insert rawpp data.", e);
         }
     }
 
-    /**
-     * Gets Pseudo Gage Value
-     * 
-     * @param where
-     * @return
-     */
-    public List<Pseudogageval> getPseudoGageVal(String where) {
-
-        List<Pseudogageval> retVal = null;
+    public ArrayList<Pseudogageval> getPseudoGageVal(String where) {
         StringBuilder query = new StringBuilder("FROM ");
         query.append(Pseudogageval.class.getName());
         query.append(" ");
         query.append(where);
+
+        ArrayList<Pseudogageval> retVal = new ArrayList<>();
         try {
             List<Object[]> results = DirectDbQuery.executeQuery(
                     query.toString(), HydroConstants.IHFS, QueryLanguage.HQL);
-            retVal = new ArrayList<>(results.size());
+
+            retVal.ensureCapacity(results.size());
             for (Object[] item : results) {
                 retVal.add((Pseudogageval) item[0]);
             }
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Could not get records from Pseudogageval ", e);
+            statusHandler.error("Failed to retrieve the pseudogageval data.",
+                    e);
         }
 
         return retVal;
     }
 
-    /**
-     * Updates Pseudo Gage Value.
-     * 
-     * @param where
-     * @throws VizException
-     */
     public void updatePseudoGageVal(String where) throws VizException {
         StringBuilder query = new StringBuilder("UPDATE ");
         query.append(Pseudogageval.class.getAnnotation(Table.class).name());
@@ -1963,11 +1521,6 @@ public class MPEDataManager {
                 QueryLanguage.SQL);
     }
 
-    /**
-     * Inserts Pseudo Gage Value.
-     * 
-     * @param where
-     */
     public void insertPseudoGageVal(String where) {
         StringBuilder query = new StringBuilder("INSERT INTO ");
         query.append(Pseudogageval.class.getAnnotation(Table.class).name());
@@ -1978,8 +1531,7 @@ public class MPEDataManager {
             DirectDbQuery.executeStatement(query.toString(),
                     HydroConstants.IHFS, QueryLanguage.SQL);
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Could not insert records in Pseudogageval ", e);
+            statusHandler.error("Failed to insert pseudogageval data.", e);
         }
     }
 

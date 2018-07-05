@@ -44,22 +44,22 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 19, 2010 #5952      bkowal      This tool will no longer update the extents by itself,
- *                                     instead it will let the target know about the updated
- *                                     extents.
- * 15Mar2013	15693	mgamazaychikov Added magnification capability.
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jul 19, 2010  5952     bkowal    This tool will no longer update the extents
+ *                                  by itself, instead it will let the target
+ *                                  know about the updated extents.
+ * Mar 15, 2013  15693    mgamazay  Added magnification capability.
+ * May 01, 2017  5908     bsteffen  Check for null in frameChanged
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
-
-public class FeatureFollowingZoomLayer extends
-        AbstractVizResource<AbstractResourceData, MapDescriptor> implements
-        IFrameChangedListener {
+public class FeatureFollowingZoomLayer
+        extends AbstractVizResource<AbstractResourceData, MapDescriptor>
+        implements IFrameChangedListener {
 
     private int lastFrame = -1;
 
@@ -68,7 +68,7 @@ public class FeatureFollowingZoomLayer extends
             LoadProperties loadProperties, MapDescriptor descriptor) {
         super(resourceData, loadProperties);
         // add magnification capability
-		getCapabilities().addCapability(new MagnificationCapability());
+        getCapabilities().addCapability(new MagnificationCapability());
     }
 
     @Override
@@ -92,8 +92,8 @@ public class FeatureFollowingZoomLayer extends
         boolean rval = false;
         for (ResourcePair rp : descriptor.getResourceList()) {
             ResourceProperties props = rp.getProperties();
-            if (props.isMapLayer() == false
-                    && props.isSystemResource() == false && props.isVisible()) {
+            if (!props.isMapLayer() && !props.isSystemResource()
+                    && props.isVisible()) {
                 rval = true;
             }
         }
@@ -108,11 +108,12 @@ public class FeatureFollowingZoomLayer extends
         // Depending on frame, set center of screen to point
         Coordinate[] trackPoints = data.getCoordinates();
         int index = descriptor.getFramesInfo().getFrameIndex();
-        if (lastFrame != index && index >= 0 && index < trackPoints.length
-                && trackPoints.length > 0 && hasVisibleResource()) {
+        if (lastFrame != index && index >= 0 && trackPoints != null
+                && index < trackPoints.length && trackPoints.length > 0
+                && hasVisibleResource()) {
             Coordinate coord = trackPoints[index];
-            double[] end = descriptor.worldToPixel(new double[] { coord.x,
-                    coord.y });
+            double[] end = descriptor
+                    .worldToPixel(new double[] { coord.x, coord.y });
             double[] start = descriptor.getRenderableDisplay().getExtent()
                     .getCenter();
             IExtent updatedExtent = descriptor.getRenderableDisplay()

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -51,25 +51,27 @@ import com.raytheon.uf.edex.database.DataAccessLayerException;
 
 /**
  * Database implementation for satellite data in GFE
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 16, 2011            bphillip    Initial creation
- * May 04, 2012  #574      dgilling    Add unimplemented methods from GridDatabase.
- * Oct 10  2012  #1260     randerso    Added code to set valid flag
- * May 02  2013  #1969     randerso    Removed unnecessary updateDbs method
- * Jun 13  2013  #2044     randerso    Added getDbId and update methods
- * Nov 17  2015  #5129     dgilling    Ensure ServerResponse payload is always
- *                                     populated when calling getGridHistory.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 16, 2011           bphillip  Initial creation
+ * May 04, 2012  574      dgilling  Add unimplemented methods from GridDatabase.
+ * Oct 10, 2012  1260     randerso  Added code to set valid flag
+ * May 02, 2013  1969     randerso  Removed unnecessary updateDbs method
+ * Jun 13, 2013  2044     randerso  Added getDbId and update methods
+ * Nov 17, 2015  5129     dgilling  Ensure ServerResponse payload is always
+ *                                  populated when calling getGridHistory.
+ * Sep 12, 2016  5861     randerso  Change IFPServerConfig.getSiteID() to return
+ *                                  a single value instead of a list containing
+ *                                  only one value.
+ *
  * </pre>
- * 
+ *
  * @author bphillip
- * @version 1.0
  */
 
 public class D2DSatDatabase extends VGridDatabase {
@@ -78,7 +80,7 @@ public class D2DSatDatabase extends VGridDatabase {
 
     /**
      * Get the Satellite DatabaseID for a given site
-     * 
+     *
      * @param siteID
      * @return the Satellite DatabaseID
      */
@@ -97,26 +99,26 @@ public class D2DSatDatabase extends VGridDatabase {
      * satellite product. <br>
      * <br>
      * <b>Examples:</b>
-     * 
+     *
      * <pre>
      * "East CONUS/Imager Visible"
      * "East CONUS/Imager 11 micron IR"
      * "East CONUS/Imager 13 micron IR"
      * "East CONUS/Imager 3.9 micron IR"
      * </pre>
-     * 
+     *
      */
     private Map<String, D2DSatParm> idToParm;
 
     /**
      * Creates a new D2DSatDatabase
-     * 
+     *
      * @param config
      *            The server config for this site
      */
     public D2DSatDatabase(IFPServerConfig config) {
         super(config);
-        String siteID = config.getSiteID().get(0);
+        String siteID = config.getSiteID();
         this.dbId = getDbId(siteID);
         this.valid = this.dbId.isValid();
 
@@ -140,7 +142,7 @@ public class D2DSatDatabase extends VGridDatabase {
 
     /**
      * Gets the satellite DatabaseID
-     * 
+     *
      * @return The DatabaseID of the satellite database
      */
     public DatabaseID id() {
@@ -224,14 +226,14 @@ public class D2DSatDatabase extends VGridDatabase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see
      * com.raytheon.edex.plugin.gfe.server.database.VGridDatabase#getValidTimes
      * ()
      */
     @Override
-    public SortedSet<Date> getValidTimes() throws GfeException,
-            DataAccessLayerException {
+    public SortedSet<Date> getValidTimes()
+            throws GfeException, DataAccessLayerException {
         SortedSet<Date> times = new TreeSet<Date>();
         for (D2DSatParm parm : pidToParm.values()) {
             for (TimeRange tr : parm.getGridInventory().getPayload()) {
@@ -244,7 +246,7 @@ public class D2DSatDatabase extends VGridDatabase {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.edex.plugin.gfe.server.database.GridDatabase#deleteDb()
      */
     @Override
@@ -254,7 +256,7 @@ public class D2DSatDatabase extends VGridDatabase {
 
     /**
      * Update with newly ingested data
-     * 
+     *
      * @param record
      * @return GridUpdateNotification or null if none
      */
@@ -272,7 +274,7 @@ public class D2DSatDatabase extends VGridDatabase {
 
     /**
      * Update inventory from database after satellite purge
-     * 
+     *
      * @return list of GridUpdateNotifications to be sent
      */
     public List<GridUpdateNotification> update() {
@@ -287,7 +289,7 @@ public class D2DSatDatabase extends VGridDatabase {
 
     /**
      * Update parm inventory based on GridUpdateNotification
-     * 
+     *
      * @param gun
      *            the GridUpdateNotification
      */

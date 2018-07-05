@@ -47,16 +47,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 19, 2011 10672      jkorman     Move refactor to new project
  * Oct 07, 2013  2361      njensen     Removed XML annotations
  * May 16, 2016  5571      skorolev    Cleanup.
- * Jul 01, 2016  4623      skorolev    Added {@link #SELECT_INGESTFILTER_BY_LID}
  * 
  * </pre>
  * 
  * @author jkorman
  */
 
-@NamedQueries({
-        @NamedQuery(name = Ingestfilter.SELECT_INGESTFILTER_BY_LID_AND_PE, query = Ingestfilter.SELECT_INGESTFILTER_BY_LID_AND_PE_HQL),
-        @NamedQuery(name = Ingestfilter.SELECT_INGESTFILTER, query = Ingestfilter.SELECT_INGESTFILTER_HQL) })
+@NamedQueries({ @NamedQuery(name = Ingestfilter.SELECT_INGESTFILTER_BY_LID_AND_PE, query = Ingestfilter.SELECT_INGESTFILTER_BY_LID_AND_PE_HQL) })
 @Entity
 @Table(name = "ingestfilter")
 @DynamicSerialize
@@ -65,10 +62,6 @@ public class Ingestfilter implements Serializable {
     public static final String SELECT_INGESTFILTER_BY_LID_AND_PE = "SELECT_INGESTFILTER_BY_LID_AND_PE";
 
     public static final String SELECT_INGESTFILTER_BY_LID_AND_PE_HQL = "FROM Ingestfilter i WHERE i.id.lid = :lid AND i.id.pe = :pe";
-
-    public static final String SELECT_INGESTFILTER = "SELECT_INGESTFILTER";
-
-    public static final String SELECT_INGESTFILTER_HQL = "FROM Ingestfilter i WHERE i.ingest = 'T' ORDER by i.id.ts ASC";
 
     private static final long serialVersionUID = 1L;
 

@@ -41,6 +41,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 import org.eclipse.swt.widgets.Text;
 
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.viz.mpe.core.MPEDataManager;
@@ -59,12 +60,12 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 25, 2009            snaples     Initial creation
+ * Mar 25, 2009 ?          snaples     Initial creation
+ * Mar 01, 2017 6163       bkowal      Updates for {@link DisplayMeanArealPrecipResource}.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class MultiHourPrecipAccDialog extends CaveSWTDialog {
@@ -122,11 +123,6 @@ public class MultiHourPrecipAccDialog extends CaveSWTDialog {
         setText("Multi-Hour Precipitation Accumulation");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
     protected Layout constructShellLayout() {
         GridLayout mainLayout = new GridLayout(1, true);
@@ -135,13 +131,6 @@ public class MultiHourPrecipAccDialog extends CaveSWTDialog {
         return mainLayout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         font = new Font(shell.getDisplay(), "Courier", 10, SWT.NORMAL);
@@ -164,11 +153,6 @@ public class MultiHourPrecipAccDialog extends CaveSWTDialog {
         createButtonComp(shell);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
     protected void disposed() {
         font.dispose();
@@ -178,7 +162,6 @@ public class MultiHourPrecipAccDialog extends CaveSWTDialog {
      * Create the data options group and controls.
      */
     private void createProdListComp(Shell shell) {
-
         // Create a container to hold the label and the combo box.
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite prodListComp = new Composite(shell, SWT.NONE);
@@ -192,8 +175,8 @@ public class MultiHourPrecipAccDialog extends CaveSWTDialog {
         prodSetsLbl.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        prodSetCbo = new Combo(prodListComp, SWT.LEFT | SWT.DROP_DOWN
-                | SWT.READ_ONLY);
+        prodSetCbo = new Combo(prodListComp,
+                SWT.LEFT | SWT.DROP_DOWN | SWT.READ_ONLY);
 
         int selector = -1;
         DisplayFieldData currData = displayMgr.getDisplayFieldType();
@@ -351,7 +334,6 @@ public class MultiHourPrecipAccDialog extends CaveSWTDialog {
         hourSpinner.setMinimum(-1); // this works in eclipse 3.4+
         hourSpinner.setMaximum(24);
         hourSpinner.addSelectionListener(new SelectionAdapter() {
-
             @Override
             public void widgetSelected(SelectionEvent e) {
                 int hour = hourSpinner.getSelection();
@@ -487,15 +469,16 @@ public class MultiHourPrecipAccDialog extends CaveSWTDialog {
                 MPEFieldResource resource = displayMgr
                         .getDisplayedFieldResource();
                 resource.getResourceData().setDisplayIds(idChk.getSelection());
-                resource.getResourceData().setDisplayValues(
-                        valChk.getSelection());
+                resource.getResourceData()
+                        .setDisplayValues(valChk.getSelection());
                 resource.issueRefresh();
             } else {
                 // TODO: Move functionality of this resource to
                 // AbstractMPEGriddedResource and delete this one
                 displayMgr.displayFieldData(displayField);
                 dma = new DisplayMeanArealPrecipResource(displayMgr,
-                        arealDisplay.name(), displayField, accumHrs);
+                        arealDisplay.name(), displayField, accumHrs,
+                        dispCbo.getText(), TimeUtil.newCalendar(editTime));
                 DisplayMeanArealPrecipResource.vals = valChk.getSelection();
                 DisplayMeanArealPrecipResource.ids = idChk.getSelection();
                 descriptor.getResourceList().add(dma);

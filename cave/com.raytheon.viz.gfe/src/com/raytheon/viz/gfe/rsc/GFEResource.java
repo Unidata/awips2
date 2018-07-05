@@ -91,11 +91,13 @@ import com.raytheon.uf.viz.core.drawables.FillPatterns;
 import com.raytheon.uf.viz.core.drawables.IFont;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay;
-import com.raytheon.uf.viz.core.grid.display.GriddedVectorDisplay;
 import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay.GriddedImagePaintProperties;
+import com.raytheon.uf.viz.core.grid.display.GriddedVectorDisplay;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.point.display.VectorGraphicsConfig;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
@@ -112,7 +114,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.actions.ChangeCombineMode;
@@ -173,13 +174,13 @@ import com.vividsolutions.jts.geom.Envelope;
  * May 20, 2014  15814    zhao        Make image display for model Parm not affected by ISC mode
  * Jan 13, 2015  3995     randerso    Correctly fixed display of model Parms in ISC mode so ISC
  *                                    will work when editting Topo.
+ * Sep 14, 2016  3241     bsteffen    Update deprecated JTSCompiler method calls
  * 
  * </pre>
  * 
  * 
  * 
  * @author chammack
- * @version 1.0
  */
 public class GFEResource extends
         AbstractVizResource<GFEResourceData, MapDescriptor> implements
@@ -243,9 +244,9 @@ public class GFEResource extends
 
     protected DataManager dataManager;
 
-    protected Map<Object, IWireframeShape> outlineShapes = new HashMap<Object, IWireframeShape>();
+    protected Map<Object, IWireframeShape> outlineShapes = new HashMap<>();
 
-    protected Map<Object, Collection<IShadedShape>> shadedShapes = new HashMap<Object, Collection<IShadedShape>>();
+    protected Map<Object, Collection<IShadedShape>> shadedShapes = new HashMap<>();
 
     private IFont gfeFont = null;
 
@@ -332,7 +333,7 @@ public class GFEResource extends
         this.parm = parm;
         this.dataManager = dataManager;
 
-        this.vectorDisplay = new ArrayList<GriddedVectorDisplay>();
+        this.vectorDisplay = new ArrayList<>();
 
         // Construct reasonable initial colormap parameters
         // from the parm data
@@ -755,7 +756,7 @@ public class GFEResource extends
                         outlineShapes.put(discreteKey, target
                                 .createWireframeShape(false, this.descriptor));
 
-                        Collection<IShadedShape> shapeList = new ArrayList<IShadedShape>();
+                        Collection<IShadedShape> shapeList = new ArrayList<>();
                         shadedShapes.put(discreteKey, shapeList);
 
                         WxValue wxValue = new DiscreteWxValue(discreteKey, parm);
@@ -766,9 +767,7 @@ public class GFEResource extends
                         boolean first = true;
                         for (ImageAttr attr : fillAttrs) {
                             IShadedShape shadedShape = target
-                                    .createShadedShape(false,
-                                            this.descriptor.getGridGeometry(),
-                                            true);
+                                    .createShadedShape(false, this.descriptor.getGridGeometry());
                             shapeList.add(shadedShape);
 
                             IWireframeShape outlineShape = first ? outlineShapes
@@ -783,6 +782,9 @@ public class GFEResource extends
 
                             RGB fillColor = RGBColors.getRGBColor(attr
                                     .getColorName());
+                            JTSGeometryData jtsData = jtsCompiler
+                                    .createGeometryData();
+                            jtsData.setGeometryColor(fillColor);
 
                             Grid2DBit tmpBit = slice.eq(discreteKey).and(mask);
 
@@ -792,7 +794,7 @@ public class GFEResource extends
 
                             jtsCompiler.handle(
                                     refData.getPolygons(CoordinateType.LATLON),
-                                    fillColor);
+                                    jtsData);
                             shadedShape.compile();
                             shadedShape.setFillPattern(fillPattern);
                         }
@@ -832,7 +834,7 @@ public class GFEResource extends
                         outlineShapes.put(weatherKey, target
                                 .createWireframeShape(false, this.descriptor));
 
-                        Collection<IShadedShape> shapeList = new ArrayList<IShadedShape>();
+                        Collection<IShadedShape> shapeList = new ArrayList<>();
                         shadedShapes.put(weatherKey, shapeList);
 
                         WxValue wxValue = new WeatherWxValue(weatherKey, parm);
@@ -843,9 +845,7 @@ public class GFEResource extends
                         boolean first = true;
                         for (ImageAttr attr : fillAttrs) {
                             IShadedShape shadedShape = target
-                                    .createShadedShape(false,
-                                            this.descriptor.getGridGeometry(),
-                                            true);
+                                    .createShadedShape(false, this.descriptor.getGridGeometry());
                             shapeList.add(shadedShape);
 
                             IWireframeShape outlineShape = first ? outlineShapes
@@ -860,6 +860,9 @@ public class GFEResource extends
 
                             RGB fillColor = RGBColors.getRGBColor(attr
                                     .getColorName());
+                            JTSGeometryData jtsData = jtsCompiler
+                                    .createGeometryData();
+                            jtsData.setGeometryColor(fillColor);
 
                             Grid2DBit tmpBit = slice.eq(weatherKey).and(mask);
 
@@ -869,7 +872,7 @@ public class GFEResource extends
 
                             jtsCompiler.handle(
                                     refData.getPolygons(CoordinateType.LATLON),
-                                    fillColor);
+                                    jtsData);
                             shadedShape.compile();
                             shadedShape.setFillPattern(fillPattern);
                         } // next diIdx
@@ -1042,9 +1045,9 @@ public class GFEResource extends
 
         VisMode visMode = parm.getDisplayAttributes().getVisMode();
 
-        Set<VisualizationType> visTypes = new HashSet<VisualizationType>(parm
-                .getDisplayAttributes().getVisualizationType(
-                        EditorType.SPATIAL, visMode));
+        Set<VisualizationType> visTypes = new HashSet<>(
+                parm.getDisplayAttributes()
+                        .getVisualizationType(EditorType.SPATIAL, visMode));
 
         getCapability(ColorMapCapability.class).setSuppressingMenuItems(
                 !visTypes.contains(VisualizationType.IMAGE)
@@ -1090,7 +1093,7 @@ public class GFEResource extends
     public DataTime[] getDataTimes() {
         IGridData[] data = parm.getGridInventory();
 
-        this.dataTimes = new ArrayList<DataTime>();
+        this.dataTimes = new ArrayList<>();
         for (IGridData d : data) {
             TimeRange tr = d.getGridTime();
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -1187,7 +1190,7 @@ public class GFEResource extends
             // But don't offer tools that aren't OK for the parm
             String[] putools = Activator.getDefault().getPreferenceStore()
                     .getStringArray("PopUpEditActions");
-            List<String> toolList = new ArrayList<String>(Arrays.asList(tools));
+            List<String> toolList = new ArrayList<>(Arrays.asList(tools));
             List<String> puToolList = Arrays.asList(putools);
             toolList.retainAll(puToolList);
             tools = toolList.toArray(new String[toolList.size()]);
@@ -1505,7 +1508,7 @@ public class GFEResource extends
     private Point[] findLabelLoc(Point gridDim, Rectangle gDomain,
             float multiplier) {
         // accumulate all label points in a SeqOf<points>, construct the SeqOf.
-        List<Point> points = new ArrayList<Point>();
+        List<Point> points = new ArrayList<>();
 
         // Start in loop from the lower-left grid point, once you identify
         // a grid cell to put a label in, see if it's within the gridDomain.

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -28,201 +28,188 @@
 #
 # Author: dgilling
 # ----------------------------------------------------------------------------
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 07, 2017  6092     randerso  Refactored to support calling validateArgs()
+#                                  from gfeClient.py
+#
+##
 
-import getopt
 import logging
-import os
 import sys
-
-import FormatterRunner
-import loadConfig
-
-from com.raytheon.viz.gfe.core import DataManager
-
 
 LOGGER = None
 
+def runFormatter(args):
+    ############################################################################
+    # Import of FormatterRunner and loadConfig are nested in this function
+    # because can only be run under Jep. This allows validateArgs to be called
+    # from a pure Python environment
+    ############################################################################
 
-def usage():
-    print """
-Usage: runIFPText
-              -d database
-              -t forecastType
-             [-c configFile -- default gfeConfig]
-             [-o output file for text -- default None]
-             [-O server output file for text -- default None]
-             [-S server controlled output file -- default None]
-             [-A append text to given file name]
-             [-server server -- example ec:9581/services]
-             [-site siteID]
-             [-l language -- english, french, spanish: default english]
-             [-z displaced real time -- format YYYYMMDD_HHMM]
-             [-T] Generates a "TEST" product.
-             [-E] Generates a "EXPERIMENTAL" product.
-             [-v vtecMode] Specifies vtec mode ('X','O','T','E')
-             [-a vtecActiveTableName] Specifies alternate active table
-             [-V vardict] use this option to provide a run-time VariableList
-                  instead of displaying the user dialog.
-                  The dictionary must be in the form of a Python
-                  dictionary string, e.g.,
-                '{("Forecast Product", "productType"):"Morning",
-                  ("Issuance", "issuanceType"):"Routine"}'
-                  The entries must be complete or the product will be cancelled.
+    import FormatterRunner
+    import loadConfig
 
-             For Simple Table products:
-             [-r Edit Area Name]
-             [-w Time Range Name]  OR
-             [-s startTime -e endTime]
-             [-i Period for Tables with variable period (rows or columns)]
-             """
+    from com.raytheon.viz.gfe.core import DataManager
 
-def main2(argv):
-    # Set up logging
-    __initLogger()
     LOGGER.info("TextFormatter Starting")
     LOGGER.info("CmdLine: " + str(sys.argv[1:]))
 
-    # Parse command line
-    try:
-        optlist, args = getopt.getopt(
-            argv[1:], 'd:t:c:o:u:l:A:V:O:z:Tv:a:r:w:s:e:i:ES:')
-    except getopt.error, val:
-        LogStream.logProblem("Bad/missing command line arguments", val)
-        usage()
-        sys.exit(1)
+    # set default gfe config so no popup windows appear
+    loadConfig.loadPreferences(args.configFile)
 
-    # Set up defaults
-    outputFile = serverFile = databaseID = serverOutputFile = None
-    appendFile = None
-    userName = "SITE"
-    language = None
-    cmdLineVarDict = {}
-    forecastList = []
-    vtecMode = None
-    testMode = 0
-    experimentalMode = 0
-    vtecActiveTable = "active"
-    editAreas = []
-    timeRanges = []
-    startTime = endTime = None
-    timePeriod = None
-    offsetTime = None
-    configFile = "gfeConfig"
+    dataMgr = DataManager.getInstance(None)
 
-    argDict = {}
-    for switch, val in optlist:
-        if switch == "-d":
-            databaseID = val
-        elif switch == "-t":
-            forecastList.append(val)
-        elif switch == "-c":
-            configFile = val
-        elif switch == "-o":
-            outputFile = val
-        elif switch == "-S":
-            serverOutputFile = val
-        elif switch == "-u":
-            userName = val
-        elif switch == "-A":
-            appendFile = val
-        elif switch == "-O":
-            serverFile = val
-        elif switch == "-V":
-            cmdLineVarDict = val
-        elif switch == "-a":
-             vtecActiveTable = val
-        elif switch == "-T":
-             testMode = 1
-        elif switch == "-E":
-             experimentalMode = 1
-        elif switch == "-v":
-             vtecMode = val
-        elif switch == "-l":
-            language = val
-        elif switch == "-z":
-            offsetTime = val
-        elif switch == "-r":
-            editAreas.append((val,val))
-        elif switch == "-w":
-            timeRanges.append(val)
-        elif switch == "-s":
-            startTime = val
-        elif switch == "-e":
-            endTime = val
-        elif switch == "-i":
-            timePeriod = float(val)
+    forecasts = FormatterRunner.runFormatter(str(args.databaseID),
+                                             dataMgr.getSiteID(),
+                                             args.forecastList, args.varDict,
+                                             args.vtecMode, args.userName, dataMgr,
+                                             args.serverFile, args.editAreas,
+                                             args.timeRanges, args.timePeriod,
+                                             args.drt,
+                                             args.vtecActiveTable,
+                                             args.testMode,
+                                             args.experimentalMode,
+                                             args.serverOutputFile,
+                                             args.startTime, args.endTime,
+                                             args.language,
+                                             args.outputFile, args.appendFile)
 
-    # Set default Forecast Type
-    if len(forecastList) == 0:
-        usage()
-        LOGGER.error("ForecastList [-t] is empty or missing")
-        sys.exit(1)
+    LOGGER.info("Text Formatter Finished")
 
-    # Can't have both T and E modes
-    if testMode and experimentalMode:
-        usage()
-        LOGGER.error("Can't have both -T and -E switches")
-        sys.exit(1)
+def validateArgs(args=None, parents=[]):
+    ############################################################################
+    # imports required for this method must be here so it can be invoked
+    # from gfeClient.py
+    ############################################################################
+    from ufpy import UsageArgumentParser
+    from ufpy.UsageArgumentParser import StoreDatabaseIDAction
+    from ufpy.UsageArgumentParser import StoreTimeAction
 
-    # Handle the VTEC modes
-    if vtecMode is not None and vtecMode not in ['X','O','T','E']:
-        usage()
-        LOGGER.error("-v vtecMode must be ['X', 'O', 'T', 'E']")
-        sys.exit(1)
+    parser = UsageArgumentParser.UsageArgumentParser(conflict_handler="resolve",
+                                                     parents=parents,
+                                                     prog='runIFPText')
+    parser.add_argument("-d", action=StoreDatabaseIDAction, dest="databaseID", required=True,
+                        help="database to run formatter against",
+                        metavar="databaseID")
+    parser.add_argument("-t", action="append", dest="forecastList", required=True,
+                        help="forecastType",
+                        metavar="forecastList")
+    parser.add_argument("-c", "--config", action="store", dest="configFile", required=False,
+                      default="gfeConfig",
+                      help="GFE config file -- default gfeConfig",
+                      metavar="configFile")
+    parser.add_argument("-u", action="store", dest="userName", required=False,
+                        help="user name -- default SITE",
+                        default="SITE",
+                        metavar="userName")
+    parser.add_argument("-o", action="store", dest="outputFile", required=False,
+                        help="output file for text -- default None",
+                        metavar="outputFile")
+    parser.add_argument("-O", action="store", dest="serverFile", required=False,
+                        help="server output file for text -- default None",
+                        metavar="serverFile")
+    parser.add_argument("-S", action="store", dest="serverOutputFile", required=False,
+                        help="server controlled output file -- default None",
+                        metavar="serverOutputFile")
+    parser.add_argument("-A", action="store", dest="appendFile", required=False,
+                        help="append text to given file name",
+                        metavar="appendFile")
+    parser.add_argument("-l", action="store", dest="language", required=False,
+                        help="language -- english, french, spanish: default english",
+                        choices=['english', 'french', 'spanish'],
+                        metavar="language")
+    parser.add_argument("-z", "--drt", action=StoreTimeAction, dest="drt", required=False,
+                      help="displaced real time -- format YYYYMMDD_hhmm",
+                      metavar="drt")
+    group = parser.add_mutually_exclusive_group(required=False)
+    group.add_argument("-T", action="store_true", dest="testMode", required=False,
+                        help="Generates a \"TEST\" product")
+    group.add_argument("-E", action="store_true", dest="experimentalMode", required=False,
+                        help="Generates a \"EXPERIMENTAL\" product.")
+    parser.add_argument("-v", action="store", dest="vtecMode", required=False,
+                        choices=['X', 'O', 'T', 'E'],
+                        help="Specifies vtec mode ('X','O','T','E')",
+                        metavar="vtecMode")
+    parser.add_argument("-a", action="store", dest="vtecActiveTable", required=False,
+                        choices=['active', 'PRACTICE'],
+                        help="Specifies active table -- 'active' or 'PRACTICE'",
+                        default='active',
+                        metavar="vtecActiveTable")
+    parser.add_argument("-V", action="store", dest="varDict", required=False,
+                        help="""use this option to provide a run-time VariableList
+                                instead of displaying the user dialog.
+                                The dictionary must be in the form of a Python
+                                dictionary string, e.g.,
+                                '{("Forecast Product", "productType"): "Morning",
+                                  ("Issuance", "issuanceType"): "Routine"}'
+                                The entries must be complete or the product will be cancelled.""",
+                        default="{}",
+                        metavar="varDict")
+    parser.add_argument("-r", action="append", dest="editAreas", required=False,
+                        help="Edit Area Name",
+                        default=[],
+                        metavar="editAreas")
+    parser.add_argument("-w", action="append", dest="timeRanges", required=False,
+                        help="named time range (e.g. Today, Tonight)",
+                        default=[],
+                        metavar="timeRanges")
+    parser.add_argument("-s", action=StoreTimeAction, dest="startTime", required=False,
+                        help="startTime -- format YYYYMMDD_hhmm",
+                        metavar="startTime")
+    parser.add_argument("-e", action=StoreTimeAction, dest="endTime", required=False,
+                        help="endTime -- format YYYYMMDD_hhmm",
+                        metavar="endTime")
+    parser.add_argument("-i", action="store", dest="timePeriod", required=False,
+                        type=float,
+                        help="Period for Tables with variable period (rows or columns)",
+                        metavar="timePeriod")
+
+    args = parser.parse_args(args)
 
     #force VTEC mode to "T" if in TEST mode and another vtecCode is specified
-    if testMode and vtecMode is not None:
-        vtecMode = "T"
+    if args.testMode and args.vtecMode is not None:
+        args.vtecMode = "T"
 
     #force VTEC mode to "E" if in EXPERIMENTAL mode and another vtecCode
     #is specified
-    elif experimentalMode and vtecMode is not None:
-        vtecMode = "E"
+    elif args.experimentalMode and args.vtecMode is not None:
+        args.vtecMode = "E"
 
     #force into TEST mode, if vtec code is 'T'
-    if vtecMode == "T":
-        testMode = 1
-        experimentalMode = 0
-    elif vtecMode == "E":
-        experimentalMode = 1
-        testMode = 0
+    if args.vtecMode == "T":
+        args.testMode = True
+        args.experimentalMode = False
+    elif args.vtecMode == "E":
+        args.experimentalMode = True
+        args.testMode = False
 
-    # set default gfe config so no popup windows appear
-    loadConfig.loadPreferences(configFile)
-#    LOGGER.debug("Configuration File: " + configFile)
-    
-    dataMgr = DataManager.getInstance(None)
-    
-    forecasts = FormatterRunner.runFormatter(databaseID, dataMgr.getSiteID(), 
-                                             forecastList, cmdLineVarDict, 
-                                             vtecMode, userName, dataMgr, 
-                                             serverFile, editAreas, 
-                                             timeRanges, timePeriod, 
-                                             offsetTime, 
-                                             vtecActiveTable, 
-                                             testMode, 
-                                             experimentalMode, 
-                                             serverOutputFile, startTime, 
-                                             endTime, language, 
-                                             outputFile, appendFile)
-    
-    # Output of the forecasts is not needed as we can let formatterrunner do it,
-    # LOGGER.info("Text:\n" + forecasts)
+    return args
 
-    LOGGER.info("Text Formatter Finished")
-    
+def usage():
+    validateArgs(['--help'])
+
+def error(msg):
+    print "ERROR: %s\n" % msg
+
+def main2(argv):
+    # Parse command line
+    args = validateArgs()
+    runFormatter(args)
+
 def __initLogger():
     global LOGGER
+    logging.basicConfig(level=logging.INFO,
+                        format="%(asctime)s %(name)s %(levelname)s:  %(message)s",
+                        datefmt="%H:%M:%S")
     LOGGER = logging.getLogger("runIFPText.py")
-    LOGGER.setLevel(logging.INFO)
-    ch = logging.StreamHandler()
-    ch.setLevel(logging.INFO)
-    formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s:  %(message)s", "%H:%M:%S")
-    ch.setFormatter(formatter)
-    LOGGER.addHandler(ch)
 
 PROFILE = False
 def profMain(arg):
+    __initLogger()
     if PROFILE:
         import profile, pstats, sys
         limit = 20

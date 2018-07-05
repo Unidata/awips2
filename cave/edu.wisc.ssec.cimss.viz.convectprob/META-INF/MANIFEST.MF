@@ -9,7 +9,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core,
  edu.wisc.ssec.cimss.common.dataplugin.convectprob
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.colormap,
  com.raytheon.uf.common.colormap.prefs,
  com.raytheon.uf.common.dataplugin,

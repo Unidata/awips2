@@ -18,26 +18,30 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="m" name="Height AGL" abbreviation="zAGL" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="m" name="Height AGL" abbreviation="zAGL">
     <Method name="Alias">
-        <Field abbreviation="ZAGL"/>
+        <Field abbreviation="ZAGL" />
     </Method>
     <Method name="Alias">
-        <Field abbreviation="FHAG"/>
+        <Field abbreviation="FHAG" />
     </Method>
     <Method name="Difference">
-        <Field abbreviation="GH"/>
-        <Field abbreviation="GH" level="Surface"/>
+        <Field abbreviation="GH" />
+        <Field abbreviation="GH" level="Surface" />
     </Method>
     <Method name="Difference">
-        <Field abbreviation="GH"/>
-        <Field abbreviation="Topo" level="Surface"/>
+        <Field abbreviation="GH" />
+        <Field abbreviation="Topo" level="Surface" />
     </Method>
     <Method name="Alias" levels="CloudCeiling">
-        <Field abbreviation="CCag" level="Surface"/>
+        <Field abbreviation="CCag" level="Surface" />
     </Method>
     <Method name="Multiply" levels="LiftCondLvl">
-        <Field abbreviation="DpD" level="Surface"/>
-        <ConstantField value="120"/>
+        <Field abbreviation="DpD" level="Surface" />
+        <ConstantField value="120" />
     </Method>
 </DerivedParameter>

@@ -18,6 +18,10 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="CapeStk" name="Cape Stack">
     <!-- For Composite Agl levels it is better to explicitly list the levels 
         to Union to avoid pulling in extra levels, specifically levels defined at 
@@ -200,7 +204,7 @@
         <Field abbreviation="cCape" level="7kmAgl" />
         <Field abbreviation="cCape" level="8kmAgl" />
     </Method>
-     <Method name="Union" levels="3-6kmAgl">
+    <Method name="Union" levels="3-6kmAgl">
         <Field abbreviation="cCape" level="3kmAgl" />
         <Field abbreviation="cCape" level="3.5kmAgl" />
         <Field abbreviation="cCape" level="4kmAgl" />
@@ -209,7 +213,7 @@
         <Field abbreviation="cCape" level="5.5kmAgl" />
         <Field abbreviation="cCape" level="6kmAgl" />
     </Method>
-     <Method name="Union" levels="3-8kmAgl">
+    <Method name="Union" levels="3-8kmAgl">
         <Field abbreviation="cCape" level="3kmAgl" />
         <Field abbreviation="cCape" level="3.5kmAgl" />
         <Field abbreviation="cCape" level="4kmAgl" />

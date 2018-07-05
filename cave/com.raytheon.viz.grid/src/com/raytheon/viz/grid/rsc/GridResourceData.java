@@ -35,9 +35,6 @@ import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
-import com.raytheon.uf.common.datastorage.Request;
-import com.raytheon.uf.common.datastorage.records.IDataRecord;
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -46,19 +43,14 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
-import com.raytheon.uf.viz.core.rsc.IResourceGroup;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
+import com.raytheon.uf.viz.core.rsc.groups.ICombinedResourceData;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
-import com.raytheon.viz.core.rsc.ICombinedResourceData;
 import com.raytheon.viz.grid.inv.GribDataCubeAlertMessageParser;
 import com.raytheon.viz.grid.inv.VizGridInventory;
 import com.raytheon.viz.grid.rsc.general.D2DGridResource;
 import com.raytheon.viz.grid.rsc.general.DifferenceGridResourceData;
-import com.raytheon.viz.grid.util.TiltRequest;
-import com.raytheon.viz.radar.rsc.AbstractRadarResource;
-import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Resource data for grids from GridRecords
@@ -74,14 +66,15 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                  display types.
  * Sep 03, 2015  4779     njensen   Removed DataScale references
  * Mar 03, 2016  5439     bsteffen  Rename inventory class
+ * Aug 15, 2017  6332     bsteffen  Move radar specific logic to extension
  * 
  * </pre>
  * 
  * @author njensen
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public class GridResourceData extends AbstractRequestableResourceData implements
-        ICombinedResourceData {
+public class GridResourceData extends AbstractRequestableResourceData
+        implements ICombinedResourceData {
 
     protected GridRecord[] records;
 
@@ -117,8 +110,8 @@ public class GridResourceData extends AbstractRequestableResourceData implements
             two.setResourceData(secondaryResourceData);
             two.setLoadProperties(loadProperties);
             this.secondaryResourceData = null;
-            return new DifferenceGridResourceData(one, two).construct(
-                    loadProperties, descriptor);
+            return new DifferenceGridResourceData(one, two)
+                    .construct(loadProperties, descriptor);
         }
         return super.construct(loadProperties, descriptor);
     }
@@ -139,8 +132,8 @@ public class GridResourceData extends AbstractRequestableResourceData implements
             }
         }
         if (sampling == null) {
-            if (loadProperties.getCapabilities().hasCapability(
-                    DisplayTypeCapability.class)) {
+            if (loadProperties.getCapabilities()
+                    .hasCapability(DisplayTypeCapability.class)) {
                 DisplayType dType = loadProperties.getCapabilities()
                         .getCapability(this, DisplayTypeCapability.class)
                         .getDisplayType();
@@ -173,12 +166,21 @@ public class GridResourceData extends AbstractRequestableResourceData implements
     }
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((secondaryResourceData == null) ? 0
+                : secondaryResourceData.hashCode());
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
             return false;
         }
 
-        if (obj instanceof GridResourceData == false) {
+        if (this.getClass() != obj.getClass()) {
             return false;
         }
 
@@ -293,8 +295,8 @@ public class GridResourceData extends AbstractRequestableResourceData implements
         DataTime[] times = super.getAvailableTimes();
         Set<Level> levels = ((VizGridInventory) DataCubeContainer
                 .getInventory(GridConstants.GRID))
-                .getAvailableLevels(metadataMap);
-        List<DataTime> timesWithLevels = new ArrayList<DataTime>();
+                        .getAvailableLevels(metadataMap);
+        List<DataTime> timesWithLevels = new ArrayList<>();
         for (int i = 0; i < times.length; ++i) {
             for (Level l : levels) {
                 DataTime time = times[i].clone();
@@ -313,7 +315,7 @@ public class GridResourceData extends AbstractRequestableResourceData implements
         if (!spatial) {
             return super.getLatestPluginDataObjects(desired, current);
         }
-        Set<DataTime> stripped = new HashSet<DataTime>(desired.length);
+        Set<DataTime> stripped = new HashSet<>(desired.length);
         Double levelValue = null;
         for (int i = 0; i < desired.length; ++i) {
             if (desired[i] == null) {
@@ -341,8 +343,7 @@ public class GridResourceData extends AbstractRequestableResourceData implements
 
         HashMap<String, RequestConstraint> originalMetadataMap = this.metadataMap;
         if (levelValue != null && levelValue != -1) {
-            this.metadataMap = new HashMap<String, RequestConstraint>(
-                    this.metadataMap);
+            this.metadataMap = new HashMap<>(this.metadataMap);
             this.metadataMap.put(GridConstants.LEVEL_ONE,
                     new RequestConstraint(levelValue.toString()));
         }
@@ -361,44 +362,6 @@ public class GridResourceData extends AbstractRequestableResourceData implements
     @Override
     public AbstractVizResource<?, ?> getSecondaryResource() {
         // TODO Auto-generated method stub
-        return null;
-    }
-
-    public static IDataRecord[] getDataRecordsForTilt(GridRecord record,
-            IDescriptor descriptor) throws VizException {
-        if (record.getLevel().getMasterLevel().getName().equals("TILT")) {
-            Coordinate tiltLoc = findTiltLocation(descriptor.getResourceList());
-            if (tiltLoc != null) {
-                TiltRequest request = new TiltRequest();
-                request.setType(Request.Type.ALL);
-                request.setTiltLocation(tiltLoc);
-                try {
-                    return DataCubeContainer.getDataRecord(record, request,
-                            null);
-                } catch (DataCubeException e) {
-                    throw new VizException(e);
-                }
-            }
-        }
-        return null;
-
-    }
-
-    private static Coordinate findTiltLocation(ResourceList resourceList) {
-        for (ResourcePair rp : resourceList) {
-            AbstractResourceData resourceData = rp.getResourceData();
-            AbstractVizResource<?, ?> resource = rp.getResource();
-            if (resource instanceof AbstractRadarResource) {
-                return ((AbstractRadarResource<?>) resource).getRadarLocation();
-            }
-            if (resourceData instanceof IResourceGroup) {
-                Coordinate tiltLoc = findTiltLocation(((IResourceGroup) resourceData)
-                        .getResourceList());
-                if (tiltLoc != null) {
-                    return tiltLoc;
-                }
-            }
-        }
         return null;
     }
 

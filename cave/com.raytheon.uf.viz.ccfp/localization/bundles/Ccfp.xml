@@ -18,84 +18,97 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
-				<resource>
-					<loadProperties loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="colorableCapability"
-								colorAsString="#FF00FF" />
-						</capabilities>
-					</loadProperties>
-					<resourceData xsi:type="ccfpResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true"
-						retrieveData="true" coverageFilter="4" validDuration="${validDuration}"
-						displayText="false">
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="ccfp" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-					<loadProperties loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="colorableCapability"
-								colorAsString="#FFFF00" />
-						</capabilities>
-					</loadProperties>
-					<resourceData xsi:type="ccfpResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true"
-						retrieveData="true" coverageFilter="3" validDuration="${validDuration}"
-						displayText="false">
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="ccfp" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-					<loadProperties loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="colorableCapability"
-								colorAsString="#ff7900" />
-						</capabilities>
-					</loadProperties>
-					<resourceData xsi:type="ccfpResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true"
-						retrieveData="true" coverageFilter="2" validDuration="${validDuration}"
-						displayText="false">
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="ccfp" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
-					<loadProperties loadWithoutData="false">
-						<capabilities>
-							<capability xsi:type="colorableCapability"
-								colorAsString="#ff0000" />
-						</capabilities>
-					</loadProperties>
-					<resourceData xsi:type="ccfpResourceData"
-						isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true"
-						retrieveData="true" coverageFilter="1" validDuration="${validDuration}"
-						displayText="false">
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="ccfp" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-			</descriptor>
-		</displays>
-	</displayList>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#FF00FF" />
+                        </capabilities>
+                    </loadProperties>
+                    <resourceData xsi:type="ccfpResourceData"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        retrieveData="true" coverageFilter="4"
+                        validDuration="${validDuration}" displayText="false">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="ccfp"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#FFFF00" />
+                        </capabilities>
+                    </loadProperties>
+                    <resourceData xsi:type="ccfpResourceData"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        retrieveData="true" coverageFilter="3"
+                        validDuration="${validDuration}" displayText="false">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="ccfp"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#ff7900" />
+                        </capabilities>
+                    </loadProperties>
+                    <resourceData xsi:type="ccfpResourceData"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        retrieveData="true" coverageFilter="2"
+                        validDuration="${validDuration}" displayText="false">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="ccfp"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
+                    <loadProperties loadWithoutData="false">
+                        <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#ff0000" />
+                        </capabilities>
+                    </loadProperties>
+                    <resourceData xsi:type="ccfpResourceData"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true"
+                        retrieveData="true" coverageFilter="1"
+                        validDuration="${validDuration}" displayText="false">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="ccfp"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

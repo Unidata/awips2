@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -47,6 +47,7 @@ import org.eclipse.ui.themes.ColorUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.message.StatusMessage;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -63,6 +64,7 @@ import com.raytheon.uf.viz.alertviz.config.Category;
 import com.raytheon.uf.viz.alertviz.config.Configuration;
 import com.raytheon.uf.viz.alertviz.config.Source;
 import com.raytheon.uf.viz.alertviz.config.TrayConfiguration;
+import com.raytheon.uf.viz.alertviz.python.AlertVizPython;
 import com.raytheon.uf.viz.alertviz.ui.audio.AlertAudioMgr;
 import com.raytheon.uf.viz.alertviz.ui.audio.IAudioAction;
 import com.raytheon.uf.viz.alertviz.ui.timer.AlertTimer;
@@ -71,47 +73,55 @@ import com.raytheon.uf.viz.core.VizApp;
 
 /**
  * This is the main class for the alert visualization.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 05 Oct 2008             lvenable    Initial creation.
- * 02 Apr 2009             lvenable    TTR fixes.
- * 18 Nov 2010  2235       cjeanbap    Add AlertViz location preservation.
- * 01 Dec 2010  6532       cjeanbap    Add functionality to restart AlertVisualization App.
- * 21 Jan 2011             cjeanbap    Check Status Message for Internal AlertViz problem(s).
- * 24 Jan 2011  1978       cjeanbap    Add Monitor Tooltip functionality.
- * 28 Jan 2011  4617       cjeanbap    Added Monitor Only functionality.
- * 08 Feb 2011  4617       cjeanbap    Fix bug of multiple windows.
- * 14 Feb 2010  4617       cjeanbap    Changed handling of Exceptions filtering.
- * 03 Mar 2011  8059       rferrel     alertArrived can now play system beep.
- * 04 Mar 2011  6532       rferrel     Restart now works
- * 02 May 2011  9067       cjeanbap    Redraw AlertMessageDlg if a Layout or a Monitor was
- *                                     changed.
- * 03 May 2011  9101       cjeanbap    Pass a clone object into AlertVizPython class.
- * 31 May 2011  8058       cjeanbap    Kill sound based on TextMsgBox id.
- * 17 Jan 2012  27         rferrel     Refactored to allow override of createTrayMenuItems
- * 09 Mar 2015  3856       lvenable    Added a check to determine if the timer is running before
- *                                     changing the icon on the timer action.  If it isn't running
- *                                     then set the icon to the default image.
- * 18 Mar 2015  4234       njensen     Remove reference to non-working python
- * 03 Jun 2015  4473       njensen     Updated for new AlertvizJob API
- * 29 Jun 2015  4311       randerso    Reworking AlertViz dialogs to be resizable.
- * 28 Oct 2015  5054       randerso    Call AlertVisualization.dispose() on restart so all the
- *                                     other dispose methods are called.
- * 25 Jan 2016  5054       randerso    Removed dummy parent shell
- * 08 Feb 2016  5312       randerso    Changed to build tray menu on demand
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Oct 05, 2008           lvenable  Initial creation.
+ * Apr 02, 2009           lvenable  TTR fixes.
+ * Nov 18, 2010  2235     cjeanbap  Add AlertViz location preservation.
+ * Dec 01, 2010  6532     cjeanbap  Add functionality to restart
+ *                                  AlertVisualization App.
+ * Jan 21, 2011           cjeanbap  Check Status Message for Internal AlertViz
+ *                                  problem(s).
+ * Jan 24, 2011  1978     cjeanbap  Add Monitor Tooltip functionality.
+ * Jan 28, 2011  4617     cjeanbap  Added Monitor Only functionality.
+ * Feb 08, 2011  4617     cjeanbap  Fix bug of multiple windows.
+ * Feb 14, 2010  4617     cjeanbap  Changed handling of Exceptions filtering.
+ * Mar 03, 2011  8059     rferrel   alertArrived can now play system beep.
+ * Mar 04, 2011  6532     rferrel   Restart now works
+ * May 02, 2011  9067     cjeanbap  Redraw AlertMessageDlg if a Layout or a
+ *                                  Monitor was changed.
+ * May 03, 2011  9101     cjeanbap  Pass a clone object into AlertVizPython
+ *                                  class.
+ * May 31, 2011  8058     cjeanbap  Kill sound based on TextMsgBox id.
+ * Jan 17, 2012  27       rferrel   Refactored to allow override of
+ *                                  createTrayMenuItems
+ * Mar 09, 2015  3856     lvenable  Added a check to determine if the timer is
+ *                                  running before changing the icon on the
+ *                                  timer action.  If it isn't running then set
+ *                                  the icon to the default image.
+ * Mar 18, 2015  4234     njensen   Remove reference to non-working python
+ * Jun 03, 2015  4473     njensen   Updated for new AlertvizJob API
+ * Jun 29, 2015  4311     randerso  Reworking AlertViz dialogs to be resizable.
+ * Oct 28, 2015  5054     randerso  Call AlertVisualization.dispose() on restart
+ *                                  so all the other dispose methods are called.
+ * Jan 25, 2016  5054     randerso  Removed dummy parent shell
+ * Feb 08, 2016  5312     randerso  Changed to build tray menu on demand
+ * Feb 14, 2017  6029     randerso  Make popup appear on monitor with AlertViz
+ *                                  bar
+ * Mar 24, 2017  DR 16985 dfiedman  Restore Python script functionality
+ *
  * </pre>
- * 
+ *
  * @author lvenable
- * @version 1.0
- * 
+ *
  */
-public class AlertVisualization implements ITimerAction, IAudioAction,
-        IAlertArrivedCallback, Listener, IConfigurationChangedListener,
-        IRestartListener {
+public class AlertVisualization
+        implements ITimerAction, IAudioAction, IAlertArrivedCallback, Listener,
+        IConfigurationChangedListener, IRestartListener {
     /**
      * The display control.
      */
@@ -209,7 +219,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
     /**
      * Constructor.
-     * 
+     *
      * @param runningStandalone
      *            True if the application is running stand-alone.
      * @param display
@@ -353,7 +363,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
     /**
      * Create the tray menu items.
-     * 
+     *
      * @param menu
      */
     protected void createTrayMenuItems(Menu menu) {
@@ -454,13 +464,13 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
                 @Override
                 public void widgetSelected(SelectionEvent event) {
                     MessageDialog dialog = new MessageDialog(
-                            alertMessageDlg.getShell(),
-                            "Confirm Restart!",
+                            alertMessageDlg.getShell(), "Confirm Restart!",
                             null,
                             "Any unsaved changes will be lost. Restart anyway?",
-                            MessageDialog.QUESTION, new String[] {
-                                    IDialogConstants.YES_LABEL,
-                                    IDialogConstants.NO_LABEL }, 0);
+                            MessageDialog.QUESTION,
+                            new String[] { IDialogConstants.YES_LABEL,
+                                    IDialogConstants.NO_LABEL },
+                            0);
 
                     dialog.create();
 
@@ -534,30 +544,32 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
     /**
      * Load the alert visualization image.
-     * 
+     *
      * @return Image path.
      */
     private String loadAlertVizImage() {
         IPathManager pm = PathManagerFactory.getPathManager();
-        String path = pm.getFile(
-                pm.getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.BASE),
-                "alertVizIcons" + File.separatorChar + "alertViz.png")
+        String path = pm
+                .getFile(
+                        pm.getContext(LocalizationType.CAVE_STATIC,
+                                LocalizationLevel.BASE),
+                        "alertVizIcons" + File.separatorChar + "alertViz.png")
                 .getAbsolutePath();
         return path;
     }
 
     /**
      * Load the alert visualization error image.
-     * 
+     *
      * @return Image path.
      */
     private String loadAlertVizErrorImage() {
         IPathManager pm = PathManagerFactory.getPathManager();
-        String path = pm.getFile(
-                pm.getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.BASE),
-                "alertVizIcons" + File.separatorChar + "alertError.png")
+        String path = pm
+                .getFile(
+                        pm.getContext(LocalizationType.CAVE_STATIC,
+                                LocalizationLevel.BASE),
+                        "alertVizIcons" + File.separatorChar + "alertError.png")
                 .getAbsolutePath();
         return path;
     }
@@ -576,7 +588,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
     /**
      * Handle the alert message.
-     * 
+     *
      * @param statMsg
      *            Status message.
      * @param amd
@@ -592,9 +604,13 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             final TrayConfiguration gConfig) {
 
         if ((alertMessageDlg == null) || alertMessageDlg.isDisposed()) {
-            Container.logInternal(Priority.ERROR, statMsg.getMessage() + "\n"
-                    + statMsg.getDetails());
+            Container.logInternal(Priority.ERROR,
+                    statMsg.getMessage() + "\n" + statMsg.getDetails());
             return;
+        }
+
+        if (amd.isPythonEnabled() && amd.getPythonScript() != null) {
+            AlertVizPython.run(statMsg, amd.clone(), gConfig);
         }
 
         boolean isGdnAdminMessage = statMsg.getCategory().equals("GDN_ADMIN")
@@ -605,15 +621,16 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             if ((statMsg.getDetails() != null)
                     && (statMsg.getDetails().contains("Error")
                             || statMsg.getDetails().contains("Exception")
-                            || statMsg.getDetails().contains("Throwable") || Container
-                                .hasMissing(statMsg))) {
+                            || statMsg.getDetails().contains("Throwable")
+                            || Container.hasMissing(statMsg))) {
                 Source source = configData.lookupSource("GDN_ADMIN");
                 RGB backgroundRBG = null;
-                if ((source == null) || (source.getConfigurationItem() == null)) {
+                if ((source == null)
+                        || (source.getConfigurationItem() == null)) {
                     backgroundRBG = ColorUtil.getColorValue("COLOR_YELLOW");
                 } else {
-                    AlertMetadata am = source.getConfigurationItem().lookup(
-                            Priority.SIGNIFICANT);
+                    AlertMetadata am = source.getConfigurationItem()
+                            .lookup(Priority.SIGNIFICANT);
                     backgroundRBG = am.getBackground();
                 }
                 alertMessageDlg.setErrorLogBtnBackground(backgroundRBG);
@@ -658,9 +675,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
                     audioFile = getFullAudioFilePath(audioFile);
                 } else {
                     audioFile = statMsg.getAudioFile();
-                    if ((audioFile != null)
-                            && ((audioFile.trim().length() == 0) || audioFile
-                                    .equals("NONE"))) {
+                    if ((audioFile != null) && ((audioFile.trim().length() == 0)
+                            || audioFile.equals("NONE"))) {
                         audioFile = null;
                     }
                     audioFile = getFullAudioFilePath(audioFile);
@@ -673,7 +689,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         // Pop-up message
         if (amd.isPopup() == true) {
             if (alertPopupDlg == null) {
-                alertPopupDlg = new AlertPopupMessageDlg(display, statMsg,
+                alertPopupDlg = new AlertPopupMessageDlg(
+                        alertMessageDlg.getShell(), statMsg,
                         gConfig.isExpandedPopup(), this, amd.getBackground());
                 showPopup = true;
                 ackAll = true;
@@ -691,7 +708,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
     /**
      * Get full path name to a existing audio file.
-     * 
+     *
      * @param fname
      *            - name of audio file
      * @return filename when file found otherwise null
@@ -707,7 +724,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         File file = new File(filename);
         if (!file.exists()) {
             file = PathManagerFactory.getPathManager().getStaticFile(
-                    "alertVizAudio/" + file.getName());
+                    LocalizationUtil.join("alertVizAudio", file.getName()));
             if ((file == null) || !file.exists()) {
                 filename = null;
             } else {
@@ -732,7 +749,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
     /**
      * Displays a pop-up balloon message
-     * 
+     *
      * @param statMsg
      *            Message to display.
      * @param cat
@@ -744,8 +761,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             toolTip.dispose();
         }
 
-        toolTip = new ToolTip(alertMessageDlg.getShell(), SWT.BALLOON
-                | SWT.ICON_WARNING);
+        toolTip = new ToolTip(alertMessageDlg.getShell(),
+                SWT.BALLOON | SWT.ICON_WARNING);
         toolTip.setText(cat.getCategoryName());
         toolTip.setMessage(statMsg.getMessage());
 
@@ -763,8 +780,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
         } else {
             int messages = alertPopupDlg.getNumberOfMessages();
             if (messages == 1) {
-                this.trayItem.setToolTipText("There is " + messages
-                        + " message to be acknowledged");
+                this.trayItem.setToolTipText(
+                        "There is " + messages + " message to be acknowledged");
             } else {
                 this.trayItem.setToolTipText("There are " + messages
                         + " messages to be acknowledged");
@@ -811,8 +828,8 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
             showPopup = false;
             break;
         default:
-            Container.logInternal(Priority.WARN, "Unexpected event type: "
-                    + event.type);
+            Container.logInternal(Priority.WARN,
+                    "Unexpected event type: " + event.type);
             break;
         }
     }
@@ -850,7 +867,7 @@ public class AlertVisualization implements ITimerAction, IAudioAction,
 
     /**
      * Get the number of text control composites.
-     * 
+     *
      * @return The number of text control composites.
      */
     private int getNumberOfTextControls() {

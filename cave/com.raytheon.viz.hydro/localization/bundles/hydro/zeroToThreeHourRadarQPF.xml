@@ -18,33 +18,45 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<!--
-	This is a generic bundle used to load one grib resource filtering by parameter,
-	level, and model.  Loads resource as an image. 
- -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+    <!--
+        This is a generic bundle used to load one grib resource filtering by parameter,
+        level, and model.  Loads resource as an image. 
+     -->
 <bundle xmlns:ns2="group">
     <displayList>
-        <displays xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0" magnification="1.0" zoomLevel="1.0" mapCenter="-96.867249 40.47502100000001 0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <displays xsi:type="d2DMapRenderableDisplay" scale="CONUS" density="1.0"
+            magnification="1.0" zoomLevel="1.0" mapCenter="-96.867249 40.47502100000001 0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="mapDescriptor">
                 <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE"
+                        loadWithoutData="false">
                         <capabilities>
-                        	<capability xsi:type="imagingCapability" alpha="1.0" interpolationState="false" brightness=".8" contrast="1.0"/>
+                            <capability xsi:type="imagingCapability" alpha="1.0"
+                                interpolationState="false" brightness=".5" contrast="1.0" />
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>
                     </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true">
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false"
+                        isHoverOn="false" isVisible="true">
                     </properties>
-                    <resourceData xsi:type="gridResourceData" customLegend="${customLegend}" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
+                    <resourceData xsi:type="gridResourceData" customLegend="${customLegend}"
+                        retrieveData="true" isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="${param}" constraintType="EQUALS"/>
+                                <constraint constraintValue="${param}" constraintType="EQUALS" />
                             </mapping>
                             <mapping key="pluginName">
-                                <constraint constraintValue="grid" constraintType="EQUALS"/>
+                                <constraint constraintValue="grid" constraintType="EQUALS" />
                             </mapping>
                             <mapping key="info.datasetId">
-                                <constraint constraintValue="PROB3HR" constraintType="EQUALS"/>
+                                <constraint constraintValue="PROB3HR" constraintType="EQUALS" />
                             </mapping>
                         </metadataMap>
                     </resourceData>

@@ -7,6 +7,8 @@ import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAccessType;
@@ -14,13 +16,11 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * 
- * 
+ * POJO representative of a daaradarresult record.
  * 
  * <pre>
  * 
@@ -28,21 +28,27 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 04/22/2014   Redmine #3454 (A2 14.3.1) new dualpol-related table DAARadarResult
+ * 09/21/2016   5631       bkowal      Remove ISerializableObject.
  * 
  * </pre>
  * 
  * @author OHD
- * @version 1.1
  */
-
+@NamedQueries({
+        @NamedQuery(name = DAARadarResult.SELECT_BY_OBSTIME_ORDERED_BY_RAD_ID, query = DAARadarResult.SELECT_BY_OBSTIME_ORDERED_BY_RAD_ID_HQL) })
 @Entity
 @Table(name = "daaradarresult")
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
-public class DAARadarResult extends PersistableDataObject implements Serializable, ISerializableObject {
+public class DAARadarResult extends PersistableDataObject<DAARadarResultId>
+        implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String SELECT_BY_OBSTIME_ORDERED_BY_RAD_ID = "selectDAARadarResultByObstimeOrderRadId";
+
+    protected static final String SELECT_BY_OBSTIME_ORDERED_BY_RAD_ID_HQL = "FROM DAARadarResult r WHERE r.id.obstime = :obstime ORDER BY r.id.radid";
 
     @XmlElement
     @DynamicSerializeElement
@@ -92,9 +98,9 @@ public class DAARadarResult extends PersistableDataObject implements Serializabl
     }
 
     @EmbeddedId
-    @AttributeOverrides( {
-            @AttributeOverride(name = "radid", column = @Column(name = "radid", nullable = false, length = 3)),
-            @AttributeOverride(name = "obstime", column = @Column(name = "obstime", nullable = false, length = 29)) })
+    @AttributeOverrides({
+            @AttributeOverride(name = "radid", column = @Column(name = "radid", nullable = false, length = 3) ),
+            @AttributeOverride(name = "obstime", column = @Column(name = "obstime", nullable = false, length = 29) ) })
     public DAARadarResultId getId() {
         return this.id;
     }

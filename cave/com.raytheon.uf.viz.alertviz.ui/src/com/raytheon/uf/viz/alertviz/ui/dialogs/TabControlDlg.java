@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -47,25 +47,26 @@ import org.eclipse.swt.widgets.TabFolder;
 
 /**
  * Tab control dialog that displays the messages for the different mode layouts.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 2008                    mschenke    Initial creation
- * Apr 02, 2009            lvenable    TTR fixes.
- * Dec 01, 2010  5632      cjeanbap    Added sort based on category.
- * Mar 02, 2011  5632      cjeanbap    Added sort based on category.
- * Feb 06, 2013 14501      Xiaochuan   Using getCategoriesFromConfig() to
- *                                     set categoryList[] in clearOptionCbo.
- * 29 Jan 2016  5289       tgurney     Add missing close button in trim
- * Apr 01, 2016  5517      randerso    Fix GUI sizing issues
- * 
+ *
+ * Date          Ticket#  Engineer   Description
+ * ------------- -------- ---------- -------------------------------------------
+ * 2008                   mschenke   Initial creation
+ * Apr 02, 2009           lvenable   TTR fixes.
+ * Dec 01, 2010  5632     cjeanbap   Added sort based on category.
+ * Mar 02, 2011  5632     cjeanbap   Added sort based on category.
+ * Feb 06, 2013  14501    Xiaochuan  Using getCategoriesFromConfig() to set
+ *                                   categoryList[] in clearOptionCbo.
+ * Jan 29, 2016  5289     tgurney    Add missing close button in trim
+ * Apr 01, 2016  5517     randerso   Fix GUI sizing issues
+ * Feb 27, 2017  6029     randerso   Ensure dialog appears on correct monitor
+ *
  * </pre>
- * 
+ *
  * @author mschenke
- * @version 1.0
  */
 public class TabControlDlg extends Dialog {
 
@@ -122,7 +123,7 @@ public class TabControlDlg extends Dialog {
 
     /**
      * Get the instance of the TabControl dialog
-     * 
+     *
      * @param parent
      *            Parent shell.
      * @return Instance of this class.
@@ -138,14 +139,14 @@ public class TabControlDlg extends Dialog {
 
     /**
      * Basic constructor
-     * 
+     *
      * @param parent
      *            The parent shell
      */
     private TabControlDlg(Shell parent) {
         super(parent, SWT.TITLE);
 
-        logs = new ArrayList<TextMsgLog>();
+        logs = new ArrayList<>();
 
         initShell();
     }
@@ -217,13 +218,13 @@ public class TabControlDlg extends Dialog {
                 shell.setText("Log list for: " + log.getFullText());
                 populateClearOptionsCombo(log);
                 detailsText.setText(log.getLogText());
-                clearOptionCbo.select(logs.get(index)
-                        .getClearOptionCboSelectedIndex());
+                clearOptionCbo.select(
+                        logs.get(index).getClearOptionCboSelectedIndex());
             }
         });
 
-        detailsText = new StyledText(topComp, SWT.V_SCROLL | SWT.H_SCROLL
-                | SWT.BORDER);
+        detailsText = new StyledText(topComp,
+                SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 400;
         gd.heightHint = 285;
@@ -335,7 +336,7 @@ public class TabControlDlg extends Dialog {
     /**
      * Populates the clear options combo box with values of current LogDlg tab
      * being displayed, called when tabitem has changed
-     * 
+     *
      * @param log
      *            TextMsgLog that is in current tab.
      */
@@ -384,11 +385,10 @@ public class TabControlDlg extends Dialog {
      */
     private void setInitialDialogLocation() {
         Shell parent = getParent().getShell();
-        Display display = parent.getDisplay();
 
         // get any monitors height
-        Monitor any = (display.getMonitors())[0];
-        Rectangle monSize = any.getBounds();
+        Monitor m = parent.getMonitor();
+        Rectangle monSize = m.getClientArea();
         int monY = monSize.height;
 
         Point p = parent.getLocation();
@@ -405,7 +405,7 @@ public class TabControlDlg extends Dialog {
 
     /**
      * Check is the dialog is open or not.
-     * 
+     *
      * @return True if shell is not null, not disposed and visible, false
      *         otherwise.
      */
@@ -420,7 +420,7 @@ public class TabControlDlg extends Dialog {
     /**
      * Return the tab folder that is contained in the shell, this is used if a
      * new TabItem is to be added to the dialog.
-     * 
+     *
      * @return The tab folder.
      */
     public TabFolder getTabFolder() {
@@ -429,9 +429,9 @@ public class TabControlDlg extends Dialog {
 
     /**
      * Notify the TabControlDlg when a new tab has been added.
-     * 
+     *
      * TODO: Replace with event handler?
-     * 
+     *
      * @param log
      *            The log that is the new tab.
      */
@@ -444,7 +444,7 @@ public class TabControlDlg extends Dialog {
 
     /**
      * Removes tab associated with Log
-     * 
+     *
      * @param log
      */
     public void removeTab(TextMsgLog log) {
@@ -467,21 +467,22 @@ public class TabControlDlg extends Dialog {
      * Gets the tab index to use for this textMsgLog's index. Say the log is Q3,
      * and Q1 and Q4 are up already, this function would return 1 because it is
      * the index the tab should be inserted at
-     * 
+     *
      * @param textMsgIdx
      *            index of textMsgIdx (1 for Q1, 2 for Q2, etc...)
      * @return index for tab
      */
     public int getTabIndex(int textMsgIdx) {
         int i;
-        for (i = 0; i < logs.size() && logs.get(i).getIndex() < textMsgIdx; ++i) {
+        for (i = 0; i < logs.size()
+                && logs.get(i).getIndex() < textMsgIdx; ++i) {
         }
         return i;
     }
 
     /**
      * Update the details text box
-     * 
+     *
      * @param details
      *            details to display
      */
@@ -495,7 +496,7 @@ public class TabControlDlg extends Dialog {
 
     /**
      * Check if dialog is disposed
-     * 
+     *
      * @return true if disposed, false if not
      */
     public boolean isDisposed() {

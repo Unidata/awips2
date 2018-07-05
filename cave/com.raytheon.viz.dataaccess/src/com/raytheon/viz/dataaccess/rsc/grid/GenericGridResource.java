@@ -30,6 +30,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
@@ -40,7 +42,6 @@ import com.raytheon.uf.common.style.level.Level.LevelType;
 import com.raytheon.uf.common.style.level.SingleLevel;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.grid.display.GriddedImageDisplay2;
@@ -56,19 +57,18 @@ import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource;
  * 
  * SOFTWARE HISTORY
  * 
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Jan 8, 2013            bkowal      Initial creation
- * Jan 31, 2013  1555     bkowal      Refactor
- * Mar 07, 2014  2791     bsteffen    Move Data Source/Destination to numeric
- *                                    plugin.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 08, 2013           bkowal    Initial creation
+ * Jan 31, 2013  1555     bkowal    Refactor
+ * Mar 07, 2014  2791     bsteffen  Move Data Source/Destination to numeric
+ *                                  plugin.
+ * Jan 16, 2017  5976     bsteffen  Update Usage of ColorMapLoader
  * 
  * </pre>
  * 
  * @author bkowal
- * @version 1.0
  */
-
 public class GenericGridResource extends
         AbstractDataAccessResource<GenericGridResourceData> {
 
@@ -76,7 +76,7 @@ public class GenericGridResource extends
 
     private static final String GENERIC_LEGEND_TEXT = "Generic Grid ";
 
-    private Map<DataTime, GriddedImageDisplay2> displays = new HashMap<DataTime, GriddedImageDisplay2>();
+    private Map<DataTime, GriddedImageDisplay2> displays = new HashMap<>();
 
     protected GenericGridResource(GenericGridResourceData resourceData,
             LoadProperties loadProperties) {
@@ -150,18 +150,16 @@ public class GenericGridResource extends
                 colorMapName = GRID_COLORMAP;
                 colorMapParameters.setColorMapName(colorMapName);
             }
-            colorMapParameters.setColorMap(ColorMapLoader
-                    .loadColorMap(colorMapName));
+            try {
+                colorMapParameters
+                        .setColorMap(ColorMapLoader.loadColorMap(colorMapName));
+            } catch (ColorMapException e) {
+                throw new VizException(e);
+            }
         }
         capability.setColorMapParameters(colorMapParameters);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource#
-     * buildLegendTextInternal()
-     */
     @Override
     protected String buildLegendTextInternal() {
         DataTime timeToInspect = null;
@@ -195,30 +193,15 @@ public class GenericGridResource extends
         return stringBuilder.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource#disposeResource
-     * ()
-     */
     @Override
     protected void disposeInternal() {
         Collection<GriddedImageDisplay2> displays = this.displays.values();
-        this.displays = new HashMap<DataTime, GriddedImageDisplay2>();
+        this.displays = new HashMap<>();
         for (GriddedImageDisplay2 display : displays) {
             display.dispose();
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -238,13 +221,6 @@ public class GenericGridResource extends
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
-     * referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
         for (GriddedImageDisplay2 display : displays.values()) {

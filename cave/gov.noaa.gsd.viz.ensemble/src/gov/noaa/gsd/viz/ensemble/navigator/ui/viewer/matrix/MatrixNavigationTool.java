@@ -1,12 +1,12 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.matrix;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
-
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.tools.AbstractTool;
+
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
 
 /**
  * This tool handles frame and data navigation requests including step
@@ -19,7 +19,8 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  *   
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
- *    Feb 23 2016    13211       polster     Initial Creation.
+ *    Feb 23 2016    13211      polster     Initial creation
+ *    Dec 01, 2017   41520      polster     Cleaned up comments
  * 
  * </pre>
  * 
@@ -28,26 +29,20 @@ import com.raytheon.viz.ui.tools.AbstractTool;
  */
 public class MatrixNavigationTool extends AbstractTool {
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.tools.AbstractTool#execute(org.eclipse.core.commands
-     * .ExecutionEvent)
-     */
     @Override
     public Object execute(ExecutionEvent arg0) throws ExecutionException {
-
         this.editor = EditorUtil.getActiveVizContainer();
-        if (editor != null && editor instanceof VizMatrixEditor) {
+
+        if (editor != null && EnsembleTool.isMatrixEditor(editor)) {
 
             String operationStr = arg0.getParameter("operation");
 
-            VizMatrixEditor.MatrixNavigationOperation operation = VizMatrixEditor.MatrixNavigationOperation
+            EnsembleTool.MatrixNavigationOperation operation = EnsembleTool.MatrixNavigationOperation
                     .valueOf(operationStr);
             EnsembleTool.getInstance().matrixNavigationRequest(operation);
 
             editor.refresh();
+
         }
 
         return null;

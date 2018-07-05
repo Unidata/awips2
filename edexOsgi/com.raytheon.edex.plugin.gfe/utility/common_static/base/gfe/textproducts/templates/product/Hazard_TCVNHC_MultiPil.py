@@ -1,3 +1,27 @@
+##
+# This software was developed and / or modified by Raytheon Company,
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# This software product contains export-restricted data whose
+# export/transfer/disclosure is restricted by U.S. law. Dissemination
+# to non-U.S. persons whether in the United States or abroad requires
+# an export license or other authorization.
+# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
+# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
+# further licensing information.
+##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 ########################################################################
 # Hazard_TCVNHC.py
 #-------------------------------------------------------------------------
@@ -33,6 +57,7 @@
 # Oct 31, 2016  25946    randerso  Changed to keep Hazard_TCVNHC from 
 #                                  overwriting Hazard_TCV
 # Nov 11, 2016  19293    randerso  Fix issuing office line
+# Jun 26, 2017  6325     randerso  Remove Breakpoints from product header
 #
 ########################################################################
 
@@ -296,10 +321,9 @@ class TextProduct(TropicalHazards.TropicalHazards, GenericHazards.TextProduct):
         pilNumber = pil[-1:]
         wmoID = self._wmoID[:-1] + pilNumber
 
-        #  Mofify the product name to include the advisory package info
+        #  Modify the product name to include the advisory package info
         productName = re.sub("(?i)PROTOTYPE TCV",
-                             "%s Watch/Warning Breakpoints" % (stormName) +
-                             "/Routine Advisory Number %s" % (advNum),
+                             "%s Watch/Warning Routine Advisory Number %s" % (stormName, advNum),
                              productName)
 
         #  Handle intermediate or special advisories

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -32,6 +32,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+
+import javax.measure.Measure;
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.Unit;
+import javax.measure.unit.UnitFormat;
 
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
@@ -63,6 +69,11 @@ import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.extratext.ExtraTextResourceData;
 import com.raytheon.uf.viz.core.rsc.extratext.IExtraTextGeneratingResource;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogatable;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
+import com.raytheon.uf.viz.core.rsc.interrogation.StringInterrogationKey;
 import com.raytheon.uf.viz.d2d.core.sampling.ID2DSamplingResource;
 import com.raytheon.uf.viz.d2d.core.time.D2DTimeMatcher;
 import com.raytheon.uf.viz.d2d.core.time.ID2DTimeMatchingExtension;
@@ -71,6 +82,7 @@ import com.raytheon.viz.radar.DefaultVizRadarRecord;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.frame.SailsFrameCoordinator;
 import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
+import com.raytheon.viz.radar.interrogators.RadarDefaultInterrogator;
 import com.raytheon.viz.radar.textcontributors.IRadarTextContributor;
 import com.raytheon.viz.radar.textcontributors.UpperTextSet;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -78,11 +90,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 /**
  * Top level radar resource that contains the code that is shared by all below
  * resources
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer   Description
  * ------------- -------- ---------- ------------------------------------------
  * Aug 03, 2010  6584     mnash      Initial creation
@@ -94,15 +106,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 03, 2015  4779     njensen    Removed IDataScale
  * Nov 03, 2015  4857     bsteffen   Set volume scan interval in time matcher
  * May 19, 2016  3253     bsteffen   Refactor of extra text.
- * 
+ * Sep 13, 2016  3239     nabowle    Implement Interrogatable.
+ *
  * </pre>
- * 
+ *
  * @author mnash
  */
-public class AbstractRadarResource<D extends IDescriptor> extends
-        AbstractVizResource<RadarResourceData, D> implements
-        IResourceDataChanged, IExtraTextGeneratingResource,
-        ICacheObjectCallback<RadarRecord>, ID2DTimeMatchingExtension {
+public class AbstractRadarResource<D extends IDescriptor>
+        extends AbstractVizResource<RadarResourceData, D>
+        implements IResourceDataChanged, IExtraTextGeneratingResource,
+        ICacheObjectCallback<RadarRecord>, ID2DTimeMatchingExtension,
+        Interrogatable {
 
     /*
      * TODO This is dumb that a class with a name starting with Abstract is not
@@ -117,24 +131,34 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         Mnemonic, Value, Angle, Shear, MSL, AGL, Azimuth, Range, ICAO
     }
 
-    private static final List<InspectLabels> defaultInspectLabels = Arrays
-            .asList(InspectLabels.Value, InspectLabels.Shear,
-                    InspectLabels.MSL, InspectLabels.AGL, InspectLabels.Range,
-                    InspectLabels.Azimuth, InspectLabels.ICAO);
+    private static final Set<InterrogationKey<?>> defaultInspectLabels = new HashSet<>(
+            Arrays.asList(new InterrogationKey<?>[] { Interrogator.VALUE,
+                    RadarDefaultInterrogator.VALUE_STRING,
+                    RadarDefaultInterrogator.SHEAR,
+                    RadarDefaultInterrogator.MSL, RadarDefaultInterrogator.AGL,
+                    IRadarInterrogator.RANGE, IRadarInterrogator.AZIMUTH,
+                    IRadarInterrogator.ICAO }));
 
-    private static final List<InspectLabels> primaryInspectLabels = Arrays
-            .asList(InspectLabels.Mnemonic, InspectLabels.Value,
-                    InspectLabels.Shear, InspectLabels.MSL, InspectLabels.AGL,
-                    InspectLabels.Range, InspectLabels.Azimuth,
-                    InspectLabels.ICAO);
+    private static final Set<InterrogationKey<?>> primaryInspectLabels = new HashSet<>(
+            Arrays.asList(new InterrogationKey<?>[] {
+                    RadarDefaultInterrogator.MNEMONIC, Interrogator.VALUE,
+                    RadarDefaultInterrogator.VALUE_STRING,
+                    RadarDefaultInterrogator.SHEAR,
+                    RadarDefaultInterrogator.MSL, RadarDefaultInterrogator.AGL,
+                    IRadarInterrogator.RANGE, IRadarInterrogator.AZIMUTH,
+                    IRadarInterrogator.ICAO }));
 
-    private static final List<InspectLabels> secondaryInspectLabels = Arrays
-            .asList(InspectLabels.Value, InspectLabels.Shear,
-                    InspectLabels.ICAO);
+    private static final Set<InterrogationKey<?>> secondaryInspectLabels = new HashSet<>(
+            Arrays.asList(new InterrogationKey<?>[] { Interrogator.VALUE,
+                    RadarDefaultInterrogator.VALUE_STRING,
+                    RadarDefaultInterrogator.SHEAR, IRadarInterrogator.ICAO }));
 
-    private static final List<InspectLabels> offscreenInspectLabels = Arrays
-            .asList(InspectLabels.Mnemonic, InspectLabels.Value,
-                    InspectLabels.Angle, InspectLabels.Shear);
+    private static final Set<InterrogationKey<?>> offscreenInspectLabels = new HashSet<>(
+            Arrays.asList(new InterrogationKey<?>[] {
+                    RadarDefaultInterrogator.MNEMONIC, Interrogator.VALUE,
+                    RadarDefaultInterrogator.VALUE_STRING,
+                    RadarDefaultInterrogator.PRIMAY_ELEVATION_ANGLE,
+                    RadarDefaultInterrogator.SHEAR }));
 
     private IRadarInterrogator interrogator;
 
@@ -155,8 +179,8 @@ public class AbstractRadarResource<D extends IDescriptor> extends
     protected static final RadarInfoDict infoDict;
 
     static {
-        File radarInfo = PathManagerFactory.getPathManager().getStaticFile(
-                "radarInfo.txt");
+        File radarInfo = PathManagerFactory.getPathManager()
+                .getStaticFile("radarInfo.txt");
         if (radarInfo != null) {
             infoDict = RadarInfoDict.getInstance(radarInfo.getParent());
         } else {
@@ -203,16 +227,17 @@ public class AbstractRadarResource<D extends IDescriptor> extends
      */
     public void addRecord(PluginDataObject record) {
         if (!(record instanceof RadarRecord)) {
-            statusHandler.handle(Priority.PROBLEM, ""
-                    + this.getClass().getName() + " expected : "
-                    + RadarRecord.class.getName() + " Got: " + record);
+            statusHandler.handle(Priority.PROBLEM,
+                    "" + this.getClass().getName() + " expected : "
+                            + RadarRecord.class.getName() + " Got: " + record);
             return;
         }
         RadarRecord radarRecord = (RadarRecord) record;
         radarRecord.setAddSpatial(!resourceData.latest);
         icao = radarRecord.getIcao();
         if (radarRecord.getLatitude() != null
-                && radarRecord.getLongitude() != null && radarLocation == null) {
+                && radarRecord.getLongitude() != null
+                && radarLocation == null) {
             radarLocation = new Coordinate(radarRecord.getLongitude(),
                     radarRecord.getLatitude());
         }
@@ -220,9 +245,8 @@ public class AbstractRadarResource<D extends IDescriptor> extends
 
         VizRadarRecord existing = getRadarRecord(d);
         if (existing != null) {
-            if (existing.getNumLevels() != null
-                    && !existing.getNumLevels().equals(
-                            radarRecord.getNumLevels())) {
+            if (existing.getNumLevels() != null && !existing.getNumLevels()
+                    .equals(radarRecord.getNumLevels())) {
                 // Use the one with the most levels
                 if (existing.getNumLevels().intValue() < radarRecord
                         .getNumLevels().intValue()) {
@@ -230,19 +254,21 @@ public class AbstractRadarResource<D extends IDescriptor> extends
                     existing = null;
                 }
             } else if (existing.getGateResolution() != null
-                    && !existing.getGateResolution().equals(
-                            radarRecord.getGateResolution())) {
+                    && !existing.getGateResolution()
+                            .equals(radarRecord.getGateResolution())) {
                 // use the one with the smallest resolution
                 if (existing.getGateResolution().intValue() > radarRecord
                         .getGateResolution().intValue()) {
                     remove(d);
                     existing = null;
                 }
-            } else if (existing.getNumBins() * existing.getNumRadials() != radarRecord
-                    .getNumBins() * radarRecord.getNumRadials()) {
+            } else if (existing.getNumBins()
+                    * existing.getNumRadials() != radarRecord.getNumBins()
+                            * radarRecord.getNumRadials()) {
                 // use the one with the most pixels
-                if (existing.getNumBins() * existing.getNumRadials() < radarRecord
-                        .getNumBins() * radarRecord.getNumRadials()) {
+                if (existing.getNumBins()
+                        * existing.getNumRadials() < radarRecord.getNumBins()
+                                * radarRecord.getNumRadials()) {
                     remove(d);
                     existing = null;
                 }
@@ -289,7 +315,7 @@ public class AbstractRadarResource<D extends IDescriptor> extends
 
     @Override
     public String inspect(ReferencedCoordinate latLon) throws VizException {
-        Map<String, String> dataMap;
+        InterrogateMap dataMap;
         if (resourceData.mode.equals("CZ-Pg")) {
             return null;
         }
@@ -309,7 +335,8 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         }
 
         try {
-            dataMap = interrogate(displayedDate, latLon.asLatLon());
+            dataMap = interrogate(latLon, displayedDate,
+                    getInterrogationKeys().toArray(new InterrogationKey<?>[0]));
         } catch (Exception e) {
             throw new VizException("Error converting coordinate for hover", e);
         }
@@ -327,8 +354,8 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         }
         // determine if all pane sampling is enabled
         List<ID2DSamplingResource> samplingResources = descriptor
-                .getResourceList().getResourcesByTypeAsType(
-                        ID2DSamplingResource.class);
+                .getResourceList()
+                .getResourcesByTypeAsType(ID2DSamplingResource.class);
         boolean allPaneSample = false;
         if (!samplingResources.isEmpty()) {
             allPaneSample = samplingResources.get(0).isAllPanelSampling();
@@ -342,9 +369,8 @@ public class AbstractRadarResource<D extends IDescriptor> extends
                 return "="
                         + inspect(displayedDate, primaryInspectLabels, dataMap);
             } else {
-                return " "
-                        + inspect(displayedDate, offscreenInspectLabels,
-                                dataMap);
+                return " " + inspect(displayedDate, offscreenInspectLabels,
+                        dataMap);
             }
         } else if (primary) {
             return inspect(displayedDate, dataMap);
@@ -354,59 +380,107 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         }
     }
 
-    public String inspect(DataTime dataTime, Map<String, String> dataMap) {
+    public String inspect(DataTime dataTime, InterrogateMap dataMap) {
         return inspect(dataTime, defaultInspectLabels, dataMap);
     }
 
     /**
      * Given the map of data values, return the inspection string
-     * 
+     *
      * @param dataMap
      * @return
      */
-    public String inspect(DataTime dataTime, List<InspectLabels> labels,
-            Map<String, String> dataMap) {
+    public String inspect(DataTime dataTime, Set<InterrogationKey<?>> keys,
+            InterrogateMap dataMap) {
         if (dataMap == null) {
             return "NO DATA";
         }
 
-        StringBuffer displayedData = new StringBuffer();
+        StringBuilder displayedData = new StringBuilder();
 
-        if (labels.contains(InspectLabels.Mnemonic)) {
-            displayedData.append(dataMap.get("Mnemonic") + " ");
+        boolean containsValueString = containsNonNullKey(
+                IRadarInterrogator.VALUE_STRING, keys, dataMap, null);
+
+        Set<InterrogationKey<?>> keysToSkip;
+        if (containsValueString) {
+            keysToSkip = this.interrogator.getValueStringKeys();
+        } else {
+            keysToSkip = Collections.emptySet();
         }
 
-        if (labels.contains(InspectLabels.Value)) {
-            displayedData.append(dataMap.get("Value"));
+        if (containsNonNullKey(IRadarInterrogator.MNEMONIC, keys, dataMap,
+                keysToSkip)) {
+            displayedData.append(dataMap.get(IRadarInterrogator.MNEMONIC))
+                    .append(" ");
         }
 
-        if (labels.contains(InspectLabels.Angle)) {
+        /*
+         * Append either the value string or a formatted Value, but not both, as
+         * the value string is either already formatted or more meaningful if
+         * non-null.
+         */
+        if (containsValueString) {
+            displayedData.append(dataMap.get(IRadarInterrogator.VALUE_STRING));
+        } else if (containsNonNullKey(Interrogator.VALUE, keys, dataMap,
+                keysToSkip)) {
+            Measure<? extends Number, ?> value = dataMap
+                    .get(Interrogator.VALUE);
+            String format;
+            if (value.getValue() instanceof Double
+                    || value.getValue() instanceof Float) {
+                format = "%.2f%s";
+            } else {
+                format = "%.0f%s";
+            }
+            displayedData.append(formatMeasure(value, null, format));
+        }
+
+        if (containsNonNullKey(IRadarInterrogator.PRIMAY_ELEVATION_ANGLE, keys,
+                dataMap, keysToSkip)) {
             while (displayedData.length() < 15) {
                 displayedData.append(" ");
             }
-            displayedData.append(dataMap.get("Angle"));
+            displayedData.append(
+                    dataMap.get(IRadarInterrogator.PRIMAY_ELEVATION_ANGLE));
         }
 
-        if (labels.contains(InspectLabels.Shear)
-                && dataMap.containsKey("Shear")) {
-            displayedData.append(" " + dataMap.get("Shear"));
+        if (containsNonNullKey(IRadarInterrogator.SHEAR, keys, dataMap,
+                keysToSkip)) {
+            displayedData.append(String.format(" %.4f/s",
+                    dataMap.get(IRadarInterrogator.SHEAR)));
         }
 
-        if (labels.contains(InspectLabels.MSL) && dataMap.containsKey("MSL")) {
-            displayedData.append(" " + dataMap.get("MSL") + "MSL");
-            displayedData.append(" " + dataMap.get("AGL") + "AGL");
-        }
+        if (containsNonNullKey(IRadarInterrogator.MSL, keys, dataMap,
+                keysToSkip)) {
+            Measure<? extends Number, ?> msl = dataMap
+                    .get(IRadarInterrogator.MSL);
+            displayedData.append(formatMeasure(msl, NonSI.FOOT, " %.0f%sMSL "));
 
-        if (labels.contains(InspectLabels.Azimuth)
-                && dataMap.containsKey("Azimuth")) {
-            displayedData.append(" " + dataMap.get("Range"));
-            displayedData.append("@" + dataMap.get("Azimuth"));
-        }
-
-        if (!"DMD".equalsIgnoreCase(dataMap.get("Mnemonic"))) {
-            if (labels.contains(InspectLabels.ICAO)) {
-                displayedData.append(' ').append(dataMap.get("ICAO"));
+            Measure<? extends Number, ?> agl = dataMap
+                    .get(IRadarInterrogator.AGL);
+            if (agl == null || Double.isNaN(agl.getValue().doubleValue())) {
+                displayedData.append("???ft");
+            } else {
+                displayedData.append(formatMeasure(agl, NonSI.FOOT, "%.0f%s"));
             }
+            displayedData.append("AGL");
+        }
+
+        if (containsNonNullKey(IRadarInterrogator.AZIMUTH, keys, dataMap,
+                keysToSkip)) {
+            Measure<? extends Number, ?> range = dataMap
+                    .get(IRadarInterrogator.RANGE);
+            displayedData
+                    .append(formatMeasure(range, NonSI.NAUTICAL_MILE,
+                            " %.0fnm"))
+                    .append("@").append(dataMap.get(IRadarInterrogator.AZIMUTH)
+                            .intValue(NonSI.DEGREE_ANGLE));
+        }
+
+        if (containsNonNullKey(IRadarInterrogator.ICAO, keys, dataMap,
+                keysToSkip)) {
+            displayedData.append(' ')
+                    .append(dataMap.get(IRadarInterrogator.ICAO));
         }
 
         if (displayedData.toString().contains("null")
@@ -415,6 +489,67 @@ public class AbstractRadarResource<D extends IDescriptor> extends
         }
 
         return displayedData.toString();
+    }
+
+    /**
+     * Converts the measure to the desired output unit (if provided) and then
+     * returns a formatted string using the converted measure value and unit
+     * string, provided in that respective order.
+     *
+     * If outputUnit is null or Unit.ONE, the output unit will be the measure's
+     * current unit, if non-null.
+     *
+     * @param measure
+     *            The measure. Must be non-null and have a non-null value, or
+     *            null will be returned. If the unit is null, no conversion will
+     *            happen and "" will be used as the unit String.
+     * @param outputUnit
+     *            The desired output unit. If null or Unit.ONE, measure will not
+     *            be converted, and the current unit will be used for the unit
+     *            string.
+     * @param format
+     *            The format String. Arguments to this will be the double value
+     *            of the measure and the unit String, in that order. This must
+     *            be non null.
+     * @return The formatted output.
+     */
+    protected String formatMeasure(Measure<? extends Number, ?> measure,
+            Unit<?> outputUnit, String format) {
+        if (measure == null || measure.getValue() == null || format == null) {
+            return null;
+        }
+
+        Unit<?> currentUnit = measure.getUnit();
+        String unitString;
+        if (currentUnit == null) {
+            unitString = "";
+        } else {
+            unitString = UnitFormat.getUCUMInstance().format(measure.getUnit());
+        }
+
+        double value = measure.getValue().doubleValue();
+        if (measure.getUnit() != outputUnit && measure.getUnit() != null
+                && outputUnit != null && !outputUnit.equals(Unit.ONE)) {
+            UnitConverter toOutputUnit = measure.getUnit()
+                    .getConverterTo(outputUnit);
+            value = toOutputUnit.convert(value);
+            unitString = UnitFormat.getUCUMInstance().format(outputUnit);
+        }
+        return String.format(format, value, unitString);
+    }
+
+    /**
+     * @param keys
+     * @param dataMap
+     * @param keysToSkip
+     * @return
+     */
+    protected boolean containsNonNullKey(InterrogationKey<?> key,
+            Set<InterrogationKey<?>> keys, InterrogateMap dataMap,
+            Set<InterrogationKey<?>> keysToSkip) {
+        return (keysToSkip == null || !keysToSkip.contains(key))
+                && keys.contains(key) && dataMap.containsKey(key)
+                && dataMap.get(key) != null;
     }
 
     @Override
@@ -426,8 +561,37 @@ public class AbstractRadarResource<D extends IDescriptor> extends
             if (displayedDate == null) {
                 displayedDate = this.displayedDate;
             }
-            return new HashMap<String, Object>(interrogate(displayedDate,
-                    coord.asLatLon()));
+            InterrogateMap dataMap = interrogate(displayedDate,
+                    coord.asLatLon());
+            Map<String, Object> map = new HashMap<>();
+            for (InterrogationKey<?> key : dataMap.keySet()) {
+
+                if (key == Interrogator.VALUE) {
+                    map.put("numericValue", dataMap.get(Interrogator.VALUE)
+                            .getValue().toString());
+                } else if (key.equals(RadarDefaultInterrogator.CRS_LOCATION)) {
+                    double[] point = dataMap
+                            .get(RadarDefaultInterrogator.CRS_LOCATION);
+                    map.put(RadarDefaultInterrogator.CRS_LOCATION.getId(),
+                            point[0] + "," + point[1]);
+                } else if (key.equals(IRadarInterrogator.RANGE)) {
+                    map.put(IRadarInterrogator.RANGE.getId(),
+                            formatMeasure(dataMap.get(IRadarInterrogator.RANGE),
+                                    NonSI.NAUTICAL_MILE, "%.0fnm"));
+                } else if (key instanceof StringInterrogationKey<?>) {
+                    StringInterrogationKey<?> sKey = (StringInterrogationKey<?>) key;
+
+                    String stringVal = null;
+                    Object obj = dataMap.get(sKey);
+                    if (obj instanceof Measure<?, ?>) {
+                        stringVal = ((Measure<?, ?>) obj).getValue().toString();
+                    } else {
+                        stringVal = obj.toString();
+                    }
+                    map.put(sKey.getId(), stringVal);
+                }
+            }
+            return map;
         } catch (TransformException e) {
             throw new VizException(
                     "Transformation error creating lat/lon from referenced coordinate",
@@ -436,11 +600,12 @@ public class AbstractRadarResource<D extends IDescriptor> extends
             throw new VizException(
                     "Error creating lat/lon from referenced coordinate", e);
         }
+
     }
 
-    public Map<String, String> interrogate(DataTime dataTime, Coordinate latLon) {
+    public InterrogateMap interrogate(DataTime dataTime, Coordinate latLon) {
         if (interrogator == null) {
-            return new HashMap<>();
+            return new InterrogateMap();
         }
         ColorMapParameters params = null;
         if (hasCapability(ColorMapCapability.class)) {
@@ -450,14 +615,15 @@ public class AbstractRadarResource<D extends IDescriptor> extends
 
         VizRadarRecord radarRecord = getRadarRecord(dataTime);
         if (radarRecord != null && radarRecord.getStoredDataAsync() != null) {
-            return interrogator.sample(radarRecord, latLon, params);
+            return interrogator.sample(radarRecord, latLon, params,
+                    interrogator.getInterrogationKeys());
         }
-        return new HashMap<>();
+        return new InterrogateMap();
     }
 
     /**
      * Given the dataTime, returns the upper text info for that time
-     * 
+     *
      * @param time
      * @return
      */
@@ -518,7 +684,7 @@ public class AbstractRadarResource<D extends IDescriptor> extends
     /**
      * The purpose of this method is to allow TDWR, SAILS, and MESO SAILS data
      * to time match products at different elevation angles correctly.
-     * 
+     *
      * For example MESO SAILS has a 0.5 elevation product about every 1.5
      * minutes and a 1.5 elevation product every 6 minutes. Normally when the
      * 4th 0.5 product comes in it stops matching the 1.5 product because the
@@ -539,8 +705,8 @@ public class AbstractRadarResource<D extends IDescriptor> extends
             return;
         }
         AbstractRadarResource<?> radarBasis = (AbstractRadarResource<?>) basis;
-        RequestConstraint icaoRC = getResourceData().getMetadataMap().get(
-                "icao");
+        RequestConstraint icaoRC = getResourceData().getMetadataMap()
+                .get("icao");
         RequestConstraint basisIcaoRC = radarBasis.getResourceData()
                 .getMetadataMap().get("icao");
         if (icaoRC == null || !icaoRC.equals(basisIcaoRC)) {
@@ -564,10 +730,10 @@ public class AbstractRadarResource<D extends IDescriptor> extends
             }
             times.add(record.getDataTime().getRefTime());
         }
-        long minInterval1 = getMinVolumeScanInterval(radarBasis
-                .getRadarRecords().values());
-        long minInterval2 = getMinVolumeScanInterval(this.getRadarRecords()
-                .values());
+        long minInterval1 = getMinVolumeScanInterval(
+                radarBasis.getRadarRecords().values());
+        long minInterval2 = getMinVolumeScanInterval(
+                this.getRadarRecords().values());
         long minInteval = Math.min(minInterval1, minInterval2);
         if (minInteval < TimeUtil.MILLIS_PER_HOUR) {
             /*
@@ -619,6 +785,47 @@ public class AbstractRadarResource<D extends IDescriptor> extends
             }
         }
         return minVolumeScanInterval;
+    }
+
+    @Override
+    public Set<InterrogationKey<?>> getInterrogationKeys() {
+        if (this.interrogator != null) {
+            return this.interrogator.getInterrogationKeys();
+        }
+
+        return Collections.emptySet();
+    }
+
+    @Override
+    public InterrogateMap interrogate(ReferencedCoordinate coordinate,
+            DataTime time, InterrogationKey<?>... keys) {
+        if (keys == null || keys.length == 0 || this.interrogator == null) {
+            return new InterrogateMap();
+        }
+
+        Set<InterrogationKey<?>> keySet = new HashSet<>(Arrays.asList(keys));
+
+        RadarRecord record = radarRecords.get(time);
+        if (record == null) {
+            return new InterrogateMap();
+        }
+
+        ColorMapParameters params;
+        if (hasCapability(ColorMapCapability.class)) {
+            params = getCapability(ColorMapCapability.class)
+                    .getColorMapParameters();
+        } else {
+            params = null;
+        }
+
+        try {
+            return this.interrogator.sample(record, coordinate.asLatLon(),
+                    params, keySet);
+        } catch (TransformException | FactoryException e) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unable to convert coordinate to lat/lon.", e);
+            return new InterrogateMap();
+        }
     }
 
 }

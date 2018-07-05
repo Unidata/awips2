@@ -18,18 +18,22 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!-- SPC method for models that only have surface T available.  -->
-<DerivedParameter name="Snow Ratio: EMC SREF" abbreviation="snoRatEMCSREF" xmlns:ns2="group">
+<DerivedParameter name="Snow Ratio: EMC SREF" abbreviation="snoRatEMCSREF">
     <Method levels="200MB" name="Difference">
-        <ConstantField value="273.15"/>
-        <Field level="Surface" abbreviation="T"/>
-    </Method>  
-    <Method levels="Surface" name="Poly">      
-        <ConstantField value="0.5"/>
-        <Field level="200MB" abbreviation="snoRatEMCSREF"/>
-        <ConstantField value="1"/>
-        <ConstantField value="8"/>
-        <ConstantField value="1"/>
-        <ConstantField value="1"/>
-    </Method>  
+        <ConstantField value="273.15" />
+        <Field level="Surface" abbreviation="T" />
+    </Method>
+    <Method levels="Surface" name="Poly">
+        <ConstantField value="0.5" />
+        <Field level="200MB" abbreviation="snoRatEMCSREF" />
+        <ConstantField value="1" />
+        <ConstantField value="8" />
+        <ConstantField value="1" />
+        <ConstantField value="1" />
+    </Method>
 </DerivedParameter>

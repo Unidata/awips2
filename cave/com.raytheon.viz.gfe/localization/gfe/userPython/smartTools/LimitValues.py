@@ -39,7 +39,13 @@
 #                          area - not the whole grid.
 #               10/07/03 - More graceful handling of query edit areas
 #               08/27/04 - version 1.5 - now handles query edit areas
-#============================================================================
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
+#====================================================================
 ToolType="numeric"
 WeatherElementEdited = "variableElement"
 ScreenList = ["SCALAR","VECTOR"]

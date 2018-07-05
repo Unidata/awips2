@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -47,11 +48,11 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * A data factory for retrieving climate data from the hmdb database.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * May 14, 2015  4409     mapeters  Initial creation.
@@ -66,13 +67,15 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  *                                  schema in table name
  * Jul 05, 2016  5728     mapeters  Use RequestConstraint to build IN
  *                                  constraints
- * Oct 06, 2016  5926     dgilling  Use all request identifiers for 
- *                                  getAvailableLocationNames and 
- *                                  getAvailableTimes requests, fix month off 
+ * Oct 06, 2016  5926     dgilling  Use all request identifiers for
+ *                                  getAvailableLocationNames and
+ *                                  getAvailableTimes requests, fix month off
  *                                  by one errors in buildDataTimesConstraint.
- * 
+ * Jan 26, 2017  5981     tgurney   Throw exception if an envelope is given
+ * Aug 16, 2017  6388     tgurney   Remove duplicate rows from result
+ *
  * </pre>
- * 
+ *
  * @author mapeters
  */
 
@@ -132,10 +135,10 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * Get the name(s) of the column(s) that contain the table's concept of
      * time. Throw IncompatibleRequestException if the table has no supported
      * time columns.
-     * 
+     *
      * @param request
      *            the database request being performed
-     * 
+     *
      * @return the name(s) of the time column(s)
      */
     private List<String> getTimeColumnNames(IDataRequest request) {
@@ -156,7 +159,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * Get the name of the column that contains the table's concept of location.
      * Throw IncompatibleRequestException if the table doesn't have a supported
      * location column.
-     * 
+     *
      * @param request
      *            the database request being performed
      * @param tableName
@@ -282,13 +285,13 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * elements used to create the DataTime. The startIndex and the returned
      * dataIndex are ignored when this method is called as part of
      * getAvailableTimes(), but used as part of getGeometryData().
-     * 
+     *
      * @param results
      *            the query results to build from
      * @param startIndex
      *            the index of the first element involved in building the
      *            DataTime
-     * 
+     *
      * @return a DataTimeWithDataIndex containing the DataTime and the start
      *         index of additional data. The DataTime may be null if the data is
      *         faulty and doesn't match expected data types.
@@ -305,7 +308,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
          * one index later.
          */
         Object potentialDataTimeElement = null;
-        if (results.length > (startIndex + 1)) {
+        if (results.length > startIndex + 1) {
             potentialDataTimeElement = results[startIndex + 1];
         }
 
@@ -349,7 +352,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * Build a DataTime from an integer element and potentially a second
      * DataTime element. Also return the array index of additional data
      * following the DataTime element(s).
-     * 
+     *
      * @param intElement
      *            the integer DataTime element
      * @param potentialDataTimeElement
@@ -405,7 +408,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
     /**
      * Build and return a DataTime with a TimeRange covering the entire given
      * month.
-     * 
+     *
      * @param year
      * @param month
      * @return the DataTime
@@ -423,7 +426,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
 
     /**
      * Build and return a DataTime from a year integer and a "mm-dd" String.
-     * 
+     *
      * @param year
      *            the integer representing the year
      * @param dayOfYear
@@ -463,12 +466,16 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
 
     private String assembleGetData(IDataRequest request, String timeConstraint,
             List<String> timeColumnNames) {
+        if (request.getEnvelope() != null) {
+            throw new IncompatibleRequestException(
+                    "climate does not support envelopes");
+        }
         String tableName = extractTableName(request);
         boolean isRpt = tableName.equals(RPT);
         String locationColumnName = getLocationColumnName(request, tableName);
         boolean hasStationCode = locationColumnName.equals(STATION_CODE);
         // Build SELECT statement
-        StringBuilder sqlQuery = new StringBuilder("select ");
+        StringBuilder sqlQuery = new StringBuilder("select distinct ");
 
         /*
          * We must alias all columns making up the geometry. If a
@@ -562,7 +569,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * Build an SQL FROM statement given the specified table to query from. If
      * necessary, will add the appropriate location table to the from statement
      * if a join to that table is desired.
-     * 
+     *
      * @param tableName
      * @param locationColumnName
      * @param joinWithLocationTable
@@ -587,7 +594,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
     /**
      * Alias the given column by prepending the aliasPrefix to it, to be used in
      * a select statement.
-     * 
+     *
      * @param table
      * @param column
      * @param aliasPrefix
@@ -620,7 +627,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
     /**
      * Builds an SQL WHERE clause to perform a join for the given table to the
      * appropriate location table joining on the specified location column name.
-     * 
+     *
      * @param tableName
      * @param locationColumnName
      * @return
@@ -700,7 +707,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
     /**
      * Creates am SQL WHERE clause for the given columns given the specified
      * {@link DataTime} instances.
-     * 
+     *
      * @param timeColumnNames
      *            list of database columns names to use in the query constraint.
      * @param dataTimes
@@ -711,7 +718,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
     private static String buildDataTimesConstraint(List<String> timeColumnNames,
             DataTime... dataTimes) {
         StringBuilder dataTimesConstraint = new StringBuilder();
-        if ((dataTimes != null) && (dataTimes.length > 0)) {
+        if (dataTimes != null && dataTimes.length > 0) {
             if (CollectionUtils.containsAny(timeColumnNames,
                     FUZZY_DATE_FIELDS)) {
                 Map<String, List<String>> dateColumnsValues = extractCalendarValues(
@@ -726,7 +733,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
                             .append(dataTimes[i].getRefTime()).append("'")
                             .append(" between ").append(PERIOD_START)
                             .append(" and ").append(PERIOD_END);
-                    if (i < (dataTimes.length - 1)) {
+                    if (i < dataTimes.length - 1) {
                         dataTimesConstraint.append(" or ");
                     }
                 }
@@ -752,7 +759,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * {@link DataTime} instances and extracts the appropriate values based on
      * the time columns in the table. Those values are then collected in a map
      * that links column name with the list of values.
-     * 
+     *
      * @param columnNames
      * @param dataTimes
      * @return
@@ -795,7 +802,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * the combines the month and day of month fields from a calendar. For
      * example, given a calendar with the datetime 2010-08-15 12:00, this
      * function will return the String "08-15".
-     * 
+     *
      * @param timeAsCalendar
      * @return
      */
@@ -808,7 +815,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
     /**
      * Build the SQL WHERE clause based on the time columns in the table and the
      * values for those columns.
-     * 
+     *
      * @param dateColumnsValues
      * @return
      */
@@ -831,11 +838,11 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * <p>
      * For example if the column uses YEAR and MONTH an example clause generated
      * by this function might look like:
-     * 
+     *
      * <pre>
      * ((YEAR='20xx' AND MONTH='ii') OR (YEAR='20yy' AND MONTH='jj') OR (YEAR='20zz' AND MONTH='kk'))
      * </pre>
-     * 
+     *
      * @param dateColumnsValues
      * @return
      */
@@ -855,15 +862,16 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
 
         for (int i = 0; i < listSize; i++) {
             List<String> clauses = new ArrayList<>(dateColumnsValues.size());
-            for (String columnName : dateColumnsValues.keySet()) {
-                String value = dateColumnsValues.get(columnName).get(i);
-                clauses.add(columnName + "= '" + value + "'");
+            for (Entry<String, List<String>> column : dateColumnsValues
+                    .entrySet()) {
+                String value = column.getValue().get(i);
+                clauses.add(column.getKey() + "= '" + value + "'");
             }
             constraint.append('(');
             constraint.append(StringUtils.join(clauses, " and "));
             constraint.append(')');
 
-            if (i < (listSize - 1)) {
+            if (i < listSize - 1) {
                 constraint.append(" or ");
             }
         }
@@ -880,11 +888,11 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * <p>
      * For example if the table uses the DAY_OF_YEAR an example clause generated
      * by this function might look like:
-     * 
+     *
      * <pre>
      * DAY_OF_YEAR IN ('ii-xx', 'jj-yy', 'kk-zz')
      * </pre>
-     * 
+     *
      * @param columnName
      * @param values
      * @return
@@ -973,11 +981,11 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * <p>
      * For example if we're trying to retrieve data for the dates between
      * 2009-03-01 and 2009-09-30, this function would return the string:
-     * 
+     *
      * <pre>
      * (YEAR = '2009' AND DAY_OF_YEAR BETWEEN '03-01' AND '09-30')
      * </pre>
-     * 
+     *
      * @param startCal
      * @param endCal
      * @return
@@ -1035,7 +1043,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
              */
             if (endYear - startYear > 1) {
                 sb.append(" or ");
-                if ((startYear + 1) == (endYear - 1)) {
+                if (startYear + 1 == endYear - 1) {
                     sb.append(YEAR).append(" = ").append(startYear + 1);
                 } else {
                     sb.append(YEAR).append(" between ").append(startYear + 1)
@@ -1055,11 +1063,11 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
      * <p>
      * For example if we're trying to retrieve data for the dates between
      * 2009-03-01 and 2009-09-30, this function would return the string:
-     * 
+     *
      * <pre>
      * (YEAR = 2009 AND MONTH BETWEEN 3 AND 9)
      * </pre>
-     * 
+     *
      * @param startCal
      * @param endCal
      * @return
@@ -1112,7 +1120,7 @@ public class ClimateGeometryFactory extends AbstractGeometryDatabaseFactory {
              */
             if (endYear - startYear > 1) {
                 sb.append(" or ");
-                if ((startYear + 1) == (endYear - 1)) {
+                if (startYear + 1 == endYear - 1) {
                     sb.append(YEAR).append(" = ").append(startYear + 1);
                 } else {
                     sb.append(YEAR).append(" between ").append(startYear + 1)

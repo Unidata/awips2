@@ -51,6 +51,7 @@ import com.raytheon.uf.common.dataaccess.exception.TimeAgnosticDataException;
 import com.raytheon.uf.common.dataaccess.geom.IGeometryData;
 import com.raytheon.uf.common.dataaccess.grid.IGridData;
 import com.raytheon.uf.common.dataaccess.impl.AbstractDataFactory;
+import com.raytheon.uf.common.dataaccess.impl.AbstractDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGeometryData;
 import com.raytheon.uf.common.dataaccess.impl.DefaultNotificationFilter;
 import com.raytheon.uf.common.dataaccess.impl.FactoryUtil;
@@ -118,6 +119,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Oct 13, 2016  5942     bsteffen  Fix subgrid geometry.
  * Nov 17, 2016  6000     bsteffen  Do not bother calculating availability when
  *                                  source is time agnostic.
+ * Mar 06, 2017  6142     bsteffen  Support dataURI queries
  * 
  * </pre>
  * 
@@ -130,8 +132,8 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
     public DerivedGridDataAccessFactory() {
         this.inventory = new CommonGridInventory();
         try {
-            this.inventory.initTree(DerivedParameterGenerator
-                    .getDerParLibrary());
+            this.inventory
+                    .initTree(DerivedParameterGenerator.getDerParLibrary());
         } catch (DataCubeException e) {
             throw new IllegalStateException(
                     "Failed to initialize grid inventory.", e);
@@ -144,14 +146,14 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
 
     @Override
     public String[] getOptionalIdentifiers(IDataRequest request) {
-        return GridDataAccessFactory.VALID_IDENTIFIERS;
+        return GridDataAccessFactory.getGridOptionalIdentifiers();
     }
 
     @Override
     public DataTime[] getAvailableTimes(IDataRequest request,
             boolean refTimeOnly) throws TimeAgnosticDataException {
-        Map<String, RequestConstraint> query = GridDataAccessFactory
-                .buildGridConstraintsFromRequest(request);
+        Map<String, RequestConstraint> query = buildConstraintsFromRequest(
+                request);
         try {
             Set<DataTime> results = new HashSet<>(64);
 
@@ -208,8 +210,6 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
             return true;
         } else if (query.containsKey(GridConstants.LEVEL_ID)) {
             return true;
-        } else if (query.containsKey(GridConstants.LEVEL_ID)) {
-            return true;
         } else if (query.containsKey(GridConstants.MASTER_LEVEL_NAME)) {
             return true;
         } else if (query.containsKey(GridConstants.LEVEL_ONE)) {
@@ -226,7 +226,8 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
         return FactoryUtil.getAvailableTimes(this, request, binOffset);
     }
 
-    private DataTime[] getTimesInRange(IDataRequest request, TimeRange timeRange) {
+    private DataTime[] getTimesInRange(IDataRequest request,
+            TimeRange timeRange) {
         DataTime[] allTimes = getAvailableTimes(request, false);
         if (timeRange == null) {
             return allTimes;
@@ -247,8 +248,8 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
 
     private List<AbstractRequestableData> getData(IDataRequest request,
             DataTime... times) throws DataCubeException {
-        Map<String, RequestConstraint> query = GridDataAccessFactory
-                .buildGridConstraintsFromRequest(request);
+        Map<String, RequestConstraint> query = buildConstraintsFromRequest(
+                request);
         List<AbstractRequestableNode> requests;
         try {
             requests = inventory.evaluateRequestConstraints(query);
@@ -309,7 +310,8 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
                                 .getGridGeometry();
                     } else {
                         throw new DataRetrievalException(
-                                "Unable to determine coverage area for " + data);
+                                "Unable to determine coverage area for "
+                                        + data);
                     }
                 } else if (dataStoreRequest.getType() == Type.SLAB) {
                     int[] minIndices = dataStoreRequest.getMinIndexForSlab();
@@ -362,8 +364,8 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
             IDataRecord dataRecord = (IDataRecord) obj;
             long[] sizes = dataRecord.getSizes();
             if (sizes.length == 1 && sizes[0] == 1) {
-                BufferWrapper source = BufferWrapper.wrapArray(
-                        dataRecord.getDataObject(), 1, 1);
+                BufferWrapper source = BufferWrapper
+                        .wrapArray(dataRecord.getDataObject(), 1, 1);
                 final double value = source.getDataValue(0, 0);
                 return new ConstantDataSource(value);
             } else {
@@ -377,27 +379,28 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
         if (obj == null) {
             return null;
         }
-        throw new DataCubeException("Unexpected data of type "
-                + obj.getClass().getSimpleName());
+        throw new DataCubeException(
+                "Unexpected data of type " + obj.getClass().getSimpleName());
     }
 
     @Override
     public String[] getAvailableLocationNames(IDataRequest request) {
-        Map<String, RequestConstraint> query = GridDataAccessFactory
-                .buildGridConstraintsFromRequest(request);
+        Map<String, RequestConstraint> query = buildConstraintsFromRequest(
+                request);
         BlockingQueue<String> returnQueue = new LinkedBlockingQueue<>();
         try {
             inventory.checkSources(query, returnQueue);
         } catch (InterruptedException e) {
-            throw new DataRetrievalException("Unable to query grid location", e);
+            throw new DataRetrievalException("Unable to query grid location",
+                    e);
         }
         return returnQueue.toArray(new String[0]);
     }
 
     @Override
     public Level[] getAvailableLevels(IDataRequest request) {
-        Map<String, RequestConstraint> query = GridDataAccessFactory
-                .buildGridConstraintsFromRequest(request);
+        Map<String, RequestConstraint> query = buildConstraintsFromRequest(
+                request);
         BlockingQueue<String> returnQueue = new LinkedBlockingQueue<>();
         try {
             inventory.checkLevels(query, returnQueue);
@@ -417,8 +420,8 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
      */
     @Override
     public String[] getAvailableParameters(IDataRequest request) {
-        Map<String, RequestConstraint> query = GridDataAccessFactory
-                .buildGridConstraintsFromRequest(request);
+        Map<String, RequestConstraint> query = buildConstraintsFromRequest(
+                request);
         BlockingQueue<String> returnQueue = new LinkedBlockingQueue<>();
         try {
             inventory.checkParameters(query, false, returnQueue);
@@ -458,15 +461,16 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
                     } catch (TransformException e) {
                         throw new EnvelopeProjectionException(
                                 "Error determining subgrid from envelope: "
-                                        + envelope, e);
+                                        + envelope,
+                                e);
                     }
                 }
                 if (subGrid.isEmpty()) {
                     if (!includePoint) {
                         continue;
                     }
-                    Point p = GridDataAccessFactory.findRequestPoint(
-                            gridGeometry, envelope);
+                    Point p = GridDataAccessFactory
+                            .findRequestPoint(gridGeometry, envelope);
                     if (p == null) {
                         continue;
                     }
@@ -550,17 +554,19 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
                         for (int x = xMin; x < xMax; x += 1) {
                             DefaultGeometryData geometryData = key
                                     .toGeometryData();
-                            if (geometryData.getDataTime() == TimeAndSpace.TIME_AGNOSTIC) {
+                            if (geometryData
+                                    .getDataTime() == TimeAndSpace.TIME_AGNOSTIC) {
                                 geometryData.setDataTime(null);
                             }
                             DirectPosition2D llPoint = GridDataAccessFactory
-                                    .findResponsePoint(key.getGridGeometry(),
-                                            x, y);
-                            geometryData.setGeometry(geometryFactory
-                                    .createPoint(new Coordinate(llPoint.x,
-                                            llPoint.y)));
-                            geometryData.setLocationName(geometryData
-                                    .getLocationName() + "-" + x + "," + y);
+                                    .findResponsePoint(key.getGridGeometry(), x,
+                                            y);
+                            geometryData.setGeometry(
+                                    geometryFactory.createPoint(new Coordinate(
+                                            llPoint.x, llPoint.y)));
+                            geometryData.setLocationName(
+                                    geometryData.getLocationName() + "-" + x
+                                            + "," + y);
                             results.add(geometryData);
                         }
                     }
@@ -599,8 +605,8 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
      */
     public String[] getAvailableValues(IDataRequest request,
             String identifierKey) {
-        Map<String, RequestConstraint> query = GridDataAccessFactory
-                .buildGridConstraintsFromRequest(request);
+        Map<String, RequestConstraint> query = buildConstraintsFromRequest(
+                request);
         try {
             List<AbstractRequestableNode> nodes = inventory
                     .evaluateRequestConstraints(query);
@@ -664,10 +670,10 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
     @Override
     public String[] getIdentifierValues(IDataRequest request,
             String identifierKey) {
-        if (!Arrays.asList(getRequiredIdentifiers(request)).contains(
-                identifierKey)
-                && !Arrays.asList(getOptionalIdentifiers(request)).contains(
-                        identifierKey)) {
+        if (!Arrays.asList(getRequiredIdentifiers(request))
+                .contains(identifierKey)
+                && !Arrays.asList(getOptionalIdentifiers(request))
+                        .contains(identifierKey)) {
             throw new InvalidIdentifiersException(request.getDatatype(), null,
                     Arrays.asList(identifierKey));
         }
@@ -699,10 +705,31 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
             }
             return values.toArray(new String[0]);
         } else {
-            throw new UnsupportedOperationException(
-                    "Unable to query available " + identifierKey
-                            + " identifiers.");
+            throw new UnsupportedOperationException("Unable to query available "
+                    + identifierKey + " identifiers.");
         }
+    }
+
+    protected Map<String, RequestConstraint> buildConstraintsFromRequest(
+            IDataRequest request) {
+        Map<String, RequestConstraint> constraints = AbstractDataPluginFactory
+                .buildDataURIBasedConstraints(request);
+        if (constraints == null) {
+            constraints = GridDataAccessFactory
+                    .buildGridConstraintsFromRequest(request);
+        }
+        constraints.put(GridConstants.PLUGIN_NAME,
+                new RequestConstraint(request.getDatatype()));
+        return constraints;
+
+    }
+
+    @Override
+    public INotificationFilter getNotificationFilter(IDataRequest request) {
+        // Currently only works for normal (non-derived) grids.
+        return new DefaultNotificationFilter(request.getDatatype(),
+                buildConstraintsFromRequest(request));
+
     }
 
     private static final class ConstantDataSource implements DataSource {
@@ -720,11 +747,4 @@ public class DerivedGridDataAccessFactory extends AbstractDataFactory {
 
     }
 
-    @Override
-    public INotificationFilter getNotificationFilter(IDataRequest request) {
-        // Currently only works for normal (non-derived) grids.
-        return new DefaultNotificationFilter(request.getDatatype(),
-                GridDataAccessFactory.buildGridConstraintsFromRequest(request));
-
-    }
 }

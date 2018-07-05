@@ -18,13 +18,17 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter name="Sweat Index" abbreviation="swtIdx" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter name="Sweat Index" abbreviation="swtIdx">
     <Method name="Sweat" levels="Layer">
-        <Field abbreviation="tTOT"/>
-        <Field abbreviation="DpT" level="850MB"/>
-        <Field abbreviation="uW" level="850MB"/>
-        <Field abbreviation="vW" level="850MB"/>
-        <Field abbreviation="uW" level="500MB"/>
-        <Field abbreviation="vW" level="500MB"/>
+        <Field abbreviation="tTOT" />
+        <Field abbreviation="DpT" level="850MB" />
+        <Field abbreviation="uW" level="850MB" />
+        <Field abbreviation="vW" level="850MB" />
+        <Field abbreviation="uW" level="500MB" />
+        <Field abbreviation="vW" level="500MB" />
     </Method>
 </DerivedParameter>

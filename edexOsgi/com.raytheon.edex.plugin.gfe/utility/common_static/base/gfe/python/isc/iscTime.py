@@ -18,7 +18,6 @@
 # further licensing information.
 ##
 
-
 #
 # iscTime - contains time functions used to determine how a new incoming
 # grid should be reconsiled with the an existing grid inventory.
@@ -31,6 +30,12 @@
 #    02/17/2015      4139          randerso       Removed timeFromComponents and dependent
 #                                                 functions in favor of calendar.timegm
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 # time range routines
 def containsT(tr, t):

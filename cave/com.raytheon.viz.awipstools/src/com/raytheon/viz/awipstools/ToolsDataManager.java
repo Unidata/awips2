@@ -84,7 +84,7 @@ import com.vividsolutions.jts.geom.LineString;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 10-21-09	    #1711      bsteffen    Initial Creation
+ * 10-21-09     #1711      bsteffen    Initial Creation
  * 04-07-10     #4614      randerso    Reworked to use localization files
  * 07-11-12     #875       rferrel     Move points to PointsDataManager.
  * 01-29-14     DR 16351   D. Friedman Fix updates to storm track from preferences.
@@ -93,14 +93,15 @@ import com.vividsolutions.jts.geom.LineString;
  * Feb 24, 2015 3978       njensen     Changed to use abstract InputStream
  * Aug 18, 2015 3806       njensen     Use SaveableOutputStream to save
  * Feb 12, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
+ * Aug 02, 2017 6347       njensen     Use common_static instead of cave_static
+ * 
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class ToolsDataManager implements ILocalizationFileObserver {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ToolsDataManager.class);
 
     private static final String BASELINE_PREFIX = "baseline_";
@@ -124,11 +125,11 @@ public class ToolsDataManager implements ILocalizationFileObserver {
 
     private static final GeometryFactory GF = new GeometryFactory();
 
-    private static ToolsDataManager theManager = null;
+    private static ToolsDataManager instance = null;
 
     private Map<String, LineString> baselines;
 
-    private final ListenerList baselineListeners = new ListenerList();
+    private final ListenerList<IToolChangedListener> baselineListeners = new ListenerList<>();
 
     private final PointsDataManager pointsManager;
 
@@ -136,7 +137,7 @@ public class ToolsDataManager implements ILocalizationFileObserver {
 
     private StormTrackData stormData;
 
-    private final ListenerList stormListeners = new ListenerList();
+    private final ListenerList<IToolChangedListener> stormListeners = new ListenerList<>();
 
     private final Object stormLock = new Object();
 
@@ -146,20 +147,20 @@ public class ToolsDataManager implements ILocalizationFileObserver {
 
     private final IPathManager pathMgr;
 
-    private final BlockingQueue<String> baselineStoreQueue = new LinkedBlockingQueue<String>();
+    private final BlockingQueue<String> baselineStoreQueue = new LinkedBlockingQueue<>();
 
     public static synchronized ToolsDataManager getInstance() {
-        if (theManager == null) {
-            theManager = new ToolsDataManager();
+        if (instance == null) {
+            instance = new ToolsDataManager();
         }
-        return theManager;
+        return instance;
     }
 
     private ToolsDataManager() {
         pathMgr = PathManagerFactory.getPathManager();
         pointsManager = PointsDataManager.getInstance();
         LocalizationContext userCtx = pathMgr.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.USER);
         /*
          * TODO: Since it's already under the user localization, why does it
          * then want to have the site underneath that? If anyone knows, please
@@ -196,7 +197,7 @@ public class ToolsDataManager implements ILocalizationFileObserver {
     }
 
     public Collection<LineSegment> getDistanceBearings() {
-        Collection<LineSegment> distanceBearings = new ArrayList<LineSegment>();
+        Collection<LineSegment> distanceBearings = new ArrayList<>();
         Coordinate center = pointsManager.getHome();
         for (int i = 0; i < 6; i++) {
             Coordinate start = pointsManager.getCoordinateOnCircle(center,
@@ -220,14 +221,14 @@ public class ToolsDataManager implements ILocalizationFileObserver {
                 loadRangeRings();
             }
         }
-        Collection<RangeRing> copy = new ArrayList<RangeRing>(rangeRings.size());
+        Collection<RangeRing> copy = new ArrayList<>(rangeRings.size());
         copy.addAll(rangeRings);
         return copy;
     }
 
     public void setRangeRings(Collection<RangeRing> rangeRings) {
         if (this.rangeRings == null) {
-            this.rangeRings = new ArrayList<RangeRing>(rangeRings.size());
+            this.rangeRings = new ArrayList<>(rangeRings.size());
         }
         this.rangeRings.clear();
         this.rangeRings.addAll(rangeRings);
@@ -254,7 +255,7 @@ public class ToolsDataManager implements ILocalizationFileObserver {
 
     private void loadStormData() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationFile f = pathMgr.getLocalizationFile(
+        ILocalizationFile f = pathMgr.getLocalizationFile(
                 userToolsDir.getContext(), userToolsDir.getPath()
                         + IPathManager.SEPARATOR + STORM_TRACK_FILE);
         if (f.exists()) {
@@ -289,7 +290,7 @@ public class ToolsDataManager implements ILocalizationFileObserver {
             // Update the store time
             stormData.setDate(SimulatedTime.getSystemTime().getTime());
             IPathManager pathMgr = PathManagerFactory.getPathManager();
-            LocalizationFile f = pathMgr.getLocalizationFile(
+            ILocalizationFile f = pathMgr.getLocalizationFile(
                     userToolsDir.getContext(), userToolsDir.getPath()
                             + IPathManager.SEPARATOR + STORM_TRACK_FILE);
 
@@ -314,7 +315,7 @@ public class ToolsDataManager implements ILocalizationFileObserver {
     }
 
     private void createDefaultBaselines() {
-        baselines = new LinkedHashMap<String, LineString>();
+        baselines = new LinkedHashMap<>();
         Coordinate center = pointsManager.getHome();
         for (int i = 0; i < 10; i++) {
             String label = String.valueOf((char) ('A' + i));
@@ -340,14 +341,14 @@ public class ToolsDataManager implements ILocalizationFileObserver {
             rows = DirectDbQuery.executeQuery(query, "metadata",
                     QueryLanguage.SQL);
         } catch (VizException e) {
-            e.printStackTrace();
-            rows = new ArrayList<Object[]>();
+            statusHandler.error("Error querying for default range rings", e);
+            rows = new ArrayList<>();
         }
         float[] result = new float[3];
-        rangeRings = new ArrayList<RangeRing>();
+        rangeRings = new ArrayList<>();
         for (int r = 0; r < rows.size(); r++) {
             String rda_id = "";
-            if (rows.size() > 0) {
+            if (!rows.isEmpty()) {
                 Object[] row = rows.get(r);
                 for (int i = 0; i < result.length; ++i) {
                     if (row[i] instanceof String) {
@@ -444,17 +445,17 @@ public class ToolsDataManager implements ILocalizationFileObserver {
             prefStore.save();
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM,
-                    "Error occured saving range rings");
+                    "Error occured saving range rings", e);
         }
     }
 
     private void loadBaselines() {
-        baselines = new HashMap<String, LineString>();
+        baselines = new HashMap<>();
 
-        LocalizationFile[] files = pathMgr.listFiles(userToolsDir.getContext(),
+        ILocalizationFile[] files = pathMgr.listFiles(userToolsDir.getContext(),
                 userToolsDir.getPath(), new String[] { BASELINE_EXT }, false,
                 true);
-        for (LocalizationFile lf : files) {
+        for (ILocalizationFile lf : files) {
             String fileName = LocalizationUtil.extractName(lf.getPath());
             if (fileName.startsWith(BASELINE_PREFIX)) {
                 LineString baseline = loadBaseline(fileName);
@@ -475,7 +476,7 @@ public class ToolsDataManager implements ILocalizationFileObserver {
         try (InputStream inStream = lf.openInputStream();
                 BufferedReader in = new BufferedReader(new InputStreamReader(
                         inStream))) {
-            List<Coordinate> coords = new ArrayList<Coordinate>();
+            List<Coordinate> coords = new ArrayList<>();
             String line = null;
             while ((line = in.readLine()) != null) {
                 line = line.trim();
@@ -509,7 +510,7 @@ public class ToolsDataManager implements ILocalizationFileObserver {
     }
 
     private void loadRangeRings() {
-        rangeRings = new ArrayList<RangeRing>();
+        rangeRings = new ArrayList<>();
 
         IPersistentPreferenceStore prefStore = CorePlugin.getDefault()
                 .getPreferenceStore();
@@ -541,13 +542,6 @@ public class ToolsDataManager implements ILocalizationFileObserver {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.localization.ILocalizationFileObserver#fileUpdated
-     * (com.raytheon.uf.common.localization.FileUpdatedMessage)
-     */
     @Override
     public void fileUpdated(FileUpdatedMessage message) {
         /*
@@ -559,8 +553,8 @@ public class ToolsDataManager implements ILocalizationFileObserver {
             baselineFileUpdated(fileName);
         } else if (fileName.equals(STORM_TRACK_FILE)) {
             stormTrackDirty = true;
-            for (Object listener : stormListeners.getListeners()) {
-                ((IToolChangedListener) listener).toolChanged();
+            for (IToolChangedListener listener : stormListeners) {
+                listener.toolChanged();
             }
         }
     }
@@ -572,8 +566,8 @@ public class ToolsDataManager implements ILocalizationFileObserver {
                     BASELINE_EXT, "");
             baselines.put(name, baseline);
 
-            for (Object listener : baselineListeners.getListeners()) {
-                ((IToolChangedListener) listener).toolChanged();
+            for (IToolChangedListener listener : baselineListeners) {
+                listener.toolChanged();
             }
         }
     }

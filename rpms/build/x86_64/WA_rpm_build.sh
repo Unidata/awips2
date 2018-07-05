@@ -30,13 +30,16 @@ function WA_rpm_build()
 		fi
 		
 		for contribution in `cat ${_contribution_txt}`; do
-			lookupWA_RPM "${contribution}" "${rpm_contribution}"
+			local name=$(echo "${contribution}" | awk -F/ '{print $1}')
+			local arch=$(echo "${contribution}" | awk -F/ '{print $2}')
+
+			lookupWA_RPM "${name}" "${rpm_contribution}"
 			if [ $? -ne 0 ]; then
-    			echo "ERROR: '${contribution}' is not a recognized AWIPS II RPM."
+			echo "ERROR: '${name}' is not a recognized AWIPS II RPM."
     			exit 1
 			fi			
 			
-			buildRPMExec "${RPM_SPECIFICATION}"
+			buildRPMExec "${RPM_SPECIFICATION}" "" "${arch}"
 		done
 		
 	done

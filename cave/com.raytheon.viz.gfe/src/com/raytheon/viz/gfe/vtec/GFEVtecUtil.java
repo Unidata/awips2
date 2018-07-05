@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,43 +34,44 @@ import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.texteditor.util.VtecObject;
-import com.raytheon.viz.texteditor.util.VtecUtil;
+import com.raytheon.uf.viz.vtec.VtecObject;
+import com.raytheon.uf.viz.vtec.VtecUtil;
 
 /**
  * Utility class to set ETNs on GFE VTEC products prior to transmission. Logic
  * for ETN assignment/replacement based on A1 HazardsTable.py code; thus didn't
  * want to contaminate the generic <code>VtecUtil</code> with A1 GFE-specific
  * logic.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 14, 2013  #1842     dgilling     Initial creation
- * Jul 19, 2013  #1842     dgilling     Use VtecUtil.replaceFirstVtecString()
- *                                      to ensure start times of in progress
- *                                      events aren't set to the wrong time.
- * Aug 07, 2013  #1842     dgilling     Fix ETN assignment for products with
- *                                      multiple NEW segments with the same 
- *                                      phensig.
- * Aug 29, 2013  #1843     dgilling     Add hooks for inter-site ETN assignment.
- * Oct 21, 2013  #1843     dgilling     Use new GetNextEtnResponse.
- * Nov 22, 2013  #2578     dgilling     Fix ETN assignment for products with
- *                                      multiple NEW VTEC lines for the same
- *                                      phensig but disjoint TimeRanges.
- * Dec 18, 2013  #2641     dgilling     Force ordering of items returned by
- *                                      getVtecLinesThatNeedEtn().
- * Feb 05, 2014  #2774     dgilling     Additional correction to previous fix.
- * Apr 28, 2015  #4027     randerso     Added getNextEtn parameter to specify ActiveTableMode
- * Oct 16, 2015  DR17771   dgilling     Removed IGNORE_NATIONAL_ETN.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 14, 2013  1842     dgilling  Initial creation
+ * Jul 19, 2013  1842     dgilling  Use VtecUtil.replaceFirstVtecString() to
+ *                                  ensure start times of in progress events
+ *                                  aren't set to the wrong time.
+ * Aug 07, 2013  1842     dgilling  Fix ETN assignment for products with
+ *                                  multiple NEW segments with the same phensig.
+ * Aug 29, 2013  1843     dgilling  Add hooks for inter-site ETN assignment.
+ * Oct 21, 2013  1843     dgilling  Use new GetNextEtnResponse.
+ * Nov 22, 2013  2578     dgilling  Fix ETN assignment for products with
+ *                                  multiple NEW VTEC lines for the same phensig
+ *                                  but disjoint TimeRanges.
+ * Dec 18, 2013  2641     dgilling  Force ordering of items returned by
+ *                                  getVtecLinesThatNeedEtn().
+ * Feb 05, 2014  2774     dgilling  Additional correction to previous fix.
+ * Apr 28, 2015  4027     randerso  Added getNextEtn parameter to specify
+ *                                  ActiveTableMode
+ * Oct 16, 2015  17771    dgilling  Removed IGNORE_NATIONAL_ETN.
+ * Nov 03, 2016  5934     randerso  Moved VtecObject and VtecUtil to a separate
+ *                                  plugin.
+ *
  * </pre>
- * 
+ *
  * @author dgilling
- * @version 1.0
  */
 
 public class GFEVtecUtil {
@@ -103,7 +104,7 @@ public class GFEVtecUtil {
      * A private constructor so that Java does not attempt to create one for us.
      * As this class should not be instantiated, do not attempt to ever call
      * this constructor; it will simply throw an AssertionError.
-     * 
+     *
      */
     private GFEVtecUtil() {
         throw new AssertionError();
@@ -111,7 +112,7 @@ public class GFEVtecUtil {
 
     /**
      * Gets the next available ETN for a specific product and office.
-     * 
+     *
      * @param office
      *            The 4-character site ID of the office.
      * @param phensig
@@ -136,7 +137,7 @@ public class GFEVtecUtil {
 
     /**
      * Gets the next available ETN for a specific product and office.
-     * 
+     *
      * @param office
      *            The 4-character site ID of the office.
      * @param phensig
@@ -163,7 +164,7 @@ public class GFEVtecUtil {
 
     /**
      * Gets the next available ETN for a specific product and office.
-     * 
+     *
      * @param office
      *            The 4-character site ID of the office.
      * @param phensig
@@ -179,9 +180,10 @@ public class GFEVtecUtil {
      *            GetNextEtnRequest.
      * @param performISC
      *            Whether or not to collaborate with neighboring sites to
-     *            determine the next ETN. See {@link
-     *            GetNextEtnUtil#getNextEtnFromPartners(String, ActiveTableMode,
-     *            String, Calendar, List<IRequestRouter>)} for more information.
+     *            determine the next ETN. See
+     *            {@link GetNextEtnUtil#getNextEtnFromPartners(String,
+     *            ActiveTableMode, String, Calendar, List<IRequestRouter>)} for
+     *            more information.
      * @return The next ETN in sequence, given the office and phensig.
      * @throws VizException
      *             If an error occurred sending the request to the server.
@@ -193,7 +195,7 @@ public class GFEVtecUtil {
 
     /**
      * Gets the next available ETN for a specific product and office.
-     * 
+     *
      * @param office
      *            The 4-character site ID of the office.
      * @param phensig
@@ -209,9 +211,10 @@ public class GFEVtecUtil {
      *            GetNextEtnRequest.
      * @param performISC
      *            Whether or not to collaborate with neighboring sites to
-     *            determine the next ETN. See {@link
-     *            GetNextEtnUtil#getNextEtnFromPartners(String, ActiveTableMode,
-     *            String, Calendar, List<IRequestRouter>)} for more information.
+     *            determine the next ETN. See
+     *            {@link GetNextEtnUtil#getNextEtnFromPartners(String,
+     *            ActiveTableMode, String, Calendar, List<IRequestRouter>)} for
+     *            more information.
      * @param reportOnlyConflict
      *            Affects which kinds of errors get reported back to the
      *            requestor. If true, only cases where the value of
@@ -235,7 +238,7 @@ public class GFEVtecUtil {
 
     /**
      * Gets the next available ETN for a specific product and office.
-     * 
+     *
      * @param office
      *            The 4-character site ID of the office.
      * @param phensig
@@ -251,9 +254,10 @@ public class GFEVtecUtil {
      *            GetNextEtnRequest.
      * @param performISC
      *            Whether or not to collaborate with neighboring sites to
-     *            determine the next ETN. See {@link
-     *            GetNextEtnUtil#getNextEtnFromPartners(String, ActiveTableMode,
-     *            String, Calendar, List<IRequestRouter>)} for more information.
+     *            determine the next ETN. See
+     *            {@link GetNextEtnUtil#getNextEtnFromPartners(String,
+     *            ActiveTableMode, String, Calendar, List<IRequestRouter>)} for
+     *            more information.
      * @param reportOnlyConflict
      *            Affects which kinds of errors get reported back to the
      *            requestor. If true, only cases where the value of
@@ -280,7 +284,7 @@ public class GFEVtecUtil {
     /**
      * Reads through a GFE VTEC product and returns VTEC lines with NEW action
      * codes that need to be assigned an ETN.
-     * 
+     *
      * @param product
      *            The product's text.
      * @return A <code>Set</code> of <code>VtecObject</code>s that need to have
@@ -322,7 +326,7 @@ public class GFEVtecUtil {
      * For any NEW VTEC lines contained within the specified product texts,
      * generates a <code>GetNextEtnRequest</code> to retrieve the next canonical
      * ETN in sequence for the given phensig.
-     * 
+     *
      * @param product
      *            The product's text.
      * @return The product's text with any NEW VTEC lines having their ETN
@@ -348,16 +352,14 @@ public class GFEVtecUtil {
             if (("NEW".equals(vtec.getAction()))
                     && (!NATIONAL_PHENSIGS.contains(vtec.getPhensig()))) {
                 String phensig = vtec.getPhensig();
-                TimeRange validPeriod = new TimeRange(vtec.getStartTime()
-                        .getTime(), vtec.getEndTime().getTime());
+                TimeRange validPeriod = new TimeRange(
+                        vtec.getStartTime().getTime(),
+                        vtec.getEndTime().getTime());
                 Integer newEtn = etnCache.get(phensig).get(validPeriod);
                 vtec.setSequence(newEtn);
             }
-            vtecMatcher
-                    .appendReplacement(
-                            finalOutput,
-                            VtecUtil.replaceFirstVtecString(
-                                    vtec.getVtecString(), vtec));
+            vtecMatcher.appendReplacement(finalOutput, VtecUtil
+                    .replaceFirstVtecString(vtec.getVtecString(), vtec));
         }
         vtecMatcher.appendTail(finalOutput);
         return finalOutput.toString();

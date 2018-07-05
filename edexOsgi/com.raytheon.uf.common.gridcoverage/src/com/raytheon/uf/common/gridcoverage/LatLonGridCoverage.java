@@ -49,10 +49,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
  * Jan 17, 2014 2125        rjpeter     Removed invalid @Table annotation.
  * Mar 04, 2015 3959        rjpeter     Update for grid based subgridding.
  * Sep 17, 2015 4696        nabowle     Add clone().
+ * Aug 28, 2017 6378        bsteffen    Remove deprecated use of getLowerLeftLon
+ *
  * </pre>
  *
  * @author bphillip
- * @version 1
  */
 @Entity
 @XmlRootElement
@@ -87,7 +88,7 @@ public class LatLonGridCoverage extends GridCoverage {
     @Override
     public void initialize() throws GridCoverageException {
         // lower left is cell center, we want cell corners.
-        double minLon = getLowerLeftLon() - (dx / 2);
+        double minLon = getLowerLeft().x - (dx / 2);
         double maxLon = minLon + (dx * nx);
 
         double centralMeridian = (minLon + maxLon) / 2.0;
@@ -128,23 +129,6 @@ public class LatLonGridCoverage extends GridCoverage {
     protected GridCoverage cloneImplCrsParameters(SubGrid subGrid) {
         LatLonGridCoverage rval = new LatLonGridCoverage();
         return rval;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        if (!super.equals(obj)) {
-            return false;
-        }
-        return true;
     }
 
     /**
@@ -213,12 +197,13 @@ public class LatLonGridCoverage extends GridCoverage {
         this.parallels = coverage.parallels;
     }
 
+    @Override
     public LatLonGridCoverage clone() throws CloneNotSupportedException {
         LatLonGridCoverage clone = (LatLonGridCoverage) super.clone();
 
         if (this.parallels != null) {
-            clone.setParallels(Arrays.copyOf(this.parallels,
-                    this.parallels.length));
+            clone.setParallels(
+                    Arrays.copyOf(this.parallels, this.parallels.length));
         }
 
         return clone;

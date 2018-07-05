@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -39,6 +39,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.time.util.TimeUtil;
@@ -46,30 +47,35 @@ import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.texteditor.Activator;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmBeepJob;
 import com.raytheon.viz.texteditor.alarmalert.util.FlashBellJob;
+import com.raytheon.viz.ui.dialogs.DialogUtil;
 
 /**
  * Alarm/Alert Bell
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 21, 2009            mnash       Initial creation
- * Aug 16, 2010 2187       cjeanbap    Fixed a NullPointerException
- * Dec 23, 2010 7375       cjeanbap    Force dialog ON TOP of over Dialog/Windows.
- * 03/19/2012              D. Friedman Fix alarming.  Disable runloop in open().
- * May 18, 2012            jkorman     Added flashing alarm image.
- * Jul 25, 2012 15122      rferrel     Add sound delay interval.
- * Mar 06  2013 15827  mgamazaychikov  Prevent Alarm Bell window from stealing focus 
- *                                      from Text Editor.
- * Mar 30, 2016 5513       randerso    Fixed to display on same monitor as parent,
- *                                     significant code cleanup
- * 
+ *
+ * Date          Ticket#  Engineer        Description
+ * ------------- -------- --------------- --------------------------------------
+ * Sep 21, 2009           mnash           Initial creation
+ * Aug 16, 2010  2187     cjeanbap        Fixed a NullPointerException
+ * Dec 23, 2010  7375     cjeanbap        Force dialog ON TOP of over
+ *                                        Dialog/Windows.
+ * Mar 19, 2012           D. Friedman     Fix alarming.  Disable runloop in
+ *                                        open().
+ * May 18, 2012           jkorman         Added flashing alarm image.
+ * Jul 25, 2012  15122    rferrel         Add sound delay interval.
+ * Mar 06, 2013  15827    mgamazaychikov  Prevent Alarm Bell window from
+ *                                        stealing focus from Text Editor.
+ * Mar 30, 2016  5513     randerso        Fixed to display on same monitor as
+ *                                        parent, significant code cleanup
+ * Feb 14, 2017  6037     randerso        Fixed initial location to be in clientArea
+ *                                        Fixed to not allow dragging outside clientArea
+ *
  * </pre>
- * 
+ *
  * @author mnash
- * @version 1.0
  */
 
 public class AlarmAlertBell implements MouseMoveListener, MouseListener {
@@ -145,10 +151,10 @@ public class AlarmAlertBell implements MouseMoveListener, MouseListener {
         moveLabel.setFont(labelFont);
         moveLabel.addMouseListener(this);
         moveLabel.addMouseMoveListener(this);
-        moveLabel.setBackground(display
-                .getSystemColor(SWT.COLOR_TITLE_BACKGROUND));
-        moveLabel.setForeground(display
-                .getSystemColor(SWT.COLOR_TITLE_FOREGROUND));
+        moveLabel.setBackground(
+                display.getSystemColor(SWT.COLOR_TITLE_BACKGROUND));
+        moveLabel.setForeground(
+                display.getSystemColor(SWT.COLOR_TITLE_FOREGROUND));
 
         setInitialDialogLocation();
 
@@ -218,8 +224,8 @@ public class AlarmAlertBell implements MouseMoveListener, MouseListener {
 
     private void setInitialDialogLocation() {
         if (dialogXY == null) {
-            Rectangle bounds = parent.getMonitor().getBounds();
-            dialogXY = new Point(bounds.x, bounds.y);
+            Rectangle clientArea = parent.getMonitor().getClientArea();
+            dialogXY = new Point(clientArea.x, clientArea.y);
         }
         shell.setLocation(dialogXY);
     }
@@ -263,22 +269,38 @@ public class AlarmAlertBell implements MouseMoveListener, MouseListener {
     }
 
     /**
-     * 
+     *
      */
     @Override
     public void mouseMove(MouseEvent e) {
         if (origin != null) {
             // Move the dialog.
-            Point mouseLoc = shell.toDisplay(e.x, e.y);
-            dialogXY.x = mouseLoc.x - origin.x;
-            dialogXY.y = mouseLoc.y - origin.y;
-            shell.setLocation(dialogXY.x, dialogXY.y);
+            Rectangle dialogBounds = shell.getBounds();
+            dialogBounds.x = dialogBounds.x + (e.x - origin.x);
+            dialogBounds.y = dialogBounds.y + (e.y - origin.y);
+
+            // don't allow the dialog to move over the top or bottom
+            // panels
+            Monitor m = DialogUtil.getCursorMonitor(display);
+            Rectangle clientArea = m.getClientArea();
+            if (dialogBounds.y < clientArea.y) {
+                dialogBounds.y = clientArea.y;
+            }
+
+            if (dialogBounds.y + dialogBounds.height > clientArea.y
+                    + clientArea.height) {
+                dialogBounds.y = clientArea.y + clientArea.height
+                        - dialogBounds.height;
+            }
+
+            shell.setLocation(dialogBounds.x, dialogBounds.y);
+            saveLocation();
         }
     }
 
     /**
      * Check to see if the dialog is active.
-     * 
+     *
      * @return
      */
     public boolean isActive() {

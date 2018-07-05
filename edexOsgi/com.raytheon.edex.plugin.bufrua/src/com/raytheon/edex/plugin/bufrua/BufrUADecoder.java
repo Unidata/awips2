@@ -19,10 +19,13 @@
  **/
 package com.raytheon.edex.plugin.bufrua;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -34,11 +37,6 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import ucar.ma2.StructureDataIterator;
-import ucar.nc2.NetcdfFile;
-import ucar.nc2.Sequence;
-import ucar.nc2.Variable;
 
 import com.raytheon.edex.plugin.bufrua.dao.BufrUADao;
 import com.raytheon.edex.plugin.bufrua.decoder.BufrStructure;
@@ -57,6 +55,14 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
 import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
+
+import ucar.ma2.StructureDataIterator;
+import ucar.nc2.NetcdfFile;
+import ucar.nc2.Sequence;
+import ucar.nc2.Variable;
+import ucar.nc2.iosp.bufr.Message;
+import ucar.nc2.iosp.bufr.MessageScanner;
+import ucar.unidata.io.RandomAccessFile;
 
 /**
  * 
@@ -93,6 +99,8 @@ import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- -----------------
  * Jul 12, 2016  5736     bsteffen  Initial creation
+ * Mar 06, 2017  18784    wkwock    Decode firewx bufrua data.
+ * Sep 14, 2017  6406     bsteffen  Upgrade ucar
  * 
  * </pre>
  * 
@@ -106,23 +114,29 @@ public class BufrUADecoder {
     private static final Pattern LEGACY_TTAAII = Pattern
             .compile("^IUS((Z[0-9])|(Y4))[123468]$");
 
+    private static final Pattern PORTABLE_TTAAII = Pattern
+            .compile("^IU[JS]((Z[0-9])|(N2))[1234]$");
+
     /* BUFR descriptor 0 01 011 */
-    private static final String BUFR_STATION_ID = "Ship or mobile land station identifier";
+    private static final String BUFR_STATION_ID = "Ship_or_mobile_land_station_identifier";
 
     /* BUFR descriptor 0 05 001 */
-    private static final String BUFR_LONGITUDE = "Longitude (high accuracy)";
+    private static final String BUFR_LONGITUDE = "Longitude_high_accuracy";
 
     /* BUFR descriptor 0 06 001 */
-    private static final String BUFR_LATITUDE = "Latitude (high accuracy)";
+    private static final String BUFR_LATITUDE = "Latitude_high_accuracy";
 
     /* BUFR descriptor 0 07 030 */
-    private static final String BUFR_ELEVATION = "Height of station ground above mean sea level";
+    private static final String BUFR_ELEVATION = "Height_of_station_ground_above_mean_sea_level";
 
     /* BUFR descriptor 0 01 001 */
-    private static final String BUFR_WMO_BLOCK_NUMBER = "WMO block number";
+    private static final String BUFR_WMO_BLOCK_NUMBER = "WMO_block_number";
 
     /* BUFR descriptor 0 01 002 */
-    private static final String BUFR_WMO_STATION_NUMBER = "WMO station number";
+    private static final String BUFR_WMO_STATION_NUMBER = "WMO_station_number";
+
+    /* BUFR descriptor 0 01 081 */
+    private static final String RADIOSONDE_SERIAL_NUMBER = "Radiosonde serial number";
 
     protected final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -143,57 +157,65 @@ public class BufrUADecoder {
         } catch (IOException e) {
             logger.error(
                     "Discarding bufrua data due to an unexpected IO problems while processing "
-                            + bufrFile.getName(), e);
+                            + bufrFile.getName(),
+                    e);
             return new PluginDataObject[0];
         }
+
         WMOHeader wmoHeader = new WMOHeader(wmoData, bufrFile.getName());
-        NetcdfFile ncfile = null;
         try {
-            ncfile = NetcdfFile.open(bufrFile.getAbsolutePath());
-            Variable obsVariable = ncfile.findVariable("obs");
-            if (!(obsVariable instanceof Sequence)) {
-                logger.error("Discarding bufrua data that does not contain an 'obs' Sequence: "
-                        + bufrFile.getName());
-                return new PluginDataObject[0];
-            }
-            Sequence obsSequence = (Sequence) obsVariable;
-
-            StructureDataIterator obsDataIterator = obsSequence
-                    .getStructureIterator();
-            BufrStructureIterator obsIterator = new BufrStructureIterator(
-                    obsSequence, obsDataIterator);
-
-            Map<File, PointDataContainer> containerMap = new HashMap<>();
-            List<UAObs> resultList = new ArrayList<>();
-            while (obsIterator.hasNext()) {
-                BufrStructure obsData = obsIterator.next();
-                try {
-                    UAObs uaObs = decodeObs(wmoHeader, containerMap, obsData);
-                    if (uaObs != null) {
-                        resultList.addAll(split(containerMap, uaObs));
-                    }
-                } catch (Exception e) {
-                    logger.error("Bad Data encontered while processing "
-                            + bufrFile.getName(), e);
+            try (NetcdfFile ncfile = NetcdfFile
+                    .open(bufrFile.getAbsolutePath())) {
+                return decode(wmoHeader, ncfile);
+            } catch (EOFException e) {
+                logger.debug(
+                        "Attempting to fix EOF error in " + bufrFile.getName(),
+                        e);
+                try (NetcdfFile ncfile = fixEOFandOpen(
+                        bufrFile.getAbsolutePath())) {
+                    return decode(wmoHeader, ncfile);
                 }
             }
-            return resultList.toArray(new PluginDataObject[0]);
         } catch (IOException e) {
             logger.error(
                     "Discarding bufrua data due to an unexpected IO problems while processing "
-                            + bufrFile.getName(), e);
+                            + bufrFile.getName(),
+                    e);
             return new PluginDataObject[0];
-        } finally {
-            if (ncfile != null) {
-                try {
-                    ncfile.close();
-                } catch (IOException e) {
-                    logger.error(
-                            "Failed to close bufrua file: "
-                                    + bufrFile.getName(), e);
+        }
+    }
+
+    public PluginDataObject[] decode(WMOHeader wmoHeader, NetcdfFile ncfile)
+            throws IOException {
+        Variable obsVariable = ncfile.findVariable("obs");
+        if (!(obsVariable instanceof Sequence)) {
+            logger.error(
+                    "Discarding bufrua data that does not contain an 'obs' Sequence: "
+                            + ncfile.getLocation());
+            return new PluginDataObject[0];
+        }
+        Sequence obsSequence = (Sequence) obsVariable;
+
+        StructureDataIterator obsDataIterator = obsSequence
+                .getStructureIterator();
+        BufrStructureIterator obsIterator = new BufrStructureIterator(
+                obsSequence, obsDataIterator);
+
+        Map<File, PointDataContainer> containerMap = new HashMap<>();
+        List<UAObs> resultList = new ArrayList<>();
+        while (obsIterator.hasNext()) {
+            BufrStructure obsData = obsIterator.next();
+            try {
+                UAObs uaObs = decodeObs(wmoHeader, containerMap, obsData);
+                if (uaObs != null) {
+                    resultList.addAll(split(containerMap, uaObs));
                 }
+            } catch (Exception e) {
+                logger.error("Bad Data encontered while processing "
+                        + ncfile.getLocation(), e);
             }
         }
+        return resultList.toArray(new PluginDataObject[0]);
     }
 
     /**
@@ -246,7 +268,8 @@ public class BufrUADecoder {
      */
     protected void processReportType(WMOHeader wmoHeader, UAObs uaObs) {
         String ttaaii = wmoHeader.getTtaaii();
-        if (ttaaii != null && LEGACY_TTAAII.matcher(ttaaii).matches()) {
+        if (ttaaii != null && (LEGACY_TTAAII.matcher(ttaaii).matches()
+                || PORTABLE_TTAAII.matcher(ttaaii).matches())) {
             int ii = wmoHeader.getIi() % 10;
             if (ii == 1) {
                 uaObs.setReportType(LayerTools.MANLVL_LO);
@@ -270,7 +293,7 @@ public class BufrUADecoder {
         int manIdx = view.getInt(LayerTools.NUM_MAND);
         if (manIdx > 0) {
             float pressure = view.getFloat(LayerTools.PR_MAN, 0);
-            if (pressure < 10000) {
+            if (pressure < 10_000) {
                 uaObs.setReportType(LayerTools.MANLVL_HI);
             } else {
                 uaObs.setReportType(LayerTools.MANLVL_LO);
@@ -282,14 +305,14 @@ public class BufrUADecoder {
             // 50000 feet while others claim it is 53000. We use 50000 feet
             // because any lower data should still be well below that. We store
             // height in meters so 15240 meters is 50000 feet.
-            if (height > 15240.0 || pressure >= 10000) {
+            if (height > 15240.0 || pressure >= 10_000) {
                 uaObs.setReportType(LayerTools.SIGWLVL_HI);
             } else {
                 uaObs.setReportType(LayerTools.SIGWLVL_LO);
             }
         } else if (tempIdx > 0) {
             float pressure = view.getFloat(LayerTools.PR_SIGT, 0);
-            if (pressure < 10000 && pressure > 0) {
+            if (pressure < 10_000 && pressure > 0) {
                 uaObs.setReportType(LayerTools.SIGTLVL_HI);
             } else {
                 uaObs.setReportType(LayerTools.SIGTLVL_LO);
@@ -409,8 +432,9 @@ public class BufrUADecoder {
          * encodes the data as 2 sequences.
          */
         if (struct1 == null) {
+            /* The sequence is named after the first descriptor in it. */
             BufrStructureIterator seq1 = obsStructure
-                    .getSequenceIterator("seq1");
+                    .getSequenceIterator("Long_time_period_or_displacement");
             while (seq1.hasNext()) {
                 BufruaLevelDecoder.decodeLevel(uaObs, seq1.next());
             }
@@ -473,8 +497,8 @@ public class BufrUADecoder {
         File file = dao.getFullFilePath(uaObs);
         PointDataContainer container = containerMap.get(file);
         if (container == null) {
-            container = PointDataContainer.build(dao
-                    .getPointDataDescription(null));
+            container = PointDataContainer
+                    .build(dao.getPointDataDescription(null));
             containerMap.put(file, container);
         }
         PointDataView view = container.append();
@@ -509,10 +533,17 @@ public class BufrUADecoder {
             queryStationInfo(uaObs, stationId);
         }
         if (!uaObs.getLocation().getLocationDefined()) {
+            // This is mobile data
             String stationName = obsStructure
                     .lookupStringValue(BUFR_STATION_ID);
+            if (stationName == null) {
+                stationName = obsStructure
+                        .lookupStringValue(RADIOSONDE_SERIAL_NUMBER);
+            }
+
             if (stationId == null && stationName == null) {
-                logger.error("Bufrua data does not contain a valid station identifier");
+                logger.error(
+                        "Bufrua data does not contain a valid station identifier");
                 return false;
             } else if (stationId == null) {
                 stationId = stationName;
@@ -593,7 +624,6 @@ public class BufrUADecoder {
         uaObs.setStationName(stationName);
         uaObs.setLocation(location);
     }
-
 
     /**
      * Decode the time information. If there is no valid time information then
@@ -700,5 +730,158 @@ public class BufrUADecoder {
         }
     }
 
+    private static NetcdfFile fixEOFandOpen(String location)
+            throws IOException {
+        /*
+         * So one Thursday, I was trying to upgrade this project from the ucar
+         * bufr library version 3.0 up to version 4.6.10. After updating some
+         * BUFR constants and making some things smarter I was starting to feel
+         * pretty good about it. I throw all of my B/C25 data at it and it all
+         * looks good. I start dumping in TUA products and most of the TUA data
+         * works just fine, but a few are failing with these weird
+         * EOFExceptions. I dug deeper and deeper, slowly learning everything
+         * about BUFR and tracing my way through BufrIosp2.
+         * 
+         * Eventually I find myself in MessageCompressedDataReader tracing my
+         * way along one of the bad files. By this time I had already gotten all
+         * the good data out of the file, and I was just iterating over a bunch
+         * of empty levels. The way the compression works on empty levels, each
+         * parameter in a level gets encoded as a bunch of 1 bits, followed by 6
+         * bits of 0. The exact number of 1 bits depends on the descriptor for
+         * the parameter but all 1s always indicates no data. The 6 0s are used
+         * to indicate that the value is repeated for all the obs. Usually those
+         * 6 bits indicate how many bits are used to encode the compressed field
+         * for each obs, but the 6 0s is a special flag indicating that you can
+         * just repeat the base value, in this case no data.
+         * 
+         * So I'm racing through the debugger watching the 1's and 0's fly by
+         * and it all follows this same pattern. I reach the very last
+         * descriptor of the very last level. And this last descriptor is 12
+         * bits wide, so I am expecting the data value to be 4096, which is 12
+         * 1s all lined up nicely. All of sudden there in front of me is a 4092,
+         * to save you some time that is 111111111100. In other words I was
+         * completely fine for the first 10 bits, and then BAM! everything went
+         * wrong.
+         * 
+         * After my initial panic, I realized that it didn't really matter what
+         * the value was, as long as the next 6 bits are all 0s then the value
+         * will be repeated and the field will be read and everything will be
+         * fine. I clung to hope like a fool. But of course the next 6 bits were
+         * 110111 or 55. 55 is a completely bogus value. For a 12 bit field it
+         * should be impossible to use more than 12 bits to encode the
+         * compressed values. That is the opposite of compression. In fact, the
+         * code I was reading even detected the badness of 55 and ignored the
+         * next values and filled in a 4096 for every obs. But before it could
+         * fill in 4096 it would try to read the next value, which was 55 bits
+         * wide. Of course this sent it right off the end of the file and all
+         * was lost.
+         * 
+         * In case you didn't know, at the end of every BUFR file there is an
+         * ASCII 7777. The ASCII value for '7' is 55 which has a full byte value
+         * of 00110111. For this data, it had read through the end of the data
+         * section and grabbed one of these 7s. The first 2 bits had leaked into
+         * the reference value and the last 6 bits made it into the bit width
+         * value.
+         * 
+         * Now at this point I was confused, because the data was clearly wrong,
+         * how did the old version handle this so well? More investigation
+         * showed that the old version didn't throw EOFException, it would just
+         * return -1 for every byte after the end of the file. So it managed to
+         * "read" the next 55 bits and ignore them happily.
+         * 
+         * I should have stopped there. The data is clearly malformed and
+         * whoever is writing this data should fix it. This shouldn't be my
+         * problem. But the old version handled this data so if the new version
+         * doesn't handled it then some people might feel that the new version
+         * is worse. So I went deeper.
+         * 
+         * It seemed like there was just one byte missing. I was expecting
+         * 11000000 and instead I got 00110111. If I could just insert a
+         * 11000000 before the 7777 then maybe everything would be OK. It seemed
+         * like it was worth a try so I whipped out a hex editor inserted 0xC0.
+         * Initially, I got an error about a missing end section but I quickly
+         * realized that the BUFR file includes the length of the file and the
+         * length of the data section so those two values needed to be
+         * incremented to account for the extra byte. With those values changed
+         * the data decoded successfully.
+         * 
+         * Now when I tried the same approach on all the broken files it started
+         * getting complicated. The sample file I started with was short by
+         * exactly 8 bits so it was easy, some other files were only short a few
+         * bits. I can't really figure out how many bits are missing without
+         * just decoding the whole file myself. So what I came up with is just
+         * inserting a 0 byte. This guarantees whichever six bits are used for
+         * the bit width, they will always be 0 and it won't read off the end of
+         * the file. The down side is that some times the base value will have a
+         * few zeroes so it will be bogus instead of no data. Luckily the bogus
+         * values are generally ignored since everything else in the level is
+         * already no data.
+         * 
+         * I struggled with this knowledge. Inserting an extra byte in a file
+         * just feels wrong. It feels like some sort of horrible black magic
+         * hack. I had irrational fears of my magical code running across a real
+         * truncated file and going out of control, inserting extra bytes
+         * everywhere until all the data was completely fictitious. But on the
+         * other hand I had 100s of files every day that don't work because they
+         * are just one byte short. I searched frantically for anything else,
+         * any other way to trick these files into the system. But I came up
+         * empty handed.
+         * 
+         * So here I find myself writing code to insert an extra byte into a
+         * file. If you are in the future reading this then I sincerely hope
+         * that they stopped sending TUA and switched to sending WMO standard
+         * formats, and you are here to delete this code. But if you are here
+         * because you are going to try to maintain this method then I am truly
+         * sorry, and I hope this explanation is enough to get you started on
+         * whatever horrible black magic you must now perform.
+         */
+        try (RandomAccessFile raf = RandomAccessFile.acquire(location)) {
+            MessageScanner scanner = new MessageScanner(raf);
+            Message message = scanner.getFirstDataMessage();
+
+            int oldLength = (int) raf.length();
+            int newLength = oldLength + 1;
+
+            byte[] newData = new byte[newLength];
+            raf.seek(0);
+            raf.readFully(newData, 0, oldLength);
+
+            int dataSectionStart = (int) message.dataSection.getDataPos();
+            int dataSectionLength = message.dataSection.getDataLength();
+
+            int endOfDataSection = dataSectionStart + dataSectionLength;
+
+            /* Shift the end section and any trailing data over by one byte. */
+            System.arraycopy(newData, endOfDataSection, newData,
+                    endOfDataSection + 1, oldLength - endOfDataSection);
+            /* Here is the magic byte. */
+            newData[endOfDataSection] = (byte) 0;
+
+            /* tmp buffer for converting ints to 3 byte unsigned ints. */
+            ByteBuffer tmp = ByteBuffer.allocate(4).order(ByteOrder.BIG_ENDIAN);
+
+            /*
+             * The length of the bufr data is a 3 byte unsigned int that follows
+             * the first 4 bytes which are always ascii BUFR
+             */
+            tmp.putInt(message.is.getBufrLength() + 1);
+            System.arraycopy(tmp.array(), 1, newData,
+                    (int) message.is.getStartPos() + 4, 3);
+
+            /*
+             * The length of the data section is a 3 byte unsigned int that is
+             * the first thing in the data section.
+             */
+            tmp.rewind();
+            tmp.putInt(dataSectionLength + 1);
+            System.arraycopy(tmp.array(), 1, newData, dataSectionStart, 3);
+
+            /*
+             * Don't actually modify the file, just decode what we have in
+             * memory.
+             */
+            return NetcdfFile.openInMemory(location, newData);
+        }
+    }
 
 }

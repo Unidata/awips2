@@ -37,7 +37,7 @@
    <command
          id="com.raytheon.uf.viz.image.export.save"
          categoryId="com.raytheon.uf.viz.core.commandCategory"
-      	 description="Save the active editor to an image file"
+         description="Save the active editor to an image file"
          name="Save Screen">
          <commandParameter
                id="frameSelection"
@@ -56,10 +56,40 @@
    <handler
          class="com.raytheon.uf.viz.image.export.handler.PrintImageCaptureHandler"
          commandId="com.raytheon.uf.viz.image.export.print">
+         <enabledWhen>
+             <with variable="activeEditor">
+                 <instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+             </with>
+         </enabledWhen>
    </handler>
    <handler
          class="com.raytheon.uf.viz.image.export.handler.ExportImageHandler"
          commandId="com.raytheon.uf.viz.image.export.save">
+         <enabledWhen>
+             <with variable="activeEditor">
+                 <instanceof value="com.raytheon.uf.viz.core.IDisplayPaneContainer"/>
+             </with>
+         </enabledWhen>
    </handler>
+</extension>
+<extension
+      point="org.eclipse.ui.menus">
+   <menuContribution
+         locationURI="menu:export">
+       <command
+             commandId="com.raytheon.uf.viz.image.export.save"
+             label="Image"
+             style="push">
+       </command>
+       <command
+             commandId="com.raytheon.uf.viz.image.export.print"
+             label="Print Screen"
+             style="push">
+             <parameter
+                   name="frameSelection"
+                   value="current">
+             </parameter>
+       </command>
+   </menuContribution>
 </extension>
 </plugin>

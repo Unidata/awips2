@@ -18,12 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="J/kg" name="Neg Buoy Energy" abbreviation="NBE" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="J/kg" name="Neg Buoy Energy" abbreviation="NBE">
     <Method name="Alias">
-        <Field abbreviation="CIn"/>
+        <Field abbreviation="CIn" />
     </Method>
     <Method name="Or" levels="0FHAG">
-        <Field abbreviation="NBE" level="Surface"/>
-        <Field abbreviation="NBE" level="BLyr"/>
+        <Field abbreviation="NBE" level="Surface" />
+        <Field abbreviation="NBE" level="BLyr" />
     </Method>
 </DerivedParameter>

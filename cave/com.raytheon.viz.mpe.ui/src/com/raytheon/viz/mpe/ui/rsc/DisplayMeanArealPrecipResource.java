@@ -34,19 +34,24 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Set;
-import java.util.TimeZone;
 
 import javax.measure.converter.UnitConverter;
-
+import javax.measure.unit.Unit;
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.coverage.grid.InvalidGridGeometryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import com.vividsolutions.jts.geom.Coordinate;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.xmrg.XmrgFile;
 import com.raytheon.uf.common.xmrg.hrap.HRAPCoordinates;
@@ -73,32 +78,35 @@ import com.raytheon.viz.hydrocommon.whfslib.GeoUtil.GeoAreaLineSegs;
 import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.DisplayMode;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
+import com.raytheon.viz.mpe.util.MPEConversionUtils;
 
 /**
- * TODO Add Description
+ * Mean Areal Precipitation Resource
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jul 28, 2009            snaples     Initial creation
+ * Jul 28, 2009  ?         snaples     Initial creation
  * Dec 23, 2013  16329     snaples     Added target assignment to paintInternal().
- * 
+ * Mar 01, 2017 6160       bkowal      Updates for {@link MPEDisplayManager#createColorMap(String, String, int, javax.measure.unit.Unit, javax.measure.unit.Unit)}.
+ * Mar 01, 2017  6163      bkowal      Correctly construct the legend text. Partial cleanup.
+ * Oct 06, 2017  6407      bkowal      Cleanup. Updates to support GOES-R SATPRE.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class DisplayMeanArealPrecipResource extends
         AbstractVizResource<DisplayMeanArealPrecipResourceData, MapDescriptor>
         implements IMpeResource {
 
-    MPEDisplayManager displayMgr = null;
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
+
+    private MPEDisplayManager displayMgr = null;
 
     private String area_type = "";
 
@@ -116,6 +124,8 @@ public class DisplayMeanArealPrecipResource extends
 
     private IFont font = null;
 
+    private final String name;
+
     public static enum ImageSize {
         VERY_SMALL(11, 20), SMALL(13, 25), MEDIUM(15, 30), LARGE(17, 35);
 
@@ -123,7 +133,7 @@ public class DisplayMeanArealPrecipResource extends
 
         private final int height;
 
-        ImageSize(int width, int height) {
+        private ImageSize(int width, int height) {
             this.width = width;
             this.height = height;
         }
@@ -139,53 +149,36 @@ public class DisplayMeanArealPrecipResource extends
 
     public DisplayMeanArealPrecipResource(MPEDisplayManager displayMgr,
             String boundary_type, DisplayFieldData displayField,
-            int accumInterval) {
+            int accumInterval, final String displayAs,
+            final Calendar endDateTime) {
         super(new DisplayMeanArealPrecipResourceData(), new LoadProperties());
         this.displayMgr = displayMgr;
         this.area_type = boundary_type;
         this.displayField = displayField;
         this.accumInterval = accumInterval;
-    }
 
-    IGraphicsTarget target;
+        final DataTime dataTime = new DataTime(endDateTime);
+        name = String.format(DisplayFieldData.multiHour.toString(),
+                accumInterval, displayAs, dataTime.getLegendString());
+    }
 
     private GriddedImageDisplay2 gridDisplay;
 
     private GriddedContourDisplay contourDisplay;
 
-    int hed;
-
-    int time_pos;
-
-    int display_flag;
-
-    int first = 1;
-
     public static boolean ids = false;
 
     public static boolean vals = false;
 
-    GeometryFactory jtsGeometryFactory;
+    private Rectangle extent;
 
-    Rectangle extent;
-
-    HRAPSubGrid subGrid;
-
-    GridGeometry2D gridGeometry;
+    private GridGeometry2D gridGeometry;
 
     private FloatBuffer buf;
 
     private FloatBuffer buf2;
 
-    static final float DEFAULT_COVERAGE = 0.80f;
-
-    private String min_coverage_token = "whfs_min_area_covered";
-
-    AppsDefaults appsDefaults = AppsDefaults.getInstance();
-
-    short[] data;
-
-    float min_coverage = 0;
+    private AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
     private double scaleWidthValue = 0.0;
 
@@ -199,15 +192,15 @@ public class DisplayMeanArealPrecipResource extends
 
     static {
         sds = new SimpleDateFormat("yyyyMMddHH");
-        sds.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sds.setTimeZone(TimeUtil.GMT_TIME_ZONE);
         sxf = new SimpleDateFormat("MMddyyyyHH");
-        sxf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        sxf.setTimeZone(TimeUtil.GMT_TIME_ZONE);
     }
 
-    private ArrayList<GeoAreaLineSegs> meanAreaNodes = new ArrayList<GeoAreaLineSegs>();
+    private List<GeoAreaLineSegs> meanAreaNodes = new ArrayList<>();
 
     private void compute_mean_areal_precip(FloatBuffer fbuf,
-            ArrayList<GeoAreaLineSegs> meanAreaNodes, int xor, int yor,
+            List<GeoAreaLineSegs> meanAreaNodes, int xor, int yor,
             int max_columns, int max_rows) {
         ColorMapParameters parameters = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
@@ -216,7 +209,6 @@ public class DisplayMeanArealPrecipResource extends
         int col;
         int i;
         int jcol;
-        int miss_cnt;
         int row;
         int total_cnt;
         int val_cnt;
@@ -224,17 +216,25 @@ public class DisplayMeanArealPrecipResource extends
         float sum;
         int corr = extent.height - 1;
 
-        if (meanAreaNodes == null || meanAreaNodes.size() == 0) {
-            System.out.println("\nIn routine 'compute_mean_areal_precip':\n"
-                    + "No lineseg information exists.  Cannot\n"
-                    + "calculate mean areal precipitation.\n");
+        if (meanAreaNodes == null || meanAreaNodes.isEmpty()) {
+            statusHandler.warn(
+                    "In routine 'compute_mean_areal_precip': No lineseg information exists. Cannot calculate mean areal precipitation.");
             return;
         }
+
+        final Unit<?> displayUnit = parameters.getDisplayUnit();
+        final Unit<?> imageUnit = parameters.getColorMapUnit();
+        /* Image to Display Converter */
+        UnitConverter imgToDisplayConverter = parameters
+                .getColorMapToDisplayConverter();
+        /* Display to Image Converter */
+        UnitConverter displayToImgConverter = MPEConversionUtils
+                .constructConverter(displayUnit, imageUnit);
 
         /* Initialize the list. */
         for (GeoAreaLineSegs pNode : meanAreaNodes) {
             /* initialize */
-            miss_cnt = total_cnt = val_cnt = 0;
+            total_cnt = val_cnt = 0;
             cur_max = 0.0f;
             cur_min = 0.0f;
             sum = 0.0f;
@@ -261,7 +261,9 @@ public class DisplayMeanArealPrecipResource extends
 
                     if (row > max_rows - 1 || col > max_columns - 1 || row < 0
                             || col < 0) {
-                        ++miss_cnt;
+                        /*
+                         * Do Nothing.
+                         */
                     } else {
                         // compute the offset into the data buffer
                         int offset = (((corr - row) * extent.width) + col);
@@ -269,9 +271,8 @@ public class DisplayMeanArealPrecipResource extends
                             continue;
                         }
                         // value converted to real data value, from image value.
-                        raw_val = (float) parameters
-                                .getImageToDisplayConverter().convert(
-                                        buf.get(offset));
+                        raw_val = (float) imgToDisplayConverter
+                                .convert(buf.get(offset));
 
                         if (raw_val > 0.00f) {
                             sum += raw_val;
@@ -283,8 +284,6 @@ public class DisplayMeanArealPrecipResource extends
                             }
 
                             ++val_cnt;
-                        } else {
-                            ++miss_cnt;
                         }
                     }
                 }
@@ -301,7 +300,6 @@ public class DisplayMeanArealPrecipResource extends
             }
 
             if (val_cnt > 0) {
-
                 pNode.avg_val = sum / val_cnt;
                 pNode.max_val = cur_max;
                 pNode.min_val = cur_min;
@@ -349,7 +347,7 @@ public class DisplayMeanArealPrecipResource extends
                         continue;
                     }
                     // convert the mean areal value back to image values
-                    float map = (float) parameters.getDisplayToImageConverter()
+                    float map = (float) displayToImgConverter
                             .convert(pNode.avg_val);
                     // store the value into a new float buffer to use in the
                     // areal projection
@@ -369,12 +367,13 @@ public class DisplayMeanArealPrecipResource extends
         }
 
         Set<DisplayMode> mode = displayMgr.getDisplayMode();
-        
-        target = aTarget;
+
+        IGraphicsTarget target = aTarget;
 
         if (mode.contains(DisplayMode.Image)) {
             if (gridDisplay == null) {
-                gridDisplay = new GriddedImageDisplay2(buf2, gridGeometry, this);
+                gridDisplay = new GriddedImageDisplay2(buf2, gridGeometry,
+                        this);
             }
 
             gridDisplay.paint(target, paintProps);
@@ -392,11 +391,10 @@ public class DisplayMeanArealPrecipResource extends
             contourDisplay.paint(target, paintProps);
         }
 
-        if (ids == true || vals == true) {
+        if (ids || vals) {
             ColorMapParameters parameters = getCapability(
                     ColorMapCapability.class).getColorMapParameters();
             for (GeoAreaLineSegs pMeanPrecip : meanAreaNodes) {
-
                 /* Using the MPE Lat/Lon Grid, draw the point. */
                 setScaleWidth(paintProps);
                 setScaleHeight(paintProps);
@@ -404,20 +402,20 @@ public class DisplayMeanArealPrecipResource extends
                 double xpos = -pMeanPrecip.interiorLon;
                 double ypos = pMeanPrecip.interiorLat;
                 IExtent screenExtent = paintProps.getView().getExtent();
-                double scale = (screenExtent.getHeight() / paintProps
-                        .getCanvasBounds().height);
+                double scale = (screenExtent.getHeight()
+                        / paintProps.getCanvasBounds().height);
 
                 StationPoint.x = xpos;
                 StationPoint.y = ypos;
-                double[] centerpixels = descriptor.worldToPixel(new double[] {
-                        StationPoint.x, StationPoint.y });
-                Coordinate valueCoor = new Coordinate(centerpixels[0]
-                        - getScaleWidth() / 2 * scale, centerpixels[1]
-                        - getScaleHeight() / 3 * scale);
-                Coordinate labelCoor = new Coordinate(centerpixels[0]
-                        - getScaleWidth() / 2 * scale,
-                        (centerpixels[1] - 10 * scale) - getScaleHeight() / 3
-                                * scale);
+                double[] centerpixels = descriptor.worldToPixel(
+                        new double[] { StationPoint.x, StationPoint.y });
+                Coordinate valueCoor = new Coordinate(
+                        centerpixels[0] - getScaleWidth() / 2 * scale,
+                        centerpixels[1] - getScaleHeight() / 3 * scale);
+                Coordinate labelCoor = new Coordinate(
+                        centerpixels[0] - getScaleWidth() / 2 * scale,
+                        (centerpixels[1] - 10 * scale)
+                                - getScaleHeight() / 3 * scale);
                 RGB txtcolor = RGBColors.getRGBColor("WHITE");
                 String area_id = pMeanPrecip.name;
                 float val = pMeanPrecip.avg_val;
@@ -428,31 +426,30 @@ public class DisplayMeanArealPrecipResource extends
                 DrawableString string = new DrawableString("", txtcolor);
                 string.font = font;
 
-                if (ids == true) {
+                if (ids) {
                     try {
                         string.setText(area_id, txtcolor);
                         string.setCoordinates(labelCoor.x, labelCoor.y);
                         string.horizontalAlignment = HorizontalAlignment.LEFT;
                         string.verticalAlignment = VerticalAlignment.TOP;
                         target.drawStrings(string);
-                    } catch (VizException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
+                    } catch (VizException e) {
+                        statusHandler.error("Failed to draw: '" + string
+                                + "' on the display.", e);
                     }
                 }
-                if (vals == true) {
+                if (vals) {
                     try {
                         string.setText(valStr, txtcolor);
                         string.setCoordinates(valueCoor.x, valueCoor.y);
                         string.horizontalAlignment = HorizontalAlignment.LEFT;
                         string.verticalAlignment = VerticalAlignment.TOP;
                         target.drawStrings(string);
-                    } catch (VizException e1) {
-                        // TODO Auto-generated catch block
-                        e1.printStackTrace();
+                    } catch (VizException e) {
+                        statusHandler.error("Failed to draw: '" + string
+                                + "' on the display.", e);
                     }
                 }
-
             }
         }
     }
@@ -472,58 +469,53 @@ public class DisplayMeanArealPrecipResource extends
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        getCapability(ColorMapCapability.class)
-                .setColorMapParameters(
-                        MPEDisplayManager.createColorMap(displayField
-                                .getCv_use(), accumInterval,
-                                MPEFieldResourceData
-                                        .getDataUnitsForField(displayField),
-                                MPEFieldResourceData
-                                        .getDisplayUnitsForField(displayField)));
-
+        getCapability(ColorMapCapability.class).setColorMapParameters(
+                MPEDisplayManager.createColorMap(displayField.getCv_use(),
+                        displayField.getDisplayString(), accumInterval,
+                        MPEFieldResourceData.getDataUnitsForField(displayField),
+                        MPEFieldResourceData
+                                .getDisplayUnitsForField(displayField)));
         loadData();
     }
 
     private void loadData() {
-        min_coverage = Float.parseFloat(appsDefaults
-                .getToken(min_coverage_token));
         ColorMapParameters parameters = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
-        cvt = parameters.getDataToImageConverter();
+        final Unit<?> dataUnit = MPEFieldResourceData
+                .getDataUnitsForField(displayField);
+        cvt = MPEConversionUtils.constructConverter(dataUnit,
+                parameters.getColorMapUnit());
 
         this.readData();
         meanAreaNodes = (ArrayList<GeoAreaLineSegs>) GeoUtil.getInstance()
                 .getGeoAreaLinesegs(area_type);
         compute_mean_areal_precip(buf, meanAreaNodes, xor, yor, max_columns,
                 max_rows);
+        HRAPSubGrid subGrid = null;
         try {
             subGrid = new HRAPSubGrid(extent);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler
+                    .error("Failed to create a HRAP Sub Grid based on the extents: "
+                            + extent.toString() + ".", e);
+            /*
+             * The HRAP Sub Grid would not be available for use below. So, might
+             * as well exit early.
+             */
+            return;
         }
 
         gridGeometry = MapUtil.getGridGeometry(subGrid);
-
         try {
             project(gridGeometry.getCoordinateReferenceSystem());
-        } catch (InvalidGridGeometryException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (VizException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+        } catch (InvalidGridGeometryException | VizException e) {
+            statusHandler.error("Failed to project the Grid Geometry.", e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
-        return DisplayFieldData.multiHour.toString();
+        return name;
     }
 
     /**
@@ -584,20 +576,19 @@ public class DisplayMeanArealPrecipResource extends
     }
 
     private void readData() {
-
         // this will accumulate all hours requested and display it
         // this holds current xmrg values
         short[] tempdata = null;
         String cv_use = displayMgr.getDisplayFieldType().getFieldName();
-        String dirname = appsDefaults.getToken(displayMgr.getDisplayFieldType()
-                .getDirToken());
+        String dirname = appsDefaults
+                .getToken(displayMgr.getDisplayFieldType().getDirToken());
         String fname = "";
         String dtform = "";
         String use = "";
-        Calendar cal1 = Calendar.getInstance((TimeZone.getTimeZone("GMT")));
-        cal1.setTime(displayMgr.getCurrentEditDate());
+        Calendar cal1 = TimeUtil
+                .newGmtCalendar(displayMgr.getCurrentEditDate());
 
-        if (cv_use.equals("XMRG")) {
+        if ("XMRG".equals(cv_use)) {
             dtform = sxf.format(cal1.getTime());
             use = cv_use.toLowerCase();
         } else {
@@ -608,8 +599,8 @@ public class DisplayMeanArealPrecipResource extends
         XmrgFile xmrg = new XmrgFile(fname);
         try {
             xmrg.load();
-        } catch (IOException e1) {
-            e1.printStackTrace();
+        } catch (IOException e) {
+            statusHandler.error("Failed to load XMRG file: " + fname + ".", e);
         }
         extent = xmrg.getHrapExtent();
         int datasz = extent.height * extent.width;
@@ -619,7 +610,7 @@ public class DisplayMeanArealPrecipResource extends
         max_rows = extent.height;
 
         // this is used to accumulate all hours
-        data = new short[datasz];
+        short[] data = new short[datasz];
 
         xmrg = null;
 
@@ -627,79 +618,78 @@ public class DisplayMeanArealPrecipResource extends
         int secsPerHr = 3600;
         buf = FloatBuffer.allocate(datasz);
         buf2 = FloatBuffer.allocate(buf.capacity());
-        Calendar cal2 = Calendar.getInstance((TimeZone.getTimeZone("GMT")));
-        cal2.setTime(cal1.getTime());
+        Calendar cal2 = TimeUtil.newGmtCalendar(cal1.getTime());
 
-        try {
-
-            for (int k = 0; k < numhours; k++) {
-                cal2.setTime(cal1.getTime());
-                cal2.add(Calendar.SECOND, -(k * secsPerHr));
-                if (cv_use.equals("XMRG")) {
-                    dtform = sxf.format(cal2.getTime());
-                } else {
-                    dtform = sds.format(cal2.getTime());
-                }
-                fname = FileUtil.join(dirname, use + dtform + "z");
-                XmrgFile wmrg = null;
-
-                try {
-                    wmrg = new XmrgFile(fname);
-                    wmrg.load();
-                } catch (IOException io) {
-                    System.out.println("XMRG file not found " + fname);
-                    continue;
-                }
-
-                xmrg = wmrg;
-
-                tempdata = xmrg.getData();
-
-                int c = 0;
-                for (@SuppressWarnings("unused")
-                short s : tempdata) {
-                    if (data[c] < 0 && tempdata[c] >= 0) {
-                        data[c] = tempdata[c];
-                    } else if (data[c] >= 0 && tempdata[c] > 0) {
-                        data[c] += tempdata[c];
-                    }
-                    c++;
-                }
+        for (int k = 0; k < numhours; k++) {
+            cal2.setTime(cal1.getTime());
+            cal2.add(Calendar.SECOND, -(k * secsPerHr));
+            if ("XMRG".equals(cv_use)) {
+                dtform = sxf.format(cal2.getTime());
+            } else {
+                dtform = sds.format(cal2.getTime());
             }
-            // Don't convert missing data, checking to see if we are using
-            // Temperature data
-            float f = 0;
-            String temps = "TEMP";
-            for (short s : data) {
-                if (s < 0) {
-                    if (s == -9999 || s == -999 || s == -99
-                            || (s == -9 && cv_use.indexOf(temps) == -1)) {
-                        f = 0;
-                    } else if (s == -8888 || s == -899) {
-                        f = 1;
-                    } else {
-                        f = (float) Math.floor(cvt.convert(s));
-                    }
+            fname = FileUtil.join(dirname, use + dtform + "z");
+            XmrgFile wmrg = null;
+
+            try {
+                wmrg = new XmrgFile(fname);
+                wmrg.load();
+            } catch (IOException e) {
+                statusHandler.error("Failed to load XMRG file: " + fname + ".",
+                        e);
+                continue;
+            }
+
+            xmrg = wmrg;
+
+            tempdata = xmrg.getData();
+
+            int c = 0;
+            for (@SuppressWarnings("unused")
+            short s : tempdata) {
+                if (data[c] < 0 && tempdata[c] >= 0) {
+                    data[c] = tempdata[c];
+                } else if (data[c] >= 0 && tempdata[c] > 0) {
+                    data[c] += tempdata[c];
+                }
+                c++;
+            }
+        }
+        // Don't convert missing data, checking to see if we are using
+        // Temperature data
+        float f = 0;
+        String temps = "TEMP";
+        for (short s : data) {
+            if (s < 0) {
+                if (s == -9999 || s == -999 || s == -99
+                        || (s == -9 && cv_use.indexOf(temps) == -1)) {
+                    f = 0;
+                } else if (s == -8888 || s == -899) {
+                    f = 1;
                 } else {
                     f = (float) Math.floor(cvt.convert(s));
                 }
-                buf.put(f);
+            } else {
+                f = (float) Math.floor(cvt.convert(s));
             }
-            buf.rewind();
+            buf.put(f);
+        }
+        buf.rewind();
 
-            if ((extent.x == 0) && (extent.y == 0)) {
-                Rectangle coord = HRAPCoordinates.getHRAPCoordinates();
-                if ((extent.width == coord.width)
-                        && (extent.height == coord.height)) {
-                    extent = coord;
-                } else {
-                    xmrg = null;
-                    return;
-                }
+        if ((extent.x == 0) && (extent.y == 0)) {
+            Rectangle coord = null;
+            try {
+                coord = HRAPCoordinates.getHRAPCoordinates();
+            } catch (NumberFormatException | IOException e) {
+                statusHandler.error("Failed to read the HRAP Coordinates.", e);
             }
-        } catch (Exception e) {
-            xmrg = null;
-            System.err.println("XMRG file not found " + fname);
+            if (coord != null && (extent.width == coord.width)
+                    && (extent.height == coord.height)) {
+                extent = coord;
+            } else {
+                xmrg = null;
+                return;
+            }
         }
     }
 }

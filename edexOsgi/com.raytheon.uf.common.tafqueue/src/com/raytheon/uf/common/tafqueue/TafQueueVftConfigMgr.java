@@ -1,19 +1,19 @@
-/** 
+/**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -39,21 +39,22 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 /**
  * This class is used to read in configuration for AvnFPS verification (VFT)
  * product.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 21, 2013 15375      zhao        Initial creation
  * May 07, 2014 3091       rferrel     fcstid now a string.
  * May 14, 2015 4274       skorolev    Added period validation.
- * 
+ * Nov 15, 2017 6183       tgurney     Move xmit.cfg to common_static
+ *
  * </pre>
- * 
+ *
  * @author zhao
- * 
+ *
  */
 public class TafQueueVftConfigMgr {
 
@@ -85,8 +86,8 @@ public class TafQueueVftConfigMgr {
      */
     private String bbb = "___";
 
-    private static final String XMIT_FILE = "aviation" + File.separator
-            + "config" + File.separator + "xmit.cfg";
+    private static final String XMIT_FILE = "aviation" + IPathManager.SEPARATOR
+            + "config" + IPathManager.SEPARATOR + "xmit.cfg";
 
     private HierarchicalINIConfiguration xmitConfig = null;
 
@@ -108,7 +109,7 @@ public class TafQueueVftConfigMgr {
     private void loadXmitConfigFile() {
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext context = pm.getContext(
-                LocalizationType.CAVE_STATIC, LocalizationLevel.SITE);
+                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
         LocalizationFile lFile = pm.getLocalizationFile(context, XMIT_FILE);
         HierarchicalINIConfiguration config = new HierarchicalINIConfiguration();
         config.setDelimiterParsingDisabled(true);
@@ -117,7 +118,8 @@ public class TafQueueVftConfigMgr {
         } catch (ConfigurationException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Tafqueue VFT Configuration Manager: loading xmit.cfg file failed.\n"
-                            + e.getLocalizedMessage(), e);
+                            + e.getLocalizedMessage(),
+                    e);
             return;
         }
         this.xmitConfig = config;
@@ -143,10 +145,10 @@ public class TafQueueVftConfigMgr {
         } catch (NumberFormatException e) {
             setDefaultPeriod(periodStr);
         } catch (Exception e) {
-            statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Tafqueue VFT Configuration Manager: error occurred while reading configuration.\n"
-                                    + e.getLocalizedMessage(), e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Tafqueue VFT Configuration Manager: error occurred while reading configuration.\n"
+                            + e.getLocalizedMessage(),
+                    e);
             return;
         }
         statusHandler.handle(Priority.INFO,

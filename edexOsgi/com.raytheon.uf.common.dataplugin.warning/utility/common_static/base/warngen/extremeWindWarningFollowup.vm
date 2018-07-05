@@ -7,6 +7,7 @@
 ##          Evan Bookbinder 09-18-2013 Implemented config.vm
 ##          Dave Tomalak 3-25/26-2015 Mixed Case
 ##          Mike Dangelo 10-22-2015 checked for mixed case = passed
+##          Bookbinder 1-30-2017 capitalization of emphasis phrase DR19358 ##
 ################################################
 ##
 #parse("config.vm")
@@ -85,7 +86,7 @@ THIS IS A TEST MESSAGE. ##
 #############
 #if(${action}=="CON" || (${action}=="COR" && ${CORCAN}=="false"))
 ##
-#set($reportType1 = "associated with the eyewall of hurricane !**name**!#commaOrEllipsis()were moving onshore")
+#set($reportType1 = "associated with the eyewall of hurricane !**name**!, were moving onshore")
 #set($reportType = "extreme winds")
 #set($reportType2 = "the hurricane eyewall was")
 ##
@@ -178,11 +179,11 @@ THIS IS A TEST MESSAGE. ##
 
 THIS IS A TEST MESSAGE. ##
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#commaOrEllipsis()${reportType}#commaOrEllipsis()${reportType1} ##
+, ${reportType}, ${reportType1} ##
 #else
 
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#commaOrEllipsis()${reportType}#commaOrEllipsis()${reportType1} ##
+, ${reportType}, ${reportType1} ##
 #end
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
@@ -193,9 +194,9 @@ THIS IS A TEST MESSAGE. ##
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 . ${reportType2} nearly stationary.##
 #else
-#commaOrEllipsis()moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.##
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.##
 #end
-  This is an extremely dangerous and life-threatening situation!
+  THIS IS AN EXTREMELY DANGEROUS AND LIFE-THREATENING SITUATION!
   
 #set($phenomena = "EXTREME WINDS") 
 #set($warningType = "WARNING") 
@@ -228,7 +229,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 #end
 #if(${list.contains(${bullets}, "destructiveWindsCTA")})
 Widespread destructive winds of !** **! to !** **! mph will spread across ##
-#headlineLocList(${areas} true true true false)#commaOrEllipsis()Producing swaths of tornado-like damage.
+#headlineLocList(${areas} true true true false), Producing swaths of tornado-like damage.
 
 #end
 #if(${list.contains(${bullets}, "takeCoverCTA")})
@@ -254,7 +255,7 @@ The safest place to be during a major landfalling hurricane is in a reinforced i
 #################
 #if(${action}=="CANCON" || ${CORCAN}=="true")
 ##
-#set($reportType1 = "associated with the eyewall of hurricane !**name**!#commaOrEllipsis()were moving onshore")
+#set($reportType1 = "associated with the eyewall of hurricane !**name**!, were moving onshore")
 #set($reportType = "extreme winds")
 #set($reportType2 = "the hurricane eyewall was")
 ##
@@ -394,10 +395,10 @@ THIS IS A TEST MESSAGE.##
 
 #if(${productClass}=="T")
 
-THIS IS A TEST MESSAGE. At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}#commaOrEllipsis()${reportType}#commaOrEllipsis()${reportType1} ##
+THIS IS A TEST MESSAGE. At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${reportType}, ${reportType1} ##
 #else
 
-At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}#commaOrEllipsis()${reportType}#commaOrEllipsis()${reportType1} ##
+At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}, ${reportType}, ${reportType1} ##
 #end
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
@@ -410,7 +411,7 @@ At ${dateUtil.format(${event}, ${timeFormat.clock}, ${localtimezone})}#commaOrEl
 #else
 , moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.##
 #end
- This is an extremely dangerous and life-threatening situation!
+ THIS IS AN EXTREMELY DANGEROUS AND LIFE-THREATENING SITUATION!
  
 #set($phenomena = "EXTREME WINDS") 
 #set($warningType = "WARNING") 
@@ -453,7 +454,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 #if(${list.contains(${bullets}, "destructiveWindsCTA")})
 Widespread destructive winds of !** **! to !** **! mph will spread across ##
 #foreach (${area} in ${areas})
- ${area.name} ${area.areaNotation}#commaOrEllipsis()##
+ ${area.name} ${area.areaNotation}, ##
 #end
 producing swaths of tornado-like damage.
 
@@ -463,7 +464,7 @@ TAKE COVER NOW! Treat these imminent extreme winds as if a tornado was approachi
 
 #end
 #if(${list.contains(${bullets}, "safePlacesCTA")})
-The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses#commaOrEllipsis()blankets or pillows to cover your head and body. Remain in place through the passage of these life-threatening conditions.
+The safest place to be during a major landfalling hurricane is in a reinforced interior room away from windows. Get under a table or other piece of sturdy furniture. Use mattresses, blankets or pillows to cover your head and body. Remain in place through the passage of these life-threatening conditions.
 
 #end
 ##

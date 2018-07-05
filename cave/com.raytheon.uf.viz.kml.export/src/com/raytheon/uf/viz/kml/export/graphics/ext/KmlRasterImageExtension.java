@@ -51,13 +51,12 @@ import com.raytheon.uf.viz.kml.export.io.KmlOutputManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 11, 2012            bsteffen     Initial creation
+ * Nov 03, 2016 5957       bsteffen    Support images with a mesh
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-
 public class KmlRasterImageExtension extends
         GraphicsExtension<KmlGraphicsTarget> implements IImagingExtension {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -87,30 +86,40 @@ public class KmlRasterImageExtension extends
             for (DrawableImage image : images) {
                 KmlRasterImage kmlImage = (KmlRasterImage) image.getImage();
                 PixelCoverage coverage = image.getCoverage();
-                MathTransform transform = gridGeometry.getGridToCRS();
-                DirectPosition2D min = new DirectPosition2D(coverage.getMinX(),
-                        coverage.getMinY());
-                DirectPosition2D max = new DirectPosition2D(coverage.getMaxX(),
-                        coverage.getMaxY());
+                KmlMesh mesh = (KmlMesh) coverage.getMesh();
                 try {
-                    transform.transform(min, min);
-                    transform.transform(max, max);
-                    ReferencedEnvelope env = new ReferencedEnvelope(
-                            new Envelope2D(min, max),
-                            gridGeometry.getCoordinateReferenceSystem());
-                    GridCoverage2D source = coverageFactory.create("Test",
-                            kmlImage.getImage(), env);
-                    GridCoverage2D result = (GridCoverage2D) new Operations(
-                            null).resample(source, MapUtil.LATLON_PROJECTION);
-                    makeOverlay(outputManager, result.getRenderedImage(),
-                            result.getEnvelope2D());
-                } catch (VizException e) {
+                    if (mesh == null) {
+                        MathTransform transform = gridGeometry.getGridToCRS();
+                        DirectPosition2D min = new DirectPosition2D(
+                                coverage.getMinX(), coverage.getMinY());
+                        DirectPosition2D max = new DirectPosition2D(
+                                coverage.getMaxX(), coverage.getMaxY());
+                        transform.transform(min, min);
+                        transform.transform(max, max);
+                        ReferencedEnvelope env = new ReferencedEnvelope(
+                                new Envelope2D(min, max),
+                                gridGeometry.getCoordinateReferenceSystem());
+                        GridCoverage2D source = coverageFactory.create("Test",
+                                kmlImage.getImage(), env);
+                        GridCoverage2D result = (GridCoverage2D) new Operations(
+                                null).resample(source,
+                                        MapUtil.LATLON_PROJECTION);
+                        makeOverlay(outputManager, result.getRenderedImage(),
+                                result.getEnvelope2D());
+                    } else {
+                        GridCoverage2D source = coverageFactory.create("Test",
+                                kmlImage.getImage(),
+                                mesh.getImageGeometry().getEnvelope());
+                        GridCoverage2D result = (GridCoverage2D) new Operations(
+                                null).resample(source,
+                                        MapUtil.LATLON_PROJECTION);
+                        makeOverlay(outputManager, result.getRenderedImage(),
+                                result.getEnvelope2D());
+                    }
+                } catch (VizException | TransformException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             e.getLocalizedMessage(), e);
 
-                } catch (TransformException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
                 }
             }
         }

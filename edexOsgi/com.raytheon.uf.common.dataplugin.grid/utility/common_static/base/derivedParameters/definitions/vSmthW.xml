@@ -18,23 +18,26 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="vSmthW" name="Verticall Smoothed Wind " unit="m/s">
     <Method name="Average" levels="0FHAG">
-        <Field abbreviation="Wind"/>
-        <Field abbreviation="Wind" level="0.5kmAgl"/>
-	</Method>
+        <Field abbreviation="Wind" />
+        <Field abbreviation="Wind" level="0.5kmAgl" />
+    </Method>
     <Method name="Average" levels="FHAG">
-        <Field abbreviation="Wind"/>
-        <Field abbreviation="Wind" level="upper"/>
-        <Field abbreviation="Wind" level="lower"/>
-	</Method>
+        <Field abbreviation="Wind" />
+        <Field abbreviation="Wind" level="upper" />
+        <Field abbreviation="Wind" level="lower" />
+    </Method>
     <Method name="Average" levels="FHAG">
-        <Field abbreviation="Wind"/>
-        <Field abbreviation="Wind" level="upper"/>
-	</Method>
+        <Field abbreviation="Wind" />
+        <Field abbreviation="Wind" level="upper" />
+    </Method>
     <Method name="Average" levels="FHAG">
-        <Field abbreviation="Wind"/>
-        <Field abbreviation="Wind" level="lower"/>
-	</Method>
-
+        <Field abbreviation="Wind" />
+        <Field abbreviation="Wind" level="lower" />
+    </Method>
 </DerivedParameter>

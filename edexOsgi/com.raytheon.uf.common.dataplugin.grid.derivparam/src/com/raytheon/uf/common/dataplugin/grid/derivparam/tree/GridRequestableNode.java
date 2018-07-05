@@ -63,6 +63,7 @@ import com.raytheon.uf.common.time.DataTime;
  *                                    IGridGeometryProvider
  * Mar 03, 2016  5439     bsteffen    Move to common
  * Nov 10, 2016  5998     bsteffen    Ensure originalConstraints are used for availability queries
+ * Apr 24, 2017  5881     bsteffen    Request coverages for availability if not in cache.
  * 
  * </pre>
  * 
@@ -139,7 +140,8 @@ public class GridRequestableNode extends AbstractBaseDataNode {
         DbQueryRequest dbRequest = new DbQueryRequest();
         dbRequest.setEntityClass(GridRecord.class.getName());
         dbRequest.setConstraints(new HashMap<>(rcMap));
-        for (Entry<String, RequestConstraint> e : orignalConstraints.entrySet()) {
+        for (Entry<String, RequestConstraint> e : orignalConstraints
+                .entrySet()) {
             if (!rcMap.containsKey(e.getKey())) {
                 dbRequest.addConstraint(e.getKey(), e.getValue());
             }
@@ -157,8 +159,8 @@ public class GridRequestableNode extends AbstractBaseDataNode {
             spaceRc.setConstraintType(ConstraintType.IN);
             for (IGridGeometryProvider space : spaces) {
                 if (space instanceof GridCoverage) {
-                    spaceRc.addToConstraintValueList(Integer
-                            .toString(((GridCoverage) space).getId()));
+                    spaceRc.addToConstraintValueList(
+                            Integer.toString(((GridCoverage) space).getId()));
                 } else {
                     // TODO figure out the intersection of my spatial object
                     // with this spatial object.
@@ -184,18 +186,23 @@ public class GridRequestableNode extends AbstractBaseDataNode {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         GridRequestableNode other = (GridRequestableNode) obj;
         if (rcMap == null) {
-            if (other.rcMap != null)
+            if (other.rcMap != null) {
                 return false;
-        } else if (!rcMap.equals(other.rcMap))
+            }
+        } else if (!rcMap.equals(other.rcMap)) {
             return false;
+        }
         return true;
     }
 
@@ -230,7 +237,8 @@ public class GridRequestableNode extends AbstractBaseDataNode {
         request.setEntityClass(GridRecord.class.getName());
         request.addRequestField(PluginDataObject.DATATIME_ID);
         try {
-            if (CoverageUtils.getInstance().getCoverages(getSource()).size() > 1) {
+            if (CoverageUtils.getInstance().getCoverages(getSource())
+                    .size() != 1) {
                 request.addRequestField(GridConstants.LOCATION_ID);
             }
         } catch (DataCubeException e) {
@@ -252,7 +260,9 @@ public class GridRequestableNode extends AbstractBaseDataNode {
         if (response == null) {
             result = GridTimeCache.getInstance().getTimes(this);
             if (result == null) {
-                /* Oh No! the cache has been cleared since we made our request. */
+                /*
+                 * Oh No! the cache has been cleared since we made our request.
+                 */
                 try {
                     response = RequestRouter
                             .route(getAvailabilityRequest(originalConstraints));
@@ -271,8 +281,8 @@ public class GridRequestableNode extends AbstractBaseDataNode {
                 if (map.containsKey(GridConstants.LOCATION_ID)) {
                     Number locationId = (Number) map
                             .get(GridConstants.LOCATION_ID);
-                    coverage = GridCoverageLookup.getInstance().getCoverage(
-                            locationId.intValue());
+                    coverage = GridCoverageLookup.getInstance()
+                            .getCoverage(locationId.intValue());
                 } else {
                     try {
                         coverage = CoverageUtils.getInstance()

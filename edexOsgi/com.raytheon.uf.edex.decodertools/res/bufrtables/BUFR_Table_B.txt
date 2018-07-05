@@ -76,6 +76,9 @@
 0	1	94	0	0	17	NUMERIC	WBAN Number
 0	1	95	0	0	32	CCITT IA5	Observer identification
 0	1	96	0	0	160	CCITT IA5	Station acquisition
+0	1	110	0	0	48	CCITT IA5	Aircraft tail number
+0	1	111	0	0	24	CCITT IA5	Origination airport
+0	1	112	0	0	24	CCITT IA5	Destination airport
 0	1	198	0	0	64	CCITT IA5	Table A:  entry
 0	1	205	0	0	20	NUMERIC	Station number (holds up to 6 digits)
 0	2	1	0	0	2	CODE TABLE	Type of station
@@ -399,6 +402,7 @@
 0	10	50	2	0	16	M	Standard deviation altitude
 0	10	51	-1	0	14	PA	Pressure reduced to mean sea level
 0	10	52	-1	0	14	PA	Altimeter setting (QNH)
+0	10	53	0	-1000	17	M	Global navigation satellite system altitude
 0	10	60	-1	-1024	11	PA	Pressure change
 0	10	61	-1	-500	10	PA	3-hour pressure change
 0	10	62	-1	-1000	11	PA	24-hour pressure change
@@ -477,8 +481,19 @@
 0	11	77	0	0	12	SEC	Reporting interval or averaging time for Eddy Dissipation Rate
 0	11	81	2	0	16	DEG TRUE	Model wind direction at 10M
 0	11	82	2	0	14	M/SEC	Model wind speed at 10M
+0	11	84	0	0	8	kt	Wind speed
 0	11	95	1	-4096	13	M/SEC	U component of the model wind vector
 0	11	96	1	-4096	13	M/SEC	V component of the model wind vector
+0	11	100	1	0	12	M/SEC	Aircraft true airspeed
+0	11	101	1	-4096	13	M/SEC	Aircraft ground speed u-component
+0	11	102	1	-4096	13	M/SEC	Aircraft ground speed v-component
+0	11	103	1	-512	10	M/SEC	Aircraft ground speed w-component
+0	11	104	0	0	9	DEG TRUE	"True heading of aircraft,ship or other mobile platform"
+0	11	105	0	0	6	NUMERIC	EDR algorithm version
+0	11	106	1	0	4	NUMERIC	Running minimum confidence
+0	11	107	0	0	5	NUMERIC	Maximum number bad inputs
+0	11	108	1	0	4	NUMERIC	Peak location
+0	11	109	0	0	4	NUMERIC	Number of good EDR
 0	11	97	2	0	12	M/SEC	Wind speed from altimeter
 0	11	196	1	-4096	13	M/SEC	V component at 10 meters
 0	11	197	1	-4096	13	M/SEC	V component at 10 meters
@@ -1197,6 +1212,7 @@
 0	31	11	0	0	8	NUMERIC	Delayed descriptor and data repetition factor
 0	31	12	0	0	16	NUMERIC	Extended delayed descriptor and data repetition factor
 0	31	21	0	0	6	CODE TABLE	Associated field significance
+0	31	22	0	0	2	CODE TABLE	quality_associated_field
 0	31	31	0	0	1	FLAG TABLE	Data present indicator
 0	33	2	0	0	2	CODE TABLE	Quality information
 0	33	3	0	0	3	CODE TABLE	Quality information
@@ -1264,3 +1280,5 @@
 0	40	8	1	0	10	%	Frozen land surface fraction
 0	40	9	1	0	10	%	Inundation and wetland fraction
 0	40	10	1	0	10	%	Topographic complexity
+0	54	001	0	0	2	NUMERIC	204002
+0	54	013	0	0	7	NUMERIC	204007

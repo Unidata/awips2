@@ -52,8 +52,12 @@
 #    Feb 26, 2016       5420       tgurney        Store and check for time of last repack
 #    Feb 29, 2016       5420       tgurney        Remove timestampCheck arg from copy()
 #    Apr 22, 2016       5389       nabowle        Fix purging false-orphans.
+#    Nov 15, 2016       5992       bsteffen       Support storing compressed records.
 #    Nov 30, 2016                  mjames@ucar    Change == None to is None (for numpy array).
 #    Dec 22, 2016    DR 19477      mporricelli    Check that file exists in copy() before attempting file action
+#    May 05, 2017       6256       tgurney        Set restricted file permissions on copy()
+#    May 12, 2017       6256       tgurney        Set restricted file permissions on repack
+#    Jun 14, 2017       6256       tgurney        Set permissions on correct files (bug fix)
 #
 
 import h5py, os, numpy, pypies, re, logging, shutil, time, types, traceback
@@ -67,12 +71,15 @@ import HDF5OpManager, DataStoreFactory
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.datastorage import *
 from dynamicserialize.dstypes.com.raytheon.uf.common.datastorage.records import *
+from dynamicserialize.dstypes.com.raytheon.uf.common.pypies.records import *
 from dynamicserialize.dstypes.com.raytheon.uf.common.pypies.response import *
 
 logger = pypies.logger
 timeMap = pypies.timeMap
 
 vlen_str_type = h5py.new_vlen(str)
+
+FILE_PERMISSIONS = 0o0640
 
 dataRecordMap = {
                  ByteDataRecord: numpy.byte,
@@ -83,7 +90,6 @@ dataRecordMap = {
                  DoubleDataRecord: numpy.float64,
                  StringDataRecord: types.StringType,
 }
-
 
 DEFAULT_CHUNK_SIZE = 256
 FILESYSTEM_BLOCK_SIZE = 4096
@@ -105,9 +111,10 @@ class H5pyDataStore(IDataStore.IDataStore):
 
     def store(self, request):
         fn = request.getFilename()
+        recs = request.getRecords()
+        self.__prepareRecordsToStore(recs)
         f, lock = self.__openFile(fn, 'w')
         try:
-            recs = request.getRecords()
             op = request.getOp()
             status = StorageStatus()
             exc = []
@@ -127,7 +134,7 @@ class H5pyDataStore(IDataStore.IDataStore):
 
             if ss:
                 status.setOperationPerformed(ss['op'])
-                if ss.has_key('index'):
+                if 'index' in ss:
                     status.setIndexOfAppend(ss['index'])
             t1 = time.time()
             timeMap['store']= t1 - t0
@@ -143,6 +150,17 @@ class H5pyDataStore(IDataStore.IDataStore):
             timeMap['closeFile']=t1-t0
             LockManager.releaseLock(lock)
 
+    def __prepareRecordsToStore(self, records):
+        for r in records:
+            if hasattr(r, 'prepareStore'):
+                t0 = time.time()
+                r.prepareStore()
+                t1 = time.time()
+                timeKey = r.prepareStore.__name__
+                if timeKey in timeMap:
+                    timeMap[timeKey] += t1 - t0
+                else:
+                    timeMap[timeKey] = t1 - t0
 
     def __writeHDF(self, f, record, storeOp):
         props = record.getProps()
@@ -223,7 +241,10 @@ class H5pyDataStore(IDataStore.IDataStore):
         return ss
 
     def __getHdf5Datatype(self, record):
-        dtype = dataRecordMap[record.__class__]
+        if record.__class__ in dataRecordMap:
+            dtype = dataRecordMap[record.__class__]
+        else:
+            dtype = record.determineStorageType()
         if dtype == types.StringType:
             from h5py import h5t
             size = record.getMaxLength()
@@ -759,7 +780,7 @@ class H5pyDataStore(IDataStore.IDataStore):
                 node = self.__getGroup(rootNode, group)
 
         t1 = time.time()
-        if timeMap.has_key('getGroup'):
+        if 'getGroup' in timeMap:
             timeMap['getGroup']+=t1-t0
         else:
             timeMap['getGroup']=t1-t0
@@ -806,7 +827,13 @@ class H5pyDataStore(IDataStore.IDataStore):
 
     def __doCopy(self, filepath, basePath, outputDir, compression):
         shutil.copy(filepath, outputDir)
-        success = (os.path.isfile(os.path.join(outputDir, os.path.basename(filepath))))
+        destFile = os.path.join(outputDir, os.path.basename(filepath))
+        destExists = os.path.isfile(destFile)
+        if destExists:
+            # This is exclusively for archive--it is assumed that the file is
+            # being copied to a NFS share, so it needs restricted permissions
+            os.chmod(destFile, FILE_PERMISSIONS)
+        success = destExists
 
     __doCopy.__display_name__ = 'copy'
 
@@ -859,6 +886,13 @@ class H5pyDataStore(IDataStore.IDataStore):
                 os.remove(filepath)
                 os.rename(repackedFullPath, filepath)
                 os.chmod(filepath, stat.S_IWUSR | stat.S_IWGRP | stat.S_IRUSR | stat.S_IRGRP | stat.S_IROTH | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+            else:
+                # File is being copied to a different directory. As of May 2017
+                # this code path is only taken by archive, when doing a
+                # copy+repack. In this case it is assumed that the file is
+                # being copied to an NFS share, so it needs restricted
+                # permissions.
+                os.chmod(repackedFullPath, FILE_PERMISSIONS)
         else:
             # remove failed new file if there was one
             if os.path.exists(repackedFullPath):
@@ -867,8 +901,12 @@ class H5pyDataStore(IDataStore.IDataStore):
                 # repack failed, but they wanted the data in a different
                 # directory, so just copy the original data without the repack
                 shutil.copy(filepath, repackedFullPath)
+                # chmod here is for setting correct permissions on /archive
+                # files. This code needs to be revisited if this code path is
+                # used by something other than archive in the future.
+                os.chmod(repackedFullPath, FILE_PERMISSIONS)
         t1 = time.time()
-        if timeMap.has_key('repack'):
+        if 'repack' in timeMap:
             timeMap['repack'] += t1 - t0
         else:
             timeMap['repack'] = t1 - t0

@@ -40,7 +40,6 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.layout.RowData;
 import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
@@ -73,14 +72,14 @@ import com.raytheon.uf.viz.core.drawables.AbstractRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.maps.display.MapRenderableDisplay;
-import com.raytheon.uf.viz.core.procedures.AlterBundleFactory;
 import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.core.procedures.IAlterBundleContributor;
 import com.raytheon.uf.viz.core.procedures.Procedure;
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
+import com.raytheon.uf.viz.d2d.core.procedures.AlterBundleFactory;
+import com.raytheon.uf.viz.d2d.core.procedures.IAlterBundleContributor;
 import com.raytheon.uf.viz.d2d.ui.dialogs.procedures.ProcedureComm.BundlePair;
 import com.raytheon.viz.ui.EditorUtil;
 import com.raytheon.viz.ui.HistoryList;
@@ -94,13 +93,13 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.views.PartAdapter2;
 
 /**
- * 
+ *
  * Dialog for loading or modifying procedures.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  *                                     Initial Creation
@@ -119,11 +118,11 @@ import com.raytheon.viz.ui.views.PartAdapter2;
  * Jun 02, 2015 4401       bkowal      Updated to use {@link VizLocalizationFileListDlg}.
  * Jan 29, 2016 5289       tgurney     Add missing minimize/maximize buttons in trim
  * Feb 12, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
- * 
+ * Feb 24, 2017 6116       mapeters    Don't hardcode size of buttons
+ *
  * </pre>
- * 
+ *
  * @author unknown
- * @version 1.0
  */
 public class ProcedureDlg extends CaveSWTDialog {
 
@@ -136,13 +135,11 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     public static final String PROCEDURES_DIR = "/procedures";
 
-    private static final Map<String, ProcedureDlg> openDialogs = new HashMap<String, ProcedureDlg>();
+    private static final Map<String, ProcedureDlg> openDialogs = new HashMap<>();
 
     private Font font;
 
     private List dataList;
-
-    private final int BOTTOM_BTN_WIDTH = 90;
 
     private Button upBtn;
 
@@ -201,8 +198,7 @@ public class ProcedureDlg extends CaveSWTDialog {
     private ProcedureDlg(String fileName, Procedure p, Shell parent) {
         // Win32
         super(parent, SWT.DIALOG_TRIM | SWT.RESIZE | SWT.MIN | SWT.MAX,
-                CAVE.INDEPENDENT_SHELL
-                | CAVE.DO_NOT_BLOCK);
+                CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
         String titleBarStr = fileName;
         if (titleBarStr == null) {
             titleBarStr = "(untitled)";
@@ -210,7 +206,7 @@ public class ProcedureDlg extends CaveSWTDialog {
         setText("Procedure - " + titleBarStr);
 
         this.fileName = fileName;
-        this.bundles = new ArrayList<BundlePair>();
+        this.bundles = new ArrayList<>();
         frozen = false;
         if (p != null && p.getBundles() != null) {
             Bundle[] bund = p.getBundles();
@@ -348,8 +344,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                         if (!copyOutBtn.isDisposed()) {
                             copyOutBtn.setEnabled(ProcedureComm.getInstance()
                                     .getCopyListenerCount() > 1
-                                    && bundles != null
-                                    && bundles.size() > 0
+                                    && bundles != null && bundles.size() > 0
                                     && dataList.getSelectionIndex() >= 0);
                         }
                     }
@@ -378,10 +373,10 @@ public class ProcedureDlg extends CaveSWTDialog {
         addListener(SWT.Dispose, new Listener() {
             @Override
             public void handleEvent(Event event) {
-                ProcedureComm.getInstance().removeCopyOutListener(
-                        copyOutListener);
-                ProcedureComm.getInstance().removeCopyOutStateListener(
-                        changeListener);
+                ProcedureComm.getInstance()
+                        .removeCopyOutListener(copyOutListener);
+                ProcedureComm.getInstance()
+                        .removeCopyOutStateListener(changeListener);
             }
         });
     }
@@ -402,9 +397,8 @@ public class ProcedureDlg extends CaveSWTDialog {
                         int currIdx = dataList.getSelectionIndex();
                         dataList.setItems(list);
                         if (firstNextBtn.isEnabled() == false) {
-                            if (currIdx == -1
-                                    && firstNextBtn.getText().toString()
-                                            .equals(FIRST)) {
+                            if (currIdx == -1 && firstNextBtn.getText()
+                                    .toString().equals(FIRST)) {
                                 firstNextBtn.setEnabled(true);
                                 alterBtn.setEnabled(false);
                                 loadBtn.setEnabled(false);
@@ -444,8 +438,8 @@ public class ProcedureDlg extends CaveSWTDialog {
                             .getDisplays()) {
                         for (ResourcePair rp : display.getDescriptor()
                                 .getResourceList()) {
-                            if (rp.getResourceData() != null
-                                    && rp.getResourceData() instanceof AbstractRequestableResourceData) {
+                            if (rp.getResourceData() != null && rp
+                                    .getResourceData() instanceof AbstractRequestableResourceData) {
                                 ((AbstractRequestableResourceData) rp
                                         .getResourceData()).setFrozenTime(null);
                             }
@@ -461,9 +455,8 @@ public class ProcedureDlg extends CaveSWTDialog {
             IPathManager pm = PathManagerFactory.getPathManager();
             LocalizationContext context = pm.getContext(
                     LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-            ILocalizationFile localizationFile = pm
-                    .getLocalizationFile(context, PROCEDURES_DIR
-                            + IPathManager.SEPARATOR + fileName);
+            ILocalizationFile localizationFile = pm.getLocalizationFile(context,
+                    PROCEDURES_DIR + IPathManager.SEPARATOR + fileName);
             String procedureXML = procedure.toXML();
             try (SaveableOutputStream outStream = localizationFile
                     .openOutputStream()) {
@@ -493,8 +486,8 @@ public class ProcedureDlg extends CaveSWTDialog {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 175;
         gd.heightHint = 125;
-        dataList = new List(listComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL
-                | SWT.H_SCROLL);
+        dataList = new List(listComp,
+                SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL | SWT.H_SCROLL);
         dataList.setLayoutData(gd);
         dataList.setFont(font);
         dataList.addSelectionListener(new SelectionAdapter() {
@@ -516,12 +509,11 @@ public class ProcedureDlg extends CaveSWTDialog {
         Composite listControlComp = new Composite(listComp, SWT.NONE);
         RowLayout rl = new RowLayout(SWT.VERTICAL);
         rl.spacing = 20;
+        rl.pack = false;
         listControlComp.setLayout(rl);
 
-        RowData rd = new RowData(80, SWT.DEFAULT);
         upBtn = new Button(listControlComp, SWT.PUSH);
         upBtn.setText("Up");
-        upBtn.setLayoutData(rd);
         upBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -543,10 +535,8 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         });
 
-        rd = new RowData(80, SWT.DEFAULT);
         downBtn = new Button(listControlComp, SWT.PUSH);
         downBtn.setText("Down");
-        downBtn.setLayoutData(rd);
         downBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -568,10 +558,8 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         });
 
-        rd = new RowData(80, SWT.DEFAULT);
         renameBtn = new Button(listControlComp, SWT.PUSH);
         renameBtn.setText("Rename...");
-        renameBtn.setLayoutData(rd);
         renameBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -583,9 +571,8 @@ public class ProcedureDlg extends CaveSWTDialog {
                 BundlePair b = bundles.get(idx);
                 boolean done = false;
                 while (!done) {
-                    InputDialog id = new InputDialog(shell,
-                            "Enter Bundle Name", "Enter bundle name:", b.name,
-                            null);
+                    InputDialog id = new InputDialog(shell, "Enter Bundle Name",
+                            "Enter bundle name:", b.name, null);
                     if (Window.OK == id.open()) {
                         String newName = id.getValue();
 
@@ -596,9 +583,9 @@ public class ProcedureDlg extends CaveSWTDialog {
                             saveBtn.setEnabled(true);
                             done = true;
                         } else {
-                            MessageDialog
-                                    .openWarning(shell, "Error Setting Name",
-                                            "The bundle name must contain at least one alphanumeric character.");
+                            MessageDialog.openWarning(shell,
+                                    "Error Setting Name",
+                                    "The bundle name must contain at least one alphanumeric character.");
                         }
                     } else {
                         done = true;
@@ -611,32 +598,25 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     private void createBottomControls() {
         Composite buttonComp = new Composite(shell, SWT.NONE);
-        GridLayout gl = new GridLayout(3, false);
+        GridLayout gl = new GridLayout(3, true);
         gl.horizontalSpacing = 10;
         buttonComp.setLayout(gl);
-        buttonComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
-
         GridData gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        buttonComp.setLayoutData(gd);
+
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalSpan = 2;
         originalRdo = new Button(buttonComp, SWT.RADIO);
         originalRdo.setText("Original");
         originalRdo.setSelection(true);
         originalRdo.setLayoutData(gd);
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
-        Label fillerLbl = new Label(buttonComp, SWT.NONE);
-        fillerLbl.setLayoutData(gd);
-
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         currentRdo = new Button(buttonComp, SWT.RADIO);
         currentRdo.setText("Current");
         currentRdo.setLayoutData(gd);
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         firstNextBtn = new Button(buttonComp, SWT.PUSH);
         firstNextBtn.setText(FIRST);
         firstNextBtn.setLayoutData(gd);
@@ -662,8 +642,7 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         loadBtn = new Button(buttonComp, SWT.PUSH);
         loadBtn.setText("Load");
         loadBtn.setLayoutData(gd);
@@ -676,8 +655,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
         });
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         alterBtn = new Button(buttonComp, SWT.PUSH);
         alterBtn.setText("Alter...");
         alterBtn.setLayoutData(gd);
@@ -689,13 +667,12 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         copyInBtn = new Button(buttonComp, SWT.PUSH);
         copyInBtn.setText("Copy In");
         copyInBtn.setLayoutData(gd);
-        copyInBtn
-                .setEnabled(EditorUtil.getActiveEditor() instanceof AbstractEditor);
+        copyInBtn.setEnabled(
+                EditorUtil.getActiveEditor() instanceof AbstractEditor);
 
         activeEditorListener = new PartAdapter2() {
             @Override
@@ -708,9 +685,10 @@ public class ProcedureDlg extends CaveSWTDialog {
                 updateCopyInBtnEnabled(partRef);
             }
 
-            private void updateCopyInBtnEnabled(IWorkbenchPartReference partRef) {
-                copyInBtn
-                        .setEnabled(EditorUtil.getActiveEditor() instanceof AbstractEditor);
+            private void updateCopyInBtnEnabled(
+                    IWorkbenchPartReference partRef) {
+                copyInBtn.setEnabled(
+                        EditorUtil.getActiveEditor() instanceof AbstractEditor);
             }
         };
         IWorkbenchPage page = PlatformUI.getWorkbench()
@@ -720,89 +698,11 @@ public class ProcedureDlg extends CaveSWTDialog {
         copyInBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                try {
-                    // This seems counter intuitive, but going through
-                    // the history list ensures that a fresh serialized copy
-                    // of the bundle is made rather than a shallow copy of
-                    // the display.
-                    Bundle b = SaveBundle.extractCurrentBundle();
-                    HistoryList.getInstance().refreshLatestBundle(b);
-                    if (b.getName() == null || "".equals(b.getName())) {
-                        MessageDialog
-                                .openWarning(shell, "Error Copying Resources",
-                                        "You must have at least one resource displayed to copy in.");
-                        return;
-                    }
-
-                    saved = false;
-                    saveBtn.setEnabled(true);
-
-                    // TODO: copy latest time in, potential threading issue
-                    // if update comes in after freeze is called but before thaw
-                    // is called, resource will not get update
-                    for (AbstractRenderableDisplay display : b.getDisplays()) {
-                        for (ResourcePair rp : display.getDescriptor()
-                                .getResourceList()) {
-                            if (rp.getResource() != null) {
-                                AbstractVizResource<?, ?> rsc = rp
-                                        .getResource();
-                                AbstractResourceData resourceData = rp
-                                        .getResource().getResourceData();
-                                if (resourceData != null) {
-                                    AbstractDescriptor desc = (AbstractDescriptor) rsc
-                                            .getDescriptor();
-                                    DataTime[] times = desc
-                                            .getTimeMatchingMap().get(this);
-                                    if (times != null && times.length > 0) {
-                                        resourceData
-                                                .setFrozenTime(times[times.length - 1]);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    String sb = b.toXML();
-
-                    // restore to not be frozen
-                    for (AbstractRenderableDisplay display : b.getDisplays()) {
-                        for (ResourcePair rp : display.getDescriptor()
-                                .getResourceList()) {
-                            if (rp.getResource() != null) {
-                                AbstractResourceData ard = rp.getResource()
-                                        .getResourceData();
-                                if (ard != null) {
-                                    ard.setFrozenTime(null);
-                                }
-                            }
-                        }
-                    }
-
-                    BundlePair bp = new BundlePair();
-                    if (!IRenameablePart.DEFAULT_PART_NAME.equals(b.getName())
-                            && b.getDisplays()[0] instanceof MapRenderableDisplay) {
-                        /*
-                         * This is a horrible hack to get a renamed editor's
-                         * name instead of the default of Map.
-                         */
-                        bp.name = b.getName();
-                    } else {
-                        bp.name = HistoryList.getInstance().getLabels()[0];
-                    }
-                    bp.xml = sb;
-                    bundles.add(bp);
-                    resyncProcedureAndList();
-                } catch (VizException e) {
-                    final String err = "Error copying in";
-                    statusHandler.handle(Priority.PROBLEM, err, e);
-
-                }
-
+                copyIn();
             }
         });
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         copyOutBtn = new Button(buttonComp, SWT.PUSH);
         copyOutBtn.setText("Copy Out");
         copyOutBtn.setLayoutData(gd);
@@ -829,8 +729,7 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         deleteBtn = new Button(buttonComp, SWT.PUSH);
         deleteBtn.setText("Delete");
         deleteBtn.setLayoutData(gd);
@@ -851,8 +750,7 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         saveBtn = new Button(buttonComp, SWT.PUSH);
         saveBtn.setEnabled(false);
         saveBtn.setText("Save");
@@ -864,8 +762,7 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         saveAsBtn = new Button(buttonComp, SWT.PUSH);
         saveAsBtn.setText("Save As...");
         saveAsBtn.setLayoutData(gd);
@@ -875,8 +772,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                 showSaveAsDlg(false);
             }
         });
-        gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
-        gd.widthHint = BOTTOM_BTN_WIDTH;
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
@@ -902,8 +798,9 @@ public class ProcedureDlg extends CaveSWTDialog {
                         .getContributors()) {
                     Map<String, String[]> alterables = contributor
                             .getAlterables();
-                    for (Entry<String, String[]> entry : alterables.entrySet()) {
-                        Set<String> values = new HashSet<String>(
+                    for (Entry<String, String[]> entry : alterables
+                            .entrySet()) {
+                        Set<String> values = new HashSet<>(
                                 Arrays.asList(entry.getValue()));
                         if (values.contains(CURRENT)) {
                             contributor.alterBundle(b, entry.getKey(), CURRENT);
@@ -923,8 +820,8 @@ public class ProcedureDlg extends CaveSWTDialog {
         statusHandler.info("Loading bundle: " + b.getName());
         String editorName = null;
         if (b.getDisplays().length > 0) {
-            editorName = DescriptorMap.getEditorId(b.getDisplays()[0]
-                    .getDescriptor().getClass().getName());
+            editorName = DescriptorMap.getEditorId(
+                    b.getDisplays()[0].getDescriptor().getClass().getName());
         }
         final AbstractEditor editor = UiUtil.createOrOpenEditor(editorName,
                 b.getDisplays());
@@ -957,7 +854,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                 Bundle b = Bundle.unmarshalBundle(bp.xml, null);
 
                 alterDlg = new AlterBundleDlg(b, getShell());
-                alterDlg.setCloseCallback(new ICloseCallback() {
+                alterDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -985,6 +882,86 @@ public class ProcedureDlg extends CaveSWTDialog {
         }
     }
 
+    private void copyIn() {
+        try {
+            /*
+             * This seems counter intuitive, but going through the history list
+             * ensures that a fresh serialized copy of the bundle is made rather
+             * than a shallow copy of the display.
+             */
+            Bundle b = SaveBundle.extractCurrentBundle();
+            HistoryList.getInstance().refreshLatestBundle(b);
+            if (b.getName() == null || b.getName().isEmpty()) {
+                MessageDialog.openWarning(shell, "Error Copying Resources",
+                        "You must have at least one resource displayed to copy in.");
+                return;
+            }
+
+            saved = false;
+            saveBtn.setEnabled(true);
+
+            /*
+             * TODO: copy latest time in, potential threading issue if update
+             * comes in after freeze is called but before thaw is called,
+             * resource will not get update
+             */
+            for (AbstractRenderableDisplay display : b.getDisplays()) {
+                for (ResourcePair rp : display.getDescriptor()
+                        .getResourceList()) {
+                    if (rp.getResource() != null) {
+                        AbstractVizResource<?, ?> rsc = rp.getResource();
+                        AbstractResourceData resourceData = rp.getResource()
+                                .getResourceData();
+                        if (resourceData != null) {
+                            AbstractDescriptor desc = (AbstractDescriptor) rsc
+                                    .getDescriptor();
+                            DataTime[] times = desc.getTimeMatchingMap()
+                                    .get(this);
+                            if (times != null && times.length > 0) {
+                                resourceData
+                                        .setFrozenTime(times[times.length - 1]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            String sb = b.toXML();
+
+            // restore to not be frozen
+            for (AbstractRenderableDisplay display : b.getDisplays()) {
+                for (ResourcePair rp : display.getDescriptor()
+                        .getResourceList()) {
+                    if (rp.getResource() != null) {
+                        AbstractResourceData ard = rp.getResource()
+                                .getResourceData();
+                        if (ard != null) {
+                            ard.setFrozenTime(null);
+                        }
+                    }
+                }
+            }
+
+            BundlePair bp = new BundlePair();
+            if (!IRenameablePart.DEFAULT_PART_NAME.equals(b.getName())
+                    && b.getDisplays()[0] instanceof MapRenderableDisplay) {
+                /*
+                 * This is a horrible hack to get a renamed editor's name
+                 * instead of the default of Map.
+                 */
+                bp.name = b.getName();
+            } else {
+                bp.name = HistoryList.getInstance().getLabels()[0];
+            }
+            bp.xml = sb;
+            bundles.add(bp);
+            resyncProcedureAndList();
+        } catch (VizException e) {
+            final String err = "Error copying in";
+            statusHandler.handle(Priority.PROBLEM, err, e);
+        }
+    }
+
     private void handleSaveRequest(boolean closeAfterSave) {
         if (fileName == null) {
             showSaveAsDlg(closeAfterSave);
@@ -998,7 +975,7 @@ public class ProcedureDlg extends CaveSWTDialog {
             saveAsDlg = new ProcedureListFileDlg("Save Procedure As...", shell,
                     VizLocalizationFileListDlg.Mode.SAVE, PROCEDURES_DIR);
 
-            saveAsDlg.setCloseCallback(new ICloseCallback() {
+            saveAsDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -1041,8 +1018,8 @@ public class ProcedureDlg extends CaveSWTDialog {
      * to close it
      */
     private void showConfirmSaveDlg() {
-        CaveSWTDialog dlg = new CaveSWTDialog(shell, SWT.DIALOG_TRIM
-                | SWT.PRIMARY_MODAL, CAVE.DO_NOT_BLOCK) {
+        CaveSWTDialog dlg = new CaveSWTDialog(shell,
+                SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL, CAVE.DO_NOT_BLOCK) {
 
             @Override
             protected void initializeComponents(Shell shell) {
@@ -1060,8 +1037,8 @@ public class ProcedureDlg extends CaveSWTDialog {
                 imageLblComp.setLayoutData(gridData);
 
                 Label imageLbl = new Label(imageLblComp, SWT.NONE);
-                imageLbl.setImage(getDisplay()
-                        .getSystemImage(SWT.ICON_QUESTION));
+                imageLbl.setImage(
+                        getDisplay().getSystemImage(SWT.ICON_QUESTION));
 
                 Label label = new Label(imageLblComp, SWT.NONE);
 
@@ -1131,7 +1108,7 @@ public class ProcedureDlg extends CaveSWTDialog {
     /**
      * If there is a procedure dialog open for the given filename, return it,
      * otherwise null.
-     * 
+     *
      * @param fileName
      * @return the dialog if it's open for for the filename
      */
@@ -1144,12 +1121,13 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     /**
      * Get the ProcedureDlg for the given fileName and display it.
-     * 
+     *
      * @param fileName
      * @param p
      * @param parent
      */
-    public static void displayDialog(String fileName, Procedure p, Shell parent) {
+    public static void displayDialog(String fileName, Procedure p,
+            Shell parent) {
         synchronized (openDialogs) {
             ProcedureDlg dialog = getDialog(fileName);
             if (dialog == null || dialog.getShell() == null

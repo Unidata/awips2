@@ -24,8 +24,8 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 
 import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.raytheon.viz.core.graphing.GraphDescriptor;
-import com.raytheon.viz.core.slice.request.HeightScale;
 
 /**
  * Handles radar data that are not on a map or graph

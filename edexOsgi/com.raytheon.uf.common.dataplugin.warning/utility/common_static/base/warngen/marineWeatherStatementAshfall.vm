@@ -152,17 +152,17 @@ The areas affected include...
 #######################################################################
 #set($report = "!** YOU DIDN'T SELECT A REPORTER **! ${threatType}")
 #if(${list.contains(${bullets}, "seismic")})
-  #set($report = "seismic activity and satellite imagery indicated that !** ENTER VOLCANO NAME HERE **! was erupting#commaOrEllipsis()with ${stormline}#commaOrEllipsis()${threatType},")
+  #set($report = "seismic activity and satellite imagery indicated that !** ENTER VOLCANO NAME HERE **! was erupting, with ${stormline}, ${threatType},")
 #end
 #if(${list.contains(${bullets}, "reports")})
-  #set($report = "reports indicated that !** ENTER VOLCANO NAME HERE **! had erupted#commaOrEllipsis()with ${stormline}#commaOrEllipsis()${threatType},") 
+  #set($report = "reports indicated that !** ENTER VOLCANO NAME HERE **! had erupted, with ${stormline}, ${threatType},") 
 #end
 ## Storm current location description
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
 #thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})
-#commaOrEllipsis()${report} ##
+, ${report} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxMarineNearDistance}, ${overPhrase}, ${maxMarineOverDistance}, ${marineDistanceUnits}, ${useSecondReferenceLine})
@@ -172,7 +172,7 @@ THIS IS A TEST MESSAGE. ##
 #if(${movementSpeed} < ${marineStationary} || ${stationary})
 . nearly stationary.
 #else
-#commaOrEllipsis()moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} knots.
 #end
 
 #set($phenomena = "${pathheader}") 

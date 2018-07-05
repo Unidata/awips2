@@ -18,7 +18,12 @@
 #   2010/04/23  ryu  Initial port to AWIPS II.
 #
 # ----------------------------------------------------------------------------
-#
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 MenuItems = ["Verify"]
 
 from numpy import *

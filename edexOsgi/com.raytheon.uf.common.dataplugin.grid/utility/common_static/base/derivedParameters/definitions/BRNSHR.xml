@@ -18,10 +18,14 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter name="BRN Shear" abbreviation="BRNSHR">
     <Method levels="Layer" name="Poly">
-    	<ConstantField value="0.5"/>
-        <Field abbreviation="BRNmag"/>
-    	<ConstantField value="2.0"/>
+        <ConstantField value="0.5" />
+        <Field abbreviation="BRNmag" />
+        <ConstantField value="2.0" />
     </Method>
 </DerivedParameter>

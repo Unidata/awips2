@@ -18,14 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
     <!-- Volume Menu Item -->
     <contribute xsi:type="toolBarItem" toolItemName="Coordinate">
-        <contribute xsi:type="menuItem" menuText="All mb"
-            key="spatial-MB" />
+        <contribute xsi:type="menuItem" menuText="All mb" key="spatial-MB" />
         <contribute xsi:type="menuItem" menuText="All K" key="spatial-K" />
-        <contribute xsi:type="menuItem" menuText="All Tilts"
-            key="spatial-TILT" />
+        <contribute xsi:type="menuItem" menuText="All Tilts" key="spatial-TILT" />
     </contribute>
 </menuTemplate>

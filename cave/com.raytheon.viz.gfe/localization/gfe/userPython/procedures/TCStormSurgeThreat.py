@@ -47,7 +47,20 @@
 # This is because TCV rounds to nearest one foot for categorical HTI threat level consistency with inundation graphic. Not doing this would cause TCV to throw away zones that
 # might have more than 3% coverage of inundation > 1 but less than 1.5 altogether. Changing TCV to key on anything with InundationMax >= 1 would not
 # do because it would then include zones in TCV with inundation forecasts of less than 1 but >= 0.5 overdoing the threat.
+# 07/20/2017: Enabled PETSS option for 2018. PS
+# 10/11/2017: LeFebvre - GFE: tool failed due to an old grid being present (DR 20309)
+# 11/15/2017: Tweaked during SWiT to better handle extended PSurge/PETTS Guidance out to 102 hours, 
+# improved UpdateInunMax option and made changes to makeInundationTiming methods to accomodate new TCs for
+# the TPCSurgeProb and PETSS dbs.
+# 03/20/2018 Check in Pablo's fix.
+# 4/3/2018 - Additional fixes needed to enable Manual options to work out to 102 hours.
 #  ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace lower priority version of the file.
+##
+
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
 # Possible items are: Populate, Edit, Consistency, Verify, Hazards
@@ -63,7 +76,7 @@ import time
 import sys
 
 VariableList = [("DEFAULT: Typical. Should only be changed in coordination with NHC SS Unit", "", "label"),
-                ("Forecast Confidence? - (Applies to PHISH Only)", "Typical (10% Exceedance; for most systems anytime within 48 hours)",
+                ("Forecast Confidence? - (Applies to PHISH/PETSS Only)", "Typical (10% Exceedance; for most systems anytime within 48 hours)",
 ##                 "radio", ["Low (Prob-only; 10% Exceedance; for ill behaved systems)",
                  "radio", ["Typical (10% Exceedance; for most systems anytime within 48 hours)",
                            "Medium (20% Exceedance; for well-behaved systems within 12 hours of event)",
@@ -71,12 +84,11 @@ VariableList = [("DEFAULT: Typical. Should only be changed in coordination with 
                            "Higher (40% Exceedance; for well-behaved systems within 6 hours of the event)",
                            "Highest (50% Exceedance; for well-behaved systems at time of the event)"]),
                 ("Grid Smoothing?", "Yes", "radio", ["Yes","No"]),
-                ("Make grids from \nPHISH, ISC, or Manually?", "PHISH", "radio", ["PHISH", "ISC", "Manually Replace", "Manually Add", "UpdateInunMax (Edit Inundation Timing Grids)"]),
-#                ("Make grids from \nPHISH, PETSS, ISC, or Manually?", "PHISH", "radio", ["PHISH", "PETSS", "ISC", "Manually Replace", "Manually Add", "UpdateInunMax (Edit Inundation Timing Grids)"]),
+                ("Make grids from \nPHISH, PETSS, ISC, or Manually?", "PHISH", "radio", ["PHISH", "PETSS", "ISC", "Manually Replace", "Manually Add", "UpdateInunMax (Edit Inundation Timing Grids)"]),
                 ("Manual Inundation settings: Time ranges below relative to advisory model cycle", "", "label"),
                 ("Inundation Height:", 1.0, "scale", [0.0, 3.0], 0.1),
-                ("Start Hour for Inundation Timing", 0, "scale", [0.0, 72.0], 6.0),
-                ("End Hour for Inundation Timing", 6, "scale", [0.0, 78.0], 6.0),
+                ("Start Hour for Inundation Timing", 0, "scale", [0.0, 96.0], 6.0),
+                ("End Hour for Inundation Timing", 6, "scale", [0.0, 102.0], 6.0),
                 ]
 
 class Procedure (TropicalUtility.TropicalUtility):
@@ -165,8 +177,8 @@ class Procedure (TropicalUtility.TropicalUtility):
         if len(trList) == 0:  # No grids found for this database
             return None
 
-        baseTime = self.baseGuidanceTime() + (6 * 3600) # model data will be offset 6 hours
-        
+        baseTime = self.baseGuidanceTime()
+ 
         if baseTime > trList[0].startTime().unixTime():
             #modelCycle = AbsTime.AbsTime(self.baseGuidanceTime() - (6*3600))
             message = "BE CAREFUL: " + modelName + " IS STILL FROM A PREVIOUS ADVISORY/MODEL CYCLE"        
@@ -205,26 +217,18 @@ class Procedure (TropicalUtility.TropicalUtility):
 
         # Make timeRanges for all 13 grids. Start with the beginning of the first Phish grid
         baseTime = int(surgeTRList[0].startTime().unixTime() / (6 * 3600)) * (6 * 3600) #snap to 6 hour period
-        trList = self.makeTimingTRs(baseTime)
+        endTime = int(surgeTRList[-1].endTime().unixTime() / (6 * 3600)) * (6 * 3600) #snap to 6 hour period
+        if endTime < surgeTRList[-1].endTime().unixTime():
+            endTime += 6 * 3600
+        trList = self.makeTimingTRs(baseTime, endTime)
                
         timingGrids = []
         
-        n = 1
+        self.deleteAllGrids(["InundationTiming"])
         for tr in trList:
-            start = tr.startTime().unixTime() - 6*3600
-            if n == 1:
-                starttimeghls = tr.startTime().unixTime() - 48*3600
-                trdelete = TimeRange.TimeRange(AbsTime.AbsTime(starttimeghls - 100*3600),
-                                               AbsTime.AbsTime(starttimeghls + 160*3600))
-                self.deleteCmd(['InundationTiming'], trdelete)
-                n = n + 1   
-            end = tr.startTime().unixTime()
-            tr6 = TimeRange.TimeRange(AbsTime.AbsTime(start),
-                                      AbsTime.AbsTime(end))
-            
-            surgeTR = TimeRange.TimeRange(tr.startTime(), AbsTime.AbsTime(tr.startTime().unixTime() + 3600))
-            if surgeTR in surgeTRList:
-                phishGrid = self.getGrids(dbName, weName, level, surgeTR)
+
+            if tr in surgeTRList:
+                phishGrid = self.getGrids(dbName, weName, level, tr)
             else:
                 phishGrid = self.empty()
                 
@@ -253,7 +257,7 @@ class Procedure (TropicalUtility.TropicalUtility):
             grid[~ssea] = 0.0
             grid[MHHWMask] = 0.0
             timingGrids.append(grid)
-            self.createGrid(mutableID, "InundationTiming", "SCALAR", grid, tr6, precision=1)
+            self.createGrid(mutableID, "InundationTiming", "SCALAR", grid, tr, precision=1)
 
         return trList,timingGrids
 
@@ -350,20 +354,28 @@ class Procedure (TropicalUtility.TropicalUtility):
         baseTime = self.baseGuidanceTime()
 
         # Remove all the grids first before replacing them later
-            
+
         self.deleteCmd(elementList, TimeRange.allTimes())
- 
+
+        # Ensure we're not fetching older ISC grids to avoid the ISC purge bug by
+        # fetching ISC grids within a specific window.
+        allTimes = TimeRange.allTimes()
+        iscStart = AbsTime.AbsTime(baseTime - (10 * 3600)) # 10 hours before the baseTime
+        iscEnd = allTimes.endTime()  # Latest time possible
+        ISCTRWindow = TimeRange.TimeRange(iscStart, iscEnd)
+
 # Amended To distinguish when inundation grids are available but not datum ones.
         for weName in elementList:
             #print "Processing ISC ", weName
             GridsCheck = True
             iscWeName = weName + "nc"
             # get the inventory for the ISC grids
+
             try:
-                trList = self.GM_getWEInventory(iscWeName, "ISC", "SFC")
+                trList = self.GM_getWEInventory(iscWeName, "ISC", "SFC", ISCTRWindow)
             except:
                 GridsCheck = False
-            
+
             if len(trList) == 0:
                 GridsCheck = False
 
@@ -408,22 +420,25 @@ class Procedure (TropicalUtility.TropicalUtility):
         return surgePctGrid,surgePctGridMSL,surgePctGridMLLW,surgePctGridMHHW,surgePctGridNAVD
     
     # Make a list of timeRanges that will be used to make InundationTiming grids
-    def makeTimingTRs(self, baseTime):
+    def makeTimingTRs(self, baseTime, endTime):
         # Make the inundation timing grids
         trList = []
-        for t in range(0, 78, 6):
-            start = baseTime + t * 3600
-            end = baseTime + (t + 6) * 3600
+        start = baseTime
+        end = baseTime + 6 * 3600
+        while end <= endTime:
             tr = TimeRange.TimeRange(AbsTime.AbsTime(start), AbsTime.AbsTime(end))
             trList.append(tr)
-        
+            start = end
+            end += 6 * 3600
+
         return trList
     
     def getTimingGrids(self):
         
         baseTime = self.baseGuidanceTime()
-        gridList = []
-        trList = self.makeTimingTRs(baseTime)
+        endTime = baseTime + 102 * 3600
+        gridList= []
+        trList = self.makeTimingTRs(baseTime, endTime)
         
         for tr in trList:
             timingGrid = self.empty()
@@ -443,14 +458,14 @@ class Procedure (TropicalUtility.TropicalUtility):
         # See if we should copy from ISC. If so, do the copy and exit
         smoothThreatGrid = varDict["Grid Smoothing?"]
 
-        makeOption = varDict["Make grids from \nPHISH, ISC, or Manually?"] 
+        makeOption = varDict["Make grids from \nPHISH, PETSS, ISC, or Manually?"] 
         topodb = "NED"
 
         ssea = self.encodeEditArea("StormSurgeWW_EditArea")
 
         Topo = self.getAvgTopoGrid(topodb)
 
-        confidenceStr = varDict["Forecast Confidence? - (Applies to PHISH Only)"]
+        confidenceStr = varDict["Forecast Confidence? - (Applies to PHISH/PETSS Only)"]
              
         # extract the percent value from this string
         pctPos = confidenceStr.find("%")
@@ -585,8 +600,7 @@ class Procedure (TropicalUtility.TropicalUtility):
             surgePctGrid = self.empty()
 
             # Fetch the old grids if we're adding
-            #if varDict["Make grids from \nPHISH, PETSS, ISC, or Manually?"] == "Manually Add":
-            if varDict["Make grids from \nPHISH, ISC, or Manually?"] == "Manually Add":
+            if varDict["Make grids from \nPHISH, PETSS, ISC, or Manually?"] == "Manually Add":
                 imTRList = self.GM_getWEInventory("InundationMax", mutableID, "SFC")
                 if len(imTRList) > 0:
                     imTR = imTRList[0]
@@ -639,7 +653,15 @@ class Procedure (TropicalUtility.TropicalUtility):
                 for i in range(len(trList)):
                     itGrids[i][modifyMask] = inundationHeight # poke in the values
                     
-                    self.createGrid(mutableID, "InundationTiming", "SCALAR", itGrids[i], trList[i])  
+                    self.createGrid(mutableID, "InundationTiming", "SCALAR", itGrids[i], trList[i]) 
+ 
+                timingGrids = []
+                for tr in itTRList:
+                    grid = self.getGrids(self.mutableID(), "InundationTiming", "SFC", tr)
+                    grid[~ssea] = 0.0
+                    timingGrids.append(grid)               
+                
+                surgePctGrid = self.makeInundationMaxGrid(timingGrids, itTRList) 
 
         elif makeOption == "UpdateInunMax (Edit Inundation Timing Grids)":
             
@@ -657,15 +679,13 @@ class Procedure (TropicalUtility.TropicalUtility):
             # Fetch all the timing grids
             for tr in itTRList:
                 grid = self.getGrids(self.mutableID(), "InundationTiming", "SFC", tr)
+                grid[~ssea] = 0.0
                 timingGrids.append(grid)
+                self.deleteGrid(mutableID, "InundationTiming", "SFC", tr)
+                self.createGrid(mutableID, "InundationTiming", "SCALAR", grid, tr, precision=1)
                                
         # Finally create the surge grid which will be saved as the InundationMax
                
-            try:
-                surgePctGrid = self.empty(np.float32)
-            except AttributeError:
-                surgePctGrid = self.empty()
-            
             surgePctGrid = self.makeInundationMaxGrid(timingGrids, itTRList)
 
             #return
@@ -769,3 +789,4 @@ class Procedure (TropicalUtility.TropicalUtility):
         LogStream.logEvent("Finished TCStormSurgeThreat in %f.4 ms" % ((t1-t0) * 1000))
 
         return
+

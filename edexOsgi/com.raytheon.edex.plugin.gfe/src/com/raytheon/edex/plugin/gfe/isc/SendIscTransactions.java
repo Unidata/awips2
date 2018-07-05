@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,6 +33,7 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
+import com.raytheon.edex.plugin.gfe.db.dao.IscSendRecordDao;
 import com.raytheon.edex.plugin.gfe.isc.IscSendRecord.IscSendState;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -43,21 +44,20 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
 
 /**
  * Utility functions for IscSendJob and ISCSendQueue.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 20, 2011            dgilling     Initial creation
- * May 08, 2012  #600      dgilling     Refactor to match IscSendRecord
- *                                      changes.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -----------------------------------------
+ * Oct 20, 2011           dgilling  Initial creation
+ * May 08, 2012  600      dgilling  Refactor to match IscSendRecord changes.
+ * Feb 02, 2017  3847     randerso  Renamed parmId field
+ *
  * </pre>
- * 
+ *
  * @author dgilling
- * @version 1.0
  */
 
 public class SendIscTransactions {
@@ -74,13 +74,20 @@ public class SendIscTransactions {
         throw new AssertionError();
     }
 
+    /**
+     * Get the next ISC send job to be run
+     *
+     * @param runningTimeOutMillis
+     *            time out, in milliseconds, for currently running job
+     * @return the next send job
+     */
     @SuppressWarnings("unchecked")
     public static IscSendRecord getNextSendJob(long runningTimeOutMillis) {
         Session sess = null;
         Transaction trans = null;
 
         try {
-            CoreDao dao = new CoreDao(DaoConfig.DEFAULT);
+            IscSendRecordDao dao = new IscSendRecordDao();
             sess = dao.getSessionFactory().openSession();
             trans = sess.beginTransaction();
 
@@ -104,8 +111,8 @@ public class SendIscTransactions {
                                 record.getKey(), LockOptions.UPGRADE);
                         // double check to make sure another process hasn't
                         // already grabbed it and the run didn't finish
-                        if (record != null
-                                && record.getInsertTime().getTime() < timeOutCheck) {
+                        if ((record != null) && (record.getInsertTime()
+                                .getTime() < timeOutCheck)) {
                             handler.info("Running IscSendJob "
                                     + record.toString()
                                     + " timed out.  Rerunning IscSendJob.");
@@ -125,14 +132,14 @@ public class SendIscTransactions {
 
             if (!currentlyRunning.isEmpty()) {
                 // exclude the running send jobs
-                Collection<ParmID> runningInits = new ArrayList<ParmID>(
+                Collection<ParmID> runningInits = new ArrayList<>(
                         currentlyRunning.size());
                 for (IscSendRecord record : currentlyRunning) {
-                    runningInits.add(record.getParmID());
+                    runningInits.add(record.getParmId());
                 }
 
                 baseCrit = Restrictions.and(baseCrit, Restrictions
-                        .not(Restrictions.in("parmID", runningInits)));
+                        .not(Restrictions.in("parmId", runningInits)));
             }
 
             queuedCrit.add(baseCrit);
@@ -165,8 +172,7 @@ public class SendIscTransactions {
                 try {
                     trans.rollback();
                 } catch (HibernateException e) {
-                    handler.handle(
-                            Priority.WARN,
+                    handler.handle(Priority.WARN,
                             "Unable to rollback available ISC send job session",
                             e);
                 }
@@ -177,7 +183,8 @@ public class SendIscTransactions {
                     sess.close();
                 } catch (HibernateException e) {
                     handler.handle(Priority.WARN,
-                            "Unable to close available ISC send job session", e);
+                            "Unable to close available ISC send job session",
+                            e);
                 }
             }
         }
@@ -185,6 +192,12 @@ public class SendIscTransactions {
         return null;
     }
 
+    /**
+     * Remove an ISC send job from the database
+     *
+     * @param record
+     *            the ISC send job to be removed
+     */
     public static void removeSendJob(IscSendRecord record) {
         Session sess = null;
         Transaction tx = null;
@@ -210,7 +223,8 @@ public class SendIscTransactions {
                     tx.rollback();
                 } catch (HibernateException e) {
                     handler.handle(Priority.WARN,
-                            "Unable to rollback ISC send job remove session", e);
+                            "Unable to rollback ISC send job remove session",
+                            e);
                 }
             }
         } finally {

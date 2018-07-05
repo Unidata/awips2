@@ -20,10 +20,11 @@
     -->
 <?eclipse version="3.2"?>
 <plugin>
+   <extension-point id="com.raytheon.viz.grid.ext" name="GridExtension" schema="schema/com.raytheon.viz.grid.ext.exsd"/>
    <extension
          point="com.raytheon.uf.viz.core.resource">
       <resource
-            class="com.raytheon.viz.grid.rsc.RcmResource"
+            class="com.raytheon.uf.viz.d2d.grid.RcmResource"
             name="RcmResource"
             recordClass="com.raytheon.uf.common.dataplugin.grid.GridRecord"
             renderingOrderId="IMAGE_COUNTRY"
@@ -70,4 +71,13 @@
            </menu>
         </menuContribution>
      </extension>
+   <extension
+         point="com.raytheon.uf.viz.localization.perspective.localizationpath">
+      <path
+            application="EDEX"
+            localizationType="COMMON_STATIC"
+            name="Parameter"
+            value="parameter"
+            recursive="true" />
+   </extension>
 </plugin>

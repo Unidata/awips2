@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: AWIPS Personality Plug-in
 Bundle-SymbolicName: com.raytheon.viz.ui.personalities.awips;singleton:=true
-Bundle-Version: 1.12.1174.qualifier
+Bundle-Version: 1.17.0.qualifier
 Bundle-Activator: com.raytheon.viz.ui.personalities.awips.Activator
 Bundle-Vendor: Raytheon
 Require-Bundle: org.eclipse.ui,
@@ -14,20 +14,21 @@ Require-Bundle: org.eclipse.ui,
  javax.measure,
  com.raytheon.uf.viz.alertviz,
  com.raytheon.uf.viz.alertviz.ui,
- com.raytheon.uf.common.serialization.comm;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization.comm,
  org.eclipse.core.resources;bundle-version="3.6.0",
- com.raytheon.uf.viz.ui.menus;bundle-version="1.12.1174",
- com.raytheon.uf.common.menus;bundle-version="1.12.1174",
- com.raytheon.uf.viz.application;bundle-version="1.0.0",
- com.raytheon.viz.alerts;bundle-version="1.12.1174",
- com.raytheon.uf.common.comm;bundle-version="1.12.1174",
+ com.raytheon.uf.viz.ui.menus,
+ com.raytheon.uf.common.menus,
+ com.raytheon.uf.viz.application,
+ com.raytheon.viz.alerts,
+ com.raytheon.uf.common.comm,
  com.raytheon.uf.viz.personalities.cave;bundle-version="1.0.0";visibility:=reexport,
  com.raytheon.uf.viz.spring.dm,
  org.eclipse.e4.ui.workbench,
  org.eclipse.e4.ui.model.workbench,
- org.eclipse.e4.core.di.annotations
+ org.eclipse.e4.core.di.annotations,
+ org.slf4j;bundle-version="1.7.21"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: com.raytheon.viz.ui.personalities.awips
 Import-Package: com.raytheon.uf.common.pypies,
  com.raytheon.uf.viz.core.maps

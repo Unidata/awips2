@@ -23,8 +23,16 @@
 # Nov 13-18 2016 - Further tweaks made during SWIT testing
 # Dec 15, 2016 - Added UpdateInunMax option
 # Dec 21, 2016 - Deleted saveElements line in main execute
+# 11/15/2017: Tweaked during SWiT to better handle extended PSurge/PETTS Guidance out to 102 hours, 
+# improved UpdateInunMax option and made changes to makeInundationTiming methods to accommodate new TCs for
+# the TPCSurgeProb and PETSS dbs.
 #
 ########################################################################
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -79,7 +87,7 @@ class Procedure (TropicalUtility.TropicalUtility):
 
         siteID = self.getSiteID()
         if modelSource == "PETSS":
-            dbName = siteID + "_D2D_" + modelSource
+            dbName = siteID + "_D2D_" + modelSource + "LoRes"
         else:
             dbName = siteID + "_D2D_TPCSurgeProb" + modelSource
 
@@ -99,7 +107,7 @@ class Procedure (TropicalUtility.TropicalUtility):
 
         siteID = self.getSiteID()
         if modelSource == "PETSS":
-            dbName = siteID + "_D2D_" + modelSource
+            dbName = siteID + "_D2D_" + modelSource + "LoRes"
         else:
             dbName = siteID + "_D2D_TPCSurgeProb" + modelSource        
         
@@ -131,7 +139,7 @@ class Procedure (TropicalUtility.TropicalUtility):
 
         siteID = self.getSiteID()
         if modelSource == "PETSS":
-            dbName = siteID + "_D2D_" + modelSource
+            dbName = siteID + "_D2D_" + modelSource + "LoRes"
         else:
             dbName = siteID + "_D2D_TPCSurgeProb" + modelSource
         
@@ -145,15 +153,14 @@ class Procedure (TropicalUtility.TropicalUtility):
             return
 
         # make timeRanges based on the current time not the time of the model
-        timingTRList = self.makeTimingTRs(self.baseGuidanceTime())
+        baseTime = int(trList[0].startTime().unixTime() / (6 * 3600)) * (6 * 3600) #snap to 6 hour period
+        endTime = int(trList[-1].endTime().unixTime() / (6 * 3600)) * (6 * 3600) #snap to 6 hour period
+        if endTime < trList[-1].endTime().unixTime():
+            endTime += 6 * 3600
+        timingTRList = self.makeTimingTRs(baseTime, endTime)
 
         gridList = []
         for tr in trList:
-            start = tr.startTime().unixTime() - 6 * 3600
-            end = tr.startTime().unixTime()
-            tr6 = TimeRange.TimeRange(AbsTime.AbsTime(start),
-                                      AbsTime.AbsTime(end))
-
             phishGrid = self.getGrids(dbName, weName, level, tr)
             if phishGrid is None:
                 self.statusBarMsg("No PHISH grid available for:" + repr(tr), "S")
@@ -386,21 +393,24 @@ class Procedure (TropicalUtility.TropicalUtility):
         return startTime
 
     # Make a list of timeRanges that will be used to make InundationTiming grids
-    def makeTimingTRs(self, baseTime):
+    def makeTimingTRs(self, baseTime, endTime):
         # Make the inundation timing grids
         trList = []
-        for t in range(0, 78, 6):
-            start = baseTime + t * 3600
-            end = baseTime + (t + 6) * 3600
+        start = baseTime
+        end = baseTime + 6 * 3600
+        while end <= endTime:
             tr = TimeRange.TimeRange(AbsTime.AbsTime(start), AbsTime.AbsTime(end))
             trList.append(tr)
+            start = end
+            end += 6 * 3600
 
         return trList
 
     def getTimingGrids(self):
 
         baseTime = self.baseGuidanceTime()
-        trList = self.makeTimingTRs(baseTime)
+        endTime = baseTime + 78 * 3600
+        trList = self.makeTimingTRs(baseTime, endTime)
 
         gridList = []
         for tr in trList:
@@ -703,15 +713,13 @@ class Procedure (TropicalUtility.TropicalUtility):
             # Fetch all the timing grids
             for tr in itTRList:
                 grid = self.getGrids(self.mutableID(), "InundationTiming", "SFC", tr)
+                grid[~ssea] = 0.0
                 timingGrids.append(grid)
+                self.deleteGrid(mutableID, "InundationTiming", "SFC", tr)
+                self.createGrid(mutableID, "InundationTiming", "SCALAR", grid, tr, precision=1)
                                
         # Finally create the surge grid which will be saved as the InundationMax
                
-            try:
-                surgePctGrid = self.empty(np.float32)
-            except AttributeError:
-                surgePctGrid = np.zeros(self.getGridShape(), np.float32)
-            
             surgePctGrid = self.makeInundationMaxGrid(timingGrids, itTRList)
 
             #return

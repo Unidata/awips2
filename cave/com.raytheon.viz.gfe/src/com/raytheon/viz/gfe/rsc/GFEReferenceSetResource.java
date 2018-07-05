@@ -35,6 +35,8 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.FillPatterns;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
@@ -43,7 +45,6 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.raytheon.viz.gfe.core.IReferenceSetManager;
 import com.raytheon.viz.gfe.core.msgs.IReferenceSetChangedListener;
 import com.raytheon.viz.gfe.core.msgs.Message;
@@ -63,13 +64,12 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  * 02/14/2013       #1506   mnash       Use the new Python concurrency for QueryScript
  * 02/26/2013       #1708   randerso    Changed to not evaluate the ref set
  * 02/19/2014       #2819   randerso    Removed unnecessary .clone() call
+ * 09/14/2016       #3241   bsteffen    Update deprecated JTSCompiler method calls
  * 
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
-
 public class GFEReferenceSetResource extends
         AbstractVizResource<AbstractResourceData, IMapDescriptor> implements
         IMessageClient, IReferenceSetChangedListener {
@@ -153,10 +153,13 @@ public class GFEReferenceSetResource extends
         outlineShape = target.createWireframeShape(false, this.descriptor);
 
         shadedShape = target.createShadedShape(false,
-                this.descriptor.getGridGeometry(), true);
+                this.descriptor.getGridGeometry());
 
         JTSCompiler jtsCompiler = new JTSCompiler(shadedShape, outlineShape,
                 this.descriptor);
+        JTSGeometryData jtsData = jtsCompiler.createGeometryData();
+        jtsData.setGeometryColor(
+                getCapability(ColorableCapability.class).getColor());
 
         this.needsUpdate = false;
         ReferenceData refData = this.refSetMgr.getActiveRefSet();
@@ -169,8 +172,7 @@ public class GFEReferenceSetResource extends
                 MapUtil.getGridGeometry(refData.getGloc()), Type.GRID_CENTER);
 
         try {
-            jtsCompiler.handle(rc, getCapability(ColorableCapability.class)
-                    .getColor());
+            jtsCompiler.handle(rc, jtsData);
         } catch (VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }

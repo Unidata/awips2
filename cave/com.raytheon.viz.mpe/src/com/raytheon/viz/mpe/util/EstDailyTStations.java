@@ -19,12 +19,12 @@
  **/
 package com.raytheon.viz.mpe.util;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
 
 /**
- * TODO Add Description
+ * Estimates the daily MPE temperature stations.
  * 
  * <pre>
  * 
@@ -32,23 +32,24 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 10, 2009            snaples     Initial creation
+ * Mar 10, 2017  19625     snaples     Fixed erroneous estimates.
+ * Oct 03, 2017  6407      bkowal      Eliminated warnings.
+ * Oct 04, 2017  19908     snaples     Added check for neighbors to not exceed station count.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class EstDailyTStations {
 
-    DailyQcUtils dqc = DailyQcUtils.getInstance();
-    
-    public void estimate_daily_tstations(int j,
-            ArrayList<Station> temperature_stations, int numTstations) {
+    private DailyQcUtils dqc = DailyQcUtils.getInstance();
 
-        int isom = dqc.isom;
-        int maxmin_used = dqc.maxmin_used;
-        int mpe_dqc_max_temp_neighbors = dqc.mpe_dqc_max_temp_neighbors;
+    public void estimate_daily_tstations(int j,
+            List<Station> temperature_stations, int numTstations) {
+        int isom = DailyQcUtils.isom;
+        boolean maxmin_used = dqc.maxmin_used;
+        int mpe_dqc_max_temp_neighbors = DailyQcUtils.mpe_dqc_max_temp_neighbors;
         int mpe_dqc_min_good_stations = dqc.mpe_dqc_min_good_stations;
         int max_tstations = numTstations;
         int m, k, i, l, ii;
@@ -59,10 +60,14 @@ public class EstDailyTStations {
         float temp_climo1 = 0;
         int h;
 
-        if (dqc.tdata[j].data_time == null) {
+        if (DailyQcUtils.tdata[j].data_time == null) {
             return;
         }
 
+        if ( mpe_dqc_max_temp_neighbors > max_tstations){
+            mpe_dqc_max_temp_neighbors = max_tstations;
+        }
+        
         for (m = 0; m < max_tstations; m++) {
 
             /* Don't estimate missing 24 hour tstations */
@@ -71,7 +76,7 @@ public class EstDailyTStations {
              * in relation to the max/min temperatures to missing.
              */
             for (h = 0; h < 4; h++) {
-                dqc.tdata[j].tstn[m].tlevel2[h].a = -99;
+                DailyQcUtils.tdata[j].tstn[m].tlevel2[h].a = -99;
             }
 
             /*
@@ -79,10 +84,11 @@ public class EstDailyTStations {
              * all four six hour periods and the max/min.
              */
             for (h = 0; h < 6; h++) {
-                if (dqc.tdata[j].tstn[m].tlevel2[h].data == -99
-                        || (dqc.tdata[j].tstn[m].tlevel2[h].qual != 0
-                                && dqc.tdata[j].tstn[m].tlevel2[h].qual != 8
-                                && dqc.tdata[j].tstn[m].tlevel2[h].qual != 3 && dqc.tdata[j].tstn[m].tlevel2[h].qual != 2)) {
+                if (DailyQcUtils.tdata[j].tstn[m].tlevel2[h].data == -99
+                        || (DailyQcUtils.tdata[j].tstn[m].tlevel2[h].qual != 0
+                                && DailyQcUtils.tdata[j].tstn[m].tlevel2[h].qual != 8
+                                && DailyQcUtils.tdata[j].tstn[m].tlevel2[h].qual != 3
+                                && DailyQcUtils.tdata[j].tstn[m].tlevel2[h].qual != 2)) {
                     break;
                 }
             }
@@ -98,10 +104,12 @@ public class EstDailyTStations {
                  * station should not be used to estimate the temperature values
                  * of neighboring stations.
                  */
-                if ((dqc.tdata[j].tstn[m].tlevel2[h].data >= dqc.tdata[j].tstn[m].tlevel2[5].data)
-                        && (dqc.tdata[j].tstn[m].tlevel2[h].data <= dqc.tdata[j].tstn[m].tlevel2[4].data)) {
-                    dqc.tdata[j].tstn[m].tlevel2[h].a = (dqc.tdata[j].tstn[m].tlevel2[h].data - dqc.tdata[j].tstn[m].tlevel2[5].data)
-                            / (dqc.tdata[j].tstn[m].tlevel2[4].data - dqc.tdata[j].tstn[m].tlevel2[5].data);
+                if ((DailyQcUtils.tdata[j].tstn[m].tlevel2[h].data >= DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data)
+                        && (DailyQcUtils.tdata[j].tstn[m].tlevel2[h].data <= DailyQcUtils.tdata[j].tstn[m].tlevel2[4].data)) {
+                    DailyQcUtils.tdata[j].tstn[m].tlevel2[h].a = (DailyQcUtils.tdata[j].tstn[m].tlevel2[h].data
+                            - DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data)
+                            / (DailyQcUtils.tdata[j].tstn[m].tlevel2[4].data
+                                    - DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data);
                 }
 
             }
@@ -115,8 +123,8 @@ public class EstDailyTStations {
              * non-time-distributed data, then do not estimate for this station.
              */
             for (k = 0; k < 4; k++) {
-                if (dqc.tdata[j].tstn[m].tlevel2[k].data != -99
-                        && dqc.tdata[j].tstn[m].tlevel2[k].qual != 6) {
+                if (DailyQcUtils.tdata[j].tstn[m].tlevel2[k].data != -99
+                        && DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual != 6) {
                     break;
                 }
             }
@@ -130,15 +138,15 @@ public class EstDailyTStations {
              * erases previously time distributed data.
              */
             for (k = 0; k < 4; k++) {
-                dqc.tdata[j].tstn[m].tlevel2[k].data = -99;
+                DailyQcUtils.tdata[j].tstn[m].tlevel2[k].data = -99;
             }
 
             /*
              * If either or both the max/min values are missing, then do not
              * estimate for this station.
              */
-            if (dqc.tdata[j].tstn[m].tlevel2[4].data == -99
-                    || dqc.tdata[j].tstn[m].tlevel2[5].data == -99) {
+            if (DailyQcUtils.tdata[j].tstn[m].tlevel2[4].data == -99
+                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data == -99) {
                 continue;
             }
 
@@ -146,10 +154,10 @@ public class EstDailyTStations {
              * If the max/min value is bad, then do not estimate for this
              * station.
              */
-            if (dqc.tdata[j].tstn[m].tlevel2[4].qual == 1
-                    || dqc.tdata[j].tstn[m].tlevel2[4].qual == 5
-                    || dqc.tdata[j].tstn[m].tlevel2[5].qual == 1
-                    || dqc.tdata[j].tstn[m].tlevel2[5].qual == 5) {
+            if (DailyQcUtils.tdata[j].tstn[m].tlevel2[4].qual == 1
+                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[4].qual == 5
+                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[5].qual == 1
+                    || DailyQcUtils.tdata[j].tstn[m].tlevel2[5].qual == 5) {
                 continue;
             }
 
@@ -157,9 +165,9 @@ public class EstDailyTStations {
             lon1 = temperature_stations.get(m).lon;
 
             /* Retrieve the climate information for this station. */
-            if (maxmin_used == 1) {
-                temp_climo1 = (temperature_stations.get(m).max[isom] + temperature_stations
-                        .get(m).min[isom]) / 2;
+            if (maxmin_used) {
+                temp_climo1 = (temperature_stations.get(m).max[isom]
+                        + temperature_stations.get(m).min[isom]) / 2;
             }
 
             /* For each six hour period ... */
@@ -178,24 +186,24 @@ public class EstDailyTStations {
 
                     /* dont estimate unless good or forced good */
 
-                    if (dqc.tdata[j].tstn[i].tlevel2[k].qual != 0
-                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 8
-                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 3
-                            && dqc.tdata[j].tstn[i].tlevel2[k].qual != 2) {
+                    if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 0
+                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 8
+                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 3
+                            && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 2) {
                         continue;
                     }
 
                     /* dont use missing tstations */
 
-                    if (dqc.tdata[j].tstn[i].tlevel2[k].data == -99
-                            || dqc.tdata[j].tstn[i].tlevel2[k].a < -98) {
+                    if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].data == -99
+                            || DailyQcUtils.tdata[j].tstn[i].tlevel2[k].a < -98) {
                         continue;
                     }
 
                     /* Retrieve the climate information for this station. */
-                    if (maxmin_used == 1) {
-                        temp_climo = (temperature_stations.get(i).max[isom] + temperature_stations
-                                .get(i).min[isom]) / 2;
+                    if (maxmin_used) {
+                        temp_climo = (temperature_stations.get(i).max[isom]
+                                + temperature_stations.get(i).min[isom]) / 2;
                     }
 
                     /* Compute distance between stations. */
@@ -212,25 +220,23 @@ public class EstDailyTStations {
                     df = 50 * (Math.abs(temperature_stations.get(m).elev
                             - temperature_stations.get(i).elev) / 5280);
 
-                    dist = dist + df;
+                    dist += df;
 
                     if (dist == 0.0) {
                         dist = .000001;
                     }
                     dist = 1 / dist;
 
-                    if ((maxmin_used == 1) && (temp_climo1 > -99)
+                    if ((maxmin_used) && (temp_climo1 > -99)
                             && (temp_climo > -99)) {
-                        fdata = fdata
-                                + dqc.tdata[j].tstn[i].tlevel2[k].a
+                        fdata += DailyQcUtils.tdata[j].tstn[i].tlevel2[k].a
                                 * dist * (temp_climo1 / temp_climo);
                     } else {
-                        fdata = fdata
-                                + dqc.tdata[j].tstn[i].tlevel2[k].a
+                        fdata += DailyQcUtils.tdata[j].tstn[i].tlevel2[k].a
                                 * dist;
                     }
 
-                    fdist = fdist + dist;
+                    fdist += dist;
 
                     l++;
 
@@ -253,22 +259,23 @@ public class EstDailyTStations {
                             continue;
                         }
 
-                        if (dqc.tdata[j].tstn[i].tlevel2[k].qual != 0
-                                && dqc.tdata[j].tstn[i].tlevel2[k].qual != 8
-                                && dqc.tdata[j].tstn[i].tlevel2[k].qual != 3
-                                && dqc.tdata[j].tstn[i].tlevel2[k].qual != 2) {
+                        if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 0
+                                && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 8
+                                && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 3
+                                && DailyQcUtils.tdata[j].tstn[i].tlevel2[k].qual != 2) {
                             continue;
                         }
 
-                        if (dqc.tdata[j].tstn[i].tlevel2[k].data == -99
-                                || dqc.tdata[j].tstn[i].tlevel2[k].a < -98) {
+                        if (DailyQcUtils.tdata[j].tstn[i].tlevel2[k].data == -99
+                                || DailyQcUtils.tdata[j].tstn[i].tlevel2[k].a < -98) {
                             continue;
                         }
 
                         /* Retrieve the climate information for this station. */
-                        if (maxmin_used == 1) {
-                            temp_climo = (temperature_stations.get(i).max[isom] + temperature_stations
-                                    .get(i).min[isom]) / 2;
+                        if (maxmin_used) {
+                            temp_climo = (temperature_stations.get(i).max[isom]
+                                    + temperature_stations.get(i).min[isom])
+                                    / 2;
                         }
 
                         lat = temperature_stations.get(i).lat;
@@ -282,15 +289,12 @@ public class EstDailyTStations {
 
                         dist = Math.pow(dist, .5) * 60;
 
-                        // GeodeticCalculator gc = new GeodeticCalculator();
-                        // gc.setStartingGeographicPoint(lon1, lat1);
-                        // gc.setDestinationGeographicPoint(lon, lat);
-                        // dist = gc.getOrthodromicDistance();
+                        df = 50 * (Math
+                                .abs(temperature_stations.get(m).elev
+                                        - temperature_stations.get(i).elev)
+                                / 5280);
 
-                        df = 50 * (Math.abs(temperature_stations.get(m).elev
-                                - temperature_stations.get(i).elev) / 5280);
-
-                        dist = dist + df;
+                        dist += df;
 
                         if (dist == 0.0) {
                             dist = .000001;
@@ -298,18 +302,16 @@ public class EstDailyTStations {
 
                         dist = 1 / dist;
 
-                        if ((maxmin_used == 1) && (temp_climo1 > -99)
+                        if ((maxmin_used) && (temp_climo1 > -99)
                                 && (temp_climo > -99)) {
-                            fdata = fdata
-                                    + dqc.tdata[j].tstn[i].tlevel2[k].a
+                            fdata += DailyQcUtils.tdata[j].tstn[i].tlevel2[k].a
                                     * dist * (temp_climo1 / temp_climo);
                         } else {
-                            fdata = fdata
-                                    + dqc.tdata[j].tstn[i].tlevel2[k].a
+                            fdata += DailyQcUtils.tdata[j].tstn[i].tlevel2[k].a
                                     * dist;
                         }
 
-                        fdist = fdist + dist;
+                        fdist += dist;
 
                         l++;
 
@@ -318,13 +320,13 @@ public class EstDailyTStations {
                 }
 
                 if (l != 0) {
-
-                    dqc.tdata[j].tstn[m].tlevel2[k].a = (float) (fdata / fdist);
-                    dqc.tdata[j].tstn[m].tlevel2[k].data = dqc.tdata[j].tstn[m].tlevel2[k].a
-                            * (dqc.tdata[j].tstn[m].tlevel2[4].data - dqc.tdata[j].tstn[m].tlevel2[5].data)
-                            + dqc.tdata[j].tstn[m].tlevel2[5].data;
-                    dqc.tdata[j].tstn[m].tlevel2[k].qual = 6;
-
+                    DailyQcUtils.tdata[j].tstn[m].tlevel2[k].a = (float) (fdata
+                            / fdist);
+                    DailyQcUtils.tdata[j].tstn[m].tlevel2[k].data = DailyQcUtils.tdata[j].tstn[m].tlevel2[k].a
+                            * (DailyQcUtils.tdata[j].tstn[m].tlevel2[4].data
+                                    - DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data)
+                            + DailyQcUtils.tdata[j].tstn[m].tlevel2[5].data;
+                    DailyQcUtils.tdata[j].tstn[m].tlevel2[k].qual = 6;
                 }
             }
         }

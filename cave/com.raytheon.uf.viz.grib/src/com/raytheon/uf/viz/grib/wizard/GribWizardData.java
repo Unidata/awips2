@@ -24,7 +24,7 @@ import java.nio.file.Path;
 import com.raytheon.uf.common.grib.GridModel;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.viz.volumebrowser.xml.VbSource;
+import com.raytheon.uf.common.menus.vb.VbSource;
 
 /**
  * 

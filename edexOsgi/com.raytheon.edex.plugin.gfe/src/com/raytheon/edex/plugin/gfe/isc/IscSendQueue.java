@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,11 +34,15 @@ import org.hibernate.LockOptions;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.hibernate.Transaction;
-import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Restrictions;
 
 import com.raytheon.edex.plugin.gfe.isc.IscSendRecord.IscSendState;
+import com.raytheon.edex.plugin.gfe.server.IFPServer;
+import com.raytheon.edex.plugin.gfe.server.database.GridDatabase;
+import com.raytheon.edex.plugin.gfe.server.database.IFPGridDatabase;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
+import com.raytheon.uf.common.dataplugin.gfe.exception.UnknownParmIdException;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SerializationUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -52,25 +56,24 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
 
 /**
  * ISC send task aggregator/queue for Camel
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 20, 2011            dgilling    Initial creation
- * May 08, 2012 600        dgilling    Re-work logic for handling PENDING
- *                                     records.
- * Feb 07, 2014 2357       rjpeter     iscSendNotification uri.
- * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Oct 20, 2011           dgilling  Initial creation
+ * May 08, 2012  600      dgilling  Re-work logic for handling PENDING records.
+ * Feb 07, 2014  2357     rjpeter   iscSendNotification uri.
+ * Oct 16, 2014  3454     bphillip  Upgrading to Hibernate 4
+ * Feb 02, 2017  3847     randerso  Change parmId to link to parmId table
+ *                                  Made a true singleton instead of half-static class
+ *
  * </pre>
- * 
+ *
  * @author dgilling
- * @version 1.0
  */
-
 public class IscSendQueue {
 
     // how we'll organize the temporary queue
@@ -85,11 +88,6 @@ public class IscSendQueue {
             this.state = state;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Object#hashCode()
-         */
         @Override
         public int hashCode() {
             final int prime = 31;
@@ -100,11 +98,6 @@ public class IscSendQueue {
             return result;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Object#equals(java.lang.Object)
-         */
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -146,38 +139,46 @@ public class IscSendQueue {
         }
     }
 
-    private static final transient IUFStatusHandler handler = UFStatus
-            .getHandler(IscSendQueue.class);
-
-    private int timeoutMillis = 60000;
-
-    private final Map<JobSetQueueKey, List<IscSendRecord>> jobSet = new HashMap<JobSetQueueKey, List<IscSendRecord>>();
-
     private static final IscSendQueue instance = new IscSendQueue();
 
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(IscSendQueue.class);
+
+    private final Map<JobSetQueueKey, List<IscSendRecord>> jobSet = new HashMap<>();
+
+    /**
+     * @return the singleton instance
+     */
     public static IscSendQueue getInstance() {
         return instance;
+    }
+
+    /**
+     * Private constructor for singlton class
+     */
+    private IscSendQueue() {
     }
 
     /**
      * This function will send a collection of ISC send jobs to the
      * ISCSendQueue. Any EDEX code that wishes to enqueue ISC send jobs, should
      * use this function.
-     * 
+     *
      * @param sendJobs
      *            A collection of ISC send jobs to add to the queue.
      */
-    public static void sendToQueue(Collection<IscSendRecord> sendJobs) {
+    public void sendToQueue(Collection<IscSendRecord> sendJobs) {
         try {
             byte[] messages = SerializationUtil.transformToThrift(sendJobs);
             EDEXUtil.getMessageProducer().sendAsyncUri(
                     "jms-durable:queue:iscSendNotification", messages);
         } catch (SerializationException e) {
-            handler.error("Unable to serialize IscSendRecords.", e);
+            statusHandler.error("Unable to serialize IscSendRecords.", e);
         } catch (EdexException e) {
-            handler.error("Unable to post IscSendRecords to IscSendQueue.", e);
+            statusHandler
+                    .error("Unable to post IscSendRecords to IscSendQueue.", e);
         } catch (Exception e) {
-            handler.error(
+            statusHandler.error(
                     "Exception encountered in IscSendQueue.sendToQueue().", e);
         }
     }
@@ -186,7 +187,7 @@ public class IscSendQueue {
      * This is the Camel/Spring event-driven route start point for adding new
      * items to the ISCSendQueue. Any jobs found on the route's queue will be
      * added to the internal memory queue jobSet.
-     * 
+     *
      * @param newSendJobs
      *            A collection of ISC send jobs to add to the queue.
      */
@@ -197,14 +198,39 @@ public class IscSendQueue {
     private void mergeSendJobs(Collection<IscSendRecord> newSendJobs) {
         synchronized (this) {
             for (IscSendRecord job : newSendJobs) {
+
+                // make sure parmId has id set
+                ParmID parmId = job.getParmId();
+                DatabaseID dbId = parmId.getDbId();
+                String siteId = dbId.getSiteId();
+                IFPServer ifpServer = IFPServer
+                        .getActiveServer(parmId.getDbId().getSiteId());
+                if (ifpServer == null) {
+                    statusHandler
+                            .error("No active IFPServer for site: " + siteId);
+                    continue;
+                }
+                GridDatabase db = ifpServer.getGridParmMgr().getDatabase(dbId);
+                if (!(db instanceof IFPGridDatabase)) {
+                    statusHandler.error(
+                            "Cannot send ISC for not IFP database: " + dbId);
+                    continue;
+                }
+                try {
+                    job.setParmId(
+                            ((IFPGridDatabase) db).getCachedParmID(parmId));
+                } catch (UnknownParmIdException e) {
+                    statusHandler.error(e.getLocalizedMessage(), e);
+                }
+
                 if (job.getState().equals(IscSendState.QUEUED)) {
                     addToJobSetQueue(job);
 
                     // remove any matches from pending queue
                     // remove the pending entry if no times remain.
                     if (job.getXmlDest().isEmpty()) {
-                        JobSetQueueKey key = new JobSetQueueKey(
-                                job.getParmID(), IscSendState.PENDING);
+                        JobSetQueueKey key = new JobSetQueueKey(job.getParmId(),
+                                IscSendState.PENDING);
                         List<IscSendRecord> pending = jobSet.get(key);
                         if (pending != null) {
                             removeTime(pending, job.getTimeRange());
@@ -215,7 +241,7 @@ public class IscSendQueue {
                         }
                     }
                 } else {
-                    JobSetQueueKey key = new JobSetQueueKey(job.getParmID(),
+                    JobSetQueueKey key = new JobSetQueueKey(job.getParmId(),
                             IscSendState.PENDING);
                     List<IscSendRecord> pending = jobSet.get(key);
                     if (pending != null) {
@@ -259,7 +285,8 @@ public class IscSendQueue {
         }
     }
 
-    private void removeTime(List<IscSendRecord> records, TimeRange replacementTR) {
+    private void removeTime(List<IscSendRecord> records,
+            TimeRange replacementTR) {
         // go backwards since we are deleting entries
         for (int i = records.size() - 1; i >= 0; i--) {
             IscSendRecord record = records.get(i);
@@ -287,19 +314,15 @@ public class IscSendQueue {
                             origTimeRange.getEnd());
                     records.remove(i);
 
-                    try {
-                        IscSendRecord before = record.clone();
-                        before.setTimeRange(t1);
-                        before.setInsertTime(new Date());
-                        records.add(before);
+                    IscSendRecord before = record.clone();
+                    before.setTimeRange(t1);
+                    before.setInsertTime(new Date());
+                    records.add(before);
 
-                        IscSendRecord after = record.clone();
-                        after.setTimeRange(t2);
-                        after.setInsertTime(new Date());
-                        records.add(after);
-                    } catch (CloneNotSupportedException e) {
-                        // no-op
-                    }
+                    IscSendRecord after = record.clone();
+                    after.setTimeRange(t2);
+                    after.setInsertTime(new Date());
+                    records.add(after);
                 }
             }
         }
@@ -319,7 +342,7 @@ public class IscSendQueue {
         List<IscSendRecord> newJobs = Collections.emptyList();
         synchronized (this) {
             if (!jobSet.isEmpty()) {
-                newJobs = new ArrayList<IscSendRecord>();
+                newJobs = new ArrayList<>();
                 for (List<IscSendRecord> recordList : jobSet.values()) {
                     newJobs.addAll(recordList);
                 }
@@ -342,11 +365,12 @@ public class IscSendQueue {
                 // find any exact dupe records and simply refresh the
                 // insert time
                 Criteria dupeCrit = s.createCriteria(IscSendRecord.class);
-                Map<String, Object> critMap = new HashMap<String, Object>(5);
-                critMap.put("parmID", record.getParmID());
+                Map<String, Object> critMap = new HashMap<>(5);
+                critMap.put("parmId", record.getParmId());
                 critMap.put("state", record.getState());
                 critMap.put("xmlDest", record.getXmlDest());
-                critMap.put("timeRange.start", record.getTimeRange().getStart());
+                critMap.put("timeRange.start",
+                        record.getTimeRange().getStart());
                 critMap.put("timeRange.end", record.getTimeRange().getEnd());
                 dupeCrit.add(Restrictions.allEq(critMap));
                 List<IscSendRecord> dupes = dupeCrit.list();
@@ -356,7 +380,8 @@ public class IscSendQueue {
                             dupe.getKey(), LockOptions.UPGRADE);
                     if (oldRecord != null) {
                         Date newInsertTime = record.getInsertTime();
-                        if (oldRecord.getInsertTime().compareTo(newInsertTime) < 0) {
+                        if (oldRecord.getInsertTime()
+                                .compareTo(newInsertTime) < 0) {
                             oldRecord.setInsertTime(newInsertTime);
                         }
                         s.update(oldRecord);
@@ -383,15 +408,16 @@ public class IscSendQueue {
 
                 tx.commit();
             } catch (Throwable t) {
-                handler.handle(Priority.ERROR, "Error adding ISC send job ["
-                        + record.toString() + "] to database queue", t);
+                statusHandler.handle(Priority.ERROR,
+                        "Error adding ISC send job [" + record.toString()
+                                + "] to database queue",
+                        t);
 
                 if (tx != null) {
                     try {
                         tx.rollback();
                     } catch (HibernateException e) {
-                        handler.handle(
-                                Priority.ERROR,
+                        statusHandler.handle(Priority.ERROR,
                                 "Error rolling back ISC send job lock transaction",
                                 e);
                     }
@@ -401,7 +427,7 @@ public class IscSendQueue {
                     try {
                         s.close();
                     } catch (HibernateException e) {
-                        handler.handle(Priority.ERROR,
+                        statusHandler.handle(Priority.ERROR,
                                 "Error closing ISC send job lock session", e);
                     }
                 }
@@ -412,8 +438,8 @@ public class IscSendQueue {
     @SuppressWarnings("unchecked")
     private void removeTimeFromDbPending(IscSendRecord record, Session s) {
         Criteria pendingCrit = s.createCriteria(IscSendRecord.class);
-        Map<String, Object> critMap = new HashMap<String, Object>(3);
-        critMap.put("parmID", record.getParmID());
+        Map<String, Object> critMap = new HashMap<>(3);
+        critMap.put("parmId", record.getParmId());
         critMap.put("state", IscSendState.PENDING);
         critMap.put("xmlDest", record.getXmlDest());
         pendingCrit.add(Restrictions.allEq(critMap));
@@ -434,30 +460,26 @@ public class IscSendQueue {
                 if (itime.equals(origTR)) {
                     s.delete(recToModify);
                 } else if (itime.getStart().equals(origTR.getStart())) {
-                    recToModify.setTimeRange(new TimeRange(itime.getEnd(),
-                            origTR.getEnd()));
+                    recToModify.setTimeRange(
+                            new TimeRange(itime.getEnd(), origTR.getEnd()));
                     s.update(recToModify);
                 } else if (itime.getEnd().equals(origTR.getEnd())) {
-                    recToModify.setTimeRange(new TimeRange(origTR.getStart(),
-                            itime.getStart()));
+                    recToModify.setTimeRange(
+                            new TimeRange(origTR.getStart(), itime.getStart()));
                     s.update(recToModify);
                 } else {
-                    try {
-                        IscSendRecord before = recToModify.clone();
-                        before.setTimeRange(new TimeRange(origTR.getStart(),
-                                itime.getStart()));
-                        before.setInsertTime(new Date());
+                    IscSendRecord before = recToModify.clone();
+                    before.setTimeRange(
+                            new TimeRange(origTR.getStart(), itime.getStart()));
+                    before.setInsertTime(new Date());
 
-                        IscSendRecord after = recToModify.clone();
-                        after.setTimeRange(new TimeRange(itime.getEnd(), origTR
-                                .getEnd()));
-                        after.setInsertTime(new Date());
+                    IscSendRecord after = recToModify.clone();
+                    after.setTimeRange(
+                            new TimeRange(itime.getEnd(), origTR.getEnd()));
+                    after.setInsertTime(new Date());
 
-                        s.save(before);
-                        s.save(after);
-                    } catch (CloneNotSupportedException e) {
-                        // no-op
-                    }
+                    s.save(before);
+                    s.save(after);
 
                     s.delete(recToModify);
                 }
@@ -468,8 +490,8 @@ public class IscSendQueue {
     @SuppressWarnings("unchecked")
     private boolean mergeRecordIntoDb(IscSendRecord record, Session s) {
         Criteria mergeCrit = s.createCriteria(IscSendRecord.class);
-        Map<String, Object> critMap = new HashMap<String, Object>(3);
-        critMap.put("parmID", record.getParmID());
+        Map<String, Object> critMap = new HashMap<>(3);
+        critMap.put("parmId", record.getParmId());
         critMap.put("state", record.getState());
         critMap.put("xmlDest", record.getXmlDest());
         mergeCrit.add(Restrictions.allEq(critMap));
@@ -490,9 +512,9 @@ public class IscSendQueue {
 
                     // delete old record from DB and this internal list as its
                     // time range is now merged into our new record
-                    IscSendRecord recordToDelete = (IscSendRecord) s
-                            .get(IscSendRecord.class, possibleMerges.get(i)
-                                    .getKey(), LockOptions.UPGRADE);
+                    IscSendRecord recordToDelete = (IscSendRecord) s.get(
+                            IscSendRecord.class, possibleMerges.get(i).getKey(),
+                            LockOptions.UPGRADE);
                     if (recordToDelete != null) {
                         try {
                             s.delete(recordToDelete);
@@ -500,7 +522,7 @@ public class IscSendQueue {
                             merged = true;
                             continueMerging = true;
                         } catch (Exception e) {
-                            handler.handle(Priority.WARN,
+                            statusHandler.handle(Priority.WARN,
                                     "IscSendRecord merge failed.", e);
                         }
                     }
@@ -513,18 +535,18 @@ public class IscSendQueue {
             List<IscSendRecord> dupes = Collections.emptyList();
             try {
                 Criteria dupeCrit = s.createCriteria(IscSendRecord.class);
-                Map<String, Object> dupeCritMap = new HashMap<String, Object>(5);
-                dupeCritMap.put("parmID", record.getParmID());
+                Map<String, Object> dupeCritMap = new HashMap<>(5);
+                dupeCritMap.put("parmId", record.getParmId());
                 dupeCritMap.put("state", record.getState());
                 dupeCritMap.put("xmlDest", record.getXmlDest());
-                dupeCritMap.put("timeRange.start", record.getTimeRange()
-                        .getStart());
-                dupeCritMap
-                        .put("timeRange.end", record.getTimeRange().getEnd());
+                dupeCritMap.put("timeRange.start",
+                        record.getTimeRange().getStart());
+                dupeCritMap.put("timeRange.end",
+                        record.getTimeRange().getEnd());
                 dupeCrit.add(Restrictions.allEq(dupeCritMap));
                 dupes = dupeCrit.list();
             } catch (Exception e) {
-                handler.handle(Priority.WARN,
+                statusHandler.handle(Priority.WARN,
                         "Failed to retrieve possible duplicate records.", e);
             }
 
@@ -539,15 +561,16 @@ public class IscSendQueue {
                             LockOptions.UPGRADE);
                     if (dupeRecord != null) {
                         Date newInsertTime = record.getInsertTime();
-                        if (dupeRecord.getInsertTime().compareTo(newInsertTime) < 0) {
+                        if (dupeRecord.getInsertTime()
+                                .compareTo(newInsertTime) < 0) {
                             dupeRecord.setInsertTime(newInsertTime);
                         }
                         s.update(dupeRecord);
                     }
                 }
             } catch (Exception e) {
-                handler.handle(Priority.WARN, "Failed to save merged record.",
-                        e);
+                statusHandler.handle(Priority.WARN,
+                        "Failed to save merged record.", e);
                 merged = false;
             }
         }
@@ -555,13 +578,18 @@ public class IscSendQueue {
         return merged;
     }
 
+    /**
+     * Move all ISC send request from pending to queued
+     *
+     * @param siteId
+     */
     @SuppressWarnings("unchecked")
     public void sendPending(String siteId) {
         synchronized (this) {
             // update records not yet flushed to the database
             for (JobSetQueueKey key : jobSet.keySet()) {
-                if ((key.getState().equals(IscSendState.PENDING))
-                        && (key.getPid().getDbId().getSiteId().equals(siteId))) {
+                if ((key.getState().equals(IscSendState.PENDING)) && (key
+                        .getPid().getDbId().getSiteId().equals(siteId))) {
                     List<IscSendRecord> recordList = jobSet.remove(key);
                     for (IscSendRecord record : recordList) {
                         record.setState(IscSendState.QUEUED);
@@ -576,32 +604,30 @@ public class IscSendQueue {
         CoreDao dao = new CoreDao(DaoConfig.DEFAULT);
         List<IscSendRecord> pendingToSending = null;
         try {
-            lookupSess = dao.getSessionFactory()
-                    .openStatelessSession();
+            lookupSess = dao.getSessionFactory().openStatelessSession();
 
             Criteria pendingCrit = lookupSess
                     .createCriteria(IscSendRecord.class);
-            pendingCrit.add(Restrictions.and(Restrictions.eq("state",
-                    IscSendState.PENDING), Restrictions.like("parmID", ":"
-                    + siteId + "_", MatchMode.ANYWHERE)));
+            pendingCrit.add(Restrictions.and(
+                    Restrictions.eq("state", IscSendState.PENDING),
+                    Restrictions.eq("parmId.dbId.siteId", siteId)));
             pendingToSending = pendingCrit.list();
         } catch (Throwable t) {
-            handler.error("Error querying for PENDING ISC send jobs", t);
+            statusHandler.error("Error querying for PENDING ISC send jobs", t);
             pendingToSending = Collections.emptyList();
         } finally {
             if (lookupSess != null) {
                 try {
                     lookupSess.close();
                 } catch (HibernateException e) {
-                    handler.handle(
-                            Priority.WARN,
+                    statusHandler.handle(Priority.WARN,
                             "Unable to close pending to queued ISC send job lookup session",
                             e);
                 }
             }
         }
 
-        List<IscSendRecord> sendRecords = new ArrayList<IscSendRecord>(
+        List<IscSendRecord> sendRecords = new ArrayList<>(
                 pendingToSending.size());
         for (IscSendRecord rec : pendingToSending) {
             Session dbModSess = null;
@@ -623,14 +649,13 @@ public class IscSendQueue {
                 tx.commit();
 
             } catch (Throwable t) {
-                handler.error("Failed to move record from Pending to Queued.",
-                        t);
+                statusHandler.error(
+                        "Failed to move record from Pending to Queued.", t);
                 if (tx != null) {
                     try {
                         tx.rollback();
                     } catch (HibernateException e) {
-                        handler.handle(
-                                Priority.WARN,
+                        statusHandler.handle(Priority.WARN,
                                 "Unable to rollback pending to queued ISC send job session",
                                 e);
                     }
@@ -640,8 +665,7 @@ public class IscSendQueue {
                     try {
                         dbModSess.close();
                     } catch (HibernateException e) {
-                        handler.handle(
-                                Priority.WARN,
+                        statusHandler.handle(Priority.WARN,
                                 "Unable to close pending to queued ISC send job modification session",
                                 e);
                     }
@@ -653,21 +677,13 @@ public class IscSendQueue {
     }
 
     private void addToJobSetQueue(IscSendRecord record) {
-        JobSetQueueKey key = new JobSetQueueKey(record.getParmID(),
+        JobSetQueueKey key = new JobSetQueueKey(record.getParmId(),
                 record.getState());
         List<IscSendRecord> recordList = jobSet.get(key);
         if (recordList == null) {
-            recordList = new ArrayList<IscSendRecord>();
+            recordList = new ArrayList<>();
             jobSet.put(key, recordList);
         }
         recordList.add(record);
-    }
-
-    public void setTimeoutMillis(int timeoutMillis) {
-        this.timeoutMillis = timeoutMillis;
-    }
-
-    public int getTimeoutMillis() {
-        return timeoutMillis;
     }
 }

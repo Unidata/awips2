@@ -18,14 +18,6 @@
 # further licensing information.
 # ------------------------------------------------------------------------------
 #
-# merges two grids and histories together, input gridA is merged into gridB
-# result is returned from mergeGrid. Grids are represented in the following
-# manner:
-# Scalar: (grid, history)
-# Vector: ((magGrid, dirGrid), history)
-# Weather: ((byteGrid, key), history)
-# Discrete: ((byteGrid, key), history)
-#
 # SOFTWARE HISTORY
 #
 # Date         Ticket#    Engineer    Description
@@ -37,27 +29,60 @@
 # Apr 07, 2016 5539       randerso    Fixed issues with Wx/Discretes with
 #                                     large number of keys
 # Feb 22, 2017 6143       randerso    Improved performance of __collapseKey
+# Jun 23  2017 20099      bhunder     Corrected _collapseKey
 #
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 import string, getopt, sys, time, gzip, os, iscTime, stat
 import numpy
 import LogStream, fcntl
 
-class MergeGrid:
 
-    #---------------------------------------------------------------------
-    # Constructor
-    # Takes creationtime - seconds since Jan 1, 1970, to be used
-    #  in the updating of the histories.
-    # siteID = site identifier for input grid
-    # inFillValue = input fill value indicator
-    # outFillValue = output fill value indicator
-    # areaMask = numerical mask of areas to merge from grid1 to grid2
-    # gridType = 'SCALAR', 'VECTOR', 'WEATHER', 'DISCRETE'
-    #---------------------------------------------------------------------
+class MergeGrid:
+    """ Merges two grids and their histories together.
+    
+    Call mergeGrid to merge the grids. Data from gridA is merged into gridB
+    based on an area mask. Grids are represented in the following manner:
+    
+    Scalar: (grid, history)
+    Vector: ((magGrid, dirGrid), history)
+    Weather: ((byteGrid, key), history)
+    Discrete: ((byteGrid, key), history)
+    
+    Attributes:
+        __creationTime: time in epoch seconds
+        __siteID: 3 character site identifier for the input grid
+        __inFillV: input grid fill value, indicates missing or no value
+        __outFillV: output grid fill value
+        __areaMask: mask of areas to merge from gridA to gridB
+        __gridType: Type of grids being merged. Can 'SCALAR', 'VECTOR', 
+                    'WEATHER' or 'DISCRETE'
+        __discreteKeys: (optional) For discrete grids, the list of all valid 
+                        key values.
+    """
+
     def __init__(self, creationTime, siteID, inFillValue, outFillValue,
       areaMask, gridType, discreteKeys=None):
+        """Creates a new MergeGrid instance.
+        
+        Args:
+            creationTime: time in epoch seconds
+            siteID: 3 character site identifier for the input grid
+            inFillValue: input grid fill value, indicates missing or no value
+            outFillValue: output grid fill value
+            areaMask: mask of areas to merge from gridA to gridB
+            gridType: Type of grids being merged. Can 'SCALAR', 'VECTOR', 
+                      'WEATHER' or 'DISCRETE'
+            discreteKeys: (optional) For discrete grids, the list of all valid 
+                        key values. Default: None.
+        """ 
+
         self.__creationTime = creationTime
         self.__siteID = siteID
         self.__inFillV = inFillValue
@@ -66,15 +91,23 @@ class MergeGrid:
         self.__gridType = gridType
         self.__discreteKeys = discreteKeys
 
-
-
-    #---------------------------------------------------------------------
-    # find key
-    # key = input key
-    # keymap = existing key maps (updated on exit)
-    # returns the index to use for the key.
-    #---------------------------------------------------------------------
     def __findKey(self, key, keyMap):
+        """Finds the index of a weather or discrete key in the list of keys.
+        
+        If the key cannot be found, it is added to the list and that key's new
+        index is returned.
+        
+        Args:
+            key: weather or discrete key to find
+            keyMap: list of valid weather and discrete keys
+
+        Returns:
+            The index of key in keyMap. If key was not found it is added to the
+            end of keyMap and len - 1 is returned.
+            
+        Raises:
+            IndexError: If the size of keyMap exceeds 255 unique values.
+        """ 
         try:
             index = keyMap.index(key)
             return index
@@ -85,14 +118,27 @@ class MergeGrid:
             keyMap.append(key)
             return len(keyMap) - 1
 
-    #---------------------------------------------------------------------
-    # commonize key
-    # wxA = input grid and key
-    # wxB = input grid and key
-    # returns a tuple (commonkey, gridA, gridB) where gridA and gridB
-    #  now use the commonkey
-    #---------------------------------------------------------------------
     def __commonizeKey(self, wxA, wxB):
+        """Merges the weather key values of two grids and commonizes their indices.
+        
+        To commonize the key values means that we use the same byte value for 
+        the same weather key in both grids. Any key values that appear in one 
+        grid but not the other will be added to the list of keys and a new byte
+        value assigned.
+        
+        Args:
+            wxA: input grid in a (byte_grid, keys) tuple
+            wxB: base grid in a (byte_grid, keys) tuple
+
+        Returns:
+            A tuple containing the merged weather keys, the input byte grid and
+            the merged byte grid.
+            
+        Raises:
+            IndexError: If the size of the new weather keys list exceeds 255 
+            unique values.
+        """ 
+
         # make common key and make data changes in B
         gridB = wxB[0]
         key = wxA[1]
@@ -104,15 +150,20 @@ class MergeGrid:
 
         return (key, wxA[0], newGrid)
 
-
-    #---------------------------------------------------------------------
-    # update history strings
-    # historyA = history from input grid (None to delete history entry)
-    # historyB = history from base grid, list (None for no old grid.)
-    # returns an updated list of strings, each string is an encoded history
-    # returns None if no history is present.
-    #---------------------------------------------------------------------
     def __updateHistoryStrings(self, historyA, historyB):
+        """Merges the history strings for two grids.
+        
+        Args:
+            historyA: history list from input grid. If None, delete existing 
+                      history entries from gridA.
+            historyB: history list from input grid. If None, there was no 
+                      existing base grid.
+
+        Returns:
+            A list containing the merged histories in the string encoded 
+            format. Returns None if no history entries were present in either
+            grid.
+        """ 
 
         out = []
 
@@ -133,14 +184,21 @@ class MergeGrid:
         else:
             return None
 
-    #---------------------------------------------------------------------
-    # merge scalar grid
-    #   Note: gridA can be None, which indicates that the data
-    #   is to be blanked out, i.e., made invalid.  gridB can also be
-    #   none, which indicates that there is no destination grid and one must
-    #   be created.
-    #---------------------------------------------------------------------
     def __mergeScalarGrid(self, gridA, gridB):
+        """Merge the values of two scalar grids together.
+        
+        The merge is performed by taking the values from gridA that overlap the
+        mask __areaMask and the values from gridB outside the mask and creating
+        a new grid by merge the two areas together.
+        
+        Args:
+            gridA: The grid to merge into gridA. 
+            gridB: The grid to merged with gridA.
+            
+        Returns:
+            A new grid instance that is the result of merging gridA into gridB.
+        """ 
+
         if gridA is None and gridB is None:
             return None
 
@@ -158,14 +216,24 @@ class MergeGrid:
         else:
             return numpy.where(self.__areaMask, self.__outFillV, gridB)
 
-    #---------------------------------------------------------------------
-    # merge vector grid
-    #   Note: gridA can be None, which indicates that the data
-    #   is to be blanked out, i.e., made invalid.  gridB can also be
-    #   none, which indicates that there is no destination grid and one must
-    #   be created.
-    #---------------------------------------------------------------------
     def __mergeVectorGrid(self, gridA, gridB):
+        """Merge the values of two vector grids together.
+        
+        The merge is performed by taking the values from gridA that overlap the
+        mask __areaMask and the values from gridB outside the mask and creating
+        a new grid by merge the two areas together.
+        
+        When merging direction grids __outFillV is ignored, all out-of-bounds 
+        points will get the value 0.0.
+        
+        Args:
+            gridA: The grid to merge into gridA. 
+            gridB: The grid to merged with gridA.
+            
+        Returns:
+            A new grid instance that is the result of merging gridA into gridB.
+        """ 
+
         if gridA is None and gridB is None:
             return None
 
@@ -188,11 +256,17 @@ class MergeGrid:
             dirGrid = numpy.where(self.__areaMask, numpy.float32(0.0), gridB[1])
             return (magGrid, dirGrid)
 
-
-    ###-------------------------------------------------------------------------###
-    # Collapse key and bytes. (for discrete and weather)
-    ### Returns tuple of (updated grid, updated key)
     def __collapseKey(self, grid, keys):
+        """Remove unused key values from weather and discrete grids.
+        
+        Args:
+            grid: byte grid for the weather or discrete grid.
+            keys: list of weather or discrete keys.
+
+        Returns:
+            A tuple containing the updated grid and updated keys.
+        """ 
+
         #make list of unique indices in the grid
         usedIndices = numpy.unique(grid.astype(numpy.uint8))
 
@@ -209,20 +283,30 @@ class MergeGrid:
                newIndices.append(-1)
 
         # modify the data
-        newGrid = grid
+        newGrid = grid.copy()
         for k, newIndex in enumerate(newIndices):
            mask = numpy.equal(numpy.int8(k), grid)
            newGrid[mask] = numpy.int8(newIndex)
 
         return (newGrid, newKeys)
 
-    #---------------------------------------------------------------------
-    # merge weather grid
-    #
-    # Note the outFillV is ignored for now, all out-of-bounds points will
-    # get the <NoWx> value.
-    #---------------------------------------------------------------------
     def __mergeWeatherGrid(self, gridA, gridB):
+        """Merge the values of two weather grids together.
+        
+        The merge is performed by taking the values from gridA that overlap the
+        mask __areaMask and the values from gridB outside the mask and creating
+        a new grid by merge the two areas together.
+        
+        When merging weather grids __outFillV is ignored, all out-of-bounds 
+        points will get the <NoWx> value.
+        
+        Args:
+            gridA: The grid to merge into gridA. 
+            gridB: The grid to merged with gridA.
+            
+        Returns:
+            A new grid instance that is the result of merging gridA into gridB.
+        """ 
 
         if gridA is None and gridB is None:
             return None
@@ -255,13 +339,24 @@ class MergeGrid:
             grid = numpy.where(self.__areaMask, blankGrid, gridB[0])
             return (grid, key)
 
-    #---------------------------------------------------------------------
-    # merge discrete grid
-    #
-    # Note the outFillV is ignored for now, all out-of-bounds points will
-    # get the first value in the discrete key.
-    #---------------------------------------------------------------------
     def __mergeDiscreteGrid(self, gridA, gridB):
+        """Merge the values of two discrete grids together.
+        
+        The merge is performed by taking the values from gridA that overlap the
+        mask __areaMask and the values from gridB outside the mask and creating
+        a new grid by merge the two areas together.
+        
+        When merging weather grids __outFillV is ignored, all out-of-bounds 
+        points will get the first discrete key value.
+        
+        Args:
+            gridA: The grid to merge into gridA. 
+            gridB: The grid to merged with gridA.
+            
+        Returns:
+            A new grid instance that is the result of merging gridA into gridB.
+        """ 
+
         if gridA is None and gridB is None:
             return None
 
@@ -296,21 +391,30 @@ class MergeGrid:
             grid = numpy.where(self.__areaMask, blankGrid, gridB[0])
             return (grid, key)
 
-    #---------------------------------------------------------------------
-    # mergeGrid
-    # Merges the grid
-    # Scalar: (grid, history)
-    # Vector: ((magGrid, dirGrid), history)
-    # Weather: ((byteGrid, key), history)
-    # Discrete: ((byteGrid, key), history)
-    # gridA = input remapped grid, contains inFillV to denote invalid
-    # gridB = grid to have gridA mosaic'd into
-    #   Note: gridA can be None, which indicates that the data
-    #   is to be blanked out, i.e., made invalid.  gridB can also be
-    #   none, which indicates that there is no destination grid and one must
-    #   be created.
-    #---------------------------------------------------------------------
     def mergeGrid(self, gridAIn, gridBIn):
+        """Merge the values of two grids together.
+        
+        The merge is performed by taking the values from gridA that overlap the
+        mask __areaMask and the values from gridB outside the mask and creating
+        a new grid by merge the two areas together.
+        
+        Grids are represented by:
+            Scalar: (grid, history)
+            Vector: ((magGrid, dirGrid), history)
+            Weather: ((byteGrid, key), history)
+            Discrete: ((byteGrid, key), history)
+        
+        Args:
+            gridA: The grid to merge into gridA. If None, the data is blanked 
+                   out (i.e., automatically assigned __outFillV).
+            gridB: The grid that grid will be mosaic-ed into. If None, that 
+                   indicates there is no destination grid and it will be 
+                   created using the value of __outFillV.
+            
+        Returns:
+            A new grid instance that is the result of merging gridA into gridB.
+        """ 
+
         # merge the grids
         if gridAIn is not None:
             gridA = gridAIn[0]

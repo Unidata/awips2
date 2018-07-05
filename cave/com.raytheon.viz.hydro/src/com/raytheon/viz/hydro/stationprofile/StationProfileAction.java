@@ -78,7 +78,7 @@ public class StationProfileAction extends AbstractHandler {
             StationProfileDlg stationProfileDlg = dialogMap.get(currentLid);
             if (stationProfileDlg == null) {
                 stationProfileDlg = new StationProfileDlg(shell, currentLid);
-                stationProfileDlg.setCloseCallback(new ICloseCallback() {
+                stationProfileDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {

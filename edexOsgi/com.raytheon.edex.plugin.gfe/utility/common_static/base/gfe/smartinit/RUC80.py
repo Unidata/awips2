@@ -17,6 +17,15 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+#
+# This file can be subclassed to override behavior. Please see the 
+# Configuration Guides->Smart Initialization Configuration section of the GFE 
+# Online Help for guidance on creating a new smart init 
+##
+
 from Init import *
 ##--------------------------------------------------------------------------
 ## Module that calculates surface weather elements from RAP40 model

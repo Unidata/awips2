@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,9 +31,10 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.bufrsigwx.common.SigWxLayer;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
+import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataView;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.bufrsigwx.util.Declutter;
+import com.raytheon.uf.viz.bufrsigwx.util.Declutter.TextBoxData;
 import com.raytheon.uf.viz.core.IExtent;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
@@ -50,24 +51,27 @@ import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
 
 /**
- * 
+ *
  * A base resource for polygon based sigWx data(CAT anc Clouds). This resource
  * does most of the work, but requires subclasses for some details such as
  * drawing the textBoxes and formating inspection data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 25, 2009 3099       bsteffen    Initial creation
  * Sep 28, 2009 3099       bsteffen    Updated to conform with common SigWxResource
- * 
- * 
+ * Sep 12, 2016 5886       tgurney     Use isUpdateNeeded for performance
+ * Sep 15, 2016 5886       tgurney     Keep cached polygons when panning/zooming
+ * Sep 19, 2016 5886       tgurney     Use drawRect/drawLine instead of
+ *                                     wireframe shape for text boxes
+ *
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
- * @version 1.0
  */
 public abstract class SigWxPolygonResource extends SigWxResource {
 
@@ -91,26 +95,18 @@ public abstract class SigWxPolygonResource extends SigWxResource {
             "\u007a\u007b", "\u007b\u007c", "\u007b\u007c", "\u007b\u007c",
             "\u007c\u007c\b6", "\u007c\u007c\u00b6", "\u007c\u007c\u00b6" };
 
-    private static UnitConverter meterToHft = SI.METER.getConverterTo(SI
-            .HECTO(NonSI.FOOT));
-
-    protected List<PointDataView> pdvCache = new ArrayList<PointDataView>();
-
-    protected List<double[]> textLocCache = new ArrayList<double[]>();
+    private static UnitConverter meterToHft = SI.METER
+            .getConverterTo(SI.HECTO(NonSI.FOOT));
 
     protected IExtent lastExtent;
 
-    protected DataTime lastDataTime;
-
     protected IWireframeShape lastPolygons;
 
-    protected IWireframeShape lastTextBoxes;
+    protected List<Declutter.TextBoxData> lastTextBoxes = new ArrayList<>();
 
     protected Declutter declutter;
 
     protected SymbolLoader symbolLoader;
-
-    private boolean hasUpdated = false;
 
     protected SigWxPolygonResource(SigWxResourceData resourceData,
             LoadProperties loadProperties) {
@@ -128,10 +124,7 @@ public abstract class SigWxPolygonResource extends SigWxResource {
             lastPolygons.dispose();
             lastPolygons = null;
         }
-        if (lastTextBoxes != null) {
-            lastTextBoxes.dispose();
-            lastTextBoxes = null;
-        }
+        lastTextBoxes.clear();
     }
 
     @Override
@@ -144,8 +137,8 @@ public abstract class SigWxPolygonResource extends SigWxResource {
         Polygon pixelPoly = worldToPixel(llPolygon);
         Point point;
         try {
-            point = pixelPoly.getFactory().createPoint(
-                    coord.asPixel(descriptor.getGridGeometry()));
+            point = pixelPoly.getFactory()
+                    .createPoint(coord.asPixel(descriptor.getGridGeometry()));
         } catch (Exception e) {
             throw new VizException("Error inspecting SigWx Data", e);
         }
@@ -164,60 +157,50 @@ public abstract class SigWxPolygonResource extends SigWxResource {
 
     @Override
     protected void paintInternal(IGraphicsTarget target,
-            PaintProperties paintProps) throws VizException {
-        // This is overridden so that we can synchronize the declutter, but
-        // while Im at it I store some data so it does not have to be
-        // recalculated on each call.
+            PaintProperties paintProps, PointDataContainer pdc)
+                    throws VizException {
         RGB color = getCapability(ColorableCapability.class).getColor();
         IExtent curExtent = paintProps.getView().getExtent();
-        DataTime curDataTime = paintProps.getDataTime();
-        if (curDataTime == null || curExtent == null) {
+        if (curExtent == null) {
             return;
         }
-        if (!curExtent.equals(lastExtent) || !curDataTime.equals(lastDataTime)
-                || hasUpdated) {
-            if (lastPolygons != null) {
+        if (!curExtent.equals(lastExtent) || isUpdateNeeded()) {
+            if (lastPolygons != null && isUpdateNeeded()) {
                 lastPolygons.dispose();
             }
-            if (lastTextBoxes != null) {
-                lastTextBoxes.dispose();
-            }
-            pdvCache.clear();
-            textLocCache.clear();
+            lastTextBoxes.clear();
             lastExtent = curExtent;
-            lastDataTime = curDataTime;
             declutter = new Declutter(paintProps.getClippingPane()
                     .intersection(paintProps.getView().getExtent()));
-            lastPolygons = target.createWireframeShape(false, descriptor);
-            lastTextBoxes = target.createWireframeShape(false, descriptor);
-            super.paintInternal(target, paintProps);
-            hasUpdated = false;
+            if (isUpdateNeeded()) {
+                lastPolygons = target.createWireframeShape(false, descriptor);
+            }
+            for (int i = 0; i < pdc.getCurrentSz(); i++) {
+                PointDataView pdv = pdc.readRandom(i);
+                double[] scale = getScale(paintProps);
+                Polygon polygon = getPolygon(pdv);
+                if (isUpdateNeeded()) {
+                    lastPolygons.addLineSegment(polygon.getCoordinates());
+                }
+                double[] dimensions = getTextBoxDimensions(target, pdv);
+                dimensions[0] = dimensions[0] * scale[0];
+                dimensions[1] = dimensions[1] * scale[1];
+                Declutter.TextBoxData textBox = declutter
+                        .infoBoxForPolygon2(worldToPixel(polygon), dimensions);
+                lastTextBoxes.add(textBox);
+            }
         }
         target.drawWireframeShape(lastPolygons, color, 1.5f, getLineStyle());
-        target.drawWireframeShape(lastTextBoxes, color, 1.0f);
         double[] scale = getScale(paintProps);
-        for (int i = 0; i < pdvCache.size(); i++) {
-            drawText(target, paintProps, textLocCache.get(i), scale, color,
-                    pdvCache.get(i));
-        }
-    }
-
-    @Override
-    protected void paintInternal(IGraphicsTarget target,
-            PaintProperties paintProps, PointDataView pdv) throws VizException {
-
-        double[] scale = getScale(paintProps);
-
-        Polygon polygon = getPolygon(pdv);
-        lastPolygons.addLineSegment(polygon.getCoordinates());
-        double[] dimensions = getTextBoxDimensions(target, pdv);
-        dimensions[0] = dimensions[0] * scale[0];
-        dimensions[1] = dimensions[1] * scale[1];
-        double[] textLoc = declutter.infoBoxForPolygon2(lastTextBoxes,
-                worldToPixel(polygon), dimensions);
-        if (textLoc.length > 1) {
-            textLocCache.add(textLoc);
-            pdvCache.add(pdv);
+        for (int i = 0; i < lastTextBoxes.size(); i++) {
+            TextBoxData textBox = lastTextBoxes.get(i);
+            if (textBox != null) {
+                textBox.line.basics.color = color;
+                target.drawRect(textBox.box, color, 1.0f, 1.0);
+                target.drawLine(textBox.line);
+                drawText(target, paintProps, textBox.textLoc, scale, color,
+                        pdc.readRandom(i));
+            }
         }
     }
 
@@ -296,20 +279,13 @@ public abstract class SigWxPolygonResource extends SigWxResource {
         Coordinate[] llCoords = llPolygon.getCoordinates();
         Coordinate[] pixelCoords = new Coordinate[llCoords.length];
         for (int i = 0; i < llCoords.length; i++) {
-            double[] pixelCoord = descriptor.worldToPixel(new double[] {
-                    llCoords[i].x, llCoords[i].y });
+            double[] pixelCoord = descriptor.worldToPixel(
+                    new double[] { llCoords[i].x, llCoords[i].y });
             pixelCoords[i] = new Coordinate(pixelCoord[0], pixelCoord[1]);
         }
         GeometryFactory factory = new GeometryFactory();
         LinearRing ring = factory.createLinearRing(pixelCoords);
         return factory.createPolygon(ring, null);
-    }
-
-    @Override
-    protected void updateRecords(DataTime dataTime) throws VizException {
-        // Intercept this call so we can recalculate everything
-        hasUpdated = true;
-        super.updateRecords(dataTime);
     }
 
     @Override
@@ -321,6 +297,7 @@ public abstract class SigWxPolygonResource extends SigWxResource {
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         disposeShapes();
+        super.project(crs);
     }
 
 }

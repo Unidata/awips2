@@ -25,6 +25,7 @@ import org.eclipse.jface.action.IMenuManager;
 
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationFile;
+import com.raytheon.uf.common.protectedfiles.ProtectedFileLookup;
 import com.raytheon.uf.viz.localization.perspective.adapter.LocalizationPerspectiveAdapter;
 import com.raytheon.uf.viz.localization.perspective.view.FileTreeEntryData;
 import com.raytheon.uf.viz.localization.perspective.view.LocalizationFileEntryData;
@@ -41,6 +42,7 @@ import com.raytheon.viz.gfe.localization.actions.OverrideAction;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Aug 10, 2016  5816     randerso  Initial creation
+ * Aug 07, 2017  6379     njensen   Use ProtectedFileLookup
  * 
  * </pre>
  * 
@@ -76,7 +78,7 @@ public class ServerConfigAdapter extends LocalizationPerspectiveAdapter {
          * level to override some settings in the base file
          */
         if (lf != null
-                && lf.isProtected()
+                && ProtectedFileLookup.isProtected(lf)
                 && lf.getContext().getLocalizationLevel()
                         .equals(LocalizationLevel.BASE)) {
             OverrideAction action = new OverrideAction(lf.getPath());

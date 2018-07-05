@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="ISO-8859-1" ?>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!--
         This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
         pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
@@ -17,6 +17,10 @@
         
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
+    -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
     -->
    <!-- TOWRdocs Header
         VIIRS Imagery Style Rules.
@@ -53,7 +57,6 @@
         Lee Byerle
    -->
 <styleRuleset>
-
 <!-- Default BT Satellite Rule -->
     <styleRule>
         <viirsDataMatches>
@@ -65,13 +68,12 @@
                 <minValue>-109</minValue>
                 <maxValue>55</maxValue>
             </range>
-            <defaultColormap>Sat/VIIRS/IR Default</defaultColormap>
+            <defaultColormap>NPP/VIIRS/IR Default</defaultColormap>
             <colorbarLabeling>
                 <values>-100 -80 -60 -40 -20 0 20 40</values>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
-
 <!-- Default Ref Satellite Rule for NCC -->
     <styleRule>
         <viirsDataMatches>
@@ -82,10 +84,10 @@
                 <minValue>0</minValue>
                 <maxValue>1.6</maxValue>
             </range>
-            <defaultColormap>Sat/VIIRS/NCC_zero_to_one</defaultColormap>
+     <!-- <defaultColormap>NPP/VIIRS/ZA (Vis Default)</defaultColormap> -->
+            <defaultColormap>NPP/VIIRS/NCC_zero_to_one</defaultColormap>
         </imageStyle>
     </styleRule>
-
 <!-- Special Ref 1.378u Satellite Rule based on sample data -->
     <styleRule>
         <viirsDataMatches>
@@ -97,9 +99,7 @@
                 <minValue>0</minValue>
                 <maxValue>0.6</maxValue>
             </range>
-            <defaultColormap>Sat/VIIRS/CA (Low Light Vis)
-            </defaultColormap>
+            <defaultColormap>NPP/VIIRS/CA (Low Light Vis)</defaultColormap>
         </imageStyle>
     </styleRule>
-
 </styleRuleset>

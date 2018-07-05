@@ -30,6 +30,12 @@
 #
 # Author: lefebvre
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 VariableList = [("Weather Element:" , "MaxT", "radio", ["MaxT", "MinT"]),
                 ("Climo Source:" , "PRISM", "radio", ["PRISM", "NCDC"]),
                 ]

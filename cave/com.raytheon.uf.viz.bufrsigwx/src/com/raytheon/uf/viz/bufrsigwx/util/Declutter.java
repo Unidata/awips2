@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,31 +22,42 @@ package com.raytheon.uf.viz.bufrsigwx.util;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.IExtent;
-import com.raytheon.uf.viz.core.drawables.IWireframeShape;
-import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.PixelExtent;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
-
 /**
  * Determines positioning for text boxes so they do not overlap
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 25, 2009 3099       bsteffen     Initial creation
- * 
+ * Sep 19, 2016 5886       tgurney      No longer use wireframe shapes
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
- * @version 1.0
  */
 public class Declutter {
+
+    /**
+     * Dumb container that stores the location and dimensions of a text box,
+     * with an additional line coming off of it.
+     */
+    public static class TextBoxData {
+        public PixelExtent box;
+
+        public double[] textLoc;
+
+        public DrawableLine line;
+    }
 
     IExtent extent;
 
@@ -54,7 +65,7 @@ public class Declutter {
         this.extent = extent;
     }
 
-    private Polygon getBox(Coordinate center, double[] dimensions) {
+    private static Polygon getBox(Coordinate center, double[] dimensions) {
         Coordinate[] coords = new Coordinate[5];
         double x1 = center.x - dimensions[0] / 2;
         double x2 = center.x + dimensions[0] / 2;
@@ -69,14 +80,14 @@ public class Declutter {
         return factory.createPolygon(ring, null);
     }
 
-    private Collection<Polygon> boxes = new ArrayList<Polygon>();
-    
-    public double[] infoBoxForPolygon2(IWireframeShape shape, Polygon polygon,
-            double[] dimensions) throws VizException {
+    private Collection<Polygon> boxes = new ArrayList<>();
+
+    public TextBoxData infoBoxForPolygon2(Polygon polygon,
+            double[] boxDimensions) {
         Coordinate center = polygon.getCentroid().getCoordinate();
         Coordinate lastCoord = center;
-        double boxRadius = Math.sqrt(dimensions[0] * dimensions[0]
-                + dimensions[1] * dimensions[1]);
+        double boxRadius = Math.sqrt(boxDimensions[0] * boxDimensions[0]
+                + boxDimensions[1] * boxDimensions[1]);
         double distance = boxRadius * 0.8;
         for (Coordinate curCoord : polygon.getCoordinates()) {
             Coordinate thisCoord = curCoord;
@@ -88,24 +99,25 @@ public class Declutter {
                 } else {
                     thisCoord = curCoord;
                 }
-                if (!extent.contains(new double[] { thisCoord.x, thisCoord.y })) {
+                if (!extent
+                        .contains(new double[] { thisCoord.x, thisCoord.y })) {
                     continue;
                 }
-                double angle = Math.atan2(center.y - thisCoord.y, thisCoord.x
-                        - center.x);
+                double angle = Math.atan2(center.y - thisCoord.y,
+                        thisCoord.x - center.x);
 
-                Coordinate boxCenter = new Coordinate(thisCoord.x
-                        + Math.cos(angle) * distance, thisCoord.y
-                        - Math.sin(angle) * distance);
-                Polygon box = getBox(boxCenter, dimensions);
-                boolean flag = true;
+                Coordinate boxCenter = new Coordinate(
+                        thisCoord.x + Math.cos(angle) * distance,
+                        thisCoord.y - Math.sin(angle) * distance);
+                Polygon box = getBox(boxCenter, boxDimensions);
+                boolean createTextBox = true;
                 for (Coordinate coord : box.getCoordinates()) {
                     if (!extent.contains(new double[] { coord.x, coord.y })) {
-                        flag = false;
+                        createTextBox = false;
                         break;
                     }
                 }
-                if (!flag) {
+                if (!createTextBox) {
                     continue;
                 }
                 if (polygon.intersects(box)) {
@@ -113,11 +125,11 @@ public class Declutter {
                 }
                 for (Polygon oldBox : boxes) {
                     if (oldBox.intersects(box)) {
-                        flag = false;
+                        createTextBox = false;
                         break;
                     }
                 }
-                if (flag) {
+                if (createTextBox) {
                     Coordinate[] coords = box.getCoordinates();
                     Coordinate[] edgePoints = new Coordinate[4];
                     edgePoints[0] = new Coordinate(coords[1].x, boxCenter.y);
@@ -134,20 +146,18 @@ public class Declutter {
                         }
                     }
                     boxes.add(box);
-                    double[][] line = new double[5][];
-                    for (int i = 0; i < 5; i++) {
-                        line[i] = new double[] { coords[i].x, coords[i].y };
-                    }
-                    shape.addLineSegment(new double[][] {
-                            { bestEdge.x, bestEdge.y },
-                            { thisCoord.x, thisCoord.y } });
-                    shape.addLineSegment(line);
-                    Coordinate ul = coords[0];
-                    return new double[] { ul.x, ul.y };
+                    TextBoxData textBox = new TextBoxData();
+                    textBox.line = new DrawableLine();
+                    textBox.line.addPoint(bestEdge.x, bestEdge.y);
+                    textBox.line.addPoint(thisCoord.x, thisCoord.y);
+                    textBox.box = new PixelExtent(coords[0].x, coords[2].x,
+                            coords[1].y, coords[3].y);
+                    textBox.textLoc = new double[] { coords[0].x, coords[0].y };
+                    return textBox;
                 }
             }
         }
-        return new double[0];
+        return null;
     }
 
 }

@@ -21,23 +21,23 @@ import edu.mit.ll.netcdf.LLNetcdfJNI;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 5, 2013            bclement     Initial creation
+ * Mar 5, 2013  ?          bclement    Initial creation
+ * Oct 26, 2016 5631       bkowal      It is now possible to create a dimension without
+ *                                     automatically creating an associated variable.
  * 
  * </pre>
  * 
  * @author bclement
- * @version 1.0
  */
-public class Netcdf extends NcBase {
+public class Netcdf extends NcBase implements AutoCloseable {
 
     protected final LLNetcdfJNI ncfile = new LLNetcdfJNI();
-    
+
     /**
      * create mode for NetCDF 4 using classic model
      */
     public static final int NETCDF4_CLASSIC_MODE = NcConstants.NC_CLASSIC_MODEL
             | NcConstants.NC_NETCDF4;
-
 
     /**
      * @param path
@@ -47,7 +47,7 @@ public class Netcdf extends NcBase {
     public Netcdf(String path) throws NetcdfException {
         this(path, NcConstants.NC_CLOBBER);
     }
-    
+
     /**
      * @param path
      *            absolute path of file
@@ -100,8 +100,32 @@ public class Netcdf extends NcBase {
      */
     public <T extends NcDimension> T defineDim(String name, int len,
             Class<T> dimClass) throws NetcdfException {
+        return defineDim(name, len, dimClass, true);
+    }
+
+    /**
+     * Define a NetCDF dimension in file. The return value can be used to
+     * populate the dimension axis values after {@link #endFileDefinition()} is
+     * called
+     * 
+     * @param <T>
+     *            data type specific {@link NcDimension} sub class
+     * @param name
+     *            name of dimension
+     * @param len
+     *            length of dimension
+     * @param dimClass
+     *            class object for {@link NcDimension} sub class
+     * @param createVar
+     *            boolean flag indicating whether or not a variable associated
+     *            with the dimension should also be created
+     * @return datatype specific {@link NcDimension} object
+     * @throws NetcdfException
+     */
+    public <T extends NcDimension> T defineDim(String name, int len,
+            Class<T> dimClass, boolean createVar) throws NetcdfException {
         try {
-            return NcFactory.createDim(fileId, name, len, dimClass);
+            return NcFactory.createDim(fileId, name, len, dimClass, createVar);
         } catch (Exception e) {
             throw new NetcdfException("Unable to create dimension", e);
         }

@@ -127,7 +127,6 @@ function build_server() {
    buildRPM "awips2-ldm"
    buildRPM "awips2-tools"
    build_pypies
-   buildRPM "awips2-cli"
    buildRPM "awips2-data.gfe"
    buildLocalization
 }

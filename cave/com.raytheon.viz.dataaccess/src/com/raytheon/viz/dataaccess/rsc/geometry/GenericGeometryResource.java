@@ -34,14 +34,13 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.dataaccess.rsc.AbstractDataAccessResource;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
@@ -54,17 +53,18 @@ import com.vividsolutions.jts.geom.Point;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 30, 2013            bkowal     Initial creation
- * Feb 6, 2013  #1555      bkowal     Improve Geometry Loop
- * Aug 13, 2014 #3492      mapeters   Updated deprecated createWireframeShape() calls.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 30, 2013           bkowal    Initial creation
+ * Feb 06, 2013  1555     bkowal    Improve Geometry Loop
+ * Aug 13, 2014  3492     mapeters  Updated deprecated createWireframeShape()
+ *                                  calls.
+ * Sep 14, 2016  3241     bsteffen  Update deprecated JTSCompiler method calls
+ * 
  * </pre>
  * 
  * @author bkowal
- * @version 1.0
  */
-
 public class GenericGeometryResource extends
         AbstractDataAccessResource<GenericGeometryResourceData> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -85,7 +85,7 @@ public class GenericGeometryResource extends
 
     }
 
-    private Map<DataTime, FrameData> renderableData = new HashMap<DataTime, FrameData>();
+    private Map<DataTime, FrameData> renderableData = new HashMap<>();
 
     /**
      * Constructor
@@ -176,7 +176,7 @@ public class GenericGeometryResource extends
     protected void prepareData(IGraphicsTarget target, DataTime time)
             throws VizException {
         IWireframeShape shape = null;
-        List<double[]> pointsToRender = new ArrayList<double[]>();
+        List<double[]> pointsToRender = new ArrayList<>();
 
         int numberOfPoints = 0;
 
@@ -211,7 +211,7 @@ public class GenericGeometryResource extends
             shape = target.createWireframeShape(false, this.descriptor);
 
             JTSCompiler jtsCompiler = new JTSCompiler(null, shape,
-                    this.descriptor, PointStyle.CROSS);
+                    this.descriptor);
             shape.allocate(numberOfPoints);
             // add the geometries
             for (IGeometryData geometryData : this.resourceData.getData(time)) {
@@ -249,7 +249,7 @@ public class GenericGeometryResource extends
      */
     public void purgeDrawableStorage() {
         Collection<FrameData> frames = renderableData.values();
-        renderableData = new HashMap<DataTime, FrameData>();
+        renderableData = new HashMap<>();
         for (FrameData frame : frames) {
             if (frame.shape != null) {
                 frame.shape.dispose();

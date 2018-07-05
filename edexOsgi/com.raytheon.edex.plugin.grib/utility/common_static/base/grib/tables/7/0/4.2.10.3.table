@@ -20,4 +20,7 @@
 248:248:80% Tropical Cyclone Storm Surge Exceedance:m:TCSRG80
 249:249:90% Tropical Cyclone Storm Surge Exceedance:m:TCSRG90
 250:250:Extra Tropical Storm Surge Combined Surge and Tide:m:ETCWL
+251:251:Tide:m:TIDE
+252:252:Erosion Occurrence Probability:%:EROSNP
+253:253:Overwash Occurrence Probability:%:OWASHP
 255:255:Missing

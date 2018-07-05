@@ -18,8 +18,14 @@
 # further licensing information.
 ##
 
-import BaseRequest
-from java.util import ArrayList
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Request of satellite image script 
@@ -33,6 +39,12 @@ from java.util import ArrayList
 #    05/20/14        2913          bsteffen       Remove image creation
 #    
 # 
+
+
+
+import BaseRequest
+from java.util import ArrayList
+
 
 class RadarRequest(BaseRequest.BaseRequest):
 	

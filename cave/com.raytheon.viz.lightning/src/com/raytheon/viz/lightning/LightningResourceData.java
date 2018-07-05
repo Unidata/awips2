@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -54,11 +54,11 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 
 /**
  * Implements persistable lightning resource properties and factory
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Feb 18, 2009  1959     chammack  Initial creation
@@ -73,9 +73,10 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  *                                  range.
  * May 19, 2016  3253     bsteffen  Deprecate countPosition in favor of
  *                                  dynamically positioned extra text
- * 
+ * Jun 20, 2017  DR20107  kingfield/meyer Added GLM display functionality
+ *
  * </pre>
- * 
+ *
  * @author chammack
  */
 @XmlAccessorType(XmlAccessType.NONE)
@@ -86,10 +87,14 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     /*
      * certain combination of lightning types get specific display labels
      */
+    // Kingfield/Meyer DEV - Add labels in DisplayType for the GLM (GLM_FLASH,
+    // GLM_EVENT, GLM_GROUP)
     public static enum DisplayType {
-        UNDEFINED(""), CLOUD_FLASH("Cloud Flash"), NEGATIVE("Negative"), POSITIVE(
-                "Positive"), PULSE("Pulse"), TOTAL_FLASH("Total"), CLOUD_TO_GROUND(
-                "Cloud to Ground");
+        UNDEFINED(""), CLOUD_FLASH("Cloud Flash"), NEGATIVE(
+                "Negative"), POSITIVE("Positive"), PULSE("Pulse"), TOTAL_FLASH(
+                        "Total"), CLOUD_TO_GROUND("Cloud to Ground"), GLM_FLASH(
+                                "GLM Flash"), GLM_EVENT("GLM Event"), GLM_GROUP(
+                                        "GLM Group");
         public final String label;
 
         private DisplayType(String name) {
@@ -115,11 +120,11 @@ public class LightningResourceData extends AbstractRequestableResourceData {
 
     /**
      * This field controls whether the frame for the current time is displayed.
-     * 
+     *
      * When it is true then all data is displayed including the current frame,
      * since the current frame may not be fully populated this frame may be more
      * sparse than others.
-     * 
+     *
      * When this is false then the frame for the current time is not displayed.
      */
     @XmlAttribute
@@ -164,8 +169,8 @@ public class LightningResourceData extends AbstractRequestableResourceData {
             rval = allTimes;
         } else {
             SimulatedTime systemTime = SimulatedTime.getSystemTime();
-            DataTime currentBin = binOffset.getNormalizedTime(new DataTime(
-                    systemTime.getTime()));
+            DataTime currentBin = binOffset
+                    .getNormalizedTime(new DataTime(systemTime.getTime()));
             List<DataTime> pastTimes = new ArrayList<>(Arrays.asList(allTimes));
             /* remove current bin which may not be fully populated yet */
             pastTimes.remove(currentBin);
@@ -177,7 +182,7 @@ public class LightningResourceData extends AbstractRequestableResourceData {
     @Override
     protected DataTime[] getAvailableTimes(
             Map<String, RequestConstraint> constraintMap, BinOffset binOffset)
-            throws VizException {
+                    throws VizException {
         if (binOffset != null
                 && binOffset.getInterval() <= TimeUtil.SECONDS_PER_MINUTE) {
             return getAvailableTimesFromRange(constraintMap, binOffset);
@@ -196,15 +201,15 @@ public class LightningResourceData extends AbstractRequestableResourceData {
      */
     protected DataTime[] getAvailableTimesFromRange(
             Map<String, RequestConstraint> constraintMap, BinOffset binOffset)
-            throws VizException {
+                    throws VizException {
         DbQueryRequest request = new DbQueryRequest(constraintMap);
         request.addRequestField(PluginDataObject.STARTTIME_ID);
         request.addRequestField(PluginDataObject.ENDTIME_ID);
         request.setDistinct(true);
         DbQueryResponse response = (DbQueryResponse) ThriftClient
                 .sendRequest(request);
-        Date[] startTimes = response.getFieldObjects(
-                PluginDataObject.STARTTIME_ID, Date.class);
+        Date[] startTimes = response
+                .getFieldObjects(PluginDataObject.STARTTIME_ID, Date.class);
         Date[] endTimes = response.getFieldObjects(PluginDataObject.ENDTIME_ID,
                 Date.class);
         Set<DataTime> binnedTimes = new HashSet<>(startTimes.length);
@@ -349,7 +354,6 @@ public class LightningResourceData extends AbstractRequestableResourceData {
         if (handlingPulses) {
             bitset |= 0x08;
         }
-
         switch (bitset) {
         case 0x01:
             rval = DisplayType.CLOUD_FLASH;
@@ -362,6 +366,16 @@ public class LightningResourceData extends AbstractRequestableResourceData {
             break;
         case 0x06:
             rval = DisplayType.CLOUD_TO_GROUND;
+            // Kingfield/Meyer DEV - If source is from GLM - convert to GLM type
+            // for legend text
+            String sourceType = metadataMap.get("source").toString();
+            if (sourceType.contains("GLMfl")) {
+                rval = DisplayType.GLM_FLASH;
+            } else if (sourceType.contains("GLMev")) {
+                rval = DisplayType.GLM_EVENT;
+            } else if (sourceType.contains("GLMgr")) {
+                rval = DisplayType.GLM_GROUP;
+            }
             break;
         case 0x07:
             rval = DisplayType.TOTAL_FLASH;

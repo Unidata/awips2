@@ -100,16 +100,16 @@ public class PutHomeCursorDialog extends CaveSWTDialog implements
             + "WHERE ST_DWithin(the_geom, ST_GeomFromText('%s'), %4.1f) AND"
             + " catalogtype = %d ORDER BY ST_Distance(the_geom, ST_GeomFromText('%1$s'))";
 
-    private final String ICAO_QRY_FMT = "SELECT AsBinary(the_geom) FROM common_obs_spatial "
+    private final String ICAO_QRY_FMT = "SELECT ST_AsBinary(the_geom) FROM common_obs_spatial "
             + "WHERE catalogtype = %d and icao = '%s'";
 
-    private final String CITY_QRY_FMT = "SELECT AsBinary(the_geom) FROM common_obs_spatial "
+    private final String CITY_QRY_FMT = "SELECT ST_AsBinary(the_geom) FROM common_obs_spatial "
             + "WHERE catalogtype = %d AND name = '%s' AND state = '%s'";
 
-    private final String CITY_DB_QRY_FMT = "SELECT AsBinary(the_geom) FROM mapdata.city "
+    private final String CITY_DB_QRY_FMT = "SELECT ST_AsBinary(the_geom) FROM mapdata.city "
             + "WHERE name = '%s' AND st = '%s'";
 
-    private final String AIRPORT_DB_QRY_FMT = "SELECT AsBinary(the_geom) FROM mapdata.airport "
+    private final String AIRPORT_DB_QRY_FMT = "SELECT ST_AsBinary(the_geom) FROM mapdata.airport "
             + "WHERE city = '%s' AND state = '%s'";
 
     /** Station radio button. */

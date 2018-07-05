@@ -46,17 +46,17 @@ import javax.persistence.Transient;
  * Oct 17, 2008                        Initial generation by hbm2java
  * Aug 19, 2011      10672     jkorman Move refactor to new project
  * Oct 07, 2013       2361     njensen Removed XML annotations
+ * Dec 18, 2017       6554     bkowal  Implemented {@link ICheckValue}.
  * 
  * </pre>
  * 
  * @author jkorman
- * @version 1.1
  */
 @Entity
 @Table(name = "rawpc")
 @com.raytheon.uf.common.serialization.annotations.DynamicSerialize
 public class Rawpc extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject
-        implements java.io.Serializable, IRawTS {
+        implements java.io.Serializable, IRawTS, ICheckValue {
 
     private static final long serialVersionUID = 1L;
 
@@ -235,4 +235,12 @@ public class Rawpc extends com.raytheon.uf.common.dataplugin.persist.Persistable
         return getId().getObstime();
     }
 
+    @Transient
+    @Override
+    public String getCompareValue() {
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
+    }
 }

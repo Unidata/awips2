@@ -42,16 +42,16 @@ import com.raytheon.viz.mpe.ui.MPEDisplayManager.DisplayMode;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 6, 2012            mschenke     Initial creation
+ * Dec 6, 2012  ?          mschenke    Initial creation
+ * Mar 01, 2017 6160       bkowal      Added {@link #getDisplayString()}.
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
-public abstract class AbstractMPEGriddedResourceData extends
-        AbstractResourceData {
+public abstract class AbstractMPEGriddedResourceData
+        extends AbstractResourceData {
 
     public static class Frame {
         public final short[] data;
@@ -87,13 +87,6 @@ public abstract class AbstractMPEGriddedResourceData extends
     @XmlElement(name = "displayMode")
     private Set<DisplayMode> displayModes = new HashSet<DisplayMode>();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractResourceData#update(java.lang.Object
-     * )
-     */
     @Override
     public void update(Object updateData) {
         fireChangeListeners(ChangeType.DATA_UPDATE, updateData);
@@ -150,6 +143,15 @@ public abstract class AbstractMPEGriddedResourceData extends
     public abstract String getCvUseString();
 
     /**
+     * Used to retrieve the display name/string of the gridded data.
+     * 
+     * @return the display name/string of the gridded data
+     */
+    public String getDisplayString() {
+        return null;
+    }
+
+    /**
      * Get the data units for this type
      * 
      * @return
@@ -165,11 +167,6 @@ public abstract class AbstractMPEGriddedResourceData extends
      */
     public abstract Unit<?> getDisplayUnits();
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -180,11 +177,6 @@ public abstract class AbstractMPEGriddedResourceData extends
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj)

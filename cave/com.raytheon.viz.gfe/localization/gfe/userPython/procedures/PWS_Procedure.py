@@ -25,7 +25,13 @@
 # Authors: Tom LeFebvre, Pablo Santos
 # Last Modified: Dec 10, 2010  -  new equations to process 12 hour incremental wind speed probability grids (PWS(D,N)) from 6 hourly pws34 and pws64 grids.
 #                March 23, 2011 - Corrected for proper accounting of input inventory (pws34 and pws64)
+#                July 18, 2017 - Added option to select Preliminary of Official probablistic model source.  -Tom
 # ----------------------------------------------------------------------------
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -41,6 +47,8 @@ from numpy import *
 
 LEVEL = "SFC"
 
+VariableList = [("Probabilistic Wind Source?", "Official", "radio", ["Official", "Preliminary"]),
+                ]
 class Procedure (SmartScript.SmartScript):
     def __init__(self, dbss):
         SmartScript.SmartScript.__init__(self, dbss)
@@ -58,7 +66,7 @@ class Procedure (SmartScript.SmartScript):
 
         if len(gridList) < 1:
             return None
-        
+
         gridInt = []
         i=0
         while i < len(gridList):
@@ -104,13 +112,13 @@ class Procedure (SmartScript.SmartScript):
 
     # determines the latest pws model currently available
     def getLatestPWSModel(self):
-        # Changed to FCSTRGEN to match experimental dataset
-        #modelIDList = self.getModelIDList("FCSTRGEN")
-        modelIDList = self.getModelIDList("TPCProb")
+
+        # Use the model source selected from the GUI        
+        modelIDList = self.getModelIDList(self._probWindModelSource)
         modelIDList.sort()
 
         if len(modelIDList) == 0:
-            self.statusBarMsg("HERE No PWS models found in your inventory.", "S")
+            self.statusBarMsg("No PWS models found in your inventory.", "S")
             return ""
 
         # the last one is the latest
@@ -233,9 +241,25 @@ class Procedure (SmartScript.SmartScript):
         return grid
 
     # main method
-    def execute(self):
+    def execute(self, varDict):
+        
+        # Fetch the model source and define the model name
+        sourceDB = varDict["Probabilistic Wind Source?"]
+        if sourceDB == "Official":
+            self._probWindModelSource = "TPCProb"
+        elif sourceDB == "Preliminary":
+            self._probWindModelSource = "TPCProbPrelim"
+        else:
+            self.statusBarMsg("Unknown model source selected. Aborting.", "U")
+            return
+        
         
         modelID = self.getLatestPWSModel()
+        if modelID == "":
+            self.statusBarMsg("The selected model source was not found. Aborting.", "U")
+            return
+        
+        print "modelID:", len(modelID)
         weNames = ["prob34", "prob64", "pws34int", "pws64int"]
         modelTR_cum = self.getModelTimeRange(modelID, "prob34", weNames)
         weNames = ["pwsD34", "pwsD64", "pwsN34", "pwsN64"]        
@@ -310,3 +334,4 @@ class Procedure (SmartScript.SmartScript):
         # Post the model time we used to the GFE status bar
         modelTimeStr = modelID[-13:]
         self.statusBarMsg(modelTimeStr + " used to make pws grids.", "R")
+

@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.shef.data.Observation;
 import com.raytheon.uf.common.dataplugin.shef.tables.Curpc;
@@ -34,7 +35,6 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Curpp;
 import com.raytheon.uf.common.dataplugin.shef.tables.CurppId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Riverstatus;
 import com.raytheon.uf.common.time.SimulatedTime;
-import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery.QueryLanguage;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -52,7 +52,7 @@ import com.raytheon.viz.hydrocommon.datamanager.SqlBuilder;
 import com.raytheon.viz.hydrocommon.pdc.PDCOptionData;
 import com.raytheon.viz.hydrocommon.pdc.PDCOptions;
 import com.raytheon.viz.hydrocommon.util.DbUtils;
-import com.raytheon.viz.mpe.core.MPEDataManager;
+import com.raytheon.viz.hydrocommon.whfslib.PrecipUtil;
 
 /**
  * Point Data Control Data Access Manager.
@@ -64,12 +64,11 @@ import com.raytheon.viz.mpe.core.MPEDataManager;
  * ------------ ---------- ----------- --------------------------
  * Oct 22, 2008            mpduff      Initial creation
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
- * May 23, 2016 5590       bkowal      {@link Observation} relocated to common.
- * Jul 25, 2016 4623       skorolev    Replaced precipUtil with MPEDataManager to to load data. Cleanup.
- * 
+ * May 23, 2016 #5590      bkowal      {@link Observation} relocated to common.
  * </pre>
  * 
  * @author mpduff
+ * @version 1.0
  */
 
 public class PDCDataManager extends HydroDataManager {
@@ -99,14 +98,8 @@ public class PDCDataManager extends HydroDataManager {
         return instance;
     }
 
-    /**
-     * Gets Pe and Ts
-     * 
-     * @return
-     * @throws VizException
-     */
-    public List<String[]> getPeTs() throws VizException {
-        List<String[]> result = new ArrayList<>();
+    public ArrayList<String[]> getPeTs() throws VizException {
+        ArrayList<String[]> result = new ArrayList<String[]>();
 
         String sql = "select distinct pe, ts from ingestfilter where ts like 'R%%' OR ts LIKE 'P%%'";
         List<Object[]> resultset = runQuery(sql);
@@ -120,14 +113,8 @@ public class PDCDataManager extends HydroDataManager {
         return result;
     }
 
-    /**
-     * Gets PE from Ingestfilter.
-     * 
-     * @return
-     * @throws VizException
-     */
     public String[] getIngestFilterPE() throws VizException {
-        List<String> peList = new ArrayList<>();
+        ArrayList<String> peList = new ArrayList<String>();
 
         String query = "select distinct(pe) from ingestfilter";
         List<Object[]> rs = DirectDbQuery.executeQuery(query,
@@ -140,26 +127,15 @@ public class PDCDataManager extends HydroDataManager {
         return peList.toArray(new String[peList.size()]);
     }
 
-    /**
-     * Gets Pe Names
-     * 
-     * @return
-     * @throws VizException
-     */
     public Map<String, String> getPeNames() throws VizException {
-        if (peMap == null) {
-            peMap = new LinkedHashMap<>();
+        if ((peMap == null) || (peMap.size() < 1)) {
+            peMap = new LinkedHashMap<String, String>();
             populatePeMap();
         }
 
         return peMap;
     }
 
-    /**
-     * Populate Pe Map
-     * 
-     * @throws VizException
-     */
     private void populatePeMap() throws VizException {
         String sql = "select pe, name from shefpe order by pe asc";
 
@@ -171,17 +147,11 @@ public class PDCDataManager extends HydroDataManager {
         }
     }
 
-    /**
-     * Gets data from Pointdatapresets
-     * 
-     * @return
-     * @throws VizException
-     */
     public List<PointDataPreset> getPresets() throws VizException {
         String sql = "select preset_id, descr, preset_rank, preset_string from pointdatapresets "
                 + "order by preset_rank asc";
         List<Object[]> result = runQuery(sql);
-        List<PointDataPreset> presetList = new ArrayList<>();
+        List<PointDataPreset> presetList = new ArrayList<PointDataPreset>();
 
         for (Object[] oa : result) {
             PointDataPreset pdp = new PointDataPreset();
@@ -261,11 +231,11 @@ public class PDCDataManager extends HydroDataManager {
      * 
      * @param where
      *            The where clause to use, or null for no where clause
-     * @return List<String> of telmtype values
+     * @return ArrayList<String> of telmtype values
      * @throws VizException
      */
-    public List<String> getTelmType(String where) throws VizException {
-        List<String> returnList = new ArrayList<>();
+    public ArrayList<String> getTelmType(String where) throws VizException {
+        ArrayList<String> returnList = new ArrayList<String>();
         SqlBuilder sql = new SqlBuilder("telmtype");
         sql.setColumn("type");
         sql.setSqlType(SqlBuilder.SELECT);
@@ -274,7 +244,7 @@ public class PDCDataManager extends HydroDataManager {
             sql.setWhereClause(where);
         }
 
-        List<Object[]> results = runQuery(sql.toString());
+        ArrayList<Object[]> results = runQuery(sql.toString());
 
         returnList.add("Observer");
         returnList.add("DCP");
@@ -293,11 +263,11 @@ public class PDCDataManager extends HydroDataManager {
      * 
      * @param where
      *            The where clause
-     * @return List<String> of HSA values
+     * @return ArrayList<String> of HSA values
      * @throws VizException
      */
-    public List<String> getHsaList(String where) throws VizException {
-        List<String> returnList = new ArrayList<>();
+    public ArrayList<String> getHsaList(String where) throws VizException {
+        ArrayList<String> returnList = new ArrayList<String>();
         StringBuilder sql = new StringBuilder(
                 "select distinct hsa from LocClass");
 
@@ -305,7 +275,7 @@ public class PDCDataManager extends HydroDataManager {
             sql.append(" " + where);
         }
 
-        List<Object[]> results = runQuery(sql.toString());
+        ArrayList<Object[]> results = runQuery(sql.toString());
 
         for (Object[] oa : results) {
             returnList.add((String) oa[0]);
@@ -314,23 +284,17 @@ public class PDCDataManager extends HydroDataManager {
         return returnList;
     }
 
-    /**
-     * Gets River Status
-     * 
-     * @param lid
-     * @return
-     */
     public RiverStat getRiverStatus(String lid) {
         RiverStat rsInfo = null;
         if (riverStatMap == null) {
-            riverStatMap = new HashMap<>();
+            riverStatMap = new HashMap<String, RiverStat>();
         }
 
         if ((lid != null) && (riverStatMap.get(lid) == null)) {
             String sql = "select lid, primary_pe, fq, fs, action_flow, wstg from riverstat where lid = '"
                     + lid + "'";
 
-            List<Object[]> results = runQuery(sql);
+            ArrayList<Object[]> results = runQuery(sql);
 
             if ((results != null) && (results.size() > 0)) {
                 rsInfo = new RiverStat(results.get(0));
@@ -353,7 +317,12 @@ public class PDCDataManager extends HydroDataManager {
      */
     public List<Riverstatus> getRiverStatusList(String where)
             throws VizException {
-
+        ArrayList<Riverstatus> returnList = new ArrayList<Riverstatus>();
+        // StringBuilder query = new
+        // StringBuilder("select lid, pe, dur, ts, extremum, ");
+        // query.append("probability, validtime, basistime from ");
+        // query.append("riverstatus ");
+        // query.append(where);
         StringBuilder query = new StringBuilder();
         query.append("from "
                 + com.raytheon.uf.common.dataplugin.shef.tables.Riverstatus.class
@@ -363,7 +332,7 @@ public class PDCDataManager extends HydroDataManager {
         List<Object[]> results = DirectDbQuery.executeQuery(query.toString(),
                 HydroConstants.IHFS, QueryLanguage.HQL);
 
-        List<Riverstatus> returnList = new ArrayList<>(results.size());
+        returnList.ensureCapacity(results.size());
         for (Object[] item : results) {
             returnList.add((Riverstatus) item[0]);
         }
@@ -378,8 +347,8 @@ public class PDCDataManager extends HydroDataManager {
      */
     public Map<String, List<IngestFilter>> getIngestFilterData() {
         if (ingestFilterMap == null) {
-            ingestFilterMap = new HashMap<>();
-            List<IngestFilter> filterList = new ArrayList<>();
+            ingestFilterMap = new HashMap<String, List<IngestFilter>>();
+            List<IngestFilter> filterList = new ArrayList<IngestFilter>();
 
             String sql = "select lid, pe, dur, ts, extremum, ts_rank from ingestFilter order by lid asc";
             ArrayList<Object[]> results = runQuery(sql);
@@ -390,7 +359,7 @@ public class PDCDataManager extends HydroDataManager {
                 if (!lid.equalsIgnoreCase(prevLid)) {
                     ingestFilterMap.put(prevLid, filterList);
                     prevLid = lid;
-                    filterList = new ArrayList<>();
+                    filterList = new ArrayList<IngestFilter>();
                 }
                 IngestFilter ingFilter = new IngestFilter(oa);
                 filterList.add(ingFilter);
@@ -410,13 +379,13 @@ public class PDCDataManager extends HydroDataManager {
      *            The Physical Element
      * @return
      */
-    public List<IngestFilter> getIngestFilter(String lid, String pe) {
-        List<IngestFilter> filterList = new ArrayList<>();
+    public ArrayList<IngestFilter> getIngestFilter(String lid, String pe) {
+        ArrayList<IngestFilter> filterList = new ArrayList<IngestFilter>();
         String sql = "select lid, pe, dur, ts, extremum, ts_rank "
                 + "from ingestFilter where lid = '" + lid + "' and " + "pe = '"
                 + pe + "'";
 
-        List<Object[]> results = runQuery(sql);
+        ArrayList<Object[]> results = runQuery(sql);
         if (results != null) {
             for (Object[] oa : results) {
                 IngestFilter filter = new IngestFilter(oa);
@@ -474,7 +443,7 @@ public class PDCDataManager extends HydroDataManager {
                 hBuffer.append(" height ");
                 hBuffer.append(where.toString());
                 ArrayList<Object[]> heightResults = runQuery(hBuffer.toString());
-                List<Observation> heightList = new ArrayList<>();
+                List<Observation> heightList = new ArrayList<Observation>();
                 for (Object[] oa : heightResults) {
                     Observation obs = new Observation(oa);
                     heightList.add(obs);
@@ -488,9 +457,9 @@ public class PDCDataManager extends HydroDataManager {
                 qBuffer.append(" discharge ");
                 qBuffer.append(where.toString());
                 ArrayList<Object[]> qResults = runQuery(qBuffer.toString());
-                List<Observation> qList = new ArrayList<>();
+                List<Observation> qList = new ArrayList<Observation>();
                 for (Object[] oa : qResults) {
-                    Observation obs = new Observation(oa);
+                    Observation obs = new Observation();
                     qList.add(obs);
                 }
                 pdcManager.setObsDischargeList(qList);
@@ -503,7 +472,7 @@ public class PDCDataManager extends HydroDataManager {
                 qBuffer.append(" height ");
                 qBuffer.append(where.toString());
                 ArrayList<Object[]> qResults = runQuery(qBuffer.toString());
-                List<Observation> heightList = new ArrayList<>();
+                List<Observation> heightList = new ArrayList<Observation>();
                 for (Object[] oa : qResults) {
                     Observation obs = new Observation(oa);
                     heightList.add(obs);
@@ -518,9 +487,9 @@ public class PDCDataManager extends HydroDataManager {
                 qBuffer.append(" discharge ");
                 qBuffer.append(where.toString());
                 ArrayList<Object[]> qResults = runQuery(qBuffer.toString());
-                List<Observation> qList = new ArrayList<>();
+                List<Observation> qList = new ArrayList<Observation>();
                 for (Object[] oa : qResults) {
-                    Observation obs = new Observation(oa);
+                    Observation obs = new Observation();
                     qList.add(obs);
                 }
                 pdcManager.setObsDischargeList(qList);
@@ -551,14 +520,14 @@ public class PDCDataManager extends HydroDataManager {
         PointDataControlManager pdcManager = PointDataControlManager
                 .getInstance();
         PDCOptionData pcOptions = PDCOptionData.getInstance();
-        MPEDataManager mpeDM = MPEDataManager.getInstance();
+        PrecipUtil precipUtil = PrecipUtil.getInstance();
         List<String> typeSourceArray = null;
         long minTime;
         long maxTime;
-        List<Object[]> pcList = null;
-        List<Object[]> ppList = null;
-        List<Curpc> pcObjectList = new ArrayList<>();
-        List<Curpp> ppObjectList = new ArrayList<>();
+        ArrayList<Object[]> pcList = null;
+        ArrayList<Object[]> ppList = null;
+        ArrayList<Curpc> pcObjectList = new ArrayList<Curpc>();
+        ArrayList<Curpp> ppObjectList = new ArrayList<Curpp>();
 
         /* Empty out the data lists */
         pdcManager.setPpList(null);
@@ -585,7 +554,7 @@ public class PDCDataManager extends HydroDataManager {
                     + (pcOptions.getDurHours() * PDCConstants.MILLIS_PER_HOUR);
         }
 
-        Calendar cal = TimeUtil.newGmtCalendar();
+        Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         cal.setTimeInMillis(minTime);
         String beginTime = PDCConstants.DATE_FORMAT.format(cal.getTime());
         cal.setTimeInMillis(maxTime);
@@ -593,18 +562,18 @@ public class PDCDataManager extends HydroDataManager {
         String lid = "";
 
         if (pcOptions.getPcAndpp() == 1) {
-            pcList = mpeDM.loadPeRaw(beginTime, endTime, lid, typeSourceArray,
-                    HydroConstants.PhysicalElement.PC);
+            pcList = precipUtil.loadPeRaw(beginTime, endTime, lid,
+                    typeSourceArray, HydroConstants.PhysicalElement.PC);
 
-            ppList = mpeDM.loadPeRaw(beginTime, endTime, lid, typeSourceArray,
-                    HydroConstants.PhysicalElement.PP);
+            ppList = precipUtil.loadPeRaw(beginTime, endTime, lid,
+                    typeSourceArray, HydroConstants.PhysicalElement.PP);
         } else {
             if (pcOptions.getSelectedAdHocElementString()
                     .equalsIgnoreCase("PC")) {
-                pcList = mpeDM.loadPeRaw(beginTime, endTime, lid,
+                pcList = precipUtil.loadPeRaw(beginTime, endTime, lid,
                         typeSourceArray, HydroConstants.PhysicalElement.PC);
             } else {
-                ppList = mpeDM.loadPeRaw(beginTime, endTime, lid,
+                ppList = precipUtil.loadPeRaw(beginTime, endTime, lid,
                         typeSourceArray, HydroConstants.PhysicalElement.PP);
             }
         }
@@ -674,9 +643,6 @@ public class PDCDataManager extends HydroDataManager {
         }
     }
 
-    /**
-     * Gets SnowTempOtherData
-     */
     public void getSnowTempOtherData() {
         PointDataControlManager pdcManager = PointDataControlManager
                 .getInstance();
@@ -684,8 +650,8 @@ public class PDCDataManager extends HydroDataManager {
         String typeSource = null;
         String tablename = null;
         String where = null;
-        List<Object[]> obsResult = null;
-        List<Observation> obsList = new ArrayList<>();
+        ArrayList<Object[]> obsResult = null;
+        List<Observation> obsList = new ArrayList<Observation>();
 
         /*
          * check whether the latest value is stored in the LatestObsValue table
@@ -712,7 +678,7 @@ public class PDCDataManager extends HydroDataManager {
                     || (pcOptions.getFilterByTypeSource() == 0)) {
                 pcOptions.setTypeSourceChosenCount(1);
                 List<String> tsChosenList = pcOptions.getTypeSourceChosenList();
-                List<String> newTsChosenList = new ArrayList<>();
+                List<String> newTsChosenList = new ArrayList<String>();
 
                 // Not sure why changing the list value here
                 newTsChosenList.add("XX");
@@ -739,8 +705,13 @@ public class PDCDataManager extends HydroDataManager {
         }
 
         for (Object[] oa : obsResult) {
+            // if (oa.length == 11) {
+            // Observation obs = new Observation(oa);
+            // obsList.add(obs);
+            // } else {
             Observation obs = new Observation(oa);
             obsList.add(obs);
+            // }
         }
 
         pdcManager.setObservationList(obsList);
@@ -755,7 +726,7 @@ public class PDCDataManager extends HydroDataManager {
      *            The where clause
      * @return An Observation object of data
      */
-    public List<Object[]> getObservationData(String table, String where) {
+    public ArrayList<Object[]> getObservationData(String table, String where) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT lid, pe, dur, ts, extremum, obstime, value, ");
         sb.append("shef_qual_code, quality_code, revision, product_id ");
@@ -771,7 +742,7 @@ public class PDCDataManager extends HydroDataManager {
      *            The where clause
      * @return An Observation object of data
      */
-    public List<Object[]> getLatestObsValue(String where) {
+    public ArrayList<Object[]> getLatestObsValue(String where) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT lid, pe, dur, ts, extremum, obstime, value, ");
         sb.append("shef_qual_code, quality_code, revision, product_id, ");
@@ -789,13 +760,13 @@ public class PDCDataManager extends HydroDataManager {
      * @return List of LocPDC objects
      */
     public Map<String, LocPDC> getLocPDC(String where) {
-        Map<String, LocPDC> returnMap = new HashMap<>();
+        Map<String, LocPDC> returnMap = new HashMap<String, LocPDC>();
 
         StringBuilder sql = new StringBuilder();
         sql.append("Select lid, name, lat, lon, hsa, post, elev, primary_pe, fs, fq, ");
         sql.append("disp_class, is_dcp, is_observer, telem_type from locPDC");
 
-        List<Object[]> results = runQuery(sql.toString());
+        ArrayList<Object[]> results = runQuery(sql.toString());
 
         for (Object[] oa : results) {
             LocPDC locPDC = new LocPDC(oa);
@@ -818,7 +789,7 @@ public class PDCDataManager extends HydroDataManager {
         String sql = "select disp_class from stnclass where lid = '" + lid
                 + "'";
 
-        List<Object[]> results = runQuery(sql);
+        ArrayList<Object[]> results = runQuery(sql);
 
         if ((results != null) && (results.size() > 0)) {
             dispClass = (String) results.get(0)[0];

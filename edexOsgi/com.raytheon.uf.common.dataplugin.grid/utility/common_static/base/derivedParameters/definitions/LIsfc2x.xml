@@ -18,12 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter unit="℃" name="Lifted Index Sfc to" abbreviation="LIsfc2x" xmlns:ns2="group">
     <Method levels="MB" name="LiftedIndex">
-        <Field level="Surface" abbreviation="P"/>
-        <Field level="Surface" abbreviation="T"/>
-        <Field level="Surface" abbreviation="RH"/>
-        <Field abbreviation="T"/>
-        <Field abbreviation="MB"/>
+        <Field level="Surface" abbreviation="P" />
+        <Field level="Surface" abbreviation="T" />
+        <Field level="Surface" abbreviation="RH" />
+        <Field abbreviation="T" />
+        <Field abbreviation="MB" />
     </Method>
 </DerivedParameter>

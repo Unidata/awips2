@@ -69,7 +69,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Apr 15, 2014  2060     njensen     Remove dataURI column
  * May 07, 2014  2060     njensen     GridRecord(String) will do parameter lookup
  * Aug 03, 2015  4360     rferrel     Name unique constraint. Made info non-nullable.
- * 
+ * Dec 21, 2016  6028     rjpeter     Updated info_id constraint to include reftime.
  * </pre>
  * 
  * @author bsteffen
@@ -83,7 +83,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @Table(name = "grid", uniqueConstraints = { @UniqueConstraint(name = "uk_grid_datauri_fields", columnNames = {
         "refTime", "forecastTime", "info_id", "rangestart", "rangeend" }) })
-@org.hibernate.annotations.Table(appliesTo = "grid", indexes = { @Index(name = "grid_info_id_index", columnNames = { "info_id" }) })
+@org.hibernate.annotations.Table(appliesTo = "grid", indexes = { @Index(name = "grid_info_id_reftime_index", columnNames = { "info_id", "reftime" }) })
 @DynamicSerialize
 public class GridRecord extends PersistablePluginDataObject implements
         ISpatialEnabled {

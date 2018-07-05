@@ -57,10 +57,10 @@ scripts = [
     {
     "name":"WSW_1", 
     "productType":"Hazard_WSW", 
-    "commentary": "Creating ZR.Y hazard for three zones in WSW product.",
+    "commentary": "Creating WW.Y hazard for three zones in WSW product.",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ151","FLZ251","FLZ165","FLZ265"]),],
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "WW.Y", ["FLZ050","FLZ151","FLZ251","FLZ165","FLZ265"]),],
     "comboFlag": 0, 
     "decodeVTEC": 1,
     "vtecMode": "O",
@@ -74,7 +74,7 @@ scripts = [
     "commentary": "Testing AFD hazard block, with no fire weather hazard in fire weather area.",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ151","FLZ251","FLZ165","FLZ265"]),],
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "WW.Y", ["FLZ050","FLZ151","FLZ251","FLZ165","FLZ265"]),],
     "comboFlag": 0, 
     "writableCopies": [
         ("FLZ050","REFERENCE","FLZ999"),
@@ -86,7 +86,7 @@ scripts = [
       ],
     "cmdLineVars": "{('Issued By', 'issuedBy'): None, ('IncludePrevious AFD?', 'includePreviousAFD'): 'NO', ('Long TermForecaster', 'longTermFcstrNumber'): '99', ('Product Issuance', 'productIssuance'): 'Morning', ('Short TermForecaster', 'shortTermFcstrNumber'): '99', ('OptionalTopics', 'optionalTopics'): [], ('AviationForecaster', 'aviationFcstrNumber'): '99'}",
     "notCheckStrings": [
-       "Freezing Rain Advisory until midnight EST tonight for .",
+       "Winter Weather Advisory until midnight EST tonight for .",
        ],
     "checkStrings": [
        "FXUS62 KTBW 160500",
@@ -98,8 +98,8 @@ scripts = [
        ".LONG TERM...",
        "&&",
        ".TBW WATCHES/WARNINGS/ADVISORIES...",
-       "Freezing Rain Advisory until midnight EST tonight for FLZ050-151-",
-       "165-251-265.",
+       "Winter Weather Advisory until midnight EST tonight for FLZ050-",
+       "151-165-251-265.",
        "&&",
        "$$",
        ],
@@ -111,11 +111,11 @@ scripts = [
     "commentary": "Testing AFD hazard block, with multiple segments defined in hazards grid, with results of all combined into one item",
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", -10, 0, "ZR.Y:1", ["FLZ050"]),
-       ("Fcst", "Hazards", "DISCRETE", -10, 0, "ZR.Y:2", ["FLZ165", "FLZ265"]),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y:1", ["FLZ050"]),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y:2", ["FLZ165", "FLZ265"]),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y:3", ["FLZ151", "FLZ251"])],
+       ("Fcst", "Hazards", "DISCRETE", -10, 0, "WW.Y:1", ["FLZ050"]),
+       ("Fcst", "Hazards", "DISCRETE", -10, 0, "WW.Y:2", ["FLZ165", "FLZ265"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "WW.Y:1", ["FLZ050"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "WW.Y:2", ["FLZ165", "FLZ265"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "WW.Y:3", ["FLZ151", "FLZ251"])],
     "comboFlag": 0, 
     "fileChanges": [
       ("AFD_<site>_Definition", "TextUtility", "replace", (def1, def2), "undo"),
@@ -130,8 +130,8 @@ scripts = [
        ".LONG TERM...",
        "&&",
        ".TBW WATCHES/WARNINGS/ADVISORIES...",
-       "Freezing Rain Advisory until midnight EST tonight for FLZ050-151-",
-       "165-251-265.",
+       "Winter Weather Advisory until midnight EST tonight for FLZ050-",
+       "151-165-251-265.",
        "&&",
        "$$",
        ],
@@ -144,7 +144,7 @@ scripts = [
     "clearHazardsTable": 1,
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ151","FLZ251","FLZ052"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "WW.Y", ["FLZ050","FLZ151","FLZ251","FLZ052"]),
        ],
     "comboFlag": 0, 
     "fileChanges": [
@@ -161,8 +161,8 @@ scripts = [
        ".LONG TERM...",
        "&&",
        ".TBW WATCHES/WARNINGS/ADVISORIES...",
-       "Freezing Rain Advisory until midnight EST tonight for FLZ050-052-",
-       "151-251.",
+       "Winter Weather Advisory until midnight EST tonight for FLZ050-",
+       "052-151-251.",
        "&&",
        "$$",
        ],
@@ -175,7 +175,7 @@ scripts = [
     "clearHazardsTable": 1,
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ151","FLZ251","FLZ052"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "WW.Y", ["FLZ050","FLZ151","FLZ251","FLZ052"]),
        ],
     "comboFlag": 0, 
     "fileChanges": [
@@ -197,7 +197,7 @@ scripts = [
        ".LONG TERM...",
        "&&",
        ".TBW WATCHES/WARNINGS/ADVISORIES...",
-       "Freezing Rain Advisory until midnight EST tonight for FLZ050-",
+       "Winter Weather Advisory until midnight EST tonight for FLZ050-",
        "FLZ052-FLZ151-FLZ251.",
        "&&",
        "$$",
@@ -211,7 +211,7 @@ scripts = [
     "clearHazardsTable": 1,
     "createGrids": [
        ("Fcst", "Hazards", "DISCRETE", 0, 24, "<None>", "all"),
-       ("Fcst", "Hazards", "DISCRETE", 0, 24, "ZR.Y", ["FLZ050","FLZ151","FLZ251","FLZ052"]),
+       ("Fcst", "Hazards", "DISCRETE", 0, 24, "WW.Y", ["FLZ050","FLZ151","FLZ251","FLZ052"]),
        ],
     "comboFlag": 0, 
     "fileChanges": [
@@ -233,7 +233,7 @@ scripts = [
        ".LONG TERM...",
        "&&",
        ".TBW WATCHES/WARNINGS/ADVISORIES...",
-       "Freezing Rain Advisory until midnight EST tonight for FLZ050-",
+       "Winter Weather Advisory until midnight EST tonight for FLZ050-",
        "FLZ052-FLZ151-FLZ251.",
        "&&",
        "$$",

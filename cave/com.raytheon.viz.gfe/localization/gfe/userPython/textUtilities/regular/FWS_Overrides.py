@@ -37,6 +37,10 @@
 #
 # ---------------------------------------------------------------------
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 import string, time, re, os, types, copy
 import TextRules
 import ProcessVariableList

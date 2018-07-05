@@ -224,6 +224,7 @@ PRB Heat Index Forecast Tables
 PRC State Pilot Report Collective
 PRE Preliminary Extended Forecast Discussion
 PSH Post Storm Hurricane Report
+PTM PUP Text Message
 PTS Lat/lon points of SPC Outlook Products
 PWO Public Severe Weather Outlook
 PWS Probabilistic Tropical Cyclone (Experimental) Wind Speed
@@ -275,8 +276,9 @@ SAG Snow Avalanche Guidance
 SAO Surface Aviation Observation
 SAT Satellite Support Messages
 SAW Prelim. Notice of Watch & Watch Cancelation
-SCC Storm Summary/Shift Change Checklist
+SCC Storm Summary
 SCD Supplemental Climate Data
+SCL Shift Change Checklist
 SCN Soil Climate Analysis Network Data (from SCAN sites)
 SCP Satellite Cloud Product
 SCS Selected Cities Summary

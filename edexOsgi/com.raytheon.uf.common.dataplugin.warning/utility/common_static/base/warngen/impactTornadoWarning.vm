@@ -56,14 +56,14 @@
   #set($windHazard = "60 mph wind gusts")
   #set($windSpeed = 60)
   #set($windTag = "60MPH")
-##  #set($windImpact = "large tree limbs broken off partially blocking roads#commaOrEllipsis()damaging buildings#commaOrEllipsis()homes and downing power lines.")
+##  #set($windImpact = "large tree limbs broken off partially blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #if(${list.contains(${bullets}, "70mphWind")})
   #set($windThreat = "destructive winds in excess of 70 mph")
   #set($windHazard = "70 mph wind gusts")
   #set($windSpeed = 70) 
   #set($windTag = "70MPH")
-##  #set($windImpact = "trees to be uprooted blocking roads#commaOrEllipsis()damaging buildings#commaOrEllipsis()homes and downing power lines.")
+##  #set($windImpact = "trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #if(${list.contains(${bullets}, "80mphWind")})
   #set($windThreat = "destructive winds in excess of 80 mph")
@@ -71,7 +71,7 @@
   #set($windSpeed = 80) 
   #set($windTag = "80MPH")
   #set($extensive = "extensive ")
-##  #set($windImpact = "trees to be uprooted blocking roads#commaOrEllipsis()damaging buildings#commaOrEllipsis()homes and downing power lines.")
+##  #set($windImpact = "trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #if(${list.contains(${bullets}, "90mphWind")})
   #set($windThreat = "extreme damaging winds in excess of 90 mph")
@@ -79,7 +79,7 @@
   #set($windSpeed = 90)
   #set($windTag = "90MPH")
   #set($extensive = "extensive ")
-##  #set($windImpact ="trees to be uprooted blocking roads#commaOrEllipsis()damaging buildings#commaOrEllipsis()homes and downing power lines.")
+##  #set($windImpact ="trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #if(${list.contains(${bullets}, "100mphWind")})
   #set($windThreat = "extreme damaging winds in excess of 100 mph")
@@ -87,7 +87,7 @@
   #set($windSpeed = 100)
   #set($windTag = "100MPH")
   #set($extensive = "extensive ")
-##  #set($windImpact ="trees to be uprooted blocking roads#commaOrEllipsis()damaging buildings#commaOrEllipsis()homes and downing power lines.")
+##  #set($windImpact ="trees to be uprooted blocking roads, damaging buildings, homes and downing power lines.")
 #end
 #######################################
 ## HANDLE HAIL POSSIBILITIES ##########
@@ -180,9 +180,9 @@
 #end
 #if(${hailSize} >= 1.50)
   #if(${stormType} == "line")
-    #set($extraThreat = "In addition to a tornado#commaOrEllipsis()${hailthreat} is expected with these storms.")
+    #set($extraThreat = "In addition to a tornado, ${hailthreat} is expected with these storms.")
   #else
-    #set($extraThreat = "In addition to a tornado#commaOrEllipsis()${hailthreat} is expected with this storm.")
+    #set($extraThreat = "In addition to a tornado, ${hailthreat} is expected with this storm.")
   #end
 #else
   #set($extraThreat = "")
@@ -259,7 +259,7 @@ THIS IS A TEST MESSAGE. ##
   #set($torHazard = "Damaging tornado")
   #set($confirmed = "confirmed ")
   #set($source = "Radar confirmed tornado.")
-  #set($preAmble = "To repeat#commaOrEllipsis()a tornado is on the ground. TAKE COVER NOW! ")
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ")
   #if(${stormType} == "line")
     #set($reportType = "tornado producing storms were located")
     #set($pathcastLead = "These tornadic storms")
@@ -283,7 +283,7 @@ THIS IS A TEST MESSAGE. ##
     #set($pathcastLead = "The tornado")
     #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat#commaOrEllipsis()a large#commaOrEllipsis()extremely dangerous and potentially deadly tornado is on the ground. To protect your life#commaOrEllipsis()TAKE COVER NOW!")
+  #set($preAmble = "To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. To protect your life, TAKE COVER NOW!")
 #end
 *#
 #if(${list.contains(${bullets}, "spotter")})
@@ -300,7 +300,7 @@ THIS IS A TEST MESSAGE. ##
     #set($pathcastLead = "The tornado")
 ##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat#commaOrEllipsis()a tornado is on the ground. TAKE COVER NOW! ")
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ")
 #end
 #if(${list.contains(${bullets}, "lawEnforcement")})
   #set($torTag = "OBSERVED")
@@ -316,7 +316,7 @@ THIS IS A TEST MESSAGE. ##
     #set($pathcastLead = "The tornado")
 ##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat#commaOrEllipsis()a tornado is on the ground. TAKE COVER NOW! ") 
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ") 
 #end
 #if(${list.contains(${bullets}, "emergencyManagement")})
   #set($torTag = "OBSERVED")
@@ -332,7 +332,7 @@ THIS IS A TEST MESSAGE. ##
     #set($pathcastLead = "The tornado")
 ##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat#commaOrEllipsis()a tornado is on the ground. TAKE COVER NOW! ") 
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ") 
 #end
 #if(${list.contains(${bullets}, "public")})
   #set($torTag = "OBSERVED")
@@ -348,7 +348,7 @@ THIS IS A TEST MESSAGE. ##
     #set($pathcastLead = "The tornado")
 ##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat#commaOrEllipsis()a tornado is on the ground. TAKE COVER NOW! ")
+  #set($preAmble = "To repeat, a tornado is on the ground. TAKE COVER NOW! ")
 #end
 #if(${list.contains(${bullets}, "waterspout")})
   #set($torTag = "OBSERVED")
@@ -403,7 +403,7 @@ THIS IS A TEST MESSAGE. ##
     #set($pathcastLead = "The tornado")
 ##    #set($moveLead = " Doppler radar showed this tornado moving")
   #end 
-  #set($preAmble = "To repeat#commaOrEllipsis()a large#commaOrEllipsis()extremely dangerous and potentially deadly tornado is ${torGround}. To protect your life#commaOrEllipsis()TAKE COVER NOW! ")
+  #set($preAmble = "To repeat, a large, extremely dangerous and potentially deadly tornado is ${torGround}. To protect your life, TAKE COVER NOW! ")
 #end
 ############################################################################
 ## IF A TORNADO EMERGENCY IS SELECTED THE FOLLOWING WILL OVERRIDE CERTAIN
@@ -426,7 +426,7 @@ THIS IS A TEST MESSAGE. ##
   #if(${list.contains(${bullets}, "doppler")}||${list.contains(${bullets}, "dopplerSquall")})
     #set($source = "Weather spotters confirmed tornado.")
   #end
-  #set($preAmble = "To repeat#commaOrEllipsis()a large#commaOrEllipsis()extremely dangerous and deadly tornado is on the ground. To protect your life#commaOrEllipsis()TAKE COVER NOW! ")
+  #set($preAmble = "To repeat, a large, extremely dangerous and deadly tornado is on the ground. To protect your life, TAKE COVER NOW! ")
 #end
 
 ####################################################
@@ -437,14 +437,14 @@ THIS IS A TEST MESSAGE. ##
 ###### If Additional Information is selected
 ######################################################
 #if(${list.contains(${bullets}, "extraReportTornado")})
- #set($source = "${source} At !**ENTER TIME#commaOrEllipsis()ENTER TORNADO/REPORT DAMAGE**!#commaOrEllipsis()was reported !**ENTER LOCATION**!.") 
+ #set($source = "${source} At !**ENTER TIME, ENTER TORNADO/REPORT DAMAGE**!, was reported !**ENTER LOCATION**!.") 
 #end
 ##########################################################
 ## Check to see if wind is selected for the hazard phrase
 ## and make sure hail is at least 1 inch
 ##########################################################
 #if(${windSpeed} >= 58 && ${hailSize} >= 1)
-  #set($hazard = "${torHazard}#commaOrEllipsis()${hailHazard}#commaOrEllipsis()and ${windHazard}.")
+  #set($hazard = "${torHazard}, ${hailHazard}, and ${windHazard}.")
 #elseif(${windSpeed} >= 58 && ${hailSize} < 1)
   #set($hazard = "${torHazard} and ${windHazard}.") 
 #elseif(${windSpeed} < 58 && ${hailSize} >= 1)
@@ -467,7 +467,7 @@ THIS IS A TEST MESSAGE. ##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. ##
 #end
-#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone})#commaOrEllipsis()${reportType} ##
+#thirdBullet(${dateUtil},${event},${timeFormat},${localtimezone},${secondtimezone}), ${reportType} ##
 ##Many of the variables passed below are controlled by config.vm
 #if(${stormType} == "line")
 #handleClosestPoints(${list}, ${closestPoints}, ${otherClosestPoints}, ${stormType}, ${nearPhrase} , ${maxLandNearDistance}, ${overPhrase}, ${maxLandOverDistance}, ${landDistanceUnits}, ${useSecondReferenceLine})
@@ -476,12 +476,12 @@ THIS IS A TEST MESSAGE. ##
 #end
 #if(${movementSpeed} < ${landStationary} || ${stationary})
 #if(${stormType} == "line")
-#commaOrEllipsis()and are nearly stationary. 
+, and are nearly stationary. 
 #else
-#commaOrEllipsis()and is nearly stationary. 
+, and is nearly stationary. 
 #end
 #else
-#commaOrEllipsis()moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.
+, moving #direction(${movementDirectionRounded}) at ${mathUtil.roundTo5(${movementSpeed})} mph.
 #end
 
 ##########################################################################
@@ -542,10 +542,10 @@ THIS IS A TEST MESSAGE. ##
 ##############################################
 #if(${list.contains(${bullets}, "specialEvent")})
 #if(${stormType} == "line")
-Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for IMMINENT#commaOrEllipsis()DANGEROUS#commaOrEllipsis()AND POTENTIALLY LIFE-THREATENING WEATHER CONDITIONS. SEEK SHELTER NOW!
+Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of these storms and should prepare for IMMINENT, DANGEROUS, AND POTENTIALLY LIFE-THREATENING WEATHER CONDITIONS. SEEK SHELTER NOW!
 
 #else
-Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for IMMINENT#commaOrEllipsis()DANGEROUS#commaOrEllipsis()AND POTENTIALLY LIFE-THREATENING WEATHER CONDITIONS. SEEK SHELTER NOW!
+Those attending !**EVENT/VENUE NAME OR LOCATION**! are in the path of this storm and should prepare for IMMINENT, DANGEROUS, AND POTENTIALLY LIFE-THREATENING WEATHER CONDITIONS. SEEK SHELTER NOW!
 
 #end
 #end
@@ -577,7 +577,7 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 ##
 #if(${list.contains(${bullets}, "torEmergencyCTA")} || ${list.contains(${bullets}, "torEmergency")})
 #if(${list.contains(${bullets}, "torEmergency")})
-To repeat#commaOrEllipsis()a large#commaOrEllipsis()extremely dangerous and potentially deadly tornado is on the ground. To protect your life#commaOrEllipsis()TAKE COVER NOW! Move to an interior room on the lowest floor of a sturdy building. Avoid windows. If in a mobile home#commaOrEllipsis()a vehicle or outdoors.. Move to the closest substantial shelter and protect yourself from flying debris.
+To repeat, a large, extremely dangerous and potentially deadly tornado is on the ground. To protect your life, TAKE COVER NOW! Move to an interior room on the lowest floor of a sturdy building. Avoid windows. If in a mobile home, a vehicle or outdoors.. Move to the closest substantial shelter and protect yourself from flying debris.
 
 #else
 !** YOU SELECTED THE TORNADO EMERGENCY CTA WITHOUT SELECTING THE TORNADO EMERGENCY HEADER. PLEASE CLOSE THIS WINDOW AND RE-GENERATE THIS WARNING **!
@@ -592,16 +592,16 @@ This Tornado Warning replaces the Severe Thunderstorm Warning issued for the sam
 ##avoid duplicate ctas for generic and tor emer
 #else
 #if(${list.contains(${bullets}, "defaultMobileCTA")})
-${preAmble}Move to a basement or an interior room on the lowest floor of a sturdy building. Avoid windows. If you are outdoors#commaOrEllipsis()in a mobile home#commaOrEllipsis()or in a vehicle#commaOrEllipsis()move to the closest substantial shelter and protect yourself from flying debris.
+${preAmble}Move to a basement or an interior room on the lowest floor of a sturdy building. Avoid windows. If you are outdoors, in a mobile home, or in a vehicle, move to the closest substantial shelter and protect yourself from flying debris.
 
 #end
 #if(${list.contains(${bullets}, "defaultUrbanCTA")})
-${preAmble}Move to a basement or an interior room on the lowest floor of a sturdy building. Avoid windows. If you are outdoors or in a vehicle#commaOrEllipsis()move to the closest substantial shelter and protect yourself from flying debris.
+${preAmble}Move to a basement or an interior room on the lowest floor of a sturdy building. Avoid windows. If you are outdoors or in a vehicle, move to the closest substantial shelter and protect yourself from flying debris.
 
 #end
 #end
 #if(${list.contains(${bullets}, "motoristsCTA")})
-Motorists should not take shelter under highway overpasses. If you cannot safely drive away from the tornado#commaOrEllipsis()as a last resort#commaOrEllipsis()either park your vehicle and stay put#commaOrEllipsis()or abandon your vehicle and lie down in a low lying area and protect yourself from flying debris.
+Motorists should not take shelter under highway overpasses. If you cannot safely drive away from the tornado, as a last resort, either park your vehicle and stay put, or abandon your vehicle and lie down in a low lying area and protect yourself from flying debris.
 
 #end
 #if(${list.contains(${bullets}, "rainWrappedCTA")})
@@ -636,7 +636,7 @@ This cluster of thunderstorms is capable of producing tornadoes and widespread s
 
 #end
 #if(${list.contains(${bullets}, "waterCTA")})
-If on or near !** NAME OF WATER BODY **!#commaOrEllipsis()get away from the water and move to safe shelter immediately. If you can hear thunder#commaOrEllipsis()you are close enough to be struck by lightning. Severe thunderstorms can produce large capsizing waves#commaOrEllipsis()even on small bodies of water. Move into dock and seek safe shelter now! Do not be caught on the water in a thunderstorm.
+If on or near !** NAME OF WATER BODY **!, get away from the water and move to safe shelter immediately. If you can hear thunder, you are close enough to be struck by lightning. Severe thunderstorms can produce large capsizing waves, even on small bodies of water. Move into dock and seek safe shelter now! Do not be caught on the water in a thunderstorm.
 
 #end
 #if(${ctaSelected} == "YES") 

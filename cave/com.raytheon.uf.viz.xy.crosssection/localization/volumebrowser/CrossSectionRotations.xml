@@ -18,11 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <CrossSectionRotations>
-	<rotation parameter="Into" mode="VR_COMPONENT_INTO"/>
-	<rotation parameter="Along" mode="VR_COMPONENT_ALONG"/>
-	<rotation parameter="SNW" mode="VR_SECTION_COORDINATES"/>
-	<rotation parameter="uFX" mode="VR_GEO_MOMENTUM"/>
-	<rotation parameter="vertCirc" mode="VR_VERT_CIRC"/>
-	<rotation parameter="ageoVC" mode="VR_VERT_CIRC"/>
+    <rotation parameter="Into" mode="VR_COMPONENT_INTO" />
+    <rotation parameter="Along" mode="VR_COMPONENT_ALONG" />
+    <rotation parameter="SNW" mode="VR_SECTION_COORDINATES" />
+    <rotation parameter="uFX" mode="VR_GEO_MOMENTUM" />
+    <rotation parameter="vertCirc" mode="VR_VERT_CIRC" />
+    <rotation parameter="ageoVC" mode="VR_VERT_CIRC" />
 </CrossSectionRotations>

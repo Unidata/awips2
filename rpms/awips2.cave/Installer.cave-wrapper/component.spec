@@ -141,12 +141,6 @@ popd > /dev/null 2>&1
 
 %pre
 %post
-# relocate any localization files installed by awips2-cave
-/bin/bash /awips2/cave/relocateLocalization.sh
-if [ $? -ne 0 ]; then
-   exit 1
-fi
-
 %preun
 %postun
 

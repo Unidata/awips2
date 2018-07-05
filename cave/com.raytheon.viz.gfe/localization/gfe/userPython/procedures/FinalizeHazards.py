@@ -16,13 +16,19 @@
 # ------------ ---------- ----------- ------------------------------------------
 # Sep 19, 2016 19293      randerso    Initial baseline check in
 # Mar 07, 2017 29986      randerso    Fix issue with no trop wind in Hazardswfo
+# Apr 10, 2017 6233       randerso    Reworked per Shannon and Pablo's requirements
+# Jun 28, 2017 20102      ryu         Remind user to have ProposedSS grid created if it 
+#                                     is missing when merge storm surge is selected.
+# Jul 07, 2017 20102      ryu         Recreate hazard grids from existing SS hazards
+#                                     when ISC wind grids are missing and ProposedSS
+#                                     grid is not merged
 #
 ################################################################################
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
 # Possible items are: Populate, Edit, Consistency, Verify, Hazards
-MenuItems = ["None"]
+MenuItems = [""]
 
 import HazardUtils
 import LogStream
@@ -38,14 +44,11 @@ class Procedure (TropicalUtility.TropicalUtility):
     def __init__(self, dbss):
         TropicalUtility.TropicalUtility.__init__(self, dbss)
 
+    # Extracts a selected set of hazards for a specified weather element
+    def extractSelectedHazards(self, hazardList, element, database):
 
-    # Extracts just wind hazards out of the ISC grids and returns a list
-    # of hazard grid
-    def makeISCWindHazardGrids(self):
-        tropicalWindHazList = ["TR.W", "TR.A", "HU.W", "HU.A"]
-
-        #  Get a list of all times which have WFO Hazards
-        trList = self.GM_getWEInventory("Hazardswfo", "ISC")
+        #  Get an inventory of the source element
+        trList = self.GM_getWEInventory(element, database)
 
         hazGridList = []
         hazTRList = []
@@ -56,57 +59,57 @@ class Procedure (TropicalUtility.TropicalUtility):
         #  Get the current time
         currentTime = self._gmtime()
 
-        #  Process all the times which have WFO Hazards
+        #  For each time range in the source inventory
         for tr in trList:
 
             #  Skip all grids which are in the past
             if tr.endTime() < currentTime:
                 continue
 
-            #  Get all the WFO Hazards for this time
-            wfoHazGrid = self.getGrids("ISC", "Hazardswfo", "SFC", tr)
+            #  Get get the source grid
+            sourceGrid = self.getGrids(database, element, "SFC", tr)
 
             #  Get ready to construct a new Hazards grid
-            iscHazGrid = self.empty(np.int8)
-            iscHazKeys = ["<None>"]
+            newGrid = self.empty(np.int8)
+            newKeys = ["<None>"]
 
-            # For each wind hazard, extract the area from the ISC grid
+            # For each hazard, extract the area from the source grid
             # and set those same points in our temporary grid.
-            for haz in tropicalWindHazList:
+            for haz in hazardList:
 
                 #  Find all the areas in the domain where this hazard exists
-                keyMaskList = self.extractHazards(wfoHazGrid, haz)
+                keyMaskList = self.extractHazards(sourceGrid, haz)
 
                 #  Process all areas identified to have current tropical hazard
                 for hazKey, hazMask in keyMaskList:
 
-                    #  Filter out non-tropical hazards
-                    windHazKey = self.purifyKey(hazKey, tropicalWindHazList)
+                    #  Filter out undesired keys
+                    pureKey = self.purifyKey(hazKey, hazardList)
 
                     #  If there is nothing left to do, move on to next hazard
-                    if windHazKey == "":
+                    if pureKey == "":
                         continue
 
-                    #  Poke the values into the new ISC hazard grid, ignoring
-                    #  marine-based tropical wind hazards
+                    #  Poke the values into the new hazard grid, ignoring
+                    #  marine-based hazards
                     hazMask &= cwaMaskNoMarine
-                    iscIndex = self.getIndex(windHazKey, iscHazKeys)
-                    iscHazGrid[hazMask] = iscIndex
+                    iscIndex = self.getIndex(pureKey, newKeys)
+                    newGrid[hazMask] = iscIndex
 
             #  If the current grid is equal to the last grid, just update the
             #  endTime of the last grid
-            if len(iscHazKeys) > 1:
+            if len(newKeys) > 1:
                 if tr != trList[0]:
                     if len(hazGridList) > 0:
-                        if np.array_equal(hazGridList[-1][0], iscHazGrid):
+                        if np.array_equal(hazGridList[-1][0], newGrid):
                             hazTRList[-1] = TimeRange.TimeRange(
                                         hazTRList[-1].startTime(), tr.endTime())
                             continue
 
             #  Save this grid, but only if it's not empty
-            if len(iscHazKeys) > 1:
+            if len(newKeys) > 1:
                 hazTRList.append(tr)
-                hazGridList.append((iscHazGrid, iscHazKeys))
+                hazGridList.append((newGrid, newKeys))
 
         return hazTRList, hazGridList
 
@@ -114,45 +117,24 @@ class Procedure (TropicalUtility.TropicalUtility):
     #  Checks for possible conflicts between existing NHC hazards and the
     #  WFO hazards extracted from the ISC grid. Returns the list of CWAs
     #  that conflict in any way with the NHC hazards.
-    def checkForAnyConflicts(self, cwaList, propTR):
+    def checkForAnyConflicts(self, cwaList, wfoGrid, nhcGrid):
 
-        #  Make a list of all WFOs with conflicting tropical hazards
-        conflictingSites = []
+        #  Make a set of all WFOs with conflicting tropical hazards
+        conflictingSites = set()
 
-        trList = self.GM_getWEInventory("Hazardswfo", "ISC")
-
-        proposedGrid = self.getGrids("Fcst", "ProposedSS", "SFC", propTR)
-
-        #  Make a dictionary containing each CWA's grid mask, so we only need
-        #  to make it once.
-        cwaMasks = {}
         for cwa in cwaList:
-            cwaMasks[cwa] = self.encodeEditArea(cwa.upper())
-
-        #  Get the current time
-        currentTime = self._gmtime()
-
-        #  Process all the available WFO Hazards
-        for tr in trList:
-
-            # We're only interested in future hazard grids
-            if tr.endTime() < currentTime:
+            try: 
+                cwaMask = self.encodeEditArea(cwa.upper())
+            except:
                 continue
-
-            #  Get all the WFO Hazards for this time
-            hazardGrid = self.getGrids("ISC", "Hazardswfo", "SFC", tr)
-
-            #  See if there are any hazard conflicts with any WFO
-            for cwa in cwaList:
-
-                #  If there are any tropical hazard conflicts
-                if self.anyHazardConflicts(hazardGrid, proposedGrid,
-                                           cwaMasks[cwa]):
-
-                    #  Add this WFO to the conflicting office list - if its
-                    #  not already there
-                    if cwa not in conflictingSites:
-                        conflictingSites.append(cwa)
+            
+            if cwaMask == None:
+                continue
+                
+            #  If there are any tropical hazard conflicts
+            if self.anyHazardConflicts(wfoGrid, nhcGrid, cwaMask):
+                #  Add this WFO to the conflicting office list
+                conflictingSites.add(cwa)
 
         return conflictingSites
 
@@ -161,13 +143,10 @@ class Procedure (TropicalUtility.TropicalUtility):
 
         #  Extract the wind hazards out of the WFO ISC hazard grids.
         #  This returns hazard-like grids to which we will add Surge hazards
-        hazTRList, hazGrids = self.makeISCWindHazardGrids()
+        windTRList, windGrids = self.extractSelectedHazards(["TR.W", "TR.A", "HU.W", "HU.A"],
+                                                            "Hazardswfo", "ISC")
 
         propTRList = self.GM_getWEInventory("ProposedSS")
-        if len(hazTRList) == 0 and  len(propTRList) == 0:
-            self.statusBarMsg("No Proposed or WFO ISC grids found. Aborting.",
-                          "S")
-            return
 
         if len(propTRList) > 1:
             self.statusBarMsg("Multiple ProposedSS grids found. " +
@@ -175,44 +154,34 @@ class Procedure (TropicalUtility.TropicalUtility):
                               "U")
             return
 
-        if varDict["Merge Storm Surge Hazards?"] == "No" or len(propTRList) == 0:
 
-            #  Delete all existing Hazard Grids since we're starting from scratch
-            self.deleteCmd(["Hazards"], TimeRange.allTimes())
+        mergeSurge = varDict["Merge Storm Surge Hazards?"] == "Yes"
+        if not mergeSurge:
+            # Extract SS grids from existing Hazards
+            ssTRList, ssGrids = self.extractSelectedHazards(["SS.A", "SS.W"], "Hazards", "Fcst")
 
-            for grid, tr in zip(hazGrids, hazTRList):
-                self.createGrid("Fcst", "Hazards", "DISCRETE", grid, tr)
+            prevSSMask = None
 
-            # Save and publish the Hazards grids
-            self.saveElements(["Hazards"])
-            self.publishElements(["Hazards"], TimeRange.allTimes())
+            #  Create empty grids over SS time ranges if there are no ISC wind grids
+            if len(windTRList) == 0 and len(ssTRList) > 0:
+                grid = (self.empty(dtype=np.int8), ["<None>"])
+                windTRList = ssTRList
+                windGrids = [grid] * len(windTRList)
 
-        else:
-            propTR = propTRList[0]
-            conflictingSites = self.checkForAnyConflicts(self._surgeWfos, propTR)
+            # elements to be saved/published
+            elementsToSave = ["Hazards"]
 
-            #  If there are any conflicting sites, report which ones and punt
-            if len(conflictingSites) > 0:
-                siteStr = " ".join(conflictingSites)
-
-                self.statusBarMsg("Conflicting hazards were found from the " +
-                                  "following sites: " + siteStr, "U")
+        else:  # Merge surge == Yes
+            # Ensure there is a ProposedSS grid
+            if len(propTRList) == 0:
+                msg = "There are no ProposedSS grids. "\
+                      "A None ProposedSS grid is required to cancel all SS W/Ws. "\
+                      "Have SSU create a None grid and Save, then rerun FinalizeHazards."
+                self.statusBarMsg(msg, "U")
                 return
 
-            #=======================================================================
-            #  If there were not any WFO ISC hazards found, make an empty grid
-            #  based on the ProposedSS timeRange
-            propGrid, propKeys = self.getGrids("Fcst", "ProposedSS", "SFC", propTR)
-
-            if len(hazTRList) == 0:
-                #  Make empty hazard grid
-                hazTRList.append(propTR)
-                hazGrid = self.empty(np.int8)
-                hazKeys = ["<None>"]
-                hazGrids.append((hazGrid, hazKeys))
-
-
             # save mask where there were SS hazards
+            propTR = propTRList[0]
             prevHazTRList = self.GM_getWEInventory("Hazards", timeRange=propTR)
             prevSSMask = self.empty(np.bool)
             for tr in prevHazTRList:
@@ -225,69 +194,78 @@ class Procedure (TropicalUtility.TropicalUtility):
                         prevSSMask |= (hazardGrid == hazardIndex)
 
 
-            #  Delete all existing Hazard Grids since we're starting from scratch
-            self.deleteCmd(["Hazards"], TimeRange.allTimes())
+            #  If there were not any WFO ISC hazards found, make an empty grid
+            #  based on the ProposedSS timeRange
+            if len(windTRList) == 0:
+                #  Make empty hazard grid
+                windTRList.append(propTR)
+                hazGrid = self.empty(np.int8)
+                hazKeys = ["<None>"]
+                windGrids.append((hazGrid, hazKeys))
 
-            #  Save the new hazard grids to the database
-            for grid, tr in zip(hazGrids, hazTRList):
-                self.createGrid("Fcst", "Hazards", "DISCRETE", grid, tr)
+            elementsToSave = ["Hazards", "InitialSS", "ProposedSS"]
 
-            #  If we could not find a time range for the Hazards grid
-            if len(hazTRList) == 0:
+            # Extract SS grids from ProposedSS
+            ssTRList, ssGrids = self.extractSelectedHazards(["SS.A", "SS.W"], "ProposedSS", "Fcst")
 
-                #  Use the time range from the PropossedSS grid instead
-                hazTRList = propTRList
+        # Check for conflicts
+        conflictingSites = set()
+        for windTR, windGrid in zip(windTRList, windGrids):
+            for ssTR, ssGrid in zip(ssTRList, ssGrids):
+                if ssTR.overlaps(windTR):
+                    conflictingSites.update(self.checkForAnyConflicts(self._surgeWfos, windGrid, ssGrid))
 
-            #  Now add ProposedSS keys back into the hazard grids
-            for hazTR in hazTRList:
+        #  If there are any conflicting sites, report which ones and punt
+        if len(conflictingSites) > 0:
+            siteStr = " ".join(conflictingSites)
 
-                # Only add Proposed hazards where the Hazards overlap
-                if not hazTR.overlaps(propTR):
+            self.statusBarMsg("Conflicting hazards were found from the " +
+                              "following sites: " + siteStr, "U")
+            return
+
+        #  Delete all existing Hazard Grids since we're starting from scratch
+        self.deleteCmd(["Hazards"], TimeRange.allTimes())
+
+        #  Save the new hazard grids to the database
+        for tr, grid in zip(windTRList, windGrids):
+            self.createGrid("Fcst", "Hazards", "DISCRETE", grid, tr)
+
+        #  Now add SS keys back into the hazard grids
+        for hazTR in windTRList:
+            for ssTR, ssGrid in zip(ssTRList, ssGrids):
+
+                # Only add SS hazards where the Hazards overlap
+                if not hazTR.overlaps(ssTR):
                     continue
 
-                #  Process all the keys in the PropossedSS grids
-                for propIndex, propKey in enumerate(propKeys):
+                #  Process all the keys in the SS grid
+                grid, keys = ssGrid
+                for index, key in enumerate(keys):
 
                     #  If this is a "<None>" key, ignore it
-                    if "None" in  propKey:
+                    if "None" in  key:
                         continue
 
-                    #  Get the area where this hazard is located, and it intersects
-                    #  with land
-                    mask = propGrid == propIndex
+                    #  Get the area where this hazard is located
+                    mask = grid == index
 
                     #  Combine surge hazard with current hazards
-                    self._hazUtils._addHazard("Hazards", hazTR, propKey, mask,
-                                              combine=1)
+                    self._hazUtils._addHazard("Hazards", ssTR, key, mask, combine=1)
 
+        if mergeSurge:
             # Copy new ProposedSS grid to InitialSS
             proposedSS = self.getGrids("Fcst", "ProposedSS", "SFC", propTR)
             self.createGrid("Fcst", "InitialSS", "DISCRETE", proposedSS, propTR)
 
-            #  Get the components of each grid
-            propGrid, propKeys = proposedSS
+        #  Save and publish all the grids we will need to keep
+        self.saveElements(elementsToSave)
+        self.publishElements(elementsToSave, TimeRange.allTimes())
 
-            #  Get the index we need to find areas of no hazards
-            noneIndex = self.getIndex("<None>", propKeys)
+        # clean up after collaboration
+        self.unloadWE("Fcst", "CollabDiffSS", "SFC")
 
-            #  See where there are hazards (should only be SS hazards)
-            propSSMask = (propGrid != noneIndex)
-
-            # Mask any area that has or previously had an SS hazard
-            anyChanges = prevSSMask | propSSMask
-
-            #  Save all the grids we modified, clean up after collaboration
-            self.unloadWE("Fcst", "CollabDiffSS", "SFC")
-            self.saveElements(["Hazards", "InitialSS", "ProposedSS"])
-
-            #  Publish all the grids we will need to keep
-            self.publishElements(["Hazards", "InitialSS", "ProposedSS"],
-                             TimeRange.allTimes())
-
-            #  If we are not in test mode - send the final message
-            if not self._testMode:
-                self.notifyWFOs("Hazards", anyChanges)
+        #  send the final message
+        self.notifyWFOs("Hazards", prevSSMask)
 
         # let forecaster know the procedure is completed
         self.statusBarMsg("Procedure completed. Run CreateNatlTCVZoneGroups.", "A")
-

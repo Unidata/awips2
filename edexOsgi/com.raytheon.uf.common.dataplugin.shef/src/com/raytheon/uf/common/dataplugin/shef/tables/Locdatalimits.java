@@ -49,11 +49,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
- * Aug 19, 2011 10672      jkorman     Move refactor to new project
- * Oct 07, 2013  2361      njensen     Removed XML annotations
- * May 23, 2016  5590      bkowal      Cleanup.
- * Jun 24, 2016  5699      bkowal      Added {@link #SELECT_ALL_LOCDATALIMITS_RECORDS}.
- * Jul 01, 2016  4623      skorolev    Added {@link #SELECT_PE_AND_DUR_LOCDATALIMITS_RECORDS}.
+ * Aug 19, 2011      10672     jkorman Move refactor to new project
+ * Oct 07, 2013       2361     njensen Removed XML annotations
+ * May 23, 2016       5590     bkowal  Cleanup.
+ * Jun 24, 2016       5699     bkowal  Added {@link #SELECT_ALL_LOCDATALIMITS_RECORDS}.
+ * Sep 13, 2016  5631      bkowal      Added {@link #SELECT_MAX_LOCDATALIMITS_PRECIP}.
  * Nov 10, 2016       5999     bkowal  Added {@link #SELECT_OBS_LIMITS_FROM_LOCDATALIMITS}.
  * 
  * </pre>
@@ -63,8 +63,9 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @NamedQueries({
         @NamedQuery(name = Locdatalimits.SELECT_ALL_LOCDATALIMITS_RECORDS, query = Locdatalimits.SELECT_ALL_LOCDATALIMITS_RECORDS_HQL),
         @NamedQuery(name = Locdatalimits.SELECT_PE_AND_DUR_LOCDATALIMITS_RECORDS, query = Locdatalimits.SELECT_PE_AND_DUR_LOCDATALIMITS_RECORDS_HQL),
+        @NamedQuery(name = Locdatalimits.SELECT_PE_LOCDATALIMITS_RECORDS, query = Locdatalimits.SELECT_PE_LOCDATALIMITS_RECORDS_HQL),
         @NamedQuery(name = Locdatalimits.SELECT_OBS_LIMITS_FROM_LOCDATALIMITS, query = Locdatalimits.SELECT_OBS_LIMITS_FROM_LOCDATALIMITS_HQL),
-        @NamedQuery(name = Locdatalimits.SELECT_PE_LOCDATALIMITS_RECORDS, query = Locdatalimits.SELECT_PE_LOCDATALIMITS_RECORDS_HQL) })
+        @NamedQuery(name = Locdatalimits.SELECT_MAX_LOCDATALIMITS_PRECIP, query = Locdatalimits.SELECT_MAX_LOCDATALIMITS_PRECIP_HQL) })
 @Entity
 @Table(name = "locdatalimits")
 @DynamicSerialize
@@ -77,13 +78,17 @@ public class Locdatalimits extends PersistableDataObject<LocdatalimitsId>
 
     public static final String SELECT_PE_AND_DUR_LOCDATALIMITS_RECORDS = "selectPeAndDurFromLocdatalimitsRecords";
 
-    public static final String SELECT_PE_AND_DUR_LOCDATALIMITS_RECORDS_HQL = "FROM Locdatalimits ldl WHERE ldl.id.pe = 'PP' AND dur IN (1006, 2001, 5004) ORDER BY monthdaystart ASC, dur ASC";
+    public static final String SELECT_PE_AND_DUR_LOCDATALIMITS_RECORDS_HQL = "FROM Locdatalimits ldl WHERE ldl.id.pe = 'PP' AND ldl.id.dur IN (1006, 2001, 5004) ORDER BY monthdaystart ASC, dur ASC";
 
     public static final String SELECT_PE_LOCDATALIMITS_RECORDS = "selectPeFromLocdatalimitsRecords";
 
     protected static final String SELECT_PE_LOCDATALIMITS_RECORDS_HQL = "FROM Locdatalimits ldl WHERE ldl.id.pe = 'TA' ORDER BY monthdaystart ASC, dur ASC";
 
+    public static final String SELECT_MAX_LOCDATALIMITS_PRECIP = "selectMaxLocdatalimitsPrecip";
+
     public static final String SELECT_OBS_LIMITS_FROM_LOCDATALIMITS = "selectObsLimitsFromLocDataLimits";
+
+    protected static final String SELECT_MAX_LOCDATALIMITS_PRECIP_HQL = "FROM Locdatalimits ldl WHERE ldl.id.pe = 'PP' AND ldl.id.dur = 1001 AND ldl.id.lid = :lid ORDER BY monthdaystart";
 
     protected static final String SELECT_OBS_LIMITS_FROM_LOCDATALIMITS_HQL = "SELECT id, monthdayend, rocMax, alarmRocLimit, alertRocLimit FROM Locdatalimits ldl";
 
@@ -179,10 +184,10 @@ public class Locdatalimits extends PersistableDataObject<LocdatalimitsId>
 
     @EmbeddedId
     @AttributeOverrides({
-            @AttributeOverride(name = "lid", column = @Column(name = "lid", nullable = false, length = 8) ),
-            @AttributeOverride(name = "pe", column = @Column(name = "pe", nullable = false, length = 2) ),
-            @AttributeOverride(name = "dur", column = @Column(name = "dur", nullable = false) ),
-            @AttributeOverride(name = "monthdaystart", column = @Column(name = "monthdaystart", nullable = false, length = 5) ) })
+            @AttributeOverride(name = "lid", column = @Column(name = "lid", nullable = false, length = 8)),
+            @AttributeOverride(name = "pe", column = @Column(name = "pe", nullable = false, length = 2)),
+            @AttributeOverride(name = "dur", column = @Column(name = "dur", nullable = false)),
+            @AttributeOverride(name = "monthdaystart", column = @Column(name = "monthdaystart", nullable = false, length = 5)) })
     public LocdatalimitsId getId() {
         return this.id;
     }

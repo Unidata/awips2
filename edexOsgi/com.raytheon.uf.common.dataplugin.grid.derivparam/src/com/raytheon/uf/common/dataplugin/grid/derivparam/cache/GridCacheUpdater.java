@@ -53,6 +53,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- -----------------
  * Mar 03, 2016  5439     bsteffen  Initial creation
+ * Apr 24, 2017  5881     bsteffen  Split out separate method for handling uri
+ *                                  notifications directly on EDEX.
  * 
  * </pre>
  * 
@@ -62,7 +64,7 @@ public class GridCacheUpdater {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridCacheUpdater.class);
-    
+
     private static final String DATAURI_PREFIX = DataURI.SEPARATOR
             + GridConstants.GRID + DataURI.SEPARATOR;
 
@@ -78,10 +80,11 @@ public class GridCacheUpdater {
         public void notificationArrived(NotificationMessage[] messages) {
             for (NotificationMessage message : messages) {
                 try {
-                    handleNotification(message);
+                    handleNotificationMessage(message);
                 } catch (NotificationException e) {
                     statusHandler.handle(Priority.WARN,
-                            "GridUpdater failed to process a notification", e);
+                            "GridCacheUpdater failed to process a notification",
+                            e);
                 }
             }
         }
@@ -108,21 +111,26 @@ public class GridCacheUpdater {
 
     /**
      * Get the observer that should be registered so that the updater can
-     * recieve notifications.
+     * receive notifications.
      */
-    public INotificationObserver getObserver(){
+    public INotificationObserver getObserver() {
         return observer;
     }
 
-    protected void handleNotification(NotificationMessage message)
+    protected void handleNotificationMessage(NotificationMessage message)
             throws NotificationException {
         Object payLoad = message.getMessagePayload();
         if (payLoad instanceof DataURINotificationMessage) {
-            DataURINotificationMessage datauriMessage = (DataURINotificationMessage) payLoad;
-            for (String datauri : datauriMessage.getDataURIs()) {
-                if (datauri.startsWith(DATAURI_PREFIX)) {
-                    notifyListeners(new GridRecord(datauri));
-                }
+            handleDataURINotificationMessage(
+                    (DataURINotificationMessage) payLoad);
+        }
+    }
+
+    public void handleDataURINotificationMessage(
+            DataURINotificationMessage message) throws NotificationException {
+        for (String datauri : message.getDataURIs()) {
+            if (datauri.startsWith(DATAURI_PREFIX)) {
+                notifyListeners(new GridRecord(datauri));
             }
         }
     }
@@ -132,12 +140,13 @@ public class GridCacheUpdater {
             listener.update(record);
         }
     }
-    
+
     /**
      * Set this updater into an enabled state. This should be done after the
      * observer from {@link #getObserver()} has been successfully registered.
      */
-    public void enable(){
+    public void enable() {
+        enabled = true;
         for (GridUpdateListener listener : listeners) {
             listener.enableUpdates();
         }
@@ -147,12 +156,13 @@ public class GridCacheUpdater {
      * Set this updater into its default, disabled, state. This should be done
      * if the observer is unregistered or if the observing connection fails.
      */
-    public void disable(){
+    public void disable() {
+        enabled = false;
         for (GridUpdateListener listener : listeners) {
             listener.disableUpdates();
         }
     }
-    
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -181,5 +191,5 @@ public class GridCacheUpdater {
         public void disableUpdates();
 
     }
-    
+
 }

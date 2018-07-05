@@ -32,6 +32,11 @@
 # 8/28/2015    yteng    Call CheckTandTd and CheckWindGust for processing 
 # ----------------------------------------------------------------------------
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
 # Possible items are: Populate, Edit, Consistency, Verify

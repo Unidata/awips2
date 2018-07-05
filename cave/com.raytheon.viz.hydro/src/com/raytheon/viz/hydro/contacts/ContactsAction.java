@@ -85,7 +85,7 @@ public class ContactsAction extends AbstractHandler {
             }
 
             contactsDlg = new ContactsDlg(shell, title.toString(), false, lid);
-            contactsDlg.setCloseCallback(new ICloseCallback() {
+            contactsDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {

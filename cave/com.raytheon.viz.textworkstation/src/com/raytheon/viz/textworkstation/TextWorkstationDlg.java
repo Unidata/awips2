@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -49,6 +49,7 @@ import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.viz.core.ProgramArguments;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.viz.texteditor.TextDisplayModel;
 import com.raytheon.viz.texteditor.TextWorkstationConstants;
@@ -62,55 +63,73 @@ import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
 import com.raytheon.viz.texteditor.notify.NotifyExpiration;
 import com.raytheon.viz.texteditor.util.RadarTextUtility;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
+import com.raytheon.viz.ui.dialogs.DialogUtil;
 
 /**
  * TextWorkstationDlg class.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * 9/27/2007    368         lvenable    Initial creation.
- * 10/11/2007   482         grichard    Reformatted file.
- * 11/28/2007   520         grichard    Implemented build 11 features.
- * 1/3/2008     637         grichard    Implemented build 13 features.
- * 1/10/2008    722         grichard    Implemented build 14 features.
- * 5/16/2008    1119        grichard    Added support for IAviationObserver.
- * 6/3/2008     937         grichard    Corrected simple date formats.
- * 5/8/2009     2104        grichard    Added support for IRadarObserver.
- * 5/8/2009     2104        grichard    Added support for IScriptRunnerObserver.
- * 6/07/2010    5851        cjeanbap    Properly stop alert/alarm observer listener.
- * 8/23/2010    2187        cjeanbap    Removed window location to TextEditorDialog.preOpened().
- * 10/04/2010   7193        cjeanbap    Added if statement to notificationArrived(), to 
- *                                      determine if the message has expired.
- * 11/08/2010   7433        cjeanbap    Check TextEditorDialog current mode before tempting
- *                                      to open dialog.
- * 05Jan2011    7375        cjeanbap    Fix disposed Widget exception.
- * 01Feb2011    7193        cjeanbap    Add boolean condition to check initial start time.
- * 03Nov2011    11450       rferrel     Change how old products pruge so it is no longer
- *                                      on times on two machines being in synch.
- * 26Sep2012    1196        lvenable    Dialog refactor to not block.
- * 02Oct2012    1229        rferrel     Option to allow blocking when top dialog.
- * 13Dec2012    1353        rferrel     Fix bug introduced in the Show all dialogs.
- * 30Jan2013    DR 14736    D. Friedman Display local time.
- * 24Jun2013    DR 15733    XHuang      Display MAX_BUTTON_CNT (8 button).
- * 25July2013   DR 15733    Greg Hull   Make dflt and max number of Text Buttons configurable.
- * 28Oct2015    5054        randerso    Make TextWorkstationDlg appear in upper left corner of 
- *                                      monitor where parent shell is located
- * Dec 14, 2015 4834        njensen     Remove dead menu items
- * Jan 26, 2016 5054        randerso    Changed to use display as parent
- * Feb 15, 2016 4860        njensen     Removed references to IAviationObserver
- * Mar 30, 2016 5513        randerso    Fixed to display on same monitor as parent
- * Jun 25, 2017 ----        mjames@ucar Simple dialog.
- * 
+ *
+ * Date          Ticket#     Engineer     Description
+ * ------------- ----------- ------------ --------------------------
+ * Sep 27, 2007  368         lvenable     Initial creation.
+ * Oct 11, 2007  482         grichard     Reformatted file.
+ * Nov 28, 2007  520         grichard     Implemented build 11 features.
+ * Jan 03, 2008  637         grichard     Implemented build 13 features.
+ * Jan 10, 2008  722         grichard     Implemented build 14 features.
+ * May 16, 2008  1119        grichard     Added support for IAviationObserver.
+ * Jun 03, 2008  937         grichard     Corrected simple date formats.
+ * May 08, 2009  2104        grichard     Added support for IRadarObserver.
+ * May 08, 2009  2104        grichard     Added support for
+ *                                        IScriptRunnerObserver.
+ * Jun 07, 2010  5851        cjeanbap     Properly stop alert/alarm observer
+ *                                        listener.
+ * Aug 23, 2010  2187        cjeanbap     Removed window location to
+ *                                        TextEditorDialog.preOpened().
+ * Oct 04, 2010  7193        cjeanbap     Added if statement to
+ *                                        notificationArrived(), to determine if
+ *                                        the message has expired.
+ * Nov 08, 2010  7433        cjeanbap     Check TextEditorDialog current mode
+ *                                        before tempting to open dialog.
+ * Jan 05, 2011  7375        cjeanbap     Fix disposed Widget exception.
+ * Feb 01, 2011  7193        cjeanbap     Add boolean condition to check initial
+ *                                        start time.
+ * Nov 03, 2011  11450       rferrel      Change how old products pruge so it is
+ *                                        no longer on times on two machines
+ *                                        being in synch.
+ * Sep 26, 2012  1196        lvenable     Dialog refactor to not block.
+ * Oct 02, 2012  1229        rferrel      Option to allow blocking when top
+ *                                        dialog.
+ * Dec 13, 2012  1353        rferrel      Fix bug introduced in the Show all
+ *                                        dialogs.
+ * Jan 30, 2013  14736       D. Friedman  Display local time.
+ * Jun 24, 2013  15733       XHuang       Display MAX_BUTTON_CNT (8 button).
+ * Jul 25, 2013  15733       Greg Hull    Make dflt and max number of Text
+ *                                        Buttons configurable.
+ * Oct 28, 2015  5054        randerso     Make TextWorkstationDlg appear in
+ *                                        upper left corner of monitor where
+ *                                        parent shell is located
+ * Dec 14, 2015  4834        njensen      Remove dead menu items
+ * Jan 26, 2016  5054        randerso     Changed to use display as parent
+ * Feb 15, 2016  4860        njensen      Removed references to
+ *                                        IAviationObserver
+ * Mar 30, 2016  5513        randerso     Fixed to display on same monitor as
+ *                                        parent
+ * Feb 14, 2017  6037        randerso     Ensure dialog does not appear over
+ *                                        panels
+ * Jun 25, 2017  ----        mjames@ucar  Simple dialog.
+ * Jun 29, 2017  6347        randerso     Use -monitor command line parameter,
+ *                                        if present, when opening as top level
+ *                                        window
+ *
  * </pre>
- * 
+ *
  * @author lvenable
  */
-public class TextWorkstationDlg extends CaveSWTDialog implements
-        ITextEditorCallback, INotificationObserver {
+public class TextWorkstationDlg extends CaveSWTDialog
+        implements ITextEditorCallback, INotificationObserver {
 
     private int INIT_BUTTON_CNT = 4;
 
@@ -158,9 +177,9 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
 
     /**
      * Create top level Text Workstation Dialog
-     * 
+     *
      * @param display
-     * 
+     *
      */
     public TextWorkstationDlg(Display display) {
         super(display, SWT.DIALOG_TRIM | SWT.MIN, CAVE.PERSPECTIVE_INDEPENDENT
@@ -210,8 +229,8 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         // Initialize all of the controls and layouts
         sdfUTC.setTimeZone(TimeZone.getTimeZone("UTC"));
         String localTZName = System.getenv("FXA_LOCAL_TZ");
-        sdfLocal.setTimeZone(localTZName != null ? TimeZone
-                .getTimeZone(localTZName) : TimeZone.getDefault());
+        sdfLocal.setTimeZone(localTZName != null
+                ? TimeZone.getTimeZone(localTZName) : TimeZone.getDefault());
 
         createMenus();
         createTimeLabels();
@@ -240,27 +259,40 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         super.preOpened();
 
         Monitor monitor = null;
-        if (getParent() != null) {
-            monitor = getParent().getShell().getMonitor();
 
-        } else {
-            Point cursor = getDisplay().getCursorLocation();
-            for (Monitor m : getDisplay().getMonitors()) {
-                Rectangle bounds = m.getBounds();
-                if (bounds.contains(cursor)) {
-                    monitor = m;
-                    break;
+        /* If we have a parent shell use the parent's monitor */
+        if (getParent() != null) {
+            monitor = getParent().getMonitor();
+        }
+
+        /* if no parent shell, must be top level window */
+        else {
+            /* Check for -monitor command line arg */
+            ProgramArguments args = ProgramArguments.getInstance();
+            Integer monitorIndex = args.getInteger("-monitor");
+
+            Display display = getDisplay();
+            if (monitorIndex != null) {
+                /* Clip index to valid range of monitors */
+                Monitor[] monitors = display.getMonitors();
+
+                if (monitorIndex < 0) {
+                    monitorIndex = 0;
+                } else if (monitorIndex >= monitors.length) {
+                    monitorIndex = monitors.length - 1;
                 }
+                monitor = monitors[monitorIndex];
+            }
+
+            /* Otherwise default to monitor containing cursor */
+            else {
+                monitor = DialogUtil.getCursorMonitor(display);
             }
         }
 
-        Point loc = new Point(0, 0);
-        if (monitor != null) {
-            Rectangle bounds = monitor.getBounds();
-            loc.x = bounds.x;
-            loc.y = bounds.y;
-        }
-        shell.setLocation(loc);
+        /* Set dialog location to upper left corner of monitor */
+        Rectangle clientArea = monitor.getClientArea();
+        shell.setLocation(clientArea.x, clientArea.y);
     }
 
     @Override
@@ -268,6 +300,7 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
         if (productToDisplay != null) {
             wgDlg.showWarngenProduct(productToDisplay, notify);
         }
+
         // Display the first Text Editor
         //showTextEditor(0);
     }
@@ -361,11 +394,11 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     private void createTimeLabels() {
         GridData gd = null;
 
-        gd = new GridData(200, SWT.DEFAULT);
+        gd = new GridData(300, SWT.DEFAULT);
         utcTimeLabel = new Label(shell, SWT.CENTER);
         utcTimeLabel.setLayoutData(gd);
 
-        gd = new GridData(200, SWT.DEFAULT);
+        gd = new GridData(300, SWT.DEFAULT);
         localTimeLabel = new Label(shell, SWT.CENTER);
         localTimeLabel.setLayoutData(gd);
 
@@ -390,8 +423,8 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     }
 
     private void createTextButtons() {
-        textBtnArray = new ArrayList<Button>();
-        textEditorArray = new ArrayList<TextEditorDialog>();
+        textBtnArray = new ArrayList<>();
+        textEditorArray = new ArrayList<>();
 
         for (int x = 1; x <= INIT_BUTTON_CNT; ++x) {
             createButtonAndTextEditor(x);
@@ -432,8 +465,8 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
 
     private synchronized void createWarngenDisplay() {
         if (wgDlg == null) {
-            wgDlg = new TextEditorDialog(getShell(), "Text Warngen", false,
-                    "9", true);
+            wgDlg = new TextEditorDialog(getShell(), "Text Warngen", false, "9",
+                    true);
         }
     }
 
@@ -516,7 +549,8 @@ public class TextWorkstationDlg extends CaveSWTDialog implements
     }
 
     @Override
-    public synchronized void notificationArrived(NotificationMessage[] messages) {
+    public synchronized void notificationArrived(
+            NotificationMessage[] messages) {
         // SimpleDateFormat sdf = new
         // SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
         // sdf.setTimeZone(TimeZone.getTimeZone("GMT"));

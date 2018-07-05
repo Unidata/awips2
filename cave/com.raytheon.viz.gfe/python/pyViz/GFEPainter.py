@@ -17,6 +17,23 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+#
+# GFE Painter for painting GFE data from scripts
+#
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    04/01/09                      njensen        Initial Creation.
+#    08/20/2012           #1077    randerso       Fixed backgroundColor setting
+#    09/13/2012           #1147    dgilling       Allow map labels to be disabled.
+#    11/06/2012           15406    ryu            Correction for computing domain from mask
+#    09/12/2013           #2033    dgilling       Change how logo files are accessed.
+#    Apr 25, 2015          4952    njensen        Updated for new JEP API
+#    Jan 19, 2017          5987    randerso       Fix after java FontAdapter class was removed
+#
+##
 
 import os
 
@@ -39,23 +56,6 @@ from java.lang import Integer
 from javax.imageio import ImageIO
 from java.util import HashSet
 from java.io import File
-
-#
-# GFE Painter for painting GFE data from scripts
-#
-#
-#     SOFTWARE HISTORY
-#
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    04/01/09                      njensen        Initial Creation.
-#    08/20/2012           #1077    randerso       Fixed backgroundColor setting
-#    09/13/2012           #1147    dgilling       Allow map labels to be disabled.
-#    11/06/2012           15406    ryu            Correction for computing domain from mask
-#    09/12/2013           #2033    dgilling       Change how logo files are accessed.
-#    Apr 25, 2015          4952    njensen        Updated for new JEP API
-#
-#
 
 import VizPainter
 
@@ -178,6 +178,21 @@ class GFEPainter(VizPainter.VizPainter):
     def getDataManager(self):
         return self.dataMgr
 
+    def getAWTFont(self, font):
+        from java.awt import Font
+        from com.raytheon.uf.viz.core.drawables import IFont
+        
+        style = Font.PLAIN;
+        if font.getStyle() != None:
+            for s in font.getStyle():
+                if s == IFont.Style.BOLD:
+                    style = Font.BOLD | style
+                elif s == IFont.Style.ITALIC:
+                    style = Font.ITALIC | style;
+
+        awtfont = Font(font.getFontName(), style, int(font.getFontSize()))
+        return awtfont
+
     def outputFiles(self, filename, attachLogo=False, logoText=None):
         rendered = self.getTarget().screenshot()
         if attachLogo:
@@ -194,9 +209,8 @@ class GFEPainter(VizPainter.VizPainter):
             graphics.fillRect(noaaImage.getWidth(), rendered.getHeight(), rendered.getWidth() - noaaImage.getWidth() - nwsImage.getWidth(), rendered.getHeight())
             if logoText is not None:
                 from java.awt import Color
-                from com.raytheon.uf.viz.core.font import FontAdapter
                 graphics.setColor(Color.BLACK)
-                graphics.setFont(FontAdapter.getAWTFont(self.getTarget().getDefaultFont()))
+                graphics.setFont(self.getAWTFont(self.getTarget().getDefaultFont()))
                 fm = graphics.getFontMetrics()
                 textBounds = fm.getStringBounds(logoText, graphics)
                 graphics.drawString(logoText, int((rendered.getWidth() - textBounds.getWidth()) / 2), \

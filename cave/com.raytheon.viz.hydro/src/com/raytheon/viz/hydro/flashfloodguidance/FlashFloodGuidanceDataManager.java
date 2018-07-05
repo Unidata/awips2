@@ -21,9 +21,7 @@ package com.raytheon.viz.hydro.flashfloodguidance;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TimeZone;
 
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
@@ -49,6 +47,7 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * 03Sept2008   #1507      dhladky     Initial Creation.
  * 12Oct2009    2256       mpduff      Added additional data query capability.
  * Apr 21, 2014 2060       njensen     Remove dependency on grid dataURI column
+ * Nov 18, 2017 17911      wkwock      Move RFC_SITEMAP and RFCMAP to com.raytheon.uf.common.mpe.util.
  * 
  * </pre>
  * 
@@ -62,43 +61,6 @@ public class FlashFloodGuidanceDataManager {
 
     /** Instance of this class */
     private static FlashFloodGuidanceDataManager instance = null;
-
-    /** RFC Site name to RFC lookup map */
-    public static Map<String, String> RFCMAP = new HashMap<String, String>();
-
-    /** RFC to RFC Site name lookup map */
-    public static Map<String, String> RFC_SITEMAP = new HashMap<String, String>();
-
-    static {
-        RFCMAP.put("TUA", "ABRFC");
-        RFCMAP.put("ACR", "AKRFC");
-        RFCMAP.put("STR", "CBRFC");
-        RFCMAP.put("RSA", "CNRFC");
-        RFCMAP.put("ORN", "LMRFC");
-        RFCMAP.put("RHA", "MARFC");
-        RFCMAP.put("KRF", "MBRFC");
-        RFCMAP.put("MSR", "NCRFC");
-        RFCMAP.put("TAR", "NERFC");
-        RFCMAP.put("PTR", "NWRFC");
-        RFCMAP.put("TIR", "OHRFC");
-        RFCMAP.put("ALR", "SERFC");
-        RFCMAP.put("FWR", "WGRFC");
-
-        RFC_SITEMAP.put("ABRFC", "TUA");
-        RFC_SITEMAP.put("AKRFC", "ACR");
-        RFC_SITEMAP.put("CBRFC", "STR");
-        RFC_SITEMAP.put("CNRFC", "RSA");
-        RFC_SITEMAP.put("LMRFC", "ORN");
-        RFC_SITEMAP.put("MARFC", "RHA");
-        RFC_SITEMAP.put("MBRFC", "KRF");
-        RFC_SITEMAP.put("NCRFC", "MSR");
-        RFC_SITEMAP.put("NERFC", "TAR");
-        RFC_SITEMAP.put("NWRFC", "PTR");
-        RFC_SITEMAP.put("OHRFC", "TIR");
-        RFC_SITEMAP.put("SERFC", "ALR");
-        RFC_SITEMAP.put("WGRFC", "FWR");
-
-    }
 
     /**
      * Private constructor for Singleton instance.
@@ -148,25 +110,6 @@ public class FlashFloodGuidanceDataManager {
         }
 
         return rs;
-    }
-
-    /**
-     * RFC to RFC Site name lookup.
-     * 
-     * @param site
-     *            The RFC or Site Identifier
-     * @return The RFC Name or the Site Identifier, or null if nothing found
-     */
-    public String rfcSiteLookup(String site) {
-        if (RFCMAP.containsKey(site)) {
-            return RFCMAP.get(site);
-        }
-
-        if (RFC_SITEMAP.containsKey(site)) {
-            return RFC_SITEMAP.get(site);
-        }
-
-        return null;
     }
 
     public GridRecord getGridRecord(String uri) {

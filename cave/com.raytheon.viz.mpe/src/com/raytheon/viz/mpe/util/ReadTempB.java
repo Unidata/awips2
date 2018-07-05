@@ -45,6 +45,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Tdata;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2009            snaples     Initial creation
+ * Mar 10, 2016  19625     snaples     Moved array initialization outside of try.
  * 
  * </pre>
  * 
@@ -108,23 +109,22 @@ public class ReadTempB {
             retval = reset_t(i, numTstations);
 
         } else {
+            for (j = 0; j < 6; j++) {
+                number_found[j] = 0;
+                uflag[j] = 0;
+                tdata[i].used[j] = 1;
+                tdata[i].level[j] = 2;
+            }
+            for (k = 0; k < numTstations; k++) {
+                for (m = 0; m < 6; m++) {
+                    tdata[i].tstn[k].tlevel2[m].data = -1;
+                    tdata[i].tstn[k].tlevel2[m].qual = -1;
+                }
+            }
+
             try {
 
                 in = new BufferedReader(new FileReader(tpointb));
-
-                for (j = 0; j < 6; j++) {
-                    number_found[j] = 0;
-                    uflag[j] = 0;
-                    tdata[i].used[j] = 1;
-                    tdata[i].level[j] = 2;
-                }
-                for (k = 0; k < numTstations; k++) {
-                    for (m = 0; m < 6; m++) {
-                        tdata[i].tstn[k].tlevel2[m].data = -1;
-                        tdata[i].tstn[k].tlevel2[m].qual = -1;
-                    }
-                }
-
                 int p = 1;
                 int qq = 0;
                 String q = "";

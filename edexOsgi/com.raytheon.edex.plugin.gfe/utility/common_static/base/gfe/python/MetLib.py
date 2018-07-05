@@ -22,6 +22,11 @@
 ###  This module contains a variety of python methods intended
 ###  for making meteorological calculations on gridded data.
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 from numpy import *
 import copy
@@ -210,7 +215,7 @@ def advection(windGrid, scalarGrid):
 def getLatLonGrids(gridLoc):
     # Fetch the grids
     latLonGrid = gridLoc.getLatLonGrid()
-    latLonGrid = reshape(latLonGrid, (2,gridLoc.getNy().intValue(),gridLoc.getNx().intValue()), order='F')
+    latLonGrid = reshape(latLonGrid, (2, int(gridLoc.getNy()), int(gridLoc.getNx())), order='F')
     return latLonGrid[1], latLonGrid[0]
 
 # Returns a grid of gridSpacing or the distance from one grid cell to

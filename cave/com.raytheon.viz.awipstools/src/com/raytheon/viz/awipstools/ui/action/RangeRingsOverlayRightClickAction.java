@@ -31,10 +31,10 @@ import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
+import com.raytheon.uf.viz.core.rsc.groups.BestResResource;
+import com.raytheon.uf.viz.core.rsc.groups.BlendedResource;
 import com.raytheon.viz.awipstools.capabilities.RangeRingsOverlayCapability;
 import com.raytheon.viz.awipstools.capabilityInterfaces.IRangeableResource;
-import com.raytheon.viz.core.rsc.BestResResource;
-import com.raytheon.viz.core.rsc.BlendedResource;
 import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**

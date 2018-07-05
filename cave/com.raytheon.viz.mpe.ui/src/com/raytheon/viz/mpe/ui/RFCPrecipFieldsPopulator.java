@@ -20,12 +20,15 @@
 package com.raytheon.viz.mpe.ui;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jface.action.MenuManager;
 
+import com.raytheon.uf.common.ohd.AppsDefaults;
+
 /**
- * TODO Add Description
+ * Defines the RFC Precip field menu items.
  * 
  * <pre>
  *
@@ -33,45 +36,64 @@ import org.eclipse.jface.action.MenuManager;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 1, 2011            rgeorge     Initial creation
+ * Jun 1, 2011  ?          rgeorge     Initial creation
+ * Feb 28, 2017 6152       bkowal      Overrode {@link #menuItemEnabled(List, DisplayFieldData)}.
  *
  * </pre>
  *
  * @author rgeorge
- * @version 1.0	
  */
 
 public class RFCPrecipFieldsPopulator extends FieldsPopulator {
 
-	private static MenuManager menuMgr = new MenuManager("PrecipFields",
-			"com.raytheon.viz.mpe.PrecipFields");
+    private static final String APPS_DEFAULTS_MPE_GENERATE_AREA_QPE = "mpe_generate_areal_qpe";
 
-	private static DisplayFieldData[] menuItems = new DisplayFieldData[] {
-			DisplayFieldData.rfcbMosaic, DisplayFieldData.rfcmMosaic,
-			DisplayFieldData.rfcMosaic };
+    private static MenuManager menuMgr = new MenuManager("PrecipFields",
+            "com.raytheon.viz.mpe.PrecipFields");
 
-	private static Map<DisplayFieldData, MenuData> textMap = new HashMap<DisplayFieldData, MenuData>();
-	static {
-		textMap.put(DisplayFieldData.rfcbMosaic, new MenuData(
-				"RFC Field Bias Mosaic", "B"));
-		textMap.put(DisplayFieldData.rfcmMosaic, new MenuData(
-				"RFC Multisensor Mosaic", "i"));
-		textMap.put(DisplayFieldData.rfcMosaic, new MenuData("RFC QPE Mosaic",
-				"C"));
-	}
+    private static DisplayFieldData[] menuItems = new DisplayFieldData[] {
+            DisplayFieldData.rfcbMosaic, DisplayFieldData.rfcmMosaic,
+            DisplayFieldData.rfcMosaic };
 
-	@Override
-	protected Map<DisplayFieldData, MenuData> getTexMap() {
-		return RFCPrecipFieldsPopulator.textMap;
-	}
+    private static Map<DisplayFieldData, MenuData> textMap = new HashMap<>();
 
-	@Override
-	protected DisplayFieldData[] getMenuItems() {
-		return RFCPrecipFieldsPopulator.menuItems;
-	}
+    static {
+        textMap.put(DisplayFieldData.rfcbMosaic,
+                new MenuData("RFC Field Bias Mosaic", "B"));
+        textMap.put(DisplayFieldData.rfcmMosaic,
+                new MenuData("RFC Multisensor Mosaic", "i"));
+        textMap.put(DisplayFieldData.rfcMosaic,
+                new MenuData("RFC QPE Mosaic", "C"));
+    }
 
-	@Override
-	protected MenuManager getMenuManger() {
-		return RFCPrecipFieldsPopulator.menuMgr;
-	}
+    @Override
+    protected Map<DisplayFieldData, MenuData> getTexMap() {
+        return RFCPrecipFieldsPopulator.textMap;
+    }
+
+    @Override
+    protected DisplayFieldData[] getMenuItems() {
+        return RFCPrecipFieldsPopulator.menuItems;
+    }
+
+    @Override
+    protected MenuManager getMenuManger() {
+        return RFCPrecipFieldsPopulator.menuMgr;
+    }
+
+    @Override
+    protected boolean menuItemEnabled(final List<String> fields,
+            final DisplayFieldData data) {
+        if (data == DisplayFieldData.rfcMosaic) {
+            /*
+             * Custom rule for RFC Mosaic.
+             */
+            final String generateAreaQpe = AppsDefaults.getInstance()
+                    .getToken(APPS_DEFAULTS_MPE_GENERATE_AREA_QPE);
+            return (generateAreaQpe != null && !generateAreaQpe.trim().isEmpty()
+                    && AppsDefaults.getInstance()
+                            .consideredTrue(generateAreaQpe));
+        }
+        return super.menuItemEnabled(fields, data);
+    }
 }

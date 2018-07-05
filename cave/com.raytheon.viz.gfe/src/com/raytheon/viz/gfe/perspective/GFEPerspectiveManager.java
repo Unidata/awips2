@@ -48,7 +48,6 @@ import com.raytheon.uf.common.time.ISimulatedTimeChangeListener;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
-import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
@@ -73,36 +72,45 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Manages the life cycle of the GFE Perspectives
- * 
+ *
  * Installs a perspective watcher that handles the transitions in and out of the
  * GFE perspectives.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Jul 17, 2008     #1223   randerso    Initial creation
- * Oct 6, 2008      #1433   chammack    Removed gfe status bars
- * Apr 9, 2009       1288   rjpeter     Added saving of the renderable display.
- * Jun 11, 2009     #1947   rjpeter     Moved parm save hook to GridManagerView.
- * Apr 27, 2010             mschenke    refactor for common perspective switching
- * Jul 7, 2011      #9897   ryu         close formatters on perspective close/reset
- * Aug 20,2012      #1077   randerso    Added support for bgColor setting
- * Oct 23, 2012     #1287   rferrel     Changes for non-blocking FormattrLauncherDialog.
- * Dec 09, 2013     #2367   dgilling    Remove shutdown of ProcedureJob and
- *                                      SmartToolJob.
- * Jan 14, 2014      2594   bclement    added low memory notification
- * Aug 24, 2015      4749   dgilling    Shutdown TaskManager on perspective close.
- * Sep 21, 2015      4858   dgilling    Display warning message when DRT mode is enabled.
- * Jan 25, 2015      5256   njensen     Add bindings to existing BindingManager and BindingService
- * Jul 19, 2017      ----   mjames@ucar Remove ISCSendEnable.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jul 17, 2008  1223     randerso  Initial creation
+ * Oct 06, 2008  1433     chammack  Removed gfe status bars
+ * Apr 09, 2009  1288     rjpeter   Added saving of the renderable display.
+ * Jun 11, 2009  1947     rjpeter   Moved parm save hook to GridManagerView.
+ * Apr 27, 2010           mschenke  refactor for common perspective switching
+ * Jul 07, 2011  9897     ryu       close formatters on perspective close/reset
+ * Aug 20,2012   1077     randerso  Added support for bgColor setting
+ * Oct 23, 2012  1287     rferrel   Changes for non-blocking
+ *                                  FormattrLauncherDialog.
+ * Dec 09, 2013  2367     dgilling  Remove shutdown of ProcedureJob and
+ *                                  SmartToolJob.
+ * Jan 14, 2014  2594     bclement  added low memory notification
+ * Aug 24, 2015  4749     dgilling  Shutdown TaskManager on perspective close.
+ * Sep 21, 2015  4858     dgilling  Display warning message when DRT mode is
+ *                                  enabled.
+ * Jan 25, 2015  5256     njensen   Add bindings to existing BindingManager and
+ *                                  BindingService
+ * Mar 16, 2017  6092     randerso  Moved dispose of spatialDisplayManager into
+ *                                  DataManager
+ * Apr 21, 2017  6239     randerso  Prevent UI deadlock if an async task calls
+ *                                  getPreferenceStore() while the dialog is
+ *                                  open.
+ * Jul 19, 2017  ----     mjames    Remove ISCSendEnable.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
+@SuppressWarnings("restriction")
 public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
         implements ISimulatedTimeChangeListener {
 
@@ -121,6 +129,9 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
 
     private static boolean keybindingsCreated = false;
 
+    /**
+     * Constructor
+     */
     public GFEPerspectiveManager() {
 
     }
@@ -133,24 +144,20 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
         AbstractEditor gfeEditor = (AbstractEditor) EditorUtil
                 .getActiveEditor();
         // Disable closing on the active editor
-        gfeEditor
-                .disableClose("The Map Editor cannot be closed in the GFE Perspective");
+        gfeEditor.disableClose(
+                "The Map Editor cannot be closed in the GFE Perspective");
 
         IDisplayPane pane = gfeEditor.getActiveDisplayPane();
+
+        DataManager dm = DataManagerUIFactory.getInstance(perspectiveWindow);
 
         PythonPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
 
-        if (prefs.contains("bgColor")) {
-            String bgColor = prefs.getString("bgColor");
-            pane.getRenderableDisplay().setBackgroundColor(
-                    RGBColors.getRGBColor(bgColor));
-        }
-
         String[] maps = prefs.getStringArray("MapBackgrounds_default");
 
-        MapManager mapMgr = MapManager.getInstance((IMapDescriptor) pane
-                .getDescriptor());
+        MapManager mapMgr = MapManager
+                .getInstance((IMapDescriptor) pane.getDescriptor());
 
         for (String map : maps) {
             mapMgr.loadMapByBundleName(map);
@@ -161,7 +168,6 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
             keybindingsCreated = true;
         }
 
-        DataManager dm = DataManagerUIFactory.getInstance(perspectiveWindow);
         IRenderableDisplay display = pane.getRenderableDisplay();
         if (display instanceof GFEMapRenderableDisplay) {
             ((GFEMapRenderableDisplay) display).setDataManager(dm);
@@ -173,8 +179,8 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
             legend.instantiateResource(pane.getDescriptor(), true);
             pane.getDescriptor().getResourceList().add(legend);
         } catch (VizException e) {
-            statusHandler
-                    .handle(Priority.PROBLEM, "Error adding GFE Legend", e);
+            statusHandler.handle(Priority.PROBLEM, "Error adding GFE Legend",
+                    e);
         }
 
         if (dm != null) {
@@ -188,9 +194,9 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
                             "Populating the map with GFE data has failed.", e);
                 }
             } else {
-                throw new IllegalStateException(this.getClass().getName()
-                        + " must be used with "
-                        + GFESpatialDisplayManager.class.getName());
+                throw new IllegalStateException(
+                        this.getClass().getName() + " must be used with "
+                                + GFESpatialDisplayManager.class.getName());
             }
         }
 
@@ -210,19 +216,13 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
                 IEditorPart part = ref.getEditor(true);
                 if (part instanceof AbstractEditor) {
                     AbstractEditor editor = (AbstractEditor) part;
-                    editor.disableClose("The Map Editor cannot be closed in the GFE Perspective");
+                    editor.disableClose(
+                            "The Map Editor cannot be closed in the GFE Perspective");
                 }
             }
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.perspectives.AbstractCAVEPerspectiveManager#getTitle
-     * (java.lang.String)
-     */
     @Override
     protected String getTitle(String title) {
         String config = Activator.getDefault().getPreferenceStore()
@@ -238,25 +238,6 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
 
         SimulatedTime.getSystemTime().removeSimulatedTimeChangeListener(this);
 
-        try {
-            DataManager dm = DataManagerUIFactory
-                    .findInstance(perspectiveWindow);
-            if (dm != null) {
-                ISpatialDisplayManager mgr = dm.getSpatialDisplayManager();
-                if (mgr instanceof GFESpatialDisplayManager) {
-                    ((GFESpatialDisplayManager) mgr).dispose();
-                } else {
-                    throw new IllegalStateException(this.getClass().getName()
-                            + " must be used with "
-                            + GFESpatialDisplayManager.class.getName());
-                }
-            }
-        } catch (Throwable e) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Depopulating the GFE resources from the map has failed.",
-                    e);
-        }
-
         DataManagerUIFactory.dispose(perspectiveWindow);
 
         FormatterlauncherAction.closeDialog();
@@ -270,7 +251,6 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
         return items;
     }
 
-    @SuppressWarnings("restriction")
     private static void registerKeyBindings() {
         ICommandService commandService = PlatformUI.getWorkbench()
                 .getService(ICommandService.class);
@@ -282,7 +262,7 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
                 .getBindingManager();
         PythonPreferenceStore prefs = Activator.getDefault()
                 .getPreferenceStore();
-        
+
         try {
             // get currentBindings and remove any GFE ShortCut bindings
             String contextId = "com.raytheon.viz.gfe.GFEShortCutContext";
@@ -290,21 +270,19 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
             for (int i = 1; i < 201; i++) {
                 String shortCut = "ShortCut" + i;
                 String[] keyDef = prefs.getStringArray(shortCut);
-                if (keyDef != null && keyDef.length > 0) {
+                if ((keyDef != null) && (keyDef.length > 0)) {
                     if (keyDef.length != 4) {
-                        statusHandler
-                                .handle(Priority.PROBLEM,
-                                        "Invalid GFE ShortCut definition "
-                                                + shortCut
-                                                + ": definition should contain 4 strings");
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Invalid GFE ShortCut definition " + shortCut
+                                        + ": definition should contain 4 strings");
                         continue;
                     }
 
                     String key;
                     if (keyDef[1].isEmpty()
-                            || keyDef[1].equalsIgnoreCase("None")) {
+                            || "None".equalsIgnoreCase(keyDef[1])) {
                         key = keyDef[0].toUpperCase();
-                    } else if (keyDef[1].equalsIgnoreCase("Ctl")) {
+                    } else if ("Ctl".equalsIgnoreCase(keyDef[1])) {
                         key = "CTRL" + KeyStroke.KEY_DELIMITER
                                 + keyDef[0].toUpperCase();
                     } else {
@@ -315,9 +293,8 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
                     try {
                         keyStroke = KeyStroke.getInstance(key);
                     } catch (Exception e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Invalid GFE ShortCut definition " + shortCut
-                                        + ": " + e.getLocalizedMessage());
+                        statusHandler.error("Invalid GFE ShortCut definition "
+                                + shortCut + ": " + e.getLocalizedMessage(), e);
                         continue;
                     }
                     KeySequence keySequence = KeySequence
@@ -325,27 +302,27 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
 
                     Command command = null;
                     Parameterization[] parms = null;
-                    if (keyDef[2].equals("SmartTool")) {
-                        command = commandService
-                                .getCommand("com.raytheon.viz.gfe.actions.RunSmartToolAction");
+                    if ("SmartTool".equals(keyDef[2])) {
+                        command = commandService.getCommand(
+                                "com.raytheon.viz.gfe.actions.RunSmartToolAction");
                         parms = new Parameterization[] { new Parameterization(
                                 command.getParameter("name"), keyDef[3]) };
-                    } else if (keyDef[2].equals("Procedure")) {
-                        command = commandService
-                                .getCommand("com.raytheon.viz.gfe.actions.RunProcedureAction");
+                    } else if ("Procedure".equals(keyDef[2])) {
+                        command = commandService.getCommand(
+                                "com.raytheon.viz.gfe.actions.RunProcedureAction");
                         parms = new Parameterization[] { new Parameterization(
                                 command.getParameter("name"), keyDef[3]) };
-                    } else if (keyDef[2].equals("EditTool")) {
+                    } else if ("EditTool".equals(keyDef[2])) {
                         String commandId = null;
-                        if (keyDef[3].equals("Sample")) {
+                        if ("Sample".equals(keyDef[3])) {
                             commandId = "com.raytheon.viz.gfe.editTools.sample";
-                        } else if (keyDef[3].equals("Pencil")) {
+                        } else if ("Pencil".equals(keyDef[3])) {
                             commandId = "com.raytheon.viz.gfe.editTools.pencil";
-                        } else if (keyDef[3].equals("Contour")) {
+                        } else if ("Contour".equals(keyDef[3])) {
                             commandId = "com.raytheon.viz.gfe.editTools.contour";
-                        } else if (keyDef[3].equals("MoveCopy")) {
+                        } else if ("MoveCopy".equals(keyDef[3])) {
                             commandId = "com.raytheon.viz.gfe.editTools.moveCopy";
-                        } else if (keyDef[3].equals("DrawEditArea")) {
+                        } else if ("DrawEditArea".equals(keyDef[3])) {
                             commandId = "com.raytheon.viz.gfe.editTools.selectPoints";
                         } else {
                             statusHandler.handle(Priority.PROBLEM,
@@ -355,11 +332,11 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
                             continue;
                         }
                         command = commandService.getCommand(commandId);
-                    } else if (keyDef[2].equals("Toggle")) {
+                    } else if ("Toggle".equals(keyDef[2])) {
                         String commandId = null;
-                        if (keyDef[3].equals("ISC")) {
+                        if ("ISC".equals(keyDef[3])) {
                             commandId = "com.raytheon.viz.gfe.actions.showISCGrids";
-                        } else if (keyDef[3].equals("TEGM")) {
+                        } else if ("TEGM".equals(keyDef[3])) {
                             commandId = "com.raytheon.viz.gfe.actions.toggleTemporalEditor";
                         } else {
                             statusHandler.handle(Priority.PROBLEM,
@@ -380,26 +357,17 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
                             command, parms);
 
                     // add the binding
-                    Binding b = new KeyBinding(keySequence,
-                            parmCmd, schemeId, contextId, null, null, null,
-                            Binding.SYSTEM);
+                    Binding b = new KeyBinding(keySequence, parmCmd, schemeId,
+                            contextId, null, null, null, Binding.SYSTEM);
                     bindingManager.addBinding(b);
                     ((BindingService) bindingService).addBinding(b);
                 }
-            }                                
+            }
         } catch (Throwable e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.AbstractVizPerspective#addContextMenuItems(org.eclipse
-     * .jface.action.IMenuManager, com.raytheon.viz.core.IDisplayPaneContainer,
-     * com.raytheon.viz.core.IDisplayPane)
-     */
     @Override
     public void addContextMenuItems(IMenuManager menuManager,
             IDisplayPaneContainer container, IDisplayPane pane) {
@@ -407,12 +375,6 @@ public class GFEPerspectiveManager extends AbstractCAVEPerspectiveManager
         menuManager.add(new ZoomMenuAction(container));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.perspectives.AbstractVizPerspectiveManager#
-     * getLowMemoryMessage(long)
-     */
     @Override
     protected String getLowMemoryMessage(long availMemory) {
         return super.getLowMemoryMessage(availMemory)

@@ -49,7 +49,7 @@ import com.raytheon.viz.pointdata.PlotModelFactory;
  * Apr 22, 2011           njensen     Initial creation
  * Mar 21, 2014  2868     njensen     Major refactor
  * Jun 06, 2014  2061     bsteffen    Remove old PlotResource
- * 
+ * Jun 12, 2017  6303     bsteffen    Provide color when creating image.
  * 
  * </pre>
  * 
@@ -112,7 +112,7 @@ public class PlotModelGeneratorJob extends AbstractPlotCreationJob {
                                             throws VizException {
                                         return bImage;
                                     }
-                                }, null);
+                                }, plotCreator.getColor());
                         if (plotCreator.isCachingImages()) {
                             imageCache.put(bImage, image);
                         }

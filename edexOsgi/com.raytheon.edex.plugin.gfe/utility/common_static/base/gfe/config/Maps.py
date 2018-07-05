@@ -30,8 +30,19 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    02/20/2014          #2824     randerso       Added log message when no localMaps file is found
+#    07/27/2017       DCS19921                    Removed creation of ssww from shapefile 
 #
 ########################################################################
+
+##
+# This is an incremental override file, indicating that the files at different
+# localization levels will be combined. Incremental overrides are achieved by
+# creating a localMaps file at a higher priority localization level that
+# imports this base file.
+#
+# See the Configuration Guides->Server Configuration->Map Background
+# Configuration section of the GFE Online Help for more information.
+##
 
 from ShapeTable import ShapeTable
 
@@ -299,6 +310,18 @@ rfc.name = "RFC"
 rfc.editAreaName = ['ISC','site_id']
 rfc.groupName = 'ISC'
 
+#  NHA ISC area
+domain = ShapeTable('nhadomain')
+domain.name = "TropicalISC"
+domain.groupName = "ISC"
+domain.editAreaName = "ISC_NHA"
+
+#    Storm Surge Watch/Warning Area
+# stormsurgeww = ShapeTable('stormsurgeww')
+# stormsurgeww.name = "StormSurgeWW"
+# stormsurgeww.groupName = "SurgeCollab"
+# stormsurgeww.editAreaName = "StormSurgeWW_EditArea"
+
 # Offshore Marine Zones - unfiltered
 offshore = ShapeTable('offshore')
 offshore.name = "Offshore_Marine_Zones"
@@ -314,7 +337,7 @@ offshoreCWA.groupName = 'OffShoreMZones_' + CWA
 
 # this is a complete listing of all maps
 maps = [ CWAcounties, FIPS, Counties, CWAzones, Zones, FWCWAzones, FWZones, cwas, isc, 
-         fwaor, CWAmzones, Mzones, States, rfc, offshore, offshoreCWA ]
+         fwaor, CWAmzones, Mzones, States, rfc, domain, offshore, offshoreCWA ]
 
 # import the local maps file
 if not BASELINE:

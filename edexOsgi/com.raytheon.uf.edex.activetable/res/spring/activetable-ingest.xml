@@ -1,6 +1,9 @@
-<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd   
-  http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
 
     <bean id="toDataURI" class="com.raytheon.uf.edex.ingest.notification.ToDataURI"/>
 
@@ -28,6 +31,25 @@
     </camelContext>
 
     <camelContext id="activetable-ingest" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <route id="activeTableVtecFilterRoute">
+          <from uri="direct-vm:activeTableVtecFilter"/>
+          <doTry>
+            <pipeline>
+              <filter>
+                  <method bean="vtecFilter" method="hasVTEC"/>
+                  <bean ref="activeTableSrv" method="transformFromOperationalWarnings" />
+                  <to uri="jms-durable:queue:activeTablePending"/>
+              </filter>
+            </pipeline>
+            <doCatch>
+              <exception>java.lang.Throwable</exception>
+              <to uri="log:vtecFilter?level=ERROR"/>
+            </doCatch>
+          </doTry>
+        </route>
+    </camelContext>
+
+    <camelContext id="activetable-practice-ingest" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
         <route id="practiceVtecRoute">
             <from uri="jms-generic:queue:practiceVtec"/>
             <doTry>
@@ -39,7 +61,7 @@
                     <setHeader headerName="drtstring">
                             <simple>${body?.drtString}</simple>
                     </setHeader>
-                    
+
                     <bean ref="practiceVtecDecoder" method="decode"/>
                     <bean ref="wwaGeometryCompleter" method="addMissingGeometries"/>
                     <bean ref="index" method="index"/>

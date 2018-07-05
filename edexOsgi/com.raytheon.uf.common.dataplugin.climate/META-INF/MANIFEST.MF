@@ -8,5 +8,5 @@ Require-Bundle: com.raytheon.uf.common.dataaccess,
  com.raytheon.uf.common.dataplugin,
  org.apache.commons.lang3;bundle-version="3.4.0",
  org.apache.commons.collections;bundle-version="3.2.2"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.dataquery.requests

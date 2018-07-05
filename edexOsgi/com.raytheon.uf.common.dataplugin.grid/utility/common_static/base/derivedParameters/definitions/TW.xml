@@ -18,16 +18,20 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="K" name="Wet Bulb Temp" abbreviation="TW" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="K" name="Wet Bulb Temp" abbreviation="TW">
     <Method name="TW.execute1">
-    	<Field abbreviation="P"/>
-        <Field abbreviation="T"/>
-        <Field abbreviation="RH"/>
+        <Field abbreviation="P" />
+        <Field abbreviation="T" />
+        <Field abbreviation="RH" />
     </Method>
     <Method levels="S,TILT" name="TW.execute2">
-        <Field level="3D" abbreviation="GH"/>
-        <Field level="3D" abbreviation="T"/>
-        <Field level="3D" abbreviation="RH"/>
-        <Field abbreviation="TILT"/>
+        <Field level="3D" abbreviation="GH" />
+        <Field level="3D" abbreviation="T" />
+        <Field level="3D" abbreviation="RH" />
+        <Field abbreviation="TILT" />
     </Method>
 </DerivedParameter>

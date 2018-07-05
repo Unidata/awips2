@@ -20,6 +20,9 @@
 package com.raytheon.viz.hydrocommon.util;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +44,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                      H*,P*,Q*,T* should be handled by fcstother.
  * Oct 10, 2015 17935                   special char (e.g apostrophe) can not be saved/updated in Hyrobase
  * Jan 15, 2016 DCS18180     JingtaoD   code improvement based on code review for DR17935
+ * Mar 10, 2017 29276       gvalenzuela Fix for unable to create/update Location QC records for DR19573
+ * Mar 13, 2017 29276       gvalenzuela Fix null handling for clazz field collector
  * </pre>
  * 
  * @author mpduff
@@ -53,6 +58,8 @@ public class DbUtils {
     private static ConcurrentHashMap<String, String> tableMap = null;
 
     private static ConcurrentHashMap<String, String> fcstTableMap = null;
+
+    private static final Field[] NO_FIELDS = {};
 
     /** The logger */
     private static final IUFStatusHandler statusHandler = UFStatus
@@ -209,7 +216,7 @@ public class DbUtils {
 
         Class<?> c = retData.getClass();
 
-        Field fields[] = c.getDeclaredFields();
+        Field fields[] = getAllDeclaredFields(c);
 
         for (Field f : fields) {
             try {
@@ -261,32 +268,46 @@ public class DbUtils {
      */
     public static <T extends Object> void copyFields(T origData, T copiedData) {
 
-        Class<? extends Object> fromCopy = origData.getClass();
-        Class<? extends Object> toCopy = copiedData.getClass();
-
-        Field origFields[] = fromCopy.getDeclaredFields();
-
+        Field[] origFields = getAllDeclaredFields(origData.getClass());
         Object value = null;
-
-        for (Field f : origFields) {
+        for (Field field: origFields) {
 
             try {
 
-                Field copiedField = toCopy.getDeclaredField(f.getName());
-
-                f.setAccessible(true);
-                copiedField.setAccessible(true);
-
-                value = f.get(origData);
-                copiedField.set(copiedData, value);
+                field.setAccessible(true);
+                value = field.get(origData);
+                field.set(copiedData, value);
 
             } catch (Exception e) {
                 statusHandler.handle(Priority.ERROR,
-                        "Error to copy object from " + origData.toString()
-                                + "to" + copiedData.toString(), e);
+                        "Error to copy object from " + origData.toString() + "to" + copiedData.toString(), e);
             }
-
         }
+
+    }
+
+    /**
+     * Traverses the class hierarchy and picks up all declared fields. The
+     * methods goes down to when the class is null or the standard Object class.
+     * 
+     * @param clazz the class to traverse
+     * @return Field[] array
+     */
+    public static Field[] getAllDeclaredFields(Class<? extends Object> clazz) {
+
+        if (clazz == null) {
+            return NO_FIELDS;
+        }
+
+        List<Field> fields = new ArrayList<>();
+        fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
+
+        if (Object.class != clazz) {
+            fields.addAll(Arrays.asList(
+                    getAllDeclaredFields(clazz.getSuperclass())));
+        }
+
+        return fields.toArray(new Field[fields.size()]);
     }
 
 }

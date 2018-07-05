@@ -133,6 +133,7 @@
 #             to use to connect to the database.
 #11/21/2016 - Change DB_ssl_mode to verify-ca
 #02/23/2017 - set pguser=awips
+#03/13/2017 DR15032 lshi FFMPSourceConfig.xml file is incorrect for HPN, changed the datatype from XMRG to GRID
 
 # ==============================================================================
 # To see syntax rules for this file, see the bottom of this file
@@ -1236,7 +1237,7 @@ ermosaic_d2d_display_grib   : ON
 ebmosaic_d2d_display_grib   : ON
 bdhrmosaic_d2d_display_grib : ON
 hpe_run_nowcast         : ON
-hpe_nowcast_generate_list      :  PRTM, BPTRM
+hpe_nowcast_generate_list      :  HPE, BHPE
 hpe_nowcast_dir         : $(hpe_output_dir)/nowcast
 hpe_rate_save_grib      : save
 hpe_brate_save_grib     : save

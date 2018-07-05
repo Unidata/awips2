@@ -32,6 +32,10 @@
 # 
 #
         
+##
+# This is a base file that is not intended to be overridden.
+##
+
 def process(script, pythonTextEditorToolCallback, args):
     module = __import__(script)
     clazz = module.__dict__.get(script)

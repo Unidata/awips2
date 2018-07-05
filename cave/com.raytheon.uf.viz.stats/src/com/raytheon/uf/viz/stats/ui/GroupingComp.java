@@ -19,22 +19,6 @@
  **/
 package com.raytheon.uf.viz.stats.ui;
 
-/**
- * Grouping Composite for the Stats Graph.
- *
- * <pre>
- *
- * SOFTWARE HISTORY
- *
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 16, 2012            mpduff     Initial creation
- *
- * </pre>
- *
- * @author mpduff
- * @version 1.0
- */
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -78,18 +62,19 @@ import com.raytheon.uf.common.stats.data.GraphData;
  * ------------ ---------- ----------- --------------------------
  * Oct 16, 2012            lvenable    Initial creation
  * Jan 11, 2013   1357     mpduff      Implement.
+ * Feb 24, 2017   6120     njensen     Removed hardcoded button size
  * 
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  */
 public class GroupingComp extends Composite implements IGroupSelection {
+
     /** Parse pattern */
     private final Pattern colonPattern = Pattern.compile(":");
 
     /** Selection Manager Dialog */
-    private SelectionManagerDlg selectionMangerDlg;
+    private SelectionManagerDlg selectionManagerDlg;
 
     /** Scrolled composite containing the control widgets composite. */
     private ScrolledComposite scrolledComp;
@@ -112,7 +97,7 @@ public class GroupingComp extends Composite implements IGroupSelection {
     /** Grouping callback */
     private final IStatsGroup callback;
 
-    private final List<SelectionEntry> selectionEntries = new ArrayList<SelectionEntry>();
+    private final List<SelectionEntry> selectionEntries = new ArrayList<>();
 
     /**
      * Constructor.
@@ -121,8 +106,10 @@ public class GroupingComp extends Composite implements IGroupSelection {
      *            Parent composite.
      * @param swtStyle
      *            SWT style.
-     * @param statsData
+     * @param graphData
      *            Statistical data.
+     * @param callback
+     *            callback
      */
     public GroupingComp(Composite parentComp, int swtStyle,
             GraphData graphData, IStatsGroup callback) {
@@ -137,9 +124,9 @@ public class GroupingComp extends Composite implements IGroupSelection {
      * Initialize the class.
      */
     private void init() {
-        labelMap = new LinkedHashMap<String, Label>();
-        checkBtnMap = new LinkedHashMap<String, Button>();
-        keyRgbMap = new LinkedHashMap<String, RGB>();
+        labelMap = new LinkedHashMap<>();
+        checkBtnMap = new LinkedHashMap<>();
+        keyRgbMap = new LinkedHashMap<>();
 
         GridLayout gl = new GridLayout(1, false);
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -257,11 +244,8 @@ public class GroupingComp extends Composite implements IGroupSelection {
         buttonComp.setLayoutData(new GridData(SWT.CENTER, SWT.DEFAULT, true,
                 false));
 
-        int buttonWidth = 160;
-        GridData gd = new GridData(buttonWidth, SWT.DEFAULT);
         Button selMgrBtn = new Button(buttonComp, SWT.PUSH);
         selMgrBtn.setText("Selection Manager...");
-        selMgrBtn.setLayoutData(gd);
         selMgrBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -363,12 +347,12 @@ public class GroupingComp extends Composite implements IGroupSelection {
      * Display the Selection Manager dialog.
      */
     private void displaySelectionMgrDlg() {
-        if (selectionMangerDlg == null || selectionMangerDlg.isDisposed()) {
-            selectionMangerDlg = new SelectionManagerDlg(getShell(), graphData,
+        if (selectionManagerDlg == null || selectionManagerDlg.isDisposed()) {
+            selectionManagerDlg = new SelectionManagerDlg(getShell(), graphData,
                     this);
         }
 
-        selectionMangerDlg.open();
+        selectionManagerDlg.open();
     }
 
     /**
@@ -442,7 +426,7 @@ public class GroupingComp extends Composite implements IGroupSelection {
      */
     @Override
     public Map<String, Boolean> getStates() {
-        Map<String, Boolean> stateMap = new HashMap<String, Boolean>();
+        Map<String, Boolean> stateMap = new HashMap<>();
 
         for (Map.Entry<String, Button> state : checkBtnMap.entrySet()) {
             stateMap.put(state.getKey(), state.getValue().getSelection());

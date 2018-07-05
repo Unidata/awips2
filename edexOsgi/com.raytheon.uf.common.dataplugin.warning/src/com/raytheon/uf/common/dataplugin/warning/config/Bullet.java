@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -23,24 +23,26 @@ package com.raytheon.uf.common.dataplugin.warning.config;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Bullet
- * 
+ *
  * <pre>
- * 
+ *
  *    SOFTWARE HISTORY
- *   
- *    Date         Ticket#     Engineer    Description
- *    ------------ ----------  ----------- --------------------------
- *    Nov 21, 2007             chammack    Initial Creation.
- *    Aug 26, 2008 #1502       bclement    Added JAXB annotations
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------
+ * Nov 21, 2007           chammack  Initial Creation.
+ * Aug 26, 2008  1502     bclement  Added JAXB annotations
+ * Aug 29, 2017  6328     randerso  Added XMLRootElement annotation
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1
  */
+@XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class Bullet {
 
@@ -62,7 +64,7 @@ public class Bullet {
 
     /** The default as shown in WarnGen */
     @XmlAttribute
-    private String bulletDefault;
+    private boolean bulletDefault;
 
     /** Map to load with bullet selection */
     @XmlAttribute
@@ -86,27 +88,48 @@ public class Bullet {
     @XmlAttribute
     private String showString;
 
+    /**
+     * @return the parseString
+     */
     public String getParseString() {
         return parseString;
     }
 
+    /**
+     * @param parseString
+     *            the parseString to set
+     */
     public void setParseString(String parseString) {
         this.parseString = parseString;
     }
 
+    /**
+     * @return the showString
+     */
     public String getShowString() {
         return showString;
     }
 
+    /**
+     * @param showString
+     *            the showString to set
+     */
     public void setShowString(String showString) {
         this.showString = showString;
     }
 
-    public String getBulletDefault() {
+    /**
+     * @return the bulletDefault
+     */
+    public boolean isBulletDefault() {
         return bulletDefault;
     }
 
-    public void setBulletDefault(String bulletDefault) {
+    /**
+     * @param bulletDefault
+     *            the bulletDefault to set
+     */
+    public void setBulletDefault(boolean bulletDefault) {
         this.bulletDefault = bulletDefault;
     }
 
@@ -148,8 +171,8 @@ public class Bullet {
     }
 
     /**
-     * @param group
-     *            the group to set
+     * @param bulletGroup
+     *            the bulletGroup to set
      */
     public void setBulletGroup(String bulletGroup) {
         this.bulletGroup = bulletGroup;
@@ -163,25 +186,39 @@ public class Bullet {
     }
 
     /**
-     * @param group
-     *            the group to set
+     * @param bulletType
+     *            the bulletType to set
      */
     public void setBulletType(String bulletType) {
         this.bulletType = bulletType;
     }
 
+    /**
+     * @return the loadMap
+     */
     public String getLoadMap() {
         return loadMap;
     }
 
+    /**
+     * @param loadMap
+     *            the loadMap to set
+     */
     public void setLoadMap(String loadMap) {
         this.loadMap = loadMap;
     }
 
+    /**
+     * @return the floodSeverity
+     */
     public String getFloodSeverity() {
         return floodSeverity;
     }
 
+    /**
+     * @param floodSeverity
+     *            the floodSeverity to set
+     */
     public void setFloodSeverity(String floodSeverity) {
         this.floodSeverity = floodSeverity;
     }

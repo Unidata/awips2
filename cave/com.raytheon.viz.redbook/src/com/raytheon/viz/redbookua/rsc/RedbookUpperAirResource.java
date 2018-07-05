@@ -71,7 +71,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.DensityCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.viz.pointdata.PlotData;
 import com.raytheon.viz.pointdata.PlotModelFactory;
-import com.raytheon.viz.redbook.Activator;
 import com.raytheon.viz.redbookua.RedbookUpperAirDecoder;
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -96,12 +95,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Dec 03, 2015 5143       kbisanz     Remove unneeded setting of DataTime
  *                                     utility flag in getName() to prevent
  *                                     NPE in case of no data.
+ * Nov 08, 2016 5976       bsteffen    Remove VizApp logging
  * 
  * 
  * </pre>
  * 
  * @author dfriedma
- * @version 1.0
  */
 public class RedbookUpperAirResource extends
         AbstractVizResource<RedbookUpperAirResourceData, MapDescriptor>
@@ -174,10 +173,7 @@ public class RedbookUpperAirResource extends
             try {
                 map = RedbookWMOMap.load();
             } catch (Exception e) {
-                VizApp.logAndAlert(Status.ERROR, e,
-                        "Error loading redbook mapping",
-                        "Unable to load redbook mapping file",
-                        Activator.getDefault(), Activator.PLUGIN_ID);
+                statusHandler.error("Error loading redbook mapping", e);
                 return;
             }
             RedbookWMOMap.Info info = map.getValue(wmo.getConstraintValue());

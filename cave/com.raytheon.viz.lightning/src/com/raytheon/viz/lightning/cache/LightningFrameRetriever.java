@@ -163,7 +163,7 @@ public class LightningFrameRetriever implements
                     metadata.getNewRecords().addAll(Arrays.asList(newRecords));
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
-                            "Error retriving metadata for time "
+                            "Error retrieving metadata for time "
                                     + metadata.getFrameTime()
                                             .getDisplayString(), e);
                 }

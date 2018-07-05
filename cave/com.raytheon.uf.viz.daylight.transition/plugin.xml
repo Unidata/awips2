@@ -5,7 +5,7 @@
          point="com.raytheon.viz.ui.contextualMenu">
       <contextualMenu
             actionClass="com.raytheon.uf.viz.daylight.transition.DaylightTransitionAction"
-            capabilityClass="com.raytheon.viz.core.rsc.BlendedResource"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.groups.BlendedResource"
             name="com.raytheon.uf.viz.daylight.transition.AutoTransitionAction"
             sortID="52">
       </contextualMenu>

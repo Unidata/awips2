@@ -20,4 +20,6 @@ do
       exit 1
    fi
 done
+# Change permissions back to awips.fxalpha as this is run by root during installs.
+chown -R awips.fxalpha /awips2/cave/etc
 popd > /dev/null 2>&1

@@ -35,6 +35,12 @@
 #                                                 for dual domain.
 #
 #=============================================================================
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 #
 #  Do not show this in any menu.  Should only be run via runProcedure after
 #  putting the parms to save in /tmp/<siteId>_FILE (one on each line)

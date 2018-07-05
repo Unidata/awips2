@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--
 COMMENT:
 // >40 knots of Bulk Shear Magnitude for Supercells
@@ -28,16 +32,16 @@ FIELD: |1.|
 
 NEW FILE - TShrMi.xml
 -->
-<DerivedParameter name="S=0-6km Shear Supports Scells" abbreviation="TShrMi" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="S=0-6km Shear Supports Scells" abbreviation="TShrMi">
     <Method levels="Layer" name="Test">
-        <Field level="0-6kmAgl" abbreviation="BlkMag"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="-1.0E37"/>
-        <ConstantField value="20.0"/>
-        <ConstantField value="0.0"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="19.5"/>
-        <ConstantField value="1.0E37"/>
-        <ConstantField value="1.0"/>
+        <Field level="0-6kmAgl" abbreviation="BlkMag" />
+        <ConstantField value="1.0" />
+        <ConstantField value="-1.0E37" />
+        <ConstantField value="20.0" />
+        <ConstantField value="0.0" />
+        <ConstantField value="1.0" />
+        <ConstantField value="19.5" />
+        <ConstantField value="1.0E37" />
+        <ConstantField value="1.0" />
     </Method>
 </DerivedParameter>

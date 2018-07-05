@@ -18,24 +18,28 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="dZ" name="Thickness" unit="m">
     <Method levels="-12C_-18C" name="Difference">
-        <Field level="-18C" abbreviation="GH"/>
-        <Field level="-12C" abbreviation="GH"/>
+        <Field level="-18C" abbreviation="GH" />
+        <Field level="-12C" abbreviation="GH" />
     </Method>
     <Method levels="-12C" name="Difference">
-        <Field level="-18C" abbreviation="GH"/>
-        <Field level="-12C" abbreviation="GH"/>
+        <Field level="-18C" abbreviation="GH" />
+        <Field level="-12C" abbreviation="GH" />
     </Method>
     <Method name="Difference" levels="C,MB">
-		<Field abbreviation="GH" level="upper"/>
-		<Field abbreviation="GH" level="lower"/>
+        <Field abbreviation="GH" level="upper" />
+        <Field abbreviation="GH" level="lower" />
     </Method>
     <Method name="Mslp2Thk" levels="1000MB-500MB">
-		<Field abbreviation="msl-P" level="Surface"/>
-		<Field abbreviation="GH" level="500MB"/>
+        <Field abbreviation="msl-P" level="Surface" />
+        <Field abbreviation="GH" level="500MB" />
     </Method>
     <Method name="Alias" levels="BLyr">
-		<Field abbreviation="GeH" level="0BLD"/>
+        <Field abbreviation="GeH" level="0BLD" />
     </Method>
 </DerivedParameter>

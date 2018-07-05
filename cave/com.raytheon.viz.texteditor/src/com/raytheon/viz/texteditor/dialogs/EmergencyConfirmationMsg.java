@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,25 +34,27 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.uf.viz.vtec.VtecObject;
+import com.raytheon.uf.viz.vtec.VtecUtil;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.texteditor.util.VtecObject;
-import com.raytheon.viz.texteditor.util.VtecUtil;
 
 /**
  * Produces the product message and mode message for the warngen confirmation
  * dialog for emergency warnings.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jul 23, 2013  2176      jsanchez     Initial creation
- * Sep  4, 2013  2176      jsanchez     Moved EmergencyType to a public class.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jul 23, 2013  2176     jsanchez  Initial creation
+ * Sep 04, 2013  2176     jsanchez  Moved EmergencyType to a public class.
+ * Nov 03, 2016  5934     randerso  Moved VtecObject and VtecUtil to a separate
+ *                                  plugin.
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
  * @version 1.0
  */

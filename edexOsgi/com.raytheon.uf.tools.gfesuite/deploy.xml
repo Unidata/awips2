@@ -22,6 +22,7 @@
 <!-- Deploy script for the GFESuite Command Line Interface Tools.                     -->
 <!-- Usage:                                                                           -->
 <!--    ant -f deploy.xml -Dinstall.dir={path to install} [-Dinstaller=true]          -->
+<!--       [-Dclient.build=true]                                                      -->
 <!-- ================================================================================ -->
 
 <project default="deploy.all" basedir="." >
@@ -40,21 +41,26 @@
 	</condition>
 	
 	<condition property="deploy.client" value="yes">
-		<istrue value="true"/>
+		<istrue value="${client.build}"/>
 	</condition>
 	
 	<condition property="deploy.hti" value="yes">
-		<istrue value="true"/>
+			<isfalse value="${client.build}"/>
 	</condition>
 	
 	<condition property="deploy.nwps" value="yes">
-		<istrue value="true"/>
+			<isfalse value="${client.build}"/>
+	</condition>
+	
+	<condition property="deploy.rsyncgrids" value="yes">
+			<isfalse value="${client.build}"/>
 	</condition>
 
 	<property name="gfe.suite.home" value="${install.dir}" />
 	<property name="gfe.suite.bin" value="${install.dir}/bin" />
 	<property name="gfe.suite.hti" value="${install.dir}/hti" />
 	<property name="gfe.suite.nwps" value="${install.dir}/nwps" />
+	<property name="gfe.suite.rsyncgrids" value="${install.dir}/rsyncGridsToCWF" />
 
 	<!-- Create the copy filter -->	
 	<!-- filter set -->
@@ -66,10 +72,12 @@
 	<target name="deploy.all" description="Deploys GFESuite CLI tools to a specific directory">
 		<!-- copy the CLI tools to the deploy directory -->
 		<echo message="Updating ${gfe.suite.bin} with latest GFESuite tools" />
+		<echo message="deploy.client=${deploy.client}" />
 		<mkdir dir="${gfe.suite.bin}"/>
 		<antcall target="-deploy.cli.common"/>
 		<antcall target="-deploy.hti"/>
 		<antcall target="-deploy.nwps"/>
+		<antcall target="-deploy.rsyncgrids"/>
 		<!-- <antcall target="-deploy.cli.client"/> -->
 		<antcall target="-set.permissions"/>
 	</target>
@@ -110,7 +118,18 @@
 			<filterset refid="installer.filter.set"/>
 		</copy>
 	</target>
-		
+
+	<target name="-deploy.rsyncgrids" if="deploy.rsyncgrids"
+		description="Deploys rsyncGridsToCWF software to a specific directory">
+		<!-- copy the RSYNC Grids tools to the deploy directory -->
+		<mkdir dir="${gfe.suite.rsyncgrids}"/>
+		<echo message="Copying in rsyncGridsToCWF files" />
+		<copy todir="${gfe.suite.rsyncgrids}" overwrite="true">
+			<fileset dir="${basedir}/rsyncGridsToCWF"/>
+			<filterset refid="installer.filter.set"/>
+		</copy>
+	</target>
+	
 	<target name="-set.permissions" 
 		    description="sets the permissions on the scripts - local install only">
 		<echo message="Setting permissions in ${gfe.suite.bin} to 'ugo+rx'" />

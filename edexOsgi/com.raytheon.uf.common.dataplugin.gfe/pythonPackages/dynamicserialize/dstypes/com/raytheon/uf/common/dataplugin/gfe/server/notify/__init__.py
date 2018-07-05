@@ -27,7 +27,6 @@ __all__ = [
             'GridHistoryUpdateNotification',
             'GridUpdateNotification',
             'LockNotification',
-            'ServiceBackupJobStatusNotification',
             'UserMessageNotification'
           ]
 
@@ -37,6 +36,5 @@ from GfeNotification import GfeNotification
 from GridHistoryUpdateNotification import GridHistoryUpdateNotification
 from GridUpdateNotification import GridUpdateNotification
 from LockNotification import LockNotification
-from ServiceBackupJobStatusNotification import ServiceBackupJobStatusNotification
 from UserMessageNotification import UserMessageNotification
 

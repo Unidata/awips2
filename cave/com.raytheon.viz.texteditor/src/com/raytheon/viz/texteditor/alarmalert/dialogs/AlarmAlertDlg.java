@@ -303,7 +303,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 // open dialog
                 AlarmAlertSaveLoadDlg dialog = new AlarmAlertSaveLoadDlg(shell,
                         SaveOrLoad.SAVE);
-                dialog.setCloseCallback(new ICloseCallback() {
+                dialog.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -322,7 +322,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 // open dialog
                 AlarmAlertSaveLoadDlg dialog = new AlarmAlertSaveLoadDlg(shell,
                         SaveOrLoad.LOAD);
-                dialog.setCloseCallback(new ICloseCallback() {
+                dialog.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -408,7 +408,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                 }
                 proximityAlarmDlg = new NewAlarmDlg(shell, "ALARM",
                         new AlarmAlertProduct(isOperationalMode()));
-                proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+                proximityAlarmDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -445,7 +445,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
 
                 proximityAlarmDlg = new NewAlarmDlg(shell, "PROXIMITY",
                         new AlarmAlertProduct(isOperationalMode()));
-                proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+                proximityAlarmDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -483,7 +483,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                     final int index = aaList.getSelectionIndex();
                     proximityAlarmDlg = new NewAlarmDlg(shell, "ALARM", aapList
                             .get(index - 1));
-                    proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+                    proximityAlarmDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -513,7 +513,7 @@ public class AlarmAlertDlg extends CaveSWTDialog {
                     final int index = paList.getSelectionIndex();
                     proximityAlarmDlg = new NewAlarmDlg(shell, "PROXIMITY",
                             papList.get(index - 1));
-                    proximityAlarmDlg.setCloseCallback(new ICloseCallback() {
+                    proximityAlarmDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {

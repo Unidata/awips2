@@ -25,8 +25,8 @@ import com.raytheon.uf.common.grib.GridModel;
 import com.raytheon.uf.common.grib.GridModelSet;
 import com.raytheon.uf.common.grib.tables.GribTableLookup;
 import com.raytheon.uf.common.gridcoverage.GridCoverage;
+import com.raytheon.uf.common.menus.vb.VbSourceList;
 import com.raytheon.uf.viz.grib.wizard.GribWizardData;
-import com.raytheon.viz.volumebrowser.xml.VbSourceList;
 
 /**
  * 

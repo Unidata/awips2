@@ -68,6 +68,8 @@ import com.raytheon.uf.common.numeric.source.DataSource;
  *                                    IDataRequest
  * Jun 07, 2016  5574     tgurney     Add advanced query support
  * Aug 01, 2016  2416     tgurney     Add dataURI as optional identifier
+ * Mar 06, 2017  6142     bsteffen    Remove dataURI as optional identifier
+ * Aug 29, 2017  6389     bsteffen    Ensure location names are unique.
  * 
  * </pre>
  * 
@@ -84,8 +86,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
     private static final String FIELD_SOURCE = "source";
 
     private static final String[] OPTIONAL_IDENTIFIERS = { FIELD_SOURCE,
-            FIELD_CREATING_ENTITY, FIELD_SECTOR_ID, FIELD_PHYSICAL_ELEMENT,
-            PluginDataObject.DATAURI_ID };
+            FIELD_CREATING_ENTITY, FIELD_SECTOR_ID, FIELD_PHYSICAL_ELEMENT };
 
     public SatelliteGridFactory() {
         SatelliteUnits.register();
@@ -111,7 +112,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
         defaultGridData.setDataTime(pdo.getDataTime());
         defaultGridData.setParameter(satelliteRecord.getPhysicalElement());
         defaultGridData.setLevel(null);
-        defaultGridData.setLocationName(satelliteRecord.getSectorID());
+        defaultGridData.setLocationName(generateLocationName(satelliteRecord));
         // unit
         Unit<?> unit = null;
         if (satelliteRecord.getUnits() != null) {
@@ -199,16 +200,17 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
      */
     @Override
     public String[] getAvailableParameters(IDataRequest request) {
-        return getAvailableValues(request, FIELD_PHYSICAL_ELEMENT, String.class);
+        return getAvailableValues(request, FIELD_PHYSICAL_ELEMENT,
+                String.class);
     }
 
     @Override
     public String[] getIdentifierValues(IDataRequest request,
             String identifierKey) {
-        if (!Arrays.asList(getRequiredIdentifiers(request)).contains(
-                identifierKey)
-                && !Arrays.asList(getOptionalIdentifiers(request)).contains(
-                        identifierKey)) {
+        if (!Arrays.asList(getRequiredIdentifiers(request))
+                .contains(identifierKey)
+                && !Arrays.asList(getOptionalIdentifiers(request))
+                        .contains(identifierKey)) {
             throw new InvalidIdentifiersException(request.getDatatype(), null,
                     Arrays.asList(new String[] { identifierKey }));
         }
@@ -219,5 +221,16 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
             idValStrings.add(idValue.toString());
         }
         return idValStrings.toArray(new String[idValues.length]);
+    }
+
+    protected static String generateLocationName(
+            SatelliteRecord satelliteRecord) {
+        StringBuilder locationName = new StringBuilder(32);
+        locationName.append(satelliteRecord.getSectorID());
+        locationName.append("_");
+        locationName.append(satelliteRecord.getCoverage().getMinX());
+        locationName.append("_");
+        locationName.append(satelliteRecord.getCoverage().getMinY());
+        return locationName.toString();
     }
 }

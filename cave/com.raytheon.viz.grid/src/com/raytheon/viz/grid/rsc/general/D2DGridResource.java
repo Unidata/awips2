@@ -20,7 +20,6 @@
 package com.raytheon.viz.grid.rsc.general;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.measure.unit.Unit;
 
@@ -65,7 +64,10 @@ import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
+import com.raytheon.viz.grid.GridExtensionManager;
 import com.raytheon.viz.grid.rsc.GridNameGenerator;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.IGridNameResource;
 import com.raytheon.viz.grid.rsc.GridNameGenerator.LegendParameters;
@@ -82,35 +84,38 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * SOFTWARE HISTORY
  * 
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- -----------------------------------------
- * Mar 09, 2011           bsteffen    Initial creation
- * Feb 25, 2013  1659     bsteffen    Add PDOs to D2DGridResource in
- *                                    constructor to avoid duplicate data
- *                                    requests.
- * Jul 15, 2013  2107     bsteffen    Fix sampling of grid vector arrows.
- * Aug 27, 2013  2287     randerso    Removed 180 degree adjustment required by
- *                                    error in Maputil.rotation
- * Sep 12, 2013  2309     bsteffen    Request subgrids whenever possible.
- * Sep 24, 2013  15972    D. Friedman Make reprojection of grids configurable.
- * Nov 19, 2013  2532     bsteffen    Special handling of grids larger than the
- *                                    world.
- * Feb 04, 2014  2672     bsteffen    Extract subgridding logic to geospatial
- *                                    plugin.
- * Feb 28, 2013  2791     bsteffen    Use DataSource instead of FloatBuffers
- *                                    for data access
- * Mar 27, 2014  2945     bsteffen    Enable omitting the plane from the legend
- *                                    based off style rules.
- * May 04, 2015  4374     bsteffen    set dataModified when data does not
- *                                    intersect descriptor
+ * Date          Ticket#  Engineer     Description
+ * ------------- -------- ------------ -----------------------------------------
+ * Mar 09, 2011  10751    bsteffen     Initial creation
+ * Feb 25, 2013  1659     bsteffen     Add PDOs to D2DGridResource in
+ *                                     constructor to avoid duplicate data
+ *                                     requests.
+ * Jul 15, 2013  2107     bsteffen     Fix sampling of grid vector arrows.
+ * Aug 27, 2013  2287     randerso     Removed 180 degree adjustment required by
+ *                                     error in Maputil.rotation
+ * Sep 12, 2013  2309     bsteffen     Request subgrids whenever possible.
+ * Sep 24, 2013  15972    D. Friedman  Make reprojection of grids configurable.
+ * Nov 19, 2013  2532     bsteffen     Special handling of grids larger than the
+ *                                     world.
+ * Feb 04, 2014  2672     bsteffen     Extract subgridding logic to geospatial
+ *                                     plugin.
+ * Feb 28, 2013  2791     bsteffen     Use DataSource instead of FloatBuffers
+ *                                     for data access
+ * Mar 27, 2014  2945     bsteffen     Enable omitting the plane from the legend
+ *                                     based off style rules.
+ * May 04, 2015  4374     bsteffen     set dataModified when data does not
+ *                                     intersect descriptor
+ * Aug 30, 2016  3240     bsteffen     Use Interrogatable for inspect
+ * Apr 20, 2017  6046     bsteffen     Ensure dataModified is updated before
+ *                                     starting a subgrid request.
+ * Aug 15, 2017  6332     bsteffen     Move radar specific logic to extension
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-public class D2DGridResource extends GridResource<GridResourceData> implements
-        IGridNameResource {
+public class D2DGridResource extends GridResource<GridResourceData>
+        implements IGridNameResource {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DGridResource.class);
 
@@ -134,8 +139,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             addDataObject(record);
         }
         if (this.hasCapability(ImagingCapability.class)) {
-            lastInterpolationState = this
-                    .getCapability(ImagingCapability.class)
+            lastInterpolationState = this.getCapability(ImagingCapability.class)
                     .isInterpolationState();
         }
     }
@@ -149,9 +153,8 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         if (randomRec != null) {
             String paramAbbrev = randomRec.getParameter().getAbbreviation();
             this.getCapability(DisplayTypeCapability.class)
-                    .setAlternativeDisplayTypes(
-                            FieldDisplayTypesFactory.getInstance()
-                                    .getDisplayTypes(paramAbbrev));
+                    .setAlternativeDisplayTypes(FieldDisplayTypesFactory
+                            .getInstance().getDisplayTypes(paramAbbrev));
         }
         super.initInternal(target);
     }
@@ -180,8 +183,8 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         GridGeometry2D gridGeometry = location.getGridGeometry();
 
         /* Request data for tilts if this is Std Env sampling. */
-        IDataRecord[] dataRecs = GridResourceData.getDataRecordsForTilt(
-                gridRecord, descriptor);
+        IDataRecord[] dataRecs = GridExtensionManager.loadCustomData(gridRecord,
+                descriptor);
         if (dataRecs == null) {
             try {
                 SubGridGeometryCalculator subGrid = new SubGridGeometryCalculator(
@@ -193,6 +196,7 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                 } else if (subGrid.isFull()) {
                     dataRecs = DataCubeContainer.getDataRecord(gridRecord);
                 } else {
+                    dataModified = true;
                     Request request = Request.buildSlab(
                             subGrid.getGridRangeLow(true),
                             subGrid.getGridRangeHigh(false));
@@ -203,16 +207,14 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                      * min x,y be 0.
                      */
                     gridGeometry = subGrid.getZeroedSubGridGeometry();
-                    dataModified = true;
                 }
             } catch (DataCubeException e) {
                 throw new VizException(e);
             } catch (TransformException e) {
                 /* Not a big deal, just request all data. */
-                statusHandler
-                        .handle(Priority.DEBUG,
-                                "Unable to request subgrid, full grid will be used.",
-                                e);
+                statusHandler.handle(Priority.DEBUG,
+                        "Unable to request subgrid, full grid will be used.",
+                        e);
                 try {
                     dataRecs = DataCubeContainer.getDataRecord(gridRecord);
                 } catch (DataCubeException dce) {
@@ -229,8 +231,8 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
          */
         if (ReprojectionUtil.shouldReproject(gridRecord, gridGeometry,
                 getDisplayType(), descriptor.getGridGeometry())) {
-            if (!gridLargerThanWorld
-                    || GridGeometryWrapChecker.checkForWrapping(gridGeometry) != -1) {
+            if (!gridLargerThanWorld || GridGeometryWrapChecker
+                    .checkForWrapping(gridGeometry) != -1) {
                 data = reprojectData(data);
             }
         }
@@ -238,15 +240,13 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
          * Wind Direction(and possibly others) can be set so that we rotate the
          * direction to be relative to the north pole instead of grid relative.
          */
-        if ((stylePreferences != null)
-                && stylePreferences.getDisplayFlags()
-                        .hasFlag("RotateVectorDir")) {
+        if ((stylePreferences != null) && stylePreferences.getDisplayFlags()
+                .hasFlag("RotateVectorDir")) {
             GridEnvelope2D gridRange = gridGeometry.getGridRange2D();
             MathTransform grid2crs = gridGeometry.getGridToCRS();
             try {
-                MathTransform crs2ll = MapUtil
-                        .getTransformToLatLon(gridGeometry
-                                .getCoordinateReferenceSystem());
+                MathTransform crs2ll = MapUtil.getTransformToLatLon(
+                        gridGeometry.getCoordinateReferenceSystem());
                 DataSource oldScalar = data.getScalarData();
                 FloatBufferWrapper newScalar = new FloatBufferWrapper(
                         gridGeometry.getGridRange2D());
@@ -262,13 +262,10 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                         newScalar.setDataValue(dir, i, j);
                     }
                 }
-                data = GeneralGridData.createScalarData(gridGeometry,
-                        newScalar, data.getDataUnit());
-            } catch (TransformException e) {
-                throw new VizException(e);
-            } catch (InvalidGridGeometryException e) {
-                throw new VizException(e);
-            } catch (FactoryException e) {
+                data = GeneralGridData.createScalarData(gridGeometry, newScalar,
+                        data.getDataUnit());
+            } catch (FactoryException | InvalidGridGeometryException
+                    | TransformException e) {
                 throw new VizException(e);
             }
         }
@@ -282,9 +279,9 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             return data;
         }
         try {
-            GeneralGridGeometry targetGeometry = MapUtil.reprojectGeometry(data
-                    .getGridGeometry(), descriptor.getGridGeometry()
-                    .getEnvelope(), true, 2);
+            GeneralGridGeometry targetGeometry = MapUtil.reprojectGeometry(
+                    data.getGridGeometry(),
+                    descriptor.getGridGeometry().getEnvelope(), true, 2);
             dataModified = true;
             Interpolation interpolation = null;
             if (this.hasCapability(ImagingCapability.class)
@@ -297,13 +294,13 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
                 interpolation = bilinear;
             }
             data = data.reproject(targetGeometry, interpolation);
-        } catch (FactoryException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } catch (TransformException e) {
+        } catch (TransformException | FactoryException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
-        // If exceptions happened just return the original data, the display
-        // should still work just fine.
+        /*
+         * If exceptions happened just return the original data, the display
+         * should still work just fine.
+         */
         return data;
     }
 
@@ -317,8 +314,8 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
             }
         }
         LegendParameters legendParams = new LegendParameters();
-        DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(
-                record.getDatasetId());
+        DatasetInfo info = DatasetInfoLookup.getInstance()
+                .getInfo(record.getDatasetId());
         if (info == null) {
             legendParams.model = record.getDatasetId();
         } else {
@@ -327,8 +324,8 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         legendParams.level = record.getLevel();
         legendParams.parameter = record.getParameter().getName();
         legendParams.ensembleId = record.getEnsembleId();
-        legendParams.dataTime = descriptor.getFramesInfo().getTimeForResource(
-                this);
+        legendParams.dataTime = descriptor.getFramesInfo()
+                .getTimeForResource(this);
 
         if (stylePreferences != null) {
             legendParams.unit = stylePreferences.getDisplayUnitLabel();
@@ -368,12 +365,15 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
     public String inspect(ReferencedCoordinate coord) throws VizException {
         if (resourceData.isSampling()) {
             if (getDisplayType() == DisplayType.ARROW) {
-                Map<String, Object> map = interrogate(coord);
-                if (map == null) {
+                InterrogateMap map = interrogate(coord, getTimeForResource(),
+                        Interrogator.VALUE, UNIT_STRING_INTERROGATE_KEY);
+                if (map == null || map.isEmpty()) {
                     return "NO DATA";
                 }
-                double value = (Double) map.get(INTERROGATE_VALUE);
-                return sampleFormat.format(value) + map.get(INTERROGATE_UNIT);
+                double value = map.get(Interrogator.VALUE).getValue()
+                        .doubleValue();
+                return sampleFormat.format(value)
+                        + map.get(UNIT_STRING_INTERROGATE_KEY);
             } else if (getDisplayType() == DisplayType.CONTOUR) {
                 GridRecord record = getCurrentGridRecord();
                 if (record != null) {
@@ -414,8 +414,9 @@ public class D2DGridResource extends GridResource<GridResourceData> implements
         if (type == ChangeType.CAPABILITY) {
             if ((updateObject instanceof ImagingCapability) && dataModified) {
                 ImagingCapability capability = (ImagingCapability) updateObject;
-                if ((lastInterpolationState == null)
-                        || (capability.isInterpolationState() != lastInterpolationState)) {
+                if ((lastInterpolationState == null) || (capability
+                        .isInterpolationState() != lastInterpolationState
+                                .booleanValue())) {
                     lastInterpolationState = capability.isInterpolationState();
                     clearRequestedData();
                     dataModified = false;

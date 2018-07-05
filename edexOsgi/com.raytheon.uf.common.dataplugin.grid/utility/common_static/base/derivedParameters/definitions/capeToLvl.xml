@@ -18,13 +18,17 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter name="cape up to level" abbreviation="capeToLvl">
-    <Method name="Cape" levels="FrzLvl&gt;-40C" >
+    <Method name="Cape" levels="FrzLvl&gt;-40C">
         <Field abbreviation="T" level="3D" />
-        <Field abbreviation="P" level="Surface"/>
-        <Field abbreviation="PoT" level="Surface"/>
-        <Field abbreviation="SHx" level="Surface"/>
-        <ConstantField value="0.0"/>
-        <Field abbreviation="P"/>
+        <Field abbreviation="P" level="Surface" />
+        <Field abbreviation="PoT" level="Surface" />
+        <Field abbreviation="SHx" level="Surface" />
+        <ConstantField value="0.0" />
+        <Field abbreviation="P" />
     </Method>
 </DerivedParameter>

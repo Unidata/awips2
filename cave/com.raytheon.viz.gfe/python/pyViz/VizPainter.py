@@ -17,12 +17,6 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-
-from com.raytheon.uf.viz.core import GraphicsFactory
-from com.raytheon.uf.viz.core.drawables import PaintProperties
-from com.raytheon.viz.core.gl import GLTargetProxy
-from com.raytheon.uf.viz.core.rsc import ResourceProperties
-
 #
 # Base class for Viz painting from python
 #  
@@ -34,9 +28,14 @@ from com.raytheon.uf.viz.core.rsc import ResourceProperties
 #    04/01/09                      njensen        Initial Creation.
 #    08/20/2012           #1077    randerso       Fixed backgroundColor setting
 #    Apr 16, 2014          3039    njensen        Ensure correct ResourceList.add() is used
-#    
+#    Jan 19, 2017          5987    randerso       Fix after constructExtent method was removed
 # 
-#
+##
+
+from com.raytheon.uf.viz.core.drawables import PaintProperties
+from com.raytheon.viz.core.gl import GLTargetProxy
+from com.raytheon.uf.viz.core.rsc import ResourceProperties
+from com.raytheon.uf.viz.core import PixelExtent
 
 SUPPORTED_FORMATS = ('.png', '.jpg', '.gif')
 
@@ -47,7 +46,7 @@ class VizPainter():
         self.display = renderableDisplay        
         width = float(self.display.getWorldWidth())
         height = float(self.display.getWorldHeight())
-        extent = GraphicsFactory.getGraphicsAdapter().constructExtent(0.0, width, 0.0, height)
+        extent = PixelExtent(0.0, width, 0.0, height)
         self.display.setExtent(extent)        
         
         if backgroundColor is not None and type(backgroundColor) is str:

@@ -1601,7 +1601,7 @@ public class RiverGageDlg extends CaveSWTDialog implements
             fcstPointDlg = new FcstPointGroupDlg(shell,
                     forecastPointTF.getText());
             fcstPointDlg.addListener(this);
-            fcstPointDlg.setCloseCallback(new ICloseCallback() {
+            fcstPointDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {

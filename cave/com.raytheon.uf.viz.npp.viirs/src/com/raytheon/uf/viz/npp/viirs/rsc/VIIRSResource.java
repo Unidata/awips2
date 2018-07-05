@@ -40,6 +40,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
 import org.opengis.referencing.operation.MathTransform;
 
+import com.raytheon.uf.common.colormap.ColorMapException;
+import com.raytheon.uf.common.colormap.ColorMapLoader;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.npp.viirs.VIIRSDataRecord;
@@ -65,7 +67,6 @@ import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.RasterMode;
 import com.raytheon.uf.viz.core.IMesh;
 import com.raytheon.uf.viz.core.PixelCoverage;
-import com.raytheon.uf.viz.core.drawables.ColorMapLoader;
 import com.raytheon.uf.viz.core.drawables.IImage;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ext.IImagingExtension.ImageProvider;
@@ -105,13 +106,12 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Feb 21, 2012 #30        mschenke    Fixed sampling issue
  * Aug 2,  2013 #2190      mschenke    Switched interrogate to use Measure objects
  * Aug 27, 2013 #2190      mschenke    Made interrogate more efficient
+ * Nov 08, 2016 5976       bsteffen    Update deprecated method calls.
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
-
 public class VIIRSResource extends
         AbstractVizResource<VIIRSResourceData, IMapDescriptor> implements
         IResourceDataChanged, ImageProvider {
@@ -215,7 +215,7 @@ public class VIIRSResource extends
                                     (int) (tileSetEnvelope.getSpan(1) / (resolution * INTERSECTION_FACTOR)));
                     if (intersection != null) {
                         int numGeoms = intersection.getNumGeometries();
-                        targetIntersection = new ArrayList<PreparedGeometry>(
+                        targetIntersection = new ArrayList<>(
                                 numGeoms);
                         for (int n = 0; n < numGeoms; ++n) {
                             targetIntersection.add(PreparedGeometryFactory
@@ -273,20 +273,15 @@ public class VIIRSResource extends
     public VIIRSResource(VIIRSResourceData resourceData,
             LoadProperties loadProperties, List<VIIRSDataRecord> initialRecords) {
         super(resourceData, loadProperties);
-        dataRecordMap = new LinkedHashMap<VIIRSDataRecord, RecordData>();
-        groupedRecords = new HashMap<DataTime, Collection<VIIRSDataRecord>>();
+        dataRecordMap = new LinkedHashMap<>();
+        groupedRecords = new HashMap<>();
         resourceData.addChangeListener(this);
-        dataTimes = new ArrayList<DataTime>();
+        dataTimes = new ArrayList<>();
         for (VIIRSDataRecord record : initialRecords) {
             dataRecordMap.put(record, null);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getName()
-     */
     @Override
     public String getName() {
         if (name == null) {
@@ -370,7 +365,12 @@ public class VIIRSResource extends
                     name = "NPP/VIIRS/IR Default";
                 }
             }
-            colorMapParameters.setColorMap(ColorMapLoader.loadColorMap(name));
+            try {
+                colorMapParameters
+                        .setColorMap(ColorMapLoader.loadColorMap(name));
+            } catch (ColorMapException e) {
+                throw new VizException(e);
+            }
         }
 
         // Setup units for display and data
@@ -487,7 +487,7 @@ public class VIIRSResource extends
 
             Map<DataTime, Collection<VIIRSDataRecord>> groupedRecords = resourceData
                     .groupRecordTimes(dataRecordMap.keySet());
-            List<DataTime> dataTimes = new ArrayList<DataTime>(
+            List<DataTime> dataTimes = new ArrayList<>(
                     groupedRecords.keySet());
             Collections.sort(dataTimes);
             this.dataTimes = dataTimes;
@@ -495,13 +495,6 @@ public class VIIRSResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#remove(com.raytheon.
-     * uf.common.time.DataTime)
-     */
     @Override
     public void remove(DataTime dataTime) {
         synchronized (dataRecordMap) {
@@ -519,11 +512,6 @@ public class VIIRSResource extends
         super.remove(dataTime);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
-     */
     @Override
     protected void disposeInternal() {
         synchronized (dataRecordMap) {
@@ -536,14 +524,6 @@ public class VIIRSResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -556,13 +536,6 @@ public class VIIRSResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#initInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         getCapability(ImagingCapability.class).setProvider(this);
@@ -573,14 +546,6 @@ public class VIIRSResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type == ChangeType.DATA_UPDATE) {
@@ -595,13 +560,6 @@ public class VIIRSResource extends
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#inspect(com.raytheon
-     * .uf.common.geospatial.ReferencedCoordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         Map<String, Object> interMap = interrogate(coord);
@@ -624,17 +582,10 @@ public class VIIRSResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#interrogate(com.raytheon
-     * .uf.common.geospatial.ReferencedCoordinate)
-     */
     @Override
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
-        Map<String, Object> interMap = new HashMap<String, Object>();
+        Map<String, Object> interMap = new HashMap<>();
         ColorMapParameters params = getCapability(ColorMapCapability.class)
                 .getColorMapParameters();
         double dataValue = Double.NaN;
@@ -695,13 +646,6 @@ public class VIIRSResource extends
         return interMap;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
-     * referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         synchronized (dataRecordMap) {
@@ -716,18 +660,10 @@ public class VIIRSResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.ext.IImagingExtension.ImageProvider
-     * #getImages(com.raytheon.uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     public Collection<DrawableImage> getImages(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
-        List<DrawableImage> images = new ArrayList<DrawableImage>();
+        List<DrawableImage> images = new ArrayList<>();
         synchronized (dataRecordMap) {
             Collection<VIIRSDataRecord> records = groupedRecords.get(paintProps
                     .getDataTime());

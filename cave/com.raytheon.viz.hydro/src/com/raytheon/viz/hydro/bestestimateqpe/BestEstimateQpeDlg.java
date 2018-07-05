@@ -69,7 +69,7 @@ import com.raytheon.viz.ui.widgets.DateTimeSpinner;
  * 24 Aug 2009  2258       mpduff      Implemented dialog functionality.
  * 07 Dec 2012  1353       rferrel     Make dialog non-blocking.
  * 05 May 2016  5483       bkowal      Fix GUI sizing issues.
- * 
+ * 10/26/2017   19648      qzhu        The date and time setting has no effect.
  * </pre>
  * 
  * @author lvenable
@@ -200,6 +200,11 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
      */
     private Calendar cal = TimeUtil.newGmtCalendar();
 
+    /*
+     * Date/time spin for end date/time of QPE
+     */
+    private DateTimeSpinner dateTimeSpinner;
+
     /**
      * Constructor.
      * 
@@ -282,8 +287,7 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
         Label dateTimeLbl = new Label(dateTimeComp, SWT.NONE);
         dateTimeLbl.setText("Select Date/Time:");
 
-        DateTimeSpinner dateTimeSpinner = new DateTimeSpinner(dateTimeComp,
-                cal, 4);
+        dateTimeSpinner = new DateTimeSpinner(dateTimeComp, cal, 4);
         GridData gd = new GridData(SWT.DEFAULT, SWT.DEFAULT, false, false);
         dateTimeSpinner.setLayoutData(gd);
     }
@@ -651,9 +655,9 @@ public class BestEstimateQpeDlg extends CaveSWTDialog {
         }
 
         displayManager.setAccumInterval(durationScale.getSelection());
-        displayManager.setDataDate(cal.getTime());
-        displayManager.setDisplayType(displayAsCbo.getItem(displayAsCbo
-                .getSelectionIndex()));
+        displayManager.setDataDate(dateTimeSpinner.getSelection().getTime());
+        displayManager.setDisplayType(
+                displayAsCbo.getItem(displayAsCbo.getSelectionIndex()));
         displayManager.setTimeLapseMode(timeLapseRdo.getSelection());
         displayManager.setAccumulate(accumRdo.getSelection());
         displayManager.setIds(idChk.getSelection());

@@ -49,12 +49,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
- * Aug 19, 2011 10672      jkorman     Move refactor to new project
- * Oct 07, 2013  2361      njensen     Removed XML annotations
- * May 23, 2016  5590      bkowal      Cleanup.
- * Jun 24, 2016  5699      bkowal      Added {@link #SELECT_ALL_DATALIMITS_RECORDS}.
- * Jul 01, 2016  4623      skorolev    Added {@link #SELECT_PE_DATALIMITS_RECORDS} 
- *                                     and {@link #SELECT_PE_AND_DUR_DATALIMITS_RECORDS}.
+ * Aug 19, 2011      10672     jkorman Move refactor to new project
+ * Oct 07, 2013       2361     njensen Removed XML annotations
+ * May 23, 2016       5590     bkowal  Cleanup.
+ * Jun 24, 2016       5699     bkowal  Added {@link #SELECT_ALL_DATALIMITS_RECORDS}.
+ * Sep 13, 2016  5631      bkowal      Added {@link #SELECT_MAX_DATALIMITS_PRECIP}.
  * Nov 10, 2016       5999     bkowal  Added {@link #SELECT_OBS_LIMITS_FROM_DATALIMITS}.
  * 
  * </pre>
@@ -63,9 +62,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  */
 @NamedQueries({
         @NamedQuery(name = Datalimits.SELECT_ALL_DATALIMITS_RECORDS, query = Datalimits.SELECT_ALL_DATALIMITS_RECORDS_HQL),
-        @NamedQuery(name = Datalimits.SELECT_PE_DATALIMITS_RECORDS, query = Datalimits.SELECT_PE_DATALIMITS_RECORDS_HQL),
         @NamedQuery(name = Datalimits.SELECT_OBS_LIMITS_FROM_DATALIMITS, query = Datalimits.SELECT_OBS_LIMITS_FROM_DATALIMITS_HQL),
-        @NamedQuery(name = Datalimits.SELECT_PE_AND_DUR_DATALIMITS_RECORDS, query = Datalimits.SELECT_PE_AND_DUR_DATALIMITS_RECORDS_HQL) })
+        @NamedQuery(name = Datalimits.SELECT_MAX_DATALIMITS_PRECIP, query = Datalimits.SELECT_MAX_DATALIMITS_PRECIP_HQL) })
 @Entity
 @Table(name = "datalimits")
 @DynamicSerialize
@@ -76,13 +74,9 @@ public class Datalimits extends PersistableDataObject<DatalimitsId>
 
     protected static final String SELECT_ALL_DATALIMITS_RECORDS_HQL = "FROM Datalimits dl";
 
-    public static final String SELECT_PE_DATALIMITS_RECORDS = "selectPeFromDataLimitsRecords";
+    public static final String SELECT_MAX_DATALIMITS_PRECIP = "selectMaxDatalimitsPrecip";
 
-    protected static final String SELECT_PE_DATALIMITS_RECORDS_HQL = "FROM Datalimits dl WHERE dl.id.pe = 'TA' ORDER BY monthdaystart ASC, dur ASC";
-
-    public static final String SELECT_PE_AND_DUR_DATALIMITS_RECORDS = "selectPeAndDurFromDataLimitsRecords";
-
-    public static final String SELECT_PE_AND_DUR_DATALIMITS_RECORDS_HQL = "FROM Datalimits dl WHERE dl.id.pe = 'PP' AND dur IN (1006, 2001, 5004) ORDER BY monthdaystart ASC, dur ASC";
+    protected static final String SELECT_MAX_DATALIMITS_PRECIP_HQL = "FROM Datalimits dl WHERE dl.id.pe = 'PP' AND dl.id.dur = 1001 ORDER BY monthdaystart";
 
     public static final String SELECT_OBS_LIMITS_FROM_DATALIMITS = "selectObsLimitsFromDataLimits";
 
@@ -180,9 +174,9 @@ public class Datalimits extends PersistableDataObject<DatalimitsId>
 
     @EmbeddedId
     @AttributeOverrides({
-            @AttributeOverride(name = "pe", column = @Column(name = "pe", nullable = false, length = 2) ),
-            @AttributeOverride(name = "dur", column = @Column(name = "dur", nullable = false) ),
-            @AttributeOverride(name = "monthdaystart", column = @Column(name = "monthdaystart", nullable = false, length = 5) ) })
+            @AttributeOverride(name = "pe", column = @Column(name = "pe", nullable = false, length = 2)),
+            @AttributeOverride(name = "dur", column = @Column(name = "dur", nullable = false)),
+            @AttributeOverride(name = "monthdaystart", column = @Column(name = "monthdaystart", nullable = false, length = 5)) })
     public DatalimitsId getId() {
         return this.id;
     }

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,6 +34,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.geotools.referencing.GeodeticCalculator;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
@@ -70,11 +71,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Implements a Az/Ran drawing layer. Shows 30,60,90,120 nm rings with
  * corresponding 30degree spokes. Initially draws at HomeLoc, then allows in
  * edit mode, the user to drag the ring around.
- * 
+ *
  * <pre>
- * 
+ *
  *  SOFTWARE HISTORY
- * 
+ *
  *  Date         Ticket#     Engineer    Description
  *  ------------ ----------  ----------- --------------------------
  *  Sep192007    #444        ebabin      Initial Creation.
@@ -83,7 +84,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                       that it would change the "home" location
  *                                       of the tool when the right-mouse
  *                                       button was clicked.
- *  06-03-10    #5631        bkowal      The tool will now be editable by default. 
+ *  06-03-10    #5631        bkowal      The tool will now be editable by default.
  *  06-14-10    #6360        bkowal      Ensured that the position of the tool would not
  *                                       be changed twice when the user pressed [1] and
  *                                       released [2] the right-mouse button.
@@ -95,15 +96,16 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                       errors when MB1 dragging tool off screen and to
  *                                       only change cursor to hand in editable mode.
  *  05-11-2015  #5070        randerso    Adjust font sizes for dpi scaling
- * 
+ *  09-09-2016   5887        njensen     Fixed disposeInternal(), overrode project()
+ *  09-27-2016   5887        tgurney     Fix location of center point on scale change
+ *
  * </pre>
- * 
+ *
  * @author ebabin
- * @version 1
  */
-public class AzimuthToolLayer extends
-        AbstractVizResource<AbstractResourceData, MapDescriptor> implements
-        IResourceDataChanged, IContextMenuContributor {
+public class AzimuthToolLayer
+        extends AbstractVizResource<AbstractResourceData, MapDescriptor>
+        implements IResourceDataChanged, IContextMenuContributor {
 
     public static final String AZIMUTH_LOCATION = "Az/Ran Overlay";
 
@@ -140,7 +142,7 @@ public class AzimuthToolLayer extends
      */
     private static enum Mode {
         MOVE, PAN
-    };
+    }
 
     private IInputHandler mouseHandler = new InputAdapter() {
 
@@ -164,8 +166,8 @@ public class AzimuthToolLayer extends
                 }
 
                 currCoordinate = c2;
-                centerPixel = descriptor.worldToPixel(new double[] {
-                        currCoordinate.x, currCoordinate.y });
+                centerPixel = descriptor.worldToPixel(
+                        new double[] { currCoordinate.x, currCoordinate.y });
                 nextCoordinate = null;
 
                 recreate = true;
@@ -212,8 +214,8 @@ public class AzimuthToolLayer extends
                 }
 
                 currCoordinate = c2;
-                centerPixel = descriptor.worldToPixel(new double[] {
-                        currCoordinate.x, currCoordinate.y });
+                centerPixel = descriptor.worldToPixel(
+                        new double[] { currCoordinate.x, currCoordinate.y });
 
                 issueRefresh();
             }
@@ -226,11 +228,11 @@ public class AzimuthToolLayer extends
                 IWorkbenchWindow window = PlatformUI.getWorkbench()
                         .getActiveWorkbenchWindow();
                 lastShell = window.getShell();
-                lastShell.setCursor(lastShell.getDisplay().getSystemCursor(
-                        SWT.CURSOR_HAND));
+                lastShell.setCursor(lastShell.getDisplay()
+                        .getSystemCursor(SWT.CURSOR_HAND));
             } else if (lastShell != null) {
-                lastShell.setCursor(lastShell.getDisplay().getSystemCursor(
-                        SWT.CURSOR_ARROW));
+                lastShell.setCursor(lastShell.getDisplay()
+                        .getSystemCursor(SWT.CURSOR_ARROW));
                 lastShell = null;
             }
             return false;
@@ -243,15 +245,10 @@ public class AzimuthToolLayer extends
         setDescriptor(descriptor);
         data.addChangeListener(this);
         this.currCoordinate = PointsDataManager.getInstance().getHome();
-        this.centerPixel = descriptor.worldToPixel(new double[] {
-                currCoordinate.x, currCoordinate.y });
+        this.centerPixel = descriptor.worldToPixel(
+                new double[] { currCoordinate.x, currCoordinate.y });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         return AZIMUTH_LOCATION;
@@ -259,10 +256,10 @@ public class AzimuthToolLayer extends
 
     /**
      * Return if the given mouse position is within the tool's center.
-     * 
-     * @param refX
+     *
+     * @param x
      *            x location in screen pixels
-     * @param refY
+     * @param y
      *            y location in screen pixels
      * @return boolean true if within center, false otherwise
      */
@@ -276,17 +273,10 @@ public class AzimuthToolLayer extends
         return idx >= 0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
-     * IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        labelFont = target.initializeFont(
-                target.getDefaultFont().getFontName(), 10,
-                new Style[] { Style.BOLD });
+        labelFont = target.initializeFont(target.getDefaultFont().getFontName(),
+                10, new Style[] { Style.BOLD });
 
         for (int i = 0; i < labels.length; ++i) {
             DrawableString str = new DrawableString("", null);
@@ -303,12 +293,6 @@ public class AzimuthToolLayer extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#paint(com.raytheon.viz.core.
-     * IGraphicsTarget, com.raytheon.viz.core.PixelExtent, double, float)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -320,8 +304,10 @@ public class AzimuthToolLayer extends
                 shape.dispose();
             }
             shape = target.createWireframeShape(false, descriptor);
-            drawRings(target, paintProps, currCoordinate, centerPixel);
-            drawSpokes(target, currCoordinate);
+            centerPixel = descriptor.worldToPixel(
+                    new double[] { currCoordinate.x, currCoordinate.y });
+            drawRings(currCoordinate);
+            drawSpokes(currCoordinate);
             recreate = false;
         }
 
@@ -333,8 +319,8 @@ public class AzimuthToolLayer extends
 
         RGB centerColor = getCapability(ColorableCapability.class).getColor();
         if (nextCoordinate != null) {
-            double[] next = descriptor.worldToPixel(new double[] {
-                    nextCoordinate.x, nextCoordinate.y });
+            double[] next = descriptor.worldToPixel(
+                    new double[] { nextCoordinate.x, nextCoordinate.y });
             target.drawPoint(next[0], next[1], 0.0, centerColor,
                     PointStyle.CIRCLE, 0.5f);
             centerColor = AbstractMovableToolLayer.GRAY;
@@ -350,9 +336,7 @@ public class AzimuthToolLayer extends
         return getCapability(EditableCapability.class).isEditable();
     }
 
-    private void drawRings(IGraphicsTarget target, PaintProperties paintProps,
-            Coordinate centerLocation, double[] centerPixel)
-            throws VizException {
+    private void drawRings(Coordinate centerLocation) {
         GeodeticCalculator calc = new GeodeticCalculator();
         calc.setStartingGeographicPoint(centerLocation.x, centerLocation.y);
 
@@ -367,8 +351,8 @@ public class AzimuthToolLayer extends
                 calc.setDirection(j, NM_to_M.convert(range));
 
                 Point2D point = calc.getDestinationGeographicPoint();
-                double[] end = descriptor.worldToPixel(new double[] {
-                        point.getX(), point.getY() });
+                double[] end = descriptor.worldToPixel(
+                        new double[] { point.getX(), point.getY() });
 
                 points[j + 180] = end;
 
@@ -384,8 +368,7 @@ public class AzimuthToolLayer extends
         }
     }
 
-    private void drawSpokes(IGraphicsTarget target, Coordinate centerLocation)
-            throws VizException {
+    private void drawSpokes(Coordinate centerLocation) {
         GeodeticCalculator calc = new GeodeticCalculator();
         calc.setStartingGeographicPoint(centerLocation.x, centerLocation.y);
 
@@ -398,14 +381,14 @@ public class AzimuthToolLayer extends
             calc.setDirection(StormTrackDisplay.adjustAngle(angle),
                     NM_to_M.convert(RANGES[0]));
             Point2D point = calc.getDestinationGeographicPoint();
-            start = descriptor.worldToPixel(new double[] { point.getX(),
-                    point.getY() });
+            start = descriptor
+                    .worldToPixel(new double[] { point.getX(), point.getY() });
 
             calc.setDirection(StormTrackDisplay.adjustAngle(angle),
                     NM_to_M.convert(RANGES[RANGES.length - 1]));
             point = calc.getDestinationGeographicPoint();
-            end = descriptor.worldToPixel(new double[] { point.getX(),
-                    point.getY() });
+            end = descriptor
+                    .worldToPixel(new double[] { point.getX(), point.getY() });
 
             shape.addLineSegment(new double[][] { start, end });
 
@@ -415,17 +398,14 @@ public class AzimuthToolLayer extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#dispose()
-     */
     @Override
     protected void disposeInternal() {
         labelFont.dispose();
         if (shape != null) {
             shape.dispose();
+            shape = null;
         }
+        recreate = true;
 
         IDisplayPaneContainer container = getResourceContainer();
         if (container != null) {
@@ -433,26 +413,11 @@ public class AzimuthToolLayer extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.cmenu.IContextMenuContributor#addContextMenuItems
-     * (org.eclipse.jface.action.IMenuManager)
-     */
     @Override
     public void addContextMenuItems(IMenuManager menuManager, final int x,
             final int y) {
@@ -460,12 +425,17 @@ public class AzimuthToolLayer extends
             menuManager.add(new Action("Select Location") {
                 @Override
                 public void run() {
-                    currCoordinate = getResourceContainer()
-                            .translateClick(x, y);
+                    currCoordinate = getResourceContainer().translateClick(x,
+                            y);
                     issueRefresh();
                 }
             });
         }
+    }
+
+    @Override
+    public void project(CoordinateReferenceSystem crs) throws VizException {
+        recreate = true;
     }
 
 }

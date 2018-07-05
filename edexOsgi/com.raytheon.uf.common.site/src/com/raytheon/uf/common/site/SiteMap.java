@@ -62,6 +62,8 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  *                                      sites.
  * May 15, 2013  1040      mpduff      Add awips_site_list.xml.
  * Mar 18, 2014 DR 17173   D. Friedmna Re-implement DR 14765.
+ * Apr 06  2017 DR 19619   MPorricelli Have all edex servers made
+ *                                     aware of ndm textdb file change
  * 
  * </pre>
  * 
@@ -127,7 +129,10 @@ public class SiteMap {
         readFiles();
     }
 
-    public String getCCCFromXXXCode(String xxx) {
+    public synchronized String getCCCFromXXXCode(String xxx) {
+        if (nationalCategoryMap.isEmpty() || siteToSiteMap.isEmpty() ) {
+            readFiles();
+        }
         String retval = null;
         if (xxx != null) {
             if (xxx.length() == 3) {
@@ -154,22 +159,30 @@ public class SiteMap {
      *            An id to map.
      * @return
      */
-    public String getAFOSTableMap(String xxx) {
+    public synchronized String getAFOSTableMap(String xxx) {
+        if (siteToSiteMap.isEmpty()) {
+            readFiles();
+        }
         return siteToSiteMap.get(xxx);
     }
 
     public synchronized String mapICAOToCCC(String icao) {
+        if (nationalCategoryMap.isEmpty()) {
+            readFiles();
+        }
         return nationalCategoryMap.get(icao);
     }
 
-    public void readFiles() {
+    public synchronized void setDirty() {
         siteToSiteMap.clear();
         nationalCategoryMap.clear();
         siteTo4LetterSite.clear();
         siteTo3LetterSite.clear();
         site3to4LetterOverrides.clear();
+        rfcList.clear();
         siteMap.clear();
-
+    }
+    public synchronized void readFiles() {
         // load base afos lookup
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext lc = pathMgr.getContext(
@@ -210,17 +223,21 @@ public class SiteMap {
             if (icao.trim().length() == 4) {
                 String threeId = icao.substring(1);
                 String prefixCode = icao.substring(0, 1);
-                String foundId = siteTo4LetterSite.get(threeId);
-                // US contiguous prefix code "K" takes precedence
-                if (foundId == null || prefixCode.equals("k")) {
-                    siteTo4LetterSite.put(threeId, icao);
+                synchronized (siteTo4LetterSite) {
+                    String foundId = siteTo4LetterSite.get(threeId);
+                    // US contiguous prefix code "K" takes precedence
+                    if (foundId == null || prefixCode.equals("k")) {
+                        siteTo4LetterSite.put(threeId, icao);
+                    }
                 }
-                Set<String> reverse = siteTo3LetterSite.get(icao);
-                if (reverse == null) {
-                    reverse = new TreeSet<String>();
-                    siteTo3LetterSite.put(icao, reverse);
+                synchronized (siteTo3LetterSite) {
+                    Set<String> reverse = siteTo3LetterSite.get(icao);
+                    if (reverse == null) {
+                        reverse = new TreeSet<String>();
+                        siteTo3LetterSite.put(icao, reverse);
+                    }
+                    reverse.add(icao.substring(1));
                 }
-                reverse.add(icao.substring(1));
             }
         }
 
@@ -232,7 +249,7 @@ public class SiteMap {
                 siteTo3LetterSite);
     }
 
-    private void loadAfosLookupFile(File file, Map<String, String> aliasMap) {
+    private synchronized void loadAfosLookupFile(File file, Map<String, String> aliasMap) {
         if ((file != null) && file.exists()) {
             try {
                 BufferedReader fis = new BufferedReader(new InputStreamReader(
@@ -259,7 +276,7 @@ public class SiteMap {
         }
     }
 
-    private void loadNationalCategoryFile(File file,
+    private synchronized void loadNationalCategoryFile(File file,
             Map<String, String> aliasMap) {
         if ((file != null) && file.exists()) {
             try {
@@ -289,7 +306,7 @@ public class SiteMap {
         }
     }
 
-    private void loadSite3LetterTo4LetterOverrideFile(File file,
+    private synchronized void loadSite3LetterTo4LetterOverrideFile(File file,
             Map<String, String> site3To4LetterMap,
             Map<String, Set<String>> site4To3LetterMap) {
         if ((file != null) && file.exists()) {
@@ -347,7 +364,7 @@ public class SiteMap {
         }
     }
 
-    private void loadRFCLookupFile(File file, List<String> aliasList) {
+    private synchronized void loadRFCLookupFile(File file, List<String> aliasList) {
         if ((file != null) && file.exists()) {
             try {
                 BufferedReader fis = new BufferedReader(new InputStreamReader(
@@ -372,7 +389,7 @@ public class SiteMap {
         }
     }
 
-    private void loadSiteListFile(File file) {
+    private synchronized void loadSiteListFile(File file) {
         if (file != null && file.exists()) {
             NwsSitesXML siteXml;
             try {
@@ -398,8 +415,13 @@ public class SiteMap {
      * @return
      */
     public String getSite4LetterId(String site3LetterId) {
-        String site = siteTo4LetterSite.get(site3LetterId);
-
+        if (siteTo4LetterSite.isEmpty()) {
+            readFiles();
+        }
+        String site = null;
+        synchronized (siteTo4LetterSite) {
+            site = siteTo4LetterSite.get(site3LetterId);
+        }
         /* If site not found default to K + 3-letter-ID.
          *
          * Or, if the 4-letter site ID that was looked up does not
@@ -425,21 +447,30 @@ public class SiteMap {
      * @return the 3 letter sites that map to the 4 letter site
      */
     public Set<String> getSite3LetterIds(String site4LetterId) {
-        Set<String> site3LetterIds = siteTo3LetterSite.get(site4LetterId);
-        if (site3LetterIds == null) {
-            site3LetterIds = new TreeSet<String>();
-            if (site4LetterId == null) {
-                ; // return empty set
-            } else if (site4LetterId.length() <= 3) {
-                site3LetterIds.add(site4LetterId);
-            } else {
-                site3LetterIds.add(site4LetterId.substring(1));
+        if (siteTo3LetterSite.isEmpty())  {
+            readFiles();
+        }
+        Set<String> site3LetterIds = null;
+        synchronized (siteTo3LetterSite) {
+            site3LetterIds = siteTo3LetterSite.get(site4LetterId);
+            if (site3LetterIds == null) {
+                site3LetterIds = new TreeSet<String>();
+                if (site4LetterId == null) {
+                    ; // return empty set
+                } else if (site4LetterId.length() <= 3) {
+                    site3LetterIds.add(site4LetterId);
+                } else {
+                    site3LetterIds.add(site4LetterId.substring(1));
+                }
             }
         }
         return site3LetterIds;
     }
 
-    public boolean isRFCSite(String site) {
+    public synchronized boolean isRFCSite(String site) {
+        if (rfcList.isEmpty()) {
+            readFiles();
+        }
         return rfcList.contains(site);
     }
 
@@ -448,7 +479,10 @@ public class SiteMap {
      * 
      * @return site data objects
      */
-    public Map<String, SiteData> getSiteData() {
+    public synchronized Map<String, SiteData> getSiteData() {
+        if (siteMap.isEmpty()) {
+            readFiles();
+        }
         return siteMap;
     }
 }

@@ -18,45 +18,49 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="J/kg" name="Computed CIN" abbreviation="cCin" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="J/kg" name="Computed CIN" abbreviation="cCin">
     <Method name="Cin" levels="S">
-        <Field abbreviation="T" level="3D"/>
-        <Field abbreviation="P"/>
-        <Field abbreviation="PoT"/>
-        <Field abbreviation="SHx"/>
-        <ConstantField value="0.0"/>
+        <Field abbreviation="T" level="3D" />
+        <Field abbreviation="P" />
+        <Field abbreviation="PoT" />
+        <Field abbreviation="SHx" />
+        <ConstantField value="0.0" />
     </Method>
     <Method name="Cin" levels="B">
-        <Field abbreviation="T" level="3D"/>
-        <Field abbreviation="P"/>
-        <Field abbreviation="PoT"/>
-        <Field abbreviation="SHx"/>
-        <ConstantField value="0.0"/>
+        <Field abbreviation="T" level="3D" />
+        <Field abbreviation="P" />
+        <Field abbreviation="PoT" />
+        <Field abbreviation="SHx" />
+        <ConstantField value="0.0" />
     </Method>
     <Method name="Cin" levels="Surface">
-        <Field abbreviation="T" level="3D"/>
-        <Field abbreviation="P"/>
-        <Field abbreviation="PoT"/>
-        <Field abbreviation="SHx"/>
-        <ConstantField value="0.0"/>
+        <Field abbreviation="T" level="3D" />
+        <Field abbreviation="P" />
+        <Field abbreviation="PoT" />
+        <Field abbreviation="SHx" />
+        <ConstantField value="0.0" />
     </Method>
     <Method name="Cin" levels="C,FHAG">
-        <Field level="3D" abbreviation="T"/>
-        <Field abbreviation="P" level="lower"/>
-        <Field abbreviation="PoT"/>
-        <Field abbreviation="SHx"/>
-        <ConstantField value="0.0"/>
+        <Field level="3D" abbreviation="T" />
+        <Field abbreviation="P" level="lower" />
+        <Field abbreviation="PoT" />
+        <Field abbreviation="SHx" />
+        <ConstantField value="0.0" />
     </Method>
     <Method name="Cin" levels="1000MB-850MB,850MB-700MB,925MB-850MB,925MB-700MB">
-        <Field level="3D" abbreviation="T"/>
-        <Field abbreviation="P" level="lower"/>
-        <Field abbreviation="PoT"/>
-        <Field abbreviation="SHx"/>
-        <ConstantField value="0.0"/>
+        <Field level="3D" abbreviation="T" />
+        <Field abbreviation="P" level="lower" />
+        <Field abbreviation="PoT" />
+        <Field abbreviation="SHx" />
+        <ConstantField value="0.0" />
     </Method>
-	<!-- For Composite Agl levels it is better to explicitly list the levels 
-		to Average to avoid pulling in extra levels, specifically levels defined at 
-		kft heights. -->
+    <!-- For Composite Agl levels it is better to explicitly list the levels 
+        to Average to avoid pulling in extra levels, specifically levels defined at 
+        kft heights. -->
     <Method name="Average" levels="0-1kmAgl">
         <Field abbreviation="cCin" level="0FHAG" />
         <Field abbreviation="cCin" level="0.5kmAgl" />

@@ -13,45 +13,42 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.config.Bullet;
-import com.raytheon.uf.common.dataplugin.warning.config.DamInfoBullet;
+import com.raytheon.uf.common.dataplugin.warning.config.PresetInfoBullet;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 
 /**
- * 
+ *
  * BulletListManager.java
- * 
+ *
  * Manages the selection of the individual bullets that might be a part of a
  * multi-selection or a single-selection group.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 5, 2011             jsanchez    Initial creation
- * 
- * 01/26/2012   14466      D.Friedman  Fix parseString processing.
- * 01/26/2012   14469      D.Friedman  Fix followup bullet processing
- * 02/13/2013   1606       jsanchez    Did not set default bullets for CORs.
- * 05/29/2015   4443       randerso    Fix parseString/showString for mixed case
- * 
+ *
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- ------------------------------------------
+ * Oct 05, 2011           jsanchez    Initial creation
+ * Jan 26, 2012  14466    D.Friedman  Fix parseString processing.
+ * Jan 26, 2012  14469    D.Friedman  Fix followup bullet processing
+ * Feb 13, 2013  1606     jsanchez    Did not set default bullets for CORs.
+ * May 29, 2015  4443     randerso    Fix parseString/showString for mixed case
+ * Aug 29, 2017  6328     randerso    Convert to use PresetInfoBullet
+ * Jan 12, 2017  7191     Robert.Blum Fix parseString so that if it contained a comma or ellipsis, 
+ *                                    it would also match against the opposite type.
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
  */
 public class BulletListManager {
 
     private static final String TITLE = "title";
 
-    private static final String TRUE = "true";
-
     private static final String DAM = "dam";
 
     private static final String SCENARIO = "scenario";
-
-    private static final String IC = "ic";
 
     private Bullet[] bullets;
 
@@ -61,80 +58,84 @@ public class BulletListManager {
 
     private Map<String, List<Integer>> bulletGroups;
 
-    private Map<String, List<Integer>> damGroups;
+    private Map<String, List<Integer>> damScenarios;
 
     private ArrayList<String> lockedGroups;
 
     private ArrayList<String> mapsToLoad;
 
-    private boolean isDamCauseSelected = false;
+    private int selectedPresetIndex;
 
-    private int selectedDamIndex;
-
+    /**
+     * Constructor
+     */
     public BulletListManager() {
-        selectedIndices = new TreeSet<Integer>();
-        titleGroup = new ArrayList<Integer>();
-        bulletGroups = new TreeMap<String, List<Integer>>();
-        damGroups = new TreeMap<String, List<Integer>>();
-        mapsToLoad = new ArrayList<String>();
-        lockedGroups = new ArrayList<String>();
+        selectedIndices = new TreeSet<>();
+        titleGroup = new ArrayList<>();
+        bulletGroups = new TreeMap<>();
+        damScenarios = new TreeMap<>();
+        mapsToLoad = new ArrayList<>();
+        lockedGroups = new ArrayList<>();
         clear();
     }
 
     /**
      * Separates all the bullets in it's corresponding group. Identifies all the
      * bullets that should be selected by default.
-     * 
+     *
      * @param bullets
-     * @param damInfoBullets
+     * @param presetInfoBullets
      */
-    public void recreateBullets(Bullet[] bullets, DamInfoBullet[] damInfoBullets) {
-        recreateBullets(bullets, damInfoBullets, null);
+    public void recreateBullets(Bullet[] bullets,
+            PresetInfoBullet[] presetInfoBullets) {
+        recreateBullets(bullets, presetInfoBullets, null);
     }
 
     /**
      * Separates all the bullets in it's corresponding group. Identifies all the
      * bullets that should be selected by default unless the action is a COR.
-     * 
+     *
      * @param bullets
-     * @param damInfoBullets
+     * @param presetInfoBullets
      * @param action
      */
     public void recreateBullets(Bullet[] bullets,
-            DamInfoBullet[] damInfoBullets, WarningAction action) {
-        loadBullets(bullets, damInfoBullets);
+            PresetInfoBullet[] presetInfoBullets, WarningAction action) {
+        loadBullets(bullets, presetInfoBullets);
         clear();
         String damName = null;
-        Set<Integer> defaultIndices = new TreeSet<Integer>();
+        Set<Integer> defaultIndices = new TreeSet<>();
         for (int i = 0; i < this.bullets.length; i++) {
             Bullet b = this.bullets[i];
-            if ((b.getBulletType() != null)
-                    && b.getBulletType().equalsIgnoreCase(TITLE)) {
+            if (TITLE.equalsIgnoreCase(b.getBulletType())) {
                 titleGroup.add(i);
             } else if (b.getBulletGroup() != null) {
                 List<Integer> indices = bulletGroups.get(b.getBulletGroup());
                 if (indices == null) {
-                    indices = new ArrayList<Integer>();
+                    indices = new ArrayList<>();
                 }
                 indices.add(i);
                 bulletGroups.put(b.getBulletGroup(), indices);
 
-                /* Stores all the screnario indices for a dam group */
-                if (b.getBulletGroup().equalsIgnoreCase("DAM")) {
+                /* Stores all the scenario indices for a dam group */
+                if (DAM.equalsIgnoreCase(b.getBulletGroup())) {
                     damName = b.getBulletName();
-                } else if ((damName != null)
-                        && b.getBulletGroup().equalsIgnoreCase(SCENARIO)) {
-                    List<Integer> scenarioIndices = damGroups.get(damName);
-                    if (scenarioIndices == null) {
-                        scenarioIndices = new ArrayList<Integer>();
+                } else if (damName != null) {
+                    if (b.getBulletGroup().equalsIgnoreCase(SCENARIO)) {
+                        List<Integer> scenarioIndices = damScenarios
+                                .get(damName);
+                        if (scenarioIndices == null) {
+                            scenarioIndices = new ArrayList<>();
+                        }
+                        scenarioIndices.add(i);
+                        damScenarios.put(damName, scenarioIndices);
+                    } else {
+                        damName = null;
                     }
-                    scenarioIndices.add(i);
-                    damGroups.put(damName, scenarioIndices);
                 }
             }
 
-            if ((b.getBulletDefault() != null)
-                    && b.getBulletDefault().equalsIgnoreCase(TRUE)) {
+            if (b.isBulletDefault()) {
                 defaultIndices.add(i);
             }
 
@@ -153,7 +154,7 @@ public class BulletListManager {
     /**
      * Updates the bullets that should be selected based on the warning text and
      * the parseStrings of each bullet.
-     * 
+     *
      * @param configuration
      * @param action
      * @param record
@@ -169,17 +170,17 @@ public class BulletListManager {
 
         /* Test 'showString' to determine if the bullet is to be hidden */
         ArrayList<Bullet> displayedBullets = null;
-        ArrayList<Bullet> displayedDamInfoBullets = null;
+        ArrayList<Bullet> displayedPresetInfoBullets = null;
 
         for (int pass = 0; pass < 2; ++pass) {
             Bullet[] sourceList = pass == 0 ? configuration.getBullets()
-                    : configuration.getDamInfoBullets();
-            ArrayList<Bullet> resultList = new ArrayList<Bullet>();
+                    : configuration.getPresetInfoBullets();
+            ArrayList<Bullet> resultList = new ArrayList<>();
             if (sourceList != null) {
                 for (Bullet b : sourceList) {
-                    if ((b != null)
-                            && ((b.getShowString() == null) || selectBulletFromFollowup(
-                                    b.getShowString(), warningText))) {
+                    if ((b != null) && ((b.getShowString() == null)
+                            || selectBulletFromFollowup(b.getShowString(),
+                                    warningText))) {
                         resultList.add(b);
                     }
                 }
@@ -187,16 +188,17 @@ public class BulletListManager {
             if (pass == 0) {
                 displayedBullets = resultList;
             } else {
-                displayedDamInfoBullets = resultList;
+                displayedPresetInfoBullets = resultList;
             }
         }
 
         /* Sets up the appropriate bullet groups */
-        recreateBullets(displayedBullets.toArray(new Bullet[displayedBullets
-                .size()]),
-                displayedDamInfoBullets
-                        .toArray(new DamInfoBullet[displayedDamInfoBullets
-                                .size()]), action);
+        recreateBullets(
+                displayedBullets.toArray(new Bullet[displayedBullets.size()]),
+                displayedPresetInfoBullets
+                        .toArray(new PresetInfoBullet[displayedPresetInfoBullets
+                                .size()]),
+                action);
 
         if (configuration.getLockedGroupsOnFollowup() != null) {
             for (String lockedGroup : configuration.getLockedGroupsOnFollowup()
@@ -210,13 +212,13 @@ public class BulletListManager {
         /* Updates the selection based on the 'parseString' test */
         for (int i = 0; i < bullets.length; i++) {
             Bullet bullet = bullets[i];
-            if (selectBulletFromFollowup(bullet.getParseString(), warningText)) {
+            if (selectBulletFromFollowup(bullet.getParseString(),
+                    warningText)) {
                 updateSelectedIndices(i, false, true);
             }
 
-            if ((bullet.getFloodSeverity() != null)
-                    && bullet.getFloodSeverity().equals(
-                            record.getFloodSeverity())) {
+            if ((bullet.getFloodSeverity() != null) && bullet.getFloodSeverity()
+                    .equals(record.getFloodSeverity())) {
                 updateSelectedIndices(i, false, true);
             }
         }
@@ -224,10 +226,10 @@ public class BulletListManager {
 
     /**
      * Returns the maps to load with the bullet list.
-     * 
-     * @return
+     *
+     * @return list of maps to load
      */
-    public ArrayList<String> getMapsToLoad() {
+    public List<String> getMapsToLoad() {
         return mapsToLoad;
     }
 
@@ -235,7 +237,7 @@ public class BulletListManager {
      * Updates the list of selected of indices by including or removing indices
      * depending on if the bullet is already selected or is a part of a group of
      * bullets.
-     * 
+     *
      * @param selectionIndex
      * @param isFollowup
      */
@@ -248,7 +250,7 @@ public class BulletListManager {
      * depending on if the bullet is already selected or is a part of a group of
      * bullets. If selectUnconditionally is true, sets (instead of toggles)
      * bullets.
-     * 
+     *
      * @param selectionIndex
      * @param isFollowup
      * @param selectUnconditionally
@@ -279,33 +281,31 @@ public class BulletListManager {
             return;
         }
 
-        /* Can't change selection when a part of a locked group on a follow up */
+        /*
+         * Can't change selection when a part of a locked group on a follow up
+         */
         if (isFollowup && lockedGroups.contains(group.toLowerCase())) {
             return;
         }
 
-        if (!isDamCauseSelected
-                && (bullet.getBulletName() != null)
-                && (bullet.getBulletName().equalsIgnoreCase("siteimminent") || bullet
-                        .getBulletName().equalsIgnoreCase("sitefailed"))) {
-            isDamCauseSelected = true;
-        } else if (group.equalsIgnoreCase(DAM)) {
-            /* Unselect the scenarios */
-            if ((selectedDamIndex != -1)
-                    && (selectionIndex != selectedDamIndex)) {
-                clearScenarios(selectedDamIndex);
+        if (bullet instanceof PresetInfoBullet
+                && ((PresetInfoBullet) bullet).getCoords() != null) {
+            /* deselect the scenarios */
+            if ((selectedPresetIndex != -1)
+                    && (selectionIndex != selectedPresetIndex)) {
+                clearScenarios(selectedPresetIndex);
             }
-            selectedDamIndex = selectionIndex;
+            selectedPresetIndex = selectionIndex;
         }
 
         /*
-         * a scenario can only be selected if a dam has already been selected
-         * and if it falls under the corresponding dam group
+         * a scenario can only be selected if a preset has already been selected
+         * and if it falls under the corresponding preset group
          */
-        if (group.equalsIgnoreCase(SCENARIO)) {
-            if (selectedDamIndex != -1) {
-                List<Integer> scenarioIndices = damGroups
-                        .get(bullets[selectedDamIndex].getBulletName());
+        if (SCENARIO.equalsIgnoreCase(group)) {
+            if (selectedPresetIndex != -1) {
+                List<Integer> scenarioIndices = damScenarios
+                        .get(bullets[selectedPresetIndex].getBulletName());
                 if ((scenarioIndices != null)
                         && scenarioIndices.contains(selectionIndex)) {
                     if (selectedIndices.contains(selectionIndex)) {
@@ -348,8 +348,8 @@ public class BulletListManager {
 
     /**
      * The array of bullet names that are currently selected.
-     * 
-     * @return
+     *
+     * @return the selected bullet names
      */
     public String[] getSelectedBulletNames() {
         String[] selectedBulletNames = new String[selectedIndices.size()];
@@ -357,8 +357,9 @@ public class BulletListManager {
 
         int counter = 0;
         while (iterator.hasNext()) {
-            selectedBulletNames[counter++] = bullets[iterator.next()]
+            selectedBulletNames[counter] = bullets[iterator.next()]
                     .getBulletName();
+            counter++;
         }
 
         return selectedBulletNames;
@@ -366,8 +367,8 @@ public class BulletListManager {
 
     /**
      * An array of all the bullet texts that are being managed.
-     * 
-     * @return
+     *
+     * @return text of all bullets
      */
     public String[] getAllBulletTexts() {
         String[] selectedBulletTexts = new String[bullets.length];
@@ -379,9 +380,9 @@ public class BulletListManager {
     }
 
     /**
-     * An array of all the inidices that are currently selected.
-     * 
-     * @return
+     * An array of all the indices that are currently selected.
+     *
+     * @return the selected indices
      */
     public int[] getSelectedIndices() {
         int counter = 0;
@@ -389,30 +390,31 @@ public class BulletListManager {
         Iterator<Integer> iterator = selectedIndices.iterator();
 
         while (iterator.hasNext()) {
-            indices[counter++] = iterator.next().intValue();
+            indices[counter] = iterator.next().intValue();
+            counter++;
         }
 
         return indices;
     }
 
-    public boolean isDamCauseSelected() {
-        return isDamCauseSelected;
-    }
-
-    public boolean isDamNameSeletcted() {
-        return selectedDamIndex != -1;
+    /**
+     *
+     * @return true if a preset name is selected
+     */
+    public boolean isPresetNameSeletcted() {
+        return selectedPresetIndex != -1;
     }
 
     /**
-     * Returns the DamInfoBullet object of the selected dam bullet. Returns null
-     * otherwise.
-     * 
-     * @return
+     * Returns the PresetInfoBullet object of the selected preset bullet.
+     * Returns null otherwise.
+     *
+     * @return the selected preset info bullet
      */
-    public DamInfoBullet getSelectedDamInfoBullet() {
-        DamInfoBullet bullet = null;
-        if (selectedDamIndex != -1) {
-            bullet = (DamInfoBullet) bullets[selectedDamIndex];
+    public PresetInfoBullet getSelectedPresetInfoBullet() {
+        PresetInfoBullet bullet = null;
+        if (selectedPresetIndex != -1) {
+            bullet = (PresetInfoBullet) bullets[selectedPresetIndex];
         }
         return bullet;
     }
@@ -422,33 +424,35 @@ public class BulletListManager {
         titleGroup.clear();
         lockedGroups.clear();
         bulletGroups.clear();
+        damScenarios.clear();
         mapsToLoad.clear();
-        isDamCauseSelected = false;
-        selectedDamIndex = -1;
+        selectedPresetIndex = -1;
     }
 
-    private void loadBullets(Bullet[] bullets, DamInfoBullet[] damInfoBullets) {
+    private void loadBullets(Bullet[] bullets,
+            PresetInfoBullet[] presetInfoBullets) {
         this.bullets = bullets;
-        if (damInfoBullets != null) {
-            this.bullets = ArrayUtils.addAll(bullets, damInfoBullets);
+        if (presetInfoBullets != null) {
+            this.bullets = ArrayUtils.addAll(bullets, presetInfoBullets);
         }
     }
 
     private boolean selectBulletFromFollowup(String parseString,
             String warningText) {
         warningText = warningText.toUpperCase();
+        warningText = warningText.replace("...", ",");
 
         if ((parseString == null) || (parseString.length() == 0)) {
             return false;
         }
-
+        parseString = parseString.toUpperCase();
+        parseString = parseString.replace("...", ",");
+        parseString = parseString.replaceAll("\\s+", " ");
         boolean selectBullet = true;
-        for (String p : parseString.toUpperCase().replaceAll("\\s+", " ")
-                .split("\",")) {
+        for (String p : parseString.split("\",")) {
             p = p.replace("\"", "");
             if ((p.startsWith("-") && warningText.contains(p.substring(1)))
-                    || ((p.startsWith("-") == false) && (warningText
-                            .contains(p) == false))) {
+                    || (!p.startsWith("-") && !warningText.contains(p))) {
                 selectBullet = false;
                 break;
             }
@@ -457,13 +461,13 @@ public class BulletListManager {
         return selectBullet;
     }
 
-    private void clearScenarios(int damIndex) {
-        if (damIndex == selectedDamIndex) {
-            selectedDamIndex = -1;
+    private void clearScenarios(int presetIndex) {
+        if (presetIndex == selectedPresetIndex) {
+            selectedPresetIndex = -1;
         }
-        List<Integer> scenarioIndices = damGroups.get(bullets[damIndex]
-                .getBulletName());
-        if ((scenarioIndices != null) && (scenarioIndices.size() > 0)) {
+        List<Integer> scenarioIndices = damScenarios
+                .get(bullets[presetIndex].getBulletName());
+        if ((scenarioIndices != null) && (!scenarioIndices.isEmpty())) {
             selectedIndices.removeAll(scenarioIndices);
         }
     }

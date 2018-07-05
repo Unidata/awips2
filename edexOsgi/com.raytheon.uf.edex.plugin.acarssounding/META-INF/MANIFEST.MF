@@ -4,7 +4,7 @@ Bundle-Name: Acarsprofiler Plug-in
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.acarssounding
 Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.raytheon.uf.edex.plugin.acars,
  com.raytheon.uf.edex.decodertools,
  com.raytheon.uf.common.localization,

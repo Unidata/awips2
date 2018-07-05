@@ -21,10 +21,10 @@ package com.raytheon.viz.volumebrowser.loader;
 
 import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.DisplayType;
+import com.raytheon.uf.viz.xy.scales.HeightScales;
 import com.raytheon.uf.viz.xy.varheight.display.VarHeightRenderableDisplay;
 import com.raytheon.uf.viz.xy.varheight.hodo.VarHeightHodoDescriptor;
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
-import com.raytheon.viz.core.slice.request.HeightScales;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalog;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
 import com.raytheon.viz.volumebrowser.util.PointLineUtil;

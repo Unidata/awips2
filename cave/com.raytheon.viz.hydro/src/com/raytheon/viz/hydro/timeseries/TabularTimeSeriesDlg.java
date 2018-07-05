@@ -31,8 +31,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 import java.util.TimeZone;
 
 import org.eclipse.core.runtime.QualifiedName;
@@ -69,6 +71,9 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.uf.common.dataplugin.shef.tables.Fcstheight;
 import com.raytheon.uf.common.dataplugin.shef.tables.FcstheightId;
+import com.raytheon.uf.common.dissemination.OUPRequest;
+import com.raytheon.uf.common.dissemination.OUPResponse;
+import com.raytheon.uf.common.dissemination.OfficialUserProduct;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -109,11 +114,11 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * 06 NOV 2009  2641/2     mpduff      Implement shef encode, review product
  *                                     and clear product buttons.
  * 19 July 2010 5964       lbousaidi   being able to enter data for empty 
- * 									   timeseries
- * Sep 14 2010  5282	   lbousaidi   added disposeTabularTS 
+ *                                     timeseries
+ * Sep 14 2010  5282       lbousaidi   added disposeTabularTS 
  * Oct 19 2010  6785       lbousaidi   implement setMissing for forecast data
- * Oct 28 2010  2640	   lbousaidi   fixed ProductTime, basistime, and Obstime 
- * 									   times updates and other bugs.
+ * Oct 28 2010  2640       lbousaidi   fixed ProductTime, basistime, and Obstime 
+ *                                     times updates and other bugs.
  * Jan 31 2010  5274       bkowal      long-running queries are now done
  *                                     asynchronously so that a status indicator
  *                                     can be displayed and so that the
@@ -121,11 +126,11 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                     the data retrieval logic from the function
  *                                     that updates the interface with the
  *                                     data retrieved.
- * Apr 04 2011 5966 	   lbousaidi   fixed Save Table to File and to Printer
+ * Apr 04 2011 5966        lbousaidi   fixed Save Table to File and to Printer
  * May 27 2011 9584        jpiatt      Modified to not save updated forecast data 
  *                                     in rejecteddata table.
  * Sep 09 2011 9962        lbousaidi   reload time series when there is update/insert
- * 									   and highlight the row that was updated.
+ *                                     and highlight the row that was updated.
  * Feb 05,2013 1578        rferrel     Changes for non-blocking singleton TimeSeriesDlg.
  *                                     Code clean up for non-blocking dialog.
  * Feb 27,2013 1790        rferrel     Bug fix for non-blocking dialogs.
@@ -142,15 +147,16 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * May 02, 2016 5616       randerso    Fix parsing of duration value
  * May 11, 2016 5483       bkowal      Fix GUI sizing issues.
  * Aug 02, 2016 5785       mduff       Fix the output of questionable and missing data.
- * 
+ * Mar 08, 2017 17643      jdeng       Fix errors when deleting/setting data to missing
+ * 10/03/2017   DR18261    qzhu        Copy time series
  * </pre>
  * 
  * @author lvenable
  * @version 1.0
  * 
  */
-public class TabularTimeSeriesDlg extends CaveSWTDialog implements
-        ForecastDataAttributeListener, IJobChangeListener {
+public class TabularTimeSeriesDlg extends CaveSWTDialog
+        implements ForecastDataAttributeListener, IJobChangeListener {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(TabularTimeSeriesDlg.class);
 
@@ -201,7 +207,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             "yyyyMMdd");
 
     /** Time format for shef information. */
-    private final SimpleDateFormat shefTimeFormat = new SimpleDateFormat("HHmm");
+    private final SimpleDateFormat shefTimeFormat = new SimpleDateFormat(
+            "HHmm");
 
     /**
      * Date & Time label.
@@ -298,12 +305,15 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      */
 
     private final List<Pair<String, Integer>> bottomTableColumnLabels = Arrays
-            .asList(new Pair<>("Value", SWT.RIGHT), new Pair<>("Flow",
-                    SWT.RIGHT), new Pair<>("Stage", SWT.RIGHT), new Pair<>(
-                    "Time(Z)", SWT.LEFT), new Pair<>("RV", SWT.RIGHT),
-                    new Pair<>("SQ", SWT.RIGHT), new Pair<>("QC", SWT.RIGHT),
-                    new Pair<>("Product", SWT.LEFT), new Pair<>("Time",
-                            SWT.LEFT), new Pair<>("Posted", SWT.LEFT));
+            .asList(new Pair<>("Value", SWT.RIGHT),
+                    new Pair<>("Flow", SWT.RIGHT),
+                    new Pair<>("Stage", SWT.RIGHT),
+                    new Pair<>("Time(Z)", SWT.LEFT),
+                    new Pair<>("RV", SWT.RIGHT), new Pair<>("SQ", SWT.RIGHT),
+                    new Pair<>("QC", SWT.RIGHT),
+                    new Pair<>("Product", SWT.LEFT),
+                    new Pair<>("Time", SWT.LEFT),
+                    new Pair<>("Posted", SWT.LEFT));
 
     private Table bottomTable;
 
@@ -371,6 +381,11 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      * Review Send Script button.
      */
     private Button reviewSendScriptBtn;
+
+    /**
+     * Send Product button.
+     */
+    private Button sendProductBtn;
 
     /**
      * Send Table to Printer button.
@@ -506,6 +521,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
     private TimeSeriesDataJobManager tsDataJobManager = null;
 
+     /** Users can copy time series to one of these types */
+    private static String TYPE_SOURCE_FOR_COPY[] = { "FF", "FZ" };
+
     /**
      * Constructor.
      * 
@@ -521,8 +539,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     public TabularTimeSeriesDlg(Shell parent, Date beginningTime,
             Date endingTime, TimeSeriesDlg parentDialog) {
         super(parent, SWT.DIALOG_TRIM | SWT.MIN,
-                CAVE.DO_NOT_BLOCK
-                | CAVE.INDEPENDENT_SHELL);
+                CAVE.DO_NOT_BLOCK | CAVE.INDEPENDENT_SHELL);
         setText("Tabular Time Series");
 
         this.beginningTime = beginningTime;
@@ -667,13 +684,14 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         topListComp.setLayout(gl);
         topListComp.setLayoutData(gd);
 
-        topDataTable = new Table(topListComp, SWT.SINGLE | SWT.FULL_SELECTION
-                | SWT.BORDER);
+        topDataTable = new Table(topListComp,
+                SWT.SINGLE | SWT.FULL_SELECTION | SWT.BORDER);
         topDataTable.setHeaderVisible(true);
 
         GC gc = new GC(topDataTable);
         // Estimate width of table text.
-        int textWidth = gc.textExtent("WWWWW WW WWWW WW W 9999-99-99 99:99:99").x;
+        int textWidth = gc
+                .textExtent("WWWWW WW WWWW WW W 9999-99-99 99:99:99").x;
         gc.dispose();
 
         gd = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -688,7 +706,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         });
 
         for (Pair<String, Integer> pair : topTableLabels) {
-            TableColumn column = new TableColumn(topDataTable, pair.getSecond());
+            TableColumn column = new TableColumn(topDataTable,
+                    pair.getSecond());
             column.setText(pair.getFirst());
         }
     }
@@ -767,11 +786,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent event) {
                 if (fcstAttDlg == null) {
                     fcstAtt = new ForecastDataAttribute(productIdLbl.getText(),
-                            productTimeLbl.getText(), fcstBasisTimeLbl
-                                    .getText(), new String[] { "FF", "FZ" });
+                            productTimeLbl.getText(),
+                            fcstBasisTimeLbl.getText(),
+                            new String[] { "FF", "FZ" });
                     fcstAttDlg = new ForecastAttributeDlg(shell, fcstAtt,
-                            TimeUtil.newCalendar(dummyTime), TimeUtil
-                                    .newCalendar(dummyTime));
+                            TimeUtil.newCalendar(dummyTime),
+                            TimeUtil.newCalendar(dummyTime));
                     fcstAttDlg.addListener(TabularTimeSeriesDlg.this);
                     fcstAttDlg.open();
                 } else {
@@ -811,12 +831,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         bottomListComp.setLayout(gl);
         bottomListComp.setLayoutData(gd);
 
-        bottomTable = new Table(bottomListComp, SWT.BORDER | SWT.MULTI
-                | SWT.FULL_SELECTION);
+        bottomTable = new Table(bottomListComp,
+                SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
 
         GC gc = new GC(bottomTable);
-        int textWidth = gc
-                .textExtent("00000.00 00000.00 99/99 99:99 WW WW WW WWWWWWWWWW 99/99 99:99 99/99 99:99").x;
+        int textWidth = gc.textExtent(
+                "00000.00 00000.00 99/99 99:99 WW WW WW WWWWWWWWWW 99/99 99:99 99/99 99:99").x;
         gc.dispose();
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -1035,6 +1055,17 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             }
         });
 
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        sendProductBtn = new Button(leftComp, SWT.PUSH);
+        sendProductBtn.setText("Send Product");
+        sendProductBtn.setLayoutData(gd);
+        sendProductBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                sendProduct();
+            }
+        });
+
         Composite comp = new Composite(leftComp, SWT.NONE);
         gl = new GridLayout(2, false);
         comp.setLayout(gl);
@@ -1133,13 +1164,10 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      * Load the data types list
      */
     private void tabularLoadTimeseries() {
-        int entryNumber = 0;
-        int count;
         topDataTable.removeAll();
         modifiedTSList.clear();
         ArrayList<SiteInfo> siteInfoList = new ArrayList<SiteInfo>();
-        TimeSeriesDataManager dataManager = TimeSeriesDataManager.getInstance();
-
+        
         try {
             /* Get the unique time series defined from the parent info */
             for (TabInfo ti : tabInfoList) {
@@ -1147,130 +1175,13 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                 updateStationLabel();
 
-                ArrayList<Object[]> results;
-
-                /* loop on the unique time series defined from the parent info */
+                /*
+                 * loop on the unique time series defined from the parent info
+                 */
                 for (int i = 0; i < peList.size(); i++) {
                     SiteInfo row = peList.get(i);
-
-                    /* if a forecast timeseries then find all basis times */
-                    if (row.getTs().toUpperCase().startsWith("F")
-                            || row.getTs().toUpperCase().startsWith("C")) {
-                        String tableName = DbUtils.getTableName(row.getPe(),
-                                row.getTs());
-                        if (!tableName.equals("INVALID")) {
-                            results = (ArrayList<Object[]>) dataManager
-                                    .getUniqueList(tableName, row.getLid(), row
-                                            .getPe().toUpperCase(), row
-                                            .getDur(), row.getTs()
-                                            .toUpperCase(), row.getExt()
-                                            .toUpperCase(), beginningTime,
-                                            endingTime);
-                            results.trimToSize();
-
-                            if (results != null && results.size() > 0) {
-                                /* loop through number of unique basis times */
-                                /*
-                                 * if list ALL basis TB is not pressed then loop
-                                 * only ONCE
-                                 */
-                                if (listAllFcstChk.getSelection()) {
-                                    count = results.size();
-                                } else {
-                                    count = 1;
-                                }
-
-                                for (int j = 0; j < count; j++) {
-                                    if (entryNumber < MAX_TS_ON_LIST) {
-                                        String str = String.format(
-                                                "%-5s %2s %4s %2s %s %-19s",
-                                                row.getLid(), row.getPe()
-                                                        .toUpperCase(), row
-                                                        .getDur(), row.getTs()
-                                                        .toUpperCase(),
-                                                row.getExt().toUpperCase(),
-                                                HydroConstants.DATE_FORMAT
-                                                        .format((Date) results
-                                                                .get(j)[0]));
-                                        modifiedTSList.add(str);
-
-                                        TableItem item = new TableItem(
-                                                topDataTable, SWT.NONE);
-                                        item.setText(0, row.getLid());
-                                        item.setText(1, row.getPe()
-                                                .toUpperCase());
-                                        item.setText(
-                                                2,
-                                                String.format("%4s",
-                                                        row.getDur()));
-                                        item.setText(3, row.getTs()
-                                                .toUpperCase());
-                                        item.setText(4, row.getExt()
-                                                .toUpperCase());
-                                        item.setText(5,
-                                                HydroConstants.DATE_FORMAT
-                                                        .format((Date) results
-                                                                .get(j)[0]));
-
-                                        row.setBasisTime(HydroConstants.DATE_FORMAT
-                                                .format((Date) results.get(j)[0]));
-                                        siteInfoList.add(row);
-                                        entryNumber++;
-                                    }
-
-                                }
-                            } else {
-                                /* if NO basis times found */
-                                if (entryNumber < MAX_TS_ON_LIST) {
-                                    String str = String.format(
-                                            "%-5s %2s %4s %2s %s ", row
-                                                    .getLid(), row.getPe()
-                                                    .toUpperCase(), row
-                                                    .getDur(), row.getTs()
-                                                    .toUpperCase(), row
-                                                    .getExt().toUpperCase());
-                                    modifiedTSList.add(str + "No Data");
-
-                                    TableItem item = new TableItem(
-                                            topDataTable, SWT.NONE);
-                                    item.setText(0, row.getLid());
-                                    item.setText(1, row.getPe().toUpperCase());
-                                    item.setText(2,
-                                            String.format("%4s", row.getDur()));
-                                    item.setText(3, row.getTs().toUpperCase());
-                                    item.setText(4, row.getExt().toUpperCase());
-                                    item.setText(5, "No Data");
-
-                                    entryNumber++;
-                                    siteInfoList.add(row);
-                                }
-                            }
-                        }
-                    } else {
-                        /*
-                         * if an observed timeseries then just store in modified
-                         * list
-                         */
-                        if (entryNumber < MAX_TS_ON_LIST) {
-                            String str = String.format("%-5s %2s %4s %2s %s ",
-                                    row.getLid(), row.getPe().toUpperCase(),
-                                    row.getDur(), row.getTs().toUpperCase(),
-                                    row.getExt().toUpperCase());
-                            modifiedTSList.add(str);
-
-                            TableItem item = new TableItem(topDataTable,
-                                    SWT.NONE);
-                            item.setText(0, row.getLid());
-                            item.setText(1, row.getPe().toUpperCase());
-                            item.setText(2, String.format("%4s", row.getDur()));
-                            item.setText(3, row.getTs().toUpperCase());
-                            item.setText(4, row.getExt().toUpperCase());
-
-                            entryNumber++;
-                            siteInfoList.add(row);
-                        }
-                    }
-                }
+                    displayTS(row, siteInfoList);
+                 } // end of loop through pe
             }
             for (TableColumn column : topDataTable.getColumns()) {
                 column.pack();
@@ -1288,8 +1199,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                         ts = item.getText(3);
                         pe = item.getText(1);
                         if (pe.equals(siteInfo.getPe())
-                                && Integer.parseInt(item.getText(2).trim()) == siteInfo
-                                        .getDur()
+                                && Integer.parseInt(
+                                        item.getText(2).trim()) == siteInfo
+                                                .getDur()
                                 && ts.equals(siteInfo.getTs())
                                 && item.getText(4).equals(siteInfo.getExt())) {
                             topDataTable.setSelection(j);
@@ -1332,8 +1244,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
             this.ratingRecordCount = dataManager.recordCount("Rating", where);
 
-            tabularDataList = dataManager.getTabularData(tableName, lid, pe,
-                    ts, dur, extremum, beginningTime, endingTime, myBasisTime,
+            tabularDataList = dataManager.getTabularData(tableName, lid, pe, ts,
+                    dur, extremum, beginningTime, endingTime, myBasisTime,
                     forecast);
         } catch (ClassNotFoundException e) {
             statusHandler.handle(Priority.PROBLEM, "Getting Table Data: ", e);
@@ -1418,13 +1330,13 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                 TableItem item = new TableItem(bottomTable, SWT.LEFT);
 
-                if (pe.equals("HG") || pe.equals("HT")
-                        && this.ratingRecordCount > 1) {
+                if (pe.equals("HG")
+                        || pe.equals("HT") && this.ratingRecordCount > 1) {
                     if (td.getValue() == HydroConstants.MISSING_VALUE) {
                         derivedValue = HydroConstants.MISSING_VALUE;
                     } else {
-                        derivedValue = StageDischargeUtils.stage2discharge(
-                                td.getLid(), td.getValue());
+                        derivedValue = StageDischargeUtils
+                                .stage2discharge(td.getLid(), td.getValue());
                     }
                     item.setText(0, String.format("%6.2f", td.getValue()));
                     item.setText(1, String.format("%7.0f", derivedValue));
@@ -1441,8 +1353,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     if (td.getValue() == HydroConstants.MISSING_VALUE) {
                         derivedValue = HydroConstants.MISSING_VALUE;
                     } else {
-                        derivedValue = StageDischargeUtils.discharge2stage(
-                                td.getLid(), td.getValue());
+                        derivedValue = StageDischargeUtils
+                                .discharge2stage(td.getLid(), td.getValue());
                     }
                     item.setText(0, String.format("%8.2f", td.getValue()));
                     item.setText(2, String.format("%8.0f", derivedValue));
@@ -1474,8 +1386,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 bottomTable.setSelection(0);
                 valueTF.setText(String.valueOf(tdSelection.getValue()));
                 timeTF.setText(dbFormat.format(tdSelection.getObsTime()));
-                qcCbo.setData(TimeSeriesUtil.buildQcSymbol(tdSelection
-                        .getQualityCode()));
+                qcCbo.setData(TimeSeriesUtil
+                        .buildQcSymbol(tdSelection.getQualityCode()));
             }
         }
 
@@ -1507,8 +1419,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         TabularData td = null;
         TimeSeriesDataManager dataManager = TimeSeriesDataManager.getInstance();
         Date now = Calendar.getInstance(TimeZone.getTimeZone("GMT")).getTime();
-        String selectCheck = bottomTable.getItem(
-                bottomTable.getSelectionIndex()).getText(0);
+        String selectCheck = bottomTable
+                .getItem(bottomTable.getSelectionIndex()).getText(0);
 
         if (bottomTable.getSelectionIndex() == -1) {
             td = tabularDataList.get(0);
@@ -1532,9 +1444,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             newDateTime = dbFormat.parse(newDataTime);
             dr.setObsTime(newDateTime);
         } catch (ParseException e) {
-            MessageDialog
-                    .openError(shell, "Invalid date/time",
-                            "Invalid date/time entered.\nRequired format:  01-01-2002 12:00:00");
+            MessageDialog.openError(shell, "Invalid date/time",
+                    "Invalid date/time entered.\nRequired format:  01-01-2002 12:00:00");
             return;
         }
 
@@ -1563,8 +1474,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 if (qcCbo.getItem(qcCbo.getSelectionIndex()).equals("Good")) {
                     qualityCode = TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED,
                             td.getQualityCode());
-                } else if (qcCbo.getItem(qcCbo.getSelectionIndex()).equals(
-                        "Bad")) {
+                } else if (qcCbo.getItem(qcCbo.getSelectionIndex())
+                        .equals("Bad")) {
                     qualityCode = TimeSeriesUtil.setQcCode(QC_MANUAL_FAILED,
                             td.getQualityCode());
                 } else {
@@ -1578,7 +1489,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                 dr.setProductId(INSERT_PROD_ID);
                 dr.setValue(Double.parseDouble(valueTF.getText()));
-                dr.setQualityCode(TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED, 0));
+                dr.setQualityCode(
+                        TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED, 0));
                 dr.setRevision(0);
                 newDateTime = now;
 
@@ -1601,8 +1513,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
             if (useProductTimeChk.getSelection()) {
                 try {
-                    Date useProductDate = dbFormat.parse(productTimeLbl
-                            .getText());
+                    Date useProductDate = dbFormat
+                            .parse(productTimeLbl.getText());
                     dr.setProductTime(useProductDate);
                     dr.setProductId(INSERT_PROD_ID);
 
@@ -1616,25 +1528,20 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 /* already a record with same key do an update */
                 if (recordCount == 1) {
                     dr.setRevision(1);
-                    sql = "update "
-                            + tablename
-                            + " set value = "
-                            + dr.getValue()
-                            + ", quality_code = "
-                            + dr.getQualityCode()
-                            + ", obstime = '"
+                    sql = "update " + tablename + " set value = "
+                            + dr.getValue() + ", quality_code = "
+                            + dr.getQualityCode() + ", obstime = '"
                             + HydroConstants.DATE_FORMAT.format(newDateTime)
                             + "', postingtime = '"
-                            + HydroConstants.DATE_FORMAT.format(dr
-                                    .getPostingTime())
-                            + "', product_id = '"
-                            + dr.getProductId()
-                            + "', "
+                            + HydroConstants.DATE_FORMAT.format(
+                                    dr.getPostingTime())
+                            + "', product_id = '" + dr.getProductId() + "', "
                             + "producttime = '"
-                            + HydroConstants.DATE_FORMAT.format(dr
-                                    .getProductTime()) + "', revision = "
-                            + dr.getRevision() + ", shef_qual_code = '"
-                            + dr.getShefQualCode() + "' ";
+                            + HydroConstants.DATE_FORMAT.format(
+                                    dr.getProductTime())
+                            + "', revision = " + dr.getRevision()
+                            + ", shef_qual_code = '" + dr.getShefQualCode()
+                            + "' ";
 
                     dataManager.update(sql + where);
 
@@ -1645,7 +1552,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     dataManager.insertRejectedData(dr);
                     dr.setRevision(1);
 
-                } else { /* if no record, insert a new one and set revision to 0 */
+                } else { /*
+                          * if no record, insert a new one and set revision to 0
+                          */
 
                     dr.setRevision(0);
                     dataManager.addDataRecord(tablename, dr);
@@ -1692,8 +1601,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 if (qcCbo.getItem(qcCbo.getSelectionIndex()).equals("Good")) {
                     qualityCode = TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED,
                             td.getQualityCode());
-                } else if (qcCbo.getItem(qcCbo.getSelectionIndex()).equals(
-                        "Bad")) {
+                } else if (qcCbo.getItem(qcCbo.getSelectionIndex())
+                        .equals("Bad")) {
                     qualityCode = TimeSeriesUtil.setQcCode(QC_MANUAL_FAILED,
                             td.getQualityCode());
                 } else {
@@ -1720,7 +1629,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                 dr.setProductId(INSERT_PROD_ID);
                 dr.setValue(Double.parseDouble(valueTF.getText()));
-                dr.setQualityCode(TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED, 0));
+                dr.setQualityCode(
+                        TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED, 0));
 
                 String newDefaultTime = timeTF.getText();
                 try {
@@ -1746,8 +1656,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             /* use producTime/ID if checked */
             if (useProductTimeChk.getSelection()) {
                 try {
-                    Date useProductDate = dbFormat.parse(productTimeLbl
-                            .getText());
+                    Date useProductDate = dbFormat
+                            .parse(productTimeLbl.getText());
                     dr.setProductTime(useProductDate);
                     dr.setProductId(INSERT_PROD_ID);
 
@@ -1794,37 +1704,29 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                     String sql = null;
                     if (useProductTimeChk.getSelection()) {
-                        sql = "update "
-                                + tablename
-                                + " set value = "
-                                + dr.getValue()
-                                + ", quality_code = "
-                                + dr.getQualityCode()
-                                + ", postingtime = '"
-                                + HydroConstants.DATE_FORMAT.format(dr
-                                        .getPostingTime())
+                        sql = "update " + tablename + " set value = "
+                                + dr.getValue() + ", quality_code = "
+                                + dr.getQualityCode() + ", postingtime = '"
+                                + HydroConstants.DATE_FORMAT
+                                        .format(dr.getPostingTime())
                                 + "', producttime = '"
-                                + HydroConstants.DATE_FORMAT.format(dr
-                                        .getProductTime()) + "', revision = "
-                                + dr.getRevision() + ", " + "product_id = '"
-                                + dr.getProductId() + "', " + " basistime = '"
-                                + dr.getBasisTime() + "', shef_qual_code = '"
-                                + dr.getShefQualCode() + "' ";
+                                + HydroConstants.DATE_FORMAT.format(
+                                        dr.getProductTime())
+                                + "', revision = " + dr.getRevision() + ", "
+                                + "product_id = '" + dr.getProductId() + "', "
+                                + " basistime = '" + dr.getBasisTime()
+                                + "', shef_qual_code = '" + dr.getShefQualCode()
+                                + "' ";
                     } else {
 
-                        sql = "update "
-                                + tablename
-                                + " set value = "
-                                + dr.getValue()
-                                + ", quality_code = "
-                                + dr.getQualityCode()
-                                + ", postingtime = '"
-                                + HydroConstants.DATE_FORMAT.format(dr
-                                        .getPostingTime())
-                                + "', producttime = '"
+                        sql = "update " + tablename + " set value = "
+                                + dr.getValue() + ", quality_code = "
+                                + dr.getQualityCode() + ", postingtime = '"
                                 + HydroConstants.DATE_FORMAT
-                                        .format(newDateTime) + "', revision = "
-                                + dr.getRevision() + ", "
+                                        .format(dr.getPostingTime())
+                                + "', producttime = '"
+                                + HydroConstants.DATE_FORMAT.format(newDateTime)
+                                + "', revision = " + dr.getRevision() + ", "
                                 + "shef_qual_code = '" + dr.getShefQualCode()
                                 + "' ";
 
@@ -1839,8 +1741,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                 }
             } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, "Data Query:"
-                        + " Error inserting forecast data.", e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Data Query:" + " Error inserting forecast data.", e);
             }
 
             /* call Load Max Forecast if update or insert of H or Q PE's */
@@ -1849,13 +1751,17 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 try {
                     LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
                 } catch (VizException e) {
-                    statusHandler.handle(Priority.PROBLEM, "Data Query:"
-                            + " Error inserting max forecast record.", e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Data Query:"
+                                    + " Error inserting max forecast record.",
+                            e);
                 }
             }
         } // end if fcst
         else {
-            /* code for inserting/updating latestobsvalue table, if not forecast */
+            /*
+             * code for inserting/updating latestobsvalue table, if not forecast
+             */
             updateInsertLatestObsValue(td, dataManager, now, dr, newDateTime);
         }
         /* reload list of timeseries */
@@ -1918,8 +1824,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
             dataRecord.setProductId(INSERT_PROD_ID);
             dataRecord.setValue(Double.parseDouble(valueTF.getText()));
-            dataRecord.setQualityCode(TimeSeriesUtil.setQcCode(
-                    QC_MANUAL_PASSED, 0));
+            dataRecord.setQualityCode(
+                    TimeSeriesUtil.setQcCode(QC_MANUAL_PASSED, 0));
             dataRecord.setRevision(0);
             obsTime = postingTime;
 
@@ -1937,7 +1843,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
         /* do the update */
         String whereExists = createWhereExistsLatestObsValue(dataRecord);
-        String whereOlderExists = createOlderThanWhereLatestObsValue(dataRecord);
+        String whereOlderExists = createOlderThanWhereLatestObsValue(
+                dataRecord);
         /* if toggle button ProductTime/ID is checked */
 
         if (useProductTimeChk.getSelection()) {
@@ -1947,10 +1854,10 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 dataRecord.setProductId(INSERT_PROD_ID);
 
             } catch (ParseException e) {
-                statusHandler.handle(
-                        Priority.PROBLEM,
+                statusHandler.handle(Priority.PROBLEM,
                         "Parse Error: Could not parse ["
-                                + productTimeLbl.getText() + "]", e);
+                                + productTimeLbl.getText() + "]",
+                        e);
             }
         }
 
@@ -1962,25 +1869,20 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             /* already a record with same key that is older */
             if (olderRecordCount == 1) {
                 dataRecord.setRevision(1);
-                String updateSQL = "update "
-                        + tablename
-                        + " set value = "
-                        + dataRecord.getValue()
-                        + ", quality_code = "
-                        + dataRecord.getQualityCode()
-                        + ", obstime = '"
+                String updateSQL = "update " + tablename + " set value = "
+                        + dataRecord.getValue() + ", quality_code = "
+                        + dataRecord.getQualityCode() + ", obstime = '"
                         + HydroConstants.DATE_FORMAT.format(obsTime)
                         + "', postingtime = '"
-                        + HydroConstants.DATE_FORMAT.format(dataRecord
-                                .getPostingTime())
-                        + "', product_id = '"
-                        + dataRecord.getProductId()
-                        + "', "
-                        + "producttime = '"
-                        + HydroConstants.DATE_FORMAT.format(dataRecord
-                                .getProductTime()) + "', revision = "
-                        + dataRecord.getRevision() + ", shef_qual_code = '"
-                        + dataRecord.getShefQualCode() + "' ";
+                        + HydroConstants.DATE_FORMAT
+                                .format(dataRecord.getPostingTime())
+                        + "', product_id = '" + dataRecord.getProductId()
+                        + "', " + "producttime = '"
+                        + HydroConstants.DATE_FORMAT.format(
+                                dataRecord.getProductTime())
+                        + "', revision = " + dataRecord.getRevision()
+                        + ", shef_qual_code = '" + dataRecord.getShefQualCode()
+                        + "' ";
 
                 String query = updateSQL + whereExists;
                 try {
@@ -1995,11 +1897,17 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                  */
                 try {
                     dataRecord.setRevision(0);
+                    /*
+                     * addDataRecord used -1 for probability. For DR 18261, the
+                     * probability needs to be passed into addDataRecord
+                     */
+
                     dataManager.addDataRecord(tablename, dataRecord);
                 } catch (VizException e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Failed to add data record to table [" + tablename
-                                    + "]", e);
+                                    + "]",
+                            e);
                 }
             }
             scheduleDataRetrieval();
@@ -2015,9 +1923,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      * Sets just the value of the selected row to missing.
      */
     private void setMissing() {
-
-        String checkSelect = bottomTable.getItem(
-                bottomTable.getSelectionIndex()).getText(0);
+        Double origVal = 0.0;
+        String checkSelect = bottomTable
+                .getItem(bottomTable.getSelectionIndex()).getText(0);
 
         if (bottomTable.getSelectionCount() == 0
                 || checkSelect.equalsIgnoreCase("No Data")) {
@@ -2052,6 +1960,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             dr.setProductId(td.getProductId());
             dr.setProductTime(td.getProductTime());
             dr.setObsTime(td.getObsTime());
+            origVal = td.getValue();
 
             /* Set value to MISSING */
             dr.setValue(HydroConstants.MISSING_VALUE);
@@ -2097,11 +2006,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 /*
                  * Data updated successfully Add data record to rejected data
                  */
-                status = dataManager.insertRejectedData(dataRecordList);
+                status = dataManager.insertRejectedData(dataRecordList,
+                        origVal);
             }
         } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, "Data Query:"
-                    + " Error updating records.", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Data Query:" + " Error updating records.", e);
         }
 
         /* call Load Max Forecast if update of H or Q PE's */
@@ -2110,8 +2020,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             try {
                 LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
             } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, "Data Query:"
-                        + " Error loading Max Forecast Table.", e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Data Query:" + " Error loading Max Forecast Table.",
+                        e);
             }
 
         }
@@ -2124,17 +2035,17 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      * Delete the selected record(s) from the database
      */
     private void deleteData() {
-
-        String checkSelect = bottomTable.getItem(
-                bottomTable.getSelectionIndex()).getText(0);
+        Double origVal = 0.0;
+        String checkSelect = bottomTable
+                .getItem(bottomTable.getSelectionIndex()).getText(0);
 
         if (bottomTable.getSelectionCount() == 0
                 || checkSelect.equalsIgnoreCase("No Data")) {
             return;
         }
 
-        boolean choice = MessageDialog.openConfirm(shell,
-                "Delete Confirmation", "Do you wish to delete this record?");
+        boolean choice = MessageDialog.openConfirm(shell, "Delete Confirmation",
+                "Do you wish to delete this record?");
 
         /* If true then delete the record */
         if (choice) {
@@ -2164,8 +2075,12 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 dr.setProductTime(td.getProductTime());
                 dr.setObsTime(td.getObsTime());
                 dr.setShefQualCode(td.getShefQualCode());
+                dr.setQualityCode(td.getQualityCode());
+                origVal = td.getValue();
 
-                /********** This part is for OBSERVED or PROCCESSED data **********/
+                /**********
+                 * This part is for OBSERVED or PROCCESSED data
+                 **********/
                 if (ts.toUpperCase().startsWith("R")
                         || ts.toUpperCase().startsWith("P")) {
                     String where = createUpdDelWhereObs(dr);
@@ -2208,10 +2123,10 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             // execute the queries
             try {
                 dataManager.deleteRecords(queryList);
-                dataManager.insertRejectedData(dataRecordList);
+                dataManager.insertRejectedData(dataRecordList, origVal);
             } catch (VizException e1) {
-                statusHandler.handle(Priority.PROBLEM, "Data Query:"
-                        + " Error Deleting records.", e1);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Data Query:" + " Error Deleting records.", e1);
             }
 
             /*
@@ -2225,11 +2140,10 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 try {
                     dataManager.execFunction(command);
                 } catch (VizException e) {
-                    statusHandler
-                            .handle(Priority.PROBLEM,
-                                    "Data Query:"
-                                            + " An error occurred executing load_obs_river function",
-                                    e);
+                    statusHandler.handle(Priority.PROBLEM,
+                            "Data Query:"
+                                    + " An error occurred executing load_obs_river function",
+                            e);
                 }
             }
             if (ts.toUpperCase().startsWith("F")
@@ -2240,11 +2154,10 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     try {
                         LoadMaxFcst.loadMaxFcstItem(lid, pe, ts);
                     } catch (VizException e) {
-                        statusHandler
-                                .handle(Priority.PROBLEM,
-                                        "Data Query:"
-                                                + " An error occurred executing loadMaxFcst function",
-                                        e);
+                        statusHandler.handle(Priority.PROBLEM,
+                                "Data Query:"
+                                        + " An error occurred executing loadMaxFcst function",
+                                e);
                     }
                 }
             }
@@ -2256,8 +2169,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      * Set the QC value for the selected record
      */
     private void setQC() {
-        String checkSelect = bottomTable.getItem(
-                bottomTable.getSelectionIndex()).getText(0);
+        String checkSelect = bottomTable
+                .getItem(bottomTable.getSelectionIndex()).getText(0);
 
         if (bottomTable.getSelectionCount() == 0
                 || checkSelect.equalsIgnoreCase("No Data")) {
@@ -2313,15 +2226,11 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                 /* do the update */
                 String where = createUpdDelWhereObs(dr);
-                String sql = "update "
-                        + tablename
-                        + " set quality_code= "
-                        + dr.getQualityCode()
-                        + ",revision= "
-                        + dr.getRevision()
+                String sql = "update " + tablename + " set quality_code= "
+                        + dr.getQualityCode() + ",revision= " + dr.getRevision()
                         + ", postingtime= '"
-                        + HydroConstants.DATE_FORMAT
-                                .format(dr.getPostingTime()) + "'  ";
+                        + HydroConstants.DATE_FORMAT.format(dr.getPostingTime())
+                        + "'  ";
                 int status;
                 try {
                     status = dataManager.update(sql + where);
@@ -2343,15 +2252,11 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                 String where = createUpdDelWhereFcst(td, dr);
 
-                String sql = "update "
-                        + tablename
-                        + " set quality_code = "
-                        + dr.getQualityCode()
-                        + ", revision= "
-                        + dr.getRevision()
-                        + ", postingtime= '"
-                        + HydroConstants.DATE_FORMAT
-                                .format(dr.getPostingTime()) + "'  ";
+                String sql = "update " + tablename + " set quality_code = "
+                        + dr.getQualityCode() + ", revision= "
+                        + dr.getRevision() + ", postingtime= '"
+                        + HydroConstants.DATE_FORMAT.format(dr.getPostingTime())
+                        + "'  ";
 
                 int status;
                 try {
@@ -2385,7 +2290,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
             if (TimeSeriesUtil.buildQcSymbol(td.getQualityCode()) == "G") {
                 qcCbo.select(0);
-            } else if (TimeSeriesUtil.buildQcSymbol(td.getQualityCode()) == "B") {
+            } else if (TimeSeriesUtil
+                    .buildQcSymbol(td.getQualityCode()) == "B") {
                 qcCbo.select(2);
             } else {
                 qcCbo.select(1);
@@ -2411,7 +2317,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             return;
         }
 
-        try (BufferedWriter out = new BufferedWriter(new FileWriter(filename))) {
+        try (BufferedWriter out = new BufferedWriter(
+                new FileWriter(filename))) {
             out.write(text);
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM, "Saving Table: ", e);
@@ -2487,8 +2394,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             Font printerFont = new Font(printer, "Monospace", 8, SWT.NORMAL);
 
             Color printerForegroundColor = new Color(printer, new RGB(0, 0, 0));
-            Color printerBackgroundColor = new Color(printer, new RGB(255, 255,
-                    255));
+            Color printerBackgroundColor = new Color(printer,
+                    new RGB(255, 255, 255));
 
             gc.setFont(printerFont);
             gc.setForeground(printerForegroundColor);
@@ -2549,21 +2456,27 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     && dataManager.recordCount("Rating", where) > 1) {
                 sb.append("\n");
                 sb.append("          Derived             R S Q\n");
-                sb.append("  Value    Flow     Time(Z)   V Q C  Product      Time       Posted\n");
-                sb.append("-------- -------- ----------- - - - ---------- ----------- -----------\n");
+                sb.append(
+                        "  Value    Flow     Time(Z)   V Q C  Product      Time       Posted\n");
+                sb.append(
+                        "-------- -------- ----------- - - - ---------- ----------- -----------\n");
                 ratingCurveExists = true;
             } else if (pe.equals("QR")
                     && dataManager.recordCount("Rating", where) > 1) {
                 sb.append("\n");
                 sb.append("          Derived             R S Q\n");
-                sb.append("  Value    Stage    Time(Z)   V Q C  Product      Time       Posted\n");
-                sb.append("-------- -------- ----------- - - - ---------- ----------- -----------\n");
+                sb.append(
+                        "  Value    Stage    Time(Z)   V Q C  Product      Time       Posted\n");
+                sb.append(
+                        "-------- -------- ----------- - - - ---------- ----------- -----------\n");
                 ratingCurveExists = true;
             } else {
                 sb.append("\n");
                 sb.append("                     R S Q\n");
-                sb.append("  Value    Time(Z)   V Q C  Product      Time       Posted\n");
-                sb.append("-------- ----------- - - - ---------- ----------- -----------\n");
+                sb.append(
+                        "  Value    Time(Z)   V Q C  Product      Time       Posted\n");
+                sb.append(
+                        "-------- ----------- - - - ---------- ----------- -----------\n");
                 ratingCurveExists = false;
             }
 
@@ -2579,8 +2492,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     }
                     prodTime = tabularFormat.format(data.getProductTime());
                     postTime = tabularFormat.format(data.getPostingTime());
-                    String qcSymbol = TimeSeriesUtil.buildQcSymbol(data
-                            .getQualityCode());
+                    String qcSymbol = TimeSeriesUtil
+                            .buildQcSymbol(data.getQualityCode());
 
                     String revision;
                     if (data.getRevision() == 1) {
@@ -2594,8 +2507,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                         if (data.getValue() == HydroConstants.MISSING_VALUE) {
                             derivedValue = HydroConstants.MISSING_VALUE;
                         } else {
-                            derivedValue = StageDischargeUtils.stage2discharge(
-                                    lid, data.getValue());
+                            derivedValue = StageDischargeUtils
+                                    .stage2discharge(lid, data.getValue());
                         }
                         sb.append(String.format(
                                 "%8.2f %8.0f %11s %s %1s %1s %10s %11s %11s\n",
@@ -2606,8 +2519,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                         if (data.getValue() == HydroConstants.MISSING_VALUE) {
                             derivedValue = HydroConstants.MISSING_VALUE;
                         } else {
-                            derivedValue = StageDischargeUtils.discharge2stage(
-                                    lid, data.getValue());
+                            derivedValue = StageDischargeUtils
+                                    .discharge2stage(lid, data.getValue());
                         }
                         sb.append(String.format(
                                 "%8.2f %8.2f %11s %s %1s %1s %10s %11s %11s\n",
@@ -2651,7 +2564,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             index++;
             if (c != 0) {
                 if (c == 0x0a || c == 0x0d) {
-                    if (c == 0x0d && index < end && text.charAt(index) == 0x0a) {
+                    if (c == 0x0d && index < end
+                            && text.charAt(index) == 0x0a) {
                         index++; // if this is cr-lf, skip the lf
                     }
                     printWordBuffer();
@@ -2861,8 +2775,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
      */
     private void updateSelectedLocInfoLabel() {
         if (basisTime != null) {
-            selectedLocInfoLbl.setText(pe + " " + ts + " " + extremum + "  "
-                    + basisTime);
+            selectedLocInfoLbl
+                    .setText(pe + " " + ts + " " + extremum + "  " + basisTime);
         } else {
             selectedLocInfoLbl.setText(pe + " " + ts + " " + extremum);
         }
@@ -2897,8 +2811,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     floodFlow = String.format("%.0f", oa[2]);
                 }
             }
-            selectedFloodLbl.setText("Flood Stg/Flow:  " + floodStage + "/"
-                    + floodFlow);
+            selectedFloodLbl.setText(
+                    "Flood Stg/Flow:  " + floodStage + "/" + floodFlow);
         } else {
             StringBuilder sb = new StringBuilder("Flood Stg/Flow:  ");
             sb.append("0.0/");
@@ -2936,17 +2850,18 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
              * only do something if we have forecast or contingency data and a
              * valid type source has been selected.
              */
-            if ((ts.toUpperCase().startsWith("F") || ts.toUpperCase()
-                    .startsWith("C"))
-                    && cnt > 0
+            if ((ts.toUpperCase().startsWith("F")
+                    || ts.toUpperCase().startsWith("C")) && cnt > 0
                     && keyChanged
                     && !fcstAtt.getSelectedTS().equals(UNDEFINED_TYPESOURCE)) {
                 /* set postingtime to current time */
                 postingTime = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
                         .getTime();
 
-                SiteInfo si = tabInfo.getSiteInfo(topDataTable
-                        .getSelectionIndex());
+                SiteInfo si = tabInfo
+                        .getSiteInfo(topDataTable.getSelectionIndex());
+
+                si.setTs(fcstAtt.getSelectedTS());
 
                 /* load the structure with the general data */
                 Fcstheight fcstRow = new Fcstheight();
@@ -2957,7 +2872,9 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 fhid.setExtremum(si.getExt());
                 fcstRow.setPostingtime(postingTime);
 
-                /* load the type source key field specific to the copy request. */
+                /*
+                 * load the type source key field specific to the copy request.
+                 */
                 if (fcstTypSrcChk.getSelection()) {
                     fhid.setTs(fcstAtt.getSelectedTS());
                 } else {
@@ -2966,12 +2883,13 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
                 /* load the basistime key field specific to the copy request */
                 if (fcstBasisTimeChk.getSelection()) {
-                    fhid.setBasistime(HydroConstants.DATE_FORMAT.parse(fcstAtt
-                            .getBasisTime()));
+                    si.setBasisTime(fcstAtt.getBasisTime());
+                    fhid.setBasistime(HydroConstants.DATE_FORMAT
+                            .parse(fcstAtt.getBasisTime()));
                 } else {
                     si.setBasisTime(basisTime);
-                    fhid.setBasistime(HydroConstants.DATE_FORMAT.parse(si
-                            .getBasisTime()));
+                    fhid.setBasistime(HydroConstants.DATE_FORMAT
+                            .parse(si.getBasisTime()));
                 }
 
                 /* load the product id and time data fields accordingly */
@@ -2981,15 +2899,15 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     fcstRow.setProductId(fcstAtt.getProductId());
                 } else {
                     fcstRow.setProductId(tabularDataList.get(0).getProductId());
-                    fcstRow.setProducttime(tabularDataList.get(0)
-                            .getProductTime());
+                    fcstRow.setProducttime(
+                            tabularDataList.get(0).getProductTime());
                 }
 
                 fcstRow.setId(fhid);
 
                 /* define the table name to insert data into */
-                String tableName = DbUtils.getTableName(
-                        fcstRow.getId().getPe(), fcstRow.getId().getTs());
+                String tableName = DbUtils.getTableName(fcstRow.getId().getPe(),
+                        fcstRow.getId().getTs());
 
                 long qualityCode = HydroConstants.MISSING_VALUE;
                 for (TabularData td : tabularDataList) {
@@ -2997,8 +2915,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     fcstRow.setValue(td.getValue());
                     fhid.setValidtime(td.getObsTime());
                     fcstRow.setShefQualCode("M");
-                    fcstRow.setQualityCode((int) HydroQC.setQcCode(
-                            HydroQC.QC_MANUAL_NEW, qualityCode));
+                    fcstRow.setQualityCode((int) HydroQC
+                            .setQcCode(HydroQC.QC_MANUAL_NEW, qualityCode));
                     fcstRow.setRevision((short) 0);
 
                     /* build the where clause */
@@ -3006,20 +2924,23 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                             + "and validtime = '%s' and basistime = '%s' "
                             + "and dur = %d and ts = '%s'  and extremum = '%s' ";
 
-                    String where = String.format(format, fcstRow.getId()
-                            .getLid(), fcstRow.getId().getPe(),
-                            HydroConstants.DATE_FORMAT.format(fcstRow.getId()
-                                    .getValidtime()),
-                            HydroConstants.DATE_FORMAT.format(fcstRow.getId()
-                                    .getBasistime()), fcstRow.getId().getDur(),
-                            fcstRow.getId().getTs(), fcstRow.getId()
-                                    .getExtremum());
+                    String where = String.format(format,
+                            fcstRow.getId().getLid(), fcstRow.getId().getPe(),
+                            HydroConstants.DATE_FORMAT
+                                    .format(fcstRow.getId().getValidtime()),
+                            HydroConstants.DATE_FORMAT
+                                    .format(fcstRow.getId().getBasistime()),
+                            fcstRow.getId().getDur(), si.getTs(),
+                            fcstRow.getId().getExtremum());
 
                     if (dataManager.recordCount(tableName, where) > 0) {
                         /* already a record with same key */
                         duplicateCnt++;
-                    }
+                    } else {
+                        DataRecord dr = new DataRecord(td, si);
 
+                        dataManager.addDataRecord(tableName, dr);
+                    }
                 }
 
                 // report on any duplicates which are ignored
@@ -3036,7 +2957,7 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
             }
         } catch (ParseException pe) {
-            statusHandler.handle(Priority.PROBLEM, "Parse eror: ", pe);
+            statusHandler.handle(Priority.PROBLEM, "Parse error: ", pe);
         } catch (VizException ve) {
             statusHandler.handle(Priority.PROBLEM, "", ve);
         }
@@ -3086,8 +3007,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             }
         }
 
-        try (BufferedWriter out = new BufferedWriter(new FileWriter(
-                shefFileName, true))) {
+        try (BufferedWriter out = new BufferedWriter(
+                new FileWriter(shefFileName, true))) {
             int[] indices = bottomTable.getSelectionIndices();
             String tablename = DbUtils.getTableName(pe, ts);
             boolean forecast = ts.toUpperCase().startsWith("C")
@@ -3096,8 +3017,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             TimeSeriesDataManager dataManager = TimeSeriesDataManager
                     .getInstance();
             // update the tabular data list with the latest data
-            tabularDataList = dataManager.getTabularData(tablename, lid, pe,
-                    ts, dur, extremum, beginningTime, endingTime, basisTime,
+            tabularDataList = dataManager.getTabularData(tablename, lid, pe, ts,
+                    dur, extremum, beginningTime, endingTime, basisTime,
                     forecast);
 
             for (int indice : indices) {
@@ -3125,8 +3046,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                 }
 
                 /* get the internal QC code and set the SHEF data Qualifier */
-                String qcSymbol = TimeSeriesUtil.buildQcSymbol(td
-                        .getQualityCode());
+                String qcSymbol = TimeSeriesUtil
+                        .buildQcSymbol(td.getQualityCode());
                 String dataQualifier = null;
 
                 if (qcSymbol.startsWith("B")) {
@@ -3141,14 +3062,16 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
                     dataQualifier = " ";
                 }
 
-                /* If value is missing then there should not be a dataQualifier */
+                /*
+                 * If value is missing then there should not be a dataQualifier
+                 */
                 if (txtValue.equals("M")) {
                     dataQualifier = "";
                 }
-                
+
                 /* get durcode and format the outgoing SHEF message */
-                String durSymbol = TimeSeriesUtil.convertDur2Code(Integer
-                        .parseInt(dur));
+                String durSymbol = TimeSeriesUtil
+                        .convertDur2Code(Integer.parseInt(dur));
 
                 String aRec = String.format("%s %s %s/%s%s%s%s %s%s", fmtType,
                         lid, timeBuf, pe, durSymbol, ts, extremum, txtValue,
@@ -3190,6 +3113,136 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     }
 
     /**
+     * Broadcast the SHEF product.
+     */
+    private void sendProduct() {
+        // Check for DTR and don't transmit if in DRT
+        if (!SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(this.shell,
+                    "Transmission of SHEF products");
+            return;
+        }
+
+        if (sendConfirmation()) {
+            // check shef issue configuration
+            ShefIssueMgr sim = ShefIssueMgr.getInstance();
+
+            ShefIssueXML xml = sim.getShefIssueXml();
+
+            try {
+                if (xml.isDirCopy()) {
+                    ArrayList<String> directories = xml.getInternalDirectory()
+                            .getDirectories();
+                    if (directories != null) {
+                        for (String dir : directories) {
+                            FileUtil.copyFile(new File(shefFileName),
+                                    new File(dir + "/" + SHEF_FILE_NAME + "."
+                                            + getPid()));
+                        }
+                    }
+                }
+
+                if (xml.isDistributeProduct()) {
+                    String text = getFileText();
+
+                    OUPRequest req = new OUPRequest();
+                    OfficialUserProduct oup = new OfficialUserProduct();
+                    String awipsWanPil = productTF.getText();
+                    oup.setAwipsWanPil(awipsWanPil);
+                    oup.setSource("Time Series");
+                    oup.setAddress("DEFAULTNCF");
+                    oup.setNeedsWmoHeader(true);
+                    oup.setFilename(SHEF_FILE_NAME + "." + getPid());
+                    oup.setProductText(text);
+                    req.setUser(UserController.getUserObject());
+
+                    req.setCheckBBB(true);
+                    req.setProduct(oup);
+
+                    OUPResponse response = (OUPResponse) ThriftClient
+                            .sendRequest(req);
+                    boolean success = response.isSendLocalSuccess();
+                    if (response.hasFailure()) {
+                        Priority p = Priority.EVENTA;
+                        if (!response.isAttempted()) {
+                            // if was never attempted to send or store even
+                            // locally
+                            p = Priority.CRITICAL;
+                        } else if (!response.isSendLocalSuccess()) {
+                            // if send/store locally failed
+                            p = Priority.CRITICAL;
+                        } else if (!response.isSendWANSuccess()) {
+                            // if send to WAN failed
+                            if (response.getNeedAcknowledgment()) {
+                                // if ack was needed, if it never sent then no
+                                // ack was recieved
+                                p = Priority.CRITICAL;
+                            } else {
+                                // if no ack was needed
+                                p = Priority.EVENTA;
+                            }
+                        } else if (response.getNeedAcknowledgment()
+                                && !response.isAcknowledged()) {
+                            // if sent but not acknowledged when acknowledgement
+                            // is needed
+                            p = Priority.CRITICAL;
+                        }
+
+                        statusHandler.handle(p, response.getMessage());
+                    }
+
+                    if (success) {
+                        showMessage(shell, SWT.OK, "Distribution Successful",
+                                "Product successfully distributed via HandleOUP");
+                    }
+                }
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error transmitting text product", e);
+
+            } catch (IOException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error transmitting text product", e);
+            }
+        }
+    }
+
+    /**
+     * Get confirmation from the user and verify the product id is valid.
+     * 
+     * @return True if ok to send, false otherwise
+     */
+    private boolean sendConfirmation() {
+        boolean retVal = false;
+
+        /* Verify the product id is not invalid */
+        String productId = productTF.getText();
+        if (productId == null || productId.length() == 0) {
+            showMessage(shell, SWT.ERROR, INVALID_PRODUCT_ID,
+                    "Product Id cannot be blank.");
+            // Apparently CCCCNNNXXX is valid so we'll accept it
+            // } else if (productId.equals("CCCCNNNXXX")) {
+            // showMessage(shell, SWT.ERROR, INVALID_PRODUCT_ID,
+            // INVALID_PRODUCT_ID + ": CCCCNNNXXX");
+        } else {
+            retVal = true;
+        }
+
+        /* Get send confirmation from the user */
+        if (retVal == true) {
+            int choice = showMessage(shell, SWT.OK | SWT.CANCEL,
+                    "SHEF Send Confirmation",
+                    "Do you wish to send product " + productId + "?");
+
+            if (choice == SWT.CANCEL) {
+                retVal = false;
+            }
+        }
+
+        return retVal;
+    }
+
+    /**
      * Get the text from the shef file.
      * 
      * @return text
@@ -3197,16 +3250,16 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
     private String getFileText() {
         if (shefFileName != null) {
             StringBuilder sb = new StringBuilder();
-            try (BufferedReader in = new BufferedReader(new FileReader(
-                    shefFileName))) {
+            try (BufferedReader in = new BufferedReader(
+                    new FileReader(shefFileName))) {
                 String str;
                 while ((str = in.readLine()) != null) {
                     sb.append(CARRIAGECONTROL);
                     sb.append(str);
                 }
             } catch (IOException e) {
-                statusHandler.handle(Priority.PROBLEM, "Error reading file: "
-                        + shefFileName, e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error reading file: " + shefFileName, e);
             }
             return sb.toString();
         }
@@ -3227,8 +3280,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
             if (shefFile.exists()) {
                 boolean success = shefFile.delete();
                 if (success == false) {
-                    showMessage(shell, SWT.ERROR | SWT.OK | SWT.CANCEL,
-                            "Error", "Error removing the SHEF encode file.");
+                    showMessage(shell, SWT.ERROR | SWT.OK | SWT.CANCEL, "Error",
+                            "Error removing the SHEF encode file.");
                 }
             }
         }
@@ -3381,8 +3434,8 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
         if (!isDisposed()) {
             /* Verify The Job Type */
             TimeSeriesDataJobManager.REQUEST_TYPE requestType = (TimeSeriesDataJobManager.REQUEST_TYPE) event
-                    .getJob().getProperty(
-                            new QualifiedName(null, "REQUEST_TYPE"));
+                    .getJob()
+                    .getProperty(new QualifiedName(null, "REQUEST_TYPE"));
             if (requestType != TimeSeriesDataJobManager.REQUEST_TYPE.REQUEST_TYPE_TABULAR) {
                 return;
             }
@@ -3408,5 +3461,143 @@ public class TabularTimeSeriesDlg extends CaveSWTDialog implements
 
     @Override
     public void sleeping(IJobChangeEvent event) {
+    }
+    
+    private Set<String> getForecastTSTableName(SiteInfo row) {
+        Set<String> tableNameSet = new HashSet<>();
+
+        if (row.getTs().toUpperCase().startsWith("F")
+                || row.getTs().toUpperCase().startsWith("C")) {
+            addTableName(tableNameSet, row.getPe(), row.getTs());
+        }
+
+        for (String type : TYPE_SOURCE_FOR_COPY) {
+            addTableName(tableNameSet, row.getPe(), type);
+        }
+
+        return tableNameSet;
+    }
+
+    private void addTableName(Set<String> nameSet, String pe, String ts) {
+        String tableName = DbUtils.getTableName(pe, ts);
+
+        if (!"INVALID".equals(tableName)) {
+            nameSet.add(tableName);
+        }
+    }
+
+    private void displayTS(SiteInfo site, List<SiteInfo> siteInfoList) {
+        List<Object[]> results = null;
+        int entryNumber = 0;
+        int count = 0;
+        TimeSeriesDataManager dataManager = TimeSeriesDataManager.getInstance();
+
+        /* if a forecast timeseries then find all basis times */
+        if (site.getTs().toUpperCase().startsWith("F")
+                || site.getTs().toUpperCase().startsWith("C")) {
+            Set<String> tableNameSet = getForecastTSTableName(site);
+            Set<String> typeSourceSet = getTypeSources(site);
+
+            // loop through all possible table names
+            for (String tableName : tableNameSet) {
+                if (!"INVALID".equals(tableName)) {
+                    // loop through all possible type sources
+                    for (String typeSource : typeSourceSet) {
+                        site.setTs(typeSource);
+
+                        try {
+                            results = (ArrayList<Object[]>) dataManager
+                                    .getUniqueList(tableName, site.getLid(),
+                                            site.getPe().toUpperCase(),
+                                            site.getDur(),
+                                            typeSource.toUpperCase(),
+                                            site.getExt().toUpperCase(),
+                                            beginningTime, endingTime);
+                            ((ArrayList<Object[]>) results).trimToSize();
+                        } catch (Exception ve) {
+                            statusHandler.handle(Priority.PROBLEM,
+                                    "Load time series from " + tableName
+                                            + " to copy TS. TimeSeriesDataManager.getUniqueList failed. ",
+                                    ve);
+                        }
+
+                        if (results != null && !results.isEmpty()) {
+                            if (listAllFcstChk.getSelection()) {
+                                count = results.size();
+                            } else {
+                                count = 1;
+                            }
+
+                            /* loop through number of unique basis times */
+                            /*
+                             * if list ALL basis TB is not pressed then loop
+                             * only ONCE
+                             */
+                            for (int j = 0; j < count; j++) {
+                                if (entryNumber < MAX_TS_ON_LIST) {
+                                    site.setBasisTime(HydroConstants.DATE_FORMAT
+                                            .format((Date) results.get(j)[0]));
+                                    addSite(site, HydroConstants.DATE_FORMAT
+                                            .format((Date) results.get(j)[0]));
+                                    siteInfoList.add(site);
+                                    entryNumber++;
+                                }
+                            } // closing bracket for all rows in database query
+                              // results
+                        } // closing bracket for non-empty database query
+                          // results
+                        else {
+                            /* if NO basis times found */
+                            if (entryNumber < MAX_TS_ON_LIST) {
+                                addSite(site, "No Data");
+                                entryNumber++;
+                                siteInfoList.add(site);
+                            }
+                        } // closing bracket for empty results of database query
+                    } // closing bracket for all type sources
+                } // closing bracket for valid database table name
+            } // closing bracket for loop through all table names
+        } // closing bracket for forecast
+        else {
+            /*
+             * if an observed timeseries then just store in modified list
+             */
+            if (entryNumber < MAX_TS_ON_LIST) {
+                addSite(site, null);
+                entryNumber++;
+                siteInfoList.add(site);
+            }
+        } // closing bracket for observation
+    }
+
+
+     private void addSite(SiteInfo site, String date) {
+        String timeSeriesTableRow = String.format("%-5s %2s %4s %2s %s ",
+                site.getLid(), site.getPe().toUpperCase(), site.getDur(),
+                site.getTs().toUpperCase(), site.getExt().toUpperCase());
+        TableItem item = new TableItem(topDataTable, SWT.NONE);
+
+        item.setText(0, site.getLid());
+        item.setText(1, site.getPe().toUpperCase());
+        item.setText(2, String.format("%4s", site.getDur()));
+        item.setText(3, site.getTs().toUpperCase());
+        item.setText(4, site.getExt().toUpperCase());
+
+        if (date != null) {
+            modifiedTSList.add(timeSeriesTableRow + date);
+            item.setText(5, date);
+        }
+    }
+
+    private Set<String> getTypeSources(SiteInfo site) {
+        Set<String> typeSources = new HashSet<>();
+
+        typeSources.add(site.getTs().toUpperCase());
+
+        for (String type : TYPE_SOURCE_FOR_COPY) {
+            typeSources.add(type);
+        }
+
+        return typeSources;
     }
 }

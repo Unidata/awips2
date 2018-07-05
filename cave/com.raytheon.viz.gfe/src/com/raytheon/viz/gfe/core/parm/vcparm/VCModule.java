@@ -27,8 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jep.JepException;
-
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory.OriginType;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -74,12 +72,11 @@ import com.raytheon.viz.gfe.core.parm.Parm;
  * Jan 22, 2013  #1515     dgilling     Fix ClassCastException in 
  *                                      getMethodArgs().
  * Mar 12, 2015  #4246     randerso     Changes to support VCModules at base, site, and user levels
- * Jul 19, 2017  ----      mjames@ucar  Remove VCModuleJobPool.
+ * Nov 01, 2016  #5979     njensen      Cast to Number in getGpi()
  * 
  * </pre>
  * 
  * @author dgilling
- * @version 1.0
  */
 
 public class VCModule {
@@ -187,9 +184,10 @@ public class VCModule {
     private List<String> getMethodArgs(String method) throws Throwable {
         // statusHandler.debug("getMethodArgs: " + id);
 
-        Map<String, Object> args = new HashMap<String, Object>();
+        Map<String, Object> args = new HashMap<>();
         args.put(PyConstants.METHOD_NAME, method);
         VCModuleRequest req = new VCModuleRequest(id, "getMethodArgs", args);
+        parmMgr.getVCModulePool().enqueue(req);
 
         Object result = req.getResult();
         @SuppressWarnings("unchecked")
@@ -207,7 +205,7 @@ public class VCModule {
 
         try {
             Collection<String> parameters = getMethodArgs("getInventory");
-            depParms = new ArrayList<ParmID>(parameters.size());
+            depParms = new ArrayList<>(parameters.size());
             for (String parmName : parameters) {
                 ParmID pid = parmMgr.fromExpression(parmName);
                 if (pid.isValid()) {
@@ -234,7 +232,7 @@ public class VCModule {
 
     private List<long[]> pyInventory(Parm p) {
         IGridData[] gridInv = p.getGridInventory();
-        List<long[]> inv = new ArrayList<long[]>(gridInv.length);
+        List<long[]> inv = new ArrayList<>(gridInv.length);
         for (IGridData gd : gridInv) {
             inv.add(encodeTR(gd.getGridTime()));
         }
@@ -268,7 +266,7 @@ public class VCModule {
 
     @SuppressWarnings("unchecked")
     private IGridSlice decodeGD(Object o, VCInventory invEntry)
-            throws GFEException, JepException {
+            throws GFEException {
         TimeRange tr = invEntry.getGridTimeRange();
         List<GridDataHistory> gdh = calcHistory(invEntry);
         if (!isValid()) {
@@ -284,7 +282,7 @@ public class VCModule {
             return new VectorGridSlice(tr, gpi, gdh, s[0], s[1]);
         case WEATHER:
             Object[] wxGrid = (Object[]) o;
-            List<WeatherKey> key = new ArrayList<WeatherKey>();
+            List<WeatherKey> key = new ArrayList<>();
             List<String> pkey = (List<String>) wxGrid[1];
             for (String wKey : pkey) {
                 key.add(new WeatherKey(gpi.getParmID().getDbId().getSiteId(),
@@ -294,7 +292,7 @@ public class VCModule {
                     key);
         case DISCRETE:
             Object[] discGrid = (Object[]) o;
-            List<DiscreteKey> keys = new ArrayList<DiscreteKey>();
+            List<DiscreteKey> keys = new ArrayList<>();
             List<String> pkeys = (List<String>) discGrid[1];
             for (String dKey : pkeys) {
                 keys.add(new DiscreteKey(gpi.getParmID().getDbId().getSiteId(),
@@ -320,12 +318,12 @@ public class VCModule {
     @SuppressWarnings("unchecked")
     public List<VCInventory> getInventory() {
         // statusHandler.debug("getInventory: " + id);
-        final List<VCInventory> rval = new ArrayList<VCInventory>();
+        final List<VCInventory> rval = new ArrayList<>();
 
         try {
             List<String> args = getMethodArgs("getInventory");
-            Map<String, Object> cargs = new HashMap<String, Object>(args.size());
-            List<Parm> pargs = new ArrayList<Parm>(args.size());
+            Map<String, Object> cargs = new HashMap<>(args.size());
+            List<Parm> pargs = new ArrayList<>(args.size());
 
             for (String arg : args) {
                 ParmID pid = parmMgr.fromExpression(arg);
@@ -339,6 +337,7 @@ public class VCModule {
             }
 
             VCModuleRequest req = new VCModuleRequest(id, "getInventory", cargs);
+            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             // what's returned from the script here is a list of tuples.
@@ -350,10 +349,10 @@ public class VCModule {
             // should be used for that time
             List<List<Object>> result = (List<List<Object>>) reqResult;
             for (List<Object> item : result) {
-                List<DepParmInv> dpi = new ArrayList<DepParmInv>();
+                List<DepParmInv> dpi = new ArrayList<>();
                 for (int i = 1; i < item.size(); i++) {
                     List<Object> ditem = (List<Object>) item.get(i);
-                    List<TimeRange> trs = new ArrayList<TimeRange>(ditem.size());
+                    List<TimeRange> trs = new ArrayList<>(ditem.size());
                     for (Object tr : ditem) {
                         trs.add(decodeTR(tr));
                     }
@@ -370,7 +369,7 @@ public class VCModule {
     }
 
     private List<String> encodeGDH(final List<GridDataHistory> gdh) {
-        List<String> l = new ArrayList<String>(gdh.size());
+        List<String> l = new ArrayList<>(gdh.size());
         for (GridDataHistory hist : gdh) {
             l.add(hist.getCodedString());
         }
@@ -381,7 +380,7 @@ public class VCModule {
     @SuppressWarnings("unchecked")
     private List<GridDataHistory> decodeGDH(final Object o) {
         List<String> s = (List<String>) o;
-        List<GridDataHistory> rval = new ArrayList<GridDataHistory>(s.size());
+        List<GridDataHistory> rval = new ArrayList<>(s.size());
 
         for (String entry : s) {
             GridDataHistory gdh = new GridDataHistory(entry);
@@ -416,12 +415,12 @@ public class VCModule {
         try {
             final List<DepParmInv> dpi = invEntry.getDepParmInv();
             List<String> args = getMethodArgs("calcHistory");
-            Map<String, Object> cargs = new HashMap<String, Object>(args.size());
+            Map<String, Object> cargs = new HashMap<>(args.size());
 
             for (String arg : args) {
                 Parm tp = parmMgr.getParm(parmMgr.fromExpression(arg));
                 if (tp != null) {
-                    List<Object[]> l = new ArrayList<Object[]>();
+                    List<Object[]> l = new ArrayList<>();
                     for (DepParmInv dpiEntry : dpi) {
                         if (dpiEntry.getParmID().equals(tp.getParmID())) {
                             for (TimeRange tr : dpiEntry.getTimes()) {
@@ -452,6 +451,7 @@ public class VCModule {
             }
 
             VCModuleRequest req = new VCModuleRequest(id, "calcHistory", cargs);
+            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             List<String> result = (List<String>) reqResult;
@@ -474,13 +474,13 @@ public class VCModule {
 
         try {
             List<String> args = getMethodArgs("calcGrid");
-            Map<String, Object> cargs = new HashMap<String, Object>(args.size());
+            Map<String, Object> cargs = new HashMap<>(args.size());
 
             for (String arg : args) {
                 ParmID id = parmMgr.fromExpression(arg);
                 Parm tp = parmMgr.getParm(id);
                 if (tp != null) {
-                    List<Object[]> l = new ArrayList<Object[]>();
+                    List<Object[]> l = new ArrayList<>();
 
                     for (DepParmInv dpiEntry : dpi) {
                         if (dpiEntry.getParmID().equals(tp.getParmID())) {
@@ -509,6 +509,7 @@ public class VCModule {
 
             VCModuleRequest req = new VCModuleRequest(id, "calcGrid", cargs,
                     getGpi().getGridType());
+            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             return decodeGD(reqResult, invEntry);
@@ -529,6 +530,7 @@ public class VCModule {
 
         try {
             VCModuleRequest req = new VCModuleRequest(id, "getWEInfo", null);
+            parmMgr.getVCModulePool().enqueue(req);
             Object reqResult = req.getResult();
 
             List<List<Object>> result = (List<List<Object>>) reqResult;
@@ -539,8 +541,10 @@ public class VCModule {
                     .toString(), s.get(0).toString(), DatabaseID.NO_MODEL_TIME);
 
             s = result.get(2);
-            TimeConstraints tc = new TimeConstraints((Integer) s.get(0),
-                    (Integer) s.get(1), (Integer) s.get(2));
+            TimeConstraints tc = new TimeConstraints(
+                    ((Number) s.get(0)).intValue(),
+                    ((Number) s.get(1)).intValue(),
+                    ((Number) s.get(2)).intValue());
 
             s = result.get(0);
             ParmID pid = new ParmID(s.get(0).toString(), dbid);
@@ -558,8 +562,10 @@ public class VCModule {
             // serverConfig
             GridParmInfo gpi = new GridParmInfo(pid,
                     parmMgr.compositeGridLocation(), type, s.get(2).toString(),
-                    s.get(3).toString(), (Float) s.get(5), (Float) s.get(4),
-                    (Integer) s.get(6), false, tc, (Boolean) s.get(7));
+                    s.get(3).toString(), ((Number) s.get(5)).floatValue(),
+                    ((Number) s.get(4)).floatValue(),
+                    ((Number) s.get(6)).intValue(), false, tc,
+                    (Boolean) s.get(7));
             this.gpi = gpi;
 
         } catch (Throwable t) {

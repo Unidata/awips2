@@ -27,7 +27,6 @@ import java.util.Map;
 import org.geotools.coverage.grid.GeneralGridEnvelope;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.geometry.GeneralEnvelope;
-import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.geotools.referencing.operation.builder.GridToEnvelopeMapper;
 import org.opengis.metadata.spatial.PixelOrientation;
@@ -37,8 +36,6 @@ import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.geospatial.MapUtil;
-import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
-import com.raytheon.uf.common.geospatial.ReferencedObject.Type;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -55,27 +52,25 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     Using CELL_CORNER now to fix that issue.
  * Dec 05, 2016  19589     snaples     Updated gridmapper to use CELL CENTER instead of corner.
  * Feb 28, 2017  19733     snaples     Updated to use transforms from MapUtil class
+ * Sep 15, 2017  6407      bkowal      Minor cleanup.
  * 
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
 
 public class HRAP {
 
-    private static final long serialVersionUID = 1L;
-
     private static float COMPARISON_THRESHOLD = 0.005f;
 
-    private static Map<Integer, HRAP> instances = new HashMap<Integer, HRAP>();
+    private static Map<Integer, HRAP> instances = new HashMap<>();
 
     /**
      * This is sort of nasty but it is meant to allow for full grid XMRG files
      * 
      * @return
      */
-    public synchronized static HRAP getInstance() {
+    public static synchronized HRAP getInstance() {
         return getInstance(1);
     }
 
@@ -98,13 +93,9 @@ public class HRAP {
 
     private String projectionID;
 
-    private final Coordinate latLonUL;
-
     private Coordinate latLonUR;
 
     private Coordinate latLonLL;
-
-    private final Coordinate latLonLR;
 
     private Coordinate latLonOrigin;
 
@@ -133,18 +124,12 @@ public class HRAP {
     private GridGeometry2D gridGeometry;
 
     private HRAP(int gridResolution) {
-        this.toLatLonMap = new HashMap<PixelOrientation, MathTransform>();
-        this.fromLatLonMap = new HashMap<PixelOrientation, MathTransform>();
+        this.toLatLonMap = new HashMap<>();
+        this.fromLatLonMap = new HashMap<>();
 
         this.projectionID = "HRAP";
-        // this.latLonUL = new Coordinate(-80.772, 19.798);
-        // this.latLonUR = new Coordinate(-60.0, 45.620);
-        // this.latLonLL = new Coordinate(-119.036, 23.098);
-        // this.latLonLR = new Coordinate(-134.055, 53.480);
         this.latLonLL = new Coordinate(-119.03624346792651, 23.09739145101471);
-        this.latLonUL = new Coordinate(-134.05460409907715, 53.48009484523732);
         this.latLonUR = new Coordinate(-60.0, 45.61982902388795);
-        this.latLonLR = new Coordinate(-80.77225468204585, 19.797555031799057);
         this.latLonOrigin = new Coordinate(0, 0);
         this.stdParallelOne = 0.0;
         this.stdParallelTwo = 0.0;
@@ -156,11 +141,6 @@ public class HRAP {
         this.lonOrigin = -105.0;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         String result = "{";
@@ -168,13 +148,13 @@ public class HRAP {
         result += latLonLL + ", ";
         result += latLonUR + ", ";
         result += latLonOrigin + ", ";
-        result += stdParallelOne + ", ";
-        result += stdParallelTwo + ", ";
+        result += Double.toString(stdParallelOne) + ", ";
+        result += Double.toString(stdParallelTwo) + ", ";
         result += gridPointLL + ", ";
         result += gridPointUR + ", ";
-        result += latIntersect + ", ";
-        result += lonCenter + ", ";
-        result += lonOrigin;
+        result += Double.toString(latIntersect) + ", ";
+        result += Double.toString(lonCenter) + ", ";
+        result += Double.toString(lonOrigin);
 
         result += "}";
         return result;
@@ -191,14 +171,16 @@ public class HRAP {
         return crs;
     }
 
-    public GridToEnvelopeMapper getGridMapper() throws Exception {
+    public GridToEnvelopeMapper getGridMapper() throws HrapConversionException {
         if (gridMapper == null) {
             try {
                 // transform the projection corner points to CRS units
                 MathTransform mt = MapUtil.getTransformFromLatLon(getCrs());
                 double[] output = new double[4];
-                mt.transform(new double[] { getLatLonLL().x, getLatLonLL().y,
-                        getLatLonUR().x, getLatLonUR().y }, 0, output, 0, 2);
+                mt.transform(
+                        new double[] { getLatLonLL().x, getLatLonLL().y,
+                                getLatLonUR().x, getLatLonUR().y },
+                        0, output, 0, 2);
 
                 // create a grid geometry for the projection
                 GeneralEnvelope userRange = new GeneralEnvelope(2);
@@ -220,14 +202,15 @@ public class HRAP {
                 gridMapper.setReverseAxis(new boolean[] { false, false });
 
             } catch (Exception e) {
-                throw new Exception("Unable to create HRAP g", e);
+                throw new HrapConversionException(
+                        "Unable to create HRAP grid mapper.", e);
             }
         }
 
         return gridMapper;
     }
 
-    public GridGeometry2D getGridGeometry() throws Exception {
+    public GridGeometry2D getGridGeometry() throws HrapConversionException {
         if (gridGeometry == null) {
             gridGeometry = new GridGeometry2D(getGridMapper().getGridRange(),
                     getGridMapper().createTransform(), getCrs());
@@ -237,21 +220,64 @@ public class HRAP {
     }
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((crs == null) ? 0 : crs.hashCode());
+        result = prime * result
+                + ((fromLatLonMap == null) ? 0 : fromLatLonMap.hashCode());
+        result = prime * result
+                + ((gridGeometry == null) ? 0 : gridGeometry.hashCode());
+        result = prime * result
+                + ((gridMapper == null) ? 0 : gridMapper.hashCode());
+        result = prime * result
+                + ((gridPointLL == null) ? 0 : gridPointLL.hashCode());
+        result = prime * result
+                + ((gridPointUR == null) ? 0 : gridPointUR.hashCode());
+        long temp;
+        temp = Double.doubleToLongBits(latIntersect);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result
+                + ((latLonLL == null) ? 0 : latLonLL.hashCode());
+        result = prime * result
+                + ((latLonOrigin == null) ? 0 : latLonOrigin.hashCode());
+        result = prime * result
+                + ((latLonUR == null) ? 0 : latLonUR.hashCode());
+        temp = Double.doubleToLongBits(lonCenter);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(lonOrigin);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result
+                + ((projectionID == null) ? 0 : projectionID.hashCode());
+        temp = Double.doubleToLongBits(stdParallelOne);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(stdParallelTwo);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result
+                + ((toLatLonMap == null) ? 0 : toLatLonMap.hashCode());
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof HRAP)) {
+        if (!(obj.getClass() == this.getClass())) {
             return false;
         }
 
         HRAP rhs = (HRAP) obj;
         if (Math.abs(this.latLonLL.y - rhs.latLonLL.y) > COMPARISON_THRESHOLD
-                || Math.abs(this.latLonLL.x - rhs.latLonLL.x) > COMPARISON_THRESHOLD
-                || Math.abs(this.latLonUR.y - rhs.latLonUR.y) > COMPARISON_THRESHOLD
-                || Math.abs(this.latLonLL.x - rhs.latLonLL.x) > COMPARISON_THRESHOLD) {
+                || Math.abs(
+                        this.latLonLL.x - rhs.latLonLL.x) > COMPARISON_THRESHOLD
+                || Math.abs(
+                        this.latLonUR.y - rhs.latLonUR.y) > COMPARISON_THRESHOLD
+                || Math.abs(this.latLonLL.x
+                        - rhs.latLonLL.x) > COMPARISON_THRESHOLD) {
             return false;
         }
 
         // specific projection comparisons
-        return (Math.abs(this.lonOrigin - rhs.lonOrigin) < COMPARISON_THRESHOLD);
+        return (Math
+                .abs(this.lonOrigin - rhs.lonOrigin) < COMPARISON_THRESHOLD);
     }
 
     public String getProjectionID() {
@@ -342,19 +368,20 @@ public class HRAP {
         this.lonOrigin = lonOrigin;
     }
 
-    public HRAPSubGrid getHRAPSubGrid(Rectangle extent) throws Exception {
+    public HRAPSubGrid getHRAPSubGrid(Rectangle extent)
+            throws HrapConversionException {
         HRAPSubGrid subGrid = new HRAPSubGrid(extent);
         return subGrid;
     }
 
     public HRAPSubGrid getHRAPSubGrid(Rectangle extent, int gribFactor)
-            throws Exception {
+            throws HrapConversionException {
         HRAPSubGrid subGrid = new HRAPSubGrid(extent, gribFactor);
         return subGrid;
     }
 
     private MathTransform getTransformToLatLon(PixelOrientation orientation)
-            throws Exception {
+            throws HrapConversionException {
         MathTransform toLatLon = toLatLonMap.get(orientation);
         if (toLatLon == null) {
             try {
@@ -365,8 +392,8 @@ public class HRAP {
                 toLatLon = dmtf.createConcatenatedTransform(gridToProj,
                         projToLatLon);
             } catch (Exception e) {
-                throw new Exception("Error creating HRAP to Lat/Lon transform",
-                        e);
+                throw new HrapConversionException(
+                        "Error creating HRAP to Lat/Lon transform", e);
             }
             toLatLonMap.put(orientation, toLatLon);
         }
@@ -374,7 +401,7 @@ public class HRAP {
     }
 
     private MathTransform getTransformFromLatLon(PixelOrientation orientation)
-            throws Exception {
+            throws HrapConversionException {
         MathTransform fromLatLon = fromLatLonMap.get(orientation);
         if (fromLatLon == null) {
             try {
@@ -386,8 +413,8 @@ public class HRAP {
                 fromLatLon = dmtf.createConcatenatedTransform(latLonToProj,
                         projToGrid);
             } catch (Exception e) {
-                throw new Exception("Error creating Lat/Lon to HRAP transform",
-                        e);
+                throw new HrapConversionException(
+                        "Error creating Lat/Lon to HRAP transform", e);
             }
             fromLatLonMap.put(orientation, fromLatLon);
         }
@@ -403,123 +430,49 @@ public class HRAP {
     }
 
     public Coordinate gridCoordinateToLatLon(Point point,
-            PixelOrientation orientation) throws Exception {
+            PixelOrientation orientation) throws HrapConversionException {
         return gridCoordinateToLatLon(new Coordinate(point.x, point.y),
                 orientation);
     }
 
     public Coordinate gridCoordinateToLatLon(Coordinate gridCoord,
-            PixelOrientation orientation) throws Exception {
-        // Coordinate adjusted = new Coordinate(gridCoord.x - 1, getNy()
-        // - gridCoord.y);
-        // return MapUtil.gridCoordinateToLatLon(adjusted, orientation, this);
+            PixelOrientation orientation) throws HrapConversionException {
         Coordinate latLon = new Coordinate();
         MathTransform mt = getTransformToLatLon(orientation);
-        
+
         double[] output = new double[2];
-        mt.transform(new double[] { gridCoord.x, gridCoord.y }, 0, output, 0, 1);
+        try {
+            mt.transform(new double[] { gridCoord.x, gridCoord.y }, 0, output,
+                    0, 1);
+        } catch (TransformException e) {
+            throw new HrapConversionException(
+                    "Failed to transform grid coordinate: "
+                            + gridCoord.toString()
+                            + " to a lat/lon coordinate.",
+                    e);
+        }
         latLon.x = output[0];
         latLon.y = output[1];
-        
+
         return latLon;
     }
 
     public Coordinate latLonToGridCoordinate(Coordinate latLon,
-            PixelOrientation orientation) throws Exception {
-        // Coordinate gridCell = MapUtil.latLonToGridCoordinate(latLon,
-        // orientation, this);
-        // return new Coordinate(gridCell.x + 1, getNy() - gridCell.y);
+            PixelOrientation orientation) throws HrapConversionException {
         Coordinate gridCell = new Coordinate();
         MathTransform mt = getTransformFromLatLon(orientation);
         double[] output = new double[2];
-        mt.transform(new double[] { latLon.x, latLon.y }, 0, output, 0, 1);
+        try {
+            mt.transform(new double[] { latLon.x, latLon.y }, 0, output, 0, 1);
+        } catch (TransformException e) {
+            throw new HrapConversionException(
+                    "Failed to transform lat/lon coordinate: "
+                            + latLon.toString() + " to a grid coordinate.",
+                    e);
+        }
         gridCell.x = output[0];
         gridCell.y = output[1];
-        
+
         return gridCell;
-    }
-
-    public static void main(String[] args) {
-        HRAP hrap = HRAP.getInstance();
-
-        PixelOrientation po = PixelOrientation.CENTER;
-
-        try {
-
-            Coordinate gridCell = new Coordinate();
-            ReferencedCoordinate refCoord = new ReferencedCoordinate(gridCell,
-                    hrap.getGridGeometry(), Type.GRID_CENTER);
-
-            Coordinate latLon = new Coordinate();
-
-            gridCell.x = 1;
-            gridCell.y = 1;
-            latLon = hrap.gridCoordinateToLatLon(gridCell, po);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-            latLon = refCoord.asLatLon();
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-
-            gridCell.x = 1;
-            gridCell.y = 881;
-            latLon = hrap.gridCoordinateToLatLon(gridCell, po);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-            latLon = refCoord.asLatLon();
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-
-            gridCell.x = 1121;
-            gridCell.y = 881;
-            latLon = hrap.gridCoordinateToLatLon(gridCell, po);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-            latLon = refCoord.asLatLon();
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-
-            gridCell.x = 1121;
-            gridCell.y = 1;
-            latLon = hrap.gridCoordinateToLatLon(gridCell, po);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-            latLon = refCoord.asLatLon();
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-
-            System.out.println();
-
-            latLon.x = hrap.latLonLL.x;
-            latLon.y = hrap.latLonLL.y;
-            refCoord = new ReferencedCoordinate(latLon);
-            gridCell = hrap.latLonToGridCoordinate(latLon, po);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-            gridCell = refCoord.asGridCell(hrap.getGridGeometry(),
-                    PixelInCell.CELL_CENTER);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-
-            latLon.x = hrap.latLonUL.x;
-            latLon.y = hrap.latLonUL.y;
-            gridCell = hrap.latLonToGridCoordinate(latLon, po);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-            gridCell = refCoord.asGridCell(hrap.getGridGeometry(),
-                    PixelInCell.CELL_CENTER);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-
-            latLon.x = hrap.latLonUR.x;
-            latLon.y = hrap.latLonUR.y;
-            gridCell = hrap.latLonToGridCoordinate(latLon, po);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-            gridCell = refCoord.asGridCell(hrap.getGridGeometry(),
-                    PixelInCell.CELL_CENTER);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-
-            latLon.x = hrap.latLonLR.x;
-            latLon.y = hrap.latLonLR.y;
-            gridCell = hrap.latLonToGridCoordinate(latLon, po);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-            gridCell = refCoord.asGridCell(hrap.getGridGeometry(),
-                    PixelInCell.CELL_CENTER);
-            System.out.println("grid: " + gridCell + ", latLon: " + latLon);
-
-            System.out.println("Nx: " + hrap.getNx() + ", Ny: " + hrap.getNy());
-
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 }

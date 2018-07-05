@@ -27,11 +27,11 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.FillPatterns;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler.JTSGeometryData;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryCollection;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -51,15 +51,15 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * May 10, 2013 1951       rjpeter     Updated ugcZones references
  * Sep  5, 2013 2176       jsanchez    Disposed the emergency font.
  * Nov  8, 2013 16758      mgamazaychikov Changed access modifier of mergeWatches to protected 
- * 										  so a child class can override the implementation.
+ *                                        so a child class can override the implementation.
  * Feb 19, 2014 2819       randerso    Removed unnecessary .clone() call
  * Mar 04, 2014 2832       njensen     Moved disposeInternal() to abstract class
  * Apr 07, 2014 2959       njensen     Correct handling of color change
+ * Jan 16, 2017 5976       bsteffen    Update shaded shape constructor.
  * 
  * </pre>
  * 
  * @author jsanchez
- * @version 1.0
  */
 public class WatchesResource extends AbstractWWAResource {
 
@@ -89,7 +89,7 @@ public class WatchesResource extends AbstractWWAResource {
 
     }
 
-    private final Map<String, WeakReference<Geometry>> geometryMap = new HashMap<String, WeakReference<Geometry>>();
+    private final Map<String, WeakReference<Geometry>> geometryMap = new HashMap<>();
 
     private final Timer timer;
 
@@ -101,7 +101,7 @@ public class WatchesResource extends AbstractWWAResource {
         super(data, props);
         comparator = new WatchesComparator();
         timer = new Timer();
-        expTaskSet = new HashSet<Long>();
+        expTaskSet = new HashSet<>();
         resourceName = "Watches";
     }
 
@@ -170,7 +170,7 @@ public class WatchesResource extends AbstractWWAResource {
             setGeometry(record);
             if ((record.getGeometry() != null) && (record.getPhen() != null)) {
                 IShadedShape ss = target.createShadedShape(false,
-                        descriptor.getGridGeometry(), false);
+                        descriptor.getGridGeometry());
                 geo = record.getGeometry();
                 JTSCompiler jtsCompiler = new JTSCompiler(ss, null,
                         this.descriptor);
@@ -268,9 +268,9 @@ public class WatchesResource extends AbstractWWAResource {
     }
 
     protected void setGeometry(AbstractWarningRecord record) {
-        List<String> county = new ArrayList<String>();
-        List<String> marinezone = new ArrayList<String>();
-        List<Geometry> geometries = new ArrayList<Geometry>();
+        List<String> county = new ArrayList<>();
+        List<String> marinezone = new ArrayList<>();
+        List<Geometry> geometries = new ArrayList<>();
 
         for (String ugc : record.getUgcZones()) {
             Geometry geom = null;
@@ -288,7 +288,7 @@ public class WatchesResource extends AbstractWWAResource {
         }
 
         SpatialQueryResult[] features = null;
-        Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
+        Map<String, RequestConstraint> map = new HashMap<>();
         RequestConstraint constraint = null;
         if (county.isEmpty() == false) {
             String field = "state||'C'||substring(fips,3,3)";
@@ -310,7 +310,7 @@ public class WatchesResource extends AbstractWWAResource {
                 for (SpatialQueryResult feature : features) {
                     String key = String.valueOf(feature.attributes.get(field));
                     geometries.add(feature.geometry);
-                    geometryMap.put(key, new WeakReference<Geometry>(
+                    geometryMap.put(key, new WeakReference<>(
                             (Geometry) feature.geometry.clone()));
                 }
             }
@@ -337,7 +337,7 @@ public class WatchesResource extends AbstractWWAResource {
                 for (SpatialQueryResult feature : features) {
                     String key = String.valueOf(feature.attributes.get(field));
                     geometries.add(feature.geometry);
-                    geometryMap.put(key, new WeakReference<Geometry>(
+                    geometryMap.put(key, new WeakReference<>(
                             (Geometry) feature.geometry.clone()));
                 }
             }
@@ -358,7 +358,7 @@ public class WatchesResource extends AbstractWWAResource {
      */
     protected List<AbstractWarningRecord> mergeWatches(
             List<AbstractWarningRecord> watchrecs) {
-        Map<String, AbstractWarningRecord> watches = new HashMap<String, AbstractWarningRecord>();
+        Map<String, AbstractWarningRecord> watches = new HashMap<>();
         for (AbstractWarningRecord watchrec : watchrecs) {
             String key = watchrec.getAct() + '.' + watchrec.getPhensig() + '.'
                     + watchrec.getEtn() + '.'
@@ -373,7 +373,7 @@ public class WatchesResource extends AbstractWWAResource {
             watches.put(key, watch);
         }
 
-        ArrayList<AbstractWarningRecord> mergedWatches = new ArrayList<AbstractWarningRecord>(
+        List<AbstractWarningRecord> mergedWatches = new ArrayList<>(
                 watches.values());
         Collections.sort(mergedWatches, comparator);
 

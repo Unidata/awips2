@@ -46,14 +46,13 @@ import com.raytheon.viz.hydrocommon.datamanager.HydroCommonDataManager;
  * GetTotalPrecip for viz. Extracted from GetTotalPrecip.
  * 
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date          Ticket#    Engineer    Description
+ *
+ * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 08, 2016  5571       njensen     Initial creation
- * Jul 25, 2016  4623       skorolev    Corrected QC type.
- * 
+ * Jun 8, 2016  5571       njensen     Initial creation
+ *
  * </pre>
  * 
  * @author njensen
@@ -275,17 +274,22 @@ public class VizGetTotalPrecip extends GetTotalPrecip {
         reportMissMinPercent = settings
                 & CommonHydroConstants.REPORT_MISSING_BELOW_MIN_PERCENT;
 
-        if ((settings & CommonHydroConstants.PRECIP_PE_BEST) == CommonHydroConstants.PRECIP_PE_BEST) {
+        if ((settings
+                & CommonHydroConstants.PRECIP_PE_BEST) == CommonHydroConstants.PRECIP_PE_BEST) {
             peMode = PrecipPEmode.PrecipPEbest;
-        } else if ((settings & CommonHydroConstants.PRECIP_PP) == CommonHydroConstants.PRECIP_PP) {
+        } else if ((settings
+                & CommonHydroConstants.PRECIP_PP) == CommonHydroConstants.PRECIP_PP) {
             peMode = PrecipPEmode.PrecipPEPP;
-        } else if ((settings & CommonHydroConstants.PRECIP_PC) == CommonHydroConstants.PRECIP_PC) {
+        } else if ((settings
+                & CommonHydroConstants.PRECIP_PC) == CommonHydroConstants.PRECIP_PC) {
             peMode = PrecipPEmode.PrecipPEPC;
         }
 
-        if ((settings & CommonHydroConstants.PRECIP_TS_BEST) == CommonHydroConstants.PRECIP_TS_BEST) {
+        if ((settings
+                & CommonHydroConstants.PRECIP_TS_BEST) == CommonHydroConstants.PRECIP_TS_BEST) {
             tsMode = PrecipTSmode.PrecipTSbest;
-        } else if ((settings & CommonHydroConstants.PRECIP_TS_RANK) == CommonHydroConstants.PRECIP_TS_RANK) {
+        } else if ((settings
+                & CommonHydroConstants.PRECIP_TS_RANK) == CommonHydroConstants.PRECIP_TS_RANK) {
             tsMode = PrecipTSmode.PrecipTSrank;
         } else {
             tsMode = PrecipTSmode.PrecipTSsingle;
@@ -367,7 +371,8 @@ public class VizGetTotalPrecip extends GetTotalPrecip {
 
                         pcPrecipTotal = getTotalRawPc(pcData.getData(ts),
                                 startingTime, endingTime, sumPcReports);
-                        if (pcPrecipTotal.getSecondsCovered() > bestPcCoverage) {
+                        if (pcPrecipTotal
+                                .getSecondsCovered() > bestPcCoverage) {
                             bestPcCoverage = pcPrecipTotal.getSecondsCovered();
                             bestPcAmt = pcPrecipTotal.getTotal();
                             bestPcTs = ts;
@@ -382,7 +387,8 @@ public class VizGetTotalPrecip extends GetTotalPrecip {
                         ppPrecipTotal = getTotalRawPp(ppData.getData(ts),
                                 startingTime, endingTime, noAccumFlag,
                                 endingTimeMatch);
-                        if (ppPrecipTotal.getSecondsCovered() > bestPpCoverage) {
+                        if (ppPrecipTotal
+                                .getSecondsCovered() > bestPpCoverage) {
                             bestPpCoverage = ppPrecipTotal.getSecondsCovered();
                             bestPpAmt = ppPrecipTotal.getTotal();
                             bestMatchTime = ppPrecipTotal.getMatchTime();
@@ -544,13 +550,15 @@ public class VizGetTotalPrecip extends GetTotalPrecip {
                 bestPrecipTotal.setSecondsCovered(bestPcCoverage);
             }
 
-            if (bestPrecipTotal.getTotal() != CommonHydroConstants.MISSING_VALUE) {
-                bestPrecipTotal.setHoursCovered(bestPrecipTotal
-                        .getSecondsCovered() / TimeUtil.SECONDS_PER_HOUR);
+            if (bestPrecipTotal
+                    .getTotal() != CommonHydroConstants.MISSING_VALUE) {
                 bestPrecipTotal
-                        .setPercentFilled(bestPrecipTotal.getSecondsCovered()
-                                / ((endingTime.getTime() - startingTime
-                                        .getTime()) / TimeUtil.MILLIS_PER_SECOND));
+                        .setHoursCovered(bestPrecipTotal.getSecondsCovered()
+                                / TimeUtil.SECONDS_PER_HOUR);
+                bestPrecipTotal.setPercentFilled(bestPrecipTotal
+                        .getSecondsCovered()
+                        / ((endingTime.getTime() - startingTime.getTime())
+                                / TimeUtil.MILLIS_PER_SECOND));
 
                 /* Do no allow for a percent filled of greater than 100%. */
                 if (bestPrecipTotal.getPercentFilled() > 1.0) {
@@ -564,18 +572,18 @@ public class VizGetTotalPrecip extends GetTotalPrecip {
                     if (bestPrecipTotal.getPercentFilled() < minPercent) {
                         bestPrecipTotal
                                 .setTotal(CommonHydroConstants.MISSING_VALUE);
-                        bestPrecipTotal
-                                .setValueIndicator(CommonHydroConstants.REJECTED_CHAR);
+                        bestPrecipTotal.setValueIndicator(
+                                CommonHydroConstants.REJECTED_CHAR);
                     }
                 }
 
-                if ((bestPrecipTotal.getTotal() < 0)
-                        && (bestPrecipTotal.getTotal() != CommonHydroConstants.MISSING_VALUE)) {
+                if ((bestPrecipTotal.getTotal() < 0) && (bestPrecipTotal
+                        .getTotal() != CommonHydroConstants.MISSING_VALUE)) {
                     bestPrecipTotal
                             .setTotal(CommonHydroConstants.MISSING_VALUE);
                     bestPrecipTotal.getErr().setNegdiff(true);
-                    bestPrecipTotal
-                            .setValueIndicator(CommonHydroConstants.MISSING_CHAR);
+                    bestPrecipTotal.setValueIndicator(
+                            CommonHydroConstants.MISSING_CHAR);
                 }
 
             } else {
@@ -606,7 +614,7 @@ public class VizGetTotalPrecip extends GetTotalPrecip {
         gd.setTs(pt.getTs());
         gd.setExtremum("Z");
         gd.setProbability(-1);
-        gd.setShefQualCode(Character.toString(pt.getQc()));
+        gd.setShefQualCode(String.valueOf(pt.getQc()));
         gd.setValue(pt.getTotal());
         gd.setValidtime(endingTime);
         gd.setBasistime(null);

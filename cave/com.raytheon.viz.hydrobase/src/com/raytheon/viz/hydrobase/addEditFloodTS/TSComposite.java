@@ -6,6 +6,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.graphics.Cursor;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -24,13 +25,14 @@ import org.eclipse.swt.widgets.Text;
  * Date         Ticket#     Engineer    Description
  * ----------   ----------  ----------- --------------------------
  * 11/05/2015   DCS15095    wkwock      Initial creation
+ * Feb 21, 2017 6035        njensen     Fixed sizing issues
  * 
  * </pre>
  * 
  * @author wkwock
- * @version 1.0
  */
 public class TSComposite extends Composite {
+
     private Text valueTxt;
 
     private DateTime date;
@@ -112,26 +114,31 @@ public class TSComposite extends Composite {
     private void createAnObsComp() {
         FormLayout cfl = new FormLayout();
         cfl.marginWidth = 5;
-        cfl.marginHeight = 2;
+        cfl.marginHeight = 5;
         this.setLayout(cfl);
+
+        GC gc = new GC(this);
+        int width = gc.getFontMetrics().getAverageCharWidth();
+        int height = gc.stringExtent("0.0").y;
+        gc.dispose();
 
         valueTxt = new Text(this, SWT.BORDER);
         FormData vfd = new FormData();
         vfd.width = 50;
-        vfd.height = 18;
+        vfd.height = height;
         valueTxt.setLayoutData(vfd);
         valueTxt.setText("0.0");
 
         date = new DateTime(this, SWT.DATE | SWT.BORDER);
         FormData fd = new FormData();
         fd.left = new FormAttachment(valueTxt, 10);
-        fd.width = 100;
+        fd.width = width * 16;
         date.setLayoutData(fd);
 
         time = new DateTime(this, SWT.TIME | SWT.BORDER | SWT.SHORT);
         FormData timeFd = new FormData();
         timeFd.left = new FormAttachment(date, 10);
-        timeFd.width = 100;
+        timeFd.width = width * 14;
         time.setLayoutData(timeFd);
 
         Cursor handCursor = this.getDisplay().getSystemCursor(SWT.CURSOR_HAND);

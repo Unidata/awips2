@@ -18,10 +18,14 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="mm" name="3x1 Hr Accum Precip" abbreviation="TPx1x3" xmlns:ns2="group">
-	<Method ftime="true" levels="Surface" name="Add">
-        <Field timeShift="0" abbreviation="TP1hr"/>
-        <Field timeShift="-3600" abbreviation="TP1hr"/>
-        <Field timeShift="-7200" abbreviation="TP1hr"/>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="mm" name="3x1 Hr Accum Precip" abbreviation="TPx1x3">
+    <Method ftime="true" levels="Surface" name="Add">
+        <Field timeShift="0" abbreviation="TP1hr" />
+        <Field timeShift="-3600" abbreviation="TP1hr" />
+        <Field timeShift="-7200" abbreviation="TP1hr" />
     </Method>
 </DerivedParameter>

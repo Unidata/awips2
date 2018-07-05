@@ -18,17 +18,21 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter unit="K/m" name="ThetaE Lapse Rate" abbreviation="gammaE" xmlns:ns2="group">
     <Method levels="S" name="Derivative">
-        <Field abbreviation="EPT"/>
-        <Field level="upper" abbreviation="EPT"/>
-        <Field abbreviation="GH"/>
-        <Field level="upper" abbreviation="GH"/>
+        <Field abbreviation="EPT" />
+        <Field level="upper" abbreviation="EPT" />
+        <Field abbreviation="GH" />
+        <Field level="upper" abbreviation="GH" />
     </Method>
     <Method name="Derivative" levels="C">
-        <Field level="lower" abbreviation="EPT"/>
-        <Field level="upper" abbreviation="EPT"/>
-        <Field level="lower" abbreviation="GH"/>
-        <Field level="upper" abbreviation="GH"/>
+        <Field level="lower" abbreviation="EPT" />
+        <Field level="upper" abbreviation="EPT" />
+        <Field level="lower" abbreviation="GH" />
+        <Field level="upper" abbreviation="GH" />
     </Method>
 </DerivedParameter>

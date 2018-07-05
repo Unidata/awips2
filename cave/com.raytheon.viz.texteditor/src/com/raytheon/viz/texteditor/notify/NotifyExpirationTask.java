@@ -36,14 +36,14 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
+import com.raytheon.uf.viz.vtec.VtecObject;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.alarmalert.util.AlarmBeepJob;
-import com.raytheon.viz.texteditor.util.VtecObject;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
 
 /**
- * TODO Add Description
+ * Notify Expiration Task
  * 
  * <pre>
  * 
@@ -59,6 +59,8 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * Nov 03, 2015 5086       rferrel     Generate sound while displaying warning expire message.
  * Jan 26, 2016 5054       randerso    Changed to use display as parent,
  *                                     code cleanup
+ * Nov 03, 2016  5934      randerso    Moved VtecObject and VtecUtil to a
+ *                                     separate plugin.
  * 
  * </pre>
  * 
@@ -115,7 +117,7 @@ public class NotifyExpirationTask extends TimerTask {
                             NotifyExpirationTask.this.display,
                             "Watch/Warning Expires Soon", message,
                             SWT.ICON_WARNING | SWT.OK);
-                    mb.setCloseCallback(new ICloseCallback() {
+                    mb.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {

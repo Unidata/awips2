@@ -18,8 +18,13 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="%" name="Cloud Cover Analysis Uncertainty" abbreviation="CCPerranl" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="%" name="Cloud Cover Analysis Uncertainty"
+    abbreviation="CCPerranl">
     <Method name="Alias">
-        <Field abbreviation="TCCerranl"/>
+        <Field abbreviation="TCCerranl" />
     </Method>
 </DerivedParameter>

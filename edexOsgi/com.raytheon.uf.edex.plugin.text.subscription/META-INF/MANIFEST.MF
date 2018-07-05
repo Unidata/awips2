@@ -19,6 +19,6 @@ Require-Bundle: org.apache.commons.lang3;bundle-version="3.4.0",
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.text,
  com.raytheon.uf.common.dataplugin.text.subscription
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.message,
  org.quartz

@@ -18,5 +18,5 @@ Export-Package: com.raytheon.uf.edex.plugin.text,
  com.raytheon.uf.edex.plugin.text.dao,
  com.raytheon.uf.edex.plugin.text.db,
  com.raytheon.uf.edex.plugin.text.impl
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.wmo

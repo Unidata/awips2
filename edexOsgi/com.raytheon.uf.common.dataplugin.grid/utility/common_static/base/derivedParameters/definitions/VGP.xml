@@ -18,10 +18,14 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="VGP" name="Vort Gen Param">
- 	<Method name="Poly" levels="0-1kmAgl>0-4kmAgl">
-        <Field abbreviation="CumNrm"/>
-        <Field abbreviation="PBE" level="0FHAG"/>
-        <ConstantField value="0.5"/>
+    <Method name="Poly" levels="0-1kmAgl>0-4kmAgl">
+        <Field abbreviation="CumNrm" />
+        <Field abbreviation="PBE" level="0FHAG" />
+        <ConstantField value="0.5" />
     </Method>
 </DerivedParameter>

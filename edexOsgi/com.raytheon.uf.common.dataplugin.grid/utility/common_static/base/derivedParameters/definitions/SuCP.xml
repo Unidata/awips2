@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--
 //
 // Supercell Composite Parameter (Thompson and Edwards)
@@ -25,17 +29,17 @@ FIELD: |Heli,0-3kmAgl|
 FIELD: |BRNSHR| 
 FIELD: |SuCP,Surface| 
 -->
-<DerivedParameter name="Supercell Composite Parameter" abbreviation="SuCP" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="Supercell Composite Parameter" abbreviation="SuCP">
     <Method levels="Surface" name="Filter">
-        <Field level="0-3kmAgl" abbreviation="muCape"/>
-        <ConstantField value="-2.0"/>
-	<Field abbreviation="dx"/>
-	<Field abbreviation="dy"/>
+        <Field level="0-3kmAgl" abbreviation="muCape" />
+        <ConstantField value="-2.0" />
+        <Field abbreviation="dx" />
+        <Field abbreviation="dy" />
     </Method>
     <Method levels="Layer" name="Multiply">
-        <ConstantField value="2.5E-7"/>
-        <Field level="0-3kmAgl" abbreviation="Heli"/>
-        <Field abbreviation="BRNSHR"/>
-        <Field level="Surface" abbreviation="SuCP"/>
+        <ConstantField value="2.5E-7" />
+        <Field level="0-3kmAgl" abbreviation="Heli" />
+        <Field abbreviation="BRNSHR" />
+        <Field level="Surface" abbreviation="SuCP" />
     </Method>
 </DerivedParameter>

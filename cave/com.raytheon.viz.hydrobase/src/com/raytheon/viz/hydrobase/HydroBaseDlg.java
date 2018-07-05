@@ -672,7 +672,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                     String lidLoc = getStationAndName();
 
                     contactsDlg = new ContactsDlg(shell, lidLoc, true, lid);
-                    contactsDlg.setCloseCallback(new ICloseCallback() {
+                    contactsDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -702,7 +702,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (czDlg == null) {
                     czDlg = new CountyZoneUgcDlg(shell, getStationAndName(),
                             lid);
-                    czDlg.setCloseCallback(new ICloseCallback() {
+                    czDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -732,7 +732,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
 
                 if (ghDlg == null) {
                     ghDlg = new GageHistoryDlg(shell, getStationAndName(), lid);
-                    ghDlg.setCloseCallback(new ICloseCallback() {
+                    ghDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -818,7 +818,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (riverGageDlg == null) {
                     riverGageDlg = new RiverGageDlg(shell, getStationAndName(),
                             lid);
-                    riverGageDlg.setCloseCallback(new ICloseCallback() {
+                    riverGageDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -851,7 +851,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (floodCatDlg == null) {
                     floodCatDlg = new FloodCategoryDlg(shell,
                             getStationAndName(), lid);
-                    floodCatDlg.setCloseCallback(new ICloseCallback() {
+                    floodCatDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -907,7 +907,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (floodDamDlg == null) {
                     floodDamDlg = new FloodDamageDlg(shell,
                             getStationAndName(), lid);
-                    floodDamDlg.setCloseCallback(new ICloseCallback() {
+                    floodDamDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -977,7 +977,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (lowWaterDlg == null) {
                     lowWaterDlg = new LowWaterDlg(shell, getStationAndName(),
                             lid);
-                    lowWaterDlg.setCloseCallback(new ICloseCallback() {
+                    lowWaterDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -1010,7 +1010,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (benchmarkDlg == null) {
                     benchmarkDlg = new BenchmarkDlg(shell, getStationAndName(),
                             lid);
-                    benchmarkDlg.setCloseCallback(new ICloseCallback() {
+                    benchmarkDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -1040,7 +1040,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 DatumDlg datumDlg = datumDlgMap.get(lid);
                 if (datumDlg == null) {
                     datumDlg = new DatumDlg(shell, getStationAndName(), lid);
-                    datumDlg.setCloseCallback(new ICloseCallback() {
+                    datumDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -1072,7 +1072,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (descDlg == null) {
                     descDlg = new DescriptionDlg(shell, getStationAndName(),
                             lid);
-                    descDlg.setCloseCallback(new ICloseCallback() {
+                    descDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -1105,7 +1105,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (publicationsDlg == null) {
                     publicationsDlg = new PublicationsDlg(shell,
                             getStationAndName(), lid);
-                    publicationsDlg.setCloseCallback(new ICloseCallback() {
+                    publicationsDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -1136,7 +1136,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (referencesDlg == null) {
                     referencesDlg = new ReferencesDlg(shell,
                             getStationAndName(), lid);
-                    referencesDlg.setCloseCallback(new ICloseCallback() {
+                    referencesDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -1167,7 +1167,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
             impactStatementDlg = new ImpactStatementDlg(shell,
                     getStationAndName(), getSelectedLocation().getStation(),
                     true);
-            impactStatementDlg.setCloseCallback(new ICloseCallback() {
+            impactStatementDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -1193,7 +1193,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         if (crestHistDlg == null || crestHistDlg.isDisposed()) {
             crestHistDlg = new CrestHistoryDlg(shell, getStationLid(),
                     getStationAndName(), true);
-            crestHistDlg.setCloseCallback(new ICloseCallback() {
+            crestHistDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -1220,7 +1220,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         if (ratingCurveDlg == null || ratingCurveDlg.isDisposed()) {
             ratingCurveDlg = new RatingCurveDlg(shell, lid,
                     getStationAndName(), true);
-            ratingCurveDlg.setCloseCallback(new ICloseCallback() {
+            ratingCurveDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -1270,7 +1270,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                 if (reservoirDlg == null) {
                     reservoirDlg = new ReservoirDlg(shell, getStationAndName(),
                             lid);
-                    reservoirDlg.setCloseCallback(new ICloseCallback() {
+                    reservoirDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {
@@ -1424,7 +1424,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         TextReportDlg textReportDlg = textReportDlgMap.get(lid);
         if (textReportDlg == null || textReportDlg.isDisposed()) {
             textReportDlg = new TextReportDlg(shell, lid);
-            textReportDlg.setCloseCallback(new ICloseCallback() {
+            textReportDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -1946,7 +1946,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         if (stationFilterDlg == null || stationFilterDlg.isDisposed()) {
             stationFilterDlg = new StationFilterOptionsDlg(shell);
             stationFilterDlg.addListener(this);
-            stationFilterDlg.setCloseCallback(new ICloseCallback() {
+            stationFilterDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -2002,7 +2002,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
                     getSelectedLocation().getStation(), getStationAndName());
             modLocDlg.addListener(this);
             modLocDlgMap.put(lid, modLocDlg);
-            modLocDlg.setCloseCallback(new ICloseCallback() {
+            modLocDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -2028,7 +2028,7 @@ public class HydroBaseDlg extends CaveSWTDialog implements IGetSortType,
         if (lowWaterStmntDlg == null || lowWaterStmntDlg.isDisposed()) {
             lowWaterStmntDlg = new LowWaterStatementDlg(shell,
                     getStationAndName(), true, lid);
-            lowWaterStmntDlg.setCloseCallback(new ICloseCallback() {
+            lowWaterStmntDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {

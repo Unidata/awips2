@@ -18,18 +18,22 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter unit="℃" name="Computed LI" abbreviation="L-I" xmlns:ns2="group">
     <Method name="LiftedIndex" levels="Surface,1000MB&gt;750MB">
-    	<Field abbreviation="P"/>
-        <Field abbreviation="T"/>
-        <Field abbreviation="RH"/>
-        <Field abbreviation="T" level="500MB"/>
+        <Field abbreviation="P" />
+        <Field abbreviation="T" />
+        <Field abbreviation="RH" />
+        <Field abbreviation="T" level="500MB" />
     </Method>
     <Method name="LiftedIndex" levels="1000MB-850MB&gt;700MB-500MB,1000MB-500MB,1000MB-700MB&gt;700MB-300MB">
-		<Field abbreviation="P"/>
-        <Field abbreviation="T"/>
-        <Field abbreviation="RH"/>
-        <Field abbreviation="T" level="500MB"/>
-        <Field abbreviation="MB" level="upper"/>
+        <Field abbreviation="P" />
+        <Field abbreviation="T" />
+        <Field abbreviation="RH" />
+        <Field abbreviation="T" level="500MB" />
+        <Field abbreviation="MB" level="upper" />
     </Method>
 </DerivedParameter>

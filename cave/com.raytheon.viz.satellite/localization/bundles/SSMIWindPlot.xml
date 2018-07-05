@@ -18,100 +18,120 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
-			    <resource>
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
                     <loadProperties>
-						<capabilities>
-							<capability xsi:type="colorableCapability" colorAsString="#00ff00"/>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="SSM/I Wind s &lt; 34 kts"
-						plotModelFile="${svg}"
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true"
-						lowerLimit="0" upperLimit="34">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="bufrssmi" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#00ff00" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="SSM/I Wind s &lt; 34 kts"
+                        plotModelFile="${svg}" retrieveData="false"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true" lowerLimit="0"
+                        upperLimit="34">
+                        <binOffset posOffset="1800" negOffset="1800"
+                            virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="bufrssmi"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
                     <loadProperties>
-						<capabilities>
-							<capability xsi:type="colorableCapability" colorAsString="#ffff00"/>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="SSM/I Wind 34 &lt;= s &lt; 48 kts"
-						plotModelFile="${svg}"
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true" 
-						lowerLimit="34" upperLimit="48">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="bufrssmi" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#ffff00" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="SSM/I Wind 34 &lt;= s &lt; 48 kts"
+                        plotModelFile="${svg}" retrieveData="false"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true" lowerLimit="34"
+                        upperLimit="48">
+                        <binOffset posOffset="1800" negOffset="1800"
+                            virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="bufrssmi"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
                     <loadProperties>
-						<capabilities>
-							<capability xsi:type="colorableCapability" colorAsString="#ff0000"/>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="SSM/I Wind s >= 48 kts"
-						plotModelFile="${svg}" 
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true" 
-						lowerLimit="48" upperLimit="999">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="bufrssmi" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-				<resource>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#ff0000" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="SSM/I Wind s >= 48 kts"
+                        plotModelFile="${svg}" retrieveData="false"
+                        isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true" lowerLimit="48"
+                        upperLimit="999">
+                        <binOffset posOffset="1800" negOffset="1800"
+                            virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="bufrssmi"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+                <resource>
                     <loadProperties>
-						<capabilities>
-							<capability xsi:type="colorableCapability" colorAsString="#bfbfbf"/>
-						</capabilities>
-					</loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false"
-						isVisible="true" />
-					<resourceData xsi:type="plotResourceData" plotSource="SSM/I Winds missing"
-						plotModelFile="${svg}"
-						retrieveData="false" isUpdatingOnMetadataOnly="false"
-						isRequeryNecessaryOnTimeMatch="true" 
-						lowerLimit="-1.1" upperLimit="-0.9" plotMissingData="true">
-						<binOffset posOffset="1800" negOffset="1800" virtualOffset="0"/>
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="bufrssmi" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-			</descriptor>
-		</displays>
-	</displayList>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="#bfbfbf" />
+                        </capabilities>
+                    </loadProperties>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="plotResourceData"
+                        plotSource="SSM/I Winds missing" plotModelFile="${svg}"
+                        retrieveData="false" isUpdatingOnMetadataOnly="false"
+                        isRequeryNecessaryOnTimeMatch="true" lowerLimit="-1.1"
+                        upperLimit="-0.9" plotMissingData="true">
+                        <binOffset posOffset="1800" negOffset="1800"
+                            virtualOffset="0" />
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="bufrssmi"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

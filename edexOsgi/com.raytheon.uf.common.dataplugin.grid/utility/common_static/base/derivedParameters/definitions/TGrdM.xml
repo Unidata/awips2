@@ -18,8 +18,12 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="K/m" name="Temperature Grad Mag" abbreviation="TGrdM" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="K/m" name="Temperature Grad Mag" abbreviation="TGrdM">
     <Method name="Magnitude">
-        <Field abbreviation="TGrd"/>
+        <Field abbreviation="TGrd" />
     </Method>
 </DerivedParameter>

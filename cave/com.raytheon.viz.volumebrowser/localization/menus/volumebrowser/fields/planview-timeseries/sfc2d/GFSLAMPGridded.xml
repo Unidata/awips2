@@ -33,6 +33,8 @@
         indentText="true" />
     <contribute xsi:type="menuItem" menuText="WSp Anl Uncertainty"
         key="wSpea"  indentText="true" />
+    <contribute xsi:type="menuItem" menuText="Wind Gust Speed" key="WGS"
+        indentText="true" />    
     <contribute xsi:type="menuItem" menuText="Visibility" key="Vis"
         indentText="false" />
     <contribute xsi:type="menuItem" menuText="Sky Cover" key="TCC"
@@ -47,4 +49,10 @@
         key="PROLGHT2hr"  indentText="false" />
     <contribute xsi:type="menuItem" menuText="Lightning Occr"
         key="CLGTN2hr"  indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Cig &lt; 500ft" key="CigProb500" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Cig &lt; 1000ft" key="CigProb1k" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Cig &lt; 3000ft" key="CigProb3k" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Vis &lt; 1mi" key="VisProb1p0" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Vis &lt; 3mi" key="VisProb3p0" indentText="false" />
+    <contribute xsi:type="menuItem" menuText="Prob Vis &lt; 5mi" key="VisProb5p0" indentText="false" />       
 </menuTemplate>

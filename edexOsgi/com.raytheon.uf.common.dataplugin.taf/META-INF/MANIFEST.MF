@@ -6,7 +6,7 @@ Bundle-Version: 1.15.1.qualifier
 Bundle-Vendor: RAYTHEON
 Export-Package: com.raytheon.uf.common.dataplugin.taf
 Require-Bundle: javax.persistence
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.dataplugin.annotations,
  com.raytheon.uf.common.dataplugin.persist,

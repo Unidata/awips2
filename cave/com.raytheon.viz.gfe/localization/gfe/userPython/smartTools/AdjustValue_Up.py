@@ -27,6 +27,10 @@
 # Author: njensen
 # ----------------------------------------------------------------------------
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 ToolType = "numeric"
 WeatherElementEdited = "variableElement"
 # All weather elements except Hazards and Wx

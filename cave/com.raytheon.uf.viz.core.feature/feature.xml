@@ -24,13 +24,6 @@
    </requires>
 
    <plugin
-         id="com.raytheon.uf.viz.python.swt"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"
-         unpack="false"/>
-
-   <plugin
          id="com.raytheon.uf.viz.xy"
          download-size="0"
          install-size="0"
@@ -184,13 +177,7 @@
          id="org.eclipse.jdt.debug"
          download-size="0"
          install-size="0"
-         version="0.0.0"/>
-
-   <plugin
-         id="com.raytheon.uf.common.localization.python"
-         download-size="0"
-         install-size="0"
-         version="0.0.0"/>
+         version="0.0.0"/>         
 
    <plugin
          id="com.raytheon.uf.viz.drawing"
@@ -223,5 +210,19 @@
          download-size="0"
          install-size="0"
          version="0.0.0"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.drawables.image.stipple"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.uf.viz.gl.image.stipple"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

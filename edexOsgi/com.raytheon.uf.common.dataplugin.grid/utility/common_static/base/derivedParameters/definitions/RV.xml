@@ -18,12 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="/s" name="Rel Vorticity" abbreviation="RV" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="/s" name="Rel Vorticity" abbreviation="RV">
     <Method name="Vorticity" levels="Surface,BLyr&gt;150agl">
-        <Field abbreviation="uW"/>
-        <Field abbreviation="vW"/>
-        <ConstantField value="0"/>
-        <Field abbreviation="dx"/>
-        <Field abbreviation="dy"/>
+        <Field abbreviation="uW" />
+        <Field abbreviation="vW" />
+        <ConstantField value="0" />
+        <Field abbreviation="dx" />
+        <Field abbreviation="dy" />
     </Method>
 </DerivedParameter>

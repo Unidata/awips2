@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: D2D Graph Adapters
 Bundle-SymbolicName: com.raytheon.uf.viz.d2d.xy.adapters;singleton:=true
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.17.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.0",
  com.raytheon.uf.viz.xy,
@@ -26,7 +26,14 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.14.0",
  org.eclipse.swt;bundle-version="3.8.0",
  com.raytheon.uf.viz.datacube;bundle-version="1.14.0",
  com.raytheon.uf.common.dataplugin.radar;bundle-version="1.14.1",
- com.raytheon.uf.common.wxmath;bundle-version="1.0.0"
+ com.raytheon.uf.common.wxmath;bundle-version="1.0.0",
+ com.raytheon.uf.common.dataplugin.bufrmos;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.bufrua;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.goessounding;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.modelsounding;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.obs;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.poessounding;bundle-version="1.14.0",
+ com.raytheon.uf.common.dataplugin.profiler;bundle-version="1.14.0"
 Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.uf.viz.datacube,
  com.raytheon.viz.core.map

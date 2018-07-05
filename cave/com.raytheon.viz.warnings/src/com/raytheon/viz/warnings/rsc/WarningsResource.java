@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,25 +31,25 @@ import java.util.TimerTask;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
+import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.AbstractTimeMatcher;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IDescriptor.FramesInfo;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Resource for displaying warnings
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -57,7 +57,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 22, 2011  10631    njensen      Major refactor
  * May 3, 2012  DR 14741  porricel     Stop setting end time of orig.
  *                                     warning to start time of update.
- * Jun 04, 2012 DR14992  mgamazaychikov Fix the problem with plotting expiration time for 
+ * Jun 04, 2012 DR14992  mgamazaychikov Fix the problem with plotting expiration time for
  *                                  NEW warning when CAN warning is issued
  * Sep 27, 2012  1149     jsanchez     Refactored methods from AbstractWarningsResource into this class.
  * Apr 18, 2013  1877     jsanchez     Ordered the records the same for update and initial load.
@@ -69,24 +69,24 @@ import com.vividsolutions.jts.geom.Geometry;
  * Apr 07, 2014 2959       njensen     Correct handling of color change
  * Apr 14, 2014 DR 17257  D. Friedman  Redo time matching on per-minute refresh.
  * Apr 28, 2015 ASM #15008 D. Friedman Create polygon for EXTs even if original product is not found.
- * 
+ * Aug 22, 2016 #5842      dgilling    Remove dependency on viz.texteditor plugin.
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
  */
 
 public class WarningsResource extends AbstractWWAResource {
 
     protected static class RefreshTimerTask extends TimerTask {
 
-        private final Set<WarningsResource> resourceSet = new HashSet<WarningsResource>();
+        private final Set<WarningsResource> resourceSet = new HashSet<>();
 
         @Override
         public void run() {
             List<WarningsResource> rscs;
             synchronized (resourceSet) {
-                rscs = new ArrayList<WarningsResource>(resourceSet);
+                rscs = new ArrayList<>(resourceSet);
             }
             for (WarningsResource rsc : rscs) {
                 rsc.issueRefresh();
@@ -132,11 +132,6 @@ public class WarningsResource extends AbstractWWAResource {
         scheduleRefreshTask(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
-     */
     @Override
     protected void disposeInternal() {
         cancelRefreshTask(this);
@@ -277,8 +272,8 @@ public class WarningsResource extends AbstractWWAResource {
                         initShape(target, warnrec);
                     }
                 } else {
-                    warnrec.setPil(SiteAbbreviationUtil.getSiteNode(warnrec
-                            .getXxxid())
+                    warnrec.setPil(SiteMap.getInstance()
+                            .getCCCFromXXXCode(warnrec.getXxxid())
                             + warnrec.getPil()
                             + warnrec.getXxxid());
                     initShape(target, warnrec);
@@ -292,7 +287,7 @@ public class WarningsResource extends AbstractWWAResource {
 
     /**
      * Cancel the heart beat timer task
-     * 
+     *
      * @param resource
      */
     protected static void cancelRefreshTask(WarningsResource resource) {

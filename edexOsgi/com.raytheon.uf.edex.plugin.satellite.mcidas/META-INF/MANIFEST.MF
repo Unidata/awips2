@@ -13,7 +13,7 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.edex.plugin.satellite;bundle-version="1.12.1174",
  org.apache.commons.codec;bundle-version="1.10.0",
  ar.com.hjg.pngj;bundle-version="2.1.1"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.localization,
  com.raytheon.uf.common.menus,
  com.raytheon.uf.common.menus.xml,

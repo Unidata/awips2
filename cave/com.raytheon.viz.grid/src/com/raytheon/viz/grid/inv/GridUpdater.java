@@ -20,32 +20,34 @@
 package com.raytheon.viz.grid.inv;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
-import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
+
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
+import com.raytheon.uf.common.dataplugin.grid.derivparam.GridInventoryUpdater;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.GridMapKey;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.cache.GridTimeCache;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.tree.GridRequestableNode;
-import com.raytheon.uf.common.dataplugin.level.Level;
-import com.raytheon.uf.common.dataplugin.level.LevelFactory;
-import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
+import com.raytheon.uf.common.derivparam.tree.AbstractBaseDataNode;
 import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
-import com.raytheon.uf.common.derivparam.tree.OrLevelNode;
-import com.raytheon.uf.common.gridcoverage.GridCoverage;
 import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode.Dependency;
-import com.raytheon.uf.common.inventory.tree.LevelNode;
 import com.raytheon.uf.common.parameter.Parameter;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
-import com.raytheon.uf.viz.core.alerts.AlertMessage;
-import com.raytheon.viz.alerts.IAlertObserver;
 import com.raytheon.viz.alerts.observers.ProductAlertObserver;
-import com.raytheon.viz.grid.util.RadarAdapter;
+import com.raytheon.viz.grid.GridExtensionManager;
 
 /**
  * Listens for updates to grid data and generates alerts for derived parameters.
@@ -60,14 +62,19 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * Aug 30, 2013  2298     rjpeter   Make getPluginName abstract
  * Sep 09, 2014  3356     njensen   Remove CommunicationException
  * Mar 03, 2016  5439     bsteffen  Allow grid derived parameters from edex
+ * Aug 15, 2017  6332     bsteffen  Move radar specific logic to extension
+ * Aug 23, 2017  6125     bsteffen  Split common updating code to GridInventoryUpdater.
  * 
  * </pre>
  * 
  * @author bsteffen
  */
-public class GridUpdater implements IAlertObserver {
+public class GridUpdater extends GridInventoryUpdater {
 
-    private class UpdateValue {
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GridUpdater.class);
+
+    private static class UpdateValue {
         public int timeOffset;
 
         public AbstractDerivedDataNode node;
@@ -77,26 +84,15 @@ public class GridUpdater implements IAlertObserver {
             this.node = node;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Object#hashCode()
-         */
         @Override
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = (prime * result) + getOuterType().hashCode();
             result = (prime * result) + ((node == null) ? 0 : node.hashCode());
             result = (prime * result) + timeOffset;
             return result;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Object#equals(java.lang.Object)
-         */
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -109,9 +105,6 @@ public class GridUpdater implements IAlertObserver {
                 return false;
             }
             UpdateValue other = (UpdateValue) obj;
-            if (!getOuterType().equals(other.getOuterType())) {
-                return false;
-            }
             if (node == null) {
                 if (other.node != null) {
                     return false;
@@ -124,29 +117,29 @@ public class GridUpdater implements IAlertObserver {
             }
             return true;
         }
+    }
 
-        private GridUpdater getOuterType() {
-            return GridUpdater.this;
+    private final Map<GridMapKey, Set<UpdateValue>> updateMap = new HashMap<>();
+
+    private final BlockingQueue<String> uriUpdateQueue = new ArrayBlockingQueue<>(
+            512);
+
+    private final Job sendDerivedAlerts = new Job(
+            "Sending Derived Grid Alerts") {
+
+        @Override
+        protected IStatus run(IProgressMonitor monitor) {
+            Set<String> datauris = new HashSet<>();
+            uriUpdateQueue.drainTo(datauris);
+            ProductAlertObserver.processDataURIAlerts(datauris);
+            return Status.OK_STATUS;
         }
 
-    }
-
-    private final Set<String> myUpdates = new HashSet<String>();
-
-    private final VizGridInventory inventory;
-
-    private final Map<GridMapKey, Set<UpdateValue>> updateMap = new HashMap<GridMapKey, Set<UpdateValue>>();
+    };
 
     public GridUpdater(VizGridInventory inventory) {
-        this.inventory = inventory;
-    }
-
-    public void startObserving() {
-        ProductAlertObserver.addObserver(GridConstants.GRID, this);
-    }
-
-    public void stopObserving() {
-        ProductAlertObserver.removeObserver(GridConstants.GRID, this);
+        super(inventory);
+        sendDerivedAlerts.setSystem(true);
     }
 
     public synchronized void addNode(AbstractDerivedDataNode node) {
@@ -154,7 +147,7 @@ public class GridUpdater implements IAlertObserver {
         if ((dependencies == null) || dependencies.isEmpty()) {
             return;
         }
-        List<Dependency> dep = new ArrayList<Dependency>(dependencies);
+        List<Dependency> dep = new ArrayList<>(dependencies);
 
         for (int i = 0; i < dep.size(); i++) {
             Dependency dependency = dep.get(i);
@@ -164,32 +157,21 @@ public class GridUpdater implements IAlertObserver {
                         gNode.getRequestConstraintMap());
                 Set<UpdateValue> set = updateMap.get(updateKey);
                 if (set == null) {
-                    set = new HashSet<UpdateValue>();
+                    set = new HashSet<>();
                     updateMap.put(updateKey, set);
                 }
                 set.add(new UpdateValue(dependency.timeOffset, node));
-            } else if (dependency.node instanceof RadarRequestableLevelNode) {
-                RadarRequestableLevelNode rNode = (RadarRequestableLevelNode) dependency.node;
-                Level level = rNode.getLevel();
-                Map<String, Object> gribMap = new HashMap<String, Object>();
-                gribMap.put(GridConstants.DATASET_ID,
-                        RadarAdapter.RADAR_SOURCE);
-                gribMap.put(GridConstants.PARAMETER_ABBREVIATION,
-                        rNode.getParamAbbrev());
-                gribMap.put(GridConstants.MASTER_LEVEL_NAME, level
-                        .getMasterLevel().getName());
-                gribMap.put(GridConstants.LEVEL_ONE,
-                        level.getLevelonevalue());
-                gribMap.put(GridConstants.LEVEL_TWO,
-                        level.getLeveltwovalue());
-
-                GridMapKey updateKey = new GridMapKey(gribMap);
-                Set<UpdateValue> set = updateMap.get(updateKey);
-                if (set == null) {
-                    set = new HashSet<UpdateValue>();
-                    updateMap.put(updateKey, set);
+            } else if (dependency.node instanceof AbstractBaseDataNode) {
+                GridMapKey updateKey = GridExtensionManager
+                        .getUpdateKey((AbstractBaseDataNode) (dependency.node));
+                if (updateKey != null) {
+                    Set<UpdateValue> set = updateMap.get(updateKey);
+                    if (set == null) {
+                        set = new HashSet<>();
+                        updateMap.put(updateKey, set);
+                    }
+                    set.add(new UpdateValue(dependency.timeOffset, node));
                 }
-                set.add(new UpdateValue(dependency.timeOffset, node));
             } else if (dependency.node instanceof AbstractDerivedDataNode) {
                 AbstractDerivedDataNode dataNode = (AbstractDerivedDataNode) dependency.node;
                 for (Dependency d : dataNode.getDependencies()) {
@@ -202,99 +184,59 @@ public class GridUpdater implements IAlertObserver {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.alerts.IAlertObserver#alertArrived(com.raytheon.uf.viz
-     * .core.alerts.AlertMessage[])
-     */
     @Override
-    public synchronized void alertArrived(Collection<AlertMessage> alertMessages) {
-        Set<String> datauris = new HashSet<String>();
-        for (AlertMessage alert : alertMessages) {
-            if (myUpdates.remove(alert.dataURI)) {
-                // This updater triggered this alert, if it processes it now we
-                // could do this forever
-                continue;
-            }
-            GridMapKey updateKey = new GridMapKey(alert.decodedAlert);
-            GridTimeCache.getInstance().clearTimes(updateKey);
-            Level level = LevelFactory.getInstance().getLevel(
-                    updateKey.masterLevel, updateKey.levelone,
-                    updateKey.leveltwo);
-            LevelNode lNode = inventory.getNode(updateKey.modelName,
-                    updateKey.parameter, level);
+    public synchronized void update(GridRecord record) {
+        super.update(record);
+        GridMapKey updateKey = new GridMapKey(record);
+        GridTimeCache.getInstance().clearTimes(updateKey);
+        Set<UpdateValue> set = updateMap.get(updateKey);
+        if (set == null) {
+            return;
+        }
+        for (UpdateValue value : set) {
+            /*
+             * A record in an ambiguous state. It may be valid and derivable or
+             * it may be missing dependencies and completely fake. It's
+             * impossible to know which state it is in without looking in the
+             * database to determine availability of all dependencies. Since
+             * many updates are not used it doesn't make sense to determine the
+             * real state of the record here and it is left to the receiver of
+             * updates to figure it out.
+             */
+            GridRecord schrödingersRecord = new GridRecord();
+            DataTime time = record.getDataTime();
+            schrödingersRecord.setDataTime(new DataTime(time.getRefTime(),
+                    time.getFcstTime() - value.timeOffset));
+            schrödingersRecord.setDatasetId(value.node.getModelName());
 
-            if (lNode == null) {
-                inventory.reinitTree();
-                // System.out.println(alert.dataURI);
-                // System.out.println("LevelId=" + level.getId());
-            } else if (!(lNode instanceof GridRequestableNode)) {
-                if (lNode instanceof OrLevelNode) {
-                    DerivParamMethod method = ((OrLevelNode) lNode).getMethod();
-                    // Null means it is an alias model and supplement means
-                    // there exists a true GribNode buried under the or
-                    // node
-                    if ((method == null)
-                            || !method.getName().equals("Supplement")) {
-                        inventory.reinitTree();
-                        // System.out.println(((AbstractDerivedLevelNode) lNode)
-                        // .getModelName());
-                    }
-                } else {
-                    inventory.reinitTree();
-                    // System.out.println(alert.dataURI);
-                    // System.out.println(lNode.getClass());
-                }
+            Parameter param = new Parameter(
+                    value.node.getDesc().getAbbreviation(),
+                    value.node.getDesc().getName(),
+                    value.node.getDesc().getUnit());
+            schrödingersRecord.setParameter(param);
+            schrödingersRecord.setLevel(value.node.getLevel());
+            if (value.node instanceof GatherLevelNode) {
+                schrödingersRecord.setEnsembleId(null);
+            } else {
+                schrödingersRecord.setEnsembleId(record.getEnsembleId());
             }
-            Set<UpdateValue> set = updateMap.get(updateKey);
-            if (set == null) {
-                continue;
-            }
-            for (UpdateValue value : set) {
-                GridRecord fakeRec = new GridRecord();
-                Object obj = alert.decodedAlert.get("dataTime");
-                if (!(obj instanceof DataTime)) {
-                    throw new IllegalArgumentException(
-                            "Error processing Alerts: "
-                                    + obj.toString()
-                                    + " cannot be cast to a DataTime because it is a "
-                                    + obj.getClass().getSimpleName());
-                }
-                DataTime time = (DataTime) obj;
-                fakeRec.setDataTime(new DataTime(time.getRefTime(), time
-                        .getFcstTime() - value.timeOffset));
-                fakeRec.setDatasetId(value.node.getModelName());
-
-                Parameter param = new Parameter(value.node.getDesc()
-                        .getAbbreviation(), value.node.getDesc().getName(),
-                        value.node.getDesc().getUnit());
-                fakeRec.setParameter(param);
-                fakeRec.setLevel(value.node.getLevel());
-                if (value.node instanceof GatherLevelNode) {
-                    fakeRec.setEnsembleId(null);
-                } else {
-                    fakeRec.setEnsembleId((String) alert.decodedAlert
-                            .get(GridConstants.ENSEMBLE_ID));
-                }
-                fakeRec.setSecondaryId((String) alert.decodedAlert
-                        .get(GridConstants.SECONDARY_ID));
-                fakeRec.setLocation((GridCoverage) alert.decodedAlert
-                        .get(GridConstants.LOCATION));
-                datauris.add(fakeRec.getDataURI());
+            schrödingersRecord.setSecondaryId(record.getSecondaryId());
+            schrödingersRecord.setLocation(record.getLocation());
+            try {
+                uriUpdateQueue.put(schrödingersRecord.getDataURI());
+            } catch (InterruptedException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Failed to send derived update for "
+                                + schrödingersRecord.getDataURI(),
+                        e);
             }
         }
-        myUpdates.addAll(datauris);
-        ProductAlertObserver.processDataURIAlerts(datauris);
+        sendDerivedAlerts.schedule();
     }
 
-    /**
-     * 
-     */
     public synchronized void refreshNodes() {
         GridTimeCache.getInstance().flush();
-        Set<AbstractDerivedDataNode> oldNodes = new HashSet<AbstractDerivedDataNode>();
+        Set<AbstractDerivedDataNode> oldNodes = new HashSet<>();
         for (Set<UpdateValue> values : updateMap.values()) {
             for (UpdateValue value : values) {
                 oldNodes.add(value.node);
@@ -303,8 +245,8 @@ public class GridUpdater implements IAlertObserver {
         updateMap.clear();
         for (AbstractDerivedDataNode node : oldNodes) {
             // Get Node will automatically add this to the updater.
-            inventory.getNode(node.getModelName(), node.getDesc()
-                    .getAbbreviation(), node.getLevel());
+            inventory.getNode(node.getModelName(),
+                    node.getDesc().getAbbreviation(), node.getLevel());
         }
     }
 

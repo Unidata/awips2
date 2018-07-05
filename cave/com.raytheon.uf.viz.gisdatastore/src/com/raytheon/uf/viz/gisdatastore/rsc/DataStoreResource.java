@@ -52,7 +52,6 @@ import org.opengis.feature.type.AttributeDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.geometry.MismatchedDimensionException;
-import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
@@ -77,6 +76,9 @@ import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
 import com.raytheon.uf.viz.core.drawables.IWireframeShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.PointStyle;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -95,9 +97,6 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
 import com.raytheon.uf.viz.gisdatastore.Activator;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler.JTSGeometryData;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -128,13 +127,12 @@ import com.vividsolutions.jts.geom.Point;
  * Aug 21, 2014      #3459 randerso    Restructured Map resource class hierarchy
  * Nov 18, 2014      #3549 njensen     Improved performance of processRequest()
  * Nov 05, 2015      #5070 randerso    Moved label font management up to AbstractMapResource
+ * Jan 16, 2017      #5976 bsteffen    Update shaded shape constructor.
  * 
  * </pre>
  * 
  * @author randerso
- * @version 1.0
  */
-
 public class DataStoreResource extends
         AbstractMapResource<DataStoreResourceData, MapDescriptor> implements
         IPropertyChangeListener {
@@ -286,8 +284,7 @@ public class DataStoreResource extends
             IShadedShape newShadedShape = null;
             if (req.isProduct || (req.shadingField != null)) {
                 newShadedShape = req.getTarget().createShadedShape(false,
-                        req.getResource().getDescriptor().getGridGeometry(),
-                        true);
+                        req.getResource().getDescriptor().getGridGeometry());
             }
 
             SimpleFeatureType schema = req.getResource().getSchema();
@@ -996,12 +993,11 @@ public class DataStoreResource extends
                     .getAttributeDescriptors();
 
             if (attrDesc == null) {
-                attrTypeMap = new LinkedHashMap<String, Class<?>>(1);
+                attrTypeMap = new LinkedHashMap<>(1);
                 attrTypeMap.put(ID_ATTRIBUTE_NAME, Integer.class);
             } else {
 
-                attrTypeMap = new LinkedHashMap<String, Class<?>>(
-                        attrDesc.size(), 1.0f);
+                attrTypeMap = new LinkedHashMap<>(attrDesc.size(), 1.0f);
                 attrTypeMap.put(ID_ATTRIBUTE_NAME, Integer.class);
                 for (AttributeDescriptor at : attrDesc) {
                     Class<?> atType = at.getType().getBinding();
@@ -1018,8 +1014,8 @@ public class DataStoreResource extends
         }
     }
 
-    private void loadAttributes() throws FactoryException,
-            MismatchedDimensionException, TransformException {
+    private void loadAttributes()
+            throws MismatchedDimensionException, TransformException {
         ITimer timer = TimeUtil.getTimer();
         timer.start();
         Query query = new Query();

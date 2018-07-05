@@ -30,6 +30,8 @@ import java.util.Map.Entry;
 import com.raytheon.uf.common.dataquery.requests.DbQueryRequest;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.responses.DbQueryResponse;
+import com.raytheon.uf.common.menus.vb.VbSource;
+import com.raytheon.uf.common.menus.vb.VbSourceList;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -39,8 +41,6 @@ import com.raytheon.viz.pointdata.StaticPlotInfoPV.SPIEntry;
 import com.raytheon.viz.volumebrowser.datacatalog.AvailableDataRequest;
 import com.raytheon.viz.volumebrowser.datacatalog.DelegateAvailableRequest;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
-import com.raytheon.viz.volumebrowser.xml.VbSource;
-import com.raytheon.viz.volumebrowser.xml.VbSourceList;
 
 /**
  * Catalog for model sounding data

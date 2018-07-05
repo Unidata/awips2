@@ -1,3 +1,8 @@
+<!-- 
+    This is an absolute override file, indicating that a higher priority 
+    version of the file will completely replace a lower priority version
+    of the file. 
+-->
 <!--Fire Warning configuration -->
 <!-- MODIFIED
      Version 1.1 EVAN BOOKBINDER/MIKE DANGELO 2-07-2012 Initial creation

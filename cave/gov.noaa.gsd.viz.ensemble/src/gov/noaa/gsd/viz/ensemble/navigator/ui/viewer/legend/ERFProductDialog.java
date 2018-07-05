@@ -1,12 +1,5 @@
 package gov.noaa.gsd.viz.ensemble.navigator.ui.viewer.legend;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
-import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
-import gov.noaa.gsd.viz.ensemble.display.calculate.Range;
-import gov.noaa.gsd.viz.ensemble.display.calculate.RangeType;
-import gov.noaa.gsd.viz.ensemble.util.GlobalColor;
-import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
-
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -25,21 +18,30 @@ import org.eclipse.swt.widgets.Text;
 
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
-/*
- * A dialog which allows the user to choose create an ensemble relative 
+import gov.noaa.gsd.viz.ensemble.control.EnsembleTool;
+import gov.noaa.gsd.viz.ensemble.display.calculate.Calculation;
+import gov.noaa.gsd.viz.ensemble.display.calculate.Range;
+import gov.noaa.gsd.viz.ensemble.display.calculate.RangeType;
+import gov.noaa.gsd.viz.ensemble.util.GlobalColor;
+import gov.noaa.gsd.viz.ensemble.util.SWTResourceManager;
+
+/**
+ * A dialog which allows the user to choose create an ensemble relative
  * frequency product from different probability ranges.
  * 
  * @author polster
  * @author jing
- * <pre>
+ * 
+ *         <pre>
  * 
  * SOFTWARE HISTORY
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 4, 2015   6863      polster     Initial creation
+ * Feb 17,2017   19325     jing        Added ERF image capability
  * 
- * </pre>
+ *         </pre>
  * 
  * @version 1.0
  */
@@ -84,13 +86,16 @@ public class ERFProductDialog extends CaveJFACEDialog {
 
     final private String probabilityOfX = "P(x):  ";
 
+    private boolean isImage = false;
+
     private ERFProductDialog(Shell parentShell) {
         super(parentShell);
     }
 
-    public ERFProductDialog(Shell parentShell, String rscName) {
+    public ERFProductDialog(Shell parentShell, String rscName, boolean image) {
         this(parentShell);
         ensembleProductName = rscName;
+        isImage = image;
     }
 
     /*
@@ -128,8 +133,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
         createBelowThresholdWidget();
 
         Label dummySpacerLbl_1 = new Label(mainPanelComposite, SWT.NONE);
-        GridData dummySpacerLbl_gd_1 = new GridData(SWT.LEFT, SWT.CENTER,
-                false, false, 2, 1);
+        GridData dummySpacerLbl_gd_1 = new GridData(SWT.LEFT, SWT.CENTER, false,
+                false, 2, 1);
         dummySpacerLbl_1.setLayoutData(dummySpacerLbl_gd_1);
 
         // only one range-filter row-widget is enabled at a time
@@ -146,21 +151,23 @@ public class ERFProductDialog extends CaveJFACEDialog {
 
         addThresholdValueModifyBehavior();
 
+        parent.layout();
+
         return parent;
 
     }
 
     private void createVerticalSeparator() {
-        new Label(mainPanelComposite, SWT.NONE).setLayoutData(new GridData(
-                SWT.LEFT, SWT.CENTER, false, false, 1, 2));
+        new Label(mainPanelComposite, SWT.NONE).setLayoutData(
+                new GridData(SWT.LEFT, SWT.CENTER, true, false, 1, 2));
 
     }
 
     private void createRootArea(Composite parent) {
         mainPanelComposite = new Composite(parent, SWT.BORDER);
 
-        GridData rootCalculatorPanel_gd = new GridData(SWT.FILL, SWT.FILL,
-                false, true, 1, 1);
+        GridData rootCalculatorPanel_gd = new GridData(SWT.FILL, SWT.FILL, true,
+                true, 1, 1);
         mainPanelComposite.setLayoutData(rootCalculatorPanel_gd);
         mainPanelComposite.setLayout(new GridLayout(1, false));
     }
@@ -169,18 +176,18 @@ public class ERFProductDialog extends CaveJFACEDialog {
 
         Composite titleContainerComposite = new Composite(mainPanelComposite,
                 SWT.BORDER);
-        titleContainerComposite.setLayoutData(new GridData(SWT.FILL,
-                SWT.CENTER, true, false, 1, 1));
+        titleContainerComposite.setLayoutData(
+                new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         titleContainerComposite.setLayout(new GridLayout(1, true));
 
-        ensembleProductNameLbl = new Label(titleContainerComposite, SWT.CENTER
-                | SWT.BORDER);
-        ensembleProductNameLbl.setFont(SWTResourceManager.getFont("Dialog", 10,
-                SWT.NORMAL));
+        ensembleProductNameLbl = new Label(titleContainerComposite,
+                SWT.CENTER | SWT.BORDER);
+        ensembleProductNameLbl
+                .setFont(SWTResourceManager.getFont("Dialog", 10, SWT.NORMAL));
         ensembleProductNameLbl
                 .setForeground(GlobalColor.get(GlobalColor.BLACK));
-        ensembleProductNameLbl.setBackground(GlobalColor
-                .get(GlobalColor.PALE_LIGHT_AZURE));
+        ensembleProductNameLbl
+                .setBackground(GlobalColor.get(GlobalColor.PALE_LIGHT_AZURE));
         GridData frameTimeUsingBasisLbl_gd = new GridData(SWT.FILL, SWT.CENTER,
                 true, true, 1, 1);
         ensembleProductNameLbl.setLayoutData(frameTimeUsingBasisLbl_gd);
@@ -222,8 +229,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                 false, false, 3, 1);
         probabilityOfX_lbl_4.setLayoutData(probabilityOfX_lbl_gd_4);
         probabilityOfX_lbl_4.setText(probabilityOfX);
-        probabilityOfX_lbl_4.setFont(SWTResourceManager.getFont("Serif", 11,
-                SWT.BOLD | SWT.ITALIC));
+        probabilityOfX_lbl_4.setFont(
+                SWTResourceManager.getFont("Serif", 11, SWT.BOLD | SWT.ITALIC));
         probabilityOfX_lbl_4.setToolTipText("Probability P(x) is below");
 
         // There's a lower bound text entry to this BELOW A THRESHOLD row-
@@ -233,8 +240,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
         GridData valueOfX_lbl_gd_4 = new GridData(SWT.LEFT, SWT.CENTER, false,
                 false, 3, 1);
         valueOfX_lbl_4.setLayoutData(valueOfX_lbl_gd_4);
-        valueOfX_lbl_4.setFont(SWTResourceManager.getFont("Serif", 12, SWT.BOLD
-                | SWT.ITALIC));
+        valueOfX_lbl_4.setFont(
+                SWTResourceManager.getFont("Serif", 12, SWT.BOLD | SWT.ITALIC));
         valueOfX_lbl_4.setText("x   < ");
         valueOfX_lbl_4.setToolTipText("ERF probability P(x) is below (%)");
 
@@ -246,9 +253,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
         probabilityOfXBelowRangeEntryTxt
                 .setToolTipText("The threshold that 'x' is below");
 
-        new Label(rangeToolRootComposite_4, SWT.NONE)
-                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
-                        1, 1));
+        new Label(rangeToolRootComposite_4, SWT.NONE).setLayoutData(
+                new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
     }
 
@@ -288,8 +294,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                 false, false, 3, 1);
         probabilityOfX_lbl_3.setLayoutData(probabilityOfX_lbl_gd_3);
         probabilityOfX_lbl_3.setText(probabilityOfX);
-        probabilityOfX_lbl_3.setFont(SWTResourceManager.getFont("Serif", 11,
-                SWT.BOLD | SWT.ITALIC));
+        probabilityOfX_lbl_3.setFont(
+                SWTResourceManager.getFont("Serif", 11, SWT.BOLD | SWT.ITALIC));
 
         // There's an upper bound text entry to this ABOVE A THRESHOLD row-
         // widget.
@@ -298,8 +304,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
         GridData valueOfX_lbl_gd_3 = new GridData(SWT.LEFT, SWT.CENTER, false,
                 false, 3, 1);
         valueOfX_lbl_3.setLayoutData(valueOfX_lbl_gd_3);
-        valueOfX_lbl_3.setFont(SWTResourceManager.getFont("Serif", 12, SWT.BOLD
-                | SWT.ITALIC));
+        valueOfX_lbl_3.setFont(
+                SWTResourceManager.getFont("Serif", 12, SWT.BOLD | SWT.ITALIC));
         valueOfX_lbl_3.setText("x   > ");
         valueOfX_lbl_3.setToolTipText("ERF probability P(x) is above (%)");
 
@@ -311,9 +317,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
         probabilityOfXAboveRangeEntryTxt
                 .setToolTipText("The threshold that 'x' is above");
 
-        new Label(rangeToolRootComposite_3, SWT.NONE)
-                .setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false,
-                        1, 1));
+        new Label(rangeToolRootComposite_3, SWT.NONE).setLayoutData(
+                new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
     }
 
     private void createOutsideOfRangeWidget() {
@@ -351,8 +356,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                 false, false, 2, 1);
         probabilityOfX_lbl_2.setLayoutData(probabilityOfX_lbl_gd_2);
         probabilityOfX_lbl_2.setText(probabilityOfX);
-        probabilityOfX_lbl_2.setFont(SWTResourceManager.getFont("Serif", 11,
-                SWT.BOLD | SWT.ITALIC));
+        probabilityOfX_lbl_2.setFont(
+                SWTResourceManager.getFont("Serif", 11, SWT.BOLD | SWT.ITALIC));
         probabilityOfX_lbl_2
                 .setToolTipText("ERF probability P(x) is outside a range (%)");
 
@@ -370,8 +375,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                 SWT.NONE);
         GridData lowerConditionalLbl_gd_2 = new GridData(SWT.LEFT, SWT.CENTER,
                 false, false, 3, 1);
-        lowerConditionalLbl_2.setFont(SWTResourceManager.getFont("Serif", 11,
-                SWT.BOLD));
+        lowerConditionalLbl_2
+                .setFont(SWTResourceManager.getFont("Serif", 11, SWT.BOLD));
         lowerConditionalLbl_2.setLayoutData(lowerConditionalLbl_gd_2);
         lowerConditionalLbl_2.setText("  >  x  > ");
         lowerConditionalLbl_2
@@ -425,8 +430,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
         GridData probabilityOfX_lbl_gd_1 = new GridData(SWT.LEFT, SWT.CENTER,
                 false, false, 2, 1);
         probabilityOfX_lbl_1.setLayoutData(probabilityOfX_lbl_gd_1);
-        probabilityOfX_lbl_1.setFont(SWTResourceManager.getFont("Serif", 11,
-                SWT.BOLD | SWT.ITALIC));
+        probabilityOfX_lbl_1.setFont(
+                SWTResourceManager.getFont("Serif", 11, SWT.BOLD | SWT.ITALIC));
         probabilityOfX_lbl_1.setText(probabilityOfX);
         probabilityOfX_lbl_1
                 .setToolTipText("ERF probability P(x) is within a range (%)");
@@ -445,8 +450,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                 SWT.NONE);
         GridData lowerConditionalLbl_gd_1 = new GridData(SWT.LEFT, SWT.CENTER,
                 false, false, 3, 1);
-        lowerConditionalLbl_1.setFont(SWTResourceManager.getFont("Serif", 11,
-                SWT.BOLD));
+        lowerConditionalLbl_1
+                .setFont(SWTResourceManager.getFont("Serif", 11, SWT.BOLD));
         lowerConditionalLbl_1.setLayoutData(lowerConditionalLbl_gd_1);
         lowerConditionalLbl_1.setText("  <  x  < ");
         lowerConditionalLbl_1
@@ -575,8 +580,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                     public void modifyText(ModifyEvent e) {
 
                         Text text = (Text) e.widget;
-                        setProbabilityLowerValue = handleTextEntry(text
-                                .getText());
+                        setProbabilityLowerValue = handleTextEntry(
+                                text.getText());
                     }
 
                 });
@@ -588,8 +593,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                     public void modifyText(ModifyEvent e) {
 
                         Text text = (Text) e.widget;
-                        setProbabilityLowerValue = handleTextEntry(text
-                                .getText());
+                        setProbabilityLowerValue = handleTextEntry(
+                                text.getText());
                     }
                 });
 
@@ -600,8 +605,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                     public void modifyText(ModifyEvent e) {
 
                         Text text = (Text) e.widget;
-                        setProbabilityLowerValue = handleTextEntry(text
-                                .getText());
+                        setProbabilityLowerValue = handleTextEntry(
+                                text.getText());
                     }
                 });
 
@@ -612,8 +617,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                     public void modifyText(ModifyEvent e) {
 
                         Text text = (Text) e.widget;
-                        setProbabilityLowerValue = handleTextEntry(text
-                                .getText());
+                        setProbabilityLowerValue = handleTextEntry(
+                                text.getText());
                     }
                 });
 
@@ -624,8 +629,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                     public void modifyText(ModifyEvent e) {
 
                         Text text = (Text) e.widget;
-                        setProbabilityUpperValue = handleTextEntry(text
-                                .getText());
+                        setProbabilityUpperValue = handleTextEntry(
+                                text.getText());
                     }
                 });
 
@@ -636,8 +641,8 @@ public class ERFProductDialog extends CaveJFACEDialog {
                     public void modifyText(ModifyEvent e) {
 
                         Text text = (Text) e.widget;
-                        setProbabilityUpperValue = handleTextEntry(text
-                                .getText());
+                        setProbabilityUpperValue = handleTextEntry(
+                                text.getText());
                     }
                 });
 
@@ -701,32 +706,32 @@ public class ERFProductDialog extends CaveJFACEDialog {
 
     protected void computeERF() {
 
+        Calculation cal = Calculation.ENSEMBLE_RELATIVE_FREQUENCY;
+        if (isImage) {
+            cal = Calculation.ENSEMBLE_RELATIVE_FREQUENCY_IMAGE;
+        }
         Range range = null;
         switch (probabilityRange) {
         case ABOVE:
             range = new Range(RangeType.ABOVE_THRESHOLD);
             range.setThreshold(setProbabilityLowerValue);
-            EnsembleTool.getInstance().calculate(
-                    Calculation.ENSEMBLE_RELATIVE_FREQUENCY, range);
+            EnsembleTool.getInstance().calculate(cal, range);
             break;
         case BELOW:
             range = new Range(RangeType.BELOW_THRESHOLD);
             range.setThreshold(setProbabilityLowerValue);
-            EnsembleTool.getInstance().calculate(
-                    Calculation.ENSEMBLE_RELATIVE_FREQUENCY, range);
+            EnsembleTool.getInstance().calculate(cal, range);
             break;
         case INNER_RANGE:
             range = new Range(RangeType.INNER_RANGE);
             range.setRange(setProbabilityLowerValue, setProbabilityUpperValue);
 
-            EnsembleTool.getInstance().calculate(
-                    Calculation.ENSEMBLE_RELATIVE_FREQUENCY, range);
+            EnsembleTool.getInstance().calculate(cal, range);
             break;
         case OUTER_RANGE:
             range = new Range(RangeType.OUTER_RANGE);
             range.setRange(setProbabilityLowerValue, setProbabilityUpperValue);
-            EnsembleTool.getInstance().calculate(
-                    Calculation.ENSEMBLE_RELATIVE_FREQUENCY, range);
+            EnsembleTool.getInstance().calculate(cal, range);
             break;
         }
     }

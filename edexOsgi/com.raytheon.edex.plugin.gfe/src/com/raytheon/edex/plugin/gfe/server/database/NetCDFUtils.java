@@ -57,6 +57,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * May 14, 2012            randerso    Initial creation
  * Oct 10  2012     #1260  randerso    Cleaned up getSubGridDims to better match A1
  *                                     Changed subGridGl to use new GridLocation constructor
+ * Mar 28  2017     #14028 bhunderm    Changed getSubGridDims to correct "off by one" issue when creating Rectangle
+ *                                     
  * 
  * </pre>
  * 
@@ -365,7 +367,7 @@ public class NetCDFUtils {
         xmax = Math.min(xmax, igloc.gridSize().x - 1);
         ymax = Math.min(ymax, igloc.gridSize().y - 1);
 
-        Rectangle rval = new Rectangle(xmin, ymin, xmax - xmin, ymax - ymin);
+        Rectangle rval = new Rectangle(xmin, ymin, (xmax - xmin) + 1, (ymax - ymin) + 1);
 
         // fix up coordinates for 0,0 in upper left in A2
         rval.y = igloc.gridSize().y - rval.y - rval.height;

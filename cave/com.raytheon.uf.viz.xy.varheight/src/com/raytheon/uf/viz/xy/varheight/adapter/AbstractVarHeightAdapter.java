@@ -32,10 +32,10 @@ import javax.measure.unit.Unit;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
 import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
-import com.raytheon.viz.core.slice.request.HeightScale;
 
 /**
  * TODO Add Description

@@ -36,7 +36,8 @@ import com.raytheon.viz.mpe.ui.rsc.MPEFieldResourceData;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 
 /**
- * TODO Add Description
+ * Action initiated when the user clicks on the MPE Color Manager option under
+ * the Tools menu in MPE.
  * 
  * <pre>
  * SOFTWARE HISTORY
@@ -49,10 +50,10 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  *                                     the MPE perspective while the ColorScaleMgrDlg is
  *                                     visible.
  * 04 Sep 2014  14448      cgobs       Make MPE redisplay after save of color settings in ColorScaleMgr
+ * Mar 01, 2017 6160       bkowal      Updates for {@link MPEDisplayManager#createColorMap(String, String, int, javax.measure.unit.Unit, javax.measure.unit.Unit)}.
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 
 public class MPEColorScaleMgrAction extends AbstractHandler {
@@ -69,10 +70,10 @@ public class MPEColorScaleMgrAction extends AbstractHandler {
             Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow()
                     .getShell();
             colorScaleDlg = new ColorScaleMgrDlg(shell, username);
-            colorScaleDlg.setTitle("MPE Color Scale Manager - User: "
-                    + username);
+            colorScaleDlg
+                    .setTitle("MPE Color Scale Manager - User: " + username);
             colorScaleDlg.setColorManager(new MPEColorManager());
-            colorScaleDlg.setCloseCallback(new ICloseCallback() {
+            colorScaleDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -97,21 +98,23 @@ public class MPEColorScaleMgrAction extends AbstractHandler {
                                 .setColorMapParameters(
                                         MPEDisplayManager.createColorMap(
                                                 resourceData.getCvUseString(),
+                                                resourceData.getDisplayString(),
                                                 resourceData
                                                         .getDurationInHours(),
                                                 resourceData.getDataUnits(),
-                                                resourceData.getDisplayUnits()));
+                                                resourceData
+                                                        .getDisplayUnits()));
                         DisplayFieldData dt = MPEDisplayManager.getCurrent()
                                 .getDisplayFieldType();
 
                         int displayedAccumHrs = mdm.getDisplayedAccumHrs();
-                        mdm.displayFieldData(dt,displayedAccumHrs );
+                        mdm.displayFieldData(dt, displayedAccumHrs);
                     }
                 }
             });
-            
-            
-            //anonymous class declaration for the purposes of a callback execute upon save to database
+
+            // anonymous class declaration for the purposes of a callback
+            // execute upon save to database
             colorScaleDlg.setSaveCallback(new ColorScaleMgrDlg.ISaveCallback() {
 
                 public void execute() {
@@ -123,8 +126,6 @@ public class MPEColorScaleMgrAction extends AbstractHandler {
                     if (mdm == null) {
                         return;
                     }
-                    
-
 
                     MPEFieldResource displayedFieldResource = mdm
                             .getDisplayedFieldResource();
@@ -137,21 +138,22 @@ public class MPEColorScaleMgrAction extends AbstractHandler {
                                 .setColorMapParameters(
                                         MPEDisplayManager.createColorMap(
                                                 resourceData.getCvUseString(),
+                                                resourceData.getDisplayString(),
                                                 resourceData
                                                         .getDurationInHours(),
                                                 resourceData.getDataUnits(),
-                                                resourceData.getDisplayUnits()));
+                                                resourceData
+                                                        .getDisplayUnits()));
                         DisplayFieldData dt = MPEDisplayManager.getCurrent()
                                 .getDisplayFieldType();
-                        
+
                         int displayedAccumHrs = mdm.getDisplayedAccumHrs();
-                       
 
                         mdm.displayFieldData(dt, displayedAccumHrs);
                     }
                 }
             });
-            
+
             colorScaleDlg.open();
         } else {
             colorScaleDlg.bringToTop();

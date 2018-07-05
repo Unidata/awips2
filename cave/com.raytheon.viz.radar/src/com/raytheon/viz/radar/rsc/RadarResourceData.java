@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -45,20 +45,20 @@ import com.raytheon.viz.radar.interrogators.IRadarInterrogator;
 
 /**
  * Provides the metadata and constructor for Radar
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 23, 2009            chammack     Initial creation
+ * Feb 23, 2009            chammack    Initial creation
  * May 13, 2015 4461       bsteffen    Invalidate time cache on all updates
  *                                     for SAILS.
- * 
+ * Apr 19, 2017 6071       mapeters    Prevent NPE in update()
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class RadarResourceData extends AbstractRequestableResourceData {
@@ -68,9 +68,11 @@ public class RadarResourceData extends AbstractRequestableResourceData {
     @XmlAttribute
     protected String pointID = "";
 
-    // This might be better as an enumeration, currently "CZ-Pg" triggers
-    // Composite Reflectivity to display as graphics rather than image and
-    // "SRM" causes Velocity to do SRM stuff
+    /*
+     * This might be better as an enumeration, currently "CZ-Pg" triggers
+     * Composite Reflectivity to display as graphics rather than image and "SRM"
+     * causes Velocity to do SRM stuff
+     */
     @XmlAttribute
     protected String mode = "";
 
@@ -93,18 +95,18 @@ public class RadarResourceData extends AbstractRequestableResourceData {
         String format = null;
         int productCode = -1;
         if (objects.length > 0) {
-            format = (objects.length > 0) ? ((RadarRecord) objects[0])
-                    .getFormat() : "";
+            format = (objects.length > 0)
+                    ? ((RadarRecord) objects[0]).getFormat() : "";
             productCode = ((RadarRecord) objects[0]).getProductCode();
         } else if (loadProperties.isLoadWithoutData()) {
             // I must be trying to load without data, Ill try.
             RequestConstraint productCodeConstraint = metadataMap
                     .get("productCode");
-            if (productCodeConstraint != null
-                    && productCodeConstraint.getConstraintType() == ConstraintType.EQUALS) {
+            if (productCodeConstraint != null && productCodeConstraint
+                    .getConstraintType() == ConstraintType.EQUALS) {
                 try {
-                    productCode = Integer.parseInt(productCodeConstraint
-                            .getConstraintValue());
+                    productCode = Integer.parseInt(
+                            productCodeConstraint.getConstraintValue());
                 } catch (NumberFormatException e) {
                     // It was a good effort but it just wasn't meant to be.
                 }
@@ -167,11 +169,6 @@ public class RadarResourceData extends AbstractRequestableResourceData {
         this.latest = latest;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -182,46 +179,43 @@ public class RadarResourceData extends AbstractRequestableResourceData {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (!super.equals(obj))
+        }
+        if (!super.equals(obj)) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         RadarResourceData other = (RadarResourceData) obj;
-        if (latest != other.latest)
+        if (latest != other.latest) {
             return false;
+        }
         if (mode == null) {
-            if (other.mode != null)
+            if (other.mode != null) {
                 return false;
-        } else if (!mode.equals(other.mode))
+            }
+        } else if (!mode.equals(other.mode)) {
             return false;
+        }
         if (pointID == null) {
-            if (other.pointID != null)
+            if (other.pointID != null) {
                 return false;
-        } else if (!pointID.equals(other.pointID))
+            }
+        } else if (!pointID.equals(other.pointID)) {
             return false;
+        }
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData#
-     * getAvailableTimes()
-     */
     @Override
     public DataTime[] getAvailableTimes() throws VizException {
         DataTime[] all = super.getAvailableTimes();
         if (latest) {
-            Set<DataTime> times = new HashSet<DataTime>();
+            Set<DataTime> times = new HashSet<>();
             for (DataTime time : all) {
                 time.setLevelValue(null);
                 times.add(time);
@@ -244,13 +238,19 @@ public class RadarResourceData extends AbstractRequestableResourceData {
     @Override
     public void update(AlertMessage... messages) {
         for (AlertMessage message : messages) {
-            // since radar dataTimes are expected to set the level value,
-            // need to do that here.
+            /*
+             * Since radar dataTimes are expected to set the level value, need
+             * to do that here.
+             */
             Object timeObj = message.decodedAlert.get("dataTime");
             if (timeObj instanceof DataTime) {
-                DataTime time = (DataTime) timeObj;
-                time.setLevelValue(((Number) message.decodedAlert
-                        .get("primaryElevationAngle")).doubleValue());
+                Object primaryElevationAngleObj = message.decodedAlert
+                        .get("primaryElevationAngle");
+                if (primaryElevationAngleObj instanceof Number) {
+                    DataTime time = (DataTime) timeObj;
+                    Number primaryElevationAngle = (Number) primaryElevationAngleObj;
+                    time.setLevelValue(primaryElevationAngle.doubleValue());
+                }
             }
         }
         super.update(messages);

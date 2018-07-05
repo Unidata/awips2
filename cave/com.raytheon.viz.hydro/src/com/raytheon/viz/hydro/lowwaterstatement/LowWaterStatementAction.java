@@ -77,7 +77,7 @@ public class LowWaterStatementAction extends AbstractHandler {
 
                 lowWaterStmntDlg = new LowWaterStatementDlg(shell,
                         displayString.toString(), false, lid);
-                lowWaterStmntDlg.setCloseCallback(new ICloseCallback() {
+                lowWaterStmntDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {

@@ -18,19 +18,23 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="kn" name="Storm Motion" abbreviation="StrmMot" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="kn" name="Storm Motion" abbreviation="StrmMot">
     <Method name="Alias">
-        <Field abbreviation="DMD"/>
+        <Field abbreviation="DMD" />
     </Method>
     <Method name="Vector">
-        <Field abbreviation="USTM" unit="kn"/>
-        <Field abbreviation="VSTM" unit="kn"/>
+        <Field abbreviation="USTM" unit="kn" />
+        <Field abbreviation="VSTM" unit="kn" />
     </Method>
     <Method levels="Layer" name="Rotate">
-        <Field level="0-6kmAgl" abbreviation="Wind"/>
-        <ConstantField value="0.649519053"/>
-        <ConstantField value="0.375"/>
-        <ConstantField value="-0.375"/>
-        <ConstantField value="0.649519053"/>
+        <Field level="0-6kmAgl" abbreviation="Wind" />
+        <ConstantField value="0.649519053" />
+        <ConstantField value="0.375" />
+        <ConstantField value="-0.375" />
+        <ConstantField value="0.649519053" />
     </Method>
 </DerivedParameter>

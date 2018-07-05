@@ -18,10 +18,14 @@
 # further licensing information.
 ##
 
-import PointDataQuery
-from java.util import ArrayList
-from com.raytheon.uf.common.dataplugin.fssobs import FSSObsRecordTransform
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Request of FSSObs records (provides interface to pointdata)
@@ -31,6 +35,13 @@ from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 #    
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
+
+
+
+import PointDataQuery
+from java.util import ArrayList
+from com.raytheon.uf.common.dataplugin.fssobs import FSSObsRecordTransform
+from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 
 
 class FSSObsRequest(PointDataQuery.PointDataQuery):

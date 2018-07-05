@@ -20,10 +20,11 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.FillPatterns;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.PointStyle;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler.PointStyle;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
@@ -36,6 +37,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * 2014-08-28   ASM #15682 D. Friemdan Initial creation
+ * 2016-09-14   3241       bsteffen    Update deprecated JTSCompiler method calls
  * </pre>
  * 
  */
@@ -46,7 +48,7 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
     private TimerTask timerTask;
 
     // If this is changed to use the maps database, could probably be static
-    private Map<String, Set<String>> cwaUgcMap = new HashMap<String, Set<String>>();
+    private Map<String, Set<String>> cwaUgcMap = new HashMap<>();
 
     static final ThreadLocal<SimpleDateFormat> sdf = new ThreadLocal<SimpleDateFormat>() {
         @Override protected SimpleDateFormat initialValue() {
@@ -82,7 +84,7 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
     private Set<String> maskCwaUgcs(Set<String> ugcs, AbstractWarningRecord rec) {
         Set<String> cwaUgcs = getUgcsForCwa(rec.getXxxid());
         if (cwaUgcs != null) {
-            HashSet<String> result = new HashSet<String>(ugcs);
+            Set<String> result = new HashSet<>(ugcs);
             result.removeAll(cwaUgcs);
             return result;
         } else {
@@ -95,7 +97,7 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
     }
 
     private Set<String> safe(Set<String> set) {
-        return set != null ? set : new HashSet<String>();
+        return set != null ? set : new HashSet<>();
     }
 
     @Override
@@ -119,7 +121,8 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
             boolean isWOU = "WOU".equals(watchRec.getPil());
 
             AbstractWarningRecord prevRec = getPreviousRecordForEvent(watchRec);
-            Set<String> prevUgcs = new HashSet<String>(safe(
+            Set<String> prevUgcs = new HashSet<>(
+                    safe(
                     prevRec != null ? prevRec.getUgcZones() : null));
             Set<String> newUgcs = null;
 
@@ -163,7 +166,7 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
                      * issued before the expiration time, the warning would show
                      * as still active on that frame.
                      */
-                    newUgcs = new HashSet<String>();
+                    newUgcs = new HashSet<>();
                     createShape = watchRec;
                 } else {
                     newUgcs = maskCwaUgcs(prevUgcs, watchRec);
@@ -240,11 +243,14 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
         AbstractWarningRecord record = entry.record;
         if (record.getGeometry() != null) {
             IShadedShape ss = target.createShadedShape(false,
-                    descriptor.getGridGeometry(), false);
+                    descriptor.getGridGeometry());
             Geometry geo = (Geometry) record.getGeometry().clone();
             JTSCompiler jtsCompiler = new JTSCompiler(ss, null,
-                    this.descriptor, PointStyle.CROSS);
-            jtsCompiler.handle(geo, color);
+                    this.descriptor);
+            JTSGeometryData jtsData = jtsCompiler.createGeometryData();
+            jtsData.setPointStyle(PointStyle.CROSS);
+            jtsData.setGeometryColor(color);
+            jtsCompiler.handle(geo, jtsData);
             ss.setFillPattern(FillPatterns.getGLPattern(record.getPhen()
                     .equals("TO") ? "VERTICAL" : "HORIZONTAL"));
             ss.compile();
@@ -256,11 +262,12 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
      * Groups all the ugc zones with the same action, phensig, ETN, site, and
      * issuance time.
      */
+    @Override
     protected List<AbstractWarningRecord> mergeWatches(
             List<AbstractWarningRecord> watchrecs) {
         SimpleDateFormat sdfi = sdf.get();
 
-        Map<String, AbstractWarningRecord> watches = new HashMap<String, AbstractWarningRecord>();
+        Map<String, AbstractWarningRecord> watches = new HashMap<>();
         for (AbstractWarningRecord watchrec : watchrecs) {
             if (watchrec.getIssueTime() == null)
                 continue;
@@ -280,7 +287,7 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
             }
         }
 
-        ArrayList<AbstractWarningRecord> mergedWatches = new ArrayList<AbstractWarningRecord>(
+        List<AbstractWarningRecord> mergedWatches = new ArrayList<>(
                 watches.values());
         Collections.sort(mergedWatches, comparator);
 
@@ -307,7 +314,7 @@ public class WouWcnWatchesResource extends WatchesResource implements ISimulated
         synchronized (cwaUgcMap) {
             Set<String> ugcs = cwaUgcMap.get(siteKey);
             if (ugcs == null) {
-                ugcs = new HashSet<String>();
+                ugcs = new HashSet<>();
                 cwaUgcMap.put(siteKey, ugcs);
             }
             ugcs.addAll(recUgcs);

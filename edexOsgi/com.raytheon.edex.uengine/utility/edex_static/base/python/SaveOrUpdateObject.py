@@ -18,9 +18,14 @@
 # further licensing information.
 ##
 
-from com.raytheon.uf.edex.database.tasks import SaveOrUpdateTask
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
-from java.util import ArrayList
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Generalized query script for querying arbitrary rows out of any table in any database
@@ -33,6 +38,13 @@ from java.util import ArrayList
 #    12/11/2008      1777          bphillip       Initial Creation.
 #    
 # 
+
+
+
+from com.raytheon.uf.edex.database.tasks import SaveOrUpdateTask
+from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+from java.util import ArrayList
+
 
 class SaveOrUpdateObject():
     

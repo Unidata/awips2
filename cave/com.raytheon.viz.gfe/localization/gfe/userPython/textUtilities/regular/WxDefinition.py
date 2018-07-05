@@ -31,6 +31,11 @@
 # 
 #
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 class WxDefinition:
     def __init__(self, javaDef):
         self.__def = javaDef

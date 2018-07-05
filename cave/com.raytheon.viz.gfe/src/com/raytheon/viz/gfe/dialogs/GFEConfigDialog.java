@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -76,28 +76,33 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.config.ConfigCatalog;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Dialog to select the desired GFE config file
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket     Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 30, 2009            randerso    Initial creation
- * Oct 30, 2012 1298       rferrel     Code cleanup for non-blocking dialog.
- * Oct 28, 2015 5054       randerso    Place GfeConfigDialog on current monitor if 
- *                                     parent shell is not visible.
- * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
- * Feb 05, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
- * 
+ *
+ * Date          Ticket  Engineer  Description
+ * ------------- ------- --------- ---------------------------------------------
+ * Apr 30, 2009          randerso  Initial creation
+ * Oct 30, 2012  1298    rferrel   Code cleanup for non-blocking dialog.
+ * Oct 28, 2015  5054    randerso  Place GfeConfigDialog on current monitor if
+ *                                 parent shell is not visible.
+ * Nov 12, 2015  4834    njensen   Changed LocalizationOpFailedException to
+ *                                 LocalizationException
+ * Feb 05, 2016  5242    dgilling  Remove calls to deprecated Localization APIs.
+ * Apr 21, 2017  6239    randerso  Prevent UI deadlock if an async task calls
+ *                                 getPreferenceStore() while the dialog is
+ *                                 open.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class GFEConfigDialog extends CaveJFACEDialog {
@@ -137,17 +142,13 @@ public class GFEConfigDialog extends CaveJFACEDialog {
         totalVotes = val;
     }
 
-    private Set<Integer> usedImages = new HashSet<Integer>(totalPics);
+    private Set<Integer> usedImages = new HashSet<>(totalPics);
 
     private Image image;
 
     private Canvas imgCanvas;
 
     private Text configId;
-
-    public String getConfig() {
-        return config;
-    }
 
     private String config;
 
@@ -168,7 +169,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
 
         ConfigCatalog configCatalog = new ConfigCatalog();
         this.availableConfigs = configCatalog.getNames();
-        this.hiddenConfigs = new ArrayList<String>();
+        this.hiddenConfigs = new ArrayList<>();
         for (String name : this.availableConfigs) {
             if (configCatalog.isHidden(name)) {
                 this.hiddenConfigs.add(name);
@@ -196,8 +197,8 @@ public class GFEConfigDialog extends CaveJFACEDialog {
             for (Monitor m : monitors) {
                 Rectangle b = m.getBounds();
                 if (b.contains(cursor)) {
-                    loc.x = b.x + (b.width - initialSize.x) / 2;
-                    loc.y = b.y + (b.height - initialSize.y) / 2;
+                    loc.x = b.x + ((b.width - initialSize.x) / 2);
+                    loc.y = b.y + ((b.height - initialSize.y) / 2);
                     break;
                 }
             }
@@ -206,13 +207,6 @@ public class GFEConfigDialog extends CaveJFACEDialog {
         return loc;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveJFACEDialog//createDialogArea(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected Control createDialogArea(Composite parent) {
         Composite comp = (Composite) super.createDialogArea(parent);
@@ -252,12 +246,12 @@ public class GFEConfigDialog extends CaveJFACEDialog {
         Label configLabel = new Label(configComp, SWT.NONE);
         configLabel.setText("Config");
 
-        configList = new List(configComp, SWT.SINGLE | SWT.V_SCROLL
-                | SWT.BORDER);
+        configList = new List(configComp,
+                SWT.SINGLE | SWT.V_SCROLL | SWT.BORDER);
         layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         layoutData.heightHint = configList.getItemHeight() * 10;
         configList.setLayoutData(layoutData);
-        Set<String> configSet = new HashSet<String>(availableConfigs);
+        Set<String> configSet = new HashSet<>(availableConfigs);
         configSet.removeAll(hiddenConfigs);
         String[] configs = configSet.toArray(new String[0]);
         Arrays.sort(configs, String.CASE_INSENSITIVE_ORDER);
@@ -329,7 +323,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
     }
 
     /**
-     * 
+     *
      */
     private Image nextImage() {
         int imageNumber = randomSplash();
@@ -349,7 +343,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
             if (seed <= winnerThreshold) {
                 pic = random.nextInt(13) + 1;
                 // System.out.println("Winner: " + pic);
-            } else if (seed <= winnerThreshold + extrasThreshold) {
+            } else if (seed <= (winnerThreshold + extrasThreshold)) {
                 // Extras
                 int newSeed = random.nextInt(totalVotes);
                 for (int i = 0; i < splashDist.length; i++) {
@@ -361,7 +355,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
                 // System.out.println("Extra: " + pic);
             } else {
                 // Developer's choice
-                pic = random.nextInt(45 - 29 + 1) + 29;
+                pic = random.nextInt((45 - 29) + 1) + 29;
                 // System.out.println("Developer's choice: " + pic);
             }
             if (!usedImages.contains(pic)) {
@@ -376,10 +370,10 @@ public class GFEConfigDialog extends CaveJFACEDialog {
         today.setTime(now);
         int month = today.get(Calendar.MONTH);
         int date = today.get(Calendar.DAY_OF_MONTH);
-        if (month == Calendar.OCTOBER && date == 31) {
+        if ((month == Calendar.OCTOBER) && (date == 31)) {
             // Halloween
             pic = 50;
-        } else if (month == Calendar.JULY && date == 4) {
+        } else if ((month == Calendar.JULY) && (date == 4)) {
             // Independence Day
             pic = 49;
         }
@@ -395,30 +389,40 @@ public class GFEConfigDialog extends CaveJFACEDialog {
         return pic;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#okPressed()
-     */
     @Override
     protected void okPressed() {
+        Display display = this.getShell().getDisplay();
+
         config = configId.getText();
-
-        saveLastConfig();
-
         super.okPressed();
+
+        /* allow repaint so dialog doesn't appear to hang */
+        display.update();
+
+        /* load the selected python preferences */
+        PythonPreferenceStore pythonPrefs = new PythonPreferenceStore(config);
+        statusHandler.info("GFE started with configuration: " + config);
+
+        /* set the preferences in the activator */
+        Activator.getDefault().setPreferenceStore(pythonPrefs);
+
+        /*
+         * save the last selected config to be used as the default next time GFE
+         * is started
+         */
+        saveLastConfig();
     }
 
     private void saveLastConfig() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        ILocalizationFile lf = pathMgr
-                .getLocalizationFile(context, LAST_CONFIG);
+        ILocalizationFile lf = pathMgr.getLocalizationFile(context,
+                LAST_CONFIG);
 
         try (SaveableOutputStream outStream = lf.openOutputStream();
-                Writer out = new BufferedWriter(new OutputStreamWriter(
-                        outStream))) {
+                Writer out = new BufferedWriter(
+                        new OutputStreamWriter(outStream))) {
             out.write(config);
             out.close();
             outStream.save();
@@ -433,8 +437,8 @@ public class GFEConfigDialog extends CaveJFACEDialog {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext context = pathMgr.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
-        ILocalizationFile lf = pathMgr
-                .getLocalizationFile(context, LAST_CONFIG);
+        ILocalizationFile lf = pathMgr.getLocalizationFile(context,
+                LAST_CONFIG);
 
         config = null;
         if (lf.exists()) {

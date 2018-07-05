@@ -18,25 +18,35 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority version
+        of the file will completely replace a lower priority version of the file. 
+    -->
 <bundle>
-	<displayList>
-        <displays xsi:type="nsharpSkewTPaneDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <displayList>
+        <displays xsi:type="nsharpSkewTPaneDisplay"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <descriptor xsi:type="nsharpSkewTPaneDescriptor">
                 <resource>
-                    <loadProperties loadWithoutData="true">
-                    </loadProperties>
-                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false" isHoverOn="false" isVisible="true" />
-                    <resourceData xsi:type="bufruaNSharpResourceData" soundingType="BUFRUA">
+                    <loadProperties loadWithoutData="true"/>
+                    <properties isSystemResource="false"
+                        isBlinking="false" isMapLayer="false" isHoverOn="false"
+                        isVisible="true" />
+                    <resourceData xsi:type="bufruaNSharpResourceData"
+                        soundingType="BUFRUA">
                         <metadataMap>
-                                <mapping key="location.stationId">
-                                        <constraint constraintValue="${stationId}" constraintType="EQUALS" />
-                                </mapping>
-                                <mapping key="reportType">
-                                        <constraint constraintValue="2020" constraintType="EQUALS" />
-                                </mapping>
-                                <mapping key="pluginName">
-                                        <constraint constraintValue="bufrua" constraintType="EQUALS" />
-                                </mapping>
+                            <mapping key="location.stationId">
+                                <constraint constraintValue="${stationId}"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="reportType">
+                                <constraint constraintValue="2020"
+                                    constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="bufrua"
+                                    constraintType="EQUALS" />
+                            </mapping>
                         </metadataMap>
                     </resourceData>
                 </resource>

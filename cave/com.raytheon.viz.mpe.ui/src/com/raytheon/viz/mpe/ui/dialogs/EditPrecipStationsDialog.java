@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.SWT;
@@ -37,6 +38,7 @@ import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -101,15 +103,21 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                      grid when EditStations Apply is clicked.
  * Oct 27, 2016  5969         randerso  Add support for locating hydroapps on
  *                                      the correct monitor
- * 
+ * Mar 01, 2017  6159         dgilling  Fix ArrayOutofBoundsException in
+ *                                      getQualityTextFromCode.
+ * Jul 13, 2017  6148         bkowal    Correctly size the precipitation value textbox.
+ * Jul 24, 2017  6148         bkowal    Correctly handle 'M' values in the consistency text fields.
+ * Nov 16, 2017  6525         bkowal    Ensure the display is refreshed after "Apply" is clicked.
+ * Dec 15, 2017  6547         bkowal    Correctly recall the previous location of the dialog on the screen.
+ * Jan 23, 2018  6547         bkowal    Do not estimate values for partial days after "Apply" is clicked.
+ *                                      Immediately refresh display after changes are Applied.
  * </pre>
  *
  * @author snaples
- * @version 1.0
  */
 
-public class EditPrecipStationsDialog extends AbstractMPEDialog implements
-StationFilter {
+public class EditPrecipStationsDialog extends AbstractMPEDialog
+        implements StationFilter {
 
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(EditPrecipStationsDialog.class);
@@ -363,9 +371,8 @@ StationFilter {
 
         shell.pack();
 
-        windowReplacementHelper.manageWindows(this);
-
         DialogUtil.centerOnParentShell(parent, shell);
+        windowReplacementHelper.manageWindows(this);
 
         shell.open();
 
@@ -453,20 +460,20 @@ StationFilter {
             GetClimateSource gc = new GetClimateSource();
             pClimateSource = gc.getClimateSource(selectedStation.cparm);
 
-            stationStringBuilder.append(String.format(
-                    "monthly normal %5.2f in. source: %s\n",
-                    selectedStation.isoh[isom], pClimateSource));
+            stationStringBuilder.append(
+                    String.format("monthly normal %5.2f in. source: %s\n",
+                            selectedStation.isoh[isom], pClimateSource));
         }
         if (frain.data >= 0) {
-            stationStringBuilder.append(String.format(
-                    "estimate %5.2f in. dev %5.2f\n", frain.estimate,
-                    frain.stddev));
+            stationStringBuilder
+                    .append(String.format("estimate %5.2f in. dev %5.2f\n",
+                            frain.estimate, frain.stddev));
         }
 
         int frzlvl = pdata[pcpn_day].stn[isave].frzlvl[time_pos];
         if (selectedStation.tip == 0 && time_pos != HOURS_24 && frzlvl > -99) {
-            stationStringBuilder.append(String.format("Freezing level %dft\n",
-                    frzlvl));
+            stationStringBuilder
+                    .append(String.format("Freezing level %dft\n", frzlvl));
         }
 
         short snoflag = pdata[pcpn_day].stn[isave].snoflag[time_pos];
@@ -496,8 +503,8 @@ StationFilter {
 
         if (srain.data > -98) {
 
-            stationStringBuilder.append(String.format(
-                    "Snow water change is %5.2f in.", srain.data));
+            stationStringBuilder.append(String
+                    .format("Snow water change is %5.2f in.", srain.data));
             if (time_pos == HOURS_24 && srain.data >= 0) {
                 snow = true;
                 System.out.println("Snow water change is available for "
@@ -511,19 +518,19 @@ StationFilter {
 
             double accumulatedAmount = get24HourPrecipTotal(dqc.QPEaccum24hr,
                     selectedStation.hrap_x
-                    - DailyQcUtils.getHrap_grid().hrap_minx,
+                            - DailyQcUtils.getHrap_grid().hrap_minx,
                     selectedStation.hrap_y
-                    - DailyQcUtils.getHrap_grid().hrap_miny);
+                            - DailyQcUtils.getHrap_grid().hrap_miny);
 
-            stationStringBuilder.append(String.format(
-                    "accumulated amount %5.2f in.", accumulatedAmount));
+            stationStringBuilder.append(String
+                    .format("accumulated amount %5.2f in.", accumulatedAmount));
         }
     }
 
     // --------------------------------------------------------
 
-    private double get24HourPrecipTotal(double[][][] qpeAccum24hr,
-            float hrap_x, float hrap_y) {
+    private double get24HourPrecipTotal(double[][][] qpeAccum24hr, float hrap_x,
+            float hrap_y) {
         double value = -9.0;
         int dayIndex = pcpn_day;
 
@@ -718,7 +725,8 @@ StationFilter {
             // they are used when the Apply button is pressed.
 
             qualityCodeButtonArray = new Button[4];
-            List<Integer> allowableChangeList = getAllowableChangeList(initial_qual);
+            List<Integer> allowableChangeList = getAllowableChangeList(
+                    initial_qual);
 
             for (int i = 0; i < qualityCodeButtonArray.length; i++) {
                 final Button b = new Button(stnQualComp, SWT.RADIO);
@@ -777,7 +785,8 @@ StationFilter {
 
         // allowable states to change to (and back to)
         final Integer[] verifiedArray = { F_VERIFIED, F_BAD };
-        final Integer[] questionableArray = { F_QUESTIONABLE, F_BAD, F_SCREENED };
+        final Integer[] questionableArray = { F_QUESTIONABLE, F_BAD,
+                F_SCREENED };
         final Integer[] screenedArray = { F_SCREENED, F_BAD };
         final Integer[] badArray = { F_BAD, F_VERIFIED, F_SCREENED,
                 F_QUESTIONABLE };
@@ -870,8 +879,8 @@ StationFilter {
                 public void widgetSelected(SelectionEvent e) {
                     Station station = precipStationList.get(isave);
                     int textPositionCode = (Integer) b.getData();
-                    _textPosMgr
-                    .changeStationLocation(textPositionCode, station);
+                    _textPosMgr.changeStationLocation(textPositionCode,
+                            station);
                 }
             });
             locationButtonArray[i] = b;
@@ -899,13 +908,19 @@ StationFilter {
         gd = new GridData(SWT.CENTER, SWT.DEFAULT, false, false);
         stnConComp.setLayoutData(gd);
 
-        for (int i = 0; i < 5; i++) {
+        GC gc = new GC(stnConComp);
+        final int minWidth = gc.textExtent("99999.99").x;
+        gc.dispose();
 
+        for (int i = 0; i < 5; i++) {
             String valueString;
             precipValueLabelArray[i] = new Label(stnConComp, SWT.LEFT);
             precipValueLabelArray[i].setText(dqc.timefile[2][i]);
-            precipValueTextArray[i] = new Text(stnConComp, SWT.LEFT
-                    | SWT.BORDER | SWT.READ_ONLY);
+            precipValueTextArray[i] = new Text(stnConComp,
+                    SWT.LEFT | SWT.BORDER | SWT.READ_ONLY);
+            gd = new GridData(SWT.CENTER, SWT.DEFAULT, true, false);
+            gd.minimumWidth = minWidth;
+            precipValueTextArray[i].setLayoutData(gd);
 
             qualityCodeStatusLabelArray[i] = new Label(stnConComp, SWT.CENTER);
 
@@ -942,7 +957,11 @@ StationFilter {
     } // end createStnConComp()
 
     private String getQualityTextFromCode(int qualityCode) {
-        return qualityCodeNameArray[qualityCode];
+        if ((qualityCode >= 0) && (qualityCode < qualityCodeNameArray.length)) {
+            return qualityCodeNameArray[qualityCode];
+        } else {
+            return StringUtils.EMPTY;
+        }
 
     }
 
@@ -963,9 +982,8 @@ StationFilter {
             /*
              * (non-Javadoc)
              *
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
+             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.
+             * eclipse .swt.events.SelectionEvent)
              */
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -982,9 +1000,8 @@ StationFilter {
             /*
              * (non-Javadoc)
              *
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
+             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.
+             * eclipse .swt.events.SelectionEvent)
              */
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -1001,9 +1018,8 @@ StationFilter {
             /*
              * (non-Javadoc)
              *
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
+             * @see org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.
+             * eclipse .swt.events.SelectionEvent)
              */
             @Override
             public void widgetSelected(SelectionEvent e) {
@@ -1013,7 +1029,7 @@ StationFilter {
                 final String TSL_BUNDLE_LOC = "bundles/run-TimeSeriesLite.xml";
                 try {
                     System.out
-                    .println("Launching TSL " + lid + ", " + dataType);
+                            .println("Launching TSL " + lid + ", " + dataType);
                     alh.execute(getShell(), TSL_BUNDLE_LOC, lid, dataType);
                 } catch (ExecutionException ee) {
                     // TODO Auto-generated catch block
@@ -1080,7 +1096,6 @@ StationFilter {
         float val, fdif;
         String cstr;
         int k, p;
-        // int[] pcp_in_use = dqc.pcp_in_use;
         Boolean bval = false;
         float rtotal;
         int m;
@@ -1104,8 +1119,8 @@ StationFilter {
         // mpe_dqc_6hr_24hr_flag = 1
         // if user sets 6hr value to Bad, then 24hr value is set to Bad
 
-        String mpe_dqc_6hr_24hr_string = AppsDefaults.getInstance().getToken(
-                "mpe_dqc_6hr_24hr_set_bad", "ON");
+        String mpe_dqc_6hr_24hr_string = AppsDefaults.getInstance()
+                .getToken("mpe_dqc_6hr_24hr_set_bad", "ON");
 
         if (mpe_dqc_6hr_24hr_string.equalsIgnoreCase("OFF")) {
             mpe_dqc_6hr_24hr_flag = 0;
@@ -1151,8 +1166,10 @@ StationFilter {
 
         /* snotel path */
 
-        if (snow == true
-                && ((bval == true && pdata[pcpn_day].stn[isave].sflag[HOURS_24] == -1) || (bval == false && pdata[pcpn_day].stn[isave].sflag[HOURS_24] == 1))) {
+        if (snow == true && ((bval == true
+                && pdata[pcpn_day].stn[isave].sflag[HOURS_24] == -1)
+                || (bval == false
+                        && pdata[pcpn_day].stn[isave].sflag[HOURS_24] == 1))) {
 
             pdata[pcpn_day].stn[isave].sflag[HOURS_24] = (short) -pdata[pcpn_day].stn[isave].sflag[HOURS_24];
 
@@ -1176,8 +1193,10 @@ StationFilter {
 
             for (k = 0; k < 5; k++) {
                 cstr = precipValueStringArray[k];
-                val = Float.parseFloat(cstr);
                 p = cstr.indexOf('M');
+                if (p == -1) {
+                    val = Float.parseFloat(cstr);
+                }
                 cstr = null;
 
                 /* use manually entered data */
@@ -1210,9 +1229,8 @@ StationFilter {
                  * values to zero and set their QC codes to "Manual" as well.
                  */
 
-                if ((Math
-                        .abs(pdata[pcpn_day].stn[isave].frain[HOURS_24].data - 0.0) < 0.001)
-                        && (time_pos == HOURS_24)) {
+                if ((Math.abs(pdata[pcpn_day].stn[isave].frain[HOURS_24].data
+                        - 0.0) < 0.001) && (time_pos == HOURS_24)) {
                     for (m = 0; m < 4; m++) {
                         pdata[pcpn_day].stn[isave].frain[m].data = 0;
                         pdata[pcpn_day].stn[isave].frain[m].qual = F_MANUAL;
@@ -1242,9 +1260,9 @@ StationFilter {
 
                 }
 
-                if (time_pos == HOURS_24
-                        && (new_qual == F_BAD || new_qual == F_SCREENED
-                        || new_qual == F_VERIFIED || new_qual == F_PARTIAL)) {
+                if (time_pos == HOURS_24 && (new_qual == F_BAD
+                        || new_qual == F_SCREENED || new_qual == F_VERIFIED
+                        || new_qual == F_PARTIAL)) {
 
                     for (k = 0; k < 4; k++) {
                         pdata[pcpn_day].stn[isave].frain[k].qual = (short) new_qual;
@@ -1258,18 +1276,15 @@ StationFilter {
                  * partial data to be set to Bad
                  */
 
-                if (time_pos != HOURS_24
-                        && new_qual == F_BAD
+                if (time_pos != HOURS_24 && new_qual == F_BAD
                         && pdata[pcpn_day].stn[isave].frain[HOURS_24].qual != F_ESTIMATED
                         && pdata[pcpn_day].stn[isave].frain[HOURS_24].data >= 0) {
                     if (mpe_dqc_6hr_24hr_flag == 1) {
-                        System.out
-                        .println(header
+                        System.out.println(header
                                 + "6hr qual code set to Bad - 24hr qual code changed to Bad\n");
                         pdata[pcpn_day].stn[isave].frain[HOURS_24].qual = F_BAD;
                     } else {
-                        System.out
-                        .println(header
+                        System.out.println(header
                                 + "6hr qual code set to Bad - 24hr qual code unchanged\n");
                     }
                 }
@@ -1307,8 +1322,8 @@ StationFilter {
                     .indexOf(QcPrecipOptionsDialog.dataType.get(k)));
         }
         String[] a = new String[QcPrecipOptionsDialog.dataSet.size()];
-        QcPrecipOptionsDialog.setDataSetCombo(QcPrecipOptionsDialog.dataSet
-                .toArray(a));
+        QcPrecipOptionsDialog
+                .setDataSetCombo(QcPrecipOptionsDialog.dataSet.toArray(a));
 
         if (pcpn_time_step == 0) {
             time_pos = pcp_flag;
@@ -1347,11 +1362,9 @@ StationFilter {
          * if run DQC on partial time frame and pcpn_day=0
          */
 
-        if (pcpn_day == 0
-                && (dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
+        if (pcpn_day == 0 && DailyQcUtils.after18Z()) {
             // do nothing
         } else {
-
             EstDailyStations eds = new EstDailyStations();
             eds.estimate_daily_stations(pcpn_day, precipStationList,
                     max_stations);
@@ -1439,14 +1452,16 @@ StationFilter {
          * check if partial hydrologic day, if it is, do not popup the warning
          * message
          */
-        if (pcpn_day == 0
-                && (dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
+        if (pcpn_day == 0 && (dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1
+                || dqc.curHr18_00 == 1)) {
             partial_day_flag = true;
         } else {
             partial_day_flag = false;
         }
 
-        /* check if there is any change in the five partial values text fields */
+        /*
+         * check if there is any change in the five partial values text fields
+         */
         for (k = 0; k < 5; k++) {
             Rain frainK = pdata[pcpn_day].stn[isave].frain[k];
 
@@ -1479,14 +1494,14 @@ StationFilter {
             boolean go = MessageDialog.openQuestion(shell, title, msg);
             if (go == true) {
                 changeCustomFile();
-                // shell.dispose();
             }
         } else {
             changeCustomFile();
-            // shell.dispose();
         }
 
-        this.open();// redraw this updated dialog
+        new OtherPrecipOptions().refresh_exposure();
+        // redraw this updated dialog
+        this.open();
     }
 
     protected void read_text() {
@@ -1595,8 +1610,8 @@ StationFilter {
          * if run DQC on partial time frame and pcpn_day=0
          */
 
-        if (pcpn_day == 0
-                && (dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1 || dqc.curHr18_00 == 1)) {
+        if (pcpn_day == 0 && (dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1
+                || dqc.curHr18_00 == 1)) {
 
         } else {
             EstDailyStations eds = new EstDailyStations();

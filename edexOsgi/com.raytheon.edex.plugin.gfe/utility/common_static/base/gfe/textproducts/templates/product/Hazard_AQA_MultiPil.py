@@ -29,6 +29,12 @@
 #
 ##
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
 import GenericHazards
 import string, time, re, os, types, copy
 import ProcessVariableList

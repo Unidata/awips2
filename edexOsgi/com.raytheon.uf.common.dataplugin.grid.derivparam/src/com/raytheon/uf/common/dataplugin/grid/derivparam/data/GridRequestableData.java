@@ -45,6 +45,8 @@ import com.raytheon.uf.common.inventory.exception.DataCubeException;
  * ------------- -------- --------- -----------------
  * Mar 18, 2010  4646     bsteffen  Initial creation
  * Mar 03, 2016  5439     bsteffen  Move to common
+ * Aug 15, 2017  6332     bsteffen  Clone incoming request to ensure it is not a subclass.
+ * 
  * 
  * </pre>
  * 
@@ -52,11 +54,13 @@ import com.raytheon.uf.common.inventory.exception.DataCubeException;
  */
 public class GridRequestableData extends AbstractRequestableData {
 
+    private static final int CACHE_TIME = 15_000;
+
     protected Map<Request, SoftReference<IDataRecord[]>> cache = Collections
-            .synchronizedMap(new HashMap<Request, SoftReference<IDataRecord[]>>());
+            .synchronizedMap(new HashMap<>());
 
     protected Map<Request, Long> timeRequested = Collections
-            .synchronizedMap(new HashMap<Request, Long>());
+            .synchronizedMap(new HashMap<>());
 
     protected GridRecord gridSource;
 
@@ -71,8 +75,8 @@ public class GridRequestableData extends AbstractRequestableData {
         this.level = source.getLevel();
         this.parameter = source.getParameter().getAbbreviation();
         this.unit = source.getParameter().getUnit();
-        if (DerivedParameterGenerator.getDerParLibrary().containsKey(
-                this.parameter)) {
+        if (DerivedParameterGenerator.getDerParLibrary()
+                .containsKey(this.parameter)) {
             DerivParamDesc derivParamDesc = DerivedParameterGenerator
                     .getDerParLibrary().get(this.parameter);
             this.parameterName = derivParamDesc.getName();
@@ -102,8 +106,8 @@ public class GridRequestableData extends AbstractRequestableData {
         Long timeLastRequest = timeRequested.get(request);
         long curTime = System.currentTimeMillis();
 
-        if (notCached
-                && (timeLastRequest == null || (curTime - timeLastRequest) > 15000)) {
+        if (notCached && (timeLastRequest == null
+                || (curTime - timeLastRequest) > CACHE_TIME)) {
             timeRequested.put(request, curTime);
             return true;
         }
@@ -115,7 +119,8 @@ public class GridRequestableData extends AbstractRequestableData {
     public IDataRecord[] getDataValue(Object arg) throws DataCubeException {
 
         if (arg instanceof Request) {
-            Request request = (Request) arg;
+            Request request = new Request();
+            request.copyFrom((Request) arg);
             SoftReference<IDataRecord[]> record = cache.get(request);
             if (record != null) {
                 IDataRecord[] result = record.get();
@@ -140,7 +145,7 @@ public class GridRequestableData extends AbstractRequestableData {
                 // wait up to 15 seconds
                 long waitTime = 0;
                 if (timeLastRequest != null) {
-                    waitTime = 15000 - (time - timeLastRequest);
+                    waitTime = CACHE_TIME - (time - timeLastRequest);
                 }
 
                 if (waitTime > 0) {
@@ -160,14 +165,14 @@ public class GridRequestableData extends AbstractRequestableData {
                 }
 
                 try {
-                    IDataRecord dataRecord = GridDataRetriever.retrieve(
-                            gridSource, (Request) arg);
+                    IDataRecord dataRecord = GridDataRetriever
+                            .retrieve(gridSource, (Request) arg);
                     result = new IDataRecord[] { dataRecord };
 
                     cache.put(request, new SoftReference<>(result));
                 } catch (StorageException e) {
-                    throw new DataCubeException("Cannot request grid data for "
-                            + gridSource, e);
+                    throw new DataCubeException(
+                            "Cannot request grid data for " + gridSource, e);
                 }
             }
 

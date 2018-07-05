@@ -21,8 +21,7 @@ package com.raytheon.viz.gfe.textformatter;
 
 import java.io.File;
 import java.util.HashMap;
-
-import jep.JepException;
+import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -31,6 +30,8 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PythonScript;
+
+import jep.JepException;
 
 /**
  * Parser for the text formatter.
@@ -44,10 +45,10 @@ import com.raytheon.uf.common.python.PythonScript;
  * 29 Aug 2013   #2250     dgilling    Fix PythonScript construction to use
  *                                     proper ClassLoader, return JepExceptions
  *                                     to caller.
+ * 21 Nov 2016    5959     njensen     Cleanup
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  */
 public class TextFmtParserUtil {
 
@@ -61,17 +62,17 @@ public class TextFmtParserUtil {
     }
 
     @SuppressWarnings("unchecked")
-    public static HashMap<String, Object> parseText(String text)
+    public static Map<String, Object> parseText(String text)
             throws JepException {
 
-        HashMap<String, Object> parsedText = null;
+        Map<String, Object> parsedText = null;
 
-        HashMap<String, Object> map = new HashMap<String, Object>(1);
+        Map<String, Object> map = new HashMap<>(1);
 
         PythonScript py = getPython();
         map.put("text", text);
         Object com = py.execute("parseFromJava", "parser", map);
-        parsedText = (HashMap<String, Object>) com;
+        parsedText = (Map<String, Object>) com;
 
         return parsedText;
     }

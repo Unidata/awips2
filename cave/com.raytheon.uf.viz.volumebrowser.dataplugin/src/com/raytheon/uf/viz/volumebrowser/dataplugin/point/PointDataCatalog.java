@@ -36,6 +36,7 @@ import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.menus.vb.ViewMenu;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -51,7 +52,6 @@ import com.raytheon.viz.volumebrowser.datacatalog.DataCatalogEntry;
 import com.raytheon.viz.volumebrowser.datacatalog.IDataCatalogEntry;
 import com.raytheon.viz.volumebrowser.util.PointLineUtil;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
 import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
@@ -321,7 +321,14 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 
     @Override
     protected String[] getPlugins() {
-        return new String[] { "goessounding", "poessounding", "bufrua", "obs", "sfcobs", "bufrmosLAMP" };
+        return new String[] { "goessounding", "poessounding", "profiler",
+                "bufrua", "obs", "bufrmosLAMP" };
+        // njensen removed bufrmosAVN, bufrmosETA, bufrmosGFS, bufrmosHPC,
+        // bufrmosMRF, bufrmosNGM
+        // TODO ideally this list should not be in code, and should contain all
+        // all possible plugins, and then an intersection should be done
+        // against VbSources.xml so we only request that which a user
+        // could select
     }
 
     /**

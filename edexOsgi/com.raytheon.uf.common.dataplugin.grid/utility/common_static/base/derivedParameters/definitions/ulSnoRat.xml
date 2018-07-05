@@ -18,12 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter name="" abbreviation="ulSnoRat" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter name="" abbreviation="ulSnoRat">
     <Method levels="Surface" name="LinTrans">
-        <Field level="1000MB-500MB" abbreviation="dZ"/>
-        <ConstantField value="-0.0833"/>
-        <Field level="Surface" abbreviation="Topo"/>
-        <ConstantField value="0.00714"/>
-        <ConstantField value="454"/>
+        <Field level="1000MB-500MB" abbreviation="dZ" />
+        <ConstantField value="-0.0833" />
+        <Field level="Surface" abbreviation="Topo" />
+        <ConstantField value="0.00714" />
+        <ConstantField value="454" />
     </Method>
 </DerivedParameter>

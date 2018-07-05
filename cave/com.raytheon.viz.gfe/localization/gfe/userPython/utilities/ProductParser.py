@@ -18,6 +18,12 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 # CI block
 #   - wmoAbrevHeading  (TTAAii CCCC DDHHMM [BBB])
 #      * TTAAii (data type/location)
@@ -79,7 +85,7 @@
 
 #$$
 
-import re, bisect, cStringIO, LogStream, JUtil
+import re, bisect
 
 sl = r'^'                            # start of line
 el = r'\s*?\n'                       # end of line
@@ -92,7 +98,7 @@ pit   = r'(?P<pit>\d{6})'           # product issuance time UTC
 ff    = r'(?P<funnyfield> ' + id3 + ')?'          # "funny" field
 
 # NWS time format
-ntime = r'\d{3,4}\s+[A-Z]{2}\s+[1-Z]{3,4}\s+' + id3 + r'\s+' + id3 \
+ntime = r'\d{3,4}\s+[A-Z]{2}\s+[1-Za-z]{3,4}\s+' + id3 + r'\s+' + id3 \
         + r'\s+\d{1,2}\s+\d{4}\s*?'
 nwstime = sl + r'(?P<nwstime>' + ntime + r'(?:\s*/\s*\n?' + ntime + r'/)*\n)'
 #nwstime = sl + r'(?P<nwstime>' + ntime + r'(?:/\s*\n?' + ntime + r')*/?\n)'
@@ -304,4 +310,4 @@ class ProductParser:
 
         #print 'result = ', result
 
-        return JUtil.pyDictToJavaMap(result)
+        return result

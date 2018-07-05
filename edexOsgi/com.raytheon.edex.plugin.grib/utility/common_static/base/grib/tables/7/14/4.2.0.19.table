@@ -43,5 +43,6 @@
 232:232:Volcanic Ash Forecast Transport and Dispersion:log10(kg/m^3):VAFTD
 233:233:Icing probability:non-dim:ICPRB
 234:234:Icing severity:non-dim:ICSEV
+235:235:Snow Level:m:SNOWLVL
 255:255:Missing
 

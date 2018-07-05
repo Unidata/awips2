@@ -34,9 +34,11 @@ import java.util.concurrent.BlockingQueue;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
+import com.raytheon.uf.common.dataplugin.grid.derivparam.cache.GridCacheUpdater;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.cache.GridTimeCache;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.data.ImportRequestableData;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.tree.CubeLevelNode;
+import com.raytheon.uf.common.dataplugin.grid.derivparam.tree.GridLatLonDataLevelNode;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.tree.GridRequestableNode;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.tree.ImportLevelNode;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.tree.StaticGridDataLevelNode;
@@ -52,7 +54,9 @@ import com.raytheon.uf.common.derivparam.library.DerivParamDesc;
 import com.raytheon.uf.common.derivparam.library.DerivParamField;
 import com.raytheon.uf.common.derivparam.library.DerivParamMethod;
 import com.raytheon.uf.common.derivparam.tree.AbstractDerivedDataNode;
+import com.raytheon.uf.common.derivparam.tree.LatLonDataLevelNode.LatOrLon;
 import com.raytheon.uf.common.derivparam.tree.StaticDataLevelNode;
+import com.raytheon.uf.common.derivparam.tree.ValidTimeDataLevelNode;
 import com.raytheon.uf.common.inventory.data.AbstractRequestableData;
 import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.inventory.tree.AbstractRequestableNode;
@@ -62,6 +66,9 @@ import com.raytheon.uf.common.inventory.tree.LevelNode;
 import com.raytheon.uf.common.inventory.tree.ParameterNode;
 import com.raytheon.uf.common.inventory.tree.SourceNode;
 import com.raytheon.uf.common.serialization.comm.RequestRouter;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 
@@ -85,6 +92,9 @@ import com.raytheon.uf.common.time.DataTime;
  *                                    derived parameters to common
  * Sep 09, 2014  3356     njensen     Remove CommunicationException
  * Mar 03, 2016  5439     bsteffen    Split grid inventory into common and viz
+ * Jul 17, 2017  6345     bsteffen    Add support for latitude, longitude,
+ *                                    validTime
+ * Aug 23, 2017  6125     bsteffen    Incorporate GridInventoryUpdater.
  * 
  * </pre>
  * 
@@ -92,7 +102,17 @@ import com.raytheon.uf.common.time.DataTime;
  */
 public class CommonGridInventory extends AbstractInventory {
 
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(CommonGridInventory.class);
+
     public static final String CUBE_MASTER_LEVEL_NAME = "MB";
+
+    /**
+     * This just ensures that reinitTree() is not called before initTree().
+     * During initTree() the GridInventoryUpdater is registered which causes an
+     * early reinit that must be ignored.
+     */
+    private boolean initialized = false;
 
     @Override
     protected DataTree createBaseTree() throws DataCubeException {
@@ -100,7 +120,8 @@ public class CommonGridInventory extends AbstractInventory {
         try {
             tree = (DataTree) RequestRouter.route(new GetGridTreeRequest());
         } catch (Exception e) {
-            throw new DataCubeException("Error requesting the Grid DataTree", e);
+            throw new DataCubeException("Error requesting the Grid DataTree",
+                    e);
         }
         for (SourceNode sNode : tree.getSourceNodes().values()) {
             for (ParameterNode pNode : sNode.getChildNodes().values()) {
@@ -111,13 +132,13 @@ public class CommonGridInventory extends AbstractInventory {
                     Map<String, RequestConstraint> rcMap = new HashMap<>();
                     rcMap.put(PluginDataObject.PLUGIN_NAME_ID,
                             new RequestConstraint(GridConstants.GRID));
-                    rcMap.put(GridConstants.DATASET_ID, new RequestConstraint(
-                            sNode.getValue()));
+                    rcMap.put(GridConstants.DATASET_ID,
+                            new RequestConstraint(sNode.getValue()));
                     rcMap.put(GridConstants.PARAMETER_ABBREVIATION,
                             new RequestConstraint(pNode.getValue()));
                     rcMap.put(GridConstants.MASTER_LEVEL_NAME,
-                            new RequestConstraint(level.getMasterLevel()
-                                    .getName()));
+                            new RequestConstraint(
+                                    level.getMasterLevel().getName()));
                     rcMap.put(GridConstants.LEVEL_ONE, new RequestConstraint(
                             Double.toString(level.getLevelonevalue())));
                     rcMap.put(GridConstants.LEVEL_TWO, new RequestConstraint(
@@ -215,9 +236,8 @@ public class CommonGridInventory extends AbstractInventory {
             List<Level> levelsToProcess = new ArrayList<>();
             for (Level level : getAllLevels()) {
                 boolean flag = true;
-                if (masterLevelRC != null
-                        && !masterLevelRC.evaluate(level.getMasterLevel()
-                                .getName())) {
+                if (masterLevelRC != null && !masterLevelRC
+                        .evaluate(level.getMasterLevel().getName())) {
                     flag = false;
                 }
                 if (levelOneRC != null
@@ -239,8 +259,8 @@ public class CommonGridInventory extends AbstractInventory {
     }
 
     @Override
-    public List<DataTime> timeAgnosticQuery(Map<String, RequestConstraint> query)
-            throws DataCubeException {
+    public List<DataTime> timeAgnosticQuery(
+            Map<String, RequestConstraint> query) throws DataCubeException {
         List<DataTime> rval = null;
         Map<String, RequestConstraint> newQuery = new HashMap<>(query);
         newQuery.remove(GridConstants.PARAMETER_ABBREVIATION);
@@ -355,7 +375,9 @@ public class CommonGridInventory extends AbstractInventory {
             return null;
         }
         ParameterNode pNode = sNode.getChildNode(field.getParam());
-        /* First check if the node already exists and return early if it does. */
+        /*
+         * First check if the node already exists and return early if it does.
+         */
         LevelNode cNode = pNode == null ? null : pNode.getChildNode("3D");
         if (cNode != null) {
             return cNode;
@@ -387,7 +409,9 @@ public class CommonGridInventory extends AbstractInventory {
                 }
             }
         }
-        /* There must be at least three valid levels or the cube is not valid. */
+        /*
+         * There must be at least three valid levels or the cube is not valid.
+         */
         if (cubeLevels.size() >= 3) {
             cNode = getCubeNode(sNode.getValue(), cubeLevels);
             if (pNode == null) {
@@ -407,8 +431,7 @@ public class CommonGridInventory extends AbstractInventory {
      * {@link CubeLevelNode} but subclasses may want to override this behavior
      * for certain models.
      */
-    protected LevelNode getCubeNode(
-            String modelName,
+    protected LevelNode getCubeNode(String modelName,
             List<CubeLevel<AbstractRequestableNode, AbstractRequestableNode>> cubeLevels) {
         return new CubeLevelNode(cubeLevels, modelName);
     }
@@ -439,13 +462,12 @@ public class CommonGridInventory extends AbstractInventory {
 
     @Override
     protected AbstractDerivedDataNode getImportNode(
-            AbstractRequestableNode nodeToImport,
-            String nodeToImportSourceName, SourceNode destSourceNode,
-            DerivParamDesc desc, DerivParamMethod method, Level level) {
+            AbstractRequestableNode nodeToImport, String nodeToImportSourceName,
+            SourceNode destSourceNode, DerivParamDesc desc,
+            DerivParamMethod method, Level level) {
         return new ImportLevelNode(this, nodeToImport, nodeToImportSourceName,
                 desc, method, destSourceNode.getValue(), level);
     }
-
 
     @Override
     protected Object resolvePluginStaticData(SourceNode sNode,
@@ -454,6 +476,68 @@ public class CommonGridInventory extends AbstractInventory {
         if (StaticGridDataType.getStringValues().contains(fieldParamAbbrev)) {
             return new StaticGridDataLevelNode(sNode.getValue(),
                     fieldParamAbbrev);
+        } else if (LatOrLon.LATITUDE.toString().toLowerCase()
+                .equals(fieldParamAbbrev)) {
+            return new GridLatLonDataLevelNode(sNode.getValue(),
+                    LatOrLon.LATITUDE, level);
+        } else if (LatOrLon.LONGITUDE.toString().toLowerCase()
+                .equals(fieldParamAbbrev)) {
+            return new GridLatLonDataLevelNode(sNode.getValue(),
+                    LatOrLon.LONGITUDE, level);
+        } else if ("validTime".equals(fieldParamAbbrev)) {
+            return new ValidTimeDataLevelNode(this, sNode.getValue(), level);
+        }
+        return null;
+    }
+
+    protected GridInventoryUpdater getUpdater() {
+        return new GridInventoryUpdater(this);
+    }
+
+    @Override
+    public void initTree(Map<String, DerivParamDesc> derParLibrary)
+            throws DataCubeException {
+        super.initTree(derParLibrary);
+        if (!initialized) {
+            GridCacheUpdater.getInstance().addListener(getUpdater());
+        }
+        initialized = true;
+    }
+
+    public void reinitTree() {
+        if (!initialized) {
+            return;
+        }
+        try {
+            initTree(derParLibrary);
+        } catch (DataCubeException e) {
+            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        }
+    }
+
+    /**
+     * the source, parameter, and level are from an update from edex and if no
+     * such database node exists will trigger a new of the grid tree
+     * 
+     * @param source
+     * @param parameter
+     * @param level
+     */
+    public LevelNode getNode(String source, String parameter, Level level) {
+        try {
+            List<AbstractRequestableNode> nodes = walkTree(null,
+                    Arrays.asList(source), Arrays.asList(parameter),
+                    Arrays.asList(level), true, true, null);
+            if (nodes == null || nodes.isEmpty()) {
+                return null;
+            }
+            return nodes.get(0);
+        } catch (InterruptedException e) {
+            statusHandler
+                    .handle(Priority.PROBLEM,
+                            "Error occured in Grid Inventory: Cannot retrieve node: "
+                                    + source + "/" + parameter + "/" + level,
+                            e);
         }
         return null;
     }

@@ -2,7 +2,7 @@
 ################################################################################
 #                                                                              #
 # Program name:  rsyncGridsToCWF.sh                                            #
-# Version:  3.5-2                                                              #
+# Version:  4.0                                                                #
 # Language (Perl, C-shell, etc.): bash                                         #
 #                                                                              #
 # Authors:  Virgil Middendorf (BYZ), Steve Sigler (MSO)                        #
@@ -10,7 +10,7 @@
 #               Tim Barker, Maureen Ballard, Jay Smith, Dave Tomalak,          #
 #               Evelyn Bersack, Juliya Dynina, Jianning Zeng, John McPherson   #
 #                                                                              #
-# Date of last revision:  04/22/13                                             #
+# Date of last revision:  08/18/17                                             #
 #                                                                              #
 # Script description: This script can create a netcdf file containing IFPS     #
 #    grids, quality control the netcdf file, send the file to a local rsync    #
@@ -34,9 +34,6 @@
 #                                 you will need a /data/ldad/grid/wfo          #
 #                                 directory. (where wfo is the 3 character     #
 #                                 wfo id)                                      #
-#                                 The  checkCWFGrids.pl                        #
-#                                 script needs to be placed in the             #
-#                                 /data/ldad/grid directory.                   #
 #                                                                              #
 # Revision History:                                                            #
 # 02/12/07:  Created Script to rsync grids to CRH from ls1. vtm                #
@@ -146,6 +143,12 @@
 # 02/24/14:  Create the file if rsync_parms.${site} is not available,          #
 #            and mkdir the site directory on the local rsync server if it      #
 #            does not exist.                                                   #
+# *** Version 4.0 ***                                                          #
+# 08/18/17:  Moved script to new /awips2/GFESuite/rsyncGridsToCWF/bin loc. vtm #
+# 08/18/17:  Changed directory structure of app in configuration section.      #
+#            Replaced DXwrkDir and WRKDIR with PROGRAM_ equivalents. vtm       #
+# 08/18/17:  Added code to purge log directory after 14 days. vtm              #
+# 08/18/17:  Reworked rsync check. DCS 17527. vtm                              #
 ################################################################################
 # check to see if site id was passed as argument
 # if not then exit from the script
@@ -163,37 +166,54 @@ fi
 #    Configuration Section                                                     #
 ################################################################################
 
-IFPS_DATA="/awips2/GFESuite/ServiceBackup/data"
-IFPS_CREATE_FILE="/awips2/GFESuite/bin"
+GFESUITE_BIN="/awips2/GFESuite/bin"
+PROGRAM_DIR="/awips2/GFESuite/rsyncGridsToCWF"
+PROGRAM_BIN="${PROGRAM_DIR}/bin"
+PROGRAM_ETC="${PROGRAM_DIR}/etc"
+PROGRAM_CONFIG="${PROGRAM_DIR}/config"
+PROGRAM_LOG="${PROGRAM_DIR}/log"
+PROGRAM_DATA="${PROGRAM_DIR}/data"
 
-if [ ! -f ${IFPS_DATA}/rsync_parms.${site} ] ;then
-    cp ${IFPS_CREATE_FILE}/rsync_parms.ccc ${IFPS_DATA}/rsync_parms.${site}
-       # Added above line for DR 16464, just create file if it does not exist, do not error off    
-       # echo "${IFPS_DATA}/rsync_parms.${site} does not exist!"
-       # echo "Please contact your ITO to create this file from /awips2/GFESuite/bin/rsync_parms.ccc"
-       # exit
+################################################################################
+#    End of Configuration Section                                              #
+################################################################################
+
+# Source in rsync_parms file for site. Copy in old site or baseline version if missing.
+
+OLD_IFPS_DATA="/awips2/GFESuite/ServiceBackup/data"
+
+if [ ! -f ${PROGRAM_ETC}/rsync_parms.${site} ] ;then
+   # rsync_parms for site does not exist. Check if exists in old directory and if so, copy over.
+   if [ -f ${OLD_IFPS_DATA}/rsync_parms.${site} ] ;then
+      cp ${OLD_IFPS_DATA}/rsync_parms.${site} ${PROGRAM_ETC}/rsync_parms.${site}
+   # rsync_parms not in old directory so get from baseline config directory
+   else
+      cp ${PROGRAM_CONFIG}/rsync_parms.ccc ${PROGRAM_ETC}/rsync_parms.${site}
+   fi
 fi
-# else
-    . ${IFPS_DATA}/rsync_parms.${site}
-# fi
+
+. ${PROGRAM_ETC}/rsync_parms.${site}
 
 ################################################################################
 
-# set current data and log file name
+# set current data and log file names
 currdate=$(date -u +%Y%m%d)
-export LOG_FILE="${DXwrkDir}/log/${currdate}/netcdf_rsync.log"
+export LOG_FILE="${PROGRAM_LOG}/${currdate}/netcdf_rsync.log"
 
 # check to see if log directory structure exists.
-if [ ! -d  ${DXwrkDir}/log ] ;then
-   mkdir -p ${DXwrkDir}/log
-   chmod 777 ${DXwrkDir}/log
-   chown awips:fxalpha ${DXwrkDir}/log
+if [ ! -d  ${PROGRAM_LOG} ] ;then
+   mkdir -p ${PROGRAM_LOG}
+   chmod 777 ${PROGRAM_LOG}
+   chown awips:fxalpha ${PROGRAM_LOG}
 fi
-if [ ! -d  ${DXwrkDir}/log/${currdate} ] ;then
-   mkdir -p ${DXwrkDir}/log/${currdate}
-   chmod 777 ${DXwrkDir}/log/${currdate}
-   chown awips:fxalpha ${DXwrkDir}/log/${currdate}
+if [ ! -d  ${PROGRAM_LOG}/${currdate} ] ;then
+   mkdir -p ${PROGRAM_LOG}/${currdate}
+   chmod 777 ${PROGRAM_LOG}/${currdate}
+   chown awips:fxalpha ${PROGRAM_LOG}/${currdate}
 fi
+
+# Purge old log files
+find ${PROGRAM_LOG}/. -mtime +14 -exec rm {} -Rf \;
 
 # Log file header
 echo " " >> $LOG_FILE
@@ -202,34 +222,34 @@ echo "# Starting Grid Rsync Script....                                          
 echo "####################################################################################" >> $LOG_FILE
 chmod 666 $LOG_FILE
 
-# Check to see of the ${WRKDIR} directory exists. If not, then create.
-echo making sure that ${WRKDIR} exists at $(date) >> $LOG_FILE
-if [ ! -d ${WRKDIR} ] ;then
-   echo "  ${WRKDIR} directory not found." >> $LOG_FILE
-   echo "  making ${WRKDIR} directory..." >> $LOG_FILE
-   mkdir -p ${WRKDIR}
-   echo "  changing permissions of ${WRKDIR} directory..." >> $LOG_FILE
-   chmod 777 ${WRKDIR}
-   echo "  changing ownership of ${WRKDIR} directory to fxa..." >> $LOG_FILE
-   chown awips:fxalpha ${WRKDIR}
+# Check to see of the ${PROGRAM_DATA} directory exists. If not, then create.
+echo making sure that ${PROGRAM_DATA} exists at $(date) >> $LOG_FILE
+if [ ! -d ${PROGRAM_DATA} ] ;then
+   echo "  ${PROGRAM_DATA} directory not found." >> $LOG_FILE
+   echo "  making ${PROGRAM_DATA} directory..." >> $LOG_FILE
+   mkdir -p ${PROGRAM_DATA}
+   echo "  changing permissions of ${PROGRAM_DATA} directory..." >> $LOG_FILE
+   chmod 777 ${PROGRAM_DATA}
+   echo "  changing ownership of ${PROGRAM_DATA} directory to awips..." >> $LOG_FILE
+   chown awips:fxalpha ${PROGRAM_DATA}
 else
-   echo "  ${WRKDIR} directory exists!" >> $LOG_FILE
+   echo "  ${PROGRAM_DATA} directory exists!" >> $LOG_FILE
 fi
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
-# Clean up orphaned files in the NETCDF directory.
-echo cleaning up orphaned files in the ${WRKDIR} directory at $(date) >> $LOG_FILE
-find ${WRKDIR}/. -mmin +60 -exec rm {} -f \;
+# Clean up files older than 60 minutes in the ${PROGRAM_DATA} directory.
+echo cleaning up files older than 60 minutes in the ${PROGRAM_DATA} directory at $(date) >> $LOG_FILE
+find ${PROGRAM_DATA}/. -type f -mmin +60 -exec rm {} -f \;
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
+# sending to log file parmlist and mask settings
 if [ "$parmlist" != "" ] && [ "$parmlist" != "     " ]; then
   echo "Will trim elements to $parmlist" >> $LOG_FILE
 else
   echo "Will send all elements" >> $LOG_FILE
 fi
-
 echo "Using grid domain $mask" >> $LOG_FILE
 
 # Determine the ifpnetCDF start and end times.
@@ -246,16 +266,16 @@ do
    # create the netcdf file
    echo starting netcdf file creation...attempt number ${creationAttemptCount} at $(date) >> $LOG_FILE
    echo " " >> $LOG_FILE
-   ${GFESUITE_BIN}/ifpnetCDF -t -g -o ${WRKDIR}/CurrentFcst.$$.${site}.cdf -h $CDSHOST -d ${SITE}_GRID__Official_00000000_0000 -m $mask $cdfTimeRange $parmlist >> $LOG_FILE 2>&1
+   ${GFESUITE_BIN}/ifpnetCDF -t -g -o ${PROGRAM_DATA}/CurrentFcst.$$.${site}.cdf -h $CDSHOST -d ${SITE}_GRID__Official_00000000_0000 -m $mask $cdfTimeRange $parmlist >> $LOG_FILE 2>&1
 
    # Check to see if netcdf file is big enough. In service backup, publish to official may have been forgotten.
-   filesize=$(ls -l ${WRKDIR}/CurrentFcst.$$.${site}.cdf | awk '{print $5}')
+   filesize=$(ls -l ${PROGRAM_DATA}/CurrentFcst.$$.${site}.cdf | awk '{print $5}')
    if (( filesize < 1000000 )) ;then
       echo $filesize >> $LOG_FILE
       if [[ $turnOffAllNotifications == "no" ]] ;then
-         ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} netcdf file determined to be incomplete and not sent to webfarms. Did you publish to official?" -s
+         ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} netcdf file determined to be incomplete and not sent to webfarms. Did you publish to official? Is EDEX down?" -s
       fi
-      rm -f ${WRKDIR}/CurrentFcst.$$.${site}.cdf
+      rm -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.cdf
       echo netcdf file is too small. Either the Official database is empty OR EDEX is down. >> $LOG_FILE
       echo Script stopped. >> $LOG_FILE
       exit
@@ -270,7 +290,7 @@ do
    if [[ $QCnetCDF == "yes" ]] ;then
       #Check netcdf file for errors. 
       echo started netcdf file checking at $(date) >> $LOG_FILE
-      ${GFESUITE_BIN}/iscMosaic -h $CDSHOST $parmlist -f ${WRKDIR}/CurrentFcst.$$.${site}.cdf -d ${SITE}_GRID_Test_Fcst_00000000_0000 -D $iscMosaicDelay 
+      ${GFESUITE_BIN}/iscMosaic -h $CDSHOST $parmlist -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.cdf -d ${SITE}_GRID_Test_Fcst_00000000_0000 -D $iscMosaicDelay 
       
       if [[ $? > 0 ]] ;then
          if [[ $creationAttemptCount == $creationAttempts ]] ;then
@@ -285,7 +305,7 @@ do
             fi
             echo "Errors detected in ${SITE} netcdf file. Regenerating netcdf file." >> $LOG_FILE
          fi
-         rm -f ${WRKDIR}/CurrentFcst.$$.${site}.cdf
+         rm -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.cdf
          (( creationAttemptCount = $creationAttemptCount + 1 ))
       else
          echo The netcdf file appears to be good. >> $LOG_FILE
@@ -302,44 +322,43 @@ echo " " >> $LOG_FILE
 
 # create the optimized netcdf file
 echo creating optimzed netcdf file at $(date) >> $LOG_FILE
-cp ${WRKDIR}/CurrentFcst.$$.${site}.cdf ${WRKDIR}/CurrentFcst.$$.${site}.opt.cdf >> $LOG_FILE 2>&1
-
-$GFESUITE_BIN/convert_netcdf.pl ${WRKDIR}/CurrentFcst.$$.${site}.cdf ${WRKDIR}/CurrentFcst.$$.${site}.opt.cdf >> $LOG_FILE 2>&1
+cp ${PROGRAM_DATA}/CurrentFcst.$$.${site}.cdf ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf >> $LOG_FILE 2>&1
+${PROGRAM_BIN}/convert_netcdf.pl ${PROGRAM_DATA}/CurrentFcst.$$.${site}.cdf ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf >> $LOG_FILE 2>&1
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
 # check space used by the process of creating the opt netcdf file in the netcdf directory
-echo "space used in netcdf:  $(cd ${WRKDIR}; du -m --max-depth=1) mb" >> $LOG_FILE
+echo "space used in ${PROGRAM_DATA}:  $(cd ${PROGRAM_DATA}; du -m --max-depth=1) mb" >> $LOG_FILE
 echo ...finished >> $LOG_FILE
 echo " " >> $LOG_FILE
       
 # cleaning up files on AWIPS created by the optimizing process.
 echo cleaning up files on AWIPS created by the optimizing process at $(date) >> $LOG_FILE
-rm -f ${WRKDIR}/CurrentFcst.$$.${site}.cdf
-rm -f ${WRKDIR}/CurrentFcst.$$.${site}.cdf.cdl
-rm -f ${WRKDIR}/CurrentFcst.$$.${site}.opt.cdf.opt.cdl
+rm -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.cdf >> $LOG_FILE 2>&1
+rm -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.cdf.cdl >> $LOG_FILE 2>&1
+rm -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf.opt.cdl >> $LOG_FILE 2>&1
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
 # zip up the optimized netcdf file
 echo starting optimized netcdf file zipping at $(date) >> $LOG_FILE
-gzip -9 ${WRKDIR}/CurrentFcst.$$.${site}.opt.cdf
+gzip -9 ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf >> $LOG_FILE 2>&1
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
 # check spaced used by the zipped opt netcdf file in the netcdf directory
-echo "space used in netcdf:  $(cd ${WRKDIR}; du -m --max-depth=1) mb" >> $LOG_FILE
+echo "space used in ${PROGRAM_DATA}:  $(cd ${PROGRAM_DATA}; du -m --max-depth=1) mb" >> $LOG_FILE
 echo ... finished >> $LOG_FILE
 echo " " >> $LOG_FILE
 
 # if directory to write to is not on local rysnc server, create it. DR 16464
-if ! ssh ${locServer} 'ls "${locDirectory}" >/dev/null' ;then
+if ! ssh ${locServer} "[ -d ${locDirectory} ]" 2> /dev/null  ;then
      ssh ${locServer} mkdir ${locDirectory}
 fi
 
 # Clean up orphaned files on the local rsync server.
 echo cleaning up orphaned files on $locServer in the ${locDirectory}/${site} directory at $(date) >> $LOG_FILE
-ssh $locServer "find ${locDirectory}/${site} -mmin +720 -exec rm {} -f \;"
+ssh $locServer "find ${locDirectory}/${site} -mmin +720 -exec rm {} -f \;" >> $LOG_FILE 2>&1
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
@@ -350,7 +369,7 @@ do
    if [ "success" = $CHK ] >/dev/null 2>&1
    then
       echo attempt $i to scp optimized netcdf file to $locServer at $(date) >> $LOG_FILE
-      scp ${WRKDIR}/CurrentFcst.$$.${site}.opt.cdf.gz ${locServer}:${locDirectory}/${site} >> $LOG_FILE 2>&1
+      scp ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf.gz ${locServer}:${locDirectory}/${site} >> $LOG_FILE 2>&1
       echo ...finished. >> $LOG_FILE
       echo " " >> $LOG_FILE
       break
@@ -365,14 +384,14 @@ if [[ $CHK != "success" ]] ;then
        ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "Failed to send optimized netcdf file to $locServer. Script stopped." -s
    fi
    # cleanup the zipped optimized file on AWIPS
-   rm -f ${WRKDIR}/CurrentFcst.$$.${site}.opt.cdf.gz
+   rm -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf.gz
    echo "Failed to send optimized netcdf file to $locServer at $(date). Script stopped." >> $LOG_FILE
    exit 1
 fi
 
 # cleaning up the zipped optimized file on AWIPS.
 echo cleaning up the zipped optimized file on AWIPS at $(date) >> $LOG_FILE
-rm -f ${WRKDIR}/CurrentFcst.$$.${site}.opt.cdf.gz
+rm -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf.gz
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
@@ -432,45 +451,47 @@ do
 
 
    if [[ $rsync_ok == "yes" ]] ;then
-   
+      # create the rsync test data file
+      RSYNC_LOG_FILE="${PROGRAM_DATA}/rsync.$$.log"
+      echo "" > $RSYNC_LOG_FILE
+      
       # launch the rsync process that sends the netcdf file to the consolidated web farm at $(date)
       echo " " >> $LOG_FILE
       echo starting netcdf file rsync to consolidated webserver at $(date) >> $LOG_FILE
       echo " " >> $LOG_FILE
-      echo rsyncCMD
-      rsyncCMD="/usr/bin/rsync -rDvlzt ${locRsyncSwitches} --stats --progress ${locDirectory}/${site}/CurrentFcst.$$.${site}.opt.cdf.gz ${remServer1}::${remDirectory1}/CurrentFcst.${site}.cdf.gz"
-      ssh $locServer "$rsyncCMD" >> $LOG_FILE 2>&1
       (( rsyncAttempt = $rsyncAttempt + 1 ))
+      rsyncCMD="/usr/bin/rsync -rDvlzt ${locRsyncSwitches} --stats --progress ${locDirectory}/${site}/CurrentFcst.$$.${site}.opt.cdf.gz ${remServer1}::${remDirectory1}/CurrentFcst.${site}.cdf.gz"
+      ssh $locServer "$rsyncCMD" >> $LOG_FILE 2> $RSYNC_LOG_FILE
       echo $rsyncCMD >> $LOG_FILE
       echo "...finished." >> $LOG_FILE
       echo " " >> $LOG_FILE
       
       if [[ $checkCWFavailability == "yes" ]] ;then
+      
+         # Grep rsync test file for a host of errors
+         error1=$(grep "connection unexpectedly closed" $RSYNC_LOG_FILE)
+         error2=$(grep "failed to connect" $RSYNC_LOG_FILE)
+         error3=$(grep "Connection closed by remote host" $RSYNC_LOG_FILE)
+         error4=$(grep "Name or service not known" $RSYNC_LOG_FILE)
+         error5=$(grep "Temporary failure in name resolution" $RSYNC_LOG_FILE)
+         rsyncFlag="Fail"
+         if [[ $error1 == "" && $error2 == "" && $error3 == "" && $error4 == "" && $error5 == "" ]] ;then
+            rsyncFlag="Pass"
+         fi
 
          # Check to see if netcdf file was posted at the Consolidated Web Farm. If not, then send red banner message.
          # If it did then send a notification to the forecasters that the send was successful.
-         echo waiting $CWFcheckWait seconds before check at $(date) >> $LOG_FILE
-         sleep $CWFcheckWait
-         echo starting consolidated web farm check at $(date) >> $LOG_FILE
-
-	 if [ ! -f ${locServer}:${locDirectory}/checkCWFGrids.pl ] ;then 
-	    scp $GFESUITE_BIN/checkCWFGrids.pl ${locServer}:${locDirectory}/checkCWFGrids.pl
-	    ssh ${locServer} "chmod 777 ${locDirectory}/checkCWFGrids.pl"
-            ssh ${locServer} "chown ldad:ldad ${locDirectory}/checkCWFGrids.pl"
-	 fi
-
-         msg=$(ssh $locServer ${locDirectory}/checkCWFGrids.pl ${SITE})
-         if [[ $msg != "" ]] ;then
+         if [[ $rsyncFlag == "Fail" ]] ;then
             if [[ $turnOffAllNotifications == "no" ]] ;then
-               ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${msg}" -s
+               ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "Rysnc of grids to sync.weather.gov has failed. Attempting rsync again. ${error1} ${error2} ${error3} ${error4}" -s
             fi
             echo Detected that grids did NOT make it to the Consolidated web farm at $(date) >> $LOG_FILE
-            echo "${msg}" >> $LOG_FILE
+            echo "Rysnc of grids to sync.weather.gov has failed. Attempting rsync again. ${error1} ${error2} ${error3} ${error4}" >> $LOG_FILE
             if [[ $sendEmailNotification == "yes" ]] ;then
-               echo "X-Priority: 3" > /awips/adapt/ifps/localbin/email.txt
-               echo "Subject: CWF Grid Rsync Report" >> /awips/adapt/ifps/localbin/email.txt
-               echo "${msg}" >> /awips/adapt/ifps/localbin/email.txt
-               scp /awips/adapt/ifps/localbin/email.txt ${locServer}:${locDirectory}/email.txt
+               echo "X-Priority: 3" > ${PROGRAM_DATA}/email.txt
+               echo "Subject: CWF Grid Rsync Report" >> ${PROGRAM_DATA}/email.txt
+               echo "Rysnc of grids to sync.weather.gov has failed. Attempting rsync again. ${error1} ${error2} ${error3} ${error4}" >> ${PROGRAM_DATA}/email.txt
+               scp ${PROGRAM_DATA}/email.txt ${locServer}:${locDirectory}/email.txt
                if [[ $emailAddress1 != "" ]] ;then
                   ssh $locServer "/usr/sbin/sendmail -FAWIPS -fldad ${emailAddress1} < ${locDirectory}/email.txt"
                fi
@@ -506,6 +527,7 @@ do
          fi
          echo Detected that grids did NOT make it to the Consolidated web farm at $(date) >> $LOG_FILE
       fi
+      rm -f $RSYNC_LOG_FILE
          
    fi
    

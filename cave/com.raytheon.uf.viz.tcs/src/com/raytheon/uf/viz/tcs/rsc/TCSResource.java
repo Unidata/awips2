@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,11 +21,15 @@ package com.raytheon.uf.viz.tcs.rsc;
 
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
@@ -33,6 +37,7 @@ import javax.measure.unit.SI;
 
 import org.eclipse.swt.graphics.RGB;
 import org.geotools.referencing.GeodeticCalculator;
+import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.tcs.Radius;
@@ -68,11 +73,11 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Resource for displaying data from a {@link TropicalCycloneSummary}.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- ---------------------------------------
  * Oct 22, 2010           jsanchez  Initial creation
@@ -81,36 +86,40 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
  * Nov 30, 2015  5149     bsteffen  Rename TcsUtil, update class javadoc
  * Jan 27, 2016  5285     tgurney   Remove dependency on dataURI
- * 
+ * Sep 30, 2016  5887     mapeters  Added shapeMap to allow reuse of wireframes
+ *                                  across paintInternal() calls
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
- * @version 1.0
  */
 
-public class TCSResource extends
-        AbstractVizResource<TCSResourceData, MapDescriptor> implements
-        IResourceDataChanged, TCSConstants {
+public class TCSResource
+        extends AbstractVizResource<TCSResourceData, MapDescriptor>
+        implements IResourceDataChanged, TCSConstants {
+
+    private static final UnitConverter NM_TO_M = NonSI.NAUTICAL_MILE
+            .getConverterTo(SI.METER);
+
+    private final Map<TropicalCycloneSummary, Map<LineStyle, IWireframeShape>> shapeMap = new HashMap<>();
+
+    private final Map<DataTime, PointDataContainer> recordsToDisplay = new HashMap<>();
+
+    private final Set<DataTime> dataTimesToUpdate = new HashSet<>();
+
+    private final GeodeticCalculator gc = new GeodeticCalculator();
+
     private IFont font;
 
     private SymbolLoader symbolLoader;
 
     private RGB color;
 
-    private Map<DataTime, PointDataContainer> recordsToDisplay = new HashMap<DataTime, PointDataContainer>();
-
-    private Map<DataTime, Collection<TropicalCycloneSummary>> recordsToParse = new HashMap<DataTime, Collection<TropicalCycloneSummary>>();
-
-    private GeodeticCalculator gc = new GeodeticCalculator();
-
-    private static final UnitConverter NM_TO_M = NonSI.NAUTICAL_MILE
-            .getConverterTo(SI.METER);
-
     protected TCSResource(TCSResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
         resourceData.addChangeListener(this);
-        this.dataTimes = new ArrayList<DataTime>();
+        this.dataTimes = new ArrayList<>();
     }
 
     @Override
@@ -135,6 +144,8 @@ public class TCSResource extends
             font.dispose();
             font = null;
         }
+
+        disposeShapes();
     }
 
     @Override
@@ -152,44 +163,51 @@ public class TCSResource extends
         if (resourceData.isHourlyForecast && dt != null) {
             dt = new DataTime(dt.getRefTime());
         }
-        Collection<TropicalCycloneSummary> toParse = recordsToParse.get(dt);
-        if (toParse != null && toParse.size() > 0) {
+        if (dataTimesToUpdate.contains(dt)) {
             updateRecords(dt);
         }
-        PointDataContainer pdc = null;
-        if (resourceData.isHourlyForecast) {
-            pdc = recordsToDisplay.get(dt);
-        } else {
-            pdc = recordsToDisplay.get(dt);
-        }
 
+        PointDataContainer pdc = recordsToDisplay.get(dt);
         if (pdc != null) {
-            for (int uriCounter = 0; uriCounter < pdc.getCurrentSz(); uriCounter++) {
+            for (int uriCounter = 0; uriCounter < pdc
+                    .getCurrentSz(); uriCounter++) {
                 PointDataView pdv = pdc.readRandom(uriCounter);
                 if (resourceData.isHourlyForecast) {
-                    paintHourlyForecast(target, paintProps, pdv, scale);
+                    TropicalCycloneSummary storm = TcsUtil.interplateStorm(pdv,
+                            paintProps.getDataTime());
+                    /*
+                     * Set the storm's DataTime as the same refTime-only one
+                     * passed to updateRecords() above, so that switching
+                     * between frame counts correctly adds/removes records and
+                     * their corresponding shapes
+                     */
+                    storm.setDataTime(dt);
+                    paintHourlyForecast(target, paintProps, scale, storm);
                 } else {
-                    paintTrackSummary(target, paintProps, pdv, scale);
+                    paintTrackSummary(target, paintProps, scale, pdv);
                 }
             }
         }
     }
 
     private void paintHourlyForecast(IGraphicsTarget target,
-            PaintProperties paintProps, PointDataView pdv, double scale)
-            throws VizException {
+            PaintProperties paintProps, double scale,
+            TropicalCycloneSummary storm) throws VizException {
+        displayOneStorm(target, paintProps, storm.getLongitude(),
+                storm.getLatitude(), storm.getPressure(), storm.getName(),
+                storm.getWindSpeed(), storm.isTropical(),
+                storm.getDisplayTime(), scale, true);
 
-        TropicalCycloneSummary storm = TcsUtil.interplateStorm(pdv,
-                paintProps.getDataTime());
-        displayOneStorm(target, paintProps, (float) storm.getLongitude(),
-                (float) storm.getLatitude(), storm.getPressure(),
-                storm.getName(), storm.getWindSpeed(), storm.isTropical(),
-                storm.getDisplayTime(), scale, true, storm.getRadiusList());
+        if (paintProps.getZoomLevel() * descriptor.getMapWidth()
+                / 1000 < ZOOM_LEVEL) {
+            drawLegends(target, paintProps, scale);
+            drawRadius(target, storm);
+        }
     }
 
     private void paintTrackSummary(IGraphicsTarget target,
-            PaintProperties paintProps, PointDataView pdv, double scale)
-            throws VizException {
+            PaintProperties paintProps, double scale, PointDataView pdv)
+                    throws VizException {
         int pressure = pdv.getInt(PRESSURE);
         String name = pdv.getString(NAME);
 
@@ -201,11 +219,10 @@ public class TCSResource extends
 
         int size = pdv.getInt(SIZE);
         for (int i = 0; i < size; i++) {
-            displayOneStorm(target, paintProps, longitudes[i].floatValue(),
-                    latitudes[i].floatValue(), i == 0 ? pressure : 0, name,
-                    windSpeeds[i].intValue(),
-                    isTropicals[i].intValue() == 1 ? true : false,
-                    displayTimes[i], scale, false, null);
+            displayOneStorm(target, paintProps, longitudes[i].doubleValue(),
+                    latitudes[i].doubleValue(), i == 0 ? pressure : 0, name,
+                    windSpeeds[i].intValue(), isTropicals[i].intValue() == 1,
+                    displayTimes[i], scale, false);
         }
 
         double[] loc = calcNameLocation(latitudes[0].floatValue(),
@@ -220,13 +237,13 @@ public class TCSResource extends
     }
 
     private void displayOneStorm(IGraphicsTarget target,
-            PaintProperties paintProps, float longitude, float latitude,
+            PaintProperties paintProps, double longitude, double latitude,
             int pressure, String name, int windSpeed, boolean isTropical,
-            String displayTime, double scale, boolean drawRadius,
-            ArrayList<Radius> radiusList) throws VizException {
+            String displayTime, double scale, boolean drawRadiusLabel)
+                    throws VizException {
 
-        double[] loc = descriptor.worldToPixel(new double[] { longitude,
-                latitude });
+        double[] loc = descriptor
+                .worldToPixel(new double[] { longitude, latitude });
         scale *= getCapability(MagnificationCapability.class)
                 .getMagnification();
 
@@ -256,7 +273,7 @@ public class TCSResource extends
         // Plotting storm symbol
         drawStormSymbol(target, paintProps, loc, windSpeed, isTropical, scale);
 
-        List<DrawableString> strings = new ArrayList<DrawableString>(4);
+        List<DrawableString> strings = new ArrayList<>(4);
         // Plotting time
         DrawableString string1 = new DrawableString(displayTime, color);
         string1.font = font;
@@ -265,8 +282,8 @@ public class TCSResource extends
         strings.add(string1);
 
         // Plotting wind speed
-        DrawableString string2 = new DrawableString(
-                formatter.format(windSpeed), color);
+        DrawableString string2 = new DrawableString(formatter.format(windSpeed),
+                color);
         string2.font = font;
         string2.setCoordinates(loc[0] - (1.5 * scale), loc[1]);
         string2.horizontalAlignment = HorizontalAlignment.RIGHT;
@@ -284,61 +301,82 @@ public class TCSResource extends
             strings.add(string3);
         }
 
-        // // -------------Draw the wind radius.---------------
-        if (!drawRadius) {
-            target.drawStrings(strings);
-            return;
+        if (drawRadiusLabel) {
+            // Plot the name of the wind radius
+            DrawableString string4 = new DrawableString(name, color);
+            string4.font = font;
+            string4.setCoordinates(loc[0], loc[1] + (7 * scale));
+            string4.horizontalAlignment = HorizontalAlignment.CENTER;
+            string4.verticalAlignment = VerticalAlignment.MIDDLE;
+            strings.add(string4);
         }
-        // Plotting name
-        DrawableString string4 = new DrawableString(name, color);
-        string4.font = font;
-        string4.setCoordinates(loc[0], loc[1] + (7 * scale));
-        string4.horizontalAlignment = HorizontalAlignment.CENTER;
-        string4.verticalAlignment = VerticalAlignment.MIDDLE;
-        strings.add(string4);
 
         target.drawStrings(strings);
-
-        if (paintProps.getZoomLevel() * descriptor.getMapWidth() / 1000 < ZOOM_LEVEL) {
-            drawLegends(target, paintProps, scale);
-            drawRadius(target, descriptor.pixelToWorld(loc), radiusList);
-        }
     }
 
-    private void drawRadius(IGraphicsTarget target, double[] latLon,
-            ArrayList<Radius> radiusList) throws VizException {
+    private void drawRadius(IGraphicsTarget target,
+            TropicalCycloneSummary storm) throws VizException {
         Coordinate[] coordinates = null;
+        List<Radius> radiusList = storm.getRadiusList();
+        double[] latLon = new double[] { storm.getLongitude(),
+                storm.getLatitude() };
 
         // Draw the XX KT... lines.
         LineStyle lineStyle = null;
-        if (radiusList != null) {
-            for (Radius rad : radiusList) {
-                // Make line styles
-                switch (rad.getKT_FT()) {
-                case 50: // - - - for 50 KT
-                    lineStyle = LineStyle.DASHED;
-                    break;
-                case 34: // . . . . for 34 KT
-                    lineStyle = LineStyle.DOTTED;
-                    break;
-                default: // ----- for 64KT and 12FT
-                    lineStyle = LineStyle.SOLID;
-                }
-                coordinates = makePolygon8(latLon, rad);
 
-                if (lineStyle != null && coordinates != null) {
-                    IWireframeShape shape = target.createWireframeShape(false,
-                            descriptor);
-                    shape.addLineSegment(coordinates);
-                    target.drawWireframeShape(shape, color, 1.5f, lineStyle);
-                    shape.dispose();
+        /*
+         * From shapeMap, get the map of LineStyles to the IWireframeShapes to
+         * be drawn with each LineStyle for this storm. If the lineStyleMap
+         * isn't in shapeMap yet, create it.
+         */
+        Map<LineStyle, IWireframeShape> lineStyleMap;
+        synchronized (shapeMap) {
+            lineStyleMap = shapeMap.get(storm);
+            if (lineStyleMap == null && radiusList != null) {
+                for (Radius rad : radiusList) {
+                    // Make line styles
+                    switch (rad.getKT_FT()) {
+                    case 50: // - - - for 50 KT
+                        lineStyle = LineStyle.DASHED;
+                        break;
+                    case 34: // . . . . for 34 KT
+                        lineStyle = LineStyle.DOTTED;
+                        break;
+                    default: // ----- for 64KT and 12FT
+                        lineStyle = LineStyle.SOLID;
+                    }
+                    coordinates = makePolygon8(latLon, rad);
+
+                    if (lineStyle != null && coordinates != null) {
+                        if (lineStyleMap == null) {
+                            lineStyleMap = new EnumMap<>(LineStyle.class);
+                            shapeMap.put(storm, lineStyleMap);
+                        }
+
+                        IWireframeShape shape = lineStyleMap.get(lineStyle);
+                        if (shape == null) {
+                            shape = target.createWireframeShape(false,
+                                    descriptor);
+                            lineStyleMap.put(lineStyle, shape);
+                        }
+
+                        shape.addLineSegment(coordinates);
+                    }
                 }
+            }
+        }
+
+        if (lineStyleMap != null) {
+            for (Entry<LineStyle, IWireframeShape> entry : lineStyleMap
+                    .entrySet()) {
+                target.drawWireframeShape(entry.getValue(), color, 1.5f,
+                        entry.getKey());
             }
         }
     }
 
     private Coordinate[] makePolygon8(double[] latLon, Radius rad) {
-        ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
+        List<Coordinate> coordinates = new ArrayList<>();
 
         Coordinate[] p = new Coordinate[8];
         Coordinate pT = new Coordinate();
@@ -394,23 +432,11 @@ public class TCSResource extends
         } else if (windSpeed >= 34) {
             stormSymbol = STORM_SYMBOL;
         }
+
         // Plotting Center
-        double[] ul = new double[] { loc[0] - scaleValue, loc[1] - scaleValue,
-                0 };
-
-        double[] ur = new double[] { loc[0] + scaleValue, loc[1] - scaleValue,
-                0 };
-
-        double[] lr = new double[] { loc[0] + scaleValue, loc[1] + scaleValue,
-                0 };
-
-        double[] ll = new double[] { loc[0] - scaleValue, loc[1] + scaleValue,
-                0 };
-
-        PixelCoverage pc = new PixelCoverage(
-                new Coordinate(ul[0], ul[1], ul[2]), new Coordinate(ur[0],
-                        ur[1], ur[2]), new Coordinate(lr[0], lr[1], lr[2]),
-                new Coordinate(ll[0], ll[1], ll[2]));
+        Coordinate centerCoord = new Coordinate(loc[0], loc[1]);
+        PixelCoverage pc = new PixelCoverage(centerCoord, scaleValue * 2,
+                scaleValue * 2);
 
         IImage image = symbolLoader.getImage(target, color, stormSymbol);
         if (image != null) {
@@ -419,8 +445,8 @@ public class TCSResource extends
 
     }
 
-    private void drawLegends(IGraphicsTarget target,
-            PaintProperties paintProps, double scale) throws VizException {
+    private void drawLegends(IGraphicsTarget target, PaintProperties paintProps,
+            double scale) throws VizException {
         IExtent extent = paintProps.getView().getExtent();
         double maxX = extent.getMaxX();
         double minX = extent.getMinX();
@@ -486,7 +512,8 @@ public class TCSResource extends
         return descriptor.worldToPixel(new double[] { lonc, latc });
     }
 
-    private Coordinate getLocation(double[] latLon, int direction, int distance) {
+    private Coordinate getLocation(double[] latLon, int direction,
+            int distance) {
         double adjusted = direction % 360;
         if (adjusted > 180) {
             adjusted -= 360;
@@ -506,8 +533,9 @@ public class TCSResource extends
     protected void updateRecords(DataTime dataTime) throws VizException {
         PointDataContainer pdc = null;
         // Request the point data
-        pdc = PointDataRequest.requestPointDataAllLevels(dataTime, resourceData
-                .getMetadataMap().get("pluginName").getConstraintValue(),
+        pdc = PointDataRequest.requestPointDataAllLevels(dataTime,
+                resourceData.getMetadataMap().get("pluginName")
+                        .getConstraintValue(),
                 getParameters(), null, resourceData.getMetadataMap());
 
         if (recordsToDisplay.containsKey(dataTime)) {
@@ -515,7 +543,9 @@ public class TCSResource extends
         } else {
             recordsToDisplay.put(dataTime, pdc);
         }
-        recordsToParse.get(dataTime).clear();
+        dataTimesToUpdate.remove(dataTime);
+
+        disposeShapesForDataTime(dataTime);
     }
 
     @Override
@@ -533,15 +563,18 @@ public class TCSResource extends
 
     protected void addRecord(TropicalCycloneSummary obj) {
         DataTime dataTime = obj.getDataTime();
-        Collection<TropicalCycloneSummary> toParse = recordsToParse
-                .get(dataTime);
-        if (toParse == null) {
+        if (!dataTimes.contains(dataTime)) {
             dataTimes.add(dataTime);
             Collections.sort(this.dataTimes);
-            toParse = new ArrayList<TropicalCycloneSummary>();
-            recordsToParse.put(dataTime, toParse);
         }
-        toParse.add(obj);
+        dataTimesToUpdate.add(dataTime);
+    }
+
+    @Override
+    public void remove(DataTime dataTime) {
+        super.remove(dataTime);
+        dataTimesToUpdate.remove(dataTime);
+        disposeShapesForDataTime(dataTime);
     }
 
     private String[] getParameters() {
@@ -549,4 +582,42 @@ public class TCSResource extends
                 DISPLAY_TIME, TROPICAL, NAME, RAD_64, RAD_50, RAD_34, RAD_12 };
     }
 
+    private void disposeShapes() {
+        synchronized (shapeMap) {
+            for (Map<LineStyle, IWireframeShape> map : shapeMap.values()) {
+                for (IWireframeShape shape : map.values()) {
+                    shape.dispose();
+                }
+            }
+            shapeMap.clear();
+        }
+    }
+
+    /**
+     * Remove all TropicalCycloneSummary keys with the given dataTime from
+     * shapeMap, and dispose the wireframe shapes they map to.
+     *
+     * @param dataTime
+     */
+    private void disposeShapesForDataTime(DataTime dataTime) {
+        synchronized (shapeMap) {
+            Iterator<TropicalCycloneSummary> stormItr = shapeMap.keySet()
+                    .iterator();
+            while (stormItr.hasNext()) {
+                TropicalCycloneSummary storm = stormItr.next();
+                if (dataTime.equals(storm.getDataTime())) {
+                    for (IWireframeShape shape : shapeMap.get(storm).values()) {
+                        shape.dispose();
+                    }
+                    stormItr.remove();
+                }
+            }
+        }
+    }
+
+    @Override
+    public void project(CoordinateReferenceSystem crs) {
+        disposeShapes();
+        issueRefresh();
+    }
 }

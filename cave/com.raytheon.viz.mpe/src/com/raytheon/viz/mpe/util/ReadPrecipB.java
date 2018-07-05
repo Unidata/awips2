@@ -45,6 +45,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Station;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 6, 2009            snaples     Initial creation
+ * Mar 10, 2016  19625     snaples     Moved array initialization outside of try.
  * 
  * </pre>
  * 
@@ -108,6 +109,12 @@ public class ReadPrecipB {
         if (fe == 0) {
             retval = reset_p(i, numPstations);
         } else {
+            /* Otherwise, the level 2 file was found. */
+            for (k = 0; k < 5; k++) {
+                number_found[k] = 0;
+                dqc.pdata[i].used[k] = 1;
+                dqc.pdata[i].level = 2;
+            }
 
             try {
 
@@ -118,13 +125,6 @@ public class ReadPrecipB {
                 String q = "";
                 String sn = kbuf;
                 Scanner s = new Scanner(sn);
-
-                /* Otherwise, the level 2 file was found. */
-                for (k = 0; k < 5; k++) {
-                    number_found[k] = 0;
-                    dqc.pdata[i].used[k] = 1;
-                    dqc.pdata[i].level = 2;
-                }
 
                 /* initialize structure */
 

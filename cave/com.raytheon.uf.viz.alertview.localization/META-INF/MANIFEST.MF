@@ -4,7 +4,7 @@ Bundle-Name: AlertView Localization
 Bundle-SymbolicName: com.raytheon.uf.viz.alertview.localization
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Require-Bundle: com.raytheon.uf.common.localization;bundle-version="1.14.1",
  com.raytheon.uf.viz.alertview;bundle-version="1.15.0"

@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import jep.JepException;
-
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.preference.IPreferenceStore;
@@ -45,6 +43,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
 
+import jep.JepConfig;
+import jep.JepException;
+
 /**
  * Preference store for reading from legacy GFE config files.
  * 
@@ -58,16 +59,17 @@ import com.raytheon.uf.common.util.FileUtil;
  * Sep 05, 2013  #2307     dgilling    Use better PythonScript constructor.
  * Sep 11, 2013  #2033     dgilling    Don't load loadConfig.py from 
  *                                     localization store.
+ * Feb 20, 2017   5979     njensen     Cast to Number for safety                                    
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
 
 public class PythonPreferenceStore implements IPreferenceStore,
         IConfigurationChange {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    
+    private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PythonPreferenceStore.class);
 
     private final List<IPropertyChangeListener> propertyChangeListeners;
@@ -81,8 +83,8 @@ public class PythonPreferenceStore implements IPreferenceStore,
     private String configName;
 
     public PythonPreferenceStore(String configName) {
-        this.propertyChangeListeners = new ArrayList<IPropertyChangeListener>();
-        this.configurationChangeListeners = new ArrayList<IConfigurationChangeListener>();
+        this.propertyChangeListeners = new ArrayList<>();
+        this.configurationChangeListeners = new ArrayList<>();
 
         this.loadConfiguration(configName);
     }
@@ -99,9 +101,11 @@ public class PythonPreferenceStore implements IPreferenceStore,
                             Activator.getDefault().getBundle(),
                             new Path(FileUtil.join("python", "utility",
                                     "loadConfig.py")), null)).getPath());
-            py = new PythonScript(scriptFile.getPath(),
-                    PyUtil.buildJepIncludePath(configPath, vtecPath), this
-                            .getClass().getClassLoader());
+            JepConfig jepConfig = new JepConfig()
+                    .setIncludePath(
+                            PyUtil.buildJepIncludePath(configPath, vtecPath))
+                    .setClassLoader(this.getClass().getClassLoader());
+            py = new PythonScript(jepConfig, scriptFile.getPath());
         } catch (JepException e) {
             statusHandler.handle(Priority.CRITICAL,
                     "Unable to load GFE config", e);
@@ -110,7 +114,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
                     "Unable to find loadConfig.py in internal bundle.", e);
         }
 
-        Map<String, Object> args = new HashMap<String, Object>(1, 1f);
+        Map<String, Object> args = new HashMap<>(1, 1f);
         args.put("configName", "gfeConfig");
         try {
             baseConfiguration = (Map<String, Object>) py.execute("loadConfig",
@@ -120,8 +124,6 @@ public class PythonPreferenceStore implements IPreferenceStore,
                     "Unable to load baseline GFE config", e);
         }
 
-        // Map<String, Object> originalSelectedConfiguration =
-        // selectedConfiguration;
         args.put("configName", configName);
         try {
             selectedConfiguration = (Map<String, Object>) py.execute(
@@ -142,19 +144,12 @@ public class PythonPreferenceStore implements IPreferenceStore,
     }
 
     public PythonPreferenceStore(Map<String, Object> config) {
-        this.propertyChangeListeners = new ArrayList<IPropertyChangeListener>();
-        this.configurationChangeListeners = new ArrayList<IConfigurationChangeListener>();
+        this.propertyChangeListeners = new ArrayList<>();
+        this.configurationChangeListeners = new ArrayList<>();
         this.baseConfiguration = config;
         this.selectedConfiguration = config;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#addPropertyChangeListener
-     * (org.eclipse.jface.util.IPropertyChangeListener)
-     */
     @Override
     public void addPropertyChangeListener(IPropertyChangeListener listener) {
         this.propertyChangeListeners.add(listener);
@@ -166,24 +161,11 @@ public class PythonPreferenceStore implements IPreferenceStore,
         this.configurationChangeListeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#contains(java.lang.String)
-     */
     @Override
     public boolean contains(String name) {
         return selectedConfiguration.containsKey(name);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#firePropertyChangeEvent
-     * (java.lang.String, java.lang.Object, java.lang.Object)
-     */
     @Override
     public void firePropertyChangeEvent(String name, Object oldValue,
             Object newValue) {
@@ -218,13 +200,6 @@ public class PythonPreferenceStore implements IPreferenceStore,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getBoolean(java.lang.String
-     * )
-     */
     @Override
     public boolean getBoolean(String name) {
         Boolean result = (Boolean) selectedConfiguration.get(name);
@@ -234,13 +209,6 @@ public class PythonPreferenceStore implements IPreferenceStore,
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getDefaultBoolean(java.
-     * lang.String)
-     */
     @Override
     public boolean getDefaultBoolean(String name) {
         try {
@@ -250,77 +218,42 @@ public class PythonPreferenceStore implements IPreferenceStore,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getDefaultDouble(java.lang
-     * .String)
-     */
     @Override
     public double getDefaultDouble(String name) {
         try {
-            return (Double) baseConfiguration.get(name);
+            return ((Number) baseConfiguration.get(name)).doubleValue();
         } catch (NoSuchElementException e) {
             return IPreferenceStore.DOUBLE_DEFAULT_DEFAULT;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getDefaultFloat(java.lang
-     * .String)
-     */
     @Override
     public float getDefaultFloat(String name) {
         try {
-            return (Float) baseConfiguration.get(name);
+            return ((Number) baseConfiguration.get(name)).floatValue();
         } catch (NoSuchElementException e) {
             return IPreferenceStore.FLOAT_DEFAULT_DEFAULT;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getDefaultInt(java.lang
-     * .String)
-     */
     @Override
     public int getDefaultInt(String name) {
         try {
-            return (Integer) baseConfiguration.get(name);
+            return ((Number) baseConfiguration.get(name)).intValue();
         } catch (NoSuchElementException e) {
             return IPreferenceStore.INT_DEFAULT_DEFAULT;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getDefaultLong(java.lang
-     * .String)
-     */
     @Override
     public long getDefaultLong(String name) {
         try {
-            return (Long) baseConfiguration.get(name);
+            return ((Number) baseConfiguration.get(name)).longValue();
         } catch (NoSuchElementException e) {
             return IPreferenceStore.LONG_DEFAULT_DEFAULT;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getDefaultString(java.lang
-     * .String)
-     */
     @Override
     public String getDefaultString(String name) {
         try {
@@ -330,12 +263,6 @@ public class PythonPreferenceStore implements IPreferenceStore,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getDouble(java.lang.String)
-     */
     @Override
     public double getDouble(String name) {
         Number result = (Number) selectedConfiguration.get(name);
@@ -345,57 +272,33 @@ public class PythonPreferenceStore implements IPreferenceStore,
         return result.doubleValue();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getFloat(java.lang.String)
-     */
     @Override
     public float getFloat(String name) {
-        Float result = (Float) selectedConfiguration.get(name);
+        Number result = (Number) selectedConfiguration.get(name);
         if (result == null) {
             result = IPreferenceStore.FLOAT_DEFAULT_DEFAULT;
         }
-        return result;
+        return result.floatValue();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getInt(java.lang.String)
-     */
     @Override
     public int getInt(String name) {
-        Integer result = (Integer) selectedConfiguration.get(name);
+        Number result = (Number) selectedConfiguration.get(name);
         if (result == null) {
             result = IPreferenceStore.INT_DEFAULT_DEFAULT;
         }
-        return result;
+        return result.intValue();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getLong(java.lang.String)
-     */
     @Override
     public long getLong(String name) {
-        Long result = (Long) selectedConfiguration.get(name);
+        Number result = (Number) selectedConfiguration.get(name);
         if (result == null) {
             result = IPreferenceStore.LONG_DEFAULT_DEFAULT;
         }
-        return result;
+        return result.longValue();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#getString(java.lang.String)
-     */
     @Override
     public String getString(String name) {
         String result = (String) selectedConfiguration.get(name);
@@ -405,36 +308,16 @@ public class PythonPreferenceStore implements IPreferenceStore,
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#isDefault(java.lang.String)
-     */
     @Override
     public boolean isDefault(String name) {
         return baseConfiguration.containsKey(name);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#putValue(java.lang.String,
-     * java.lang.String)
-     */
     @Override
     public void putValue(String name, String value) {
         selectedConfiguration.put(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#removePropertyChangeListener
-     * (org.eclipse.jface.util.IPropertyChangeListener)
-     */
     @Override
     public void removePropertyChangeListener(IPropertyChangeListener listener) {
         this.propertyChangeListeners.remove(listener);
@@ -446,85 +329,36 @@ public class PythonPreferenceStore implements IPreferenceStore,
         this.configurationChangeListeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setDefault(java.lang.String
-     * , double)
-     */
     @Override
     public void setDefault(String name, double value) {
         baseConfiguration.put(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setDefault(java.lang.String
-     * , float)
-     */
     @Override
     public void setDefault(String name, float value) {
         baseConfiguration.put(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setDefault(java.lang.String
-     * , int)
-     */
     @Override
     public void setDefault(String name, int value) {
         baseConfiguration.put(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setDefault(java.lang.String
-     * , long)
-     */
     @Override
     public void setDefault(String name, long value) {
         baseConfiguration.put(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setDefault(java.lang.String
-     * , java.lang.String)
-     */
     @Override
     public void setDefault(String name, String defaultObject) {
         baseConfiguration.put(name, defaultObject);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setDefault(java.lang.String
-     * , boolean)
-     */
     @Override
     public void setDefault(String name, boolean value) {
         baseConfiguration.put(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setToDefault(java.lang.
-     * String)
-     */
     @Override
     public void setToDefault(String name) {
         selectedConfiguration.put(name, baseConfiguration.get(name));
@@ -536,73 +370,31 @@ public class PythonPreferenceStore implements IPreferenceStore,
         firePropertyChangeEvent(name, oldValue, obj);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setValue(java.lang.String,
-     * double)
-     */
     @Override
     public void setValue(String name, double value) {
         setValueInternal(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setValue(java.lang.String,
-     * float)
-     */
     @Override
     public void setValue(String name, float value) {
         setValueInternal(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setValue(java.lang.String,
-     * int)
-     */
     @Override
     public void setValue(String name, int value) {
         setValueInternal(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setValue(java.lang.String,
-     * long)
-     */
     @Override
     public void setValue(String name, long value) {
         setValueInternal(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setValue(java.lang.String,
-     * java.lang.String)
-     */
     @Override
     public void setValue(String name, String value) {
         setValueInternal(name, value);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.preference.IPreferenceStore#setValue(java.lang.String,
-     * boolean)
-     */
     @Override
     public void setValue(String name, boolean value) {
         setValueInternal(name, value);
@@ -711,7 +503,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
                 result = true;
             } else if (obj instanceof List) {
                 List<?> list = (List<?>) obj;
-                if (list.size() == 0 || list.get(0) instanceof String) {
+                if (list.isEmpty() || list.get(0) instanceof String) {
                     result = true;
                 }
             }
@@ -728,7 +520,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
                 result = true;
             } else if (obj instanceof List) {
                 List<?> list = (List<?>) obj;
-                if (list.size() == 0 || list.get(0) instanceof Float) {
+                if (list.isEmpty() || list.get(0) instanceof Float) {
                     result = true;
                 }
             }
@@ -745,7 +537,7 @@ public class PythonPreferenceStore implements IPreferenceStore,
                 result = true;
             } else if (obj instanceof List) {
                 List<?> list = (List<?>) obj;
-                if (list.size() == 0 || list.get(0) instanceof Integer) {
+                if (list.isEmpty() || list.get(0) instanceof Integer) {
                     result = true;
                 }
             }
@@ -754,9 +546,6 @@ public class PythonPreferenceStore implements IPreferenceStore,
         return result;
     }
 
-    /**
-     * @return
-     */
     public String getConfigName() {
         return configName;
     }

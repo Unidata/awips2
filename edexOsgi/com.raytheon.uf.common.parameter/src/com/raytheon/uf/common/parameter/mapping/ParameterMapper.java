@@ -46,14 +46,14 @@ import com.raytheon.uf.common.util.mapping.MultipleMappingException;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Nov 2, 2012            bsteffen     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -------------------------------
+ * Nov 02, 2012           bsteffen  Initial creation
+ * Oct 04, 2016  5890     bsteffen  Fix some deprecation warnings.
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class ParameterMapper extends Mapper {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -62,16 +62,15 @@ public class ParameterMapper extends Mapper {
     private ParameterMapper() {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         // read in the namespace map
-        LocalizationFile[] files = pathMgr.listStaticFiles("parameter"
-                + IPathManager.SEPARATOR + "alias", new String[] { ".xml" },
-                true, true);
+        LocalizationFile[] files = pathMgr.listStaticFiles(
+                "parameter" + IPathManager.SEPARATOR + "alias",
+                new String[] { ".xml" }, true, true);
         for (LocalizationFile file : files) {
             try {
                 addAliasList(file.getFile());
             } catch (JAXBException e) {
-                statusHandler.error(
-                        "Error reading parameter aliases: " + file.getName()
-                                + " has been ignored.", e);
+                statusHandler.error("Error reading parameter aliases: "
+                        + file.getPath() + " has been ignored.", e);
             }
         }
     }
@@ -88,7 +87,7 @@ public class ParameterMapper extends Mapper {
     public Set<Parameter> lookupParameters(String alias, String namespace)
             throws ParameterLookupException {
         Set<String> baseNames = super.lookupBaseNames(alias, namespace);
-        Set<Parameter> result = new HashSet<Parameter>(
+        Set<Parameter> result = new HashSet<>(
                 (int) (baseNames.size() / 0.75) + 1, 0.75f);
         for (String baseName : baseNames) {
             result.add(getBaseParameter(baseName));

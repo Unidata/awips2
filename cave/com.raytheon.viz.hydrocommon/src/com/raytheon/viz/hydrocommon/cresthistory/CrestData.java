@@ -38,10 +38,11 @@ import com.raytheon.viz.hydrocommon.HydroConstants;
  * 18 Nov 2008             dhladky     Made Interactive.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * June 10 2016 18507      jingtaoD    Hydrobase creset history checkbox
+ * Feb 22, 2017 6035       njensen     Updated getFormattedData()
+ * 
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  * 
  */
 public class CrestData implements Comparable<CrestData> {
@@ -313,13 +314,31 @@ public class CrestData implements Comparable<CrestData> {
     }
 
     /**
-     * Get the data (stage, flow, date, time, and crest type) in a formatted
-     * string.
+     * Get the data (stage, flow, date, time, and crest type) in an array of
+     * formatted strings.
      * 
      * @return The formatted data.
      */
-    public String getFormattedData() {
-        String str = "";
+    public String[] getFormattedData() {
+        String[] formatted = new String[5];
+
+        if (stage == HydroConstants.MISSING_VALUE) {
+            formatted[0] = String.format("%10s",
+                    HydroConstants.MISSING_STRING);
+        } else {
+            formatted[0] = String.format("%9.2f", stage);
+        }
+
+        if (flow == HydroConstants.MISSING_VALUE) {
+            formatted[1] = String.format("%9s",
+                    HydroConstants.MISSING_STRING);
+        } else {
+            formatted[1] = String.format("%9s", flow);
+        }
+
+        formatted[2] = String.format("  %10s  ", getDateString());
+        formatted[3] = String.format("%10s", getTimeString());
+
         String prelim = getPrelim();
         String crestType = "";
         if (prelim.equalsIgnoreCase("X") || prelim.equalsIgnoreCase("P")) {
@@ -327,21 +346,8 @@ public class CrestData implements Comparable<CrestData> {
         } else if (prelim.equalsIgnoreCase("R")) {
             crestType = "Record";
         }
-
-        if (stage == HydroConstants.MISSING_VALUE) {
-            str = String.format("%10s   %8s    %10s  %10s %-6s",
-                    HydroConstants.MISSING_STRING, flow, getDateString(),
-                    getTimeString(), crestType);
-        } else if (flow == HydroConstants.MISSING_VALUE) {
-            str = String.format("  %8.2f   %8s    %10s  %10s %-6s", stage,
-                    HydroConstants.MISSING_STRING, getDateString(),
-                    getTimeString(), crestType);
-        } else {
-            str = String.format("  %8.2f   %8s    %10s  %10s %-6s", stage,
-                    flow, getDateString(), getTimeString(), crestType);
-        }
-
-        return str;
+        formatted[4] = String.format("%-6s", crestType);
+        return formatted;
     }
 
     /**

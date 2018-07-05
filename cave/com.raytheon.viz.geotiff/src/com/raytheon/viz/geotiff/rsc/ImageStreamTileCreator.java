@@ -54,26 +54,21 @@ import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 14, 2014 3522       bclement     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------
+ * Aug 14, 2014  3522     bclement  Initial creation
+ * Oct 25, 2017  5773     bsteffen  Make fields protected for subclasses
  * 
  * </pre>
  * 
  * @author bclement
- * @version 1.0
  */
 public class ImageStreamTileCreator implements TileImageCreator, Closeable {
 
-    private final ImageInputStream imgIn;
+    protected final ImageInputStream imgIn;
 
-    private final ImageReader imgReader;
+    protected final ImageReader imgReader;
 
-    /**
-     * @param in
-     * @throws IOException
-     * @see {@link #close()}
-     */
     public ImageStreamTileCreator(FileImageInputStream in) throws IOException {
         this.imgIn = in;
         Iterator<ImageReader> readers = ImageIO.getImageReaders(imgIn);
@@ -86,20 +81,11 @@ public class ImageStreamTileCreator implements TileImageCreator, Closeable {
         }
     }
 
-    /**
-     * @param imageFile
-     * @throws FileNotFoundException
-     * @throws IOException
-     * @see {@link #close()}
-     */
-    public ImageStreamTileCreator(File imageFile) throws FileNotFoundException,
-            IOException {
+    public ImageStreamTileCreator(File imageFile)
+            throws FileNotFoundException, IOException {
         this(new FileImageInputStream(imageFile));
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator#createTileImage(com.raytheon.uf.viz.core.IGraphicsTarget, com.raytheon.uf.viz.core.tile.Tile, org.geotools.coverage.grid.GeneralGridGeometry)
-     */
     @Override
     public DrawableImage createTileImage(IGraphicsTarget target, Tile tile,
             GeneralGridGeometry targetGeometry) throws VizException {
@@ -121,7 +107,8 @@ public class ImageStreamTileCreator implements TileImageCreator, Closeable {
                 } catch (IOException e) {
                     throw new VizException(
                             "Unable to read tile from image stream for bounds: "
-                                    + env, e);
+                                    + env,
+                            e);
                 }
             }
         });
@@ -131,15 +118,10 @@ public class ImageStreamTileCreator implements TileImageCreator, Closeable {
         return new DrawableImage(img, new PixelCoverage(mesh));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.io.Closeable#close()
-     */
     @Override
     public void close() throws IOException {
         imgIn.close();
         imgReader.dispose();
     }
-    
+
 }

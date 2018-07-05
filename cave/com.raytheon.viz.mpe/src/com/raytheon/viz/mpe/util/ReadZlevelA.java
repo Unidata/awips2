@@ -44,6 +44,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2009            snaples     Initial creation
+ * Mar 10, 2016  19625     snaples     Moved array initialization outside of try.
  * 
  * </pre>
  * 
@@ -85,16 +86,15 @@ public class ReadZlevelA {
                 zdata[i].zstn[k].zlevel1[m].qual = -99;
             }
         }
+        for (j = 0; j < 5; j++) {
+            number_found[j] = 0;
+            zdata[i].used[j] = 1;
+            zdata[i].level[j] = 1;
+        }
 
         try {
 
             in = new BufferedReader(new FileReader(zpointa));
-            for (j = 0; j < 5; j++) {
-                number_found[j] = 0;
-                zdata[i].used[j] = 1;
-                zdata[i].level[j] = 1;
-            }
-
             /* initialize structure */
             int p = 1;
             int qq = 0;

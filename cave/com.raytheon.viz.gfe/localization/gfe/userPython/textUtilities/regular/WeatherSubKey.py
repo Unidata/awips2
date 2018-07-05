@@ -18,6 +18,11 @@
 # further licensing information.
 ##
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 import JUtil, WxDefinition
 
 from com.raytheon.uf.common.dataplugin.gfe.weather import WeatherSubKey as JavaWeatherSubKey
@@ -26,15 +31,17 @@ from com.raytheon.uf.common.dataplugin.gfe.weather import WeatherSubKey as JavaW
 # Provides a python compatible wrapper to WeatherSubKey
 #  
 #    
-#     SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    09/09/08                      njensen       Initial Creation.
-#    04/20/2015      4027          randerso      Added __eq__ and __hash__ so WeatherSubKey works
-#                                                correctly when used as key in a dict.
-#                                                Changed several methods which were static methods in Java
-#    12/08/2015      5129          dgilling      Remove dependency on DataManager.                                                 
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Sep 09, 2008           njensen   Initial Creation.
+# Apr 20, 2015  4027     randerso  Added __eq__ and __hash__ so WeatherSubKey
+#                                  works correctly when used as key in a dict.
+#                                  Changed several methods which were static 
+#                                  methods in Java
+# Dec 08, 2015  5129     dgilling  Remove dependency on DataManager.                                                 
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls 
 #
 
 class WeatherSubKey:
@@ -42,10 +49,10 @@ class WeatherSubKey:
         self.__key = javaSubKey
         
     def __repr__(self):
-        return str(self.__key.toString())
+        return str(self.__key)
     
     def __str__(self):
-        return str(self.__key.toString())
+        return str(self.__key)
     
     def __eq__(self, other):
         try:

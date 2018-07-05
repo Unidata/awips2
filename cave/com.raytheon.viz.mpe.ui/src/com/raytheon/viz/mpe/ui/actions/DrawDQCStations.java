@@ -45,6 +45,7 @@ import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.GetColorValues;
 import com.raytheon.viz.hydrocommon.whfslib.colorthreshold.NamedColorUseSet;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager.DisplayMode;
+import com.raytheon.viz.mpe.ui.actions.MPELegendOverride.OverrideType;
 import com.raytheon.viz.mpe.ui.mouse.MPELegendInputHandler;
 import com.raytheon.viz.mpe.ui.rsc.MPELegendResource;
 import com.raytheon.viz.mpe.ui.rsc.PlotGriddedFreezeResource;
@@ -77,12 +78,13 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Apr 7, 2009            snaples     Initial creation
- * Apr 05, 2016  18350     snaples     Fixed issue with resources not being removed.
+ * Apr 05, 2016 18350     snaples     Fixed issue with resources not being removed.
+ * Feb 28, 2017 10478     bkowal      Utilize {@link MPELegendOverride} to eliminate a few
+ *                                    static variables.
  * 
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
 public class DrawDQCStations {
@@ -153,15 +155,16 @@ public class DrawDQCStations {
                     1.2, 1.3, 1.4, 1.5 },
             { 0.0, 2.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 12.5,
                     13.0, 13.5, 14.0, 14.5 },
-            { 0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 65, 70, 75, 100 } };
+            { 0, 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 65, 70, 75,
+                    100 } };
 
     public static double dqc_precip_delim[][] = {
             { -9999.0, 0.0, 0.01, .1, .2, .3, .4, .5, .6, .7, .8, .9, 1, 1.1,
                     1.2, 1.3, 1.4, 1.5 },
             { -9999.0, 0.0, 0.01, .2, .4, .6, .8, 1., 1.2, 1.4, 1.6, 1.8, 2.0,
                     2.2, 2.4, 2.6, 2.8, 3.0 },
-            { -9999.0, 0.0, 0.01, .3, .6, .9, 1.2, 1.5, 1.8, 2.1, 2.4, 2.7,
-                    3.0, 3.3, 3.6, 3.9, 4.2, 4.5 },
+            { -9999.0, 0.0, 0.01, .3, .6, .9, 1.2, 1.5, 1.8, 2.1, 2.4, 2.7, 3.0,
+                    3.3, 3.6, 3.9, 4.2, 4.5 },
             { -9999.0, 0.0, 0.01, .3, .6, 1.2, 1.8, 2.4, 3.0, 3.6, 4.2, 4.8,
                     5.4, 6.0, 6.6, 7.2, 7.8, 8.4 },
             { -9999.0, 0.0, 0.01, .3, .6, 1.2, 2.4, 3.6, 4.8, 6.0, 7.2, 8.4,
@@ -172,8 +175,8 @@ public class DrawDQCStations {
             { -5, 0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70 },
             { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80 } };
 
-    public static double dqc_freezing_delim[][] = { { 0, 1, 2, 3, 4, 5, 6, 7,
-            8, 9, 10, 11, 12, 13, 14, 15 } };
+    public static double dqc_freezing_delim[][] = {
+            { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15 } };
 
     /* global variables */
 
@@ -234,7 +237,7 @@ public class DrawDQCStations {
 
             @Override
             public void run() {
-                plotDQCData();
+                plotDQCData(new MPELegendOverride());
             }
         });
 
@@ -248,8 +251,7 @@ public class DrawDQCStations {
         display.clear();
         md = (IMapDescriptor) display.getDescriptor();
 
-        List<MPELegendResource> rscs = display.getDescriptor()
-                .getResourceList()
+        List<MPELegendResource> rscs = display.getDescriptor().getResourceList()
                 .getResourcesByTypeAsType(MPELegendResource.class);
         for (MPELegendResource rsc : rscs) {
             legend = rsc;
@@ -265,7 +267,11 @@ public class DrawDQCStations {
     }
 
     public void reloadDQC() {
-        plotDQCData();
+        reloadDQC(new MPELegendOverride());
+    }
+
+    public void reloadDQC(final MPELegendOverride mpeLegendOverride) {
+        plotDQCData(mpeLegendOverride);
         display.getContainer().refresh();
     }
 
@@ -313,8 +319,7 @@ public class DrawDQCStations {
         }
     }
 
-    private void plotDQCData() {
-
+    private void plotDQCData(final MPELegendOverride mpeLegendOverride) {
         time_pos = 0;
         display_flag = 0;
         hed = 0;
@@ -361,6 +366,57 @@ public class DrawDQCStations {
         String app_name = APPLICATION_NAME;
         List<Colorvalue> pColorSet = GetColorValues.get_colorvalues(user_id,
                 app_name, getCvUse(), dur, "E", pColorSetGroup);
+        /*
+         * Retrieve the first color.
+         */
+        if (mpeLegendOverride.getOverrideType() != OverrideType.OFF) {
+            final OverrideType overrideType = mpeLegendOverride
+                    .getOverrideType();
+            final double overrideIndex = mpeLegendOverride.getOverrideIndex()
+                    .doubleValue();
+            if (overrideType == OverrideType.UP) {
+                int index = 0;
+                String colorToUse = null;
+                for (Colorvalue colorValue : pColorSet) {
+                    if (index == overrideIndex) {
+                        /*
+                         * This is the color to use. Everything in the legend
+                         * above this point will be set to this color.
+                         */
+                        colorToUse = colorValue.getColorname().getColorName();
+                    }
+                    if (colorToUse != null) {
+                        colorValue.getColorname().setColorName(colorToUse);
+                    }
+                    ++index;
+                }
+            } else {
+                final String firstColorValueName = pColorSet.iterator().next()
+                        .getColorname().getColorName();
+                int index = 0;
+                for (Colorvalue colorValue : pColorSet) {
+                    if (index == 0) {
+                        index = 1;
+                        /*
+                         * Skip the first color. All colors within the range are
+                         * updated to be the same.
+                         */
+                        continue;
+                    }
+                    if (index > overrideIndex) {
+                        /*
+                         * Everything is included inclusive of the selected
+                         * legend entry.
+                         */
+                        break;
+                    }
+
+                    colorValue.getColorname().setColorName(firstColorValueName);
+
+                    ++index;
+                }
+            }
+        }
         ColorLookupParameters parameters = new ColorLookupParameters(app_name,
                 getCvUse(), dur, "E");
 
@@ -415,27 +471,21 @@ public class DrawDQCStations {
                             mpd.toggleDisplayMode(DisplayMode.Contour);
                         }
                     }
-                    // pgp = new PlotGriddedPrecipResource(mpd,
-                    // new LoadProperties(), pColorSet);
 
                     if (pcpn_time_step == 0) {
                         time_pos = pcp_flag;
                     } else {
                         time_pos = 40 + pcpn_day;
                     }
-                    // display.getDescriptor().getResourceList().add(pgp);
-                    // mpd.setDisplayedResource(pgp);
-                    // display.getDescriptor()
-                    // .getResourceList()
-                    // .instantiateResources(display.getDescriptor(), true);
+
                     ResourcePair rp = new ResourcePair();
                     PlotGriddedPrecipResourceData pgpRscData = new PlotGriddedPrecipResourceData(
                             MPEDisplayManager.getCurrent(), pColorSet);
                     rp.setResourceData(pgpRscData);
                     display.getDescriptor().getResourceList().add(rp);
-                    display.getDescriptor()
-                            .getResourceList()
-                            .instantiateResources(display.getDescriptor(), true);
+                    display.getDescriptor().getResourceList()
+                            .instantiateResources(display.getDescriptor(),
+                                    true);
                     pgp = (PlotGriddedPrecipResource) rp.getResource();
                     mpd.setDisplayedResource(pgp);
                 } else {
@@ -466,8 +516,6 @@ public class DrawDQCStations {
                             mpd.toggleDisplayMode(DisplayMode.Image);
                         }
                     }
-                    // pgp = new PlotGriddedPrecipResource(mpd,
-                    // new LoadProperties(), pColorSet);
 
                     if (pcpn_time_step == 0) {
                         time_pos = pcp_flag;
@@ -479,9 +527,9 @@ public class DrawDQCStations {
                             MPEDisplayManager.getCurrent(), pColorSet);
                     rp.setResourceData(pgpRscData);
                     display.getDescriptor().getResourceList().add(rp);
-                    display.getDescriptor()
-                            .getResourceList()
-                            .instantiateResources(display.getDescriptor(), true);
+                    display.getDescriptor().getResourceList()
+                            .instantiateResources(display.getDescriptor(),
+                                    true);
                     pgp = (PlotGriddedPrecipResource) rp.getResource();
                     mpd.setDisplayedResource(pgp);
                 }
@@ -533,7 +581,6 @@ public class DrawDQCStations {
                         md.getResourceList().removeRsc(zmp);
                         zmp.dispose();
                     }
-
                 }
 
                 if (grids_flag == 1) {
@@ -584,7 +631,6 @@ public class DrawDQCStations {
                     md.getResourceList().add(zgp);
 
                     mpd.setDisplayedResource(zgp);
-
                 }
 
                 if ((plot_view > 0) && (points_flag == 1)) {
@@ -606,19 +652,14 @@ public class DrawDQCStations {
                     props.setSystemResource(true);
                     pair.setProperties(props);
                     display.getDescriptor().getResourceList().add(pair);
-                    display.getDescriptor()
-                            .getResourceList()
-                            .instantiateResources(display.getDescriptor(), true);
+                    display.getDescriptor().getResourceList()
+                            .instantiateResources(display.getDescriptor(),
+                                    true);
                     zpq = (PointFreezePlotResource) pair.getResource();
                     display.getContainer().refresh();
                 }
-
-            }
-
-            else if (maxmin_on == true) {
-
+            } else if (maxmin_on == true) {
                 if ((map_flag == 1) && (pcpn_time_step == 0)) {
-
                     time_pos = 150 + pcp_flag;
 
                     if (md.getResourceList().containsRsc(tmp)) {
@@ -638,11 +679,9 @@ public class DrawDQCStations {
                         md.getResourceList().removeRsc(tmp);
                         tmp.dispose();
                     }
-
                 }
 
                 if (grids_flag == 1) {
-
                     Set<DisplayMode> mode = mpd.getDisplayMode();
                     if (md.getResourceList().containsRsc(tgp)) {
                         md.getResourceList().removeRsc(tgp);
@@ -656,8 +695,8 @@ public class DrawDQCStations {
                             mpd.toggleDisplayMode(DisplayMode.Contour);
                         }
                     }
-                    tgp = new PlotGriddedTempResource(mpd,
-                            new LoadProperties(), pColorSet);
+                    tgp = new PlotGriddedTempResource(mpd, new LoadProperties(),
+                            pColorSet);
 
                     if (pcpn_time_step == 0) {
                         time_pos = 150 + pcp_flag;
@@ -674,7 +713,6 @@ public class DrawDQCStations {
                         md.getResourceList().removeRsc(tgp);
                         tgp.dispose();
                     }
-
                 }
 
                 if (contour_flag == 1) {
@@ -691,8 +729,8 @@ public class DrawDQCStations {
                             mpd.toggleDisplayMode(DisplayMode.Image);
                         }
                     }
-                    tgp = new PlotGriddedTempResource(mpd,
-                            new LoadProperties(), pColorSet);
+                    tgp = new PlotGriddedTempResource(mpd, new LoadProperties(),
+                            pColorSet);
 
                     if (pcpn_time_step == 0) {
                         time_pos = 150 + pcp_flag;
@@ -704,7 +742,6 @@ public class DrawDQCStations {
                     md.getResourceList().add(tgp);
 
                     mpd.setDisplayedResource(tgp);
-
                 }
 
                 if ((plot_view > 0) && (points_flag == 1)) {
@@ -726,9 +763,9 @@ public class DrawDQCStations {
                     props.setSystemResource(true);
                     pair.setProperties(props);
                     display.getDescriptor().getResourceList().add(pair);
-                    display.getDescriptor()
-                            .getResourceList()
-                            .instantiateResources(display.getDescriptor(), true);
+                    display.getDescriptor().getResourceList()
+                            .instantiateResources(display.getDescriptor(),
+                                    true);
                     tpq = (PointTempPlotResource) pair.getResource();
                     display.getContainer().refresh();
                 }
@@ -737,14 +774,12 @@ public class DrawDQCStations {
     }
 
     protected String setDisplay() {
-
         Calendar ltime = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         StringBuilder mbuf = new StringBuilder();
         int dqcEndingObsTime = DailyQcUtils.getEnding6HourObsTime();
         tbuf = new StringBuilder();
 
         if (qpf_on == true) {
-
             int ptime_pos = 0;
             if (pcpn_time_step == 0) {
                 ptime_pos = pcpn_time;
@@ -786,7 +821,8 @@ public class DrawDQCStations {
             mbuf = new StringBuilder();
             mbuf.append(String.format("%02d-%02d-%04d",
                     ltime.get(Calendar.MONTH) + 1,
-                    ltime.get(Calendar.DAY_OF_MONTH), ltime.get(Calendar.YEAR)));
+                    ltime.get(Calendar.DAY_OF_MONTH),
+                    ltime.get(Calendar.YEAR)));
 
             tbuf.append(mbuf.toString());
 
@@ -801,9 +837,7 @@ public class DrawDQCStations {
                 } else if (pcpn_time == 3) {
                     tbuf.append(" 06z-12z");
                 }
-            }
-
-            else {
+            } else {
                 tbuf.append(" ending at 12z");
             }
 
@@ -823,10 +857,7 @@ public class DrawDQCStations {
             } else {
                 tbuf.append(" - No Data");
             }
-        }
-
-        else if (flf_on == true) {
-
+        } else if (flf_on == true) {
             int ptime_pos = 0;
             ptime_pos = pcpn_time;
 
@@ -838,7 +869,6 @@ public class DrawDQCStations {
                 } else {
                     ltime.setTime(zdata[pcpn_day].data_time);
                 }
-
             } else {
                 /* Times 12, 18, 00, 06 */
                 if (pcpn_time < 2) {
@@ -877,7 +907,8 @@ public class DrawDQCStations {
 
             mbuf.append(String.format("%02d-%02d-%04d",
                     ltime.get(Calendar.MONTH) + 1,
-                    ltime.get(Calendar.DAY_OF_MONTH), ltime.get(Calendar.YEAR)));
+                    ltime.get(Calendar.DAY_OF_MONTH),
+                    ltime.get(Calendar.YEAR)));
 
             tbuf.append(mbuf.toString());
 
@@ -891,7 +922,6 @@ public class DrawDQCStations {
                 } else if (pcpn_time == 3) {
                     tbuf.append(" 12z");
                 }
-
             } else {
                 if (pcpn_time == 0) {
                     tbuf.append(" 12z");
@@ -902,7 +932,6 @@ public class DrawDQCStations {
                 } else if (pcpn_time == 3) {
                     tbuf.append(" 06z");
                 }
-
             }
 
             if (zdata[pcpn_day].level[ptime_pos] == 1) {
@@ -943,7 +972,6 @@ public class DrawDQCStations {
                 } else {
                     ltime.setTime(tdata[pcpn_day].data_time);
                 }
-
             } else {
                 if ((pcpn_time < 2) && (pcpn_time_step == 0)) {
                     ltime.setTime(tdata[pcpn_day].data_time);
@@ -986,7 +1014,8 @@ public class DrawDQCStations {
             mbuf = new StringBuilder();
             mbuf.append(String.format("%02d-%02d-%04d",
                     ltime.get(Calendar.MONTH) + 1,
-                    ltime.get(Calendar.DAY_OF_MONTH), ltime.get(Calendar.YEAR)));
+                    ltime.get(Calendar.DAY_OF_MONTH),
+                    ltime.get(Calendar.YEAR)));
 
             tbuf.append(mbuf.toString());
 
@@ -1012,7 +1041,6 @@ public class DrawDQCStations {
                         tbuf.append(" 06z");
                     }
                 }
-
             } else {
                 tbuf.append(" ending at 12z");
             }
@@ -1063,7 +1091,8 @@ public class DrawDQCStations {
         } else if (flf_on == true) {
             if (map_flag == 1) {
                 use = "6hMAREA_FREEZL";
-                dur = 21600; /* 6 hours duration for MAZ */
+                /* 6 hours duration for MAZ */
+                dur = 21600;
             } else {
                 use = "6hGRID_FREEZL";
                 dur = 21600;

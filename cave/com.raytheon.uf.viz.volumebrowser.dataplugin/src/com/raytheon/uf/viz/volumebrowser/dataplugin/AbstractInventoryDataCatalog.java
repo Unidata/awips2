@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -35,6 +35,7 @@ import com.raytheon.uf.common.dataplugin.level.mapping.LevelMapping;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataplugin.level.util.LevelUtilities;
 import com.raytheon.uf.common.derivparam.inv.AbstractInventory;
+import com.raytheon.uf.common.menus.vb.ViewMenu;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
@@ -48,17 +49,17 @@ import com.raytheon.viz.volumebrowser.util.PointLineUtil;
 import com.raytheon.viz.volumebrowser.vbui.DataListsProdTableComp.DataSelection;
 import com.raytheon.viz.volumebrowser.vbui.MenuItemManager;
 import com.raytheon.viz.volumebrowser.vbui.SelectedData;
-import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.ViewMenu;
+import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr;
 import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
 
 /**
  * Base {@link IDataCatalog} for plugin types that use an
  * {@link AbstractInventory} to track parameter availability.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Apr 14, 2010  5021     bsteffen  Initial creation
@@ -69,9 +70,9 @@ import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
  * May 18, 2015  4412     bsteffen  Use all level mappings for plane names
  * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
  * Feb 01, 2016  5275     bsteffen  Extract InventoryUpdateJob
- * 
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  * @version 1.0
  */
@@ -107,8 +108,9 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
 
     @Override
     public void getAvailableData(AvailableDataRequest request) {
-        ResourceType resourceType = VolumeBrowserAction.getVolumeBrowserDlg()
-                .getDialogSettings().getViewSelection().getResourceType();
+        ResourceType resourceType = VBMenuBarItemsMgr
+                .getResourceType(VolumeBrowserAction.getVolumeBrowserDlg()
+                        .getDialogSettings().getViewSelection());
         if (!supportedResourceType(resourceType)) {
             return;
         }
@@ -123,8 +125,8 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
         InventoryUpdateJob job = new InventoryUpdateJob(inventory);
 
         /* Get all possible sources */
-        job.setAllPossibleSources(menuManager
-                .getAvailableKeys(DataSelection.SOURCES));
+        job.setAllPossibleSources(
+                menuManager.getAvailableKeys(DataSelection.SOURCES));
 
         /*
          * Get all possible parameters --- must transform Snd into other
@@ -155,26 +157,27 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
         /* Get the selected sources */
         String[] selectedSources = request.getSelectedSources();
         List<String> selectedSourcesAsList = null;
-        if(selectedSources != null && selectedSources.length > 0){
+        if (selectedSources != null && selectedSources.length > 0) {
             selectedSourcesAsList = Arrays.asList(selectedSources);
             job.setSelectedSources(selectedSourcesAsList);
         }
-        
+
         /*
          * Get the selected parameters --- must transform Snd into other
          * parameters
          */
         String[] selectedFields = request.getSelectedFields();
-        if(selectedFields != null && selectedFields.length > 0){
-            Collection<String> selectedParameters = Arrays.asList(selectedFields);
-            if(selectedParameters.contains(SOUNDING_PARAMETER)){
+        if (selectedFields != null && selectedFields.length > 0) {
+            Collection<String> selectedParameters = Arrays
+                    .asList(selectedFields);
+            if (selectedParameters.contains(SOUNDING_PARAMETER)) {
                 selectedParameters = new HashSet<>(selectedParameters);
                 selectedParameters.remove(SOUNDING_PARAMETER);
                 selectedParameters.addAll(Arrays.asList(soundingParams));
             }
             job.setSelectedParameters(selectedParameters);
         }
-        
+
         /*
          * Get the selected levels --- must perform level mappings and take into
          * account when planes contains points and lines, luckily getLevels does
@@ -219,8 +222,9 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                 String spatialPlane = "spatial-"
                         + level.getMasterLevel().getName();
                 request.addAvailablePlane(spatialPlane);
-                Collection<LevelMapping> lms = LevelMappingFactory.getInstance(
-                        LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
+                Collection<LevelMapping> lms = LevelMappingFactory
+                        .getInstance(
+                                LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE)
                         .getAllLevelMappingsForLevel(level);
 
                 if (lms != null) {
@@ -251,7 +255,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
 
     // Get all the Point and Line planes that are valid for the given sources.
     protected Collection<String> get3DPlanes(Collection<String> sources) {
-        Set<String> results = new HashSet<String>();
+        Set<String> results = new HashSet<>();
         if (sources == null || sources.isEmpty()) {
             results.addAll(PointLineUtil.getPointLineKeys());
             results.addAll(MenuItemManager.getInstance().getLatLonKeys());
@@ -260,8 +264,8 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             for (String source : sources) {
                 if (allSources.contains(source)) {
                     results.addAll(PointLineUtil.getPointLineKeys());
-                    results.addAll(MenuItemManager.getInstance()
-                            .getLatLonKeys());
+                    results.addAll(
+                            MenuItemManager.getInstance().getLatLonKeys());
                 }
             }
         }
@@ -269,7 +273,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
     }
 
     public List<String> getSupportedSourcesInternal() {
-        BlockingQueue<String> returnQueue = new LinkedBlockingQueue<String>();
+        BlockingQueue<String> returnQueue = new LinkedBlockingQueue<>();
         AbstractInventory inventory = getInventory();
         if (inventory != null) {
             try {
@@ -279,7 +283,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
                         e);
             }
         }
-        List<String> result = new ArrayList<String>(returnQueue);
+        List<String> result = new ArrayList<>(returnQueue);
         result.retainAll(MenuItemManager.getInstance()
                 .getMapOfKeys(DataSelection.SOURCES).keySet());
         return result;
@@ -292,7 +296,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
 
     /**
      * Determine what levels are included in a group of selected planes
-     * 
+     *
      * @param selectedPlanes
      * @return
      * @throws InterruptedException
@@ -301,7 +305,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             String[] selectedSources) {
         ViewMenu viewSelection = VolumeBrowserAction.getVolumeBrowserDlg()
                 .getDialogSettings().getViewSelection();
-        Set<Level> results = new HashSet<Level>();
+        Set<Level> results = new HashSet<>();
         if (viewSelection == null) {
             return Collections.emptySet();
         }
@@ -311,13 +315,13 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             if (selectedPlanes == null || selectedPlanes.length == 0) {
                 return null;
             }
-            LevelMappingFactory lmf = LevelMappingFactory
-                    .getInstance(LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
+            LevelMappingFactory lmf = LevelMappingFactory.getInstance(
+                    LevelMappingFactory.VOLUMEBROWSER_LEVEL_MAPPING_FILE);
             for (String plane : selectedPlanes) {
                 Collection<Level> levels = Collections.emptyList();
                 if (plane.startsWith("spatial-")) {
-                    levels = LevelUtilities.getOrderedSetOfStandardLevels(plane
-                            .replace("spatial-", ""));
+                    levels = LevelUtilities.getOrderedSetOfStandardLevels(
+                            plane.replace("spatial-", ""));
                 } else {
                     LevelMapping lm = lmf.getLevelMappingForKey(plane);
                     if (lm != null) {
@@ -337,10 +341,10 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             if (selectedSources == null || selectedSources.length == 0) {
                 results.addAll(get3DLevels());
             } else {
-                Collection<String> planes3D = get3DPlanes(Arrays
-                        .asList(selectedSources));
+                Collection<String> planes3D = get3DPlanes(
+                        Arrays.asList(selectedSources));
                 if (selectedPlanes != null && selectedPlanes.length != 0) {
-                    planes3D = new ArrayList<String>(planes3D);
+                    planes3D = new ArrayList<>(planes3D);
                     planes3D.retainAll(Arrays.asList(selectedPlanes));
                 }
                 if (!planes3D.isEmpty()) {
@@ -364,7 +368,7 @@ public abstract class AbstractInventoryDataCatalog extends AbstractDataCatalog {
             if (selData.getFieldsKey().equals("Snd")) {
                 return true;
             }
-            BlockingQueue<String> returnQueue = new ArrayBlockingQueue<String>(
+            BlockingQueue<String> returnQueue = new ArrayBlockingQueue<>(
                     levels.size());
             getInventory().checkLevels(Arrays.asList(selData.getSourcesKey()),
                     params, levels, returnQueue);

@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--
     COMMENT:
     
@@ -20,9 +24,9 @@
     
     NEW FILE - QPV3.xml
     -->
-<DerivedParameter name="QPV Net" abbreviation="QPV3" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="QPV Net" abbreviation="QPV3">
     <Method name="Multiply">
-        <Field abbreviation="QPV1"/>
-        <Field abbreviation="QPV2"/>
+        <Field abbreviation="QPV1" />
+        <Field abbreviation="QPV2" />
     </Method>
 </DerivedParameter>

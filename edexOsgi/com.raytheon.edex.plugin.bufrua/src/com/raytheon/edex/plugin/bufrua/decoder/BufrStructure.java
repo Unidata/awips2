@@ -48,6 +48,7 @@ import ucar.nc2.Variable;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- -----------------
  * Jul 08, 2016  5736     bsteffen  Initial creation
+ * Sep 14, 2017  6406     bsteffen  Upgrade ucar
  * 
  * </pre>
  * 
@@ -104,8 +105,8 @@ public class BufrStructure {
             return null;
         }
         Structure structure = (Structure) variable;
-        StructureDataIterator iterator = structureData.getArrayStructure(
-                memberName).getStructureDataIterator();
+        StructureDataIterator iterator = structureData
+                .getArrayStructure(memberName).getStructureDataIterator();
         return new BufrStructureIterator(structure, iterator);
     }
 
@@ -152,7 +153,18 @@ public class BufrStructure {
     public Number lookupNumericValue(String memberName) {
         Variable var = structure.findVariable(memberName);
         if (var == null) {
-            return null;
+            /*
+             * If the same descriptor appears in a file more than once then a -N
+             * is appended where N is the number of the repetition. This is very
+             * common for the data that comes in as 2 structs because some of
+             * the descriptors are used in both structs so just automatically
+             * allow -2 to handle this common use case.
+             */
+            memberName += "-2";
+            var = structure.findVariable(memberName);
+            if (var == null) {
+                return null;
+            }
         }
         Object valueObj = structureData.getScalarObject(memberName);
         Attribute missingAttrib = var.findAttribute("missing_value");
@@ -161,7 +173,8 @@ public class BufrStructure {
             if (missingNumber.equals(valueObj)) {
                 return null;
             } else if (valueObj instanceof Integer) {
-                if (((Integer) valueObj).intValue() == missingNumber.intValue()) {
+                if (((Integer) valueObj).intValue() == missingNumber
+                        .intValue()) {
                     return null;
                 }
             } else if (valueObj instanceof Short) {

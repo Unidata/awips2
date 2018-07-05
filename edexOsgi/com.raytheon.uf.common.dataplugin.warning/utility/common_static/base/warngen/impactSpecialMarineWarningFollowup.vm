@@ -1,19 +1,20 @@
-########################################################################
-## SPECIAL MARINE WARNING FOLLOWUP                                    ##
-## FOR CR IMPACT BASED WARNING INITIATIVE                             ## 
-## CREATED BY PHIL KURIMSKI - WFO GRB                                 ##
-## MODIFIED BY: KURIMSKI SEP 17 2013 OB13.5.2-4                       ##
-##              BOOKBINDER 9-18-2013 Implemented config.vm            ##  
-##              KURIMSKI -- JUN 26 2014 OB14.2.2-9 ADDED DSS EVENTS   ##
-##              KURIMSKI -- FEB 18 2015 Implemented updated CTAs      ##
-##              MIKE REGA - 2-26-2015 removed wind/hail/spout tags    ##
-##                                    in CAN and EXP                  ##               
-## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case                    ##
-##              BOOKBINDER - 9/4/2015 Fixed line of storms grammar    ##
-##              Kurimski -- Oct 22 2015 Fixed CAN/EXP section combo   ##
-##              BOOKBINDER 4/29/2016 Issue setting StormType to Null  ##
-##              Bookbinder 12/7/2016 Grammar issues DR 18492          ##
-########################################################################
+#############################################################################
+## SPECIAL MARINE WARNING FOLLOWUP                                         ##
+## FOR CR IMPACT BASED WARNING INITIATIVE                                  ## 
+## CREATED BY PHIL KURIMSKI - WFO GRB                                      ##
+## MODIFIED BY: KURIMSKI SEP 17 2013 OB13.5.2-4                            ##
+##              BOOKBINDER 9-18-2013 Implemented config.vm                 ##  
+##              KURIMSKI -- JUN 26 2014 OB14.2.2-9 ADDED DSS EVENTS        ##
+##              KURIMSKI -- FEB 18 2015 Implemented updated CTAs           ##
+##              MIKE REGA - 2-26-2015 removed wind/hail/spout tags         ##
+##                                    in CAN and EXP                       ##               
+## UPDATED PHIL KURIMSKI -- MAR 23 2015 Mixed Case                         ##
+##              BOOKBINDER - 9/4/2015 Fixed line of storms grammar         ##
+##              Kurimski -- Oct 22 2015 Fixed CAN/EXP section combo        ##
+##              BOOKBINDER 4/29/2016 Issue setting StormType to Null       ##
+##              Bookbinder 12/7/2016 Grammar issues DR 18492               ##
+##         Phil Kurimski -- JAN 30 2017 Additional Basis options, DCS19347 ##
+#############################################################################
 #parse("config.vm")
 ############################################
 ## Set null variables used in the template
@@ -399,6 +400,7 @@ ${area.name}...
 	#set($severeType = "severe")
 	#set($windCTA = "${windType}")
 #end
+#set($windCTA = "#capitalize(${windCTA} 'FIRST')")
 #set($hailTag = "0.00")
 #set($hailCTA = "")
 #if(${list.contains(${bullets}, "smallHail")})
@@ -509,13 +511,13 @@ ${area.name}...
 #set($waswere="was")
 #set($stormline = "a ${eventType}")
 #set($pathheader = "The ${eventType}")
-#set($specialEvent = "This ${eventType}")
+#set($specialEvent = "this ${eventType}")
 #set($reportType2 = "The ${eventType} was")
 #if(${stormType} == "line")
     #set($waswere="were")
 	#set($stormline = "${eventType}s")
 	#set($pathheader = "${eventType}s")
-	#set($specialEvent = "These ${eventType}s")
+	#set($specialEvent = "these ${eventType}s")
 	#set($reportType2 = "The ${eventType}s were")
 #end
 ##########################################################################
@@ -525,7 +527,7 @@ ${area.name}...
     #set($waswere="was")
 	#set($stormline = "a ${eventType}")
 	#set($pathheader = "The ${eventType}")
-	#set($specialEvent = "This ${eventType}")
+	#set($specialEvent = "this ${eventType}")
 	#set($reportType2 = "The ${eventType} was")
 #end
 #######################################################################
@@ -536,7 +538,7 @@ ${area.name}...
     #set($waswere="was")
 	#set($stormline = "an eruption of !** NAME OF VOLCANO**! volcano")
 	#set($pathheader = "The ${volcanoPath}")
-	#set($specialEvent = "The ${volcanoPath}")
+	#set($specialEvent = "the ${volcanoPath}")
 	#set($reportType2 = "The ${volcanoPath} was")
 	#set($impacted = "Locations impacted by ${volcanoPath} include...")
 #end
@@ -568,6 +570,26 @@ ${area.name}...
 #if(${list.contains(${bullets}, "pilot")})
   #set($source = "Pilot.")
 ##  #set($report = "a pilot reported ${stormline}...${capable}producing ${threat}...") 
+#end
+#if(${list.contains(${bullets}, "coastGuard")})
+  #set($source = "Coast Guard.")
+##  #set($report = "the Coast Guard reported ${stormline}...${capable}producing ${threat}...") 
+#end
+#if(${list.contains(${bullets}, "lawEnforcement")})
+  #set($source = "Law enforcement.")
+##  #set($report = "law enforcement reported ${stormline}...${capable}producing ${threat}...") 
+#end
+#if(${list.contains(${bullets}, "emergencyManagement")})
+  #set($source = "Emergency management.")
+##  #set($report = "emergency management reported ${stormline}...${capable}producing ${threat}...") 
+#end
+#if(${list.contains(${bullets}, "ship")})
+  #set($source = "Ship.")
+##  #set($report = "a ship reported ${stormline}...${capable}producing ${threat}...") 
+#end
+#if(${list.contains(${bullets}, "buoy")})
+  #set($source = "Buoy.")
+##  #set($report = "a buoy reported ${stormline}...${capable}producing ${threat}...") 
 #end
 #if(${list.contains(${bullets}, "satellite")})
   #set($source = "Satellite imagery indicated.")

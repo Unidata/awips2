@@ -46,6 +46,7 @@ import com.raytheon.uf.common.pointdata.PointDataView;
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- -----------------
  * Jul 06, 2016  5736     bsteffen  Initial creation
+ * Sep 14, 2017  6406     bsteffen  Upgrade ucar
  * 
  * </pre>
  * 
@@ -57,45 +58,53 @@ public class BufruaLevelDecoder {
             .getLogger(BufruaLevelDecoder.class);
 
     /* BUFR descriptor 0 08 001 */
-    private static final String BUFR_VERTICAL_SOUNDING_SIGNIFICANCE = "Vertical sounding significance";
+    private static final String BUFR_VERTICAL_SOUNDING_SIGNIFICANCE = "Vertical_sounding_significance";
 
     /* BUFR descriptor 0 08 042 */
-    private static final String BUFR_EXTENDED_VERTICAL_SOUNDING_SIGNIFICANCE = "Extended vertical sounding significance";
+    private static final String BUFR_EXTENDED_VERTICAL_SOUNDING_SIGNIFICANCE = "Extended_vertical_sounding_significance";
 
     /* BUFR descriptor 0 07 004 */
     private static final String BUFR_PRESSURE = "Pressure";
 
     /* BUFR descriptor 0 10 009 */
-    private static final String BUFR_GEOPOTENTIAL_HEIGHT = "Geopotential Height";
+    private static final String BUFR_GEOPOTENTIAL_HEIGHT = "Geopotential_height";
 
     /* BUFR descriptor 0 07 003 */
     private static final String BUFR_GEOPOTENTIAL = "Geopotential";
 
-    /* BUFR descriptor 0 12 101 */
-    private static final String BUFR_TEMPERATURE = "Temperature/dry-bulb temperature";
+    /* BUFR descriptor 0 12 101 in master table version 22 */
+    private static final String BUFR_TEMPERATURE = "Temperature-air_temperature";
 
-    /* BUFR descriptor 0 12 103 */
-    private static final String BUFR_DEWPOINT = "Dew-point temperature";
+    /* BUFR descriptor 0 12 101 in master table version 13 used by TUA */
+    private static final String BUFR_TEMPERATURE_ALT = "Temperature-dry-bulb_temperature";
+
+    /* BUFR descriptor 0 12 103 in master table version 22 */
+    private static final String BUFR_DEWPOINT = "Dewpoint_temperature";
+
+    /* BUFR descriptor 0 12 103 in master table version 13 used by TUA */
+    private static final String BUFR_DEWPOINT_ALT = "Dew-point_temperature";
 
     /* BUFR descriptor 0 11 001 */
-    private static final String BUFR_WIND_DIRECTION = "Wind direction";
+    private static final String BUFR_WIND_DIRECTION = "Wind_direction";
 
     /* BUFR descriptor 0 11 002 */
-    private static final String BUFR_WIND_SPEED = "Wind speed";
+    private static final String BUFR_WIND_SPEED = "Wind_speed";
 
     /* BUFR descriptor 0 11 042 */
-    private static final String BUFR_MAX_WIND_SPEED = "Maximum wind speed (10-minute mean wind)";
+    private static final String BUFR_MAX_WIND_SPEED = "Maximum_wind_speed_10-min_mean_wind";
 
-    public static void decodeLevel(UAObs obsData, BufrStructure levelStructure) {
+    public static void decodeLevel(UAObs obsData,
+            BufrStructure levelStructure) {
         Number significance = levelStructure
                 .lookupNumericValue(BUFR_VERTICAL_SOUNDING_SIGNIFICANCE);
         if (significance != null) {
             decodeNarrow(obsData, levelStructure, significance.intValue());
         } else {
-            significance = levelStructure
-                    .lookupNumericValue(BUFR_EXTENDED_VERTICAL_SOUNDING_SIGNIFICANCE);
+            significance = levelStructure.lookupNumericValue(
+                    BUFR_EXTENDED_VERTICAL_SOUNDING_SIGNIFICANCE);
             if (significance != null) {
-                decodeExtended(obsData, levelStructure, significance.intValue());
+                decodeExtended(obsData, levelStructure,
+                        significance.intValue());
             }
         }
     }
@@ -114,8 +123,9 @@ public class BufruaLevelDecoder {
             logger.warn("Ignoring bufrua level with no vertical significance.");
             return;
         } else if (sigSet.size() > 1) {
-            logger.warn("Ignoring bufrua level with more than one vertical significance: "
-                    + sigSet);
+            logger.warn(
+                    "Ignoring bufrua level with more than one vertical significance: "
+                            + sigSet);
             return;
         }
         VerticalSoundingSignificance sig = sigSet.iterator().next();
@@ -139,8 +149,9 @@ public class BufruaLevelDecoder {
             decodeMandatoryLevel(view, levelStructure);
             break;
         default:
-            logger.warn("Ignoring bufrua level with unexpected vertical significance: "
-                    + sig);
+            logger.warn(
+                    "Ignoring bufrua level with unexpected vertical significance: "
+                            + sig);
 
         }
     }
@@ -188,8 +199,9 @@ public class BufruaLevelDecoder {
                 decodeMandatoryLevel(view, levelStructure);
                 break;
             default:
-                logger.warn("Ignoring bufrua level with unexpected vertical significance: "
-                        + sig);
+                logger.warn(
+                        "Ignoring bufrua level with unexpected vertical significance: "
+                                + sig);
             }
         }
     }
@@ -215,7 +227,7 @@ public class BufruaLevelDecoder {
             return;
         }
         if (height != null) {
-            if (height.intValue() >= 30000) {
+            if (height.intValue() >= 30_000) {
                 return;
             }
             if (height.floatValue() == 0) {
@@ -241,8 +253,8 @@ public class BufruaLevelDecoder {
             view.setFloat(LayerTools.PR_SIGW, pressure.floatValue(), windIdx);
         }
 
-        copyValue(levelStructure, view, BUFR_WIND_DIRECTION,
-                LayerTools.WD_SIGW, windIdx);
+        copyValue(levelStructure, view, BUFR_WIND_DIRECTION, LayerTools.WD_SIGW,
+                windIdx);
         copyValue(levelStructure, view, BUFR_WIND_SPEED, LayerTools.WS_SIGW,
                 windIdx);
 
@@ -258,14 +270,22 @@ public class BufruaLevelDecoder {
         }
         Number temperature = levelStructure
                 .lookupNumericValue(BUFR_TEMPERATURE);
+        if (temperature == null) {
+            temperature = levelStructure
+                    .lookupNumericValue(BUFR_TEMPERATURE_ALT);
+        }
         Number dewpoint = levelStructure.lookupNumericValue(BUFR_DEWPOINT);
+        if (dewpoint == null) {
+            dewpoint = levelStructure.lookupNumericValue(BUFR_DEWPOINT_ALT);
+        }
         if (temperature == null && dewpoint == null) {
             return;
         }
 
         view.setFloat(LayerTools.PR_SIGT, pressure.floatValue(), tempIdx);
         if (temperature != null) {
-            view.setFloat(LayerTools.TP_SIGT, temperature.floatValue(), tempIdx);
+            view.setFloat(LayerTools.TP_SIGT, temperature.floatValue(),
+                    tempIdx);
         }
         if (dewpoint != null) {
             view.setFloat(LayerTools.TD_SIGT, dewpoint.floatValue(), tempIdx);
@@ -299,16 +319,22 @@ public class BufruaLevelDecoder {
             return;
         }
         Number pressure = levelStructure.lookupNumericValue(BUFR_PRESSURE);
-        if (pressure != null && pressure.intValue() != 99900) {
+        if (pressure != null && pressure.intValue() != 99_900) {
             view.setFloat(LayerTools.PR_TROP, pressure.floatValue(), tropIdx);
-            copyValue(levelStructure, view, BUFR_TEMPERATURE,
-                    LayerTools.TP_TROP, tropIdx);
-            copyValue(levelStructure, view, BUFR_DEWPOINT, LayerTools.TD_TROP,
-                    tropIdx);
+            if (!copyValue(levelStructure, view, BUFR_TEMPERATURE,
+                    LayerTools.TP_TROP, tropIdx)) {
+                copyValue(levelStructure, view, BUFR_TEMPERATURE_ALT,
+                        LayerTools.TP_TROP, tropIdx);
+            }
+            if (!copyValue(levelStructure, view, BUFR_DEWPOINT,
+                    LayerTools.TD_TROP, tropIdx)) {
+                copyValue(levelStructure, view, BUFR_DEWPOINT_ALT,
+                        LayerTools.TD_TROP, tropIdx);
+            }
             copyValue(levelStructure, view, BUFR_WIND_DIRECTION,
                     LayerTools.WD_TROP, tropIdx);
-            copyValue(levelStructure, view, BUFR_WIND_SPEED,
-                    LayerTools.WS_TROP, tropIdx);
+            copyValue(levelStructure, view, BUFR_WIND_SPEED, LayerTools.WS_TROP,
+                    tropIdx);
             view.setInt(LayerTools.NUM_TROP, tropIdx + 1);
         }
     }
@@ -333,10 +359,16 @@ public class BufruaLevelDecoder {
                 copyValue(levelStructure, view, BUFR_GEOPOTENTIAL,
                         LayerTools.HT_MAN, manIdx);
             }
-            copyValue(levelStructure, view, BUFR_TEMPERATURE,
-                    LayerTools.TP_MAN, manIdx);
-            copyValue(levelStructure, view, BUFR_DEWPOINT, LayerTools.TD_MAN,
-                    manIdx);
+            if (!copyValue(levelStructure, view, BUFR_TEMPERATURE,
+                    LayerTools.TP_MAN, manIdx)) {
+                copyValue(levelStructure, view, BUFR_TEMPERATURE_ALT,
+                        LayerTools.TP_MAN, manIdx);
+            }
+            if (!copyValue(levelStructure, view, BUFR_DEWPOINT,
+                    LayerTools.TD_MAN, manIdx)) {
+                copyValue(levelStructure, view, BUFR_DEWPOINT_ALT,
+                        LayerTools.TD_MAN, manIdx);
+            }
             copyValue(levelStructure, view, BUFR_WIND_DIRECTION,
                     LayerTools.WD_MAN, manIdx);
             copyValue(levelStructure, view, BUFR_WIND_SPEED, LayerTools.WS_MAN,
@@ -384,7 +416,8 @@ public class BufruaLevelDecoder {
      *         unmodified.
      */
     protected static boolean copyValue(BufrStructure levelStructure,
-            PointDataView view, String structureName, String viewName, int index) {
+            PointDataView view, String structureName, String viewName,
+            int index) {
         Number number = levelStructure.lookupNumericValue(structureName);
         if (number != null) {
             view.setFloat(viewName, number.floatValue(), index);

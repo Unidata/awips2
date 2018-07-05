@@ -31,6 +31,11 @@
 # the Cobb Snow Algoritm
 #-----------------------------------------------------------------------------
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 ToolType = "numeric"
 WeatherElementEdited = "SnowAmt"
 from numpy import *

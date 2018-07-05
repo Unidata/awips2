@@ -2,22 +2,22 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Warngen Plug-in
 Bundle-SymbolicName: com.raytheon.viz.warngen;singleton:=true
-Bundle-Version: 1.15.0.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Activator: com.raytheon.viz.warngen.Activator
 Bundle-Vendor: Raytheon
 Eclipse-RegisterBuddy: com.raytheon.uf.viz.core.rsc, org.apache.velocity
-Require-Bundle: org.eclipse.ui,
- org.eclipse.core.runtime,
- com.raytheon.viz.core,
+Require-Bundle: org.eclipse.core.runtime,
+ com.raytheon.uf.viz.core,
+ com.raytheon.uf.common.time,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.util,
  com.raytheon.viz.ui,
  org.apache.velocity;bundle-version="1.7.0",
  javax.measure,
  org.apache.commons.lang3;bundle-version="3.4.0",
- org.geotools,
+ com.raytheon.uf.common.geospatial,
  com.raytheon.viz.awipstools,
  com.raytheon.viz.texteditor,
- com.raytheon.uf.common.serialization,
- com.raytheon.uf.common.serialization.comm,
  javax.jms,
  com.raytheon.uf.viz.core.maps,
  com.raytheon.uf.common.dataplugin.text,
@@ -28,18 +28,20 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.core.rsc,
  com.raytheon.uf.viz.d2d.ui,
  org.eclipse.core.databinding;bundle-version="1.4.1",
- com.raytheon.uf.common.auth;bundle-version="1.14.0"
+ com.raytheon.uf.common.auth;bundle-version="1.14.0",
+ com.raytheon.uf.viz.vtec;bundle-version="1.0.0"
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.viz.warngen,
  com.raytheon.viz.warngen.gis,
  com.raytheon.viz.warngen.gui,
  com.raytheon.viz.warngen.util
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.activetable,
  com.raytheon.uf.common.dataplugin.text.request,
+ com.raytheon.viz.core.map,
+ com.raytheon.viz.core.mode,
  com.raytheon.viz.radar,
  com.raytheon.viz.textworkstation,
- com.raytheon.viz.warnings,
  javax.vecmath,
  org.eclipse.core.expressions
 Bundle-ClassPath: com.raytheon.viz.warngen.jar

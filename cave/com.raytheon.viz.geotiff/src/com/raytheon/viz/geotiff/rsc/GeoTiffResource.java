@@ -17,7 +17,6 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-
 package com.raytheon.viz.geotiff.rsc;
 
 import java.io.File;
@@ -28,17 +27,21 @@ import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.geotools.gce.geotiff.GeoTiffFormat;
 import org.geotools.gce.geotiff.GeoTiffReader;
+import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
+import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
+import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.tile.TileSetRenderable;
-import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
 
 /**
  * Supports GeoTIFF imagery
@@ -46,19 +49,19 @@ import com.raytheon.uf.viz.core.tile.TileSetRenderable.TileImageCreator;
  * <pre>
  * 
  *     SOFTWARE HISTORY
- *    
- *     Date         Ticket#     Engineer    Description
- *     ------------   ----------  -----------   --------------------------
- *     8/24/06                    chammack    Initial Creation.
- *     Aug 14, 2014 3522          bclement    reworked to use TileSetRenderable
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ----------------------------------
+ * Aug 24, 2006           chammack  Initial Creation.
+ * Aug 14, 2014  3522     bclement  reworked to use TileSetRenderable
+ * Oct 25, 2017  5773     bsteffen  Support colormapped data.
  * 
  * </pre>
  * 
  * @author chammack
- * 
  */
-public class GeoTiffResource extends
-        AbstractVizResource<GeoTiffResourceData, MapDescriptor> {
+public class GeoTiffResource
+        extends AbstractVizResource<GeoTiffResourceData, MapDescriptor> {
 
     private static final int TILE_SIZE = 512;
 
@@ -71,25 +74,19 @@ public class GeoTiffResource extends
     /* true since TileSetRenderable needs reproject() called on it before use */
     private boolean project = true;
 
-    protected GeoTiffResource(GeoTiffResourceData data, LoadProperties props)
-            throws VizException, IOException {
+    protected GeoTiffResource(GeoTiffResourceData data, LoadProperties props) {
         super(data, props);
         filePath = this.resourceData.getFilename();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
-     */
     @Override
     protected void disposeInternal() {
         if (tileCreator != null) {
             try {
                 tileCreator.close();
             } catch (IOException e) {
-                statusHandler.error(
-                        "Unable to close geotiff tile image stream", e);
+                statusHandler.error("Unable to close geotiff tile image stream",
+                        e);
             }
         }
         if (image != null) {
@@ -97,13 +94,6 @@ public class GeoTiffResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#init(com.raytheon.uf
-     * .viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         File imgFile = new File(filePath);
@@ -113,20 +103,28 @@ public class GeoTiffResource extends
                 msg = "File does not exist.";
             }
             throw new VizException("Unable to open geotiff image: "
-                    + imgFile.getAbsolutePath()
-                    + ". " + msg);
+                    + imgFile.getAbsolutePath() + ". " + msg);
         }
         try {
-            GeoTiffReader gcr = (GeoTiffReader) new GeoTiffFormat()
-                    .getReader(imgFile);
-            GridCoverage2D gridCoverage = (GridCoverage2D) gcr.read(null);
+            GeoTiffReader gcr = new GeoTiffFormat().getReader(imgFile);
+            GridCoverage2D gridCoverage = gcr.read(null);
 
             ImagingCapability imaging = getCapability(ImagingCapability.class);
             GridGeometry2D tileSetGeometry = gridCoverage.getGridGeometry();
-            TileImageCreator tileCreator = new ImageStreamTileCreator(imgFile);
+            if (ColorMappedImageStreamTileCreator
+                    .checkForRawRaster(gridCoverage.getRenderedImage())) {
+                ColorMapParameters colorMapParameters = ColorMappedImageStreamTileCreator
+                        .initializeParameters(gridCoverage.getRenderedImage());
+                getCapability(ColorMapCapability.class)
+                        .setColorMapParameters(colorMapParameters);
+                tileCreator = new ColorMappedImageStreamTileCreator(imgFile,
+                        colorMapParameters);
+            } else {
+                tileCreator = new ImageStreamTileCreator(imgFile);
+            }
 
-            image = new TileSetRenderable(imaging, tileSetGeometry,
-                    tileCreator, 1, TILE_SIZE);
+            image = new TileSetRenderable(imaging, tileSetGeometry, tileCreator,
+                    1, TILE_SIZE);
             gridCoverage = null;
         } catch (Exception e) {
             throw new VizException("Unable to process geotiff image: "
@@ -134,14 +132,6 @@ public class GeoTiffResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IRenderable#paint(com.raytheon.uf.
-     * viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -158,15 +148,30 @@ public class GeoTiffResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
-     * referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem crs) throws VizException {
         project = true;
     }
+
+    @Override
+    public String inspect(ReferencedCoordinate coord) throws VizException {
+        if (tileCreator instanceof ColorMappedImageStreamTileCreator) {
+            ColorMapParameters colorMapParameters = getCapability(
+                    ColorMapCapability.class).getColorMapParameters();
+            try {
+                double value = image.interrogate(coord.asLatLon());
+                if (Double.isNaN(value)
+                        || colorMapParameters.getNoDataValue() == value) {
+                    return "No Data";
+                } else {
+                    return Double.toString(value);
+                }
+            } catch (TransformException | FactoryException e) {
+                throw new VizException(e);
+            }
+        } else {
+            return super.inspect(coord);
+        }
+    }
+
 }

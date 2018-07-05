@@ -16,6 +16,12 @@
 # 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 ##
 ##  Dictionary that maps VTEC codes to headlines
 ##  Routines that define environmentally related hazards (phen codes)
@@ -68,9 +74,15 @@ VTECTable = {
     'CF.S' : {'phen': 'CF',
               'sig': 'S',
               'hdln': ''},  #No headline for this VTEC
-    'DS.W' : {'phen': 'DS',
+    'DS.W' : { 'phen': 'DS',
               'sig': 'W',
               'hdln': 'Dust Storm Warning'},
+    'DS.Y' : {'phen': 'DS',
+              'sig': 'Y',
+              'hdln': 'Dust Storm Advisory'},
+    'DU.W' : {'phen': 'DU',
+              'sig': 'W',
+              'hdln': 'Blowing Dust Warning'},
     'DU.Y' : {'phen': 'DU',
               'sig': 'Y',
               'hdln': 'Blowing Dust Advisory'},
@@ -236,6 +248,9 @@ VTECTable = {
     'SM.Y' : {'phen': 'SM',
               'sig': 'Y',
               'hdln': 'Dense Smoke Advisory'},
+    'SQ.W': {'phen': 'SQ',
+             'sig': 'W',
+             'hdln': 'Snow Squall Warning'},
     'SR.A' : {'phen': 'SR',
               'sig': 'A',
               'hdln': 'Storm Watch'},
@@ -355,7 +370,7 @@ upgradeHazardsDict = {
 'HZ.W': ['FZ.A', 'FR.Y', 'HZ.A'],
 'FR.Y': ['FZ.A', 'HZ.A'],
 'HW.W': ['DU.Y', 'LW.Y', 'WI.Y', 'HW.A'],
-'DS.W': ['DU.Y', 'LW.Y', 'WI.Y', 'HW.A'],
+'DU.W': ['DU.Y', 'LW.Y', 'WI.Y', 'HW.A'],
 'WI.Y': ['HW.A'],
 'EC.W': ['EC.A'],
 'FW.W': ['FW.A'],
@@ -415,9 +430,9 @@ downgradeHazardsDict = {
 'WC.Y': ['WC.W'],
 'WS.W': ['BZ.W', 'IS.W'],
 'LE.W': ['BZ.W', 'IS.W'],
-'DU.Y': ['DS.W', 'HW.W'],
-'LW.Y': ['DS.W', 'HW.W', 'WI.Y'],
-'WI.Y': ['DS.W', 'HW.W'],
+'DU.Y': ['DU.W', 'HW.W'],
+'LW.Y': ['DU.W', 'HW.W', 'WI.Y'],
+'WI.Y': ['DU.W', 'HW.W'],
 'HT.Y': ['EH.W'],
 'FR.Y': ['FZ.W', 'HZ.W'],
 'TR.W': ['HU.W', 'TY.W'],

@@ -35,6 +35,9 @@ from com.raytheon.uf.common.dataplugin.gfe.reference import ReferenceData, Refer
 #    -u userid, defaults to GFETEST
 # ---------------------------------------------------------------------------
 
+##
+# This is a base file that is not intended to be overridden.
+##
 
 class setupTextEA:
 
@@ -255,7 +258,7 @@ class setupTextEA:
         gloc = self.__dataMgr.getParmManager().compositeGridLocation()
         id = ReferenceID(name)
         # convert grid to polygons
-        grid2d = Grid2DBit.createBitGrid(gloc.getNx().intValue(), gloc.getNy().intValue(), grid)
+        grid2d = Grid2DBit.createBitGrid(int(gloc.getNx()), int(gloc.getNy()), grid)
         refdata = ReferenceData(gloc, id, grid2d)
      
         # save the edit area

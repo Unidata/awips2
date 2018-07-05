@@ -18,8 +18,12 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter unit="m" name="t-2Day Mean Hgt" abbreviation="RMGH2">
     <Method name="Average">
-        <Field abbreviation="GH2day"/>
+        <Field abbreviation="GH2day" />
     </Method>
 </DerivedParameter>

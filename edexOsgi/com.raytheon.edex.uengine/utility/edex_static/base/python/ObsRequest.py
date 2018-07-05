@@ -18,10 +18,14 @@
 # further licensing information.
 ##
 
-import PointDataQuery
-from java.util import ArrayList
-from com.raytheon.edex.plugin.obs.metar import MetarPointDataTransform
-from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+##
+# This is a base file that is not intended to be overridden.
+##
+
+##
+# uengine is deprecated and will be removed from the system soon. Migrate your
+# apps to using the Data Access Framework (DAF).
+##
 
 #
 # Request of metar records (provides interface to pointdata)
@@ -34,6 +38,14 @@ from com.raytheon.uf.common.message.response import ResponseMessageGeneric
 #    06/03/09                      chammack       Initial Creation.
 #    
 # 
+
+
+
+import PointDataQuery
+from java.util import ArrayList
+from com.raytheon.edex.plugin.obs.metar import MetarPointDataTransform
+from com.raytheon.uf.common.message.response import ResponseMessageGeneric
+
 
 class ObsRequest(PointDataQuery.PointDataQuery):
     

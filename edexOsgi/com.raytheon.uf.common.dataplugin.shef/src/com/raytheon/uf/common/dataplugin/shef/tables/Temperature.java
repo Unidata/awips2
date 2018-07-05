@@ -23,17 +23,15 @@ package com.raytheon.uf.common.dataplugin.shef.tables;
 
 import java.io.Serializable;
 import java.util.Date;
-
 import javax.persistence.AttributeOverride;
 import javax.persistence.AttributeOverrides;
 import javax.persistence.Column;
 import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -49,25 +47,20 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
- * Aug 19, 2011 10672      jkorman     Move refactor to new project
- * Oct 07, 2013   361      njensen     Removed XML annotations
- * May 23, 2016  5590      bkowal      Cleanup.
- * Jun 16, 2016  4623      skorolev    Added NamedQueries.
+ * Aug 19, 2011      10672     jkorman Move refactor to new project
+ * Oct 07, 2013       2361     njensen Removed XML annotations
+ * May 23, 2016       5590     bkowal  Cleanup.
+ * Dec 18, 2017       6554     bkowal  Implemented {@link ICheckValue}.
  * 
  * </pre>
  * 
  * @author jkorman
  */
-@NamedQueries({ @NamedQuery(name = Temperature.SELECT_TEMP_BY_START_AND_FINISH, query = Temperature.SELECT_TEMP_BY_START_AND_FINISH_HQL) })
 @Entity
 @Table(name = "temperature")
 @DynamicSerialize
-public class Temperature extends PersistableDataObject<TemperatureId> implements
-        Serializable {
-
-    public static final String SELECT_TEMP_BY_START_AND_FINISH = "SELECT_TEMP_BY_START_AND_FINISH";
-
-    protected static final String SELECT_TEMP_BY_START_AND_FINISH_HQL = "FROM Temperature t WHERE t.id.obstime >= :start AND t.id.obstime <= :finish ORDER BY t.id.lid ASC, t.id.obstime ASC";
+public class Temperature extends PersistableDataObject<TemperatureId>
+        implements Serializable, ICheckValue {
 
     private static final long serialVersionUID = 1L;
 
@@ -117,12 +110,12 @@ public class Temperature extends PersistableDataObject<TemperatureId> implements
 
     @EmbeddedId
     @AttributeOverrides({
-            @AttributeOverride(name = "lid", column = @Column(name = "lid", nullable = false, length = 8)),
-            @AttributeOverride(name = "pe", column = @Column(name = "pe", nullable = false, length = 2)),
-            @AttributeOverride(name = "dur", column = @Column(name = "dur", nullable = false)),
-            @AttributeOverride(name = "ts", column = @Column(name = "ts", nullable = false, length = 2)),
-            @AttributeOverride(name = "extremum", column = @Column(name = "extremum", nullable = false, length = 1)),
-            @AttributeOverride(name = "obstime", column = @Column(name = "obstime", nullable = false, length = 29)) })
+            @AttributeOverride(name = "lid", column = @Column(name = "lid", nullable = false, length = 8) ),
+            @AttributeOverride(name = "pe", column = @Column(name = "pe", nullable = false, length = 2) ),
+            @AttributeOverride(name = "dur", column = @Column(name = "dur", nullable = false) ),
+            @AttributeOverride(name = "ts", column = @Column(name = "ts", nullable = false, length = 2) ),
+            @AttributeOverride(name = "extremum", column = @Column(name = "extremum", nullable = false, length = 1) ),
+            @AttributeOverride(name = "obstime", column = @Column(name = "obstime", nullable = false, length = 29) ) })
     public TemperatureId getId() {
         return this.id;
     }
@@ -196,4 +189,12 @@ public class Temperature extends PersistableDataObject<TemperatureId> implements
         this.postingtime = postingtime;
     }
 
+    @Transient
+    @Override
+    public String getCompareValue() {
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
+    }
 }

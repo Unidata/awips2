@@ -36,7 +36,15 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    09/30/15        18141         ryu            Allow processing for TCV issued by CPHC
+#    07/11/17        20104         ryu            Plot only records from TCV for pacific sites
+#                                                 and from PTC for other sites
+#    07/18/17        20104         ryu            Check xxxid to make sure records
+#                                                 are not from TCVHFO
 ########################################################################
+
+##
+# This is a base file that is not intended to be overridden.
+##
 
 # The MenuItems list defines the GFE menu item(s) under which the
 # Procedure is to appear.
@@ -60,7 +68,7 @@ class Procedure (SmartScript.SmartScript):
         self._dbss = dbss
 
         logging.basicConfig(level=logging.INFO)
-        self.log = logging.getLogger("PlotSPCWatches")
+        self.log = logging.getLogger("PlotTPCEvents")
         
         self.log.addHandler(UFStatusHandler.UFStatusHandler(PLUGIN_NAME, CATEGORY, level=logging.WARNING))    
 
@@ -85,19 +93,27 @@ class Procedure (SmartScript.SmartScript):
         vtecTable = self.vtecActiveTable()        
         vtecTable = self._hazUtils._filterVTECBasedOnGFEMode(vtecTable)
         
+        siteID = self.getSiteID()
+
+        sourcePil = "PTC"
+        if siteID in ['HFO', 'SGX', 'LOX']:
+            sourcePil = "TCV"
 
         # step 1: just save the tropical hazards
         for v in vtecTable:
 
-            # filter based on phen/sig
-            phenSig = v['phen'] + "." + v['sig']
-
-            # process only records in the phenSigList
-            if not v['phen'] in ['HU','TR']:
+            # process only records in the phenSigList and 
+            # from the right pil
+            if not (v['phen'] in ['HU','TR'] and v['pil'] == sourcePil):
                 continue
 
             # only look at the KNHC records
             if v['officeid'] not in VTECPartners.VTEC_TPC_SITE:
+                continue
+
+            # For HFO only: we have to make sure the records are from TCVCPx
+            # since HFO will issue TCV as well.
+            if v['xxxid'] == siteID:
                 continue
 
             key = (v['phen'], v['sig'], v['etn'])

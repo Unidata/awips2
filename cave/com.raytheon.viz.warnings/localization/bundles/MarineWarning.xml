@@ -18,44 +18,49 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
-				<resource>
-               		<loadProperties loadWithoutData="true">
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
+                <resource>
+                    <loadProperties loadWithoutData="true">
                         <capabilities>
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="4" />
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID"
+                                outlineOn="true" outlineWidth="1" />
                             <capability xsi:type="colorableCapability" colorAsString="#00FFFF" />
                         </capabilities>
                     </loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false" 
-						isVisible="true" />
-					<resourceData xsi:type="wwaResourceData" 						
-						isUpdatingOnMetadataOnly="false"
-						retrieveData="false"
-						isRequeryNecessaryOnTimeMatch="true"
-						name="Marine Warnings">
-						<metadataMap>							
-							<mapping key="pluginName">
-								<constraint constraintValue="warning" constraintType="EQUALS" />
-							</mapping>
-							<mapping key="act">
-								<constraint constraintValue="NEW,CON,CAN,EXP" constraintType="IN" />
-							</mapping>
-							<mapping key="pil">
-								<constraint constraintValue="MWS,SMW" constraintType="IN" />
-							</mapping>
-							<mapping key="phensig">
-								<constraint constraintValue="MA.W" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-			</descriptor>
-		</displays>
-	</displayList>
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false"
+                        isHoverOn="false" isVisible="true" />
+                    <resourceData xsi:type="wwaResourceData" isUpdatingOnMetadataOnly="false"
+                        retrieveData="false" isRequeryNecessaryOnTimeMatch="true" name="Marine Warnings">
+                        <metadataMap>
+                            <mapping key="pluginName">
+                                <constraint constraintValue="warning" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="act">
+                                <constraint constraintValue="NEW,CON,CAN,EXP"
+                                    constraintType="IN" />
+                            </mapping>
+                            <mapping key="pil">
+                                <constraint constraintValue="MWS,SMW" constraintType="IN" />
+                            </mapping>
+                            <mapping key="phensig">
+                                <constraint constraintValue="MA.W" constraintType="EQUALS" />
+                            </mapping>
+                            <mapping key="officeid">
+                                <constraint constraintValue="${site},${sites}"
+                                    constraintType="IN" />
+                            </mapping>
+                        </metadataMap>
+                    </resourceData>
+                </resource>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

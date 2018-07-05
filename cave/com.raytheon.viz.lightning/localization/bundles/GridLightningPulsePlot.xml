@@ -18,26 +18,31 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
+    <displayList>
+        <displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <descriptor xsi:type="mapDescriptor">
                 <resource>
-                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="true">
+                    <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE"
+                        loadWithoutData="true">
                     </loadProperties>
-                    <properties isSystemResource="false"
-                        isBlinking="false" isMapLayer="false" isHoverOn="false"
-                        isVisible="true" />
+                    <properties isSystemResource="false" isBlinking="false" isMapLayer="false"
+                        isHoverOn="false" isVisible="true" />
                     <resourceData xsi:type="gridLightningResourceData"
-                        isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true" 
-                        handlingPositiveStrikes="false" handlingNegativeStrikes="false" 
-                        handlingPulses="true" handlingCloudFlashes="false"
-                        kmResolution="${resolution}">
-                        <binOffset posOffset="0" negOffset="${negOffset}" virtualOffset="0"/>
+                        isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true"
+                        handlingPositiveStrikes="false" handlingNegativeStrikes="false"
+                        handlingPulses="true" handlingCloudFlashes="false" kmResolution="${resolution}">
+                        <binOffset posOffset="0" negOffset="${negOffset}" virtualOffset="0" />
                         <binRepeatCount>${binRepeatCount;1}</binRepeatCount>
                         <metadataMap>
                             <mapping key="pluginName">
-                                <constraint constraintValue="binlightning" constraintType="EQUALS" />
+                                <constraint constraintValue="binlightning"
+                                    constraintType="EQUALS" />
                             </mapping>
                             <mapping key="source">
                                 <constraint constraintValue="${source}" constraintType="EQUALS" />
@@ -45,7 +50,7 @@
                         </metadataMap>
                     </resourceData>
                 </resource>
-			</descriptor>
-		</displays>
-	</displayList>
+            </descriptor>
+        </displays>
+    </displayList>
 </bundle>

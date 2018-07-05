@@ -270,7 +270,7 @@ To restart EDEX
 * `/awips2` - Contains all of the installed AWIPS software. 
 * `/awips2/edex/logs` - EDEX logs.
 * `/awips2/httpd_pypies/var/log/httpd` - httpd-pypies logs.
-* `/awips2/data/pg_log` - PostgreSQL logs.
+* `/awips2/database/data/pg_log` - PostgreSQL logs.
 * `/awips2/qpid/log` - Qpid logs.
 * `/awips2/edex/data/hdf5` - HDF5 data store. 
 * `/awips2/edex/data/utility` - Localization store and configuration files. 

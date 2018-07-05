@@ -18,7 +18,6 @@
 # further licensing information.
 ##
 
-
 #
 # Implements IGeometryData and wraps around a Java IGeometryData.
 #  
@@ -31,8 +30,16 @@
 #    06/03/13         #2023        dgilling       Remove "unit" support from
 #                                                 __getitem__ as it only threw errors.
 #    08/06/14          3185        njensen        Only import shapely when necessary
+#    01/30/18          7183        mapeters       Remove number unboxing calls in
+#                                                 getNumber() for Jep 3.6 upgrade
 #
 #
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 from awips.dataaccess import IGeometryData
 import JData
@@ -78,14 +85,10 @@ class JGeometryData(IGeometryData, JData.JData):
     def getNumber(self, param):         
         jval = self.jobj.getNumber(param)
         t = self.getType(param)        
-        if t == 'INT':            
-            return jval.intValue()
-        elif t == 'LONG':
-            return jval.longValue()
-        elif t == 'FLOAT':
-            return jval.floatValue()
-        elif t == 'DOUBLE':
-            return jval.doubleValue()
+        if t == 'INT' or t == 'LONG':            
+            return int(jval)
+        elif t == 'FLOAT' or t == 'DOUBLE':
+            return float(jval)
         else:
             return jval
     

@@ -22,8 +22,8 @@ package com.raytheon.uf.edex.python.decoder;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.HashMap;
-
-import jep.JepException;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +37,8 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.edex.core.EDEXUtil;
 
+import jep.JepException;
+
 /**
  * Factory class for getting pooled Python decoder instances
  * 
@@ -49,11 +51,12 @@ import com.raytheon.uf.edex.core.EDEXUtil;
  * Jul 10, 2014 2914       garmendariz Remove EnvProperties
  * Aug 04, 2014 3427       bclement    decoder interface now takes full path to jar
  * Dec 17, 2015 5166       kbisanz     Update logging to use SLF4J
+ * Nov 22, 2016 5959       njensen     Improved jar lookup
+ * Mar 10, 2017 6171       bsteffen    Fix improved jar lookup.
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
 
 public class PythonDecoderFactory {
@@ -71,7 +74,7 @@ public class PythonDecoderFactory {
     private static String includePath;
 
     /** The directory containing the EDEX plugins */
-    public static String pluginDir;
+    public static final String pluginDir;
 
     /*
      * Initializes the static variables
@@ -80,8 +83,10 @@ public class PythonDecoderFactory {
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationContext commonCx = pathMgr.getContext(
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        decoderInterface = pathMgr.getFile(commonCx,
-                "python" + File.separator + "DecoderInterface.py").getPath();
+        decoderInterface = pathMgr
+                .getFile(commonCx,
+                        "python" + File.separator + "DecoderInterface.py")
+                .getPath();
         includePath = pathMgr.getFile(commonCx, "python").getPath();
         pluginDir = EDEXUtil.getEdexPlugins();
     }
@@ -98,9 +103,23 @@ public class PythonDecoderFactory {
      */
     public static synchronized PythonScript makePythonDecoder(String pluginFQN,
             String moduleName) throws Exception {
-        PythonScript py = null;
         String jarpath = Paths.get(pluginDir, pluginFQN + ".jar").toString();
+        File jarFile = new File(jarpath);
+        if (!jarFile.exists()) {
+            /* check for any jar files of the format pluginFQN_version.jar */
+            Pattern p = Pattern
+                    .compile("^" + Pattern.quote(pluginFQN) + "_.*\\.jar$");
+            File pluginDirectory = new File(pluginDir);
+            for (File f : pluginDirectory.listFiles()) {
+                if (p.matcher(f.getName()).find()) {
+                    jarpath = f.getPath();
+                    break;
+                }
+            }
+        }
+
         int retryCount = 0;
+        PythonScript py = null;
         // we try multiple times cause once in a blue moon we get an error on
         // zlib that is an extremely rare fluke
         while (py == null && retryCount < MAX_RETRIES) {
@@ -108,7 +127,7 @@ public class PythonDecoderFactory {
             try {
                 py = new PythonScript(decoderInterface, includePath,
                         PythonDecoder.class.getClassLoader());
-                HashMap<String, Object> argMap = new HashMap<String, Object>();
+                Map<String, Object> argMap = new HashMap<>();
                 argMap.put("jarpath", jarpath);
                 argMap.put("moduleName", moduleName);
                 py.execute("loadModule", argMap);

@@ -33,19 +33,19 @@ import com.raytheon.uf.common.archive.request.ArchiveCaseCreationAuthRequest;
  * ------------ ---------- ----------- --------------------------
  * Mar 25, 2014 2853       rferrel     Initial creation
  * Jun 23, 2016            mjames@ucar Data archive path update.
+ * Feb 14, 2017 6111       njensen     Overrode getRequestType()
  * 
  * </pre>
  * 
  * @author rferrel
- * @version 1.0
  */
 
 public class ArchiveCaseCreationAuthRequestHandler extends
         ArchiveAdminPrivilegedRequestHandler {
 
-    private final String CASE_DIR_KEY = "archive.case.directory";
+    private static final String CASE_DIR_KEY = "archive.case.directory";
 
-    private final String CASE_DIR_DEFAULT = "/awips2/edex/data/archive/cases";
+    private static final String CASE_DIR_DEFAULT = "/awips2/edex/data/archive/cases";
 
     @Override
     public ArchiveAdminAuthRequest handleRequest(ArchiveAdminAuthRequest request)
@@ -57,6 +57,11 @@ public class ArchiveCaseCreationAuthRequestHandler extends
                     CASE_DIR_DEFAULT));
         }
         return request;
+    }
+    
+    @Override
+    public Class<?> getRequestType() {
+        return ArchiveCaseCreationAuthRequest.class;
     }
 
 }

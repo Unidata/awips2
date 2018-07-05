@@ -416,7 +416,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         if (alarmDisplayDlg == null || alarmDisplayDlg.getShell().isDisposed()) {
             alarmDisplayDlg = new AlarmDisplayWindow(shell,
                     ACCUMULATE_STATE.UNCHANGE);
-            alarmDisplayDlg.setCloseCallback(new ICloseCallback() {
+            alarmDisplayDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -476,7 +476,7 @@ public class CurrentAlarmQueue extends CaveSWTDialog implements
         if (alarmDisplayDlg == null || alarmDisplayDlg.getShell().isDisposed()) {
             alarmDisplayDlg = new AlarmDisplayWindow(shell,
                     ACCUMULATE_STATE.TRUE);
-            alarmDisplayDlg.setCloseCallback(new ICloseCallback() {
+            alarmDisplayDlg.addCloseCallback(new ICloseCallback() {
                 @Override
                 public void dialogClosed(Object returnValue) {
                     if (list != null && !list.isDisposed()) {

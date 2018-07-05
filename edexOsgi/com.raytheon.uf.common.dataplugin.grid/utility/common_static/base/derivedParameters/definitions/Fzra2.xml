@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--
 //
 // Partial Thickness Precipitation Type Icons - Fzra1
@@ -31,30 +35,30 @@ FZRA thickness criteria:
 -->
 <DerivedParameter name="Thickness: FZRA/FZDZ" abbreviation="Fzra2" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
     <Method levels="800MB" name="Test">
-	     <Field level="1000MB-850MB" abbreviation="dZ"/>
-		 <ConstantField value="1" />
-	     <ConstantField value="-1e37"/>
-	     <ConstantField value="1299.4"/>
-	     <ConstantField value="1"/>
-	     <ConstantField value="1"/>
-	     <ConstantField value="1299.5"/>
-	     <ConstantField value="1e37"/>
-	     <ConstantField value="0"/>
+         <Field level="1000MB-850MB" abbreviation="dZ"/>
+         <ConstantField value="1" />
+         <ConstantField value="-1e37"/>
+         <ConstantField value="1299.4"/>
+         <ConstantField value="1"/>
+         <ConstantField value="1"/>
+         <ConstantField value="1299.5"/>
+         <ConstantField value="1e37"/>
+         <ConstantField value="0"/>
     </Method>
     <Method levels="850MB" name="Test">
         <Field level="850MB-700MB" abbreviation="dZ"/>
-		<ConstantField value="1" />
-	    <ConstantField value="-1e37" />
-	    <ConstantField value="1553.0" />
-	    <ConstantField value="0" />
-	    <ConstantField value="1" />
-	    <ConstantField value="1553.1" />
-	    <ConstantField value="1e37" />
-	    <Field level="800MB" abbreviation="Fzra2" />
+        <ConstantField value="1" />
+        <ConstantField value="-1e37" />
+        <ConstantField value="1553.0" />
+        <ConstantField value="0" />
+        <ConstantField value="1" />
+        <ConstantField value="1553.1" />
+        <ConstantField value="1e37" />
+        <Field level="800MB" abbreviation="Fzra2" />
     </Method>
      <Method name="Mapping" levels="Surface">
-		<Field level="850MB" abbreviation="Fzra2" />
+        <Field level="850MB" abbreviation="Fzra2" />
         <ConstantField value="1" />
-		<ConstantField value="71" />
-	</Method>
+        <ConstantField value="71" />
+    </Method>
 </DerivedParameter>

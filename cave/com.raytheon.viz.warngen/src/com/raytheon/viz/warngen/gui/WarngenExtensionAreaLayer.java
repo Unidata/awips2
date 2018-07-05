@@ -7,6 +7,8 @@ import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.drawables.IShadedShape;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler;
+import com.raytheon.uf.viz.core.drawables.JTSCompiler.JTSGeometryData;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -21,12 +23,11 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ShadeableCapability;
 import com.raytheon.uf.viz.core.rsc.tools.GenericToolsResourceData;
-import com.raytheon.viz.core.rsc.jts.JTSCompiler;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**
- * Displays the area the polygon is allowed to extend into beyond
- * the hatched area.
+ * Displays the area the polygon is allowed to extend into beyond the hatched
+ * area.
  *
  * <pre>
  *
@@ -35,6 +36,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * Date         Ticket#    Engineer     Description
  * ------------ ---------- ------------ --------------------------
  * 03/10/2015   DCS 18509  D. Friedman  Initial revision
+ * 09/14/2016   3241       bsteffen     Update deprecated JTSCompiler method calls
  * </pre>
  *
  */
@@ -101,7 +103,9 @@ public class WarngenExtensionAreaLayer extends
                 Geometry g = extensionAreaVis;
                 extensionAreaVisDirty = false;
                 if (g != null) {
-                    comp.handle(g, coloring.getColor());
+                    JTSGeometryData data = comp.createGeometryData();
+                    data.setGeometryColor(coloring.getColor());
+                    comp.handle(g, data);
                 }
             }
         }

@@ -17,6 +17,11 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
 ########################################################################
 # Hazard_WSW.py
 #
@@ -96,11 +101,7 @@ class TextProduct(GenericHazards.TextProduct):
             ('IS.W', allActions, 'WinterWx'),     # ICE STORM WARNING
             ('LE.W', allActions, 'WinterWx'),     # LAKE EFFECT SNOW WARNING
             ('WS.W', allActions, 'WinterWx'),     # WINTER STORM WARNING
-            ('ZR.Y', allActions, 'WinterWx'),     # FREEZING RAIN ADVISORY
-            ('LE.Y', allActions, 'WinterWx'),     # LAKE EFFECT SNOW ADVISORY
             ('WW.Y', allActions, 'WinterWx'),     # WINTER WEATHER ADVISORY
-            ('BZ.A', allActions, 'WinterWx'),     # BLIZZARD WATCH
-            ('LE.A', allActions, 'WinterWx'),     # LAKE EFFECT SNOW WATCH
             ('WS.A', allActions, 'WinterWx'),     # WINTER STORM WATCH
             ('WC.W', allActions, 'WindChill'),    # WIND CHILL WARNING
             ('WC.Y', allActions, 'WindChill'),    # WIND CHILL ADVISORY

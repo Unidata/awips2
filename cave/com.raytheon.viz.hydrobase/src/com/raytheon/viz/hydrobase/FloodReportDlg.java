@@ -28,10 +28,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.TreeMap;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -44,6 +44,7 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -75,28 +76,29 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
  * This class displayed the Flood Report dialog.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------- --------------------------
  * Sep 4, 2008  2259        lvenable    Initial creation
  * Dec 3, 2010  4952        lbousaidi   
  * Jan 13, 2011 5415        lbousaidi   added a dialog when 
- *                          "Compute Latest data" button runs
+ *                                      "Compute Latest data" button runs
  * May 14, 2012 14965       wkwock      fix crash in query for data
  * Jun 18, 2012 14377       wkwock      Correct insert data into crest table.
  * Jun 27, 2013 2088        rferrel     Made dialog non-blocking.
  * Jun 10, 2015 DCS15095    wkwock      Added edit/insert flood event feature.
  * Jan 15, 2016 DCS18180    JingtaoD    code improvement based on code review for DR17935
- * 
+ * Feb 23, 2017 6035        njensen     Cleanup and dynamically size width of Lists
+ * May 31, 2017 DR18902     JingtaoD    Hydrobase flood events not grouped properly
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  */
 public class FloodReportDlg extends CaveSWTDialog {
+
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FloodReportDlg.class);
 
@@ -184,7 +186,7 @@ public class FloodReportDlg extends CaveSWTDialog {
     private String selectedKey = null;
 
     /** List of location IDs */
-    private final ArrayList<String> locationLidList = new ArrayList<String>();
+    private final java.util.List<String> locationLidList = new ArrayList<>();
 
     /**
      * The start date.
@@ -245,11 +247,6 @@ public class FloodReportDlg extends CaveSWTDialog {
         fr.setTimeZone(TimeZone.getTimeZone("GMT"));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -260,23 +257,11 @@ public class FloodReportDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
     protected void disposed() {
         controlFont.dispose();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -367,7 +352,7 @@ public class FloodReportDlg extends CaveSWTDialog {
         hsaLbl.setText("HSA ");
 
         // Get the HSA Data
-        ArrayList<String> hsaList = FloodReportDataManager.getInstance()
+        java.util.List<String> hsaList = FloodReportDataManager.getInstance()
                 .getHsaList();
         hsaCbo = new Combo(leftComp, SWT.DROP_DOWN | SWT.READ_ONLY);
         hsaCbo.addSelectionListener(new SelectionAdapter() {
@@ -396,13 +381,18 @@ public class FloodReportDlg extends CaveSWTDialog {
         gd.horizontalIndent = 4;
         gd.horizontalSpan = 2;
         Label listLbl = new Label(leftComp, SWT.NONE);
-        listLbl.setText(getListLabel());
+        String labelText = getListLabel();
+        listLbl.setText(labelText);
         listLbl.setFont(controlFont);
         listLbl.setLayoutData(gd);
 
-        gd = new GridData(550, 250);
+        GC gc = new GC(listLbl);
+        int width = gc.stringExtent(labelText).x + 10;
+        gc.dispose();
+        gd = new GridData(width, 250);
         gd.horizontalSpan = 2;
-        locationList = new List(leftComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+        locationList = new List(leftComp,
+                SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
         locationList.setLayoutData(gd);
         locationList.setFont(controlFont);
         locationList.addSelectionListener(new SelectionAdapter() {
@@ -445,8 +435,8 @@ public class FloodReportDlg extends CaveSWTDialog {
                     mb.setMessage("You must select a river observation !");
                     mb.open();
                 } else {
-                    MessageBox messageBox = new MessageBox(shell, SWT.OK
-                            | SWT.CANCEL);
+                    MessageBox messageBox = new MessageBox(shell,
+                            SWT.OK | SWT.CANCEL);
                     messageBox.setText("Delete Confirmation");
                     messageBox.setMessage("Do you wish to delete this entry?");
                     int answer = messageBox.open();
@@ -561,10 +551,13 @@ public class FloodReportDlg extends CaveSWTDialog {
         rightComp.setLayout(new GridLayout(2, false));
         rightComp.setLayoutData(gd);
 
-        gd = new GridData(300, 150);
         eventList = new List(rightComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
-        eventList.setLayoutData(gd);
         eventList.setFont(controlFont);
+        String eventFormat = " 000000000000.00    MM/DD/YYYY HH:MM";
+        GC gc = new GC(eventList);
+        gd = new GridData(gc.stringExtent(eventFormat).x + 10, 150);
+        gc.dispose();
+        eventList.setLayoutData(gd);
 
         insertIntoTableBtn = new Button(rightComp, SWT.PUSH);
         insertIntoTableBtn.setText("Insert into\nCrest Table");
@@ -577,13 +570,13 @@ public class FloodReportDlg extends CaveSWTDialog {
                     mb.setMessage("You must select a flood event!");
                     mb.open();
                 } else {
-                    selectedLid = locationLidList.get(locationList
-                            .getSelectionIndex());
-                    MessageBox messageBox = new MessageBox(shell, SWT.OK
-                            | SWT.CANCEL);
+                    selectedLid = locationLidList
+                            .get(locationList.getSelectionIndex());
+                    MessageBox messageBox = new MessageBox(shell,
+                            SWT.OK | SWT.CANCEL);
                     messageBox.setText("Insert Confirmation");
-                    messageBox
-                            .setMessage("Do you wish to insert this entry into the Crest table?");
+                    messageBox.setMessage(
+                            "Do you wish to insert this entry into the Crest table?");
                     int answer = messageBox.open();
 
                     if (answer == SWT.OK) {
@@ -636,8 +629,8 @@ public class FloodReportDlg extends CaveSWTDialog {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 setBusy(true);
-                MessageBox messageBox = new MessageBox(shell, SWT.OK
-                        | SWT.CANCEL);
+                MessageBox messageBox = new MessageBox(shell,
+                        SWT.OK | SWT.CANCEL);
                 messageBox.setText("WHFS");
                 messageBox.setMessage("Update flood sequences?\n"
                         + "This may take a few minutes. \n"
@@ -676,8 +669,8 @@ public class FloodReportDlg extends CaveSWTDialog {
                     public void run() {
                         MessageBox messageBox2 = new MessageBox(shell, SWT.OK);
                         messageBox2.setText("WHFS");
-                        messageBox2.setMessage("Update of flood "
-                                + "sequences complete.");
+                        messageBox2.setMessage(
+                                "Update of flood " + "sequences complete.");
                         messageBox2.open();
                     }
                 });
@@ -737,10 +730,10 @@ public class FloodReportDlg extends CaveSWTDialog {
 
         // Set Calendar objects to current date/time
         Date date = SimulatedTime.getSystemTime().getTime();
-        final Calendar endCal = Calendar.getInstance(TimeZone
-                .getTimeZone("GMT"));
-        final Calendar startCal = Calendar.getInstance(TimeZone
-                .getTimeZone("GMT"));
+        final Calendar endCal = Calendar
+                .getInstance(TimeZone.getTimeZone("GMT"));
+        final Calendar startCal = Calendar
+                .getInstance(TimeZone.getTimeZone("GMT"));
         endCal.setTime(date);
         startCal.setTime(date);
         if (period.equals(reportPeriodArray[0])) {
@@ -822,22 +815,23 @@ public class FloodReportDlg extends CaveSWTDialog {
      * @param startCal
      * @param endCal
      */
-    private void updateFloodData(FloodReportDataManager dman,
-            Calendar startCal, Calendar endCal, String hsaWhere) {
-        String where = null;
-        Map<String, FloodReportData> dataMap = new TreeMap<String, FloodReportData>();
+    private void updateFloodData(FloodReportDataManager dman, Calendar startCal,
+            Calendar endCal, String hsaWhere) {
+        String getLidQuery = null;
+        Map<String, FloodReportData> dataMap = new LinkedHashMap<String, FloodReportData>();
 
         /* create the where clause */
         String start = dbFormat.format(startCal.getTime());
         String end = dbFormat.format(endCal.getTime());
-        where = "WHERE" + hsaWhere + " obstime >= '" + start
-                + "' and obstime <= '" + end
-                + "' and flood_event_id > 0 order by lid";
+
+        getLidQuery = "(select DISTINCT lid from floodts WHERE" + hsaWhere
+                + " obstime >= '" + start + "' and obstime <= '" + end
+                + "' and flood_event_id > 0)";
 
         locationLidList.clear();
-        ArrayList<String> lidList = dman.getLidList(where);
+        java.util.List<String> lidList = dman.getLidList(getLidQuery);
         for (String lid : lidList) {
-            ArrayList<FloodReportData> dataList = dman.getFloodRptData(lid,
+            java.util.List<FloodReportData> dataList = dman.getFloodRptData(lid,
                     start, end);
             for (FloodReportData data : dataList) {
                 if ((data.getFloodEventId() > 0)
@@ -857,7 +851,7 @@ public class FloodReportDlg extends CaveSWTDialog {
         locationLidList.clear();
         String prevSite = null;
         String line = null;
-        final java.util.List<String> locationLines = new ArrayList<String>(
+        final java.util.List<String> locationLines = new ArrayList<>(
                 keySet.size());
 
         while (iter.hasNext()) {
@@ -883,6 +877,9 @@ public class FloodReportDlg extends CaveSWTDialog {
 
             @Override
             public void run() {
+                if (locationList.isDisposed()) {
+                    return;
+                }
 
                 for (String l : locationLines) {
                     locationList.add(l);
@@ -946,7 +943,8 @@ public class FloodReportDlg extends CaveSWTDialog {
             /* store crest time info; check for a sustained crest. */
             if (crestStage != HydroConstants.FLOOD_REPORT_MSG) {
                 crestTxt = fr.format(floodData.getCrestDate()) + " Z";
-                if (floodData.getLastCrest() != HydroConstants.FLOOD_REPORT_MSG) {
+                if (floodData
+                        .getLastCrest() != HydroConstants.FLOOD_REPORT_MSG) {
                     crestTxt2 = fr.format(floodData.getLastCrestDate()) + " Z";
                     crestTxt.concat("\n" + crestTxt2);
                 }
@@ -966,7 +964,9 @@ public class FloodReportDlg extends CaveSWTDialog {
             }
         }
 
-        /* ALSO load the data for the flood time series into the scrolled list */
+        /*
+         * ALSO load the data for the flood time series into the scrolled list
+         */
         listEventVals(floodData);
     }
 
@@ -980,9 +980,9 @@ public class FloodReportDlg extends CaveSWTDialog {
         eventList.removeAll();
 
         if (data != null) {
-            ArrayList<Object[]> eventData = FloodReportDataManager
-                    .getInstance().getFloodEventData(data.getLid(),
-                            data.getFloodEventId());
+            java.util.List<Object[]> eventData = FloodReportDataManager
+                    .getInstance()
+                    .getFloodEventData(data.getLid(), data.getFloodEventId());
 
             for (Object[] oa : eventData) {
                 double val = (Double) oa[0];
@@ -1009,10 +1009,9 @@ public class FloodReportDlg extends CaveSWTDialog {
 
         String output = getFileText();
 
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(filename));
+        try (FileWriter fw = new FileWriter(filename);
+                BufferedWriter out = new BufferedWriter(fw)) {
             out.write(output);
-            out.close();
         } catch (IOException e) {
             statusHandler.handle(Priority.ERROR,
                     "Unable able to update flood file. ", e);
@@ -1054,12 +1053,13 @@ public class FloodReportDlg extends CaveSWTDialog {
         FloodReportDataManager dman = FloodReportDataManager.getInstance();
         final String dataFormat = "    %7.1f    %-12s - %-12s%s  %8.2f%s  %-12s\n";
         double roc = HydroConstants.FLOOD_REPORT_MSG;
-        String prevBasin = null;
-        String prevStream = null;
-        String prevLid = null;
+        String prevBasin = "";
+        String prevStream = "";
+        String prevLid = "";
 
         StringBuilder buffer = new StringBuilder();
-        buffer.append("Flood report information listing generated by WHFS HydroBase.\n");
+        buffer.append(
+                "Flood report information listing generated by WHFS HydroBase.\n");
         Calendar now = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
         buffer.append("File created on:  "
                 + HydroConstants.DATE_FORMAT.format(now.getTime()) + " Z\n");
@@ -1071,10 +1071,14 @@ public class FloodReportDlg extends CaveSWTDialog {
                 + HydroConstants.DATE_FORMAT.format(endDate));
         buffer.append("\nAll times given in GMT.\n");
         buffer.append("N/A= Not Available   q= questionable\n\n");
-        buffer.append("Flood events are grouped by location, river, and basin.\n");
-        buffer.append("For each event, the following information is given:\n\n");
-        buffer.append("    FLD STG     ABOVE FLOOD  - BELOW FLOOD    CREST    TIME\n");
-        buffer.append("\n------------------------------------------------------------------\n");
+        buffer.append(
+                "Flood events are grouped by location, river, and basin.\n");
+        buffer.append(
+                "For each event, the following information is given:\n\n");
+        buffer.append(
+                "    FLD STG     ABOVE FLOOD  - BELOW FLOOD    CREST    TIME\n");
+        buffer.append(
+                "\n------------------------------------------------------------------\n");
 
         /* No Data, return the text */
         if (locationList.getItemCount() == 0) {
@@ -1134,7 +1138,8 @@ public class FloodReportDlg extends CaveSWTDialog {
                 }
 
                 if ((data.getCrest() == HydroConstants.FLOOD_REPORT_MSG)
-                        || (Math.abs(data.getCrest() - data.getFloodStage()) > 50)) {
+                        || (Math.abs(
+                                data.getCrest() - data.getFloodStage()) > 50)) {
                     crestFlagStr = "q";
                 }
 
@@ -1143,26 +1148,24 @@ public class FloodReportDlg extends CaveSWTDialog {
                 }
 
                 if ((data.getCrest() != HydroConstants.FLOOD_REPORT_MSG)
-                        && (data.getCrestDate() != null)
-                        && (aboveTime != null)
+                        && (data.getCrestDate() != null) && (aboveTime != null)
                         && (data.getCrestDate().getTime() != aboveTime
                                 .getTime())) {
                     roc = 3600 * ((data.getCrest() - data.getFloodStage())
-                            / data.getCrestDate().getTime() - aboveTime
-                            .getTime());
+                            / data.getCrestDate().getTime()
+                            - aboveTime.getTime());
                     if (Math.abs(roc) > 10) {
                         crestFlagStr = "q";
                     }
                 }
 
                 if ((data.getCrest() != HydroConstants.FLOOD_REPORT_MSG)
-                        && (data.getCrestDate() != null)
-                        && (belowTime != null)
+                        && (data.getCrestDate() != null) && (belowTime != null)
                         && (data.getCrestDate().getTime() != belowTime
                                 .getTime())) {
                     roc = 3600 * ((data.getCrest() - data.getFloodStage())
-                            / data.getCrestDate().getTime() - belowTime
-                            .getTime());
+                            / data.getCrestDate().getTime()
+                            - belowTime.getTime());
                     if (Math.abs(roc) > 10) {
                         crestFlagStr = "q";
                     }
@@ -1287,9 +1290,11 @@ public class FloodReportDlg extends CaveSWTDialog {
                 public void run() {
                     MessageBox mbe = new MessageBox(shell, SWT.OK | SWT.ERROR);
                     if (status == -2) {
-                        mbe.setMessage("Record already exists in the Crest table!");
+                        mbe.setMessage(
+                                "Record already exists in the Crest table!");
                     } else {
-                        mbe.setMessage("ERROR while attempting to insert crest...");
+                        mbe.setMessage(
+                                "ERROR while attempting to insert crest...");
                     }
                     mbe.open();
                 }

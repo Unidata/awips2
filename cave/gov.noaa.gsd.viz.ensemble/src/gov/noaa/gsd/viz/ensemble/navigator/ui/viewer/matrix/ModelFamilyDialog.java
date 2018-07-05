@@ -351,12 +351,12 @@ public class ModelFamilyDialog extends CaveJFACEDialog {
 
                             // Example SelectedData:
                             // ... sourcesText: GFS40
-                            // ... sourcesKey: GFS212
+                            // ... sourcesKey: GFS40
                             // ... fieldsText: Height
                             // ... fieldsKey: GH
                             // ... planesText: 500MB
                             // ... planesKey: 500MB
-                            // ... uniqueKey: GFS212::GH::500MB
+                            // ... uniqueKey: GFS40::GH::500MB
 
                             /**
                              * TODO: We may need to come up with a better way to

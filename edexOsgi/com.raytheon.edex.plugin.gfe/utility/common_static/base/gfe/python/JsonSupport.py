@@ -28,6 +28,13 @@
 #    11/10/2014                    randerso       Initial Creation.
 #    12/08/2014       #4953        randerso       Updated for changes to LocalizationSupport
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
 import json
 import LocalizationSupport
 import JUtil

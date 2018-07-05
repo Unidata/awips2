@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -52,21 +52,25 @@ import com.raytheon.viz.gfe.smartscript.FieldDefinition.FieldType;
 
 /**
  * Main dialog area for python VariableList defined GUIs
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 30, 2012            randerso     Initial creation
- * May 12, 2014 16167      ryu         Fix sizing and accessibility of content.
- * Dec 11, 2014 638    mgamazaychikov   Set isFloat in makeScale.
- * 
+ *
+ * Date          Ticket#  Engineer        Description
+ * ------------- -------- --------------- --------------------------------------
+ * May 30, 2012           randerso        Initial creation
+ * May 12, 2014  16167    ryu             Fix sizing and accessibility of
+ *                                        content.
+ * Dec 11, 2014  638      mgamazaychikov  Set isFloat in makeScale.
+ * Nov 28, 2017  6540     randerso        Changed makeScale to check for Double
+ *                                        instead of Float for Jep 3.6
+ * Dec 27, 2017 19773     ryu             Use of check widget (not switch to list widget
+ *                                        when item count exceeds 20)
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class DialogAreaComposite extends ScrolledComposite {
@@ -109,7 +113,7 @@ public class DialogAreaComposite extends ScrolledComposite {
         varFrame.setLayout(layout);
         varFrame.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-        widgetList = new ArrayList<Widget>();
+        widgetList = new ArrayList<>();
         this.packType = "";
         for (FieldDefinition fieldDef : fieldDefs) {
             Widget widget = null;
@@ -152,7 +156,7 @@ public class DialogAreaComposite extends ScrolledComposite {
                 if (dataMgr != null) {
                     List<DatabaseID> models = dataMgr.getParmManager()
                             .getAvailableDbs();
-                    List<String> filteredDbIdList = new ArrayList<String>();
+                    List<String> filteredDbIdList = new ArrayList<>();
 
                     for (DatabaseID dbId : models) {
                         if (dbId.getDbType().equals("")
@@ -170,15 +174,15 @@ public class DialogAreaComposite extends ScrolledComposite {
                             fieldDef.getDefaultValue());
                 } else {
                     statusHandler
-                            .handle(Priority.ERROR,
-                                    "No dataMgr supplied to ProcessVariableList, cannot retrieve models");
+                    .handle(Priority.ERROR,
+                            "No dataMgr supplied to ProcessVariableList, cannot retrieve models");
                 }
             } else if (fieldDef.getType() == FieldType.D2DMODEL
                     || fieldDef.getType() == FieldType.D2DMODELS) {
                 if (dataMgr != null) {
                     List<DatabaseID> models = dataMgr.getParmManager()
                             .getAvailableDbs();
-                    List<String> filteredDbIdList = new ArrayList<String>();
+                    List<String> filteredDbIdList = new ArrayList<>();
 
                     for (DatabaseID dbId : models) {
                         if (dbId.getDbType().equals("D2D")
@@ -196,8 +200,8 @@ public class DialogAreaComposite extends ScrolledComposite {
                             fieldDef.getDefaultValue());
                 } else {
                     statusHandler
-                            .handle(Priority.ERROR,
-                                    "No dataMgr supplied to ProcessVariableList, cannot retrieve models");
+                    .handle(Priority.ERROR,
+                            "No dataMgr supplied to ProcessVariableList, cannot retrieve models");
                 }
             } else if (fieldDef.getType().getPythonWidgetName()
                     .contains("parm")) {
@@ -217,8 +221,8 @@ public class DialogAreaComposite extends ScrolledComposite {
                 // script GUI widgets
             } else {
                 widget = makeLabel("ERROR: " + fieldDef.getDescription()
-                        + " unknown widget type: "
-                        + fieldDef.getType().getPythonWidgetName(), null);
+                + " unknown widget type: "
+                + fieldDef.getType().getPythonWidgetName(), null);
             }
 
             if (widget != null) {
@@ -234,7 +238,7 @@ public class DialogAreaComposite extends ScrolledComposite {
         this.setMinSize(new Point(xSize, ySize));
         this.setExpandHorizontal(true);
         this.setExpandVertical(true);
-        
+
         Rectangle monitorBounds = this.getDisplay().getPrimaryMonitor()
                 .getBounds();
         int maxXSize = (int) (monitorBounds.width * MAX_WIDTH_RATIO);
@@ -247,7 +251,7 @@ public class DialogAreaComposite extends ScrolledComposite {
         gd.heightHint = maxYSize;
         gd.widthHint = maxXSize;
         this.setLayoutData(gd);
-        
+
         // Make sure widgets are scrolled into view when they gain focus
         // see:
         // http://www.java2s.com/Code/Java/SWT-JFace-Eclipse/ScrollSWTwidgetsintoviewwhentheygetfocus.htm
@@ -376,11 +380,7 @@ public class DialogAreaComposite extends ScrolledComposite {
     private Widget makeCheckList(String label,
             List<? extends Object> elementList, Object initialValue) {
         Widget checkList;
-        if (elementList.size() > 20) {
-            checkList = new ListWidget(label, true);
-        } else {
-            checkList = new CheckWidget(label);
-        }
+        checkList = new CheckWidget(label);
         checkList.setValue(initialValue);
         checkList.setOptions(elementList);
 
@@ -388,7 +388,7 @@ public class DialogAreaComposite extends ScrolledComposite {
     }
 
     private ScaleWidget makeScale(String labelText,
-            List<? extends Object> valueList, Object initialValue, float res,
+            List<? extends Object> valueList, Object initialValue, double res,
             int precision) {
         // See if we have to start a new frame
         if (!this.packType.equals("entry")) {
@@ -406,7 +406,7 @@ public class DialogAreaComposite extends ScrolledComposite {
         scale.setOptions(valueList);
         scale.setResolution(res);
         scale.setPrecision(precision);
-        if (initialValue instanceof Float ){
+        if (initialValue instanceof Double) {
             scale.setFloat(true);
         } else {
             scale.setFloat(false);
@@ -424,6 +424,9 @@ public class DialogAreaComposite extends ScrolledComposite {
         return scrollbar;
     }
 
+    /**
+     * @return the widget list
+     */
     public List<Widget> getWidgetList() {
         return this.widgetList;
     }

@@ -33,6 +33,7 @@ import com.raytheon.uf.common.dataplugin.radar.RadarRecord;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 7, 2010            bsteffen     Initial creation
+ * Oct 18,2017  DCS20303  jdynina      Use true elevation angle
  * 
  * </pre>
  * 
@@ -46,6 +47,6 @@ public class ElevationTextContributor implements IRadarTextContributor {
 
     @Override
     public String contributeText(RadarRecord record) {
-        return String.format(format, record.getPrimaryElevationAngle());
+        return String.format(format != null ? format : "%.1f", record.getTrueElevationAngle());
     }
 }

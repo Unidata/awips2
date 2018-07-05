@@ -1,17 +1,17 @@
 <!-- Short Term Forecast configuration -->
 <!-- Customized by Phil Kurimski WFO DTX 19 August 2011 with OB11.8 changes -->
 <!-- Changed Co coding to Zones - Mike Dangelo 09-23-2011 at Alaska TIM -->
-<!-- Edited by Mike Dangelo 02-27-2012 
+<!-- Edited by Mike Dangelo 02-27-2012
                Qinglu Lin   04-04-2012 DR 14691. Added <feAreaField> tag.
                Evan Bookbinder 09-12-2012 DR15179 Added areaSource object to allow for
-                                           county-based headlines in zone based products. 
-                                           Added settings for locations shapefile              
+                                           county-based headlines in zone based products.
+                                           Added settings for locations shapefile
                                            Added new areaSource object
-               Evan Bookbinder 5-5-2013 fixed <type> variable under areaSource objects                                           
+               Evan Bookbinder 5-5-2013 fixed <type> variable under areaSource objects
                Chad Gimmestad  9-17-2013 made additional info bullet names/labels consistent
                Phil Kurimski  09-19-2013 added geospatialConfig.xml
                Mike Rega 5/23/14 DR 17380 svr wx watch logic OB14.3.1
-               Mike Dangelo 10-22-2015 checked for mixed case     
+               Mike Dangelo 10-22-2015 checked for mixed case
 -->
 <warngenConfig>
 
@@ -33,8 +33,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <unitSpeed>mph</unitSpeed>
 
  <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
- 	The various menu items are also the different maps
- 	that can be loaded with each template. -->
+    The various menu items are also the different maps
+    that can be loaded with each template. -->
  <maps>
   <map>Forecast Zones</map>
   <map>County Names</map>
@@ -59,8 +59,8 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
 
  <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
-  	included with the warning product include TO.A and/or SV.A, 
- 	respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
+    included with the warning product include TO.A and/or SV.A, 
+    respectively. Please refer to 'includedWatchAreaBuffer' in <areaConfig/>. -->
  <includedWatches>
   <includedWatch>TO.A</includedWatch>
   <includedWatch>SV.A</includedWatch>
@@ -122,14 +122,14 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <bullets>
   <bullet bulletText="  *****BASIS SECTION*****...(Choose 1) " bulletType="title"/>
   <bullet bulletName="blankStatement" bulletText="Blank Statement" bulletGroup="basis"/>
-  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="basis" bulletDefault="true"/>
+  <bullet bulletName="doppler" bulletText="Doppler radar indicated" bulletGroup="basis"/>
   <bullet bulletName="trainedSpotters" bulletText="Trained spotters reported" bulletGroup="basis"/>
   <bullet bulletName="lawEnforcement" bulletText="Law Enforcement reported" bulletGroup="basis"/>
   <bullet bulletName="public" bulletText="Public reported" bulletGroup="basis"/>
   <bullet bulletName="satellite" bulletText="Satellite imagery indicated" bulletGroup="basis"/>
   <bullet bulletText="" bulletType="title"/>
   <bullet bulletText="  ****EVENT TYPE SECTION****...(Choose 1) " bulletType="title"/>
-  <bullet bulletName="thunderstorm" bulletText="Thunderstorms" bulletGroup="event" bulletDefault="true"/>
+  <bullet bulletName="thunderstorm" bulletText="Thunderstorms" bulletGroup="event"/>
   <bullet bulletName="rainShower" bulletText="Rain Showers" bulletGroup="event"/>
   <bullet bulletName="snowShower" bulletText="Snow Showers" bulletGroup="event"/>
   <bullet bulletName="leadingRain" bulletText="Leading edge of Rain" bulletGroup="event"/>

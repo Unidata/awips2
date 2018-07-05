@@ -48,6 +48,7 @@ import com.raytheon.viz.mpe.ui.DisplayFieldData;
 import com.raytheon.viz.mpe.ui.MPEDisplayManager;
 import com.raytheon.viz.mpe.ui.actions.DrawDQCStations;
 import com.raytheon.viz.mpe.ui.actions.GageQcSelect;
+import com.raytheon.viz.mpe.ui.actions.GroupEditCalls;
 import com.raytheon.viz.mpe.ui.actions.OtherPrecipOptions;
 import com.raytheon.viz.mpe.ui.actions.SaveLevel2Data;
 import com.raytheon.viz.mpe.ui.actions.ScreeningOptions;
@@ -82,14 +83,17 @@ import com.raytheon.viz.ui.dialogs.DialogUtil;
  *                                   when closing this dialog.
  * Sep 21, 2016  5901     randerso   Fix dialog centering issue introduced in
  *                                   Eclipse 4
- *
+ * Mar 02, 2017  6164     bkowal     Updated to extend {@link AbstractDailyQCDialog}.
+ * Aug 11, 2017  6148     bkowal     Cleanup. Implement {@link IGroupEditHandler}.
+ * Dec 15, 2017  6547     bkowal     Correctly assign the current date and the previous date.
+ * 
  * </pre>
  *
  * @author snaples
- * @version 1.0
  */
 
-public class QcPrecipOptionsDialog extends AbstractMPEDialog {
+public class QcPrecipOptionsDialog extends AbstractDailyQCDialog
+        implements IGroupEditHandler {
 
     public static Combo selsix24Cbo;
 
@@ -151,12 +155,6 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
 
     OtherPrecipOptions opo = new OtherPrecipOptions();
 
-    // int[] pcp_in_use;
-
-    // Pdata[] pdata = new Pdata[0];
-
-    // Ts[] ts;
-
     private int time_pos;
 
     public static Button[] tsbuttons = null;
@@ -190,16 +188,19 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
                 && DailyQcUtils.contour_flag == -1) {
             ik = 0;
         } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+                && DailyQcUtils.grids_flag == 1
+                && DailyQcUtils.map_flag == -1) {
             ik = 1;
         } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+                && DailyQcUtils.grids_flag == -1
+                && DailyQcUtils.map_flag == 1) {
             ik = 2;
-        } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == 1 && DailyQcUtils.map_flag == -1) {
+        } else if (DailyQcUtils.points_flag == 1 && DailyQcUtils.grids_flag == 1
+                && DailyQcUtils.map_flag == -1) {
             ik = 3;
         } else if (DailyQcUtils.points_flag == 1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == 1) {
+                && DailyQcUtils.grids_flag == -1
+                && DailyQcUtils.map_flag == 1) {
             ik = 4;
         } else if (DailyQcUtils.points_flag == -1
                 && DailyQcUtils.contour_flag == 1) {
@@ -208,7 +209,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
                 && DailyQcUtils.contour_flag == 1) {
             ik = 6;
         } else if (DailyQcUtils.points_flag == -1
-                && DailyQcUtils.grids_flag == -1 && DailyQcUtils.map_flag == -1) {
+                && DailyQcUtils.grids_flag == -1
+                && DailyQcUtils.map_flag == -1) {
             ik = 7;
         }
         return ik;
@@ -224,8 +226,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         Shell parent = this.getParent();
         Display display = parent.getDisplay();
         MPEDisplayManager displayMgr = MPEDisplayManager.getCurrent();
-        Date prevDate = displayMgr.getCurrentEditDate();
-        Date currDate = ChooseDataPeriodDialog.prevHydDate;
+        Date currDate = displayMgr.getCurrentEditDate();
+        Date prevDate = ChooseDataPeriodDialog.prevHydDate;
         String QcArea = ChooseDataPeriodDialog.prevArea;
         AppsDefaults appDefaults = AppsDefaults.getInstance();
         DisplayFieldData df = displayMgr.getDisplayFieldType();
@@ -298,6 +300,7 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         ddq = DrawDQCStations.getInstance();
         opo.chg_precip_time(selsix24Cbo.getSelectionIndex() + 2);
         opo.send_expose();
+        listenToRevertDisplay(shell);
         while (!shell.isDisposed()) {
             if (dqc_good == 0) {
                 displayMgr.setQpf(false);
@@ -397,8 +400,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         dataOptionsGroup.setLayoutData(gd);
         final Shell shell = this.getParent();
         final Cursor prevCursor = shell.getCursor();
-        final Cursor waitCursor = Display.getDefault().getSystemCursor(
-                SWT.CURSOR_WAIT);
+        final Cursor waitCursor = Display.getDefault()
+                .getSystemCursor(SWT.CURSOR_WAIT);
 
         if (MPEDisplayManager.pcpn_time_step != 1) {
             MPEDisplayManager.pcpn_time_step = 1;
@@ -429,8 +432,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
                 opo.chg_precip_time(selsix24Cbo.getSelectionIndex() + 2);
             }
         });
-        if (DailyQcUtils.qcDays == 1
-                && (dqc.curHr18_00 == 1 || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
+        if (DailyQcUtils.qcDays == 1 && (dqc.curHr18_00 == 1
+                || dqc.curHr00_06 == 1 || dqc.curHr06_12 == 1)) {
             selsix24Cbo.setEnabled(false);
         } else {
             selsix24Cbo.setEnabled(true);
@@ -464,25 +467,9 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         });
 
         GridData dd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        // int pd = DailyQcUtils.hrgt12z == 1 ? 1 : 0;
-        // if (pcp_flag == -1) {
-        // /*
-        // * Define the pcp_flag based on whether or not there is a partial
-        // * DQC day. This also depends on whether the time step is 6 or 24
-        // * hours. Initially this will be 24.
-        // */
-        // if (pd == 1) {
-        // pcp_flag = 4;
-        // pcpn_day = 1;
-        // } else {
-        // pcp_flag = 0;
-        // pcpn_day = 0;
-        // }
-        //
-        // }
-
         String[] a = new String[dataSet.size()];
-        dataDispCbo = new Combo(dataOptionsGroup, SWT.DROP_DOWN | SWT.READ_ONLY);
+        dataDispCbo = new Combo(dataOptionsGroup,
+                SWT.DROP_DOWN | SWT.READ_ONLY);
         dataDispCbo.setTextLimit(30);
         dataDispCbo.setLayoutData(dd);
         dataDispCbo.removeAll();
@@ -531,18 +518,12 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         groupEditBtn = new Button(renderComp, SWT.PUSH);
         groupEditBtn.setText("Group Edit");
         groupEditBtn.setLayoutData(bd);
+        final IGroupEditHandler handler = this;
         groupEditBtn.addSelectionListener(new SelectionAdapter() {
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 GroupEditStationsDialog groupDialog = new GroupEditStationsDialog(
-                        shell, 0);
+                        shell, handler);
                 groupDialog.open();
             }
         });
@@ -684,7 +665,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         boolean mpe_show_missing_gage_set = false;
         if (dqc.mpe_show_missing_gage.length() > 0) {
             if ((dqc.mpe_show_missing_gage.equalsIgnoreCase("All"))
-                    || (dqc.mpe_show_missing_gage.equalsIgnoreCase("Reported"))) {
+                    || (dqc.mpe_show_missing_gage
+                            .equalsIgnoreCase("Reported"))) {
                 mpe_show_missing_gage_set = true;
             } else {
                 mpe_show_missing_gage_set = false;
@@ -722,7 +704,8 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
         rtCkBxComp.setLayout(lrCkBxLo);
 
         String[] qbnames = { "Verified", "Screened", "Time Dist", "Manual",
-                "Questionable", "Partial", "Estimated", "Bad", "Missing", "All" };
+                "Questionable", "Partial", "Estimated", "Bad", "Missing",
+                "All" };
 
         for (i = 0; i < qsbuttons.length / 2; i++) {
 
@@ -981,13 +964,13 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             }
         });
         pntRevFilter
-        .addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
-            @Override
-            public void mouseUp(MouseEvent e) {
-                opo.refresh_exposure();
-            }
+                .addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
+                    @Override
+                    public void mouseUp(MouseEvent e) {
+                        opo.refresh_exposure();
+                    }
 
-        });
+                });
         /**
          * Add a key listener for up and down arrows to move up and down through
          * the reverse filter scale
@@ -1074,15 +1057,15 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
             }
         });
         pxTempFilter
-        .addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
-            @Override
-            public void mouseUp(MouseEvent e) {
-                int sel = pxTempFilter.getSelection() - 100;
-                dqc.pxtemp = (float) sel / 100;
-                dqc.dmvalue = (int) (dqc.pxtemp * 100 * 3.28 / .55);
-                opo.refresh_exposure();
-            }
-        });
+                .addMouseListener(new org.eclipse.swt.events.MouseAdapter() {
+                    @Override
+                    public void mouseUp(MouseEvent e) {
+                        int sel = pxTempFilter.getSelection() - 100;
+                        dqc.pxtemp = (float) sel / 100;
+                        dqc.dmvalue = (int) (dqc.pxtemp * 100 * 3.28 / .55);
+                        opo.refresh_exposure();
+                    }
+                });
 
         OtherPrecipOptions.change_pcpn_flag = 1;
         OtherPrecipOptions.change_rpcpn_flag = -1;
@@ -1123,12 +1106,17 @@ public class QcPrecipOptionsDialog extends AbstractMPEDialog {
     public static void destroy(boolean t) {
         isOpen = t;
     }
-    
+
     public static boolean isOpen() {
-    	return isOpen;
+        return isOpen;
     }
 
     public static boolean isFinished() {
         return isfinished;
+    }
+
+    @Override
+    public void handleGroupEdit() {
+        new GroupEditCalls().apply_group();
     }
 }

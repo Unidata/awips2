@@ -127,6 +127,6 @@
 		</if>
 	</target>
 	
-	<taskdef resource="net/sf/antcontrib/antlib.xml" 
-		classpath="${basedir}/lib/ant/ant-contrib-1.0b3.jar" />
+	<taskdef resource="net/sf/antcontrib/antcontrib.properties"/>
+
 </project>

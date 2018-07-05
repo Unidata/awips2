@@ -102,6 +102,7 @@ import com.raytheon.viz.ui.editor.AbstractEditor;
  * May 13, 2016  5653     randerso     Fixed print scaling
  *                                     Handle empty printer list
  *                                     Code cleanup
+ * Mar 23, 2017  6117     bsteffen     Workaround crash when printing images.
  * 
  * </pre>
  * 
@@ -815,9 +816,9 @@ public class PrintDialog extends CaveSWTDialog {
             printer.endJob();
         }
 
-        image.dispose();
         printer.dispose();
-
+        image.dispose();
+        
         this.restoreMagnificationAndDensity();
         // this.close();
     }

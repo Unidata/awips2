@@ -55,8 +55,19 @@
 #  2010/07/30 - verison 2.0 : Paul Jendrowski : Preliminary AWIPS 2 version
 #==============================================================================
 #
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls 
 #
 #
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 ToolType="numeric"
 WeatherElementEdited = "variableElement"
 ScreenList = ["SCALAR","VECTOR"]
@@ -135,7 +146,7 @@ class Tool (SmartScript.SmartScript):
       #  name if we are modifying only a part of a vector, get the min/max
       #  values for the sliders
       #
-      wxType=variableElement_GridInfo.getGridType().toString()
+      wxType=str(variableElement_GridInfo.getGridType())
       UpdatedName=self.getVectEdit(WEname,wxType)
       self.getResolution(variableElement_GridInfo)
       self.getMinMaxValue(variableElement_GridInfo)

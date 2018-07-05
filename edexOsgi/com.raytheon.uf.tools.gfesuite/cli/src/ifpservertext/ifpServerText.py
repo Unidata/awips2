@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -36,28 +36,28 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.localization.msgs import Pr
 from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import LocalizationStreamGetRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import LocalizationStreamPutRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
-from dynamicserialize.dstypes.com.raytheon.uf.common.plugin.nwsauth.user import User
-from dynamicserialize.dstypes.com.raytheon.uf.common.plugin.nwsauth.user import UserId
+from dynamicserialize.dstypes.com.raytheon.uf.common.auth.user import User
+from dynamicserialize.dstypes.com.raytheon.uf.common.auth.user import UserId
 from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import GetActiveSitesRequest
 from awips import ThriftClient
 
 #
 # The ifpServerText program.  Stores, deletes, gets, and inventories text.
-#  
-#    
+#
+#
 #     SOFTWARE HISTORY
-#    
+#
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    12/17/10                      dgilling       Initial Creation.
 #    11/17/15         #5129        dgilling       Support changes to GetSiteTimeZoneInfoRequest.
-#    
-# 
+#    07/17/17         #6285        randerso       Change to use new Roles/Permissions framework.
+#
 #
 
 
 class textInventoryRecord:
-    
+
     def __init__(self, fileName, path="", localCtx=None, protected=False):
         self.fileName = fileName
         self.path = path
@@ -68,10 +68,10 @@ class textInventoryRecord:
         else:
             self.localCtx = localCtx
         self.protected = protected
-    
+
     def __str__(self):
         return str(self.localCtx) + self.path + "/" + self.fileName
-    
+
 ## Logging methods ##
 logger = None
 def __initLogger():
@@ -88,25 +88,25 @@ def __initLogger():
 
 
 class ifpServerText:
-    
+
     BUFFER_SIZE = 512 * 1024
-    
-    EXTENSION_DICT = {"Config": ".py", 
+
+    EXTENSION_DICT = {"Config": ".py",
                        "EditArea": ".xml",
-                       "EditAreaGroup": ".txt", 
+                       "EditAreaGroup": ".txt",
                        "SampleSet": ".xml",
-                       "ColorTable": ".cmap", 
+                       "ColorTable": ".cmap",
                        "WeatherElementGroup": ".xml",
-                       "SelectTR": ".SELECTTR", 
+                       "SelectTR": ".SELECTTR",
                        "Tool": ".py",
-                       "Procedure": ".py", 
+                       "Procedure": ".py",
                        "TextProduct": ".py",
-                       "TextUtility": ".py", 
+                       "TextUtility": ".py",
                        "Utility": ".py",
                        "Combinations": ".py",
                        "ISCUtility": ".py"
                       }
-    
+
     LOCALIZATION_DICT = {"Config": ("CAVE_STATIC", "gfe/userPython/gfeConfig"),
                        "EditArea": ("COMMON_STATIC", "gfe/editAreas"),
                        "EditAreaGroup": ("COMMON_STATIC", "gfe/editAreaGroups"),
@@ -137,13 +137,13 @@ class ifpServerText:
         self.__osUser = pwd.getpwuid(os.getuid()).pw_name
 
         self.__cmdLine()
-        
+
         self.__thrift = ThriftClient.ThriftClient(self.__host, self.__port, "/services")
-        
+
         # build inventory:
         if self.__textCategory is not None:
             self.__db = self.__buildInventory()
-        
+
 
     def process(self):
         # meta information
@@ -218,7 +218,7 @@ class ifpServerText:
             elif opt[0] == '-p':
                 self.__port = int(opt[1])
             elif opt[0] == '-o':
-                self.__siteID = opt[1]                
+                self.__siteID = opt[1]
             elif opt[0] == '-u':
                 self.__user = opt[1]
             elif opt[0] == '-n':
@@ -242,8 +242,8 @@ class ifpServerText:
                 self.__classType = opt[1]
 
                 if self.__classType == "SmartTool":
-                    self.__classType = "Tool"   #maintain backwards compatible
-				
+                    self.__classType = "Tool"  #maintain backwards compatible
+
                 dic = {"Config": "GFECONFIG", "EditArea": "EditAreas",
                        "EditAreaGroup": "EditAreaGroup", "SampleSet": "SampleSets",
                        "ColorTable": "ColorTable",
@@ -252,7 +252,7 @@ class ifpServerText:
                        "Procedure": "Procedure", "TextProduct": "TextProduct",
                        "TextUtility": "TextUtility", "Utility": "Utility",
                        "Combinations": "COMBINATIONS", "ISCUtility": "ISCUtility"}
-                self.__textCategory = dic[self.__classType] 
+                self.__textCategory = dic[self.__classType]
             elif opt[0] == '-s':
                 if self.__mode is not None:
                     self.__usage()
@@ -277,11 +277,11 @@ class ifpServerText:
         # sanity checks, make sure all required switches are specified
         if self.__user is None:
             self.__user = self.__osUser
-        
+
         if self.__host is None or self.__port is None:
             self.__usage()
             raise SyntaxWarning, "Error: Missing host or port"
-        
+
         if self.__siteID is None and self.__metaInfo not in ['sitetimezone', 'site']:
             self.__usage()
             raise SyntaxWarning, "Error: Missing siteID information"
@@ -302,13 +302,13 @@ class ifpServerText:
             self.__usage()
             raise SyntaxWarning, \
               "Error: SAVE mode requires -n, -f, and -c switches"
-        
+
         if self.__mode == "DELETE" and \
            self.__user not in [self.__osUser, "SITE"]:
             self.__usage()
             raise SyntaxWarning, \
               "Error: DELETE mode can only be performed on SITE or " + self.__osUser + " owned files"
-              
+
         if self.__mode == "SAVE" and \
            self.__user not in [self.__osUser, "SITE"]:
             self.__usage()
@@ -320,7 +320,7 @@ class ifpServerText:
             self.__usage()
             raise SyntaxWarning, \
               "Error: DELETE mode requires -n and -c switches"
-        
+
         if self.__mode == "GET" and (self.__name is None or \
           self.__classType is None):
             self.__usage()
@@ -336,7 +336,7 @@ class ifpServerText:
                 self.__usage()
                 raise SyntaxWarning, \
                   "Error: -m with -s, -d, -i, -n switches not compatible with each other"
-        
+
 
     def __usage(self):
         print """
@@ -395,11 +395,11 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             localLevels = localLevels[:-2]
         elif self.__user == "BASE":
             localLevels = localLevels[0]
-        
+
         req = UtilityRequestMessage()
         cmds = []
-        
-        for level in localLevels:             
+
+        for level in localLevels:
             cmd = ListUtilityCommand()
             cmd.setSubDirectory(invTuple[1])
             cmd.setRecursive(False)
@@ -416,24 +416,24 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
                 ctx.setContextName(self.__user)
             cmd.setContext(ctx)
             cmds.append(cmd)
-    
+
         req.setCommands(cmds)
-        
+
         try:
             serverResponse = self.__thrift.sendRequest(req)
         except Exception, e:
-            raise RuntimeError,  "Could not retrieve product inventory: " + str(e)
-           
-        inventory = {} 
+            raise RuntimeError, "Could not retrieve product inventory: " + str(e)
+
+        inventory = {}
         for response in serverResponse.getResponses():
             for entry in response.getEntries():
                 filename = os.path.split(entry.getFileName())[1]
                 shortName = os.path.splitext(filename)[0]
                 record = textInventoryRecord(filename, response.getPathName(), entry.getContext(), entry.getProtectedFile())
                 inventory[shortName] = record
-        
+
         return inventory
-        
+
 
     def __saveText(self):
         #Saves a text file
@@ -458,7 +458,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
         totalSize = len(bytes)
         request = LocalizationStreamPutRequest()
         request.setOffset(0)
-        
+
         localizationInfo = self.LOCALIZATION_DICT[self.__classType]
         if self.__user != "SITE":
             levelName = "USER"
@@ -476,7 +476,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
         request.setContext(ctx)
         request.setMyContextName(ctx.getContextName())
         request.setFileName(localizationInfo[1] + "/" + self.__name + self.EXTENSION_DICT[self.__classType])
-        
+
         totalSent = 0
         finished = False
         while (not finished):
@@ -497,7 +497,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
                 serverResponse = serverResponse.getResponse()
             except Exception, e:
                 raise RuntimeError("Could not send file to localization server: " + str(e))
-            
+
         logger.info("Saved file " + self.__filename + " under " + self.__name)
 
     def __deleteText(self):
@@ -506,15 +506,15 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
         if self.__name not in keys:
             s = "DELETE failed since " + self.__name + " not in inventory"
             raise KeyError, s
-        
+
         record = self.__db[self.__name]
-        
+
         if self.__user != "SITE" and str(record.localCtx.getLocalizationLevel()) != "USER":
             raise RuntimeError, "User can only delete user-level files."
-        
+
         if self.__user == "SITE" and str(record.localCtx.getLocalizationLevel()) != "SITE":
             raise RuntimeError, "SITE can only delete site-level files."
-        
+
         req = PrivilegedUtilityRequestMessage()
         cmds = []
         cmd = DeleteUtilityCommand()
@@ -531,7 +531,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
                 cmd.setMyContextName(record.localCtx.getContextName())
                 cmds.append(cmd)
         req.setCommands(cmds)
-        
+
         try:
             serverResponse = self.__thrift.sendRequest(req)
             if not isinstance(serverResponse, SuccessfulExecution):
@@ -551,7 +551,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
         if self.__name not in keys:
             s = "GET failed since " + self.__name + " not in inventory"
             raise KeyError, s
-        
+
         invRecord = self.__db[self.__name]
         request = LocalizationStreamGetRequest()
         request.setOffset(0)
@@ -559,7 +559,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
         request.setContext(invRecord.localCtx)
         request.setMyContextName(invRecord.localCtx.getContextName())
         request.setFileName(invRecord.path + "/" + invRecord.fileName)
-        
+
         finished = False
         txt = ""
         while (not finished):
@@ -574,14 +574,14 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             except Exception, e:
                 raise RuntimeError("Could not retrieve file from localization server: " + str(e))
             # serverResponse will be returned as a LocalizationStreamPutRequest
-            # object. we'll use its methods to read back the serialized file 
+            # object. we'll use its methods to read back the serialized file
             # data.
             # bytes get returned to us as an numpy.ndarray
             bytes = serverResponse.getBytes()
             txt += bytes.tostring()
             request.setOffset(request.getOffset() + len(bytes))
             finished = serverResponse.getEnd()
-        
+
         if self.__filename is None:
             print txt
         else:
@@ -593,7 +593,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
     def __inventoryText(self):
         #Returns the inventory
         keys = self.__db.keys()
-        
+
         print "%-40s" % "Name", "%-15s" % "Access", "Protect"
         print "%-40s" % "----", "%-15s" % "------", "-------"
         keys.sort()
@@ -689,8 +689,8 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             try:
                 serverResponse = self.__thrift.sendRequest(request)
             except Exception, e:
-                raise RuntimeError,  "Could not retrieve meta information: " + str(e)            
-            
+                raise RuntimeError, "Could not retrieve meta information: " + str(e)
+
             siteIds = serverResponse
             request = GetSiteTimeZoneInfoRequest()
             request.setWorkstationID(wsId)
@@ -699,8 +699,8 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             try:
                 serverResponse = self.__thrift.sendRequest(request)
             except Exception, e:
-                raise RuntimeError,  "Could not retrieve meta information: " + str(e)
-            
+                raise RuntimeError, "Could not retrieve meta information: " + str(e)
+
             if (serverResponse.isOkay()):
                 tzInfo = serverResponse.getPayload()
                 for k in tzInfo.keys():
@@ -712,8 +712,8 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             try:
                 serverResponse = self.__thrift.sendRequest(request)
             except Exception, e:
-                raise RuntimeError,  "Could not retrieve meta information: " + str(e)
-            
+                raise RuntimeError, "Could not retrieve meta information: " + str(e)
+
             for site in serverResponse:
                 txt = txt + site + "\n"
 
@@ -724,8 +724,8 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             try:
                 serverResponse = self.__thrift.sendRequest(request)
             except Exception, e:
-                raise RuntimeError,  "Could not retrieve meta information: " + str(e)
-            
+                raise RuntimeError, "Could not retrieve meta information: " + str(e)
+
             if (serverResponse.isOkay()):
                 singletons = serverResponse.getPayload()
                 for s in singletons:
@@ -739,15 +739,15 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             try:
                 serverResponse = self.__thrift.sendRequest(request)
             except Exception, e:
-                raise RuntimeError,  "Could not retrieve meta information: " + str(e)
-            
+                raise RuntimeError, "Could not retrieve meta information: " + str(e)
+
             if (serverResponse.isOkay()):
                 domain = serverResponse.getPayload()
                 proj = domain.getProjection()
                 txt = "ProjectionID: " + proj.getProjectionID() + "\n"
                 txt = txt + "Grid Size: " + `(domain.getNx(), domain.getNy())` + "\n"
                 txt = txt + "Grid Domain: " + `(domain.getOrigin(), domain.getExtent())` + "\n"
-                
+
                 keys = proj.keys()
                 for k in keys:
                     txt = txt + k + ': ' + str(getattr(proj, k)) + "\n"
@@ -779,4 +779,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
+

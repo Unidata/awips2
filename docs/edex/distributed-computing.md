@@ -58,9 +58,9 @@ Note the line **`-A INPUT -s 10.0.0.7 -j EDEX`** as well as the following **`-A 
 
 ### 3. Database Config
 
-In the file `/awips2/data/pg_hba.conf` you define remote connections for all postgres tables with as `<IP address>/32`, after the block of IPv4 local connections:
+In the file `/awips2/database/data/pg_hba.conf` you define remote connections for all postgres tables with as `<IP address>/32`, after the block of IPv4 local connections:
 
-	vi /awips2/data/pg_hba.conf
+	vi /awips2/database/data/pg_hba.conf
 
 	# IPv4 local connections:
 	host    fxatext     all         127.0.0.1/32          trust
@@ -202,7 +202,7 @@ Watch the edex JVM log with the command
 
 ## Additional Notes
 
-* Be mindful of what IP address and hostnames are used in `/awips2/edex/bin/setup.env` and `/awips2/data/pg_hba.conf`, and that they are resolvable from the command line.  Consult or edit `/etc/hosts` as needed.
+* Be mindful of what IP address and hostnames are used in `/awips2/edex/bin/setup.env` and `/awips2/database/data/pg_hba.conf`, and that they are resolvable from the command line.  Consult or edit `/etc/hosts` as needed.
 * You can install multiple `awips2-ingest` servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (`DB_ADDR` and `PYPIES_SERVER` in `/awips2/edex/bin/setup.env`):
 
 * Every EDEX Ingest IP address must be allowed in both **iptables** and **pg_hba.conf** as [shown above](#2-iptables-config).

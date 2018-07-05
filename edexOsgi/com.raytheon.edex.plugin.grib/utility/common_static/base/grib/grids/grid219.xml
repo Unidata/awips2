@@ -18,10 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <polarStereoGridCoverage>
     <name>219</name>
     <description> grid over the Northern Hemisphere to depict SSMI-derived
-		ice concentrations (polar stereographic)</description>
+        ice concentrations (polar stereographic)</description>
     <la1>25.032</la1>
     <lo1>-119.56</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>

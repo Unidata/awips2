@@ -43,11 +43,11 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.uf.viz.core.procedures.AlterBundleChangeEvent;
-import com.raytheon.uf.viz.core.procedures.AlterBundleFactory;
 import com.raytheon.uf.viz.core.procedures.Bundle;
-import com.raytheon.uf.viz.core.procedures.IAlterBundleChangeListener;
-import com.raytheon.uf.viz.core.procedures.IAlterBundleContributor;
+import com.raytheon.uf.viz.d2d.core.procedures.AlterBundleChangeEvent;
+import com.raytheon.uf.viz.d2d.core.procedures.AlterBundleFactory;
+import com.raytheon.uf.viz.d2d.core.procedures.IAlterBundleChangeListener;
+import com.raytheon.uf.viz.d2d.core.procedures.IAlterBundleContributor;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.widgets.MenuButton;
 

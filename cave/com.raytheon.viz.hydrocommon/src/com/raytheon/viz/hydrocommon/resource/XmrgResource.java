@@ -88,7 +88,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Aug 24, 2009 2258       mpduff      Initial creation.
- * 
+ * Mar 14, 2017 18417      snaples     Updated loadData to handle trace precip color mapping properly.
  * </pre>
  * 
  * @author mpduff
@@ -267,9 +267,7 @@ public class XmrgResource extends
         entry.setPixelValue((double) (i - 1));
         entry.setDisplayValue(Double.MAX_VALUE);
         dmPref.addEntry(entry);
-
         dmPref.getEntries().get(0).setLabel("");
-        dmPref.getEntries().get(1).setLabel("");
 
         ColorMapCapability cmc = getCapability(ColorMapCapability.class);
 
@@ -413,10 +411,15 @@ public class XmrgResource extends
                         if (s < 0) {
                             buf.put(0.0f);
                             sampleData.add(0.0f);
+                        } else if (s > 0 && s < 25) {
+                            short ns = 10;
+                            float f = (short) cvt.convert(ns);
+                            buf.put(f);
+                            // mm/100 to inch
+                            sampleData.add(s * 0.03937f / 100);
                         } else {
                             float f = (float) Math.floor(cvt.convert(s));
                             buf.put(f);
-
                             // mm/100 to inch
                             sampleData.add(s * 0.03937f / 100);
                         }

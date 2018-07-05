@@ -33,9 +33,14 @@ import PointDataView, PointDataContainer, NoDataException, PointDataRetrieve
 #    25Apr2012       14688         rferrel        Initial Creation.
 #    03Apr2013       1735          rferrel        Use DbQueryRequest to get forecast times
 #                                                  and added option to limit number returned.
+#    31Oct2016       5979          njensen        Cast to primitives for compatibility
 # 
 #
     
+##
+# This is a base file that is not intended to be overridden.
+##
+
 class ForecastPointDataRetrieve(PointDataRetrieve.PointDataRetrieve):
 
     def __init__(self, pluginName, site, parameters, keyId='forecastHr', refTime=None, constraint={}, maxSize=99, forecastTimesLimit=-999):
@@ -70,7 +75,7 @@ class ForecastPointDataRetrieve(PointDataRetrieve.PointDataRetrieve):
         dtsLen = len(availableHours)
         dts = jep.jarray(dtsLen, DataTime)
         for i in range(dtsLen):
-            dts[i] = DataTime(self.refTime, availableHours[i].intValue())
+            dts[i] = DataTime(self.refTime, int(availableHours[i]))
         constraints = self._buildConstraints(None) #fctTimes are explicitly set so we don't need to constrain those
         params = jep.jarray(len(parameters), String)
         for i in range(len(parameters)):

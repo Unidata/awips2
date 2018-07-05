@@ -12,5 +12,5 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.ncwf;bundle-version="1.12.1174",
  com.raytheon.viz.lpi;bundle-version="1.12.1174",
  com.raytheon.viz.spi;bundle-version="1.12.1174"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy

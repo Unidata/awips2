@@ -19,7 +19,7 @@ usage() {
     echo "     root.{crt,key,srl} - root cert, key, and serial file"
     echo "     server.{crt,key}   - database cert and key"
     echo "     {db user}.{crt,key,pk8} - database user crt, key, and DER-formatted key"
-    echo "     server.tgz  - bundle for database server (Extract in /awips2/data on dx1f.)"
+    echo "     server.tgz  - bundle for database server (Extract in /awips2/database/ssl on dx1f.)"
     echo "     awips.tgz   - bundle for admin users with .postgresql/ prefix (Extract in /home/awips/ .)"
     echo "     user.tgz    - bundle for app users with .postgresql/ prefix (Extract in /home/{user}/ .)"
     echo "     alldb.tgz   - contains all db user (including admin) certs/keys with no directory prefix"

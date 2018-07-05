@@ -52,14 +52,22 @@
 #
 #
 # SOFTWARE HISTORY
-# Date         Ticket#    Engineer     Description
-# ------------ ---------- -----------  --------------------------
-# 12/02/2014   RM #625    ryu          Changed checkGroup() as suggested to display models
-#                                      in multi-columns when a single column is insufficient.
-# 04/16/2015   17390      ryu          Replacing string.atoi with int for string/integer to integer conversion
-#                                      (ListBox.curselection() now returns ints instead of strings.)
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Dec 02, 2014  RM #625  ryu       Changed checkGroup() as suggested to display models
+#                                  in multi-columns when a single column is insufficient.
+# Apr 16, 2015  17390    ryu       Replacing string.atoi with int for string/integer to integer conversion
+#                                  (ListBox.curselection() now returns ints instead of strings.)
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls 
 # ----------------------------------------------------------------------------
 #
+
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 MenuItems = ["Verify"]
 
 from numpy import *
@@ -849,7 +857,7 @@ class Procedure (SmartScript.SmartScript):
                 if "GFE/" not in colorTable:
                     colorTable = "GFE/" + colorTable
                 colorMap = ColorMapLoader.loadColorMap(colorTable)
-            elemType = parm.getGridInfo().getGridType().toString()
+            elemType = str(parm.getGridInfo().getGridType())
             if ('DISCRETE' == elemType):
                from com.raytheon.viz.gfe.rsc import DiscreteDisplayUtil
                DiscreteDisplayUtil.deleteParmColorMap(parm)

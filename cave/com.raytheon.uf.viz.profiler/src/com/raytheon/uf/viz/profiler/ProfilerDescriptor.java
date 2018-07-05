@@ -25,8 +25,8 @@ import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlType;
 
 import com.raytheon.uf.viz.core.PixelExtent;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.raytheon.viz.core.graphing.GraphDescriptor;
-import com.raytheon.viz.core.slice.request.HeightScale;
 
 /**
  * Handles profiler data

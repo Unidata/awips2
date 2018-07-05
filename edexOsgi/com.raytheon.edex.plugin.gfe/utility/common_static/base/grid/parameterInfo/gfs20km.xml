@@ -1,4 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <gridParamInfo xmlns:ns2="group">
   <valtimeMINUSreftime>
     <!-- Every 3 hours 000-084 -->
@@ -158,7 +183,7 @@
     <fillValue>-99999.0</fillValue>
     <n3D>30</n3D>
     <levelsDesc>10 FHAG  MB 1000-500 by 25 450-100 by 50  BL 0&gt;30 30&gt;60 60&gt;90
-	    90&gt;120 120&gt;150 150&gt;180 TROP MAXW PV 5 10 15 20</levelsDesc>
+      90&gt;120 120&gt;150 150&gt;180 TROP MAXW PV 5 10 15 20</levelsDesc>
     <levels>
       <level>FHAG10</level>
       <level>MB1000</level>
@@ -275,7 +300,7 @@
     <fillValue>-99999.0</fillValue>
     <n3D>29</n3D>
     <levelsDesc>MB 1000-500 by 25 450-100 by 50  BL 0&gt;30 30&gt;60 60&gt;90 90&gt;120
-	    120&gt;150 150&gt;180 FRZ PV 5 10 15 20</levelsDesc>
+      120&gt;150 150&gt;180 FRZ PV 5 10 15 20</levelsDesc>
     <levels>
       <level>MB1000</level>
       <level>MB975</level>
@@ -540,7 +565,7 @@
     <fillValue>-99999.0</fillValue>
     <n3D>30</n3D>
     <levelsDesc>10 FHAG  MB 1000-500 by 25 450-100 by 50  BL 0&gt;30 30&gt;60 60&gt;90
-	    90&gt;120 120&gt;150 150&gt;180 TROP MAXW PV 5 10 15 20</levelsDesc>
+      90&gt;120 120&gt;150 150&gt;180 TROP MAXW PV 5 10 15 20</levelsDesc>
     <levels>
       <level>FHAG10</level>
       <level>MB1000</level>
@@ -637,7 +662,7 @@
     <fillValue>-99999.0</fillValue>
     <n3D>30</n3D>
     <levelsDesc>2 FHAG  MB 1000-500 by 25 450-100 by 50  BL 0&gt;30 30&gt;60 60&gt;90
-	    90&gt;120 120&gt;150 150&gt;180 PV 5 10 15 20</levelsDesc>
+      90&gt;120 120&gt;150 150&gt;180 PV 5 10 15 20</levelsDesc>
     <levels>
       <level>FHAG2</level>
       <level>MB1000</level>

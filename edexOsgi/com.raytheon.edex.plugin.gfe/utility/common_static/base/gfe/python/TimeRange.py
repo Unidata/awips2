@@ -18,25 +18,32 @@
 # further licensing information.
 ##
 
+#
+# Provides a AWIPS I GFE compatible wrapper to TimeRange
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- ---------------------------------------------
+# Apr 10, 2008           chammack  Initial Creation.
+# Sep 30, 2008  1566     wdougher  Quit returning TimeRange from overlaps(), etc.
+# Sep 16, 2009  2899     njensen   Huge performance boost by caching
+# Apr 04, 2013  1787     randerso  Removed isValid check to allow 0 duration
+#                                  time ranges to be used in python
+# Feb 06, 2017  5959     randerso  Removed Java .toString() calls 
+#
+##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
 from com.raytheon.uf.common.time import TimeRange as JavaTimeRange
 import AbsTime
 import JUtil
 
-#
-# Provides a AWIPS I GFE compatible wrapper to TimeRange
-#  
-#    
-#     SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    04/10/08                      chammack       Initial Creation.
-#    09/30/08         1566         wdougher       Quit returning TimeRange from overlaps(), etc.
-#    09/16/09         2899         njensen        Huge performance boost by caching
-#    04/04/2013      #1787         randerso       Removed isValid check to allow 0 duration
-#                                                 time ranges to be used in python
-# 
-#
 
 class TimeRange(JUtil.JavaWrapperClass):
     def __init__(self, time1, time2=None):        
@@ -145,10 +152,10 @@ class TimeRange(JUtil.JavaWrapperClass):
         return self.__hash
     
     def __str__(self):
-        return str(self.__tr.toString())
+        return str(self.__tr)
 
     def __repr__(self):
-        return str(self.__tr.toString())
+        return str(self.__tr)
 
 def javaTimeRangeListToPyList(timeRanges):
     pylist = []

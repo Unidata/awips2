@@ -5,7 +5,7 @@
          point="com.raytheon.viz.ui.contextualMenu">
       <contextualMenu
             actionClass="com.raytheon.uf.viz.auto.transition.AutoTransitionAction"
-            capabilityClass="com.raytheon.viz.core.rsc.BlendedResource"
+            capabilityClass="com.raytheon.uf.viz.core.rsc.groups.BlendedResource"
             name="com.raytheon.uf.viz.auto.transition.AutoTransitionAction"
             sortID="50">
       </contextualMenu>

@@ -22,12 +22,13 @@ import edu.mit.ll.netcdf.LLNetcdfVarJNI;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Mar 5, 2013            bclement     Initial creation
+ * Mar 5, 2013  ?          bclement    Initial creation
+ * Oct 26, 2016 5631       bkowal      It is now possible to create a dimension without
+ *                                     automatically creating an associated variable.
  * 
  * </pre>
  * 
  * @author bclement
- * @version 1.0
  */
 public abstract class NcDimension extends NcBase {
 
@@ -36,7 +37,7 @@ public abstract class NcDimension extends NcBase {
     protected final String name;
 
     protected final int len;
-    
+
     protected final int dataType;
 
     protected final LLNetcdfDimJNI dims = new LLNetcdfDimJNI();
@@ -52,14 +53,21 @@ public abstract class NcDimension extends NcBase {
      */
     public NcDimension(int fileId, String name, int len, int dataType)
             throws NetcdfException {
+        this(fileId, name, len, dataType, true);
+    }
+
+    public NcDimension(int fileId, String name, int len, int dataType,
+            boolean createVar) throws NetcdfException {
         this.name = name;
         this.len = len;
         this.dataType = dataType;
         try {
             this.dimId = dims.defineDim(fileId, name, len);
-            int dimVar = vars.defineVar(fileId, name, dataType, 1,
-                    new int[] { dimId });
-            init(fileId, dimVar);
+            if (createVar) {
+                int dimVar = vars.defineVar(fileId, name, dataType, 1,
+                        new int[] { dimId });
+                init(fileId, dimVar);
+            }
         } catch (LLNetcdfException e) {
             throw new NetcdfException(e);
         }
@@ -75,7 +83,12 @@ public abstract class NcDimension extends NcBase {
          */
         public ShortDimension(int fileId, String name, int len)
                 throws NetcdfException {
-            super(fileId, name, len, NcConstants.NC_SHORT);
+            this(fileId, name, len, true);
+        }
+
+        public ShortDimension(int fileId, String name, int len,
+                boolean createVar) throws NetcdfException {
+            super(fileId, name, len, NcConstants.NC_SHORT, createVar);
         }
 
         /**
@@ -105,7 +118,12 @@ public abstract class NcDimension extends NcBase {
          */
         public IntDimension(int fileId, String name, int len)
                 throws NetcdfException {
-            super(fileId, name, len, NcConstants.NC_INT);
+            this(fileId, name, len, true);
+        }
+
+        public IntDimension(int fileId, String name, int len, boolean createVar)
+                throws NetcdfException {
+            super(fileId, name, len, NcConstants.NC_INT, createVar);
         }
 
         /**
@@ -135,7 +153,12 @@ public abstract class NcDimension extends NcBase {
          */
         public FloatDimension(int fileId, String name, int len)
                 throws NetcdfException {
-            super(fileId, name, len, NcConstants.NC_FLOAT);
+            this(fileId, name, len, true);
+        }
+
+        public FloatDimension(int fileId, String name, int len,
+                boolean createVar) throws NetcdfException {
+            super(fileId, name, len, NcConstants.NC_FLOAT, createVar);
         }
 
         /**
@@ -165,7 +188,12 @@ public abstract class NcDimension extends NcBase {
          */
         public DoubleDimension(int fileId, String name, int len)
                 throws NetcdfException {
-            super(fileId, name, len, NcConstants.NC_DOUBLE);
+            this(fileId, name, len, true);
+        }
+
+        public DoubleDimension(int fileId, String name, int len,
+                boolean createVar) throws NetcdfException {
+            super(fileId, name, len, NcConstants.NC_DOUBLE, createVar);
         }
 
         /**
@@ -198,7 +226,6 @@ public abstract class NcDimension extends NcBase {
     public int getLen() {
         return len;
     }
-
 
     /**
      * @return the dimId

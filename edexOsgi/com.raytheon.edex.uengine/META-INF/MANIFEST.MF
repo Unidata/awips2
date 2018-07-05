@@ -2,30 +2,29 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Uengine Plug-in
 Bundle-SymbolicName: com.raytheon.edex.uengine
-Bundle-Version: 1.14.1.qualifier
+Bundle-Version: 1.16.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.edex.uengine,
  com.raytheon.edex.uengine.exception,
  com.raytheon.edex.uengine.jep,
- com.raytheon.edex.uengine.runners,
  com.raytheon.edex.uengine.tasks,
  com.raytheon.edex.uengine.tasks.query
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.edex.msg,
  com.raytheon.edex.util,
  com.raytheon.edex.utility
-Require-Bundle: com.raytheon.uf.edex.core;bundle-version="1.12.1174",
- com.raytheon.uf.edex.database;bundle-version="1.0.0",
- com.raytheon.uf.common.dataquery;bundle-version="1.0.0",
- com.raytheon.uf.common.datastorage;bundle-version="1.12.1174",
- com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
- com.raytheon.uf.common.message;bundle-version="1.12.1174",
- com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
- com.raytheon.uf.common.localization;bundle-version="1.12.1174",
- com.raytheon.uf.common.status;bundle-version="1.12.1174",
- com.raytheon.uf.common.python;bundle-version="1.12.1174",
- com.raytheon.uf.common.util;bundle-version="1.12.1174",
+Require-Bundle: com.raytheon.uf.edex.core,
+ com.raytheon.uf.edex.database,
+ com.raytheon.uf.common.dataquery,
+ com.raytheon.uf.common.datastorage,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.message,
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.localization,
+ com.raytheon.uf.common.status,
+ com.raytheon.uf.common.python,
+ com.raytheon.uf.common.util,
  org.apache.commons.configuration;bundle-version="1.6.0",
  org.apache.commons.pool2;bundle-version="2.4.2",
- org.slf4j;bundle-version="1.7.12"
+ org.slf4j;bundle-version="1.7.21"

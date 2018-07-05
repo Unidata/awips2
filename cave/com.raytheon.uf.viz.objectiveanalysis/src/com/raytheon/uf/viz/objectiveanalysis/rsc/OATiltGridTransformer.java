@@ -41,7 +41,7 @@ import com.raytheon.uf.common.wxmath.DistFilter;
 import com.raytheon.uf.common.wxmath.ScalelessAnalysis;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
-import com.raytheon.viz.grid.util.TiltUtils;
+import com.raytheon.uf.viz.grid.radar.TiltUtils;
 
 /**
  * OA Tilt Derived Parameters Requests full columns of point data and performs
@@ -60,13 +60,12 @@ import com.raytheon.viz.grid.util.TiltUtils;
  * Jun 04, 2013 2041       bsteffen    Switch derived parameters to use
  *                                     concurrent python for threading.
  * Aug 20, 2013 2262       njensen     Use wxmath instead of meteolib
+ * Aug 22, 2017 6332       bsteffen    Change import, cleanup.
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-
 public class OATiltGridTransformer extends OAGridTransformer {
 
     public OATiltGridTransformer(GeneralGridGeometry geom2D,
@@ -116,7 +115,8 @@ public class OATiltGridTransformer extends OAGridTransformer {
 
             if (value <= -9999 || xind[i] < 0 || yind[i] < 0 || xind[i] >= nx
                     || yind[i] >= ny) {
-                values[i] = 1e37f; // fill value used by OA
+                // fill value used by OA
+                values[i] = 1e37f;
             } else {
                 values[i] = value;
                 hasData = true;
@@ -181,8 +181,7 @@ public class OATiltGridTransformer extends OAGridTransformer {
         String pluginName = constraints.get("pluginName").getConstraintValue();
 
         double tilt = Double.parseDouble(levelKey.replace("deg", ""));
-        List<CubeLevel<Object, Object>> cube = new ArrayList<CubeLevel<Object, Object>>(
-                21);
+        List<CubeLevel<Object, Object>> cube = new ArrayList<>(21);
         String[] parameters = { "latitude", "longitude", "P", parameter };
 
         PointDataContainer pdc;

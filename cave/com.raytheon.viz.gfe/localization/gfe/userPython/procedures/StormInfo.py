@@ -19,6 +19,11 @@
 #
 ########################################################################
 
+##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+
 import os
 import time
 
@@ -174,8 +179,7 @@ class Procedure (TropicalUtility.TropicalUtility):
 
         if not newStorm:
             if advisoryNumber == advisoryNum:
-                self.statusBarMsg("You did not increment the advisory number. Please rerun StormInfo. ", "A")
-                return
+                self.statusBarMsg("You did not increment the advisory number. Make sure that is what you want. Proceeded without changing Adv number", "A")
 
 
         #  Open the file to store all the info for this particular storm

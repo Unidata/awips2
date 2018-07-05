@@ -18,10 +18,16 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
 <lambertConformalGridCoverage>
     <name>197</name>
     <description> Grid over the contiguous United States - 16X Resolution
-		(5 km) </description>
+        (5 km) </description>
     <la1>20.192</la1>
     <lo1>-121.55</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>

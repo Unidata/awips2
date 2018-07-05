@@ -16,7 +16,7 @@ Export-Package: com.raytheon.viz.core.graphing,
  com.raytheon.viz.core.graphing.axis,
  com.raytheon.viz.core.graphing.util,
  com.raytheon.viz.core.graphing.xy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.wxmath,
  com.raytheon.viz.core,
  com.raytheon.viz.core.interval

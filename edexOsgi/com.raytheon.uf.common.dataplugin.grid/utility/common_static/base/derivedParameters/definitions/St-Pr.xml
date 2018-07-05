@@ -18,21 +18,25 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-<DerivedParameter unit="mm" name="Stable Precipitation" abbreviation="St-Pr" xmlns:ns2="group">
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
+<DerivedParameter unit="mm" name="Stable Precipitation" abbreviation="St-Pr">
     <Method name="Alias">
-        <Field abbreviation="LgSP"/>
+        <Field abbreviation="LgSP" />
     </Method>
     <Method name="Alias">
-        <Field abbreviation="St-Pr1hr"/>
+        <Field abbreviation="St-Pr1hr" />
     </Method>
     <Method name="Alias">
-        <Field abbreviation="St-Pr2hr"/>
+        <Field abbreviation="St-Pr2hr" />
     </Method>
     <Method name="Alias">
-        <Field abbreviation="St-Pr3hr"/>
+        <Field abbreviation="St-Pr3hr" />
     </Method>
     <Method name="Difference">
-        <Field abbreviation="TP"/>
-        <Field abbreviation="CP"/>
+        <Field abbreviation="TP" />
+        <Field abbreviation="CP" />
     </Method>
 </DerivedParameter>

@@ -62,11 +62,11 @@ import com.raytheon.uf.common.util.StringUtil;
 /**
  * A data factory for getting gfe data from the metadata database. There are
  * currently not any required identifiers.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Feb 04, 2013           bsteffen  Initial creation
@@ -88,28 +88,24 @@ import com.raytheon.uf.common.util.StringUtil;
  *                                  IDataRequest
  * Jun 13, 2016  5574     mapeters  Add advanced query support
  * Aug 01, 2016  2416     tgurney   Add dataURI as optional identifier
- * 
+ * Dec 15, 2016  6040     tgurney   Add dbType as optional identifier
+ * Mar 06, 2017  6142     bsteffen  Remove dataURI as optional identifier
+ * Oct 19, 2017  6491     tgurney   dbType default to empty string
+ * Oct 19, 2017  6491     tgurney   Remove short identifiers
+ *
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  */
 
 public class GFEGridFactory extends AbstractGridDataPluginFactory {
 
-    public static final String MODEL_TIME = "modelTime";
-
-    private static final String MODEL_NAME = "modelName";
-
-    private static final String SITE_ID = "siteId";
-
     private static final String KEYS = "keys";
 
-    // The more full version from GFEDataAccessUtil is preferred but the smaller
-    // keys are needed for backwards compatibility.
     private static final String[] OPTIONAL_IDENTIFIERS = {
             GFEDataAccessUtil.MODEL_NAME, GFEDataAccessUtil.MODEL_TIME,
-            GFEDataAccessUtil.SITE_ID, MODEL_NAME, MODEL_TIME, SITE_ID,
-            PluginDataObject.DATAURI_ID };
+            GFEDataAccessUtil.SITE_ID, GFEDataAccessUtil.DB_TYPE };
 
     @Override
     public String[] getOptionalIdentifiers(IDataRequest request) {
@@ -166,9 +162,12 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory {
         defaultGridData.setUnit(gfeRecord.getGridInfo().getUnitObject());
         defaultGridData.setLocationName(gfeRecord.getDbId().getSiteId());
         Map<String, Object> attrs = new HashMap<>();
-        attrs.put(MODEL_NAME, gfeRecord.getDbId().getModelName());
-        attrs.put(MODEL_TIME, gfeRecord.getDbId().getModelTime());
-        attrs.put(SITE_ID, gfeRecord.getDbId().getSiteId());
+        attrs.put(GFEDataAccessUtil.MODEL_NAME,
+                gfeRecord.getDbId().getModelName());
+        attrs.put(GFEDataAccessUtil.MODEL_TIME,
+                gfeRecord.getDbId().getModelTime());
+        attrs.put(GFEDataAccessUtil.SITE_ID, gfeRecord.getDbId().getSiteId());
+        attrs.put(GFEDataAccessUtil.DB_TYPE, gfeRecord.getDbId().getDbType());
 
         Object messageData = gfeRecord.getMessageData();
         if (messageData instanceof Object[]) {
@@ -194,17 +193,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory {
                 } else {
                     constraint = new RequestConstraint(value.toString());
                 }
-
-                String key = entry.getKey();
-                if (key.equals(MODEL_NAME)) {
-                    constraints.put(GFEDataAccessUtil.MODEL_NAME, constraint);
-                } else if (key.equals(SITE_ID)) {
-                    constraints.put(GFEDataAccessUtil.SITE_ID, constraint);
-                } else if (key.equals(MODEL_TIME)) {
-                    constraints.put(GFEDataAccessUtil.MODEL_TIME, constraint);
-                } else {
-                    constraints.put(key, constraint);
-                }
+                constraints.put(entry.getKey(), constraint);
             }
         }
 
@@ -233,6 +222,12 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory {
             constraints.put(GFEDataAccessUtil.SITE_ID, siteConstraint);
         }
 
+        // default to the operational forecast DB if no DB type is specified
+        if (constraints.get(GFEDataAccessUtil.DB_TYPE) == null) {
+            constraints.put(GFEDataAccessUtil.DB_TYPE,
+                    new RequestConstraint(""));
+        }
+
         return constraints;
     }
 
@@ -240,7 +235,7 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory {
      * Estimates the subgrid memory size using the grid geometry's size because
      * {@link #getDataSource(PluginDataObject, SubGridGeometryCalculator)} uses
      * an {@link OffsetDataSource} that holds the full grid data in memory.
-     * 
+     *
      * @param gridGeom
      * @param subGrid
      * @return
@@ -339,19 +334,12 @@ public class GFEGridFactory extends AbstractGridDataPluginFactory {
     @Override
     public String[] getIdentifierValues(IDataRequest request,
             String identifierKey) {
-        if (!Arrays.asList(getRequiredIdentifiers(request)).contains(
-                identifierKey)
-                && !Arrays.asList(getOptionalIdentifiers(request)).contains(
-                        identifierKey)) {
+        if (!Arrays.asList(getRequiredIdentifiers(request))
+                .contains(identifierKey)
+                && !Arrays.asList(getOptionalIdentifiers(request))
+                        .contains(identifierKey)) {
             throw new InvalidIdentifiersException(request.getDatatype(), null,
                     Arrays.asList(new String[] { identifierKey }));
-        }
-        if (identifierKey.equals(MODEL_NAME)) {
-            identifierKey = GFEDataAccessUtil.MODEL_NAME;
-        } else if (identifierKey.equals(MODEL_TIME)) {
-            identifierKey = GFEDataAccessUtil.MODEL_TIME;
-        } else if (identifierKey.equals(SITE_ID)) {
-            identifierKey = GFEDataAccessUtil.SITE_ID;
         }
         List<String> idValStrings;
         Object[] idValues = getAvailableValues(request, identifierKey,

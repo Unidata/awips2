@@ -1,12 +1,5 @@
 package gov.noaa.gsd.viz.ensemble.display.rsc;
 
-import gov.noaa.gsd.viz.ensemble.control.EnsembleResourceManager;
-import gov.noaa.gsd.viz.ensemble.display.calculate.ERFCalculator;
-import gov.noaa.gsd.viz.ensemble.display.calculate.EnsembleCalculator;
-import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
-import gov.noaa.gsd.viz.ensemble.display.common.Utilities;
-import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,12 +18,21 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
+import com.raytheon.uf.viz.core.rsc.DisplayType;
 import com.raytheon.uf.viz.core.rsc.IInitListener;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
+import com.raytheon.uf.viz.core.rsc.RenderingOrderFactory.ResourceOrder;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.viz.grid.rsc.GridResourceData;
 import com.raytheon.viz.grid.rsc.general.D2DGridResource;
 import com.raytheon.viz.grid.rsc.general.GridResource;
+
+import gov.noaa.gsd.viz.ensemble.control.EnsembleResourceIngester;
+import gov.noaa.gsd.viz.ensemble.display.calculate.ERFCalculator;
+import gov.noaa.gsd.viz.ensemble.display.calculate.EnsembleCalculator;
+import gov.noaa.gsd.viz.ensemble.display.common.AbstractResourceHolder;
+import gov.noaa.gsd.viz.ensemble.navigator.ui.layer.EnsembleToolLayer;
 
 /**
  * Construct the GeneratedEnsembleGridResource and provide data for it by
@@ -46,8 +48,9 @@ import com.raytheon.viz.grid.rsc.general.GridResource;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jan 2014       5056       jing        Initial creation
+ * Dec 2016       19325      jing        Dispaly calculated grid as image
  * 
- * </pre>
+ *          </pre>
  */
 
 public class GeneratedEnsembleGridResourceData extends GridResourceData
@@ -141,7 +144,8 @@ public class GeneratedEnsembleGridResourceData extends GridResourceData
         this.level = resourceData.level;
         this.unit = resourceData.unit;
         this.setRetrieveData(resourceData.retrieveData);
-        this.setRequeryNecessaryOnTimeMatch(resourceData.isRequeryNecessaryOnTimeMatch);
+        this.setRequeryNecessaryOnTimeMatch(
+                resourceData.isRequeryNecessaryOnTimeMatch);
         this.setMetadataMap(resourceData.metadataMap);
         this.toolLayer = resourceData.toolLayer;
 
@@ -163,9 +167,19 @@ public class GeneratedEnsembleGridResourceData extends GridResourceData
         resource.setCalculation(calculator.getCalculation());
         resource.registerListener(this);
 
+        if (this.getCalculator().isImage()) {
+            rsc.getLoadProperties().getCapabilities()
+                    .getCapability(rsc.getResourceData(),
+                            DisplayTypeCapability.class)
+                    .setDisplayType(DisplayType.IMAGE);
+        }
+
         update();
         ResourceProperties rp = new ResourceProperties();
 
+        if (this.getCalculator().isImage()) {
+            rp.setRenderingOrder(ResourceOrder.LOWEST.value);
+        }
         ResourcePair pair = new ResourcePair();
         pair.setResource(rsc);
         pair.setProperties(rp);
@@ -218,45 +232,6 @@ public class GeneratedEnsembleGridResourceData extends GridResourceData
     }
 
     /**
-     * TODO: Search ensemble members resources grouped by model used for test
-     */
-    @SuppressWarnings("unused")
-    private void searchDataHolders() {
-        // search models of ensemble
-        List<String> models = Utilities.getEnsembleModels();
-        if (models == null || models.size() < 1 || resource == null) {
-            return;
-        }
-
-        if (!dataHolders.isEmpty()) {
-            dataHolders.clear();
-        }
-
-        // Add all ensemble member resources into the dataHolders
-        for (String model : models) {
-            List<D2DGridResource> rcsList = Utilities
-                    .getResourcesEnsembleModel(model);
-
-            if (rcsList != null) {
-
-                if (rcsList.size() > 0) {
-                    resource.setParameter(rcsList.get(0));
-                }
-            }
-        }
-
-        /*
-         * Add loaded product(s) which are not ensemble product(s) but same
-         * level and type of data(same unit) into the dataHolders
-         */
-
-        /*
-         * We can load same model with different run time to treat it as an
-         * ensemble products. Add the members in the dataHolders too.
-         */
-    }
-
-    /**
      * Get all member resources in the manager
      * 
      * @return
@@ -291,7 +266,8 @@ public class GeneratedEnsembleGridResourceData extends GridResourceData
         DataTime[] dataTimes = this.mapDescriptor.getFramesInfo()
                 .getFrameTimes();
 
-        List<DataTime> times = new ArrayList<DataTime>(Arrays.asList(dataTimes));
+        List<DataTime> times = new ArrayList<DataTime>(
+                Arrays.asList(dataTimes));
 
         return times;
     }
@@ -316,7 +292,7 @@ public class GeneratedEnsembleGridResourceData extends GridResourceData
             return allData;
         }
         int i;
-        for (i = 0; i < frameTimes.length; i++){
+        for (i = 0; i < frameTimes.length; i++) {
             if (time.equals(frameTimes[i])) {
                 break;
             }
@@ -386,29 +362,22 @@ public class GeneratedEnsembleGridResourceData extends GridResourceData
         if (level != null && !level.equals("") && unit != null
                 && !unit.equals("")) {
             // Same level and unit case
-            dataHolders = EnsembleResourceManager
-                    .getInstance()
-                    .getResourceList(toolLayer)
-                    .getUserLoadedRscs((IDescriptor) new MapDescriptor(), true,
-                            level, unit);
+            dataHolders = toolLayer.getResourceList()
+                    .getUserLoadedRscs(MapDescriptor.class, true, level, unit);
         } else if (unit != null && !unit.equals("")) {
             // same unit whatever level case
-            dataHolders = EnsembleResourceManager
-                    .getInstance()
-                    .getResourceList(toolLayer)
-                    .getUserLoadedRscs((IDescriptor) new MapDescriptor(), true,
-                            unit);
+            dataHolders = toolLayer.getResourceList()
+                    .getUserLoadedRscs(MapDescriptor.class, true, unit);
         } else {
             // whatever level or unit,for test only
-            dataHolders = EnsembleResourceManager.getInstance()
-                    .getResourceList(toolLayer)
-                    .getUserLoadedRscs((IDescriptor) new MapDescriptor(), true);
+            dataHolders = toolLayer.getResourceList()
+                    .getUserLoadedRscs(MapDescriptor.class, true);
         }
 
         if (!dataHolders.isEmpty() && !dataHolders.keySet().isEmpty()) {
             disableMembersRetrieveData();
-            resource.setParameter((GridResource<?>) (dataHolders.get(
-                    (dataHolders.keySet().toArray())[0]).get(0).getRsc()));
+            resource.setParameter((GridResource<?>) (dataHolders
+                    .get((dataHolders.keySet().toArray())[0]).get(0).getRsc()));
             resource.updateData(calculate());
             enableMembersRetrieveData();
         }
@@ -452,8 +421,8 @@ public class GeneratedEnsembleGridResourceData extends GridResourceData
     @Override
     public void inited(AbstractVizResource<?, ?> rsc) {
 
-        EnsembleResourceManager.getInstance().registerGenerated(
-                (AbstractVizResource<?, ?>) resource);
+        EnsembleResourceIngester.getInstance()
+                .register((AbstractVizResource<?, ?>) resource);
 
     }
 

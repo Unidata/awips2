@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -28,11 +28,8 @@ import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
 
-import org.eclipse.swt.graphics.RGB;
-
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
-import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.MapDescriptor;
@@ -48,28 +45,31 @@ import com.vividsolutions.jts.geom.LineString;
 
 /**
  * Handles the VR Shear Tools Action.
- * 
+ *
  * <pre>
- * 
+ *
  *  SOFTWARE HISTORY
- * 
- *  Date         Ticket#     Engineer    Description
- *  ------------ ----------  ----------- --------------------------
- *  Oct172007    #492        ebabin      Initial Creation.
- *  Dec042007    #492        ebabin      Minor updates.  Awaiting radarResource finish.
- *  19Dec2007    #642        ebabin      Update to fix VRShear/Baseline interaction.
- *  08Jul2010    #2659       bkowal      The sign of the VR Shear Tool will now be correct based
- *                                       on if the tool orientation indicates clockwise rotation or
- *                                       counter-clockwise rotation. The order of the points will also
- *                                       no longer impact the sign that is displayed.
- *  15Mar2013	15693	mgamazaychikov	 Added magnification capability.
- *  02May2013   DR 14587     D. Friedman Correct calculation.  Make source velocity data choice more
- *                                       explicit.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Oct 17, 2007  492      ebabin    Initial Creation.
+ * Dec 04, 2007  492      ebabin    Minor updates.  Awaiting radarResource
+ *                                  finish.
+ * Dec 19, 2007  642      ebabin    Update to fix VRShear/Baseline interaction.
+ * Jul 08, 2010  2659     bkowal    The sign of the VR Shear Tool will now be
+ *                                  correct based on if the tool orientation
+ *                                  indicates clockwise rotation or
+ *                                  counter-clockwise rotation. The order of the
+ *                                  points will also no longer impact the sign
+ *                                  that is displayed.
+ * Mar 15, 2013  15693    mgamazay  Added magnification capability.
+ * May 02, 2013  14587    dfriedma  Correct calculation.  Make source velocity
+ *                                  data choice more explicit.
+ * Sep 23, 2016  5887     mapeters  Allow retrieval of label without drawing it
+ *
  * </pre>
- * 
+ *
  * @author ebabin
- * @version 1
  */
 public class VRShearLayer extends ShearLayer {
 
@@ -91,16 +91,12 @@ public class VRShearLayer extends ShearLayer {
         getCapabilities().addCapability(new MagnificationCapability());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         String name = VRSHEAR_LOCATION;
-        if (selectedVelocitySource != null)
+        if (selectedVelocitySource != null) {
             name = name + makeLabel(selectedVelocitySource);
+        }
         return name;
     }
 
@@ -108,7 +104,8 @@ public class VRShearLayer extends ShearLayer {
     protected String calculateShearLabel(double length, Coordinate sCoor,
             Coordinate eCoor, Coordinate midpointCoor) throws VizException {
 
-        List<AbstractVizResource<?, ?>> potentialSources = getEligibleResources(false);
+        List<AbstractVizResource<?, ?>> potentialSources = getEligibleResources(
+                false);
 
         for (AbstractVizResource<?, ?> rsc : getVelocitySources()) {
             Map<String, Object> mapS = (rsc)
@@ -147,14 +144,16 @@ public class VRShearLayer extends ShearLayer {
                     if (angle1 < 0.0) {
                         angle1 += 360.0;
                     }
-                    long angle1L = (long) ((angle1 * NUM_ANGLE_POINTERS) / 360.0);
+                    long angle1L = (long) ((angle1 * NUM_ANGLE_POINTERS)
+                            / 360.0);
 
-                    double angle2 = Math.toDegrees(Math.atan2(bottom[0],
-                            bottom[1]));
+                    double angle2 = Math
+                            .toDegrees(Math.atan2(bottom[0], bottom[1]));
                     if (angle2 < 0.0) {
                         angle2 += 360.0;
                     }
-                    long angle2L = (long) ((angle2 * NUM_ANGLE_POINTERS) / 360.0);
+                    long angle2L = (long) ((angle2 * NUM_ANGLE_POINTERS)
+                            / 360.0);
 
                     float mag = angle2L - angle1L;
                     if (mag > NUM_ANGLE_POINTERS / 2) {
@@ -181,16 +180,17 @@ public class VRShearLayer extends ShearLayer {
                         needLabel ? makeLabel(rsc) : "");
             }
         }
-        return "NO DATA"
-                + (selectedVelocitySource != null ? makeLabel(selectedVelocitySource) : "");
+        return "NO DATA" + (selectedVelocitySource != null
+                ? makeLabel(selectedVelocitySource) : "");
     }
 
     @Override
-    public String drawLabeling(IGraphicsTarget target, LineString lineString,
-            RGB theColor, PaintProperties paintProps) throws VizException {
-
+    protected String getAndDrawLabel(IGraphicsTarget target)
+            throws VizException {
         // draw the labeling relative to the midpoint of the line.
         // find the midpoint, by using the GeodeticCalculator tools...
+
+        LineString lineString = getBaseline();
 
         Coordinate startCoor = lineString.getCoordinateN(0);
         Coordinate endCoor = lineString.getCoordinateN(1);
@@ -203,8 +203,9 @@ public class VRShearLayer extends ShearLayer {
         double length = conv.convert(gc.getOrthodromicDistance());
 
         gc.setDirection(azimuth, gc.getOrthodromicDistance() / 2);
-        Coordinate midpoint = new Coordinate(gc.getDestinationGeographicPoint()
-                .getX(), gc.getDestinationGeographicPoint().getY());
+        Coordinate midpoint = new Coordinate(
+                gc.getDestinationGeographicPoint().getX(),
+                gc.getDestinationGeographicPoint().getY());
 
         Coordinate labelPoint = getCoordinateOnCircle(midpoint, 10, 0);
 
@@ -214,7 +215,10 @@ public class VRShearLayer extends ShearLayer {
         if (length <= 27) {
             label = calculateShearLabel(length, startCoor, endCoor, midpoint);
         }
-        drawBaselineLabel(target, labelPoint, label);
+        if (target != null) {
+            // Label the baseline if target is provided
+            drawBaselineLabel(target, labelPoint, label);
+        }
         return label;
     }
 
@@ -228,18 +232,24 @@ public class VRShearLayer extends ShearLayer {
         issueRefresh();
     }
 
-    public List<AbstractVizResource<?, ?>> getEligibleResources(boolean forDefault) {
-        ArrayList<AbstractVizResource<?, ?>> list = new ArrayList<AbstractVizResource<?,?>>();
-        getEligibleResources1(getDescriptor().getResourceList(), forDefault, list);
-        Collections.reverse(list); // Topmost first, but TODO: shouldn't reverse combos...
+    public List<AbstractVizResource<?, ?>> getEligibleResources(
+            boolean forDefault) {
+        ArrayList<AbstractVizResource<?, ?>> list = new ArrayList<>();
+        getEligibleResources1(getDescriptor().getResourceList(), forDefault,
+                list);
+        // Topmost first, but TODO: shouldn't reverse combos...
+        Collections.reverse(list);
+
         return list;
     }
 
-    public void getEligibleResources1(ResourceList resourceList, boolean forDefault,
-            List<AbstractVizResource<?, ?>> list) {
+    public void getEligibleResources1(ResourceList resourceList,
+            boolean forDefault, List<AbstractVizResource<?, ?>> list) {
         for (ResourcePair rp : resourceList) {
             if (rp.getResource() instanceof IResourceGroup) {
-                getEligibleResources1(((IResourceGroup)rp.getResource()).getResourceList(), forDefault, list);
+                getEligibleResources1(
+                        ((IResourceGroup) rp.getResource()).getResourceList(),
+                        forDefault, list);
             } else if (isEligibleResource(rp, forDefault)) {
                 list.add(rp.getResource());
             }
@@ -250,20 +260,21 @@ public class VRShearLayer extends ShearLayer {
         AbstractVizResource<?, ?> resource = rp.getResource();
         return resource instanceof IRadialVelocityToolSource
                 && ((IRadialVelocityToolSource) resource)
-                        .isRadialVelocitySource() &&
-                        (!forDefault || rp.getProperties().isVisible());
+                        .isRadialVelocitySource()
+                && (!forDefault || rp.getProperties().isVisible());
     }
 
     private List<AbstractVizResource<?, ?>> getVelocitySources() {
         List<AbstractVizResource<?, ?>> list;
         if (selectedVelocitySource != null) {
-            /* Note: This checks for DISPOSED, but not if the resource has
-             * somehow changed so that it no longer contains velocity data.
-             * This could happen for combo resources if we held references
-             * to the combo rather than the component resources.
+            /*
+             * Note: This checks for DISPOSED, but not if the resource has
+             * somehow changed so that it no longer contains velocity data. This
+             * could happen for combo resources if we held references to the
+             * combo rather than the component resources.
              */
             if (selectedVelocitySource.getStatus() != ResourceStatus.DISPOSED) {
-                list = new ArrayList<AbstractVizResource<?, ?>>(1);
+                list = new ArrayList<>(1);
                 list.add(selectedVelocitySource);
                 return list;
             } else {

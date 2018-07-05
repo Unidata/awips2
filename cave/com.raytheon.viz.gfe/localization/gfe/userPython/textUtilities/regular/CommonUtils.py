@@ -33,6 +33,10 @@
 # 01/08/2016    5129            dgilling    Fix signatures to calls in WeatherSubKey.
 # ----------------------------------------------------------------------------
 
+##
+# This is a base file that is not intended to be overridden.
+##
+
 from math import *
 import types, string
 import os, re, time

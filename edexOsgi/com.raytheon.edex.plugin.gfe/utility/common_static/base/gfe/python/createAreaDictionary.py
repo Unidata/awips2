@@ -37,7 +37,14 @@
 #    07/15/2016      5749          randerso       Changed preformatted ugcCityString to ugcCities list
 #                                                 Added wfo field to support generation of national TCV
 #    09/28/2016      19293         randerso       Added exception handling for createTCVAreaDictionary
+#    11/21/2016      5959          njensen        Remove unused imports and made more pythonic
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 import os, string, copy
 import tempfile, stat
@@ -46,7 +53,6 @@ import LogStream, pprint
 from fips2cities import *
 from zones2cities import *
 
-from LockingFile import File
 import LocalizationSupport
 
 
@@ -246,11 +252,15 @@ def createAreaDictionary(outputDir, mapDict):
 # support, and with no warranty, express or implied, as to its usefulness for
 # any purpose.
 #
-# AreaDictionary
+# DefaultAreaDictionary
 #   AreaDictionary file
 #
 # Author: GFE Installation Script
 # ----------------------------------------------------------------------------
+
+##
+# This is a base file that is not intended to be overridden.
+##
 
 # Format:
 # AreaDictionary = {
@@ -317,7 +327,7 @@ AreaDictionary = \
     if not os.path.isdir(outputDir):
         os.makedirs(outputDir)
 
-    outName = os.path.join(outputDir, "AreaDictionary.py")
+    outName = os.path.join(outputDir, "DefaultAreaDictionary.py")
     
     fh = None
     try:
@@ -524,13 +534,9 @@ def createCityLocation(outputDir, mapDict):
     LogStream.logEvent("Generating CityLocation")
 
     citydict = CityLocationDict
-    
-    if dict != type(mapDict):
-        import JUtil
-        mapDict = JUtil.javaObjToPyVal(mapDict)
 
-    for mapname in mapDict.keys():
-        if mapname.find("Cities") == -1:
+    for mapname in mapDict:
+        if 'Cities' not in mapname:
             continue
          
         attList = mapDict[mapname]
@@ -558,11 +564,15 @@ def createCityLocation(outputDir, mapDict):
 # support, and with no warranty, express or implied, as to its usefulness for
 # any purpose.
 #
-# CityLocation
+# DefaultCityLocation
 #   CityLocation file
 #
 # Author: GFE Installation Script 
 # ----------------------------------------------------------------------------
+
+##
+# This is a base file that is not intended to be overridden.
+##
 
 # Format:
 # CityLocation = {
@@ -589,7 +599,7 @@ CityLocation = \
     if not os.path.isdir(outputDir):
         os.makedirs(outputDir)
 
-    outName = os.path.join(outputDir, "CityLocation.py")
+    outName = os.path.join(outputDir, "DefaultCityLocation.py")
     
     fh = None
     try:

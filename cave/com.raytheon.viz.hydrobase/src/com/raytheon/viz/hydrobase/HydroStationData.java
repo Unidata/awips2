@@ -30,6 +30,7 @@ import com.raytheon.viz.hydrocommon.IGetSortType;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Sep 4, 2008				lvenable	Initial creation
+ * Mar 8, 2017  19114       jdeng       Incorrectly displays info in all upper case
  * 
  * </pre>
  * 
@@ -119,8 +120,9 @@ public class HydroStationData implements Comparable<HydroStationData> {
      *            The raw data from the database
      */
     public HydroStationData(IGetSortType sortCB, Object[] data) {
-        this(sortCB, (String) data[0], (String) data[1], (String) data[5] + ","
-                + (String) data[6], (String) data[4], (String) data[7],
+        this(sortCB, (String) data[0], (String) data[1],
+                (String) data[5] + "," + (String) data[6], (String) data[4],
+                (String) data[7],
                 (data[2] != null) ? (Double) data[2]
                         : HydroConstants.MISSING_VALUE,
                 (data[3] != null) ? (Double) data[3]
@@ -303,7 +305,7 @@ public class HydroStationData implements Comparable<HydroStationData> {
      * @return
      */
     public String getLocationDisplayString() {
-        return String.format("%-8S %-25.25S", station, name);
+        return String.format("%-8s %-25.25s", station, name);
     }
 
     /**
@@ -312,7 +314,7 @@ public class HydroStationData implements Comparable<HydroStationData> {
      * @return
      */
     public String getStateCountyDisplayString() {
-        return String.format(" %-24.24S", stateCounty);
+        return String.format(" %-24.24s", stateCounty);
     }
 
     /**
@@ -321,7 +323,7 @@ public class HydroStationData implements Comparable<HydroStationData> {
      * @return
      */
     public String getBasinDisplayString() {
-        return String.format(" %-25.25S", basin);
+        return String.format(" %-25.25s", basin);
     }
 
     /**
@@ -330,7 +332,7 @@ public class HydroStationData implements Comparable<HydroStationData> {
      * @return
      */
     public String getStreamDisplayString() {
-        return String.format(" %-25.25S", stream);
+        return String.format(" %-25.25s", stream);
     }
 
     /**
@@ -339,7 +341,7 @@ public class HydroStationData implements Comparable<HydroStationData> {
      * @return
      */
     public String getLatLonDisplayString() {
-        return String.format(" %-9.9S %-9.9S", lat, lon);
+        return String.format(" %-9.9s %-9.9s", lat, lon);
     }
 
     /**

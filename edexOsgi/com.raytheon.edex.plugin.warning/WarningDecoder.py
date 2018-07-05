@@ -5,27 +5,27 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
 ##
 # This program decodes a product's UGC and VTEC strings
-# 
+#
 # SOFTWARE HISTORY
-#  
+#
 # Date          Ticket#  Engineer       Description
 # ------------- -------- -------------- --------------------------
 #                                       Initial creation
@@ -52,19 +52,26 @@
 #                                       but do not really begin new segments
 # Jul 18, 2016  5749     randerso       Remove replacement of commas with ellipses in segment text
 # Jun 15, 2017  ----     mjames@ucar    Fix BEARINGS typo NORTWEST->NORTHWEST
+# Oct 10, 2017  6328     randerso       Fix ugclist in non-vtec products, code cleanup
+# Apr 10, 2018  20632    ryu            Fix RE for the MND date line to match
+#                                       a mixed case timezone designation (ChST).
 #
 #
 # @author rferrel
 # @version 1.0
 ##
 
-import sys, os, time, re, string, getopt
-import copy
+from __future__ import print_function
+
 import calendar
-import LogStream
+import sys, os, time, re, getopt
+
 from awips import TimeUtil
-from com.raytheon.uf.edex.decodertools.time import TimeTools
+
 from com.raytheon.uf.common.wmo import WMOTimeParser
+from com.raytheon.uf.edex.decodertools.time import TimeTools
+import LogStream
+
 
 ACCURATE_CITIES_PILS = ['CFW', 'FFA', 'NPW', 'RFW', 'WSW']
 
@@ -108,10 +115,10 @@ class StdWarningDecoder():
     def __init__(self, text=None, filePath=None, command=None):
         self._hasDTG = None
         self._officeFromWMO = None
-        
+
         #to ensure time calls are based on Zulu
         os.environ['TZ'] = "GMT0"
-        
+
         self._deleteAfterProcessing = 0
         if filePath is None:
             self._incomingFilename = None
@@ -123,19 +130,19 @@ class StdWarningDecoder():
 
         self._command = command
         self._timeOffset = 0
-        
+
         #decode the command line
         if command is not None:
             self._decodeCommandLine()
             self._rawMessage = None
             checkForWmo = True
-        else:                            
+        else:
             self._rawMessage = text
             checkForWmo = True
-        
+
         # default time is just present time
         self._time = time.time() + self._timeOffset
-        
+
         if self._incomingFilename:
             # base time for decoder
             warningTimestamp = TimeTools.getWarningTimestamp(self._incomingFilename)
@@ -153,8 +160,8 @@ class StdWarningDecoder():
                     except :
                         LogStream.logProblem('Unable to get timestamp from filename: "%s"' % (self._incomingFilename))
 
-        os.umask(0)   #ensure proper permissions
-        
+        os.umask(0)  #ensure proper permissions
+
         self._mappedPils = {}
 
         #get product
@@ -175,32 +182,46 @@ class StdWarningDecoder():
           r'([0-9]{6})T([0-9]{4})Z\.([0-9]{6})T([0-9]{4})Z\.([A-Z][A-Z])/'
         self._badVtecRE = r'^\s?/.*/\s?$'
         self._endSegmentRE = r'^\$\$'
-        self._dlineRE = r"^1?[0-9]{3} [AP]M [A-Z][A-Z]?[DS]T.*[A-Z][A-Z,a-z]{2} " + \
+        self._dlineRE = r"^1?[0-9]{3} [AP]M [A-Z][A-Za-z]?[DS]T.*[A-Z][A-Z,a-z]{2} " + \
           r"[0123]?[0-9] 2[0-9]{3}.*$"
         self._ugcRE = r'^[A-Z][A-Z][CZ][0-9]{3}[->]'
         self._endTimeRE = r'-[0-3][0-9][0-2][0-9][0-5][0-9]-$'
 
         #maximum future time (used for until further notice)
-        self._maxFutureTime = float(2**31 - 1)  #max signed int
+        self._maxFutureTime = float(2 ** 31 - 1)  #max signed int
 
     def decode(self):
         #get pil and date-time group
-        self._productPil, self._issueTime, linePos,\
-          self._completeProductPil  = self._getPilAndDTG()
-         
+        self._productPil, self._issueTime, linePos, \
+          self._completeProductPil = self._getPilAndDTG()
+
+         # If this is a WCL - don't go any further. Run WCL procedure and exit.
+        if self._productPil[0:3] == "WCL":
+            endpoint = "WCLWatch"
+            # build a Java object for the warning
+            from com.raytheon.edex.plugin.gfe.watch import WclInfo
+            import JUtil
+            lines = JUtil.pyValToJavaObj(self._lines)
+            warning = WclInfo(long(self._issueTime * 1000),
+                              self._completeProductPil, lines, self._notifyGFE)
+            from com.raytheon.uf.edex.core import EDEXUtil
+            EDEXUtil.getMessageProducer().sendAsync(endpoint, warning)
+            LogStream.logEvent("%s forwarded to WCLWatch" % self._productPil)
+            return []
+
         # Determine if this is a segmented product
         segmented = self._determineSegmented(linePos)
- 
+
         # Get overview text
         if segmented == 1:
-            self._overviewText, linePos = self._getOverviewText(linePos)      
+            self._overviewText, linePos = self._getOverviewText(linePos)
         else:
             self._overviewText = ''
         LogStream.logDebug("OverviewText: ", self._overviewText)
 
         #find all UGCs, VTEC strings, and segment text
-        ugcVTECList = self._getUGCAndVTECStrings(linePos)       
-        
+        ugcVTECList = self._getUGCAndVTECStrings(linePos)
+
         self._polygon = self._getPolygon(linePos)
         self._storm = self._getStorm(linePos)
 
@@ -213,7 +234,7 @@ class StdWarningDecoder():
             if self._hasDTG:
                 purgeTime = ugcString[-7:-1]
             else:
-                purgeTime = self._getPurgeTimeStrFromVTEC(vtecStrings)            
+                purgeTime = self._getPurgeTimeStrFromVTEC(vtecStrings)
             vtecList = self._expandVTEC(ugcString, vtecStrings, segCount,
               segText, cities, purgeTime)
             segCount = segCount + 1
@@ -224,7 +245,7 @@ class StdWarningDecoder():
             return
 
         return ugcVTECSegText
-    
+
     def _checkForDTG(self, ugcString):
         if re.search(r'.*[0-3][0-9][0-2][0-9][0-5][0-9]', ugcString):
             self._hasDTG = True
@@ -234,7 +255,7 @@ class StdWarningDecoder():
     def _getPurgeTimeStrFromVTEC(self, vtecStrings):
         for vtecS, hvtec in vtecStrings:
             search = re.search(self._vtecRE, vtecS)
-            #print "getting time from ", search.group(8)[-2:] + search.group(9)
+            #print("getting time from ", search.group(8)[-2:] + search.group(9))
             timeStr = str(search.group(8)[-2:]) + str(search.group(9))
             return timeStr
         return None
@@ -242,7 +263,7 @@ class StdWarningDecoder():
     def _usage(self):
         #Prints out usage information if started without sufficient command
         #line arguments.
-        s =  """
+        s = """
 usage: VTECDecoder -f productfilename -d -a activeTableName
 -f productfilename:  location of the file to be decoded
 -d:                  delete input file after processing flag
@@ -251,13 +272,13 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
 -n:                  Do not make backups (optional)
 -z: drtInfo          Run in DRT mode
 """
-        print s
+        print(s)
         LogStream.logProblem(s)
 
     def _decodeCommandLine(self):
         #Routine to decode the command line.
         if self._command is None:
-            self.command = sys.argv        
+            self.command = sys.argv
 
         if len(self._command) < 2:
             self._usage()
@@ -273,7 +294,7 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             sys.exit(1)
 
         self._notifyGFE = False
-        
+
         for each_option in optionlist:
             if each_option[0] == '-f':
                 self._incomingFilename = each_option[1]
@@ -295,10 +316,10 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             self._usage()
             sys.exit(1)
 
-            
+
         LogStream.logVerbose("WMOID: ", self._wmoid)
 
-    def _getProduct(self, text=None, checkForWmo=False):        
+    def _getProduct(self, text=None, checkForWmo=False):
         #Opens, reads the product. Splits into lines, strips whitespace,
         if text is None:
             fd = open(self._incomingFilename, 'r')
@@ -310,9 +331,9 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             fd.close()
         else:
             buf = text
-            
+
         raw = buf
-        
+
         if checkForWmo:
             wmore = r'(\w{6} (\w{4}) (\d{6})(?: \w{3})?)'
             wmosearch = re.search(wmore, buf)
@@ -322,19 +343,17 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
 
         #eliminate junk characters and change some
         if self._wmoid is not None:
-            index = string.find(buf, self._wmoid)
+            index = buf.find(self._wmoid)
             if index != -1:
-                buf = buf[index:]   #remove garbage before start of real prod
+                buf = buf[index:]  #remove garbage before start of real prod
 #        buf = re.sub(r",", r"...", buf)   #eliminate commas, replace with ...
         buf = re.sub(r"\.\.\. r", "...", buf)  #'... ' becomes '...'
-        buf = re.sub(r"\r", r"", buf)   #eliminate carriage returns
+        buf = re.sub(r"\r", r"", buf)  #eliminate carriage returns
 
         #LogStream.logVerbose("Product:\n", buf)
 
         #process the file into lines, eliminate trailing whitespace
-        lines = string.split(buf, '\n')
-        for n in xrange(len(lines)):
-            lines[n] = string.rstrip(lines[n])
+        lines = [line.rstrip() for line in buf.split('\n')]
 
         return raw, lines
 
@@ -349,23 +368,22 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                self._lines[count]):
                 if dlineFlag == 0:
                     return 0
-            
+
             if re.search(self._dlineRE, self._lines[count]):
                 dlineFlag = 1
-            
+
             count += 1
 
         return 1
-             
-                 
-        
+
+
+
     def _getOverviewText(self, startLine):
-        #searches through the product from the startLine to the date-time 
-        #group, then until the first UGC line.  Extracts out the text for 
-        #the overview text (which is after the MND header.  Returns the 
+        #searches through the product from the startLine to the date-time
+        #group, then until the first UGC line.  Extracts out the text for
+        #the overview text (which is after the MND header.  Returns the
         #overviewText.
         count = startLine
-        ugcLine = None
 
         #search for the MND header date line
         while 1:
@@ -373,41 +391,41 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             count = count + 1
             if dline_search:
                 break
-            if count >= len(self._lines)-1:
+            if count >= len(self._lines) - 1:
                 raise Exception, "No MND date line to start overview text"
         startOverviewLine = count  #next line after MND date line
 
-        #search for the 1st UGC line 
+        #search for the 1st UGC line
         while 1:
             if self.checkForBeginSegment(count):
                 stopOverviewLine = count - 1
                 break
             count = count + 1
-            if count >= len(self._lines)-1:
+            if count >= len(self._lines) - 1:
                 raise Exception, "No UGC line to end overview text"
 
         #now eliminate any blank lines between the start/stop overview line
         while startOverviewLine <= stopOverviewLine:
-            if len(string.strip(self._lines[startOverviewLine])) != 0:
+            if len(self._lines[startOverviewLine].strip()) != 0:
                 break
             startOverviewLine = startOverviewLine + 1
         while startOverviewLine <= stopOverviewLine:
-            if len(string.strip(self._lines[stopOverviewLine])) != 0:
+            if len(self._lines[stopOverviewLine].strip()) != 0:
                 break
             stopOverviewLine = stopOverviewLine - 1
 
-        LogStream.logDebug("start/stop overview: ", startOverviewLine, 
+        LogStream.logDebug("start/stop overview: ", startOverviewLine,
           stopOverviewLine)
 
         #put together the text
         if startOverviewLine <= stopOverviewLine:
-            overviewLines = self._lines[startOverviewLine:stopOverviewLine+1]
-            overviewText = string.join(overviewLines, '\n')
+            overviewLines = self._lines[startOverviewLine:stopOverviewLine + 1]
+            overviewText = '\n'.join(overviewLines)
             return (overviewText, stopOverviewLine)
         else:
             return ("", startLine)
 
- 
+
     def _getPilAndDTG(self):
         #searches through the product (lines) and extracts out the product
         #pil and date-time group. Returns (pil, issueTime, lineEnd, fullpil).
@@ -417,18 +435,18 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             dtg_search = re.search(r' ([0123][0-9][012][0-9][0-5][0-9])',
               self._lines[count])
             pil_search = re.search(r'^([A-Z]{3})(\w{3}|\w{2}|\w{1})',
-              self._lines[count+1])
+              self._lines[count + 1])
 
             if dtg_search and pil_search:
                 LogStream.logVerbose("Dtg=", dtg_search.group(0))
                 LogStream.logVerbose("Pil=", pil_search.group(0))
-                return (self._lines[count+1][0:3],
-                  self._dtgFromDDHHMM(dtg_search.group(1)), count+2,
+                return (self._lines[count + 1][0:3],
+                  self._dtgFromDDHHMM(dtg_search.group(1)), count + 2,
                     pil_search.group(0))
             count = count + 1
-            if count >= len(self._lines)-1:
-                LogStream.logProblem("Did not find either the product DTG" +\
-                  " or the pil: ", string.join(self._lines, sep='\n'),
+            if count >= len(self._lines) - 1:
+                LogStream.logProblem("Did not find either the product DTG" + \
+                  " or the pil:\n", '\n'.join(self._lines),
                   LogStream.exc())
                 raise Exception, "Product DTG or Pil missing"
 
@@ -445,9 +463,9 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         wmo_min = int(dtgString[4:6])
 
         gmtuple = time.gmtime(baseTime)
-        wmo_year = gmtuple[0]
-        wmo_month = gmtuple[1]
-        current_day = gmtuple[2]
+        wmo_year = gmtuple.tm_year
+        wmo_month = gmtuple.tm_mon
+        current_day = gmtuple.tm_mday
         if current_day - wmo_day > 15:
             # next  month
             wmo_month = wmo_month + 1
@@ -456,17 +474,16 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                 wmo_year = wmo_year + 1
         elif current_day - wmo_day < -15:
             # previous month
-            wmo_month = wmo_month -1
+            wmo_month = wmo_month - 1
             if wmo_month < 1:
                 wmo_month = 12
                 wmo_year = wmo_year - 1
 
-        s = `wmo_year` + "%02i" % wmo_month + "%02i" % wmo_day + \
-          "%02i" % wmo_hour + "%02i" % wmo_min + "UTC"
+        s = "%i%02i%02i%02i%02iUTC" % (wmo_year, wmo_month, wmo_day, wmo_hour, wmo_min)
         timeTuple = time.strptime(s, "%Y%m%d%H%M%Z")
-        wmoTime = time.mktime(timeTuple)   #TZ is GMT0, so this mktime works
+        wmoTime = time.mktime(timeTuple)  #TZ is GMT0, so this mktime works
 
-        LogStream.logVerbose("DTG=",dtgString, "IssueTime=",
+        LogStream.logVerbose("DTG=", dtgString, "IssueTime=",
           time.asctime(time.gmtime(wmoTime)))
 
         return wmoTime
@@ -477,49 +494,47 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         #segment text, returns a list of (UGC keys, VTEC strings, segText).
         #Segment number is determined by order in the list.
         ugcList = []
-        count = lineStart   #start on line following PIL
+        count = lineStart  #start on line following PIL
         while 1:
             #look for the first UGC line
             if self.checkForBeginSegment(count):
                 LogStream.logDebug("First line of UGC found on line: ", count,
                   '[' + self._lines[count] + ']')
-                
-                #print "ugc found on line ", count
+
+                #print("ugc found on line ", count)
 
                 #find the line with the terminating ugc (dtg), might be
                 #the same one. Terminating line has -mmddhh
                 #combine all of the UGC lines that are split across
                 nxt = 0  #number of lines from the first UGC line
-                ugc = "" #final UGC codes
-                while count+nxt < len(self._lines):
-                    if re.search(self._endTimeRE, self._lines[count+nxt]):
+                ugc = ""  #final UGC codes
+                while count + nxt < len(self._lines):
+                    if re.search(self._endTimeRE, self._lines[count + nxt]):
                         LogStream.logDebug("Last line of UGC found on line: ",
-                          count+nxt, '[' + self._lines[count+nxt] + ']')
-                        ugc = string.join(self._lines[count:count+nxt+1],
-                          sep="")
+                          count + nxt, '[' + self._lines[count + nxt] + ']')
+                        ugc = "".join(self._lines[count:count + nxt + 1])
                         break
 
                     nxt = nxt + 1
 
                     # if we hit the end, break out and let the len(ugc) check fail
-                    if count+nxt == len(self._lines):
-                        break;
-
-                    #after incrementing check if the next line is not a 
-                    #continuation of the ugc because it is a vtec string
-                    #print "checking for non-ugc"
-                    #print self._lines[count+nxt]
-                    if re.search(self._vtecRE, self._lines[count+nxt]):
-                        LogStream.logDebug("Last line of UCG was previous line: ",
-                                           count+nxt,
-                                           '[' + self._lines[count+nxt-1] + ']')
-                        nxt = nxt - 1
-                        ugc = string.join(self._lines[count:count+nxt+1],sep="")
+                    if count + nxt == len(self._lines):
                         break
-                
+
+                    #after incrementing check if the next line is not a
+                    #continuation of the ugc because it is a vtec string
+                    #print("checking for non-ugc")
+                    #print(self._lines[count+nxt])
+                    if re.search(self._vtecRE, self._lines[count + nxt]):
+                        LogStream.logDebug("Last line of UCG was previous line: ",
+                                           count + nxt,
+                                           '[' + self._lines[count + nxt - 1] + ']')
+                        nxt = nxt - 1
+                        ugc = "".join(self._lines[count:count + nxt + 1])
+                        break
+
                 if len(ugc) == 0:
-                    s = "Did not find end of UGC line which started on " +\
-                      " line " + `count`
+                    s = "Did not find end of UGC line which started on line %i" % count
                     LogStream.logProblem(s)
                     raise Exception, "Aborting due to bad UGC lines"
 
@@ -527,75 +542,75 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                 #find the VTEC codes following the ugc line(s)
                 nxt = nxt + 1  #go the 1st line after ugc
                 vtectext = []
-                while count+nxt < len(self._lines):
-                    if re.search(self._vtecRE, self._lines[count+nxt]):
+                while count + nxt < len(self._lines):
+                    if re.search(self._vtecRE, self._lines[count + nxt]):
                         hvtec = None
-                        if re.search(self._hVtecRE, self._lines[count+nxt+1]):
-                            hvtec = self._lines[count+nxt+1]
-                        vtectext.append((self._lines[count+nxt], hvtec))
+                        if re.search(self._hVtecRE, self._lines[count + nxt + 1]):
+                            hvtec = self._lines[count + nxt + 1]
+                        vtectext.append((self._lines[count + nxt], hvtec))
                         LogStream.logDebug("VTEC found on line: ",
-                          count+nxt, self._lines[count+nxt])
-                    elif (re.search(self._badVtecRE, self._lines[count+nxt]) \
-                      and not re.search(self._hVtecRE, self._lines[count+nxt])):
+                          count + nxt, self._lines[count + nxt])
+                    elif (re.search(self._badVtecRE, self._lines[count + nxt]) \
+                      and not re.search(self._hVtecRE, self._lines[count + nxt])):
                         LogStream.logProblem("Bad VTEC line detected on line#",
-                          count+nxt, '[' + self._lines[count+nxt] + ']',
+                          count + nxt, '[' + self._lines[count + nxt] + ']',
                           'UGC=', ugc)
-                        raise Exception,"Aborting due to bad VTEC line"
+                        raise Exception, "Aborting due to bad VTEC line"
                     else:
-                        break    #no more VTEC lines for this ugc
-                    nxt = nxt + 1   #go to next line
+                        break  #no more VTEC lines for this ugc
+                    nxt = nxt + 1  #go to next line
 
                 # for capturing the city names
-                cityFirst = count+nxt
+                cityFirst = count + nxt
                 cityLast = cityFirst - 1
 
                 #capture the text from dtg to the $$ at the beginning of
                 #the line.  Just in case there isn't a $$, we also look
                 #for a new VTEC or UGC line, or the end of file.
-                textFirst = count+nxt
+                textFirst = count + nxt
                 dtgFound = 0
                 segmentText = ""
-                while count+nxt < len(self._lines):
+                while count + nxt < len(self._lines):
 
                     # Date-TimeGroup
-                    if dtgFound == 0 and re.search(self._dlineRE, 
-                      self._lines[count+nxt]):
-                        cityLast = count+nxt-1
-                        textFirst = count+nxt+2  #first text line
+                    if dtgFound == 0 and re.search(self._dlineRE,
+                      self._lines[count + nxt]):
+                        cityLast = count + nxt - 1
+                        textFirst = count + nxt + 2  #first text line
                         dtgFound = 1
 
                     # found the $$ line
-                    elif re.search(self._endSegmentRE, self._lines[count+nxt]):
+                    elif re.search(self._endSegmentRE, self._lines[count + nxt]):
                         segmentText = self._prepSegmentText(\
-                          self._lines[textFirst:count+nxt])
+                          self._lines[textFirst:count + nxt])
                         break
 
                     # found a probable UGC line, terminate the segment
                     # if a DDMMHH or VTEC can be found
-                    elif self.checkForBeginSegment(count+nxt):
+                    elif self.checkForBeginSegment(count + nxt):
                         segmentText = self._prepSegmentText(\
-                            self._lines[textFirst:count+nxt])
+                            self._lines[textFirst:count + nxt])
                         nxt = nxt - 1  #back up one line to redo UGC outer loop
                         break
 
                     # end of file, terminate the segment
-                    elif count+nxt+1 == len(self._lines):
+                    elif count + nxt + 1 == len(self._lines):
                         segmentText = self._prepSegmentText(\
-                          self._lines[textFirst:count+nxt+1])
+                          self._lines[textFirst:count + nxt + 1])
                         break
 
-                    nxt = nxt + 1   #next line
-                    
+                    nxt = nxt + 1  #next line
+
                 # capture cities
                 cityText = ''
-                for i in range(cityFirst, cityLast+1):
+                for i in range(cityFirst, cityLast + 1):
                     line = self._lines[i].rstrip()
 
                     if line.startswith("INCLUDING THE"):
                         cityText = line
                     elif cityText != '':
                         cityText += line
-                        
+
                 cities = []
                 if cityText != '':
                     cities = cityText.split('...')[1:]
@@ -635,14 +650,14 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                          self._lines[toCheck]) or \
                          re.search(self._vtecRE, self._lines[toCheck]):
                 falsePositive = False
-                break;
+                break
 
             # blank line
             if not self._lines[toCheck]:
                 break
 
             if re.search(self._endSegmentRE, self._lines[toCheck]):
-                break;
+                break
 
             toCheck = toCheck + 1
 
@@ -650,14 +665,14 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
 
     def _expandUGC(self, ugcString):
         #expand a UGC string into its individual UGC codes, returns the list.
-        ugc_list = []    #returned list of ugc codes
+        ugc_list = []  #returned list of ugc codes
         ugc_line = None
-        if ( self._hasDTG ):
-            ugc_line = ugcString[0:-8]   #eliminate dtg at end of ugc string
+        if (self._hasDTG):
+            ugc_line = ugcString[0:-8]  #eliminate dtg at end of ugc string
         else:
             ugc_line = ugcString
 
-        #print "ugc_line is ", ugc_line
+        #print("ugc_line is ", ugc_line)
         working_ugc_list = ugc_line.split('-')  #individual parts
         state = ''
         code_type = ''
@@ -694,10 +709,10 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
 
             except:
                 LogStream.logProblem("Failure to decode UGC [" + ugc + \
-                  "] in [" + ugc_line + "]", `self._lines`, LogStream.exc())
+                  "] in [" + ugc_line + "]\n", "\n".join(self._lines), LogStream.exc())
                 raise Exception, "Failure to decode UGC"
 
-        #print "ugc_list is ", ugc_list
+        #print("ugc_list is ", ugc_list)
         return ugc_list
 
     def _ugcCaseOne(self, ugc):
@@ -753,22 +768,22 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         code_type = ugc[2]
         ugcList = self._ugcCaseThree(ugc[3:10], state, code_type)
         return (state, code_type, ugcList)
-    
+
     def _getPolygon(self, linePos):
         poly = r'LAT\.\.\.LON [\d\s]*'
-        dec = r'[\d\s]+'        
+        dec = r'[\d\s]+'
         count = linePos
         latlon = None
         while count < len(self._lines):
             if re.search(poly, self._lines[count]):
                 nxt = 0  #number of lines from the first latlon line
-                while count+nxt+1 < len(self._lines):                    
-                    if re.match(dec, self._lines[count+nxt+1]):
+                while count + nxt + 1 < len(self._lines):
+                    if re.match(dec, self._lines[count + nxt + 1]):
                         nxt = nxt + 1
                     else:
-                        break             
+                        break
                 n = 0
-                latlon = ""                
+                latlon = ""
                 while n <= nxt:
                     latlon += self._lines[count + n] + " "
                     n += 1
@@ -777,14 +792,14 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                 break
             count += 1
         return latlon
-    
-    def _getStorm(self, linePos):                
+
+    def _getStorm(self, linePos):
         stormre = r'TIME\.\.\.MOT\.\.\.LOC \d+Z (\d+)DEG (\d+)KT ((?:\d{4,5}\s?)*)'
         nextline = r' *((?:\d{4,5}\s?)+)'
         storm = None
         count = linePos
         while count < len(self._lines):
-            search = re.search(stormre, self._lines[count])            
+            search = re.search(stormre, self._lines[count])
             if search:
                 coordString = search.group(3)
                 # check the next line
@@ -801,9 +816,9 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                         tempbuf = ""
                     else:
                         tempbuf = str(float(coord) / 100)
-                
+
                 buf = buf[0:-2]
-                buf = buf + ")"   
+                buf = buf + ")"
                 storm = (int(search.group(1)), int(search.group(2)), buf)
                 break
             count = count + 1
@@ -864,7 +879,7 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             return None
 
     def _calcTime(self, yymmdd, hhmm, allZeroValue):
-        #Returns tuple of time, and allZeroFlag. Time is based on the 
+        #Returns tuple of time, and allZeroFlag. Time is based on the
         #two time strings.  If all zeros, then return allZeroValue
         if yymmdd == "000000" and hhmm == "0000":
             return (allZeroValue, True)
@@ -896,17 +911,17 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             template['seg'] = segment
             startTime, zeros = self._calcTime(search.group(6),
               search.group(7), self._issueTime * 1000)
-            endTime, ufn = self._calcTime(search.group(8), 
+            endTime, ufn = self._calcTime(search.group(8),
               search.group(9), self._maxFutureTime * 1000)
             template['startTime'] = long(startTime)
             template['endTime'] = long(endTime)
             template['ufn'] = ufn
             template['officeid'] = search.group(2)
-            template['purgeTime'] = long(self._dtgFromDDHHMM(purgeTime, self._issueTime)*1000)
+            template['purgeTime'] = long(self._dtgFromDDHHMM(purgeTime, self._issueTime) * 1000)
             template['issueTime'] = long(self._issueTime * 1000)
             template['state'] = "Decoded"
             template['xxxid'] = self._completeProductPil[3:]
-            if ( self._hasDTG ):
+            if (self._hasDTG):
                 template['countyheader'] = ugcstring[:-8]
             else:
                 template['countyheader'] = ugcstring
@@ -915,9 +930,9 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
 
             #remap pil if in mappedPils table to relate events that are
             #issued in one product, and updated in another product
-            template['pil'] = self._remapPil(template['phen'], 
+            template['pil'] = self._remapPil(template['phen'],
               template['sig'], self._productPil)
-            
+
             template['ugcZoneList'] = ", ".join(ugcs)
             state = ugcstring[0:2]
             if REGIONS.has_key(state):
@@ -929,17 +944,17 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
             template['geometry'] = self._polygon
             try:
                 from com.raytheon.uf.common.time import DataTime, TimeRange
-                valid = TimeRange(long(startTime), long(endTime))                
+                valid = TimeRange(long(startTime), long(endTime))
                 template['dataTime'] = DataTime(long(startTime), valid)
             except:
                 template['dataTime'] = long(endTime)
-            
+
             template['rawmessage'] = self._rawMessage
             if self._storm is not None:
                 template['motdir'] = self._storm[0]
                 template['motspd'] = self._storm[1]
                 template['loc'] = self._storm[2]
-            
+
             if hvtec is not None:
                 hsearch = re.search(self._hVtecRE, hvtec)
                 template['locationID'] = hsearch.group(1)
@@ -960,11 +975,6 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
                 template['floodEnd'] = self._calcTime(hsearch.group(8), hsearch.group(9), fakeEndTime)[0]
 
             records.append(template)
-            #expand the template out by the ugcs
-            #for geo in ugcs:
-            #    dict = copy.deepcopy(template)
-            #    dict['id'] = geo
-            #    records.append(dict)
 
         return records
 
@@ -974,11 +984,11 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         # short-fused hazards issue in one pil and followup/cancel in
         # another pil.
         key = (phen, sig, pil)
-        rPil = self._mappedPils.get(key,  pil)
+        rPil = self._mappedPils.get(key, pil)
         if rPil != pil:
             LogStream.logEvent("Remapped Pil", key, "->", rPil)
         return rPil
-  
+
 
     def _prepSegmentText(self, lines):
         # eliminate leading and trailing blank lines from the set of
@@ -991,7 +1001,7 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         while len(lines) and len(lines[-1]) == 0:
             del lines[-1]
         # assemble into long string
-        return string.join(lines, '\n')
+        return '\n'.join(lines)
 
     # time contains, if time range (tr) contains time (t), return 1
     def __containsT(self, tr, t):
@@ -1002,96 +1012,59 @@ usage: VTECDecoder -f productfilename -d -a activeTableName
         if self.__containsT(tr2, tr1[0]) or self.__containsT(tr1, tr2[0]):
             return 1
         return 0
-    
+
 class NoVTECWarningDecoder(StdWarningDecoder):
-        
+
     #this is a special case, we do not want to make changes to this class that will break parsing
     #warnings that do have vtec strings.  If needed all non-vtec specific code should be split out
     #into new classes
-    def _makeRecordWithoutVTEC(self, ugcstring, vtecStrings, segment, segmentText, cities, purgeTime, ugcs):
+    def _makeRecordWithoutVTEC(self, ugcstring, segment, segmentText, cities, purgeTime, ugcs):
         records = []
-        #for vtecS, hvtec in vtecStrings:
-        #search = re.search(self._vtecRE, vtecS)
 
         #construct the active table entries, without the geography
         template = {}
-        #template['vtecstr'] = search.group(0)
-        #template['etn'] = search.group(5)
-        #template['sig'] = search.group(4)
-        #template['phen'] = search.group(3)
         template['segText'] = segmentText
         template['overviewText'] = self._overviewText
-        #template['phensig'] = template['phen'] + '.' + template['sig']
-        #template['act'] = search.group(1)
         template['seg'] = segment
-        #startTime, zeros = self._calcTime(search.group(6),
-        #  search.group(7), self._issueTime * 1000)
         startTime = self._issueTime * 1000
-        #endTime, ufn = self._calcTime(search.group(8), 
-        #  search.group(9), self._maxFutureTime * 1000)
         ddhhmmz = ugcstring[-7:-1]
         endTime = self._dtgFromDDHHMM(ddhhmmz) * 1000
         template['startTime'] = long(startTime)
         template['endTime'] = long(endTime)
-        #if ufn:
-        template['ufn'] = True
-        #else:
-        #    template['ufn'] = False
-        #template['officeid'] = search.group(2)
+        template['ufn'] = True  # is this correct?
         if self._officeFromWMO:
             template['officeid'] = self._officeFromWMO
-        
-        template['purgeTime'] = long(self._dtgFromDDHHMM(purgeTime, self._issueTime)*1000)
+
+        template['purgeTime'] = long(self._dtgFromDDHHMM(purgeTime, self._issueTime) * 1000)
         template['issueTime'] = long(self._issueTime * 1000)
         template['state'] = "Decoded"
         template['xxxid'] = self._completeProductPil[3:]
         template['countyheader'] = ugcstring[:-8]
         if self._productPil[:3] in ACCURATE_CITIES_PILS:
             template['cities'] = cities
-
-        #remap pil if in mappedPils table to relate events that are
-        #issued in one product, and updated in another product
-        #template['pil'] = self._remapPil(template['phen'], 
-        #  template['sig'], self._productPil)
         template['pil'] = self._productPil
-        template['ugcs'] = ugcs
+        template['ugcZoneList'] = ", ".join(ugcs)
         state = ugcstring[0:2]
         if REGIONS.has_key(state):
             template['region'] = REGIONS[state]
         else:
             template['region'] = 'DEFAULT'
         template['wmoid'] = self._wmoid
-        #template['productClass'] = template['vtecstr'][1]
         template['geometry'] = self._polygon
         try:
             from com.raytheon.uf.common.time import DataTime, TimeRange
-            valid = TimeRange(long(startTime), long(endTime))                
+            valid = TimeRange(long(startTime), long(endTime))
             template['dataTime'] = DataTime(long(startTime), valid)
         except:
             template['dataTime'] = long(endTime)
-        
+
         template['rawmessage'] = self._rawMessage
         if self._storm is not None:
             template['motdir'] = self._storm[0]
             template['motspd'] = self._storm[1]
             template['loc'] = self._storm[2]
-        
-        #if hvtec is not None:
-        #    hsearch = re.search(self._hVtecRE, hvtec)
-        #    template['locationID'] = hsearch.group(1)
-        #    template['floodSeverity'] = hsearch.group(2)
-        #    template['immediateCause'] = hsearch.group(3)
-        #    template['floodRecordStatus'] = hsearch.group(10)
-        #    template['floodBegin'] = long(self._calcTime(hsearch.group(4), hsearch.group(5), self._issueTime)[0])
-        #    template['floodCrest'] = long(self._calcTime(hsearch.group(6), hsearch.group(7), self._issueTime)[0])
-        #    template['floodEnd'] = long(self._calcTime(hsearch.group(8), hsearch.group(9), self._issueTime)[0])
 
         records.append(template)
-        #expand the template out by the ugcs
-        #for geo in ugcs:
-        #    dict = copy.deepcopy(template)
-        #    dict['id'] = geo
-        #    records.append(dict)
 
         return records
 
@@ -1100,9 +1073,9 @@ class NoVTECWarningDecoder(StdWarningDecoder):
         #Routine takes a list of vtec strings and expands them out into
         #the format of the active table.
         #Returns the records.
+
         ugcs = self._expandUGC(ugcstring)
-        
-        return self._makeRecordWithoutVTEC(ugcstring, vtecStrings, segment, segmentText, cities, purgeTime, ugcs)
+        return self._makeRecordWithoutVTEC(ugcstring, segment, segmentText, cities, purgeTime, ugcs)
 
 class WarningDecoder():
 
@@ -1110,7 +1083,7 @@ class WarningDecoder():
         #hold on to text and filePath
         self.text = text
         self.filePath = filePath
-        
+
         self._vtecRE = r'/[OTEX]\.([A-Z]{3})\.([A-Z]{4})\.([A-Z]{2})\.' + \
           r'([WAYSOFN])\.([0-9]{4})\.([0-9]{6})T([0-9]{4})Z\-' + \
           r'([0-9]{6})T([0-9]{4})Z/'
@@ -1118,7 +1091,7 @@ class WarningDecoder():
           r'([0-9]{6})T([0-9]{4})Z\.' + \
           r'([0-9]{6})T([0-9]{4})Z\.([0-9]{6})T([0-9]{4})Z\.([A-Z][A-Z])/'
         self._badVtecRE = r'^\s?/.*/\s?$'
-        
+
         self._stdWarningDecode = None
         if str == type(command):
              command = command.split()
@@ -1130,20 +1103,20 @@ class WarningDecoder():
     def decode(self):
         #discover which type of warning to decode
         self._checkForVTEC()
-        
+
         #create appropraite class and decode
-        if ( self._stdWarningDecode ):
-            #print "using standard warning decoder reason: ", self._stdWarningDecode
+        if (self._stdWarningDecode):
+            #print("using standard warning decoder reason: ", self._stdWarningDecode)
             decoder = StdWarningDecoder(self.text, self.filePath, self._command)
             return decoder.decode()
         else:
-            #print "using no vtec warning decoder"
+            #print("using no vtec warning decoder")
             decoder = NoVTECWarningDecoder(self.text, self.filePath, self._command)
-            return decoder.decode()        
-                
+            return decoder.decode()
+
     def _checkForVTEC(self):
         contents = ""
-        if ( self.text ):
+        if (self.text):
             contents = self.text
         elif (self.filePath):
             fd = open(self.filePath, 'r')
@@ -1153,10 +1126,10 @@ class WarningDecoder():
             #define self._stdWarningDecode as something so the std decoder is used
             self._stdWarningDecode = 'no file or text'
             return
-        
+
         #search through contents to find a vtec string
-        lines = string.split(contents, '\n')
-        
+        lines = contents.split('\n')
+
         for line in lines:
             if re.search(self._vtecRE, line):
                 self._stdWarningDecode = 'found a vtec string'

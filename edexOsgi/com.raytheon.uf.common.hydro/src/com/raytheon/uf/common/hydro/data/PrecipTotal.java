@@ -249,6 +249,10 @@ public class PrecipTotal {
         this.valueIndicator = valueIndicator;
     }
 
+    public void setValueIndicator(String valueIndicator) {
+        setValueIndicator(valueIndicator.charAt(0));
+    }
+
     /**
      * @return the qc
      */

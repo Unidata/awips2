@@ -19,23 +19,12 @@
  **/
 package com.raytheon.viz.mpe.util;
 
-import java.io.File;
-import java.io.IOException;
-
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.NonSI;
 import javax.measure.unit.SI;
-import javax.measure.unit.Unit;
-
-import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.xmrg.XmrgFile;
-import com.raytheon.viz.mpe.core.MPEDataManager;
 
 /**
- * TODO Add Description
+ * Reads the monthly precipitation prism data from XMRG files.
  * 
  * <pre>
  * 
@@ -46,177 +35,64 @@ import com.raytheon.viz.mpe.core.MPEDataManager;
  * April , 2012  8672      lbousaidi   fixed the reading of the PRISM data.
  * Feb 3,  2015  16993     snaples     fixed color scale data conversion issue.
  * Mar 2,  2015  15660     snaples     Fixed problem with color scale using wrong values. Causing grids to be all zeros.
+ * Oct 03, 2017  6407      bkowal      Cleanup. Updated to extend {@link AbstractPrismDataReader}.
  * </pre>
  * 
  * @author snaples
- * @version 1.0
  */
 
-public class MeanMonthlyPrecip {
-    int MaxX;
-
-    int MinX;
-
-    int MinY;
-
-    int MaxY;
+public class MeanMonthlyPrecip extends AbstractPrismDataReader {
 
     private final String VERSION = "111511";
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(MeanMonthlyPrecip.class);
-
-    private DailyQcUtils dqc = DailyQcUtils.getInstance();
-    
     private static Isoh isoh;
 
-    ColorMapParameters cmc = new ColorMapParameters();
-
-    String mon_name[] = { "jan", "feb", "mar", "apr", "may", "jun", "jul",
-            "aug", "sep", "oct", "nov", "dec" };
-
     public MeanMonthlyPrecip() {
-        // empty constructor
+        super(NonSI.INCH, SI.MILLIMETER);
     }
 
-    public boolean read_mean_monthly_precip(String mpe_prism_dir,
+    /*
+     * TODO: Would it not be great if this method actually returned what it read
+     * so that it could be passed along as needed instead of populating static
+     * variables?
+     */
+    public MPEPrismDataLoadFailed read_mean_monthly_precip(String mpe_prism_dir,
             String mpe_rfc_name, int smonth, int emonth) {
         isoh = new Isoh();
-        MinX = (int) MPEDataManager.getInstance().getHRAPExtent().getMinX();
-        MaxX = MPEDataManager.getInstance().getHRAPExtent().width;
-        MinY = (int) MPEDataManager.getInstance().getHRAPExtent().getMinY();
-        MaxY = MPEDataManager.getInstance().getHRAPExtent().height;
-        Unit<?> displayUnit = Unit.ONE;
-        Unit<?> dataUnit = Unit.ONE;
+        isoh.value = new int[mon_name.length][MaxY][MaxX];
 
-        displayUnit = NonSI.INCH;
-        dataUnit = SI.MILLIMETER;
-        cmc.setDisplayUnit(displayUnit);
-        cmc.setDataUnit(dataUnit);
-        UnitConverter dataToImage = cmc.getDataToImageConverter();
-
-        /*
-         * Loop over the months. Determine for which months PRISM data are
-         * needed.
-         */
-        isoh.value = new int[12][MaxY][MaxX];
-
-        System.out
-                .println(" *** MeanMonthlyPrecip: Reading Precip from PRISM data. Version "
-                        + VERSION + " *** ");
-
+        statusHandler.info("Loading precipitation prism data (Version = "
+                + VERSION + ") ...");
         /* Read in the PRISM files. */
         /* j increments latitude i increments longitude */
 
-        for (int k = 0; k < 12; k++) {
-            int ier = is_good(k, smonth, emonth);
-
-            if (ier == -1) {
+        for (int k = 0; k < mon_name.length; k++) {
+            /*
+             * Loop over the months. Determine for which months PRISM data is
+             * needed.
+             */
+            if (!isWithinRange(k, smonth, emonth)) {
                 continue;
             }
 
-            String mon = mon_name[k];
-
-            /* Create the PRISM filename. */
-            String pfile = dqc.mpe_prism_dir + "/prism_mean_precip_"
-                    + dqc.mpe_rfc_name + "_" + mon;
-
-            /* read in data file */
-            /* i is longitude j is latitude */
-            File pf = new File(pfile);
-            if (pf.exists() != true) {
-                return false;
+            final String monAbbr = mon_name[k];
+            MPEPrismDataLoadFailed mpePrismDataLoadFailed = readPrismAndPopulateDestination(
+                    mpe_prism_dir, mpe_rfc_name, "prism_mean_precip_", k,
+                    monAbbr, isoh.value, dataToImage);
+            if (mpePrismDataLoadFailed != null) {
+                return mpePrismDataLoadFailed;
             }
-            XmrgFile xmfile = new XmrgFile(pfile);
-            short[] pdata = new short[(int) xmfile.getFile().length()];
-            try {
-                xmfile.load();
-            } catch (IOException e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Could not read PRISM information.  Check if PRISM Precip file exists.",
-                                e);
-            }
-            if (xmfile.getHrapExtent() == null) {
-                return false;
-            }
-            pdata = xmfile.getData();
-            if (pdata.length == 0) {
-                System.out.println("Error reading " + pfile);
-                return false;
-            }
-            for (int i = MaxY - 1; i >= 0; i--) {    
-                for (int j = 0; j < MaxX; j++) {
-                    float f = 0;
-                    short s = pdata[j + MaxX * (MaxY - i -1)];                    
-                    if (s < 0) {
-                        f = 0;
-                    } else {
-                        f = (float) dataToImage.convert(s);
-                    }
-                    float aa = (float) ((Math.floor((int) (f * 100))) / 100.0);
-                    isoh.value[k][i][j] = (int) aa;
-                }
-            }
-
         }
 
-        dqc.isohyets_used = 1;
-        return true;
+        dqc.isohyets_used = true;
+        statusHandler.info("Successfully loaded precipitation prism data.");
+        return null;
     }
 
     public static class Isoh {
-        Icoord coord[];
 
-        int value[][][];
+        public int value[][][];
 
-        int maxi;
-
-        int maxj;
-
-        float max_lat;
-
-        float max_lon;
-
-        float total_lat;
-
-        float total_lon;
-
-        float delta_lat;
-
-        float delta_lon;
-    }
-
-    public static class maxmin {
-
-        Icoord coord[];
-
-        int maxvalue[][][];
-
-        int minvalue[][][];
-
-        int maxi;
-
-        int maxj;
-
-        float max_lat;
-
-        float max_lon;
-
-        float total_lat;
-
-        float total_lon;
-
-        float delta_lat;
-
-        float delta_lon;
-
-    }
-
-    public class Icoord {
-        int x;
-
-        int y;
     }
 
     /**
@@ -231,23 +107,12 @@ public class MeanMonthlyPrecip {
      *            the isoh to set
      */
     public void setIsoh(Isoh isoh) {
-        this.isoh = isoh;
+        MeanMonthlyPrecip.isoh = isoh;
     }
 
-    public int is_good(int k, int smonth, int emonth) {
-        if ((smonth <= emonth) && (k >= smonth) && (k <= emonth)) {
-            return (1);
-        }
-        if (smonth > emonth) {
-            if (k <= emonth) {
-                return (1);
-            }
-
-            if (k >= smonth) {
-                return (1);
-            }
-        }
-        return (-1);
+    @Override
+    protected float handleNegativeValue(UnitConverter dataToImage,
+            short value) {
+        return 0;
     }
-
 }

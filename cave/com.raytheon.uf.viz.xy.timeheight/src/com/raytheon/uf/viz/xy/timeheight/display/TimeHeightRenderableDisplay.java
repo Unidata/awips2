@@ -30,36 +30,38 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.PixelExtent;
 import com.raytheon.uf.viz.core.VizConstants;
+import com.raytheon.uf.viz.core.drawables.IRenderableDisplay;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
+import com.raytheon.uf.viz.d2d.core.ImageCombiner;
 import com.raytheon.uf.viz.d2d.ui.AbstractHeightDisplay;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResource;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData;
 import com.raytheon.uf.viz.xy.map.rsc.GraphResourceData.OverlayMode;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScales;
 import com.raytheon.uf.viz.xy.timeheight.display.TimeHeightDescriptor.TimeDirection;
-import com.raytheon.viz.core.imagery.ImageCombiner;
-import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.slice.request.HeightScales;
+import com.raytheon.uf.viz.xy.timeheight.rsc.AbstractTimeHeightResource;
 
 /**
- * TODO Add Description
+ * {@link IRenderableDisplay} for {@link AbstractTimeHeightResource}s.
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 28, 2010            bsteffen     Initial creation
+ * 
+ * Date          Ticket#  Engineer      Description
+ * ------------- -------- ------------- -------------------------------
+ * Jun 28, 2010           bsteffen      Initial creation
+ * Nov 10, 2016  5976     bsteffen  Mo  e HeightScales and add javadoc
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-
 @XmlAccessorType(XmlAccessType.NONE)
 @XmlRootElement
 public class TimeHeightRenderableDisplay extends AbstractHeightDisplay {
@@ -75,9 +77,6 @@ public class TimeHeightRenderableDisplay extends AbstractHeightDisplay {
         super(aPixelExtent, new TimeHeightDescriptor(aPixelExtent));
     }
 
-    /**
-     * @return the scale
-     */
     @Override
     public String getScale() {
         if (getDescriptor() != null && getDescriptor().getHeightScale() != null) {
@@ -86,22 +85,11 @@ public class TimeHeightRenderableDisplay extends AbstractHeightDisplay {
         return null;
     }
 
-    /**
-     * @param scale
-     *            the scale to set
-     */
     @Override
     public void setScale(String scale) {
         setHeightScale(HeightScales.fromName(scale));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.d2d.ui.AbstractHeightDisplay#setHeightScale(com.raytheon
-     * .viz.core.slice.request.HeightScale)
-     */
     @Override
     public void setHeightScale(HeightScale scale) {
         getDescriptor().setHeightScale(scale);

@@ -41,25 +41,36 @@
 # Jul 18, 2016     5747          dgilling    Move edex_static to common_static.
 # Aug 09, 2016     5801          tgurney     Use AfosToAwipsLookup
 # Sep 28, 2016    19293          randerso    Added filtering by productsPerDomain
+# Nov 21, 2016     5959          njensen     Removed unused imports and made more pythonic
+# Nov 28, 2016     5939          dgilling    Add override behavior comment to
+#                                            generated files.
+# Mar 17, 2017     5935          mapeters    Updated override behavior comments
+#                                            in generated files
+# Aug 08, 2017     6379          njensen     Use ProtectedFileLookup
 #
 # @author: jelkins
 #
 ##
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
+
 __version__ = "1.0"
 
 import errno
 import os
-import JUtil
 from os.path import basename
 from os.path import join
 from os.path import dirname
-from com.raytheon.uf.common.serialization import SerializationUtil
-from com.raytheon.uf.common.localization import LocalizationFile
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext
+from com.raytheon.uf.common.protectedfiles import ProtectedFileLookup
 LocalizationType = LocalizationContext.LocalizationType
 LocalizationLevel = LocalizationContext.LocalizationLevel
-from java.lang import System
+
 
 # SCRIPT_DIR passed in from Java
 
@@ -113,6 +124,35 @@ ProcessDirectories = [
      'dest': "textUtilities/regular"
   },
   ]
+
+# The following three constants are used by the __Substitutor class to add
+# override behavior comments to the generated files. The first comment appears
+# in every file because we protect the base templates from override. For
+# generated template text product files, we replace the first comment with the
+# second. For generated files that we do not protect, we replace the first
+# comment with the third.
+BASE_TEMPLATE_OVERRIDE_COMMENT =\
+"""##
+# This is a base file that is not intended to be overridden.
+##
+"""
+
+GENERATED_TEMPLATE_OVERRIDE_COMMENT =\
+"""##
+# This is a base file that is not intended to be overridden.
+#
+# This file can be subclassed to override behavior. Please see the
+# GFE Training Guide->GFE Text Products User Guide section of the GFE Online
+# Help for guidance on creating a new text product.
+##
+"""
+
+GENERATED_LOCAL_OVERRIDE_COMMENT =\
+"""##
+# This is an absolute override file, indicating that a higher priority version
+# of the file will completely replace a lower priority version of the file.
+##
+"""
 
 from SiteCFG import SiteInfo
 
@@ -199,7 +239,7 @@ class Generator():
         LOG.info("%d text products created" % created)
         LOG.debug("Configuration of Text Products for %s finished" % siteId)
         
-        return JUtil.pylistToJavaStringList(self.getProtectedFiles())
+        return self.getProtectedFiles()
     
     def delete(self):
         """Delete text products"""
@@ -257,7 +297,7 @@ class Generator():
         This class contains all methods capable of performing the substitution.
         """
         
-        def __init__(self,product,pilInfo,multiPilFlag,siteID):
+        def __init__(self, product, pilInfo, multiPilFlag, siteID, allowsOverride, isTextProduct):
             """Class constructor
             
             Initialize the class
@@ -272,11 +312,19 @@ class Generator():
             @type multiPilFlag: boolean
             
             @type siteID: string 
+            
+            @param allowsOverride: indicates whether the generated file can be overridden.
+            @type allowsOverride: boolean
+            
+            @param isTextProduct: indicates whether the file is a text product or utility
+            @type isTextProduct: boolean
             """
             self.__product  = product
             self.__pilInfo  = pilInfo
             self.__multiPilFlag = multiPilFlag
             self.__siteID = siteID
+            self.__allowsOverride = bool(allowsOverride)
+            self.__isTextProduct = isTextProduct
 
         
         def substituteKeywords(self, subDict, textData):
@@ -342,6 +390,11 @@ class Generator():
                 subDict['<MultiPil>'] = pilInfo["pil"][3:6].strip() #pil=nnnxxx, want xxx
             else:
                 subDict['_<MultiPil>'] = ""   #no multiple pils
+            if self.__allowsOverride:
+                subDict[BASE_TEMPLATE_OVERRIDE_COMMENT] = GENERATED_LOCAL_OVERRIDE_COMMENT
+            elif self.__isTextProduct:
+                #include subclass comment for text products, not utilities
+                subDict[BASE_TEMPLATE_OVERRIDE_COMMENT] = GENERATED_TEMPLATE_OVERRIDE_COMMENT
         
             return self.substituteKeywords(subDict, contents)
         
@@ -528,6 +581,8 @@ class Generator():
                 LOG.error("%s: '%s'" % (e.strerror,e.filename))
                 return 0
         
+        isTextProduct = (destDir == "textProducts")
+        
         siteid = self.__siteId
         productsWritten = 0
         
@@ -541,7 +596,7 @@ class Generator():
         for lf in templateFiles:
 
             fileName = str(lf.getFile().getAbsolutePath())
-            isProtected = lf.isProtected()
+            isProtected = ProtectedFileLookup.isProtected(lf)
             
             #skip svn files
             if string.find(fileName,".svn-base") != -1:
@@ -618,7 +673,7 @@ class Generator():
                     # ---- Perform Substitutions -----------------------------
                                         
                     substitutor = self.__Substitutor(product,pilInfo,multiple,
-                                                                 self.__siteId)
+                                                        self.__siteId, not isProtected, isTextProduct)
                                                             
                     newFileContents = substitutor.replaceText(fileContents)
                     destName     = substitutor.replaceFilename(regNameBase)                    
@@ -657,7 +712,7 @@ class Generator():
                         isWritable = os.access(destFilename, os.W_OK)
                         
                         if isProtected:
-                            self.addProtection(destFilename)                         
+                            self.addProtection(destFilename)
                         
                     except IOError, (number, description):
                         LOG.warn("       %s" % description)
@@ -675,7 +730,7 @@ class Generator():
         fileList.append(newName)
         
     def getProtectedFiles(self):
-            return fileList
+        return fileList
             
     def __delete(self):
         """Delete all pre-existing text templates

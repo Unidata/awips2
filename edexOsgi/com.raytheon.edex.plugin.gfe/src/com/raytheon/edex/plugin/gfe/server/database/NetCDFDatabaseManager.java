@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -38,19 +38,21 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 /**
  * Manages NetCDF databases. This is not for normal D2D data. It is only to
  * support static netCDF databases for GFE like the CRM and NED topo and VDATUMS
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 17, 2012            randerso    Initial creation
- * Oct 10  2012     #1260  randerso    Added exception handling for domain not 
+ * Oct 10  2012     #1260  randerso    Added exception handling for domain not
  *                                     overlapping the dataset
- * 
+ * Oct 19  2017     #6126  dgilling    Make NetCDFDatabaseManager objects owned
+ *                                     by GridParmManager.
+ *
  * </pre>
- * 
+ *
  * @author randerso
  * @version 1.0
  */
@@ -59,28 +61,22 @@ public class NetCDFDatabaseManager {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(NetCDFDatabaseManager.class);
 
-    private static HashMap<DatabaseID, NetCDFGridDatabase> databaseMap = new HashMap<DatabaseID, NetCDFGridDatabase>();
+    private final Map<DatabaseID, NetCDFGridDatabase> databaseMap;
 
-    /**
-     * A private constructor so that Java does not attempt to create one for us.
-     * As this class should not be instantiated, do not attempt to ever call
-     * this constructor; it will simply throw an AssertionError.
-     * 
-     */
-    private NetCDFDatabaseManager() {
-        throw new AssertionError();
+    public NetCDFDatabaseManager(IFPServerConfig config) {
+        this.databaseMap = new HashMap<>();
+
+        initializeNetCDFDatabases(config);
     }
 
     /**
-     * Initialize the netCDF databases for the given sites configuration.
-     * 
-     * @param siteID
-     *            The site for which the HLS topo database needs to be
-     *            initialized.
-     * @throws GfeException
+     * Initialize the netCDF databases for the given site's configuration.
+     *
+     * @param config
+     *            The site's configuration containing the NetCDF databases to
+     *            initialize.
      */
-    public static void initializeNetCDFDatabases(IFPServerConfig config)
-            throws GfeException {
+    private void initializeNetCDFDatabases(IFPServerConfig config) {
         Map<String, String> netCDFDirs = config.netCDFDirs();
 
         for (Entry<String, String> entry : netCDFDirs.entrySet()) {
@@ -88,26 +84,23 @@ public class NetCDFDatabaseManager {
         }
     }
 
-    private static void processNetCDFDir(String dirName, String modelName,
+    private void processNetCDFDir(String dirName, String modelName,
             IFPServerConfig config) {
         File dir = new File(dirName);
         if (!dir.exists() || !dir.canRead() || !dir.isDirectory()) {
             statusHandler
-                    .handle(Priority.PROBLEM,
-                            "Missing or unreadable directory in NETCDFDIRS: "
-                                    + dirName);
+                    .error("Missing or unreadable directory in NETCDFDIRS: "
+                            + dirName);
             return;
         }
 
-        List<File> validFiles = new ArrayList<File>();
+        List<File> validFiles = new ArrayList<>();
         for (File file : dir.listFiles()) {
             if (NetCDFFile.validFileName(file.getName())) {
                 if (file.isFile()) {
                     if (!file.canRead()) {
-                        statusHandler.handle(
-                                Priority.PROBLEM,
-                                "Skipping unreadable netCDF file: "
-                                        + file.getAbsolutePath());
+                        statusHandler.error("Skipping unreadable netCDF file: "
+                                + file.getAbsolutePath());
                     } else {
                         validFiles.add(file);
                     }
@@ -119,14 +112,12 @@ public class NetCDFDatabaseManager {
             return;
         }
 
-        // filenames are time stamps of form YYYYMMDD_hhmm
-        // sort in descending order so most recent is first
-        Collections.sort(validFiles, new Comparator<File>() {
-            @Override
-            public int compare(File f1, File f2) {
-                return f2.getName().compareTo(f1.getName());
-            }
-        });
+        /*
+         * filenames are time stamps of form YYYYMMDD_hhmm sort in descending
+         * order so most recent is first
+         */
+        Collections.sort(validFiles,
+                Comparator.comparing(File::getName).reversed());
 
         NetCDFFile firstOne = new NetCDFFile(validFiles.get(0)
                 .getAbsolutePath(), modelName);
@@ -135,7 +126,8 @@ public class NetCDFDatabaseManager {
 
         for (int i = 0; i < validFiles.size(); i++) {
             if (i >= numVer) {
-                break; // no more to do
+                // no more to do
+                break;
             }
 
             NetCDFFile file = new NetCDFFile(validFiles.get(i)
@@ -150,33 +142,20 @@ public class NetCDFDatabaseManager {
                             "New netCDF Database: " + dbId);
                     databaseMap.put(dbId, db);
                 } catch (GfeException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage());
+                    statusHandler
+                            .error("Error instantiating NetCDFGridDatabase ["
+                                    + dbId + "]", e);
                 }
             }
         }
     }
 
-    public static List<DatabaseID> getDatabaseIds(String siteID) {
-        List<DatabaseID> dbIds = new ArrayList<DatabaseID>();
-        for (DatabaseID dbId : databaseMap.keySet()) {
-            if (dbId.getSiteId().equals(siteID)) {
-                dbIds.add(dbId);
-            }
-        }
-        return dbIds;
+    public List<DatabaseID> getDatabaseIds() {
+        return Collections
+                .unmodifiableList(new ArrayList<>(databaseMap.keySet()));
     }
 
-    public static void removeDatabases(String siteID) {
-        List<DatabaseID> keys = new ArrayList<DatabaseID>(databaseMap.keySet());
-        for (DatabaseID dbId : keys) {
-            if (dbId.getSiteId().equals(siteID)) {
-                databaseMap.remove(dbId);
-            }
-        }
-    }
-
-    public static GridDatabase getDb(DatabaseID dbId) {
+    public GridDatabase getDb(DatabaseID dbId) {
         return databaseMap.get(dbId);
     }
 }

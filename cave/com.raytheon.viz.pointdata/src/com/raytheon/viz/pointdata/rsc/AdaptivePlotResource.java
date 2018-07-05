@@ -36,7 +36,7 @@ import com.raytheon.uf.viz.core.drawables.IDescriptor;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
-import com.raytheon.uf.viz.core.rsc.IResourceDataChanged;
+import com.raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
@@ -55,70 +55,48 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Aug 03, 2011            mschenke    Initial creation
  * Apr 30, 2014 3092       njensen     Sped up paintInternal()
+ * Nov 01, 2017 6271       bsteffen    Override resourceDataChanged for updates.
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
-
-public class AdaptivePlotResource extends
-        AbstractVizResource<AdaptivePlotResourceData, IDescriptor> {
+public class AdaptivePlotResource
+        extends AbstractVizResource<AdaptivePlotResourceData, IDescriptor> {
 
     private static final int PIXEL_THRESHOLD = 25;
 
     private double pixelRatio;
 
-    private Set<PlotObject> plots = new HashSet<PlotObject>();
+    private Set<PlotObject> plots = new HashSet<>();
 
-    /**
-     * @param resourceData
-     * @param loadProperties
-     */
     protected AdaptivePlotResource(AdaptivePlotResourceData resourceData,
             LoadProperties loadProperties) {
         super(resourceData, loadProperties);
-        resourceData.addChangeListener(new IResourceDataChanged() {
-            @Override
-            public void resourceChanged(ChangeType type, Object object) {
-                if (object instanceof PlotObject[]) {
-                    for (PlotObject obj : (PlotObject[]) object) {
-                        if (type == ChangeType.DATA_UPDATE) {
-                            addPlotObject(obj);
-                        } else {
-                            plots.remove(obj);
-                        }
-                    }
+    }
+
+    @Override
+    protected void resourceDataChanged(ChangeType type, Object updateObject) {
+        if (updateObject instanceof PlotObject[]) {
+            for (PlotObject obj : (PlotObject[]) updateObject) {
+                if (type == ChangeType.DATA_UPDATE) {
+                    addPlotObject(obj);
+                } else {
+                    plots.remove(obj);
                 }
-                issueRefresh();
             }
-        });
+        }
     }
 
     public void addPlotObject(PlotObject obj) {
         plots.add(obj);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#initInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         getCapability(PointCapability.class).setPointStyle(PointStyle.STAR);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -129,10 +107,10 @@ public class AdaptivePlotResource extends
         float mag = getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue();
         PointStyle style = getCapability(PointCapability.class).getPointStyle();
-        List<double[]> points = new ArrayList<double[]>(plots.size());
+        List<double[]> points = new ArrayList<>(plots.size());
         for (PlotObject object : plots) {
-            points.add(descriptor.worldToPixel(new double[] { object.longitude,
-                    object.latitude }));
+            points.add(descriptor.worldToPixel(
+                    new double[] { object.longitude, object.latitude }));
         }
         target.drawPoints(points, color, style, mag);
     }
@@ -141,16 +119,16 @@ public class AdaptivePlotResource extends
     public String inspect(ReferencedCoordinate coord) throws VizException {
         try {
             Coordinate latLon = coord.asLatLon();
-            double[] pixelLoc = descriptor.worldToPixel(new double[] {
-                    latLon.x, latLon.y });
+            double[] pixelLoc = descriptor
+                    .worldToPixel(new double[] { latLon.x, latLon.y });
             double minDist = Double.MAX_VALUE;
             PlotObject closest = null;
             for (PlotObject plot : plots) {
-                double[] spotLoc = descriptor.worldToPixel(new double[] {
-                        plot.longitude, plot.latitude });
-                double dist = Math.sqrt(Math.pow(
-                        Math.abs(spotLoc[0] - pixelLoc[0]), 2)
-                        + Math.pow(Math.abs(spotLoc[1] - pixelLoc[1]), 2));
+                double[] spotLoc = descriptor.worldToPixel(
+                        new double[] { plot.longitude, plot.latitude });
+                double dist = Math.sqrt(
+                        Math.pow(Math.abs(spotLoc[0] - pixelLoc[0]), 2) + Math
+                                .pow(Math.abs(spotLoc[1] - pixelLoc[1]), 2));
                 if (dist < minDist) {
                     minDist = dist;
                     closest = plot;
@@ -158,16 +136,15 @@ public class AdaptivePlotResource extends
             }
 
             if (closest != null && (minDist / pixelRatio) <= PIXEL_THRESHOLD) {
-                List<PlotObject> objs = new ArrayList<PlotObject>();
+                List<PlotObject> objs = new ArrayList<>();
                 objs.add(closest);
-                String rval = "";
+                StringBuilder rval = new StringBuilder();
                 for (PlotObject plot : plots) {
                     if (plot != closest) {
-                        double[] spotLoc = descriptor
-                                .worldToPixel(new double[] { plot.longitude,
-                                        plot.latitude });
-                        double dist = Math.sqrt(Math.pow(
-                                Math.abs(spotLoc[0] - pixelLoc[0]), 2)
+                        double[] spotLoc = descriptor.worldToPixel(
+                                new double[] { plot.longitude, plot.latitude });
+                        double dist = Math.sqrt(Math
+                                .pow(Math.abs(spotLoc[0] - pixelLoc[0]), 2)
                                 + Math.pow(Math.abs(spotLoc[1] - pixelLoc[1]),
                                         2));
                         if (Math.abs(dist - minDist) / pixelRatio < 1) {
@@ -187,12 +164,12 @@ public class AdaptivePlotResource extends
 
                 for (int i = 0; i < objs.size(); ++i) {
                     if (i > 0) {
-                        rval += "\n";
+                        rval.append('\n');
                     }
-                    rval += objs.get(i).toString();
+                    rval.append(objs.get(i));
                 }
 
-                return rval;
+                return rval.toString();
             }
         } catch (Exception e) {
             AdaptivePlotResourceData.statusHandler.handle(Priority.PROBLEM,
@@ -202,11 +179,6 @@ public class AdaptivePlotResource extends
         return "NO DATA";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#disposeInternal()
-     */
     @Override
     protected void disposeInternal() {
         // Nothing to do

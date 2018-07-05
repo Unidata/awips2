@@ -45,6 +45,7 @@ import com.raytheon.viz.mpe.util.DailyQcUtils.Zdata;
  * ------------ ---------- ----------- --------------------------
  * Mar 9, 2009            snaples     Initial creation
  * Apr 05, 2016  18350     snaples     Changed call to DailyQC Utils getInstance.
+ * Mar 10, 2016  19625     snaples     Moved array initialization outside of try.
  * 
  * </pre>
  * 
@@ -84,25 +85,25 @@ public class ReadZlevelB {
         zdata[i].data_time = time;
         /* Store the GMT time as a string of format YYYYMMDD. */
         zdata[i].ztime = dt;
+        for (j = 0; j < 4; j++) {
+            number_found[j] = 0;
+            uflag[j] = 0;
+        }
+
+        for (k = 0; k < numZstations; k++) {
+            for (m = 0; m < 5; m++) {
+                zdata[i].zstn[k].zlevel2[m].data = -1;
+                zdata[i].zstn[k].zlevel2[m].qual = -1;
+            }
+        }
+        for (k = 0; k < 5; k++) {
+            zdata[i].used[k] = 1;
+            zdata[i].level[k] = 2;
+        }
 
         try {
 
             in = new BufferedReader(new FileReader(zpointb));
-            for (j = 0; j < 4; j++) {
-                number_found[j] = 0;
-                uflag[j] = 0;
-            }
-
-            for (k = 0; k < numZstations; k++) {
-                for (m = 0; m < 5; m++) {
-                    zdata[i].zstn[k].zlevel2[m].data = -1;
-                    zdata[i].zstn[k].zlevel2[m].qual = -1;
-                }
-            }
-            for (k = 0; k < 5; k++) {
-                zdata[i].used[k] = 1;
-                zdata[i].level[k] = 2;
-            }
             /* initialize structure */
             int p = 1;
             int qq = 0;

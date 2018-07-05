@@ -1,33 +1,31 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 
 package com.raytheon.viz.texteditor.dialogs;
 
-import static com.raytheon.viz.texteditor.TextWarningConstants.BEGIN_ELEMENT_TAG;
-import static com.raytheon.viz.texteditor.TextWarningConstants.END_ELEMENT_TAG;
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -48,9 +46,11 @@ import java.util.regex.PatternSyntaxException;
 import javax.xml.bind.JAXB;
 import javax.xml.bind.JAXBException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.ErrorDialog;
@@ -101,12 +101,13 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
-import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.menus.IMenuService;
 
+import com.raytheon.uf.common.activetable.SendPracticeProductRequest;
+import com.raytheon.uf.common.dataplugin.text.RemoteRetrievalResponse;
 import com.raytheon.uf.common.dataplugin.text.alarms.AlarmAlertProduct;
 import com.raytheon.uf.common.dataplugin.text.db.MixedCaseProductSupport;
 import com.raytheon.uf.common.dataplugin.text.db.OperationalStdTextProduct;
@@ -139,11 +140,14 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.auth.UserController;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.uf.viz.spellchecker.dialogs.SpellCheckDlg;
 import com.raytheon.uf.viz.ui.menus.DiscoverMenuContributions;
+import com.raytheon.uf.viz.vtec.VtecObject;
+import com.raytheon.uf.viz.vtec.VtecUtil;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.Activator;
 import com.raytheon.viz.texteditor.AfosBrowserModel;
@@ -156,6 +160,7 @@ import com.raytheon.viz.texteditor.command.CommandType;
 import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.command.IProductQueryCallback;
 import com.raytheon.viz.texteditor.command.ProductQueryJob;
+import com.raytheon.viz.texteditor.dialogs.LineWrapCheckConfirmationMsg.AnswerChoices;
 import com.raytheon.viz.texteditor.msgs.IAfosBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.IAwipsBrowserCallback;
 import com.raytheon.viz.texteditor.msgs.IRecoverEditSessionCallback;
@@ -172,20 +177,19 @@ import com.raytheon.viz.texteditor.scripting.dialogs.ScriptOutputDlg;
 import com.raytheon.viz.texteditor.scripting.runner.TextWsScriptRunner;
 import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.raytheon.viz.texteditor.util.TextEditorUtil;
-import com.raytheon.viz.texteditor.util.VtecObject;
-import com.raytheon.viz.texteditor.util.VtecUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
 import com.raytheon.viz.ui.dialogs.SWTMessageBox;
+import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Main Text Editor dialog.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#     Engineer    Description
  * ------------ ----------  ----------  --------------------------
  * 9/13/07      368         lvenable    Initial creation.
@@ -197,13 +201,13 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 12/17/2007   639         grichard    Added &quot;fxa&quot; parm to scripts.
  * 1/3/2008     637         grichard    Implemented build 13 features.
  * 1/7/2008     722         grichard    Implemented build 14 features.
- * 1/8/2007     681         grichard    Resize text window for large font. 
+ * 1/8/2007     681         grichard    Resize text window for large font.
  * 1/10/2008    722         grichard    Implemented localization.
  * 1/10/2008    722         grichard    Saved text product info.
  * 1/11/2008    749         grichard    Guarded auto-save / window close interaction.
  * 12/2/2008    1588        grichard    Made determineSelectionRange a static method.
  * 12/2/2008    1588        grichard    Highlight specific syntax errors in TAF editor.
- * 12/9/2008    1735        grichard    Format bulleted sections in warnings upon saving. 
+ * 12/9/2008    1735        grichard    Format bulleted sections in warnings upon saving.
  * 12/10/2008   1735        grichard    Implement lockable text for warngen products.
  * 12/17/2008   1538        jkorman     TextDB plugin/Cave Text Workstation mods.
  * 12/21/2008   1803        grichard    Restored changes from December 2008.
@@ -217,7 +221,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 16Feb2010    4276        MW Fegan    Allow import/export of files w/o extensions.
  * 23Feb2010    3425        MW Fegan    Correct problems with sending products.
  * 02Mar2010    4765        MW Fegan    Hook in spell checker.
- * 15Mar2010    3317        MW Fegan    Implemented 'Update Obs' functionality 
+ * 15Mar2010    3317        MW Fegan    Implemented 'Update Obs' functionality
  * 29Mar2010    3331        MW Fegan    Corrected Cancel Editor functionality to match A-I.
  * 24May2010    2187        cjeanbap    Added StdTextProduct and ThriftClient functionality.
  * 07Jun2010    5004        cjeanbap    Handle threading blocking issue
@@ -227,9 +231,9 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 22Jun2010    5378        cjeanbap    Print Selection cleared after printing.
  * 24Jun2010    4001        cjeanbap    buttons on keyboard are non-functioning in the text workstation
  * 29Jun2010    5378        cjeanbap    Replaced JOptionPane with MessageBox.
- * 29Jun2010    4639        cjeanbap    Modified editHeader() place &quot;-&quot; when 
+ * 29Jun2010    4639        cjeanbap    Modified editHeader() place &quot;-&quot; when
  *                                      wmoId and/or siteid is empty
- * 06Jul2010    4773        cjeanbap    Add Go Ahead dialog when send button push when product comes 
+ * 06Jul2010    4773        cjeanbap    Add Go Ahead dialog when send button push when product comes
  *                                      from WarnGen.
  * 06Jul2010    4523        cjeanbap    Set Auto Wrap to 69 chars.
  * 09Jul2010    5508        cjeanbap    Return focus to text editor when forcaster
@@ -237,15 +241,15 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 30Jul2010    4773        cjeanbap    Added WarnGen Product confirmation dialog.
  * 23Aug2010    2187        cjeanbap    Changed from Dialog to CaveSWTDialog.
  * 09Sep2010    5468        rferrel     determineCurrentWord now works when word at end of the line
- * 08Nov2010    7433        cjeanbap    Remove initially added private variable and method; used 
+ * 08Nov2010    7433        cjeanbap    Remove initially added private variable and method; used
  *                                      existing inEditMode.
  * 16Nov2010    7433        cjeanbap    Fixed bug of inEditMode flag.
  * 30Nov2010    7433        cjeanbap    Call confirmation dialog if user cancels edit of TextEditor.
- * 17DEC2010    7221        Qinglu Lin  Added code to prevent locked lines or segments from sticking  
+ * 17DEC2010    7221        Qinglu Lin  Added code to prevent locked lines or segments from sticking
  *                          D. Friedman together after being moved.
  * 08Jan2011    7643        L. Venable  Fix the closing and opening of the dialogs.
  * 11Jan2011    7375        cjeanbap    Fix multiple enter dialogs and disposed widget.
- * 20JAN2011    7826        Qinglu Lin  Sync Ins key on keypad with INS/OVR button and overStrikeItem 
+ * 20JAN2011    7826        Qinglu Lin  Sync Ins key on keypad with INS/OVR button and overStrikeItem
  *                                      on Text Editor.
  * 08Feb2011    7433        cjeanbap    Warngen generated Text Editor Windows being overwritten
  *                                      by new warnings.
@@ -268,7 +272,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 15Sep2011   10557        rferrel     Use class PrintDisplay to handle printing.
  * 28Sep2011   10800        rferrel     Fixed airport tooltip to work from Cave and stand alone.
  * 03Oct2011   10998        rferrel     No longer accumulate obs when update and accum checked.
- * 02Nov2011   11450        rferrel     Catch errors when parsing for lock tags, perform popup 
+ * 02Nov2011   11450        rferrel     Catch errors when parsing for lock tags, perform popup
  *                                      for queued WarnGen and fixed autosave.
  * 11Nov2011   11552        rferrel     Product no longer needs to be a RESEND in order to be sent.
  * 14Nov2011   11203        rferrel     Header included when exporting a file while in edit mode.
@@ -282,7 +286,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 13AUG2012   14613        M.Gamazaychikov Ensured the WMO and MND header times are the same.
  * 20AUG2012   15340        D.Friedman  Use callbacks for stop sign dialog.  Prevent NOR in header.
  * 10SEP2012   15334        rferrel     No longer wrap text pasted to an empty text field.
- * 10Sep2012   15103        M.Gamazaychikov DR15103 -do not clear AFOS command from the text box 
+ * 10Sep2012   15103        M.Gamazaychikov DR15103 -do not clear AFOS command from the text box
  *                                      when obs are updated and refactored executeCommand
  * 10SEP2012   15401        D.Friedman  Fix QC problem caused by DR 15340.
  * 20SEP2012   1196         rferrel     Refactor dialogs to prevent blocking.
@@ -312,16 +316,16 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 31JAN2013   1568         rferrel     Spell checker now tied to this dialog instead of parent.
  * 26Apr2013   16123        snaples     Removed setFocus to TextEditor in postExecute method.
  * 07Jun2013   1981         mpduff      Add user id to OUPRequest as it is now protected.
- * 20Jun2013   15733        XHuang      Add functionalities that get Font size, Text colors from 
- *                                      *.xml files in localization; 
- *                                      add selection listener to catch the highlight words and 
+ * 20Jun2013   15733        XHuang      Add functionalities that get Font size, Text colors from
+ *                                      *.xml files in localization;
+ *                                      add selection listener to catch the highlight words and
  *                                      set the highlight colors.
  * 23Jul2013   2176         jsanchez    Added a new confirmation message for emergency warnings.
  * 25July2013  15733        GHull       Read font and color prefs from TextEditorCfg.
  * 23Aug2013   DR 16514     D. Friedman Fix handling of completed product requests.  Do not change
  *                                      command history or close browser window for "update obs".
  * 04Sep2013   2176         jsanchez    Changed the order of the QC check dialogs.
- * 12Sep2013   DR 2249      rferrel     Change Time stamp in file name created by warngen to use 
+ * 12Sep2013   DR 2249      rferrel     Change Time stamp in file name created by warngen to use
  *                                       simulated time.
  * 20Sep2013   #2394        lvenable    Fixed color memory leaks.
  * 20Nov2013   DR 16777     D. Friedman Check if OUPRequest will work before setting ETN.
@@ -330,7 +334,7 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * 14Mar2014   DR 17175     D. Friedman Get correct time zone for MND header time sync.
  * 08May2014   DR 16041     kshrestha   Save unofficial text products from text editor.
  * 13May2014   2536         bclement    moved WMO Header to common, switched from TimeTools to TimeUtil
- * 11Sep2014   3580         mapeters    Replaced SerializationTuil usage with JAXBManager, 
+ * 11Sep2014   3580         mapeters    Replaced SerializationTuil usage with JAXBManager,
  *                                      removed IQueryTransport usage (no longer exists).
  * 20Oct2014   3685         randerso    Made conversion to upper case conditional on product id
  * 15Feb2015   4001         dgilling    Ensure all fields are set in SendPracticeProductRequest.
@@ -348,13 +352,13 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * Oct 28, 2015 5054        randerso    Make Text Editor windows appear on same monitor as the parent.
  *                                      Removed hard coded offset for window placement.
  * Nov 05, 2015 5039        rferrel     Prevent wrapping text to a component name line and clean up of streams.
- * 19Nov2015   5141         randerso    Replace commas with ellipses if product not enabled for 
+ * 19Nov2015   5141         randerso    Replace commas with ellipses if product not enabled for
  *                                      mixed case transmission
  * 10Dec2015   5206         randerso    Replace commas with ellipses only in WarnGen products
  * 11Dec2015   RM14752   mgamazaychikov Fix problems with wrapping in the impact section, generalized
  *                                      the approach to padding paragraphs.
  * 06Jan2016    RM18452  mgamazaychikov Fix NPE for null product in enterEditor
- * 06Jan2016   5225         randerso    Fix problem with mixed case not getting converted to upper case 
+ * 06Jan2016   5225         randerso    Fix problem with mixed case not getting converted to upper case
  *                                      when multiple text editors are open on the same product.
  * 27Jan2016   5054         randerso    Removed ignored second ICON from Cancel confirmation
  * 29Jan2016   5289         tgurney     Add missing maximize button in trim
@@ -368,13 +372,13 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  *                                      after warngen is submitted
  * 01Mar2016   RM13214   mgamazaychikov Added verifyLineWidth method.
  * 01Mar2016   RM14803   mgamazaychikov Added code to handle products without WMO header.
- * 10Mar2016   5460         dgilling    Fix StringIndexOutofBoundsException 
- *                                      when a WRK product with a ZCZC header 
- *                                      has spaces in the new line chars at 
+ * 10Mar2016   5460         dgilling    Fix StringIndexOutofBoundsException
+ *                                      when a WRK product with a ZCZC header
+ *                                      has spaces in the new line chars at
  *                                      the end of the header.
- * 10Mar2016   5411         randerso    Added flags to disable comma replacement 
+ * 10Mar2016   5411         randerso    Added flags to disable comma replacement
  *                                      and enable character set validation.
- *                                      Moved upper case conversion for QC checks into the 
+ *                                      Moved upper case conversion for QC checks into the
  *                                      specific checks that need it.
  * 15Mar2016   5339         dgilling    Ease up on word wrapping spaces at ends
  *                                      of lines.
@@ -388,10 +392,25 @@ import com.raytheon.viz.ui.dialogs.SWTMessageBox;
  * Aug 24, 2016 RM 19246 mgamazaychikov Disallow editing/sending of products with WarnGen PILs.
  * Aug 25, 2016 19250       Qinglu Lin  Log several pieces of information regarding Save, Send, Cancel buttons, etc.
  * Aug 28, 2016 5839        rferrel     Use IParser and changes to display ALL: products in editor.
+ * Nov 03, 2016 5934        randerso    Moved VtecObject and VtecUtil to a separate plugin.
  * Nov 30, 2016 6016        randerso    Change timeChanged to call validateTime on the UI thread
+ * Feb 14, 2017 6037        randerso    Ensure dialog does not appear over panels
+ * Apr 28, 2017 6051        tgurney     Fix rare NPE on autosave
+ * May 2, 2017 DR 19971     Qinglu Lin  Updated isProductForbiddenToEdit().
+ * May 12, 2017 19971      Qinglu Lin   Updated isProductForbiddenToEdit().
+ * Jul 10, 2017 DCS19530    jdynina     QC FTM to conform with RPG ICD requirements.
+ * Jul 25, 2017 RM 19826    D. Friedman Set header fields based on the result of running LaunchToolAction.
+ * Aug 04, 2017 6364        tgurney     Disable Save for WarnGen products
+ * Sep  7, 2017 20284      Qinglu Lin   Updated isProductForbiddenToEdit() for GFE PILs.
+ * Sep 27, 2017 19428      Qinglu Lin   Updated isProductForbiddenToEdit() for GFE PILs.
+ * Jan 17, 2018 7193       bkowal       Prevent missing characters when backspacing by only removing
+ *                                      characters equivalent to padding when padding is matched exactly.
+ * Jan 18, 2018 7197       bkowal       No longer specify single product when retrieving the AWIPS command.
+ *                                      The single product flag causes all of the text from multiple products
+ *                                      to be merged into the first product.
  *
  * </pre>
- * 
+ *
  * @author lvenable
  */
 public class TextEditorDialog extends CaveSWTDialog
@@ -460,12 +479,14 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * The length of BEGIN_ELEMENT_TAG.
      */
-    private static final int BEGIN_ELEMENT_TAG_LEN = BEGIN_ELEMENT_TAG.length();
+    private static final int BEGIN_ELEMENT_TAG_LEN = TextWarningConstants.BEGIN_ELEMENT_TAG
+            .length();
 
     /**
      * The length of the END_ELEMENT_TAG.
      */
-    private static final int END_ELEMENT_TAG_LEN = END_ELEMENT_TAG.length();
+    private static final int END_ELEMENT_TAG_LEN = TextWarningConstants.END_ELEMENT_TAG
+            .length();
 
     /**
      * The expression for find the start of an obs.
@@ -625,16 +646,6 @@ public class TextEditorDialog extends CaveSWTDialog
     private MenuItem AFOSBrowserItem;
 
     /**
-     * Print All menu item.
-     */
-    private MenuItem printAllItem;
-
-    /**
-     * Print Selection menu item.
-     */
-    private MenuItem printSelectionItem;
-
-    /**
      * Enter editor mode menu item.
      */
     private MenuItem enterEditorItem;
@@ -655,11 +666,6 @@ public class TextEditorDialog extends CaveSWTDialog
     private MenuItem importFromFileItem;
 
     /**
-     * Export to file menu item.
-     */
-    private MenuItem exportFromFileItem;
-
-    /**
      * Recover edit session menu item.
      */
     private MenuItem recoverEditSessionItem;
@@ -675,11 +681,6 @@ public class TextEditorDialog extends CaveSWTDialog
     private MenuItem cutItem;
 
     /**
-     * Copy text menu item.
-     */
-    private MenuItem copyItem;
-
-    /**
      * Paste text menu item.
      */
     private MenuItem pasteItem;
@@ -690,74 +691,9 @@ public class TextEditorDialog extends CaveSWTDialog
     private MenuItem fillItem;
 
     /**
-     * Select sub menu item.
-     */
-    private MenuItem selectSubMenuItem;
-
-    /**
-     * Select to previous word item.
-     */
-    private MenuItem toPreviousWordItem;
-
-    /**
-     * Select to next word menu item.
-     */
-    private MenuItem toNextWordItem;
-
-    /**
-     * Select to beginning of line menu item.
-     */
-    private MenuItem toBeginningOfLineItem;
-
-    /**
-     * Select to end of line menu item.
-     */
-    private MenuItem toEndOfLineItem;
-
-    /**
-     * Select to previous page menu item.
-     */
-    private MenuItem toPreviousPageItem;
-
-    /**
-     * Select to next page item menu item.
-     */
-    private MenuItem toNextPageItem;
-
-    /**
-     * Select to beginning of text menu item.
-     */
-    private MenuItem toTopOfProductItem;
-
-    /**
-     * Select to end of text menu item.
-     */
-    private MenuItem toEndOfProductItem;
-
-    /**
-     * Select all text menu item.
-     */
-    private MenuItem selectAllItem;
-
-    /**
      * Delete sub-menu.
      */
     private MenuItem deleteSubMenuItem;
-
-    /**
-     * Delete a single character menu item.
-     */
-    private MenuItem deleteCharacterItem;
-
-    /**
-     * Delete a word menu item.
-     */
-    private MenuItem deleteWordItem;
-
-    /**
-     * Delete rest of the line menu item.
-     */
-    private MenuItem deleteLineItem;
 
     /**
      * Undelete sub-menu.
@@ -795,11 +731,6 @@ public class TextEditorDialog extends CaveSWTDialog
     private MenuItem editHeaderItem;
 
     /**
-     * Search text menu item.
-     */
-    private MenuItem searchItem;
-
-    /**
      * Spell checker menu item.
      */
     private MenuItem spellCheckerItem;
@@ -830,11 +761,6 @@ public class TextEditorDialog extends CaveSWTDialog
     private Integer otherCharWrapCol;
 
     /**
-     * Font size sub-menu.
-     */
-    private MenuItem fontSizeMenuItem;
-
-    /**
      * Overstrike (overwrite) menu item.
      */
     private MenuItem overStrikeItem;
@@ -843,26 +769,6 @@ public class TextEditorDialog extends CaveSWTDialog
      * Version menu.
      */
     private MenuItem versionMenuItem;
-
-    /**
-     * Previous version menu item.
-     */
-    private MenuItem versionPreviousItem;
-
-    /**
-     * Next version menu item.
-     */
-    private MenuItem versionNextItem;
-
-    /**
-     * Latest version menu item.
-     */
-    private MenuItem versionLatestItem;
-
-    /**
-     * All versions menu item.
-     */
-    private MenuItem versionAllItem;
 
     /**
      * Products menu.
@@ -922,12 +828,12 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Insert text combo index;
      */
-    private final int INSERT_TEXT = 0;
+    private static final int INSERT_TEXT = 0;
 
     /**
      * Overwrite text combo index;
      */
-    private final int OVERWRITE_TEXT = 1;
+    private static final int OVERWRITE_TEXT = 1;
 
     /**
      * AWIPS browser button to launch the AWIPS browser.
@@ -957,7 +863,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Current date in the form DDHHMM as part of the header block.
      */
-    private final String currentDateId = "DDHHMM";
+    private static final String currentDateId = "DDHHMM";
 
     /**
      * Accumulate text check box.
@@ -1005,11 +911,6 @@ public class TextEditorDialog extends CaveSWTDialog
     private Text headerTF;
 
     /**
-     * Text editor composite.
-     */
-    private Composite textEditorComp;
-
-    /**
      * Styled text editor.
      */
     private StyledText textEditor;
@@ -1050,14 +951,9 @@ public class TextEditorDialog extends CaveSWTDialog
     private Button editorFillBtn;
 
     /**
-     * Editor edit header button.
+     * Editor attach button.
      */
-    private Button editorEditHeaderBtn;
-
-    /**
-     * Editor cancel button.
-     */
-    private Button editorCancelBtn;
+    private Button editorAttachBtn;
 
     /**
      * Editor insert/overwrite combo box.
@@ -1218,7 +1114,7 @@ public class TextEditorDialog extends CaveSWTDialog
      */
     private boolean scriptHasError = false;
 
-    private StringBuffer scriptErrorBfr = null;
+    private StringBuilder scriptErrorBfr = null;
 
     /**
      * the continue flag
@@ -1261,6 +1157,16 @@ public class TextEditorDialog extends CaveSWTDialog
     private String addressee = "ALL";
 
     /**
+     * Name of any attachment file
+     */
+    private String attachedFilename = null;
+
+    /**
+     * Contents of an attachment file.
+     */
+    private byte[] attachedFile = null;
+
+    /**
      * Edit options for a popup menu.
      */
     private static final String[] popupItems = { "Select All", "Cut", "Copy",
@@ -1273,7 +1179,7 @@ public class TextEditorDialog extends CaveSWTDialog
             false };
 
     /**
-     * Indictes this instance of dialog if for a warnGen.
+     * Indicates this instance of dialog is for a warnGen.
      */
     private boolean warnGenFlag = false;
 
@@ -1283,7 +1189,7 @@ public class TextEditorDialog extends CaveSWTDialog
     private boolean textWorkstationFlag = false;
 
     /**
-     * When true this is a warn gen dialog.
+     * When true this is a WarnGen dialog.
      */
     private boolean isWarnGenDlg = false;
 
@@ -1321,7 +1227,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /** Text character wrap dialog */
     private TextCharWrapDlg textCharWrapDlg;
-    
+
     /*
      * enum to detemine if editor session can be closed.
      */
@@ -1352,7 +1258,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /** Highlight background color. */
     private Color highlightBackgroundClr;
 
-    private static List<Pattern> paddingPatternList = new ArrayList<>();
+    private static volatile List<Pattern> paddingPatternList = new ArrayList<>();
 
     private static final String PARAGRAPH_PADDING_PATTERN_FILENAME = "textws/gui/ParagraphPaddingPattern.txt";
 
@@ -1363,7 +1269,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Constructor with additional cave style rules
-     * 
+     *
      * @param parent
      *            parent shell
      * @param additionalCaveStyle
@@ -1376,7 +1282,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Constructor
-     * 
+     *
      * @param parent
      *            Parent shell.
      * @param title
@@ -1397,7 +1303,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent shell.
      * @param title
@@ -1469,7 +1375,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
                     // If the disposeDialog flag is true then return so this
                     // dialog will get disposed.
-                    if (disposeDialog == true) {
+                    if (disposeDialog) {
                         return;
                     }
 
@@ -1477,12 +1383,11 @@ public class TextEditorDialog extends CaveSWTDialog
                     // dialog
                     // will be modal and we can't prevent the dialog from
                     // disposing.
-                    if (disposeOnExit == true) {
+                    if (disposeOnExit) {
                         return;
                     }
 
-                    if ((afosBrowser != null)
-                            && afosBrowser.isBrowserActive()) {
+                    if (afosBrowser != null && afosBrowser.isBrowserActive()) {
                         afosBrowser.hide();
                         displayAfosBrowser = true;
                     } else {
@@ -1557,7 +1462,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Create the 'File' menu and all of the menu items.
-     * 
+     *
      * @param menuBar
      *            Menu bar that contains all of the menus.
      */
@@ -1593,7 +1498,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
-        printAllItem = new MenuItem(fileMenu, SWT.NONE);
+        MenuItem printAllItem = new MenuItem(fileMenu, SWT.NONE);
         printAllItem.setText("Print All\tCtrl+P");
         printAllItem.setAccelerator(SWT.CTRL + 'P');
         printAllItem.addSelectionListener(new SelectionAdapter() {
@@ -1603,7 +1508,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        printSelectionItem = new MenuItem(fileMenu, SWT.NONE);
+        MenuItem printSelectionItem = new MenuItem(fileMenu, SWT.NONE);
         printSelectionItem.setText("Print Selection");
         printSelectionItem.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -1657,7 +1562,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        exportFromFileItem = new MenuItem(fileMenu, SWT.NONE);
+        MenuItem exportFromFileItem = new MenuItem(fileMenu, SWT.NONE);
         exportFromFileItem.setText("Export To File...");
         exportFromFileItem.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -1665,6 +1570,8 @@ public class TextEditorDialog extends CaveSWTDialog
                 exportFile();
             }
         });
+
+        new MenuItem(fileMenu, SWT.SEPARATOR);
 
         recoverEditSessionItem = new MenuItem(fileMenu, SWT.NONE);
         recoverEditSessionItem.setText("Recover Edit Sesssion...");
@@ -1679,6 +1586,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
+
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
         closeItem = new MenuItem(fileMenu, SWT.NONE);
@@ -1687,7 +1595,7 @@ public class TextEditorDialog extends CaveSWTDialog
         closeItem.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (disposeOnExit == true) {
+                if (disposeOnExit) {
                     close();
                 } else {
                     hide();
@@ -1700,7 +1608,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create the Edit menu (top menu bar) and all of the menu items under the
      * Edit menu.
-     * 
+     *
      * @param menuBar
      *            The main menu bar.
      */
@@ -1726,7 +1634,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        copyItem = new MenuItem(editMenu, SWT.NONE);
+        MenuItem copyItem = new MenuItem(editMenu, SWT.NONE);
         copyItem.setText("Copy\tCtrl+C");
         copyItem.setAccelerator(SWT.CTRL + 'C');
         copyItem.addSelectionListener(new SelectionAdapter() {
@@ -1763,7 +1671,7 @@ public class TextEditorDialog extends CaveSWTDialog
         // ---------------------------
         // Create the Select sub menu
         // ---------------------------
-        selectSubMenuItem = new MenuItem(editMenu, SWT.CASCADE);
+        MenuItem selectSubMenuItem = new MenuItem(editMenu, SWT.CASCADE);
         selectSubMenuItem.setText("Select");
 
         Menu selectSubMenu = new Menu(shell, SWT.DROP_DOWN);
@@ -1838,7 +1746,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        searchItem = new MenuItem(editMenu, SWT.NONE);
+        MenuItem searchItem = new MenuItem(editMenu, SWT.NONE);
         searchItem.setText("Search...\tF2");
         searchItem.setAccelerator(SWT.F2);
         searchItem.addSelectionListener(new SelectionAdapter() {
@@ -1904,7 +1812,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create the Options menu (top menu bar) and all of the menu items under
      * the Options menu.
-     * 
+     *
      * @param menuBar
      *            The main menu bar.
      */
@@ -1933,7 +1841,7 @@ public class TextEditorDialog extends CaveSWTDialog
         // -------------------------------
         // Create the Font Size sub menu
         // -------------------------------
-        fontSizeMenuItem = new MenuItem(optionsMenu, SWT.CASCADE);
+        MenuItem fontSizeMenuItem = new MenuItem(optionsMenu, SWT.CASCADE);
         fontSizeMenuItem.setText("Font Size");
 
         Menu fontSizeSubMenu = new Menu(shell, SWT.DROP_DOWN);
@@ -1951,7 +1859,7 @@ public class TextEditorDialog extends CaveSWTDialog
             @Override
             public void widgetSelected(SelectionEvent event) {
                 if (!AFOSParser.isTemplate) {
-                    if (overwriteMode == true) {
+                    if (overwriteMode) {
                         overwriteMode = false;
                         editorInsertCmb.select(INSERT_TEXT);
                         logInfo("Options -> Overstrike Mode unselected");
@@ -1969,7 +1877,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create the Version menu (top menu bar) and all of the menu items under
      * the Version menu.
-     * 
+     *
      * @param menuBar
      *            The main menu bar.
      */
@@ -1984,7 +1892,7 @@ public class TextEditorDialog extends CaveSWTDialog
         Menu versionMenu = new Menu(menuBar);
         versionMenuItem.setMenu(versionMenu);
 
-        versionPreviousItem = new MenuItem(versionMenu, SWT.NONE);
+        MenuItem versionPreviousItem = new MenuItem(versionMenu, SWT.NONE);
         versionPreviousItem.setText("Previous\tAlt+Left Arrow");
         versionPreviousItem.setAccelerator(SWT.ALT | SWT.ARROW_LEFT);
         versionPreviousItem.addSelectionListener(new SelectionAdapter() {
@@ -2002,7 +1910,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        versionNextItem = new MenuItem(versionMenu, SWT.NONE);
+        MenuItem versionNextItem = new MenuItem(versionMenu, SWT.NONE);
         versionNextItem.setText("Next\tAlt+Right Arrow");
         versionNextItem.setAccelerator(SWT.ALT | SWT.ARROW_RIGHT);
         versionNextItem.addSelectionListener(new SelectionAdapter() {
@@ -2019,7 +1927,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        versionLatestItem = new MenuItem(versionMenu, SWT.NONE);
+        MenuItem versionLatestItem = new MenuItem(versionMenu, SWT.NONE);
         versionLatestItem.setText("Latest");
         versionLatestItem.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -2035,7 +1943,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        versionAllItem = new MenuItem(versionMenu, SWT.NONE);
+        MenuItem versionAllItem = new MenuItem(versionMenu, SWT.NONE);
         versionAllItem.setText("All");
         versionAllItem.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -2055,7 +1963,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Set up command history for the newest entry and return entries command
      * type.
-     * 
+     *
      * @return
      */
     private CommandType prepareHistory() {
@@ -2068,7 +1976,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create the Tools menu (top menu bar) and all of the menu items under the
      * Tools menu.
-     * 
+     *
      * @param menuBar
      *            The main menu bar.
      */
@@ -2077,7 +1985,7 @@ public class TextEditorDialog extends CaveSWTDialog
         // Create all the items in the Tools menu
         // ----------------------------------------
         MenuManager toolsMenuMgr = new MenuManager("Tools");
-        IMenuService ms = (IMenuService) PlatformUI.getWorkbench()
+        IMenuService ms = PlatformUI.getWorkbench()
                 .getService(IMenuService.class);
         ms.populateContributionManager(toolsMenuMgr,
                 "menu:#texteditor.tools.menu");
@@ -2090,7 +1998,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create the Scripts menu (top menu bar) and all of the menu items under
      * the Scripts menu.
-     * 
+     *
      * @param menuBar
      *            The main menu bar.
      */
@@ -2182,7 +2090,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create the Products menu (top menu bar) and all of the menu items under
      * the Products menu.
-     * 
+     *
      * @param menuBar
      *            The main menu bar.
      */
@@ -2193,7 +2101,7 @@ public class TextEditorDialog extends CaveSWTDialog
         // Create all the items in the Products menu
         // -----------------------------------------
         MenuManager productsMenuMgr = new MenuManager("Products");
-        IMenuService ms = (IMenuService) PlatformUI.getWorkbench()
+        IMenuService ms = PlatformUI.getWorkbench()
                 .getService(IMenuService.class);
         ms.populateContributionManager(productsMenuMgr,
                 "menu:#texteditor.products.menu");
@@ -2205,7 +2113,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Method to determine the target position for page up or page down.
-     * 
+     *
      * @param st
      *            -- the styled text widget containing the text
      * @param isPageUp
@@ -2244,7 +2152,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Method to determine the start and finish positions of the text selection
      * within the "next word" or the "previous word" edit selections.
-     * 
+     *
      * @param st
      *            -- the styled text widget containing the selection of text
      * @return result -- the start and finish positions of the selected range
@@ -2280,52 +2188,12 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     /**
-     * Method to preserve the spacing in a bulleted section of text. Only
-     * applies to VTEC warning (vtecAfosProductEnum) type products.
-     */
-    // private void PreserveBulletedTextSpacing(StyledText st) {
-    // // Capture the input from the styled text widget.
-    // String in = st.getText();
-    // // New up a Scanner to use to parse the text in the editor.
-    // Scanner sc = new Scanner(in).useDelimiter("\\n");
-    // // Declare variables for processing the editor's contents.
-    // int thisLine = -1;
-    // String whatMatched;
-    //
-    // // Process the editor's contents.
-    // while (sc.hasNext()) {
-    // whatMatched = sc.next();
-    // thisLine++;
-    // if ((whatMatched != null) && (sc.hasNext())
-    // && (whatMatched.startsWith("*"))) {
-    // while (sc.hasNext()) {
-    // whatMatched = sc.next();
-    // thisLine++;
-    // if ((whatMatched != null)
-    // && (!(whatMatched.startsWith(" ")))
-    // && (!(whatMatched.equals("")))) {
-    // // Indent the bullet list entry by one space.
-    // // If operator enables word wrap they are responsible
-    // // for reformatting bullet list items that span lines.
-    // st.setCaretOffset(st.getOffsetAtLine(thisLine));
-    // st.insert(" ");
-    // } else if ((whatMatched != null)
-    // && (whatMatched.equals(""))) {
-    // break; // The end of bullet list is detected.
-    // }
-    // }
-    // }
-    // }
-    //
-    // }
-
-    /**
      * Method to create selection sub-menu.
-     * 
+     *
      * @param selectSubMenu
      */
     private void createSelectSubMenu(Menu selectSubMenu) {
-        toPreviousWordItem = new MenuItem(selectSubMenu, SWT.NONE);
+        MenuItem toPreviousWordItem = new MenuItem(selectSubMenu, SWT.NONE);
         toPreviousWordItem.setText("To previous word\tCtrl+Shift+Left");
         toPreviousWordItem
                 .setAccelerator(SWT.CTRL | SWT.SHIFT | SWT.ARROW_LEFT);
@@ -2357,7 +2225,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        toNextWordItem = new MenuItem(selectSubMenu, SWT.NONE);
+        MenuItem toNextWordItem = new MenuItem(selectSubMenu, SWT.NONE);
         toNextWordItem.setText("To next word\tCtrl+Shift+Right");
         toNextWordItem.setAccelerator(SWT.CTRL | SWT.SHIFT | SWT.ARROW_RIGHT);
         toNextWordItem.addSelectionListener(new SelectionAdapter() {
@@ -2393,7 +2261,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        toBeginningOfLineItem = new MenuItem(selectSubMenu, SWT.NONE);
+        MenuItem toBeginningOfLineItem = new MenuItem(selectSubMenu, SWT.NONE);
         toBeginningOfLineItem.setText("To beginning of line\tShift+Home");
         toBeginningOfLineItem.setAccelerator(SWT.SHIFT | SWT.HOME);
         toBeginningOfLineItem.addSelectionListener(new SelectionAdapter() {
@@ -2408,7 +2276,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        toEndOfLineItem = new MenuItem(selectSubMenu, SWT.NONE);
+        MenuItem toEndOfLineItem = new MenuItem(selectSubMenu, SWT.NONE);
         toEndOfLineItem.setText("To end of line\tShift+End");
         toEndOfLineItem.setAccelerator(SWT.SHIFT | SWT.END);
         toEndOfLineItem.addSelectionListener(new SelectionAdapter() {
@@ -2430,7 +2298,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        toPreviousPageItem = new MenuItem(selectSubMenu, SWT.NONE);
+        MenuItem toPreviousPageItem = new MenuItem(selectSubMenu, SWT.NONE);
         toPreviousPageItem.setText("To previous page\tShift+Page Up");
         toPreviousPageItem.setAccelerator(SWT.SHIFT | SWT.PAGE_UP);
         toPreviousPageItem.addSelectionListener(new SelectionAdapter() {
@@ -2443,7 +2311,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        toNextPageItem = new MenuItem(selectSubMenu, SWT.NONE);
+        MenuItem toNextPageItem = new MenuItem(selectSubMenu, SWT.NONE);
         toNextPageItem.setText("To next page\tShift+Page Down");
         toNextPageItem.setAccelerator(SWT.SHIFT | SWT.PAGE_DOWN);
         toNextPageItem.addSelectionListener(new SelectionAdapter() {
@@ -2456,7 +2324,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        toTopOfProductItem = new MenuItem(selectSubMenu, SWT.NONE);
+        MenuItem toTopOfProductItem = new MenuItem(selectSubMenu, SWT.NONE);
         toTopOfProductItem.setText("To top of Product\tCtrl+Shift+Home");
         toTopOfProductItem.setAccelerator(SWT.CTRL | SWT.SHIFT | SWT.HOME);
         toTopOfProductItem.addSelectionListener(new SelectionAdapter() {
@@ -2468,7 +2336,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        toEndOfProductItem = new MenuItem(selectSubMenu, SWT.NONE);
+        MenuItem toEndOfProductItem = new MenuItem(selectSubMenu, SWT.NONE);
         toEndOfProductItem.setText("To end of Product\tCtrl+Shift+End");
         toEndOfProductItem.setAccelerator(SWT.CTRL | SWT.SHIFT | SWT.END);
         toEndOfProductItem.addSelectionListener(new SelectionAdapter() {
@@ -2480,7 +2348,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        selectAllItem = new MenuItem(selectSubMenu, SWT.NONE);
+        MenuItem selectAllItem = new MenuItem(selectSubMenu, SWT.NONE);
         selectAllItem.setText("All");
         selectAllItem.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -2493,12 +2361,12 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create the Delete sub menu items. The Delete menu item is located under
      * the Edit menu on the top menu bar.
-     * 
+     *
      * @param deleteSubMenu
      *            The Delete sub menu.
      */
     private void createDeleteSubMenu(Menu deleteSubMenu) {
-        deleteCharacterItem = new MenuItem(deleteSubMenu, SWT.NONE);
+        MenuItem deleteCharacterItem = new MenuItem(deleteSubMenu, SWT.NONE);
         deleteCharacterItem.setText("Character\tF6");
         deleteCharacterItem.setAccelerator(SWT.F6);
         deleteCharacterItem.addSelectionListener(new SelectionAdapter() {
@@ -2515,7 +2383,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        deleteWordItem = new MenuItem(deleteSubMenu, SWT.NONE);
+        MenuItem deleteWordItem = new MenuItem(deleteSubMenu, SWT.NONE);
         deleteWordItem.setText("Word\tF7");
         deleteWordItem.setAccelerator(SWT.F7);
         deleteWordItem.addSelectionListener(new SelectionAdapter() {
@@ -2533,7 +2401,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        deleteLineItem = new MenuItem(deleteSubMenu, SWT.NONE);
+        MenuItem deleteLineItem = new MenuItem(deleteSubMenu, SWT.NONE);
         deleteLineItem.setText("Line\tF8");
         deleteLineItem.setAccelerator(SWT.F8);
         deleteLineItem.addSelectionListener(new SelectionAdapter() {
@@ -2563,7 +2431,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create the Undelete sub menu items. The Undelete menu item is located
      * under the Edit menu on the top menu bar.
-     * 
+     *
      * @param deleteSubMenu
      *            The Delete sub menu.
      */
@@ -2622,7 +2490,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Get the auto wrap menu's configuration and perform sanity check.
-     * 
+     *
      * @return autoWrapCfg
      */
     private AutoWrapCfg getAutoWrapCfg() {
@@ -2699,7 +2567,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         }
 
-        if (selectionCnt == 0 && autoWrapCfg.getButtons().size() > 0) {
+        if (selectionCnt == 0 && !autoWrapCfg.getButtons().isEmpty()) {
             WrapButtonCfg buttonCfg = autoWrapCfg.getButtons().get(0);
             message.append("No button selected. Selecting top item \"")
                     .append(buttonCfg.getLabelName()).append("\"\n");
@@ -2722,7 +2590,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create the Autowrap sub menu items. The Autowrap menu item is located
      * under the Options menu on the top menu bar.
-     * 
+     *
      * @param autoWrapSubMenu
      *            The Autowrap sub menu.
      */
@@ -2745,7 +2613,8 @@ public class TextEditorDialog extends CaveSWTDialog
                         if (item.getSelection()) {
                             charWrapCol = ((WrapButtonCfg) item.getData())
                                     .getWrapCol();
-                            logInfo("Options -> Autowrap -> " + charWrapCol + " selected");
+                            logInfo("Options -> Autowrap -> " + charWrapCol
+                                    + " selected");
                             recompileRegex();
                             wordWrapEnabled = true;
                         }
@@ -2756,12 +2625,16 @@ public class TextEditorDialog extends CaveSWTDialog
                     wordWrapEnabled = false;
                 }
                 item.addSelectionListener(new SelectionAdapter() {
+
                     @Override
                     public void widgetSelected(SelectionEvent event) {
                         MenuItem item = (MenuItem) event.getSource();
                         if (item.getSelection()) {
                             wordWrapEnabled = false;
-                            logInfo("Options -> Autowrap -> " + ((WrapButtonCfg) item.getData()).getLabelName() + " selected");
+                            logInfo("Options -> Autowrap -> "
+                                    + ((WrapButtonCfg) item.getData())
+                                            .getLabelName()
+                                    + " selected");
                         }
                     }
                 });
@@ -2783,7 +2656,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Dialog to allow user to create non-standard word wrap column.
-     * 
+     *
      * @param rangeStart
      * @param rangeEnd
      */
@@ -2794,11 +2667,11 @@ public class TextEditorDialog extends CaveSWTDialog
             textCharWrapDlg = new TextCharWrapDlg(shell, this, otherCharWrapCol,
                     rangeStart, rangeEnd);
 
-            textCharWrapDlg.setCloseCallback(new ICloseCallback() {
+            textCharWrapDlg.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
-                    if ((Boolean) returnValue == true) {
+                    if ((Boolean) returnValue) {
                         recompileRegex();
                         wordWrapEnabled = true;
                     }
@@ -2814,7 +2687,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create the font size sub menu items. The font size menu item is located
      * under the Options menu on the top menu bar.
-     * 
+     *
      * @param fontSizeSubMenu
      *            The font size sub menu.
      */
@@ -2898,18 +2771,18 @@ public class TextEditorDialog extends CaveSWTDialog
                 }
 
                 List<ICommand> commands = commandHistory.getRecentHistory();
-                if (commands.size() > 0) {
+                if (!commands.isEmpty()) {
                     menuMgr = new MenuManager("#PopupMenu");
 
                     for (int i = commands.size() - 1; i >= 0; i--) {
                         final ICommand cmd = commands.get(i);
                         menuMgr.add(
                                 new Action(TextEditorUtil.getCommandText(cmd)) {
-                            @Override
-                            public void run() {
-                                executeCommand(cmd);
-                            }
-                        });
+                                    @Override
+                                    public void run() {
+                                        executeCommand(cmd);
+                                    }
+                                });
                     }
 
                     Menu menu = menuMgr.createContextMenu(loadHistoryBtn);
@@ -3261,7 +3134,7 @@ public class TextEditorDialog extends CaveSWTDialog
                     cmd = cmd.substring(4);
                     hdrTime = "000000";
                 } else if (cmd.startsWith("-")) {
-                    int end = cmd.indexOf(":");
+                    int end = cmd.indexOf(':');
                     if (end == -1) {
                         error = true;
                     } else {
@@ -3272,7 +3145,7 @@ public class TextEditorDialog extends CaveSWTDialog
                     hdrTime = null;
                 }
                 int charCount = cmd.length();
-                if (error || (charCount < 3) || (charCount > 10)) {
+                if (error || charCount < 3 || charCount > 10) {
                     userInformation(
                             "Optional \"ALL:\" or previous version number\nExample: \"-1:\" \nthen a 3 to 10 character AWIPS ID");
                     if (!awipsIdTF.isDisposed()) {
@@ -3287,7 +3160,7 @@ public class TextEditorDialog extends CaveSWTDialog
                     TextDisplayModel.getInstance().setProductCategory(token,
                             cmd.substring(0, 3));
                     TextDisplayModel.getInstance().setProductDesignator(token,
-                            ((cmd.length() > 3) ? cmd.substring(3) : ""));
+                            cmd.length() > 3 ? cmd.substring(3) : "");
                 }
 
                 // Highlight the text contained in the Awips ID Field.
@@ -3298,7 +3171,7 @@ public class TextEditorDialog extends CaveSWTDialog
                  * the Awips ID and possibly restrict to a site.
                  */
                 ICommand command = CommandFactory.getAwipsCommand(cmd, null,
-                        site, hdrTime, pastVersion, null, true);
+                        site, hdrTime, pastVersion, null, false);
                 executeCommand(command);
             }
 
@@ -3338,7 +3211,7 @@ public class TextEditorDialog extends CaveSWTDialog
      * Obs' box is checked and an ob is displayed, new obs will be displayed as
      * they are received. If the 'Accum' box is checked, the new ob will be
      * appended.
-     * 
+     *
      * @param checked
      *            state of the check box
      */
@@ -3379,7 +3252,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Clear the colors associated with any style range at the given offset.
-     * 
+     *
      * @param offset
      */
     private void clearUpdateFlag(int offset) {
@@ -3527,7 +3400,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
         // Add the Edit Header button.
         gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        editorEditHeaderBtn = new Button(editorBtnRowComp, SWT.PUSH);
+        Button editorEditHeaderBtn = new Button(editorBtnRowComp, SWT.PUSH);
         editorEditHeaderBtn.setText("Edit Header");
         editorEditHeaderBtn.setLayoutData(gd);
         editorEditHeaderBtn.addSelectionListener(new SelectionAdapter() {
@@ -3538,9 +3411,10 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
+
         // Add the Cancel button.
         gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
-        editorCancelBtn = new Button(editorBtnRowComp, SWT.PUSH);
+        Button editorCancelBtn = new Button(editorBtnRowComp, SWT.PUSH);
         editorCancelBtn.setText("Cancel");
         editorCancelBtn.setLayoutData(gd);
         editorCancelBtn.addSelectionListener(new SelectionAdapter() {
@@ -3548,6 +3422,18 @@ public class TextEditorDialog extends CaveSWTDialog
             public void widgetSelected(SelectionEvent event) {
                 logInfo("Cancel button clicked");
                 cancelEditor(true);
+            }
+        });
+
+        // Add the Attach button.
+        gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
+        editorAttachBtn = new Button(editorBtnRowComp, SWT.PUSH);
+        editorAttachBtn.setText("Attach");
+        editorAttachBtn.setLayoutData(gd);
+        editorAttachBtn.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                attachFile();
             }
         });
 
@@ -3564,14 +3450,14 @@ public class TextEditorDialog extends CaveSWTDialog
             public void widgetSelected(SelectionEvent event) {
                 if (!AFOSParser.isTemplate) {
                     if (editorInsertCmb.getSelectionIndex() == INSERT_TEXT
-                            && overwriteMode == true) {
+                            && overwriteMode) {
                         textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                         logInfo("INS clicked");
                         overwriteMode = false;
                         overStrikeItem.setSelection(false);
                     } else if (editorInsertCmb
                             .getSelectionIndex() == OVERWRITE_TEXT
-                            && overwriteMode == false) {
+                            && !overwriteMode) {
                         textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                         logInfo("OVR clicked");
                         overwriteMode = true;
@@ -3590,7 +3476,7 @@ public class TextEditorDialog extends CaveSWTDialog
      */
     private void createTextAreaEditor() {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
-        textEditorComp = new Composite(shell, SWT.NONE);
+        Composite textEditorComp = new Composite(shell, SWT.NONE);
         GridLayout gridLayout = new GridLayout(1, false);
         // TextColorsCfg textColorCfg = null;
 
@@ -3615,7 +3501,8 @@ public class TextEditorDialog extends CaveSWTDialog
         textEditor.setWordWrap(false);
         textEditor.setEditable(false);
         airportToolTip = new DefaultToolTip(textEditor, SWT.DEFAULT, true);
-        textEditor.setKeyBinding(SWT.INSERT, SWT.NULL); // DR 7826
+        // DR 7826
+        textEditor.setKeyBinding(SWT.INSERT, SWT.NULL);
 
         // textColorCfg = getTextColorCfg();
         setDefaultTextColor(TextEditorCfg.getTextEditorCfg());
@@ -3682,7 +3569,7 @@ public class TextEditorDialog extends CaveSWTDialog
             @Override
             public void verifyKey(VerifyEvent event) {
                 // Ignore edit keys when not in edit mode.
-                if (textEditor.getEditable() == false) {
+                if (!textEditor.getEditable()) {
                     return;
                 }
                 if (event.keyCode == SWT.DEL || event.keyCode == SWT.BS
@@ -3705,20 +3592,24 @@ public class TextEditorDialog extends CaveSWTDialog
                     }
                 } else if (event.keyCode == SWT.PAGE_UP
                         && event.stateMask == SWT.CTRL) {
-                    event.doit = false; // Ingnore Ctrl + PageUp
+                    // Ignore Ctrl + PageUp
+                    event.doit = false;
                 } else if (event.keyCode == SWT.PAGE_DOWN
                         && event.stateMask == SWT.CTRL) {
-                    event.doit = false; // Ignore Ctrl + PageDown
+                    // Ignore Ctrl + PageDown
+                    event.doit = false;
                 } else if (event.keyCode == SWT.PAGE_UP
                         && event.stateMask == (SWT.CTRL | SWT.SHIFT)) {
-                    event.doit = false; // Ignore Ctrl+Shift+PageUp
+                    // Ignore Ctrl+Shift+PageUp
+                    event.doit = false;
                 } else if (event.keyCode == SWT.PAGE_DOWN
                         && event.stateMask == (SWT.CTRL | SWT.SHIFT)) {
-                    event.doit = false; // Ignore Ctrl+Shift+PageDown
+                    // Ignore Ctrl+Shift+PageDown
+                    event.doit = false;
                 } else if (event.keyCode == SWT.INSERT) {
                     // Ins key on the keypad
                     if (AFOSParser.isTemplate) {
-                        if (overwriteMode == true) {
+                        if (overwriteMode) {
                             overwriteMode = false;
                             overStrikeItem.setSelection(false);
                             editorInsertCmb.select(INSERT_TEXT);
@@ -3748,8 +3639,8 @@ public class TextEditorDialog extends CaveSWTDialog
                         int currentPos = textEditor.getCaretOffset();
                         String textUpToCaret = textEditor.getText().substring(0,
                                 currentPos);
-                        int leftMost = textUpToCaret.lastIndexOf("[") + 1;
-                        int rightMost = textEditor.getText().indexOf("]",
+                        int leftMost = textUpToCaret.lastIndexOf('[') + 1;
+                        int rightMost = textEditor.getText().indexOf(']',
                                 currentPos);
                         int editableTextWidth = rightMost - leftMost;
                         String leftPart = "";
@@ -3796,8 +3687,8 @@ public class TextEditorDialog extends CaveSWTDialog
                         int currentPos = textEditor.getCaretOffset();
                         String textUpToCaret = textEditor.getText().substring(0,
                                 currentPos);
-                        int openBracketPos = textUpToCaret.lastIndexOf("[");
-                        openBracketPos = textEditor.getText().indexOf("[",
+                        int openBracketPos = textUpToCaret.lastIndexOf('[');
+                        openBracketPos = textEditor.getText().indexOf('[',
                                 currentPos);
                         textEditor.setCaretOffset(openBracketPos + 1);
                     } else if (event.keyCode >= 97 && event.keyCode <= 122
@@ -3813,11 +3704,11 @@ public class TextEditorDialog extends CaveSWTDialog
                                 - lineStartOffset;
                         int numberOfSpaces = textEditor.getTabs()
                                 - caretOffsetOnLine % textEditor.getTabs();
-                        String spaces = "";
+                        StringBuilder spaces = new StringBuilder();
                         for (int x = 0; x < numberOfSpaces; x++) {
-                            spaces += ' ';
+                            spaces.append(' ');
                         }
-                        textEditor.insert(spaces);
+                        textEditor.insert(spaces.toString());
                         textEditor.setCaretOffset(
                                 textEditor.getCaretOffset() + numberOfSpaces);
                         event.doit = false;
@@ -3837,11 +3728,13 @@ public class TextEditorDialog extends CaveSWTDialog
                     int cCaretOffset = textEditor.getCaretOffset();
                     boolean valid = true;
                     try {
-                        // intentionally convert the current mouse location
-                        // relative to textEditor component. if an exception is
-                        // thrown then the current mouse current is at an
-                        // invalid location; outside the scope the text within
-                        // the textEditor component.
+                        /*
+                         * intentionally convert the current mouse location
+                         * relative to textEditor component. if an exception is
+                         * thrown then the mouse cursor is at an invalid
+                         * location; outside the scope the text within the
+                         * textEditor component.
+                         */
                         textEditor.getOffsetAtLocation(new Point(e.x, e.y));
                     } catch (IllegalArgumentException iae) {
                         textEditor.setCaretOffset(cCaretOffset);
@@ -3911,7 +3804,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Handle the selection from the popup menu
-     * 
+     *
      * @param event
      */
     protected void handleSelection(Event event) {
@@ -4092,8 +3985,9 @@ public class TextEditorDialog extends CaveSWTDialog
             while (true) {
                 String text = textEditor.getText();
                 Matcher m = p.matcher(text);
-                if (!m.find())
+                if (!m.find()) {
                     break;
+                }
                 int line = textEditor.getLineAtOffset(m.start());
                 int paragraphLineStart = findParagraphStart(line);
                 String lineText = textEditor.getLine(line);
@@ -4134,7 +4028,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Cancel the editor mode.
-     * 
+     *
      * @param prompt
      *            true if prompting desired
      */
@@ -4149,7 +4043,7 @@ public class TextEditorDialog extends CaveSWTDialog
             SWTMessageBox mb = new SWTMessageBox(shell, "Cancel Editor",
                     "Any unsaved changes will be lost. Cancel anyway?",
                     SWT.ICON_QUESTION | SWT.YES | SWT.NO);
-            mb.setCloseCallback(new ICloseCallback() {
+            mb.addCloseCallback(new ICloseCallback() {
 
                 @Override
                 public void dialogClosed(Object returnValue) {
@@ -4177,7 +4071,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Attempt to cancel the current editing session.
-     * 
+     *
      * @return true if cancel performed otherwise false.
      */
     private boolean doCancelEditor() {
@@ -4247,14 +4141,17 @@ public class TextEditorDialog extends CaveSWTDialog
         // fields to function properly. If focus is not set to a button, then
         // the text fields' listeners do not activate properly.
         enterEditorBtn.setFocus();
+
         statusBarLabel.setText("");
+        attachedFile = null;
+        attachedFilename = null;
 
         return true;
     }
 
     /**
      * Edit the header block of the text product.
-     * 
+     *
      * @param warning
      *            The warning
      * @param closeEditorOnCancel
@@ -4269,6 +4166,10 @@ public class TextEditorDialog extends CaveSWTDialog
         // Create and display the AWIPS header block dialog.
         AWIPSHeaderBlockDlg awipsHeaderBlockDlg = new AWIPSHeaderBlockDlg(shell,
                 this);
+        if (isWarnGen()) {
+            editorSaveBtn.setEnabled(false);
+            saveItem.setEnabled(false);
+        }
 
         headerEditSession = closeEditorOnCancel
                 ? HeaderEditSession.CLOSE_ON_EXIT : HeaderEditSession.IN_EDITOR;
@@ -4279,7 +4180,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Called by AWIPSHeaderBlockDlg when it is dismissed.
-     * 
+     *
      * @param dialogResult
      *            True if header block editor was dismissed by clicking the
      *            "Enter" button, false otherwise.
@@ -4294,7 +4195,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
         boolean editing = false;
 
-        if (dialogResult == true) {
+        if (dialogResult) {
 
             TextDisplayModel tdm = TextDisplayModel.getInstance();
 
@@ -4306,7 +4207,7 @@ public class TextEditorDialog extends CaveSWTDialog
                     : tdm.getProductCategory(token)
                             + tdm.getProductDesignator(token);
             // Set the header text field.
-            if (bbbid.equals("NOR")
+            if ("NOR".equals(bbbid)
                     || bbbid.isEmpty() && tdm.getAfosPil(token) != null) {
                 String wmoId = tdm.getWmoId(token);
                 wmoId = wmoId.length() > 0 ? wmoId : "-";
@@ -4370,7 +4271,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Enable/Disable menus, menu items, text fields, and buttons when entering
      * or exiting editor mode.
-     * 
+     *
      * @param inEditMode
      *            Flag indicating if the text editor is in edit mode.
      */
@@ -4567,7 +4468,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Import data from a file.
-     * 
+     *
      */
     private void importFile() {
         FileDialog dlg = new FileDialog(shell, SWT.OPEN);
@@ -4591,6 +4492,67 @@ public class TextEditorDialog extends CaveSWTDialog
             } catch (IOException e1) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Error retrieving metatdata", e1);
+            }
+        }
+    }
+
+    /**
+     * Attaches the contents of a file to a product.
+     */
+    private void attachFile() {
+        FileDialog dlg = new FileDialog(shell, SWT.OPEN);
+        dlg.setText("Attach File");
+        dlg.setFilterNames(FILTER_NAMES);
+        dlg.setFilterExtensions(FILTER_EXTS);
+        if (attachedFilename != null && attachedFilename.trim().length() > 0) {
+            int startIndex = statusBarLabel.getText().indexOf(":") + 1;
+            int endIndex = statusBarLabel.getText().lastIndexOf(File.separator)
+                    + 1;
+            String filterPath = statusBarLabel.getText().substring(startIndex,
+                    endIndex);
+            dlg.setFilterPath(filterPath);
+            dlg.setFileName(statusBarLabel.getText().substring(startIndex));
+        }
+        String fn = dlg.open();
+        if (fn != null) {
+            try {
+                File file = new File(fn);
+                if (file.exists() && file.length() <= 50_000
+                        && isTextFile(file)) {
+                    try (FileInputStream in = new FileInputStream(file)) {
+                        byte[] bytes = new byte[(int) file.length()];
+                        int offset = 0;
+                        int numRead = 0;
+                        while (offset < bytes.length
+                                && (numRead = in.read(bytes, offset,
+                                        bytes.length - offset)) >= 0) {
+                            offset += numRead;
+                        }
+                        attachedFile = bytes;
+                        attachedFilename = fn
+                                .substring(fn.lastIndexOf(File.separator) + 1);
+                        statusBarLabel.setText("Attachment: " + fn);
+                    }
+                } else {
+                    StringBuilder sb = new StringBuilder();
+                    if (!file.exists()) {
+                        sb.append("File does NOT exist!\n\n");
+                    } else if (file.length() > 50_000) {
+                        sb.append("File size is too large!\n\n");
+                    } else {
+                        sb.append("File is NOT a text file!\n\n");
+                    }
+                    userInformation(sb.toString() + fn);
+                }
+            } catch (Exception e) {
+                statusHandler.handle(Priority.PROBLEM, "Error attaching file",
+                        e);
+            }
+        } else {
+            if (statusBarLabel.getText().startsWith("Attachment: ")) {
+                statusBarLabel.setText("");
+                attachedFile = null;
+                attachedFilename = null;
             }
         }
     }
@@ -4651,7 +4613,7 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     private void displayAwipsBrowser() {
-        if ((awipsBrowser == null) || awipsBrowser.isDisposed()) {
+        if (awipsBrowser == null || awipsBrowser.isDisposed()) {
             awipsBrowser = new AwipsBrowserDlg(shell, shell.getText(), this,
                     token);
             awipsBrowser.open();
@@ -4664,7 +4626,7 @@ public class TextEditorDialog extends CaveSWTDialog
      * Determine if dialog needs to be open or just bring to top.
      */
     public void showDialog() {
-        if (disposeOnExit == true) {
+        if (disposeOnExit) {
             return;
         }
 
@@ -4686,7 +4648,7 @@ public class TextEditorDialog extends CaveSWTDialog
      * Determine if dialog should be hidden or closed for proper disposal.
      */
     public void hideDialog() {
-        if (disposeOnExit == false) {
+        if (!disposeOnExit) {
             hide();
             return;
         }
@@ -4704,7 +4666,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Bring up an error dialog to display a problem to the user.
-     * 
+     *
      * @param title
      * @param information
      */
@@ -4715,24 +4677,53 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Display a notice to the user.
-     * 
+     *
      * @param information
      */
     private void userInformation(String information) {
         userInformation("Notice", information);
     }
 
+    private EtnRules getETNRules() throws Exception {
+        LocalizationFile lf = PathManagerFactory.getPathManager()
+                .getStaticLocalizationFile(ETN_RULES_FILE);
+        if (lf == null) {
+            throw new Exception(
+                    "ETN rules file (" + ETN_RULES_FILE + ") not found.");
+        }
+        try (InputStream stream = lf.openInputStream()) {
+            return JAXB.unmarshal(stream, EtnRules.class);
+        }
+    }
+
+    private boolean shouldSetETNtoNextValue(StdTextProduct prod) {
+        List<String> excludedPhenSigs = null;
+        try {
+            excludedPhenSigs = getETNRules().getExcludePhenSigs();
+        } catch (Exception e) {
+            statusHandler.handle(Priority.WARN,
+                    "Error loading ETN assignment rules.  Will use default rules.",
+                    e);
+            excludedPhenSigs = defaultNoETNIncrementPhenSigs;
+        }
+        boolean result = true;
+        VtecObject vo = VtecUtil.parseMessage(prod.getProduct());
+        if (vo != null && excludedPhenSigs != null
+                && excludedPhenSigs.contains(vo.getPhensig())) {
+            result = false;
+        }
+        return result;
+    }
+
     /**
      * Recreates the original message by combining the header and the body from
      * the edit windows.
-     * 
+     *
      * @return the combined message
      */
     private String combineOriginalMessage() {
         if (headerTF.getCharCount() == 0) {
             return textEditor.getText();
-        } else if (textEditor.getCharCount() == 0) {
-            return headerTF.getText();
         }
         StringBuilder body = new StringBuilder();
         body.append(headerTF.getText()).append("\n");
@@ -4761,7 +4752,7 @@ public class TextEditorDialog extends CaveSWTDialog
      * editing product. If the save is successful, the restore text following a
      * cancel is updated to the saved text.
      */
-    synchronized private void saveProduct() {
+    private synchronized void saveProduct() {
         StdTextProduct product = TextDisplayModel.getInstance()
                 .getStdTextProduct(token);
         logInfo("Save button clicked");
@@ -4776,7 +4767,7 @@ public class TextEditorDialog extends CaveSWTDialog
             saved = true;
             replaceWorkProductId();
             originalText = savedProduct;
-            if (warnGenFlag == true) {
+            if (warnGenFlag) {
                 originalText = removeSoftReturns(originalText);
             }
         }
@@ -4784,7 +4775,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Saves the edited product.
-     * 
+     *
      * @param product
      *            StdTextProduct to be saved
      * @param isAutoSave
@@ -4793,10 +4784,10 @@ public class TextEditorDialog extends CaveSWTDialog
      *            true if product is to be resent
      * @param isOperationalSend
      *            true if operational send
-     * 
+     *
      * @return The text of the saved product if successful. Empty string if not.
      */
-    synchronized private String saveEditedProduct(StdTextProduct product,
+    private synchronized String saveEditedProduct(StdTextProduct product,
             boolean isAutoSave, boolean resend, boolean isOperationalSend) {
         if (isProductForbiddenToEdit(product, true)) {
             inEditMode = false;
@@ -4820,8 +4811,7 @@ public class TextEditorDialog extends CaveSWTDialog
             replaceWorkProductId();
 
             String header = headerTF.getText().toUpperCase();
-            String body = resend ? resendMessage()
-                    : removeSoftReturns(
+            String body = removeSoftReturns(
                             MixedCaseProductSupport.conditionalToUpper(
                                     product.getNnnid(), textEditor.getText()));
             // verify text
@@ -4835,11 +4825,10 @@ public class TextEditorDialog extends CaveSWTDialog
         // XML format via the Util class.
         // New up a StdTextProduct, then set the product component
         // to the tmpStr that represents the new content.
-        StdTextProduct storedProduct = tdmInst.getStdTextProduct(token);
-        String productText = resend ? resendMessage()
-                : combineOriginalMessage();
+        StdTextProduct storedProduct = tdmInst.getStdTextProduct(token, true);
+        String productText = combineOriginalMessage();
 
-        if (warnGenFlag == true && resend == false) {
+        if (warnGenFlag && !resend) {
             productText = removeSoftReturns(productText);
         }
 
@@ -4913,12 +4902,12 @@ public class TextEditorDialog extends CaveSWTDialog
             successful = saveTextProductInfo();
         }
 
-        return (successful) ? productText.trim() : StringUtils.EMPTY;
+        return successful ? productText.trim() : StringUtils.EMPTY;
     }
 
     /**
      * Replaces the WMO heading DDHHMM field with the given text.
-     * 
+     *
      * @param productText
      *            Product text which includes the WMO heading
      * @param ddhhmm
@@ -4958,7 +4947,7 @@ public class TextEditorDialog extends CaveSWTDialog
      * existing Style Ranges. If the new text doesn't match the existing text in
      * length, the method does not update the text. Note this allows updating of
      * locked text.
-     * 
+     *
      * @param body
      *            the replacement text for the Text Editor
      */
@@ -4995,7 +4984,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * When allowed to save a product send request to server.
-     * 
+     *
      * @return true request saved to server otherwise false.
      */
     private boolean saveTextProductInfo() {
@@ -5021,7 +5010,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Generate a request to obtain product(s) from the server.
-     * 
+     *
      * @param cccid
      * @param nnnid
      * @param xxxid
@@ -5043,7 +5032,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * When allowd attempt to save stored product.
-     * 
+     *
      * @param storedProduct
      * @return true product saved to server otherwise false
      */
@@ -5069,7 +5058,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Create a Standard Text Product Server Request Object to be used in the
      * thrift service.
-     * 
+     *
      * @param product
      * @return
      */
@@ -5102,24 +5091,28 @@ public class TextEditorDialog extends CaveSWTDialog
      */
     private boolean markUneditableText(StyledText st) {
         // Capture the input from the styled text widget.
-        StringBuffer sb = new StringBuffer(st.getText());
+        StringBuilder sb = new StringBuilder(st.getText());
         String errMsg = null;
         int currentIndex = 0;
         int startIndex = 0;
         int endIndex = 0;
         boolean markedTextUndeditable = false;
         try {
-            while (sb.indexOf(BEGIN_ELEMENT_TAG, 0) >= 0) {
+            while (sb.indexOf(TextWarningConstants.BEGIN_ELEMENT_TAG, 0) >= 0) {
                 currentIndex = 0;
                 startIndex = 0;
                 endIndex = 0;
 
                 // Looks for the most inner <L></L> tags
                 do {
-                    startIndex = sb.indexOf(BEGIN_ELEMENT_TAG, currentIndex);
-                    endIndex = sb.indexOf(END_ELEMENT_TAG, currentIndex);
+                    startIndex = sb.indexOf(
+                            TextWarningConstants.BEGIN_ELEMENT_TAG,
+                            currentIndex);
+                    endIndex = sb.indexOf(TextWarningConstants.END_ELEMENT_TAG,
+                            currentIndex);
                 } while (startIndex > 0 && endIndex > 0
-                        && (currentIndex = sb.indexOf(BEGIN_ELEMENT_TAG,
+                        && (currentIndex = sb.indexOf(
+                                TextWarningConstants.BEGIN_ELEMENT_TAG,
                                 startIndex + BEGIN_ELEMENT_TAG_LEN)) > 0
                         && currentIndex < endIndex);
 
@@ -5141,12 +5134,10 @@ public class TextEditorDialog extends CaveSWTDialog
                         SWT.BOLD));
                 markedTextUndeditable = true;
             }
-        } catch (IllegalArgumentException ex) {
-            errMsg = ex.toString();
-        } catch (StringIndexOutOfBoundsException ex) {
+        } catch (IllegalArgumentException
+                | StringIndexOutOfBoundsException ex) {
             errMsg = ex.toString();
         }
-
         if (errMsg != null) {
             Status status = new Status(IStatus.ERROR,
                     "com.raytheon.viz.texteditor",
@@ -5160,13 +5151,6 @@ public class TextEditorDialog extends CaveSWTDialog
         return markedTextUndeditable;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.swt.events.VerifyListener#verifyText(org.eclipse.swt.events
-     * .VerifyEvent)
-     */
     @Override
     public void verifyText(VerifyEvent event) {
         // Enforces uneditability of lockable text in warning products
@@ -5236,7 +5220,7 @@ public class TextEditorDialog extends CaveSWTDialog
      * The basic idea is to avoid manual editing of the header. Other editing
      * may be blocked by the use of {@literal <LOCK>} tags in the warning
      * template.
-     * 
+     *
      */
     private void setCurrentHeaderAndBody() {
         // Set the current Header and the current Body of the text
@@ -5245,8 +5229,10 @@ public class TextEditorDialog extends CaveSWTDialog
         int start = 0;
         int thisLine = textEditor.getLineAtOffset(start);
         int numberOfLinesOfHeaderText = 2;
-        int afosNnnLimit = 2; // first three characters is AFOS NNN
-        int afosXxxLimit = 5; // second three characters is AFOS XXX
+        // first three characters is AFOS NNN
+        int afosNnnLimit = 2;
+        // second three characters is AFOS XXX
+        int afosXxxLimit = 5;
         String prodText = textEditor.getText();
 
         if (!prodText.startsWith("ZCZC")) {
@@ -5256,7 +5242,8 @@ public class TextEditorDialog extends CaveSWTDialog
              */
             String[] pieces = textEditor.getText().split("\r*\n", 2);
             if (pieces.length > 1) {
-                pieces[0] += "\n"; // WMOHeader expects this
+                // WMOHeader expects this
+                pieces[0] += "\n";
             }
             WMOHeader header = new WMOHeader(pieces[0].getBytes(), null);
             if (!header.isValid()) {
@@ -5290,22 +5277,19 @@ public class TextEditorDialog extends CaveSWTDialog
                     try {
                         // start of second line of text
                         start = textEditor.getOffsetAtLine(thisLine + 1);
-                        if (textEditor
-                                .getText(start, start + afosNnnLimit).equals(
-                                        prodId.getNnnid())
+                        if (textEditor.getText(start, start + afosNnnLimit)
+                                .equals(prodId.getNnnid())
                                 && textEditor
                                         .getText(start + afosNnnLimit + 1,
                                                 start + afosXxxLimit)
                                         .equals(prodId.getXxxid())) {
                             // Text matches the products nnnid and xxxid
                             numberOfLinesOfHeaderText = 2;
-                        } else if (textEditor.getText(start,
-                                start + afosNnnLimit + 2).equals(
-                                        AFOSParser.DRAFT_PIL)
-                                || textEditor
-                                        .getText(start,
-                                                start + afosNnnLimit + 2)
-                                        .equals("TTAA0")) {
+                        } else if (textEditor
+                                .getText(start, start + afosNnnLimit + 2)
+                                .equals(AFOSParser.DRAFT_PIL)
+                                || "TTAA0".equals(textEditor.getText(start,
+                                        start + afosNnnLimit + 2))) {
                             // Text matches temporary WRKWG#
                             numberOfLinesOfHeaderText = 2;
                         } else {
@@ -5353,7 +5337,7 @@ public class TextEditorDialog extends CaveSWTDialog
                         line = textEditor
                                 .getLine(thisLine + numberOfLinesOfHeaderText
                                         + numberOfBlankLines);
-                    } while (line.length() == 0 || line.equals(""));
+                    } while (line.isEmpty());
                     // Note: 'st' is a reference to 'textEditor'...
                     // delelete the header from the text in 'textEditor'
                     finish = textEditor.getOffsetAtLine(thisLine
@@ -5371,8 +5355,8 @@ public class TextEditorDialog extends CaveSWTDialog
         } else {
             /**
              * If the first word begins with "ZCZC", it is a two-line header at
-             * least, it is
-             * "ZCZC CCNNNXXX adr\r\r\nTTAA00 KCCC DDHHMM bbb\r\r\n"
+             * least, it is "ZCZC CCNNNXXX adr\r\r\nTTAA00 KCCC DDHHMM
+             * bbb\r\r\n"
              */
             Matcher headerMatcher = HEADER_SEPARATOR_PATTERN.matcher(prodText);
             if (headerMatcher.find()) {
@@ -5408,7 +5392,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Update the editor's header text field.
-     * 
+     *
      * @param wmoId
      * @param siteId
      * @param dateId
@@ -5430,7 +5414,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Consistent format for the String derivated from date.
-     * 
+     *
      * @param now
      * @return
      */
@@ -5445,7 +5429,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Update the VTEC time using the Date now.
-     * 
+     *
      * @param product
      * @param vtecObj
      * @param now
@@ -5454,11 +5438,11 @@ public class TextEditorDialog extends CaveSWTDialog
     private String updateVtecTimes(String product, VtecObject vtecObj,
             Date now) {
 
-        if (vtecObj == null || vtecObj.getAction().equals("COR")) {
+        if (vtecObj == null || "COR".equals(vtecObj.getAction())) {
             return product;
         }
         // Update the vtec start time
-        if (vtecObj.getAction().equals("NEW")) {
+        if ("NEW".equals(vtecObj.getAction())) {
             SimpleDateFormat vtecFormatter = new SimpleDateFormat(
                     "yyMMdd'T'HHmm'Z'");
             vtecFormatter.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -5472,7 +5456,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Update the MND header time using the Date now.
-     * 
+     *
      * @param product
      * @param now
      * @return
@@ -5499,7 +5483,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Set the dispaly model's wmoID value for this text editor.
-     * 
+     *
      * @param wmoId
      */
     public void setCurrentWmoId(String wmoId) {
@@ -5508,7 +5492,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Set the dispaly model's SiteId for this text editor.
-     * 
+     *
      * @param siteId
      */
     public void setCurrentSiteId(String siteId) {
@@ -5517,7 +5501,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Set the dispaly model's bbbID for this text editor.
-     * 
+     *
      * @param bbbId
      */
     public void setCurrentBbbId(String bbbId) {
@@ -5526,7 +5510,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Set the dispaly model's Product node for ths text editor.
-     * 
+     *
      * @param wsfoId
      */
     public void setCurrentWsfoId(String wsfoId) {
@@ -5535,7 +5519,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Set the dispaly model's product category for this text editor.
-     * 
+     *
      * @param prodCategory
      */
     public void setCurrentProdCategory(String prodCategory) {
@@ -5544,7 +5528,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Set the dispaly model's product designator for this text editor.
-     * 
+     *
      * @param prodDesignator
      */
     public void setCurrentProdDesignator(String prodDesignator) {
@@ -5554,7 +5538,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Get the dispaly model's StdTextProduct for this editor.
-     * 
+     *
      * @return
      */
     public StdTextProduct getStdTextProduct() {
@@ -5583,7 +5567,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Setter method for addressee.
-     * 
+     *
      * @param addressee
      */
     public void setAddressee(String addressee) {
@@ -5592,7 +5576,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Getter method for addressee.
-     * 
+     *
      * @return addressee
      */
     public String getAddressee() {
@@ -5600,7 +5584,7 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     /**
-     * Convience method to execuete comand without updating ObsUpdated.
+     * Convenience method to execute command without updating ObsUpdated.
      */
     @Override
     public void executeCommand(ICommand command) {
@@ -5609,7 +5593,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Add command to the Product Query Job queue.
-     * 
+     *
      * @param command
      * @param isObsUpdated
      */
@@ -5650,7 +5634,7 @@ public class TextEditorDialog extends CaveSWTDialog
         boolean validExecuteCommand = command != null;
 
         if (validExecuteCommand) {
-            if ((prodList != null) && !prodList.isEmpty()) {
+            if (prodList != null && !prodList.isEmpty()) {
                 if (prodList.size() > 1) {
                     if (CommandType.WMO.equals(command.getType())) {
                         final boolean hasAtt = hasAttachment;
@@ -5693,10 +5677,13 @@ public class TextEditorDialog extends CaveSWTDialog
                         return;
                     }
                 } else {
+
                     StdTextProduct prod = prodList.get(0);
                     if (prod.getProduct().contains(ATTACHMENT_STR)) {
+
                         int endIndex = prod.getProduct()
                                 .indexOf(ATTACHMENT_STR);
+
                         String product = prod.getProduct().substring(0,
                                 endIndex);
                         attachedFilename = prod.getProduct()
@@ -5706,12 +5693,14 @@ public class TextEditorDialog extends CaveSWTDialog
                     }
 
                     String commandText = command.getCommandTextFields()[0];
+
                     StdTextProductId stdProdId = prod.getProdId();
 
                     if ("MTR".equals(stdProdId.getNnnid())
                             && (commandText.startsWith("ALL:")
                                     || commandText.startsWith("A:")
                                     || commandText.endsWith("000"))) {
+
                         stripWMOHeaders(prod);
                     }
 
@@ -5754,7 +5743,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * This is work to perform after selecting products from the prodList. This
      * allows the dialogs to select entries to be non-blocking.
-     * 
+     *
      * @param isObsUpdated
      * @param prodList
      */
@@ -5765,7 +5754,7 @@ public class TextEditorDialog extends CaveSWTDialog
         // text product parameters to work with here.
         String warning = prodList.get(0).getProduct();
         String[] nnnxxx = TextDisplayModel.getNnnXxx(warning);
-        if (nnnxxx[0].equals("WRK")) {
+        if ("WRK".equals(nnnxxx[0])) {
             String siteNode = TextDisplayModel.getSiteNode(warning, nnnxxx[1]);
             if (siteNode.isEmpty()) {
                 // look up failed use current siteNode.
@@ -5777,7 +5766,7 @@ public class TextEditorDialog extends CaveSWTDialog
                     ttaaii);
             TextDisplayModel.getInstance().createStdTextProduct(token, w,
                     siteNode);
-        } else if (!nnnxxx[1].equals("xxx")) {
+        } else if (!"xxx".equals(nnnxxx[1])) {
             String siteNode = TextDisplayModel.getSiteNode(warning, nnnxxx[1]);
             String ttaaii = SiteAbbreviationUtil
                     .getTtaaii(siteNode + nnnxxx[0] + nnnxxx[1]);
@@ -5802,7 +5791,7 @@ public class TextEditorDialog extends CaveSWTDialog
      * The final part of the executeCommand after the command is executed and
      * products seleted. This allows product selection dialogs to be
      * non-blocking.
-     * 
+     *
      * @param hasAttachment
      * @param enterEditor
      * @param validExecuteCommand
@@ -5831,7 +5820,7 @@ public class TextEditorDialog extends CaveSWTDialog
      * Sets the dialog busy state. When it changes the cursor the dialog is
      * changed and the AFOS browser for this dialog is notified of the state
      * change.
-     * 
+     *
      * @param busy
      */
     private void setBusy(boolean busy) {
@@ -5851,7 +5840,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * This strips off the WMO headers from a list of METAR products.
-     * 
+     *
      * @param prod
      */
     private void stripWMOHeaders(StdTextProduct prod) {
@@ -5868,7 +5857,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Set up to edit a Warngen Product prior to issuing or saving it.
-     * 
+     *
      * @param product
      * @param notify
      */
@@ -5916,7 +5905,7 @@ public class TextEditorDialog extends CaveSWTDialog
                     SimpleDateFormat sdf = new SimpleDateFormat(
                             "yyyy-MM-dd HH:mm:ss.SSS");
                     sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-                    System.out.println(
+                    statusHandler.debug(
                             sdf.format(new Date()) + ": Text Workstation took "
                                     + (t1 - t0) + "ms to show dialog");
                     enterEditor1();
@@ -5989,13 +5978,6 @@ public class TextEditorDialog extends CaveSWTDialog
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.ITextCharWrapCallback#setCharWrapCol
-     * (int)
-     */
     @Override
     public void setCharWrapCol(int charWrapCol) {
         clearButtons();
@@ -6011,16 +5993,16 @@ public class TextEditorDialog extends CaveSWTDialog
      * Update the buttonology of the text workstation if this text editor dialog
      * corresponds to one that belongs to the text workstation (TextWS) and not
      * the D-2D.
-     * 
+     *
      * @param buttonology
      */
     private void updateButtonology(String buttonology) {
-        if (!token.equals("0") && !token.equals("9")) {
+        if (!"0".equals(token) && !"9".equals(token)) {
             // Update the title of this TextWS text window
             winTitle = "Text " + token + ": " + buttonology;
             shell.setText(winTitle);
             callbackClient.updateText(Integer.parseInt(token) - 1, winTitle);
-        } else if (token.equals("0")) {
+        } else if ("0".equals(token)) {
             winTitle = "Text Display" + ": " + buttonology;
             shell.setText(winTitle);
         } else {
@@ -6030,16 +6012,16 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     /**
-     * Clear the information on the text workstation button for this text editor
+     * Clear the information on the text workstaion button for this text editor
      * dialog.
      */
     public void clearButtonology() {
-        if (!token.equals("0") && !token.equals("9")) {
+        if (!"0".equals(token) && !"9".equals(token)) {
             // Update the title of this TextWS text window
             winTitle = "Text " + token;
             shell.setText(winTitle);
             callbackClient.restoreText(Integer.parseInt(token) - 1);
-        } else if (token.equals("0")) {
+        } else if ("0".equals(token)) {
             winTitle = "Text Display";
             shell.setText(winTitle);
         } else {
@@ -6049,6 +6031,8 @@ public class TextEditorDialog extends CaveSWTDialog
 
         if (statusBarLabel.getText().contains("Attachment: ")) {
             statusBarLabel.setText("");
+            attachedFile = null;
+            attachedFilename = null;
         }
     }
 
@@ -6058,19 +6042,13 @@ public class TextEditorDialog extends CaveSWTDialog
             shell.setText(winTitle);
             inEditMode = true;
         } else {
-            if (winTitle.indexOf("(") != -1) {
-                winTitle = winTitle.substring(0, winTitle.indexOf("("));
+            if (winTitle.indexOf('(') != -1) {
+                winTitle = winTitle.substring(0, winTitle.indexOf('('));
                 shell.setText(winTitle);
             }
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.texteditor.msgs.IRecoverEditSessionCallback#
-     * recoverSession (java.lang.String)
-     */
     @Override
     public void recoverSession(String sessionToRecover) {
         // read the auto save file, create first
@@ -6108,23 +6086,11 @@ public class TextEditorDialog extends CaveSWTDialog
         spellCheckDlg.open();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#clearTextDisplay()
-     */
     @Override
     public void clearTextDisplay() {
         clearTextEditor();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#
-     * manageScriptOutputWindow(boolean)
-     */
     @Override
     public void manageScriptOutputWindow(boolean visible) {
         if (visible) {
@@ -6143,7 +6109,7 @@ public class TextEditorDialog extends CaveSWTDialog
             if (scriptOutput == null || !scriptOutput.isDisposed()) {
                 scriptOutput = new ScriptOutputDlg(shell, token);
                 // open the script output window
-                scriptOutput.setCloseCallback(new ICloseCallback() {
+                scriptOutput.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
@@ -6178,50 +6144,22 @@ public class TextEditorDialog extends CaveSWTDialog
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#setAccumulation
-     * (boolean)
-     */
     @Override
     public void setAccumulation(boolean flag) {
         this.accumChkBtn.setSelection(flag);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#showErrorMessage
-     * (java.lang.String, java.lang.Throwable)
-     */
     @Override
     public void showErrorMessage(String errorMsg, Throwable cause) {
         statusHandler.handle(Priority.PROBLEM, errorMsg, cause);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#showScriptStatus
-     * (java.lang.String)
-     */
     @Override
     public void showScriptStatus(String statusMsg) {
         statusBarLabel.setText(statusMsg);
         statusHandler.handle(Priority.EVENTA, statusMsg);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#writeText(java
-     * .lang.String)
-     */
     @Override
     public void writeText(String text) {
         if (scriptOutput != null) {
@@ -6232,7 +6170,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Sets the state of the script running controls at the start and end of
      * running a script.
-     * 
+     *
      * @param flag
      *            controls enabled status of controls
      */
@@ -6258,13 +6196,6 @@ public class TextEditorDialog extends CaveSWTDialog
         shell.layout();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#executeTextScript
-     * (java.lang.String)
-     */
     @Override
     public void executeTextScript(String script) {
         // This need to implement execution of script runner -- basically, the
@@ -6285,17 +6216,11 @@ public class TextEditorDialog extends CaveSWTDialog
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#
-     * postProductToEditor (java.lang.String[], java.lang.String[])
-     */
     @Override
     public void postProductToEditor(final String[] products,
             final String[] pils) {
         versionMenuItem.setEnabled(false);
-        StringBuffer text = new StringBuffer();
+        StringBuilder text = new StringBuilder();
         if (accumChkBtn.getSelection() && !textEditor.getText().isEmpty()) {
             textEditor.append("\n");
             for (String pil : pils) {
@@ -6316,7 +6241,26 @@ public class TextEditorDialog extends CaveSWTDialog
             text.append(first).append(product);
             first = "\n";
         }
-        textEditor.append(text.toString());
+        String textResult = text.toString();
+        textEditor.append(textResult);
+        String[] nnnxxx = TextDisplayModel.getNnnXxx(textResult);
+        String siteNode = TextDisplayModel.getSiteNode(textResult, nnnxxx[1]);
+        TextDisplayModel.getInstance().createStdTextProduct(token, textResult,
+                siteNode);
+        StdTextProduct p = getStdTextProduct();
+        if (p != null) {
+            String ccc = p.getCccid();
+            String nnn = p.getNnnid();
+            String xxx = p.getXxxid();
+            if (ccc != null && ccc.trim().length() == 3 && nnn != null
+                    && nnn.length() == 3 && xxx != null && xxx.length() > 0) {
+                String pil = ccc + nnn + xxx;
+                ICommand command = CommandFactory.getAfosCommand(pil);
+                commandHistory.addCommand(command);
+                commandHistory.resetIndex(command.getType());
+                versionMenuItem.setEnabled(true);
+            }
+        }
     }
 
     /**
@@ -6355,45 +6299,21 @@ public class TextEditorDialog extends CaveSWTDialog
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.texteditor.scripting.dialogs.IScriptEditorObserver#
-     * onContinueScript()
-     */
     @Override
     public void onContinueScript() {
         scriptContinue = true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.texteditor.scripting.dialogs.IScriptEditorObserver#
-     * onCancelScript()
-     */
     @Override
     public void onCancelScript() {
         cancelScript = true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.texteditor.scripting.dialogs.IScriptEditorObserver#
-     * onSkipWait()
-     */
     @Override
     public void onSkipWait() {
         skipWait = true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#scriptComplete()
-     */
     @Override
     public void scriptComplete() {
         if (scriptRunner != null) {
@@ -6409,44 +6329,21 @@ public class TextEditorDialog extends CaveSWTDialog
         statusBarLabel.setText("");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#cancelScript()
-     */
     @Override
     public boolean cancelScript() {
         return cancelScript;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#skipWait()
-     */
     @Override
     public boolean skipWait() {
         return skipWait;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#continueScript()
-     */
     @Override
     public boolean continueScript() {
         return scriptContinue;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.texteditor.scripting.dialogs.IScriptEditorObserver#
-     * windowClosing()
-     */
     @Override
     public void windowClosing() {
         if (scriptRunner == null) {
@@ -6457,7 +6354,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Enables/disables the Script=>Edit and script=>Run menu items.
-     * 
+     *
      * @param state
      *            true to enable, false to disable
      */
@@ -6466,13 +6363,6 @@ public class TextEditorDialog extends CaveSWTDialog
         scriptsRunItem.setEnabled(state);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#activateControls
-     * (boolean, boolean)
-     */
     @Override
     public void activateControls(boolean skipWait, boolean canContinue) {
         scriptsContinueItem.setEnabled(canContinue);
@@ -6487,11 +6377,6 @@ public class TextEditorDialog extends CaveSWTDialog
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#isEditMode()
-     */
     @Override
     public boolean isEditMode() {
         boolean result = false;
@@ -6560,7 +6445,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Handles the update option of product retrieval.
-     * 
+     *
      * @param product
      *            the product to update
      */
@@ -6681,12 +6566,14 @@ public class TextEditorDialog extends CaveSWTDialog
         // if updating, we need to highlight the site name. If the first word of
         // the line is "METAR" or "SPECI", we need to highlight the second word
         if (haveWMOHeader) {
-            lineIndex++; // need to skip the WMO header
+            // need to skip the WMO header
+            lineIndex++;
         }
         String line = textEditor.getLine(lineIndex);
         int startIndex = textEditor.getOffsetAtLine(lineIndex);
         if (line.startsWith("METAR") || line.startsWith("SPECI")) {
-            startIndex += 6; // skip first word plus a space
+            // skip first word plus a space
+            startIndex += 6;
         }
         int endIndex = textEditor.getText().indexOf(" ", startIndex);
         textEditor.setStyleRange(new StyleRange(startIndex,
@@ -6715,9 +6602,52 @@ public class TextEditorDialog extends CaveSWTDialog
         updateButtonology(commandText);
     }
 
+    private boolean validateCharacterSet(String nnn) {
+        boolean rval = true;
+
+        Pattern UPPER_PATTERN = Pattern.compile("[^" + Pattern.quote(
+                TextEditorCfg.getTextEditorCfg().getUpperCaseValidCharcters())
+                + "]");
+
+        Pattern MIXED_PATTERN = Pattern.compile("[^" + Pattern.quote(
+                TextEditorCfg.getTextEditorCfg().getMixedCaseValidCharacters())
+                + "]");
+
+        String body = textEditor.getText();
+        Pattern pattern;
+        if (MixedCaseProductSupport.isMixedCase(nnn)) {
+            pattern = MIXED_PATTERN;
+        } else {
+            body = body.toUpperCase();
+            pattern = UPPER_PATTERN;
+        }
+
+        String[] separatedLines = body.split("\n");
+        int lineNum = 0;
+        for (String line : separatedLines) {
+            lineNum++;
+            Matcher matcher = pattern.matcher(line);
+            if (matcher.find()) {
+                rval = false;
+
+                String errorMsg = "Illegal character '" + matcher.group()
+                        + "' on line " + lineNum + ", column "
+                        + (matcher.start() + 1);
+                userInformation(errorMsg);
+                if (!textEditor.isDisposed()) {
+                    int offset = body.indexOf(matcher.group());
+                    textEditor.setSelection(offset, offset + 1);
+                    textEditor.redraw();
+                    textEditor.setFocus();
+                }
+            }
+        }
+        return rval;
+    }
+
     /**
      * Checks product to verify all required fields have been filled in.
-     * 
+     *
      * @return
      */
     private boolean verifyRequiredFields() {
@@ -6731,7 +6661,7 @@ public class TextEditorDialog extends CaveSWTDialog
             if (endIndex >= startIndex) {
                 rval = false;
                 userInformation(
-                        "Product requires changes before saving");
+                        "You must modify the selected region before sending or saving the product.");
                 if (!textEditor.isDisposed()) {
                     textEditor.setSelection(startIndex, endIndex + 3);
                     textEditor.setFocus();
@@ -6743,34 +6673,40 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     /**
-     * Add RESENT to the end of the MND line
+     * Checks to see if a product can be resent.
+     *
+     * @return true when product can be resent
      */
-    private String resendMessage() {
-        boolean updatedMND = false;
-        StringBuffer sb = new StringBuffer();
+    private boolean verifyResendProduct() {
+        boolean resend = true;
 
-        for (String line : textEditor.getText().split("\n")) {
-            if (!updatedMND && (line.endsWith("WARNING")
-                    || line.endsWith("WARNING...TEST")
-                    || line.endsWith("WARNING...CORRECTED")
-                    || line.endsWith("WARNING...CORRECTED...TEST")
-                    || line.endsWith("STATEMENT")
-                    || line.endsWith("STATEMENT...TEST")
-                    || line.endsWith("STATEMENT...CORRECTED")
-                    || line.endsWith("STATEMENT...CORRECTED...TEST")
-                    || line.endsWith("FORECAST")
-                    || line.endsWith("FORECAST...TEST")
-                    || line.endsWith("ADVISORY")
-                    || line.endsWith("ADVISORY...TEST")
-                    || line.endsWith("ADVISORY...CORRECTED")
-                    || line.endsWith("ADVISORY...CORRECTED...TEST"))) {
-                line += "...RESENT";
-                updatedMND = true;
-            }
-            sb.append(line + "\n");
+        String body = textEditor.getText();
+        StdTextProduct stdTextProduct = TextDisplayModel.getInstance()
+                .getStdTextProduct(token);
+        if (body == null || body.length() == 0) {
+            userInformation("Resend Warning Product Error",
+                    "There is no product to send. \n Action aborted!");
+            resend = false;
+        } else if (isProductForbiddenToEdit(stdTextProduct,
+                "Resend Warning Product Error", false)) {
+            resend = false;
         }
 
-        return sb.toString();
+        return resend;
+    }
+
+    private void removeOptionalFields() {
+        String text = textEditor.getText();
+        int startIndex = text.indexOf("!--");
+        int endIndex = text.indexOf("--!", startIndex);
+        while (startIndex >= 0 && endIndex >= startIndex) {
+            String part1 = text.substring(0, startIndex).trim();
+            String part2 = text.substring(endIndex + 3).trim();
+            text = part1 + "\n\n" + part2;
+            startIndex = text.indexOf("!--");
+            endIndex = text.indexOf("--!", startIndex);
+        }
+        textEditor.setText(text);
     }
 
     /*
@@ -6919,17 +6855,12 @@ public class TextEditorDialog extends CaveSWTDialog
                 }
             };
 
-            timer.schedule(saveEditSessionTask, 600, 60000);
+            timer.schedule(saveEditSessionTask, 600, 60_000);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.uf.common.jms.notification.INotificationObserver#
-     * notificationArrived
-     * (com.raytheon.uf.common.jms.notification.NotificationMessage[]) This is
-     * the callback method called by the NotificationManagerJob when
+    /**
+     * This is the callback method called by the NotificationManagerJob when
      * observations are received. It parses the notifications and triggers a
      * load of a product that matches the currently loaded product. Short
      * circuits are provided for cases when the dialog is either not displaying
@@ -6969,10 +6900,10 @@ public class TextEditorDialog extends CaveSWTDialog
      * be valid, the PIL of the displayed product must represent an observation.
      * Note: From the OB9.0 TCL code, observations are products having an "NNN"
      * ID of "MRT" or "SAO".
-     * 
+     *
      * @param displayedPIL
      *            AFOS PIL of the displayed product
-     * 
+     *
      * @return true is an observation is displayed
      */
     private boolean isObsDisplayed(final String displayedPIL) {
@@ -7028,11 +6959,11 @@ public class TextEditorDialog extends CaveSWTDialog
      */
     private class UpdateObsRun implements Runnable {
         /** the AFOS command to run */
-        ICommand command = null;
+        private ICommand command = null;
 
         /**
          * Constructor.
-         * 
+         *
          * @param command
          *            the AFOS command to run
          */
@@ -7051,53 +6982,28 @@ public class TextEditorDialog extends CaveSWTDialog
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#scriptError()
-     */
     @Override
     public void scriptError() {
         scriptHasError = true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#addStdErrMsg(java
-     * .lang.String)
-     */
     @Override
     public void addStdErrMsg(String errMsg) {
         if (scriptErrorBfr == null) {
-            scriptErrorBfr = new StringBuffer();
+            scriptErrorBfr = new StringBuilder();
         }
         scriptErrorBfr.append(errMsg);
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#isScriptError()
-     */
     @Override
     public boolean isScriptError() {
         return scriptHasError;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#writeErrMsg(java
-     * .lang.String)
-     */
     @Override
     public void writeErrMsg(String errMsg) {
-        StringBuffer msg = new StringBuffer(errMsg);
+        StringBuilder msg = new StringBuilder(errMsg);
         if (scriptHasError) {
             // manage display of script error
             if (scriptErrorBfr != null) {
@@ -7108,37 +7014,19 @@ public class TextEditorDialog extends CaveSWTDialog
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver#clearErrBuffer()
-     */
     @Override
     public void clearErrBuffer() {
         scriptHasError = false;
         scriptErrorBfr = null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
     @Override
     protected void preOpened() {
         // Shell shell = ted.getShell();
         if (textWorkstationFlag) {
 
             // get bounds of monitor containing parent shell
-            Point parentLoc = getParent().getShell().getLocation();
-            Rectangle rect = null;
-            for (Monitor monitor : getShell().getDisplay().getMonitors()) {
-                rect = monitor.getBounds();
-                if (rect.contains(parentLoc)) {
-                    break;
-                }
-            }
+            Rectangle rect = getParent().getMonitor().getClientArea();
             int x = rect.x + rect.width / 4;
             int y = rect.y;
 
@@ -7184,11 +7072,7 @@ public class TextEditorDialog extends CaveSWTDialog
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
+
     @Override
     protected void disposed() {
         textEditor.setFont(shell.getFont());
@@ -7230,7 +7114,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * checks if the offset is inside a style range, which indicates a lock
-     * 
+     *
      * @param offset
      * @return
      */
@@ -7246,7 +7130,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Gets the starting offset of the style range that contains the passed in
      * offset
-     * 
+     *
      * @param offset
      * @return
      */
@@ -7267,7 +7151,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * get the length of the offset that contains the passed in offset
-     * 
+     *
      * @param offset
      * @return
      */
@@ -7288,7 +7172,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * check if a line contains any locks at all
-     * 
+     *
      * @param lineNumber
      * @return
      */
@@ -7312,12 +7196,12 @@ public class TextEditorDialog extends CaveSWTDialog
      * rewrap the paragraph(s) starting from the line containing the character
      * at the offset start and ending in the pargraph with the line containing
      * end.
-     * 
+     *
      * @param start
      * @param end
      */
     private void rewrap(int start, int end) {
-        if (wordWrapEnabled == false) {
+        if (!wordWrapEnabled) {
             return;
         }
         if (this.standardWrapRegex == null) {
@@ -7350,7 +7234,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * starts the actual work of word-wrap
-     * 
+     *
      * @param lineNumber
      */
     private void rewrapInternal(int lineNumber) {
@@ -7370,9 +7254,9 @@ public class TextEditorDialog extends CaveSWTDialog
         paragraphStart = paragraphStart.toUpperCase();
         // is this the locations paragraph?
         if (paragraphStart.startsWith("* LOCATIONS")
-                || paragraphStart.startsWith(("* SOME LOCATIONS"))
-                || paragraphStart.startsWith(("LOCATIONS IMPACTED"))
-                || paragraphStart.startsWith(("SOME LOCATIONS THAT"))) {
+                || paragraphStart.startsWith("* SOME LOCATIONS")
+                || paragraphStart.startsWith("LOCATIONS IMPACTED")
+                || paragraphStart.startsWith("SOME LOCATIONS THAT")) {
             inLocations = true;
         }
 
@@ -7400,11 +7284,11 @@ public class TextEditorDialog extends CaveSWTDialog
             // Check padding for the new line and set up to wrap rest of
             // paragraph.
             offset += 2;
-            if (" ".equals(textEditor.getText(offset, offset)) == false) {
+            if (!" ".equals(textEditor.getText(offset, offset))) {
                 textEditor.replaceTextRange(offset, 0, "  ");
             } else {
                 ++offset;
-                if (" ".equals(textEditor.getText(offset, offset)) == false) {
+                if (!" ".equals(textEditor.getText(offset, offset))) {
                     textEditor.replaceTextRange(offset, 0, " ");
                 }
             }
@@ -7441,7 +7325,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Concatenate lines following the passed in line(s) until the line is long
      * enough or there are no more lines in the paragraph.
-     * 
+     *
      * @param lineNumber
      * @param padding
      * @param inLocations
@@ -7514,7 +7398,7 @@ public class TextEditorDialog extends CaveSWTDialog
                             .getOffsetAtLine(lineNumber);
                     int newlinePosition = lineStartOffset + line.length();
                     if (padding.length() > 0 && textEditor
-                            .getLine(lineNumber + 1).startsWith("  ")) {
+                            .getLine(lineNumber + 1).startsWith(padding)) {
                         deleteLen += padding.length();
                     }
                     String beforeReplace = textEditor.getText();
@@ -7555,7 +7439,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * special wrap function for inside the locations paragraph
-     * 
+     *
      * @param lineNumber
      * @param padding
      */
@@ -7592,7 +7476,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * check that the position passed in is not in the middle of a locked area,
      * if it is the wrap before the locked text if possible
-     * 
+     *
      * @param position
      * @param padding
      */
@@ -7615,9 +7499,9 @@ public class TextEditorDialog extends CaveSWTDialog
             int padLen = padding.length();
             if (padLen > 0) {
                 int cnt = 0;
-                while (cnt < padLen && textEditor
-                        .getText(position + cnt, position + cnt).equals(" ")) {
-                    ++cnt;
+                while (cnt < padLen && " ".equals(
+                        textEditor.getText(position + cnt, position + cnt))) {
+                    cnt++;
                 }
                 if (cnt < padLen) {
                     replacement.append(padding.substring(cnt));
@@ -7641,7 +7525,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * checks if the next line is part of the same paragraph and continues
      * wrapping if it is
-     * 
+     *
      * @param line
      */
     private void checkAndWrapNextLine(int line) {
@@ -7673,7 +7557,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * wrap with no special cases
-     * 
+     *
      * @param lineNumber
      * @param padding
      */
@@ -7700,7 +7584,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * checks if the previous line is part of the same paragraph and continues
      * wrapping if it is
-     * 
+     *
      * @param line
      */
     private void checkAndWrapPreviousLine(int line) {
@@ -7741,7 +7625,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * find and return the line number that is the start of the paragraph
      * containing the line number passed in
-     * 
+     *
      * @param line
      * @return
      */
@@ -7754,7 +7638,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * checks if a line is the start of a paragraph
-     * 
+     *
      * @param line
      * @return
      */
@@ -7776,7 +7660,7 @@ public class TextEditorDialog extends CaveSWTDialog
             rval = true;
         } else if (PARAGRAPH_DELIMITERS.contains(lineText.substring(0, 1))) {
             rval = true;
-        } else if (isSaoMetarFlag && lineText.startsWith(" ") == false) {
+        } else if (isSaoMetarFlag && !lineText.startsWith(" ")) {
             rval = true;
         } else if (isComponentNameLine(line - 1)) {
             rval = true;
@@ -7814,7 +7698,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * replace \r\n with \n
-     * 
+     *
      * @param source
      * @return
      */
@@ -7825,7 +7709,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Set airport tool tip to the information at location and display the
      * information.
-     * 
+     *
      * @param location
      */
     private void displayAirportTooltip(Point location) {
@@ -7845,7 +7729,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Parse the METAR or SAO product based on the nearest line location of the
      * mouse cursor to locate the potential airport.
-     * 
+     *
      * @param st
      *            -- the styled text widget containing the selection of text
      * @param y
@@ -7890,7 +7774,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * For the give line index get the line that is the start of the product.
-     * 
+     *
      * @param st
      * @param lineIndex
      * @return line
@@ -7921,6 +7805,71 @@ public class TextEditorDialog extends CaveSWTDialog
         return lineText;
     }
 
+    /**
+     * Determine if the contents of a file contains a text field.
+     *
+     * @param file
+     * @return
+     * @throws IOException
+     */
+    private boolean isTextFile(File file) throws IOException {
+        boolean result = false;
+
+        byte[] bytesFromFile = getBytesFromFile(file);
+        for (byte b : bytesFromFile) {
+            if (b == 0x09 || b == 0x0A || b == 0x0C || b == 0x0D
+                    || b >= 0x20 && b <= 0x7E) {
+                result = true;
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Get the contents of file as a byte array.
+     *
+     * @param file
+     * @return bytes
+     * @throws IOException
+     */
+    private byte[] getBytesFromFile(File file) throws IOException {
+        byte[] bytes = null;
+
+        try (InputStream is = new FileInputStream(file)) {
+
+            // Get the size of the file
+            long length = file.length();
+
+            if (length > Integer.MAX_VALUE) {
+                // File is too large
+            }
+
+            // Create the byte array to hold the data
+            bytes = new byte[(int) length];
+
+            // Read in the bytes
+            int offset = 0;
+            int numRead = 0;
+            while (offset < bytes.length && (numRead = is.read(bytes, offset,
+                    bytes.length - offset)) >= 0) {
+                offset += numRead;
+            }
+
+            // Ensure all the bytes have been read in
+            if (offset < bytes.length) {
+                throw new IOException(
+                        "Could not completely read file " + file.getName());
+            }
+        } catch (Exception ex) {
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error opening input stream.", ex);
+        }
+
+        return bytes;
+    }
+
     private void clearButtons() {
         if (autoWrapMenuItem != null) {
             Menu menu = autoWrapMenuItem.getMenu();
@@ -7932,7 +7881,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Queue a afosId and who to noify.
-     * 
+     *
      * @param afosId
      * @param notify2
      */
@@ -7943,15 +7892,17 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Test to see if this product shouldn't be handled in Text Workstation.
-     * @param product 
-     * 
+     *
+     * @param product
+     *
      * @return true if product is forbidden to be handled by Text Workstation.
      */
     private boolean isProductForbiddenToEdit(StdTextProduct product) {
         return isProductForbiddenToEdit(product, "", false);
     }
 
-    private boolean isProductForbiddenToEdit(StdTextProduct product, boolean b) {
+    private boolean isProductForbiddenToEdit(StdTextProduct product,
+            boolean b) {
         return isProductForbiddenToEdit(product, "", b);
     }
 
@@ -7961,24 +7912,35 @@ public class TextEditorDialog extends CaveSWTDialog
         if (product != null) {
             String ccc = product.getCccid();
             String nnn = product.getNnnid();
-            if (ccc != null && nnn != null) {
-                if (gfePils.contains(nnn) && !exceptionCCCs.contains(ccc)) {
-                    if (!supressUserInfo) {
-                        userInformation(prefix
-                                + "This product MUST be edited in GFE!"
-                                + "\n Please exit and return to GFE."
-                                + ". \n Action Aborted!");
+            // Site SJU issues Spanish version of products. For Spanish version,
+            // XXX is SPN
+            // in the PIL. When XXX is SPN, don't forbid editing (DR 19971 and
+            // DR 20284).
+            if (!"SPN".equals(product.getXxxid().trim())) {
+                if (ccc != null && nnn != null) {
+                    if (gfePils.contains(nnn) && !exceptionCCCs.contains(ccc)) {
+                        if (!supressUserInfo) {
+                            userInformation(
+                                    prefix + "This product MUST be edited in GFE!"
+                                            + "\n Please exit and return to GFE."
+                                            + ". \n Action Aborted!");
+                        }
+                        return true;
                     }
-                    return true;
                 }
             }
             if (!warnGenFlag && warngenPils.contains(nnn)) {
-                if (!"000000".equals(product.getHdrtime())) {
-                    if (!supressUserInfo) {
-                        userInformation(prefix
-                                + "This product may only be edited as a scratch product generated by WarnGen.");
+                // Site SJU issues Spanish version of products. For Spanish
+                // version, XXX is SPN
+                // in the PIL. When XXX is SPN, don't forbid editing (DR 19971).
+                if (!"SPN".equals(product.getXxxid().trim())) {
+                    if (!"000000".equals(product.getHdrtime())) {
+                        if (!supressUserInfo) {
+                            userInformation(prefix
+                                    + "This product may only be edited as a scratch product generated by WarnGen.");
+                        }
+                        return true;
                     }
-                    return true;
                 }
             }
         }
@@ -7988,7 +7950,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Check of the bbb string to make it the empty string when it is for a
      * normal product.
-     * 
+     *
      * @param bbb
      * @return
      */
@@ -8007,6 +7969,7 @@ public class TextEditorDialog extends CaveSWTDialog
             editorCopyBtn.setEnabled(false);
             editorPasteBtn.setEnabled(false);
             editorFillBtn.setEnabled(false);
+            editorAttachBtn.setEnabled(false);
             overStrikeItem.setEnabled(false);
             if (!isTemplateOverwriteModeSet) {
                 if (overwriteMode) {
@@ -8023,6 +7986,7 @@ public class TextEditorDialog extends CaveSWTDialog
             editorCopyBtn.setEnabled(true);
             editorPasteBtn.setEnabled(true);
             editorFillBtn.setEnabled(true);
+            editorAttachBtn.setEnabled(true);
             if (isTemplateOverwriteModeSet && !overwriteMode) {
                 textEditor.invokeAction(ST.TOGGLE_OVERWRITE);
                 isTemplateOverwriteModeSet = false;
@@ -8074,17 +8038,23 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Validate CAVE is in a state to allow sending of text product; and display
      * a warning when unable to send.
-     * 
+     *
      * @return true when able to send text product
      */
     private boolean validateTime() {
+        if (shell != null && !shell.isDisposed() && shell.isVisible()
+                && !SimulatedTimeOperations.isTransmitAllowed()) {
+            SimulatedTimeOperations.displayFeatureLevelWarning(shell,
+                    "Send Text Product");
+            return false;
+        }
         return true;
     }
 
     @Override
     public void timechanged() {
         VizApp.runAsync(new Runnable() {
-            
+
             @Override
             public void run() {
                 validateTime();
@@ -8101,7 +8071,7 @@ public class TextEditorDialog extends CaveSWTDialog
         LocalizationFile lf = pathMgr.getStaticLocalizationFile(
                 LocalizationType.CAVE_STATIC,
                 PARAGRAPH_PADDING_PATTERN_FILENAME);
-        if ((lf != null) && lf.exists()) {
+        if (lf != null && lf.exists()) {
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(lf.openInputStream()))) {
                 String line = null;
@@ -8121,6 +8091,7 @@ public class TextEditorDialog extends CaveSWTDialog
                     }
                 }
                 paddingPatternList = patternList;
+
             } catch (IOException e) {
                 statusHandler
                         .handle(Priority.PROBLEM,
@@ -8139,7 +8110,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
     /**
      * Sets the padding: - according to padding pattern - to empty string
-     * 
+     *
      * @param paragraphStart
      */
     private String getParagraphPadding(String paragraphStart) {
@@ -8147,7 +8118,7 @@ public class TextEditorDialog extends CaveSWTDialog
         for (Pattern paddingPtrn : getPaddingPatternList()) {
             Matcher m = paddingPtrn.matcher(paragraphStart);
             if (m.matches()) {
-                int paragraphOffset = m.group(1).toString().length();
+                int paragraphOffset = m.group(1).length();
                 StringBuilder sb = new StringBuilder(paragraphOffset);
                 for (int i = 0; i < paragraphOffset; i++) {
                     sb.append(" ");
@@ -8166,11 +8137,68 @@ public class TextEditorDialog extends CaveSWTDialog
         return paddingPatternList;
     }
 
+    private boolean verifyLineWidth(final boolean resend) {
+        int lineToWrap = findLineToWrap();
+        if (lineToWrap == -1) {
+            return true;
+        }
+        LineWrapCheckConfirmationMsg lineWrapCheckConfirmationMsg = new LineWrapCheckConfirmationMsg(
+                shell);
+        lineWrapCheckConfirmationMsg.addCloseCallback(new ICloseCallback() {
+
+            @Override
+            public void dialogClosed(Object returnValue) {
+                if (AnswerChoices.EDIT.equals(returnValue)) {
+                    // do nothing
+                } else if (AnswerChoices.FIX.equals(returnValue)) {
+                    while (findLineToWrap() > -1) {
+                        int lineToWrap = findLineToWrap();
+                        // recompileRegex might not have been called
+                        if (standardWrapRegex == null) {
+                            recompileRegex();
+                        }
+                        rewrapInternal(lineToWrap);
+                    }
+                }
+            }
+        });
+        lineWrapCheckConfirmationMsg.open();
+        return false;
+    }
+
+    private int findLineToWrap() {
+        int rval = -1;
+        for (int i = 0; i < textEditor.getLineCount(); ++i) {
+            String line = textEditor.getLine(i).trim();
+            if (line.length() > charWrapCol) {
+                return i;
+            }
+        }
+        return rval;
+    }
+
+    private boolean verifyBufferSize() {
+        if (textEditor.getCharCount() <= 3840) {
+            // 3840 is max characters allowed in RPG
+            return true;
+        }
+
+        RadarTextCheckConfirmationMsg radarTextCheckConfirmationMsg = new RadarTextCheckConfirmationMsg(
+                shell);
+        radarTextCheckConfirmationMsg.open();
+        return false;
+    }
+
     private void logInfo(String s) {
-        statusHandler.handle(Priority.INFO, "Text " + token + " TextEditorDialog (UI Trace) - " + s);
+        statusHandler.handle(Priority.INFO,
+                "Text " + token + " TextEditorDialog (UI Trace) - " + s);
     }
 
     public final String getToken() {
         return token;
+    }
+
+    public boolean isWarnGen() {
+        return warnGenFlag;
     }
 }

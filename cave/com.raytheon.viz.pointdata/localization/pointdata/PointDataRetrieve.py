@@ -36,6 +36,10 @@ import PointDataView, PointDataContainer, NoDataException
 # 
 #
     
+##
+# This is a base file that is not intended to be overridden.
+##
+
 class PointDataRetrieve(object):
     def __init__(self, pluginName, site, parameters, keyId='forecastHr', refTime=None, constraint={}, maxSize=99):
         """Initializes a python PointDataContainer which wraps the Java PointDataContainer capabilities.

@@ -22,8 +22,6 @@ package com.raytheon.edex.plugin.gfe.isc;
 import java.io.File;
 import java.util.Map;
 
-import jep.JepException;
-
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
@@ -32,7 +30,10 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.python.PyUtil;
+import com.raytheon.uf.common.python.PythonIncludePathUtil;
 import com.raytheon.uf.common.python.PythonScript;
+
+import jep.JepException;
 
 /**
  * PythonScript object to run a GFE ISC script, like ifpnetCDF or iscDataRec.
@@ -53,6 +54,7 @@ import com.raytheon.uf.common.python.PythonScript;
  * Dec 08, 2014  #4953     randerso    Updated Jep include path to allow use of
  *                                     LocalizationSupport and TCVUtil
  * Jul 14, 2016  #5747     dgilling    Move edex_static to common_static.
+ * Nov 01, 2016  #5979     njensen     Cast to Number where applicable
  * 
  * </pre>
  * 
@@ -85,7 +87,7 @@ public class IscScript extends PythonScript {
 
     private static String buildIncludePath() {
         return PyUtil.buildJepIncludePath(
-                GfePyIncludeUtil.getCommonPythonIncludePath(),
+                PythonIncludePathUtil.getCommonPythonIncludePath(),
                 GfePyIncludeUtil.getCommonGfeIncludePath(),
                 GfePyIncludeUtil.getVtecIncludePath(),
                 GfePyIncludeUtil.getIscScriptsIncludePath());
@@ -142,10 +144,10 @@ public class IscScript extends PythonScript {
                 + "' in sys.path");
         int index;
         if (inList) {
-            index = (Integer) jep
-                    .getValue("sys.path.index('" + basePath + "')");
+            index = ((Number) jep
+                    .getValue("sys.path.index('" + basePath + "')")).intValue();
         } else {
-            index = (Integer) jep.getValue("len(sys.path)");
+            index = ((Number) jep.getValue("len(sys.path)")).intValue();
             jep.eval("sys.path.insert(" + index + ", '" + basePath + "')");
         }
         jep.eval("sys.path.insert(" + index + ", '" + sitePath + "')");

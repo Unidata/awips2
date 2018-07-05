@@ -36,11 +36,7 @@
             jdbc:postgresql://${db.addr}:${db.port}/${hm.db.name}
         </property>
         <property name="connection.username">awipsadmin</property>
-        <property name="connection.sslmode">${db.auth.sslmode}</property>
-        <property name="connection.sslfactory">org.postgresql.ssl.jdbc4.LibPQFactory</property>
-        <property name="connection.sslcert">${db.auth.dir}/awipsadmin.crt</property>
-        <property name="connection.sslkey">${db.auth.dir}/awipsadmin.pk8</property>
-        <property name="connection.sslrootcert">${db.auth.dir}/root.crt</property>
+        <property name="connection.password">awips</property>
         <property name="connection.release_mode">
             after_transaction
         </property>

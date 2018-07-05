@@ -308,7 +308,7 @@ public class HistoryListDlg extends CaveSWTDialog {
                 Bundle b = HistoryList.getInstance().getBundle(
                         dataList.getSelectionIndex(), false);
                 alterDlg = new AlterBundleDlg(b, getShell());
-                alterDlg.setCloseCallback(new ICloseCallback() {
+                alterDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {

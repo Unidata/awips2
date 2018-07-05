@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -30,6 +30,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.Callable;
@@ -48,7 +49,6 @@ import com.raytheon.uf.common.dataplugin.warning.config.GeospatialConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.config.WarngenConfiguration;
 import com.raytheon.uf.common.dataplugin.warning.gis.GeospatialData;
 import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil;
-import com.raytheon.uf.common.dataplugin.warning.portions.GisUtil.Direction;
 import com.raytheon.uf.common.dataplugin.warning.portions.PortionsUtil;
 import com.raytheon.uf.common.dataplugin.warning.util.CountyUserData;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
@@ -80,23 +80,23 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
 
 /**
  * Area
- * 
+ *
  * Finds areas affected by area warnings
- * 
+ *
  * <pre>
- * 
+ *
  *    SOFTWARE HISTORY
- *   
+ *
  *    Date         Ticket#     Engineer    Description
  *    ------------ ----------  ----------- --------------------------
  *    Nov 15, 2007 #601        chammack    Initial Creation.
- *    Mar 28, 2012 #14691      Qinglu lin  Created AffectedAreas' partOfParentRegion based on 
- *                                         FE_AREA stored in GeospatialData's attributes map, 
+ *    Mar 28, 2012 #14691      Qinglu lin  Created AffectedAreas' partOfParentRegion based on
+ *                                         FE_AREA stored in GeospatialData's attributes map,
  *                                         instead of calculating them.
  *    Apr 11, 2012 #14691      Qinglu lin  Extra code were added to handle marine warnings as
  *                                         MarineZones shapefiles have no FE_AREA.
  *    Apr 13, 2012 #14691      Qinglu lin  Added code for two more fe_area: er and nr.
- *    May  4, 2012 #14887      Qinglu lin  Changed 0.25 to 0.60 for DEFAULT_PORTION_TOLERANCE; 
+ *    May  4, 2012 #14887      Qinglu lin  Changed 0.25 to 0.60 for DEFAULT_PORTION_TOLERANCE;
  *                                         added code to pass a Envelope calculatePortion().
  *    Nov  9, 2012 DR 15430    D. Friedman Extracted method converFeAreaToPartList.
  *    Apr 29, 2013  1955       jsanchez    Ignored comparing the geometry's user data when finding intersected areas.
@@ -112,13 +112,14 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometry;
  *    Mar  9, 2014 ASM #17190  D. Friedman Use fipsField and areaField for unique area ID.
  *    May  7, 2015 ASM #17438  D. Friedman Clean up debug and performance logging.
  *    Dec 15, 2015 ASM #17933 mgamazaychikov Update calculation of partOfParentRegion.
- *    May 12, 2016 ASM #18789  D. Friedman Improve findInsectingAreas performance.
- *    Jul 21, 2016 DR 18159    Qinglu Lin  Updated findAffectedAreas() and findInsectingAreas(), added
+ *    May 12, 2016 ASM #18789  D. Friedman Improve findIntersectingAreas performance.
+ *    Jul 21, 2016 DR 18159    Qinglu Lin  Updated findAffectedAreas() and findIntersectingAreas(), added
  *                                         createFipsGeometryMap) and createKey().
+ *    May 19, 2017 DR 19990    Qinglu Lin  Added removeEmptyGeometry().
+ *    Aug 29, 2017  6328       randerso    Fix misspelled method name. Removed unused method.
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1
  */
 public class Area {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -132,10 +133,6 @@ public class Area {
      * direction is included
      */
     public static final double DEFAULT_PORTION_TOLERANCE = 0.60;
-
-    private static final List<String> SPECIAL_CASE_FE_AREAS = Arrays
-            .asList(new String[] { "PA", "MI", "PD", "UP", "BB", "ER", "EU",
-                    "SR", "NR", "WU", "DS" });
 
     private Map<String, Geometry> fipsCountynameGeometry = new HashMap<>();
 
@@ -153,10 +150,26 @@ public class Area {
 
     private PortionsUtil portionsUtil;
 
+    /**
+     * Constructor
+     *
+     * @param portionsUtil
+     */
     public Area(PortionsUtil portionsUtil) {
         this.portionsUtil = portionsUtil;
     }
 
+    /**
+     * Find affected areas
+     *
+     * @param config
+     * @param polygon
+     * @param warningArea
+     * @param localizedSite
+     * @param warngenLayer
+     * @return the affected areas
+     * @throws VizException
+     */
     public AffectedAreas[] findAffectedAreas(WarngenConfiguration config,
             Geometry polygon, Geometry warningArea, String localizedSite,
             WarngenLayer warngenLayer) throws VizException {
@@ -167,7 +180,7 @@ public class Area {
         Validate.notNull(polygon, "Area geometry must not be null");
 
         // Get spatial query result for entries in our area from existing data;
-        List<Geometry> geoms = new ArrayList<Geometry>();
+        List<Geometry> geoms = new ArrayList<>();
         GeometryUtil.buildGeometryList(geoms, warningArea);
 
         GeospatialConfiguration geospatialConfig = config.getGeospatialConfig();
@@ -196,7 +209,7 @@ public class Area {
                 .getPointFilter();
         String parentAreaField = areaConfig.getParentAreaField();
         String timezonePathcastField = geospatialConfig.getTimezoneField();
-        ArrayList<String> fields = new ArrayList<String>();
+        ArrayList<String> fields = new ArrayList<>();
         /* fields is not used in querying to the database */
         if (areaConfig.getSortBy() != null) {
             for (String field : areaConfig.getSortBy()) {
@@ -204,19 +217,20 @@ public class Area {
             }
         }
 
-        Map<String, GeospatialData> countyMap = new HashMap<String, GeospatialData>();
-        Map<String, Geometry> mergedIntersect = new HashMap<String, Geometry>();
+        Map<String, GeospatialData> countyMap = new HashMap<>();
+        Map<String, Geometry> mergedIntersect = new HashMap<>();
         for (Geometry g : geoms) {
             CountyUserData data = (CountyUserData) g.getUserData();
             if (data != null) {
                 String mapKey = createKey(data.entry.attributes, fipsField,
                         areaField);
-                if (countyMap.containsKey(mapKey) == false) {
+                if (!countyMap.containsKey(mapKey)) {
                     countyMap.put(mapKey, data.entry);
                 }
                 if (countiesOfSplitArea.contains(mapKey)) {
-                    // for county with split areas, store merged areas in mergedIntersect.
-                    if (! mergedIntersect.containsKey(mapKey)) {
+                    // for county with split areas, store merged areas in
+                    // mergedIntersect.
+                    if (!mergedIntersect.containsKey(mapKey)) {
                         mergedIntersect.put(mapKey, g);
                     } else {
                         Geometry g1 = mergedIntersect.get(mapKey);
@@ -250,8 +264,8 @@ public class Area {
 
         if (areaConfig.getAreaNotationTranslationFile() != null) {
             try {
-                abbreviation = new Abbreviation(WarnFileUtil
-                        .findFileInLocalizationIncludingBackupSite(
+                abbreviation = new Abbreviation(
+                        WarnFileUtil.findFileInLocalizationIncludingBackupSite(
                                 areaConfig.getAreaNotationTranslationFile(),
                                 localizedSite, null).getFile());
             } catch (FileNotFoundException e) {
@@ -260,8 +274,8 @@ public class Area {
             }
         }
 
-        List<String> uniqueAreaIDs = new ArrayList<String>();
-        List<AffectedAreas> areas = new ArrayList<AffectedAreas>();
+        List<String> uniqueAreaIDs = new ArrayList<>();
+        List<AffectedAreas> areas = new ArrayList<>();
         long t0f = System.currentTimeMillis();
         for (GeospatialData regionFeature : countyMap.values()) {
             Geometry regionGeom = regionFeature.geometry;
@@ -282,11 +296,10 @@ public class Area {
             }
 
             if (abbreviation != null) {
-                area.areaNotation = abbreviation.translate(String
-                        .valueOf(regionFeature.attributes
-                                .get(areaNotationField)));
-                area.areasNotation = abbreviation.translatePlural(String
-                        .valueOf(regionFeature.attributes
+                area.areaNotation = abbreviation.translate(String.valueOf(
+                        regionFeature.attributes.get(areaNotationField)));
+                area.areasNotation = abbreviation
+                        .translatePlural(String.valueOf(regionFeature.attributes
                                 .get(areaNotationField)));
             }
             Geometry intersection;
@@ -294,13 +307,13 @@ public class Area {
                     areaField);
             if (countiesOfSplitArea.contains(mapKey)) {
                 // replace regionGeom with that of county with split areas
-                regionGeom = (Geometry) fipsCountynameGeometry.get(mapKey);
+                regionGeom = fipsCountynameGeometry.get(mapKey);
                 // get intersection of county with split areas
                 intersection = mergedIntersect.get(mapKey);
             } else {
-                String gid = String.valueOf(regionFeature.attributes
-                        .get(WarngenLayer.GID));
-                List<Geometry> intersections = new ArrayList<Geometry>();
+                String gid = String.valueOf(
+                        regionFeature.attributes.get(WarngenLayer.GID));
+                List<Geometry> intersections = new ArrayList<>();
                 for (Geometry g : geoms) {
                     if (GeometryUtil.getPrefix(g.getUserData())
                             .equalsIgnoreCase(gid)) {
@@ -308,10 +321,8 @@ public class Area {
                     }
                 }
                 intersection = regionGeom.getFactory()
-                        .createGeometryCollection(
-                                intersections
-                                .toArray(new Geometry[intersections
-                                                      .size()]));
+                        .createGeometryCollection(intersections
+                                .toArray(new Geometry[intersections.size()]));
             }
             double areaIntersection = intersection.getArea();
 
@@ -321,20 +332,21 @@ public class Area {
                 try {
                     String entityID = area.stateabbr + areaSource.charAt(0)
                             + area.fips.substring(2);
-                    area.partOfArea = GisUtil.asStringList(portionsUtil
-                            .getPortions(entityID, regionGeom, intersection,
-                                    true));
+                    area.partOfArea = GisUtil
+                            .asStringList(portionsUtil.getPortions(entityID,
+                                    regionGeom, intersection, true));
                 } catch (Exception e) {
-                    statusHandler.error("Unable to calculate part of area for "
-                            + area.name, e);
+                    statusHandler.error(
+                            "Unable to calculate part of area for " + area.name,
+                            e);
                 }
             }
 
             // Search the parent region
             GeospatialData parentRegion = regionFeature.parent;
             if (parentRegion != null) {
-                area.parentRegion = String.valueOf(parentRegion.attributes
-                        .get(parentAreaField));
+                area.parentRegion = String
+                        .valueOf(parentRegion.attributes.get(parentAreaField));
                 String feArea = (String) regionFeature.attributes
                         .get("FE_AREA");
                 area.partOfParentRegion = Arrays.asList(feArea);
@@ -342,11 +354,11 @@ public class Area {
 
             // Search against point matches
             if (ptFeatures != null) {
-                List<String> pointList = new ArrayList<String>();
+                List<String> pointList = new ArrayList<>();
                 for (SpatialQueryResult ptRslt : ptFeatures) {
                     if (preparedRegionGeom.contains(ptRslt.geometry)) {
-                        pointList.add(String.valueOf(ptRslt.attributes
-                                .get(pointField)));
+                        pointList.add(String
+                                .valueOf(ptRslt.attributes.get(pointField)));
                     }
                 }
 
@@ -359,16 +371,17 @@ public class Area {
              * ID.
              */
             String areaID = area.fips + ':' + area.name;
-            if (uniqueAreaIDs.contains(areaID) == false) {
+            if (!uniqueAreaIDs.contains(areaID)) {
                 uniqueAreaIDs.add(areaID);
                 areas.add(area);
             }
         }
-        perfLog.logDuration("affected areas '" + areaConfig.getVariable()
-                + "' features", System.currentTimeMillis() - t0f);
+        perfLog.logDuration(
+                "affected areas '" + areaConfig.getVariable() + "' features",
+                System.currentTimeMillis() - t0f);
 
         // Perform Sort
-        if (fields.size() > 0) {
+        if (!fields.isEmpty()) {
             AffectedAreasComparator comparator = new AffectedAreasComparator(
                     fields);
             Collections.sort(areas, comparator);
@@ -383,24 +396,25 @@ public class Area {
      * warnArea can just be re-used in the template. If the area source of the
      * intersect and the hatched are the same, then the configuration and
      * template files are configured inefficiently.
-     * 
+     *
      * @param config
      * @param warnPolygon
      * @param warnArea
      * @param localizedSite
      * @param warngenLayer
-     * @return
+     * @return the intersecting areas
      * @throws VizException
      */
-    public Map<String, Object> findInsectingAreas(WarngenConfiguration config,
-            Geometry warnPolygon, Geometry warnArea, String localizedSite,
-            WarngenLayer warngenLayer) throws VizException {
-        Map<String, Object> areasMap = new HashMap<String, Object>();
+    public Map<String, Object> findIntersectingAreas(
+            WarngenConfiguration config, Geometry warnPolygon,
+            Geometry warnArea, String localizedSite, WarngenLayer warngenLayer)
+            throws VizException {
+        Map<String, Object> areasMap = new HashMap<>();
         try {
             Geometry precisionReducedArea = PolygonUtil
                     .reducePrecision(warnArea);
             if (precisionReducedArea.isValid()) {
-                warnArea = precisionReducedArea;
+                warnArea = removeEmptyGeometry(precisionReducedArea);
             }
         } catch (Exception e) {
             // ignore
@@ -410,7 +424,7 @@ public class Area {
             createFipsGeometryMap(config, localizedSite, warngenLayer);
         }
 
-        Map<String, Geometry> intersectMap = new HashMap<String, Geometry>();
+        Map<String, Geometry> intersectMap = new HashMap<>();
         Map<String, Double> areaOfGeomMap = new HashMap<>();
         String hatchedAreaSource = config.getHatchedAreaSource()
                 .getAreaSource();
@@ -418,33 +432,38 @@ public class Area {
         boolean subdivide = true;
         try {
             String propertiesText = WarnFileUtil.convertFileContentsToString(
-                    SUBDIVISION_CONFIG_FILE, LocalizationManager.getInstance()
-                            .getCurrentSite(), warngenLayer.getLocalizedSite());
+                    SUBDIVISION_CONFIG_FILE,
+                    LocalizationManager.getInstance().getCurrentSite(),
+                    warngenLayer.getLocalizedSite());
             if (propertiesText != null) {
                 Properties props = new Properties();
                 props.load(new StringReader(propertiesText));
-                subdivide = Boolean.parseBoolean(props.getProperty("enabled", "true"));
+                subdivide = Boolean
+                        .parseBoolean(props.getProperty("enabled", "true"));
             }
         } catch (FileNotFoundException e) {
             // ignore
         } catch (IOException e) {
-            statusHandler.handle(Priority.WARN, "Could not load subdivision configuration file", e);
+            statusHandler.handle(Priority.WARN,
+                    "Could not load subdivision configuration file", e);
         }
         if (!subdivide) {
-            statusHandler.debug("findIntersectingAreas: subdivision is disabled");
+            statusHandler
+                    .debug("findIntersectingAreas: subdivision is disabled");
         }
 
         long t0 = System.currentTimeMillis();
         for (AreaSourceConfiguration asc : config.getAreaSources()) {
-            boolean ignoreUserData = asc.getAreaSource().equals(
-                    hatchedAreaSource) == false;
+            boolean ignoreUserData = !asc.getAreaSource()
+                    .equals(hatchedAreaSource);
             if (asc.getType() == AreaType.INTERSECT) {
-                List<Geometry> geoms = new ArrayList<Geometry>();
+                List<Geometry> geoms = new ArrayList<>();
                 if (subdivide && ignoreUserData) {
                     synchronized (Area.class) {
                         if (intersectionExecutor == null) {
                             int nThreads = Math.max(2,
-                                    Runtime.getRuntime().availableProcessors() / 2);
+                                    Runtime.getRuntime().availableProcessors()
+                                            / 2);
                             ThreadPoolExecutor executor = new ThreadPoolExecutor(
                                     nThreads, nThreads, 60, TimeUnit.SECONDS,
                                     new LinkedBlockingQueue<Runnable>());
@@ -455,32 +474,36 @@ public class Area {
                     Geometry waPoly = toPolygonal(warnArea);
                     GeospatialData[] features = warngenLayer.getGeodataFeatures(
                             asc.getAreaSource(), localizedSite);
-                    List<Callable<Geometry>> callables = new ArrayList<>(features.length);
+                    List<Callable<Geometry>> callables = new ArrayList<>(
+                            features.length);
                     for (GeospatialData f : features) {
                         callables.add(new FeatureIntersection(waPoly, f));
                     }
                     try {
-                        List<Future<Geometry>> futures = intersectionExecutor.invokeAll(callables);
+                        List<Future<Geometry>> futures = intersectionExecutor
+                                .invokeAll(callables);
                         int fi = 0;
-                        for (Future<Geometry> future: futures) {
+                        for (Future<Geometry> future : futures) {
                             Geometry intersect = future.get();
                             if (intersect != null && !intersect.isEmpty()
-                                    && warngenLayer.filterArea(features[fi], intersect, asc)) {
+                                    && warngenLayer.filterArea(features[fi],
+                                            intersect, asc)) {
                                 geoms.add(intersect);
                             }
                             fi++;
                         }
                     } catch (ExecutionException | InterruptedException e) {
-                        throw new VizException("Error finding intersecting areas", e);
+                        throw new VizException(
+                                "Error finding intersecting areas", e);
                     }
                 } else {
                     for (GeospatialData f : warngenLayer.getGeodataFeatures(
                             asc.getAreaSource(), localizedSite)) {
-                        Geometry intersect = GeometryUtil.intersection(
-                                warnArea, f.prepGeom, ignoreUserData);
+                        Geometry intersect = GeometryUtil.intersection(warnArea,
+                                f.prepGeom, ignoreUserData);
                         if (!intersect.isEmpty()) {
-                            CountyUserData data = (CountyUserData) f.getGeometry()
-                                    .getUserData();
+                            CountyUserData data = (CountyUserData) f
+                                    .getGeometry().getUserData();
                             double areaOfGeom = (Double) f.attributes
                                     .get(WarngenLayer.AREA);
                             String key = createKey(data.entry.attributes,
@@ -500,14 +523,16 @@ public class Area {
                         }
                     }
 
-                    for (String key : intersectMap.keySet()) {
+                    for (Entry<String, Geometry> entry : intersectMap
+                            .entrySet()) {
+                        Geometry intersect = intersectMap.get(entry.getValue());
+
+                        String key = entry.getKey();
                         Geometry geometry = fipsCountynameGeometry.get(key);
-                        Geometry intersect = intersectMap.get(key);
                         double areaOfGeom = areaOfGeomMap.get(key);
 
-                        if (!intersect.isEmpty()
-                                && warngenLayer.filterArea(intersect, geometry,
-                                        areaOfGeom, asc)) {
+                        if (!intersect.isEmpty() && warngenLayer.filterArea(
+                                intersect, geometry, areaOfGeom, asc)) {
                             geoms.add(intersect);
                         }
                     }
@@ -520,9 +545,29 @@ public class Area {
                 areasMap.put(asc.getVariable(), affectedAreas);
             }
         }
-        perfLog.logDuration("findIntersectingAreas", System.currentTimeMillis() - t0);
+        perfLog.logDuration("findIntersectingAreas",
+                System.currentTimeMillis() - t0);
 
         return areasMap;
+    }
+
+    /*
+     * Remove empty Geometry in GeometryCollection.
+     */
+    private Geometry removeEmptyGeometry(Geometry g) {
+        int numOfGeom = g.getNumGeometries();
+        List<Geometry> list = new ArrayList<>(numOfGeom);
+        for (int i = 0; i < numOfGeom; i++) {
+            if (!g.getGeometryN(i).isEmpty()) {
+                list.add(g.getGeometryN(i));
+            }
+        }
+        if (list.size() != numOfGeom) {
+            return new GeometryFactory().createGeometryCollection(
+                    list.toArray(new Geometry[list.size()]));
+        } else {
+            return g;
+        }
     }
 
     /*
@@ -536,7 +581,8 @@ public class Area {
         } else {
             List<Polygon> pa = new ArrayList<>(input.getNumGeometries() + 63);
             toPolygonalInner(input, pa);
-            result = input.getFactory().createMultiPolygon(pa.toArray(new Polygon[pa.size()]));
+            result = input.getFactory()
+                    .createMultiPolygon(pa.toArray(new Polygon[pa.size()]));
         }
         return result;
     }
@@ -555,6 +601,7 @@ public class Area {
 
     private static class FeatureIntersection implements Callable<Geometry> {
         private Geometry waPoly;
+
         private GeospatialData f;
 
         public FeatureIntersection(Geometry waPoly, GeospatialData f) {
@@ -568,15 +615,15 @@ public class Area {
             if (f.prepGeom.intersects(waPoly)) {
                 try {
                     Geometry fgPoly = toPolygonal(f.geometry);
-                    List<Geometry> out = new ArrayList<Geometry>(64);
+                    List<Geometry> out = new ArrayList<>(64);
                     subdivIntersect(waPoly, fgPoly, true, out);
                     intersect = waPoly.getFactory().createGeometryCollection(
                             out.toArray(new Geometry[out.size()]));
                     // subdivIntersect loses user data to set it again.
                     intersect.setUserData(f.geometry.getUserData());
                 } catch (TopologyException e) {
-                    intersect = GeometryUtil.intersection(waPoly,
-                            f.prepGeom, true);
+                    intersect = GeometryUtil.intersection(waPoly, f.prepGeom,
+                            true);
                 }
             }
             return intersect;
@@ -585,8 +632,8 @@ public class Area {
 
     private static void subdivIntersect(Geometry warnArea, Geometry featureGeom,
             boolean orient, List<Geometry> out) {
-        Envelope env = warnArea.getEnvelopeInternal().intersection(
-                featureGeom.getEnvelopeInternal());
+        Envelope env = warnArea.getEnvelopeInternal()
+                .intersection(featureGeom.getEnvelopeInternal());
         if (env.isNull()) {
             return;
         }
@@ -599,13 +646,15 @@ public class Area {
         subdivIntersectInner(c, warnArea, featureGeom, orient, 1, out);
     }
 
-    private static void subdivIntersectInner(Coordinate[] env, Geometry warnArea,
-            Geometry featureGeom, boolean orientation, int depth,
-            List<Geometry> out) {
-        if (warnArea.getNumGeometries() * featureGeom.getNumGeometries() <= DEFAULT_SUBDIVISION_TRESHOLD
+    private static void subdivIntersectInner(Coordinate[] env,
+            Geometry warnArea, Geometry featureGeom, boolean orientation,
+            int depth, List<Geometry> out) {
+        if (warnArea.getNumGeometries()
+                * featureGeom.getNumGeometries() <= DEFAULT_SUBDIVISION_TRESHOLD
                 || depth >= MAX_SUBDIVISION_DEPTH) {
             out.add(batchIntersect(warnArea, featureGeom));
-        } else if (featureGeom.getNumGeometries() <= SIMPLE_FEATURE_GEOM_COUNT_THRESHOLD) {
+        } else if (featureGeom
+                .getNumGeometries() <= SIMPLE_FEATURE_GEOM_COUNT_THRESHOLD) {
             try {
                 Polygon clipPoly = warnArea.getFactory().createPolygon(env);
                 Geometry clippedWarnArea = clip(clipPoly, warnArea);
@@ -617,7 +666,8 @@ public class Area {
             } catch (TopologyException e) {
                 // Additional fallback without clipping.
                 statusHandler.handle(Priority.DEBUG,
-                        "Clipped intersection failed.  Will attempt fallback.", e);
+                        "Clipped intersection failed.  Will attempt fallback.",
+                        e);
                 out.add(GeometryUtil.intersection(warnArea, featureGeom, true));
             }
         } else {
@@ -629,7 +679,8 @@ public class Area {
                     if (orientation) {
                         // horizontal split
                         c[0] = env[0];
-                        c[1] = new Coordinate((env[0].x + env[1].x) / 2, env[0].y);
+                        c[1] = new Coordinate((env[0].x + env[1].x) / 2,
+                                env[0].y);
                         c[2] = new Coordinate(c[1].x, env[2].y);
                         c[3] = env[3];
                         c[4] = c[0];
@@ -637,7 +688,8 @@ public class Area {
                         // vertical split
                         c[0] = env[0];
                         c[1] = env[1];
-                        c[2] = new Coordinate(c[1].x, (env[0].y + env[3].y) / 2);
+                        c[2] = new Coordinate(c[1].x,
+                                (env[0].y + env[3].y) / 2);
                         c[3] = new Coordinate(c[0].x, c[2].y);
                         c[4] = c[0];
                     }
@@ -666,8 +718,10 @@ public class Area {
                 } catch (TopologyException e) {
                     // Additional fallback without clipping.
                     statusHandler.handle(Priority.DEBUG,
-                            "Subdivided intersection failed.  Will attempt fallback.", e);
-                    out.add(GeometryUtil.intersection(warnArea, featureGeom, true));
+                            "Subdivided intersection failed.  Will attempt fallback.",
+                            e);
+                    out.add(GeometryUtil.intersection(warnArea, featureGeom,
+                            true));
                     return;
                 }
             }
@@ -683,7 +737,8 @@ public class Area {
      * would be.
      *
      * @param p
-     * @param g must be Polygonal
+     * @param g
+     *            must be Polygonal
      * @return
      */
     private static Geometry clip(Polygon p, Geometry g) {
@@ -707,68 +762,31 @@ public class Area {
             }
             // else, discard gi
         }
-        return g.getFactory().createMultiPolygon(out.toArray(new Polygon[out.size()]));
+        return g.getFactory()
+                .createMultiPolygon(out.toArray(new Polygon[out.size()]));
     }
 
-    private static Geometry batchIntersect(Geometry warnArea, Geometry featureGeom) {
+    private static Geometry batchIntersect(Geometry warnArea,
+            Geometry featureGeom) {
         return GeometryUtil.intersection(warnArea, featureGeom, true);
     }
 
-    public static List<String> converFeAreaToPartList(String feArea) {
-        final List<String> partList = new ArrayList<String>();
-        if (feArea != null) {
-            feArea = feArea.toUpperCase();
-            if (SPECIAL_CASE_FE_AREAS.contains(feArea)) {
-                partList.add(feArea);
-            } else {
-                for (int i = 0; i < feArea.length(); i++) {
-                    char c = feArea.charAt(i);
-                    Direction direction = null;
-                    switch (c) {
-
-                    case 'C':
-                        direction = Direction.CENTRAL;
-                        break;
-                    case 'W':
-                        direction = Direction.WEST;
-                        break;
-                    case 'N':
-                        direction = Direction.NORTH;
-                        break;
-                    case 'E':
-                        direction = Direction.EAST;
-                        break;
-                    case 'S':
-                        direction = Direction.SOUTH;
-                        break;
-                    default:
-                        break;
-                    }
-
-                    if (direction != null) {
-                        partList.add(direction.toString());
-                    }
-                }
-            }
-        }
-        return partList;
-    }
-
-    public void createFipsGeometryMap(WarngenConfiguration config,
+    private void createFipsGeometryMap(WarngenConfiguration config,
             String localizedSite, WarngenLayer warngenLayer) {
         for (AreaSourceConfiguration asc : config.getAreaSources()) {
-            for (GeospatialData f : warngenLayer.getGeodataFeatures(
-                    asc.getAreaSource(), localizedSite)) {
+            for (GeospatialData f : warngenLayer
+                    .getGeodataFeatures(asc.getAreaSource(), localizedSite)) {
                 Geometry g = f.getGeometry();
                 CountyUserData data = (CountyUserData) g.getUserData();
                 if (data != null) {
-                    Geometry geom = (Geometry) data.entry.getGeometry();
+                    Geometry geom = data.entry.getGeometry();
                     String mapKey = createKey(data.entry.attributes,
                             asc.getFipsField(), asc.getAreaField());
                     if (fipsCountynameGeometry.containsKey(mapKey)) {
                         Geometry geom1 = fipsCountynameGeometry.get(mapKey);
                         CountyUserData cud;
-                        cud = ((CountyUserData) geom1.getUserData()).copyEntry();
+                        cud = ((CountyUserData) geom1.getUserData())
+                                .copyEntry();
                         cud.gid = GeometryUtil.getPrefix(cud);
                         geom = GeometryUtil.union(geom1, geom);
                         geom.setUserData(cud);
@@ -782,12 +800,10 @@ public class Area {
         while (iter.hasNext()) {
             // replace LAT/LON with centroid of combined areas
             String mapKey = iter.next();
-            Geometry regionGeom = (Geometry) fipsCountynameGeometry.get(mapKey);
+            Geometry regionGeom = fipsCountynameGeometry.get(mapKey);
             CountyUserData cud = (CountyUserData) regionGeom.getUserData();
-            cud.entry.attributes.put("LAT", regionGeom.getCentroid()
-                    .getY());
-            cud.entry.attributes.put("LON", regionGeom.getCentroid()
-                    .getX());
+            cud.entry.attributes.put("LAT", regionGeom.getCentroid().getY());
+            cud.entry.attributes.put("LON", regionGeom.getCentroid().getX());
             regionGeom.setUserData(cud);
         }
     }

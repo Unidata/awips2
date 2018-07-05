@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.grid.rsc;
 
-import java.util.Map;
-
 import javax.measure.converter.UnitConverter;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
@@ -31,6 +29,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.grid.rsc.data.GeneralGridData;
 import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
 import com.raytheon.viz.grid.rsc.general.D2DGridResource;
 
 /**
@@ -42,18 +42,16 @@ import com.raytheon.viz.grid.rsc.general.D2DGridResource;
  * 
  * SOFTWARE HISTORY
  * 
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Oct 13, 2010           bsteffen    Initial creation
- * Feb 07, 2014  2211     bsteffen    Fix sampling
- * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -------------------------------
+ * Oct 13, 2010  4820     bsteffen  Initial creation
+ * Feb 07, 2014  2211     bsteffen  Fix sampling
+ * Aug 30, 2016  3240     bsteffen  Use Interrogatable for inspect
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-
 public class DataMappedGridResource extends D2DGridResource {
 
     public DataMappedGridResource(GridResourceData data, LoadProperties props) {
@@ -71,13 +69,13 @@ public class DataMappedGridResource extends D2DGridResource {
 
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
-
-        Map<String, Object> map = interrogate(coord);
-        if (map == null) {
+        InterrogateMap map = interrogate(coord, getTimeForResource(),
+                Interrogator.VALUE, UNIT_STRING_INTERROGATE_KEY);
+        if (map == null || map.isEmpty()) {
             return "NO DATA";
         }
-        Double val = ((Number) map.get(INTERROGATE_VALUE)).doubleValue();
-        if (val.isNaN() || val <= -9999) {
+        double val = map.get(Interrogator.VALUE).getValue().doubleValue();
+        if (Double.isNaN(val) || val <= -9999) {
             return "No Data";
         }
 
@@ -106,8 +104,8 @@ public class DataMappedGridResource extends D2DGridResource {
                 val = cm2d.convert(val);
             }
         }
-        return ((DataMappedGridResourceData) this.getResourceData())
-                .getSampleFormat().format(val) + map.get(INTERROGATE_UNIT);
+        return ((DataMappedGridResourceData) resourceData).getSampleFormat()
+                .format(val) + map.get(UNIT_STRING_INTERROGATE_KEY);
     }
 
     @Override

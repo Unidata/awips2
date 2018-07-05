@@ -48,8 +48,8 @@ import com.raytheon.uf.viz.core.rsc.AbstractRequestableResourceData;
 import com.raytheon.uf.viz.core.rsc.AbstractResourceData;
 import com.raytheon.uf.viz.core.rsc.updater.DataUpdateTree;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
-import com.raytheon.viz.grid.inv.RadarUpdater;
-import com.raytheon.viz.grid.util.RadarAdapter;
+import com.raytheon.uf.viz.grid.radar.RadarAdapter;
+import com.raytheon.uf.viz.grid.radar.RadarUpdater;
 
 /**
  * Replacement for {@link DataUpdateTree} which will perform updates by querying
@@ -68,13 +68,12 @@ import com.raytheon.viz.grid.util.RadarAdapter;
  * Dec 04, 2015  5169     bsteffen   Do not send duplicate grid updates.
  * Mar 30, 2016  5535     bsteffen   Allow radar to update normally and only
  *                                   radar-as-grid to update specially
+ * Aug 22, 2017  6332     bsteffen   Change import, cleanup.
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-
 public class ThinClientDataUpdateTree extends DataUpdateTree {
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ThinClientDataUpdateTree.class);
@@ -104,7 +103,7 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
         String time = DATE_FORMAT.format(new Date(lastQuery
                 - getServerTimeOffset()));
         lastQuery = System.currentTimeMillis();
-        Set<AlertMessage> messages = new HashSet<AlertMessage>();
+        Set<AlertMessage> messages = new HashSet<>();
         for (DataPair pair : getDataPairs()) {
             AbstractResourceData resourceData = pair.data.getResourceData();
             if (!(resourceData instanceof AbstractRequestableResourceData)
@@ -119,7 +118,7 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
                 /* Grid does updates differently. */
                 continue;
             }
-            metadata = new HashMap<String, RequestConstraint>(metadata);
+            metadata = new HashMap<>(metadata);
             metadata.put("insertTime", new RequestConstraint(time,
                     ConstraintType.GREATER_THAN));
             try {
@@ -131,10 +130,7 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
                             .loadMapFromUri(am.dataURI);
                     messages.add(am);
                 }
-            } catch (VizException e) {
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            } catch (DataCubeException e) {
+            } catch (DataCubeException | VizException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
                         e);
             }
@@ -153,14 +149,14 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
      * @see RadarUpdater#convertRadarAlertsToGridDatauris(Collection)
      */
     private void getRadarUpdates(String time, Set<AlertMessage> messages) {
-        Set<AlertMessage> radarMessages = new HashSet<AlertMessage>();
+        Set<AlertMessage> radarMessages = new HashSet<>();
         Map<String, RequestConstraint> metadata = RadarAdapter.getInstance()
                 .getUpdateConstraints();
         if (metadata == null) {
             // Can happen if grid inventory has not been initialized
             return;
         }
-        metadata = new HashMap<String, RequestConstraint>(metadata);
+        metadata = new HashMap<>(metadata);
         metadata.put("insertTime", new RequestConstraint(time,
                 ConstraintType.GREATER_THAN));
         try {
@@ -180,16 +176,14 @@ public class ThinClientDataUpdateTree extends DataUpdateTree {
                         am.dataURI);
                 messages.add(am);
             }
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        } catch (DataCubeException e) {
+        } catch (DataCubeException | VizException e) {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
     }
 
     /** Get gridded data update messages. */
     private void getGridUpdates(String time, Set<AlertMessage> messages) {
-        Map<String, RequestConstraint> newQuery = new HashMap<String, RequestConstraint>();
+        Map<String, RequestConstraint> newQuery = new HashMap<>();
         DbQueryRequest dbRequest = new DbQueryRequest();
         newQuery.put(PluginDataObject.PLUGIN_NAME_ID, new RequestConstraint(
                 GridConstants.GRID));

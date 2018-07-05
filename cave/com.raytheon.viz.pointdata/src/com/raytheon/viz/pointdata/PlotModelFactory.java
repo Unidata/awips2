@@ -33,6 +33,8 @@ import java.util.Formatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
@@ -87,11 +89,12 @@ import com.raytheon.viz.pointdata.rsc.PlotResource;
  * Dec 16, 2014 16193     kshrestha   Updated range limits
  * Oct 27, 2015  4798     bsteffen    Extend SVGImageFactory
  * Dec 14, 2015  4816     dgilling    Support refactored PythonJobCoordinator API.
+ * Jun 12, 2017  6303     bsteffen    Add getColor
+ * Aug 07, 2017  6376     bsteffen    Handle script inside cdata.
  * 
  * </pre>
  * 
  * @author BRock97
- * @version 1.0
  */
 public class PlotModelFactory extends SVGImageFactory {
 
@@ -123,6 +126,9 @@ public class PlotModelFactory extends SVGImageFactory {
     private final SimpleDateFormat SAMPLE_DATE = new SimpleDateFormat("HHmm");
 
     private static final int NUM_POOL_THREADS = 1;
+
+    private static final Pattern PYTHON_LINE_PATTERN = Pattern
+            .compile("^(\\s+)(\\S.*)?");
 
     private int width = 1;
 
@@ -235,10 +241,10 @@ public class PlotModelFactory extends SVGImageFactory {
         this.mapDescriptor = mapDescriptor;
 
         this.svgRoot = document.getDocumentElement();
-        this.originalPlotModelWidth = Integer.parseInt(svgRoot.getAttributeNS(
-                null, "width"));
-        this.originalPlotModelHeight = Integer.parseInt(svgRoot.getAttributeNS(
-                null, "height"));
+        this.originalPlotModelWidth = Integer
+                .parseInt(svgRoot.getAttributeNS(null, "width"));
+        this.originalPlotModelHeight = Integer
+                .parseInt(svgRoot.getAttributeNS(null, "height"));
         this.plotModelWidth = this.originalPlotModelWidth;
         this.plotModelHeight = this.originalPlotModelHeight;
 
@@ -290,11 +296,43 @@ public class PlotModelFactory extends SVGImageFactory {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < childNodes.getLength(); i++) {
                 Node child = childNodes.item(i);
-                if (Node.TEXT_NODE == child.getNodeType()) {
+                if (Node.TEXT_NODE == child.getNodeType()
+                        || Node.CDATA_SECTION_NODE == child.getNodeType()) {
                     sb.append(((Text) child).getData());
                 }
+
             }
-            String scriptText = sb.toString().trim();
+            String scriptText = sb.toString();
+            /*
+             * The python script may have extra indenting to align with the
+             * indent level of the properly formatted xml around it. Python
+             * can't handle the extra indent, so calculate the least common
+             * indent(LCI) and remove it from every line.
+             */
+            String[] scriptLines = scriptText.split("\n");
+            int lci = Integer.MAX_VALUE;
+            for (String line : scriptLines) {
+                if (line.isEmpty()) {
+                    continue;
+                }
+                Matcher m = PYTHON_LINE_PATTERN.matcher(line);
+                if (!m.matches()) {
+                    lci = 0;
+                    break;
+                } else if (m.group(2) != null) {
+                    /* if group 2 is null it is a blank line, ignore. */
+                    lci = Math.min(m.group(1).length(), lci);
+                }
+            }
+            if (lci > 0) {
+                sb.setLength(0);
+                for (String line : scriptLines) {
+                    if (!line.trim().isEmpty()) {
+                        sb.append(line.substring(lci)).append("\n");
+                    }
+                }
+                scriptText = sb.toString();
+            }
             if (scriptText.length() > 0) {
                 PlotPythonScriptFactory pythonFactory = new PlotPythonScriptFactory(
                         plotModelFile, scriptText, plotDelegateName);
@@ -332,12 +370,12 @@ public class PlotModelFactory extends SVGImageFactory {
                                 .getChildNodes().item(0);
                     } else if (elementClass.matches("barb")) {
                         thisElement.winds.barbElement = windElement;
-                        thisElement.winds.barbNode = windElement
-                                .getChildNodes().item(0);
+                        thisElement.winds.barbNode = windElement.getChildNodes()
+                                .item(0);
                     } else if (elementClass.matches("text")) {
                         thisElement.winds.gustElement = windElement;
-                        thisElement.winds.gustNode = windElement
-                                .getChildNodes().item(0);
+                        thisElement.winds.gustNode = windElement.getChildNodes()
+                                .item(0);
                         thisElement.winds.gustX = windElement.getAttribute("x");
                         thisElement.winds.gustY = windElement.getAttribute("y");
                     }
@@ -359,18 +397,18 @@ public class PlotModelFactory extends SVGImageFactory {
                         thisElement.winds.arrowElement = windElement;
                         thisElement.winds.arrowNode = windElement
                                 .getChildNodes().item(0);
-                        thisElement.winds.arrowElement.setAttribute(
-                                "arrowtype", attrClass);
+                        thisElement.winds.arrowElement.setAttribute("arrowtype",
+                                attrClass);
                     } else if ("arrow2".matches(attrClass)) {
                         thisElement.winds.arrowElement = windElement;
                         thisElement.winds.arrowNode = windElement
                                 .getChildNodes().item(0);
-                        thisElement.winds.arrowElement.setAttribute(
-                                "arrowtype", attrClass);
+                        thisElement.winds.arrowElement.setAttribute("arrowtype",
+                                attrClass);
                     } else if ("text".matches(attrClass)) {
                         thisElement.winds.gustElement = windElement;
-                        thisElement.winds.gustNode = windElement
-                                .getChildNodes().item(0);
+                        thisElement.winds.gustNode = windElement.getChildNodes()
+                                .item(0);
                         thisElement.winds.gustX = windElement.getAttribute("x");
                         thisElement.winds.gustY = windElement.getAttribute("y");
                     }
@@ -380,12 +418,12 @@ public class PlotModelFactory extends SVGImageFactory {
                 || dmAttribute.equals("recursive_translation")) {
             thisElement.mode = DisplayMode.TABLE;
             if (plotElement.hasAttribute(PFT_ATTRIBUTE)) {
-                thisElement.ranking = S2N.readS2NFile(plotElement
-                        .getAttribute(PFT_ATTRIBUTE));
+                thisElement.ranking = S2N
+                        .readS2NFile(plotElement.getAttribute(PFT_ATTRIBUTE));
             }
             if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
-                File table = getTableFile(plotElement
-                        .getAttribute(PLT_ATTRIBUTE));
+                File table = getTableFile(
+                        plotElement.getAttribute(PLT_ATTRIBUTE));
                 thisElement.lookup = LookupUtils.buildLookupTable(table);
                 thisElement.lookup.setMode(dmAttribute);
             }
@@ -398,8 +436,8 @@ public class PlotModelFactory extends SVGImageFactory {
         } else if (dmAttribute.equals("range")) {
             thisElement.mode = DisplayMode.RANGE;
             if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
-                File table = getTableFile(plotElement
-                        .getAttribute(PLT_ATTRIBUTE));
+                File table = getTableFile(
+                        plotElement.getAttribute(PLT_ATTRIBUTE));
                 thisElement.lookup = LookupUtils.buildLookupTable(table);
                 thisElement.lookup.setMode(dmAttribute);
             }
@@ -408,8 +446,8 @@ public class PlotModelFactory extends SVGImageFactory {
         } else if (dmAttribute.equals("sample")) {
             thisElement.mode = DisplayMode.SAMPLE;
             if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
-                File table = getTableFile(plotElement
-                        .getAttribute(PLT_ATTRIBUTE));
+                File table = getTableFile(
+                        plotElement.getAttribute(PLT_ATTRIBUTE));
                 thisElement.lookup = LookupUtils.buildLookupTable(table);
                 thisElement.lookup.setMode(dmAttribute);
             }
@@ -425,16 +463,16 @@ public class PlotModelFactory extends SVGImageFactory {
             thisElement.symbol = plotElement.getAttribute(SYMBOL_ATTRIBUTE);
         }
         if (plotElement.hasAttribute(TRIM_ATTRIBUTE)) {
-            thisElement.trim = Integer.parseInt(plotElement
-                    .getAttribute(TRIM_ATTRIBUTE));
+            thisElement.trim = Integer
+                    .parseInt(plotElement.getAttribute(TRIM_ATTRIBUTE));
         }
         if (plotElement.hasAttribute(PLT_INDEX)) {
-            thisElement.index = Integer.parseInt(plotElement
-                    .getAttribute(PLT_INDEX));
+            thisElement.index = Integer
+                    .parseInt(plotElement.getAttribute(PLT_INDEX));
         }
         if (plotElement.hasAttribute(REQUIRED)) {
-            thisElement.required = Boolean.parseBoolean(plotElement
-                    .getAttribute(REQUIRED));
+            thisElement.required = Boolean
+                    .parseBoolean(plotElement.getAttribute(REQUIRED));
         }
         return thisElement;
     }
@@ -444,6 +482,10 @@ public class PlotModelFactory extends SVGImageFactory {
             imageCache.clear();
         }
         this.color = color;
+    }
+
+    public RGB getColor() {
+        return color;
     }
 
     public void setLineWidth(int width) {
@@ -545,7 +587,8 @@ public class PlotModelFactory extends SVGImageFactory {
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error checking if plot is valid for plot model "
-                                    + getPlotModelFilename(), e);
+                                    + getPlotModelFilename(),
+                            e);
                 } finally {
                     if (result.booleanValue() == false) {
                         return null;
@@ -647,7 +690,8 @@ public class PlotModelFactory extends SVGImageFactory {
                 } catch (Exception e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error getting sample text for plot model "
-                                    + getPlotModelFilename(), e);
+                                    + getPlotModelFilename(),
+                            e);
                 } finally {
                     if (result != null) {
                         sampleMessage.append(result);
@@ -655,8 +699,8 @@ public class PlotModelFactory extends SVGImageFactory {
                 }
             } else {
                 for (PlotModelElement element : this.sampleFields) {
-                    sampleMessage.append(processSampleDirective(stationData,
-                            element));
+                    sampleMessage.append(
+                            processSampleDirective(stationData, element));
                 }
             }
 
@@ -720,8 +764,8 @@ public class PlotModelFactory extends SVGImageFactory {
                             throw new VizException("Unable parse units ", e);
                         }
                     }
-                    displayValue = element.converter.convert(value
-                            .doubleValue());
+                    displayValue = element.converter
+                            .convert(value.doubleValue());
                 } else {
                     displayValue = value.doubleValue();
                 }
@@ -796,8 +840,8 @@ public class PlotModelFactory extends SVGImageFactory {
                     int iWindSpeed = this.windNormalizer(cWindSpeed);
                     element.winds.barbElement.setAttribute("transform",
                             "rotate(" + dWindDir + ",0,0)");
-                    element.winds.barbNode.setNodeValue(Integer
-                            .toString(iWindSpeed));
+                    element.winds.barbNode
+                            .setNodeValue(Integer.toString(iWindSpeed));
                 } else {
 
                     element.winds.barbElement.removeAttribute("transform");
@@ -831,9 +875,8 @@ public class PlotModelFactory extends SVGImageFactory {
         if (element.unit != null && magnitude != null) {
             if (element.converter == null) {
                 try {
-                    Unit<?> unit = UnitFormat
-                            .getUCUMInstance()
-                            .parseSingleUnit(element.unit, new ParsePosition(0));
+                    Unit<?> unit = UnitFormat.getUCUMInstance().parseSingleUnit(
+                            element.unit, new ParsePosition(0));
                     element.converter = speedUnit.getConverterTo(unit);
                 } catch (ParseException e) {
                     throw new VizException("Unable parse units ", e);
@@ -854,8 +897,8 @@ public class PlotModelFactory extends SVGImageFactory {
 
             String arrowType = null;
             if (element.winds.arrowElement != null) {
-                element.winds.arrowElement.setAttribute("transform", "rotate("
-                        + dDir + ",0,0)");
+                element.winds.arrowElement.setAttribute("transform",
+                        "rotate(" + dDir + ",0,0)");
                 arrowType = element.winds.arrowElement
                         .getAttribute("arrowtype");
                 if ("arrow1".equals(arrowType) || "arrow2".equals(arrowType)) {
@@ -881,8 +924,8 @@ public class PlotModelFactory extends SVGImageFactory {
 
                 element.winds.gustElement.setAttribute("x", Long.toString(x));
                 element.winds.gustElement.setAttribute("y", Long.toString(y));
-                element.winds.gustNode.setNodeValue(Integer
-                        .toString(((int) Math.round(cMag))));
+                element.winds.gustNode.setNodeValue(
+                        Integer.toString(((int) Math.round(cMag))));
             }
 
         } else {
@@ -976,8 +1019,8 @@ public class PlotModelFactory extends SVGImageFactory {
                             throw new VizException("Unable parse units ", e);
                         }
                     }
-                    displayValue = element.converter.convert(value
-                            .doubleValue());
+                    displayValue = element.converter
+                            .convert(value.doubleValue());
                 } else {
                     displayValue = value.doubleValue();
                 }
@@ -1054,8 +1097,8 @@ public class PlotModelFactory extends SVGImageFactory {
                             throw new VizException("Unable parse units ", e);
                         }
                     }
-                    displayValue = element.converter.convert(value
-                            .doubleValue());
+                    displayValue = element.converter
+                            .convert(value.doubleValue());
                 } else {
                     displayValue = value.doubleValue();
                 }

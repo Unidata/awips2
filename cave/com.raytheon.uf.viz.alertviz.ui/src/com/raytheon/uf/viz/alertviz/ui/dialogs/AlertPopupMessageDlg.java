@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
@@ -54,33 +55,39 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.alertviz.Container;
 import com.raytheon.uf.viz.alertviz.SystemStatusHandler;
 import com.raytheon.uf.viz.alertviz.config.AlertMetadata;
+import com.raytheon.viz.ui.dialogs.DialogUtil;
 
 /**
  * This class displays the pop-up message dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 05 Oct 2008             lvenable    Initial creation.
- * 02 Apr 2009             lvenable    TTR fixes.
- * 18 Nov 2010  2235       cjeanbap    Changed button, hideDialogBtn, text
- *                                     and store previous location.
- * 13 Jan 2011  7375       cjeanbap    Commented out shell.setVisible(...) in
- *                                     acknowledgeLastMessage().
- * 20 Apr 2015  4311       lvenable    Fixed text field to accept really long text strings.
- * 29 Jun 2015  4311       randerso    Reworking AlertViz dialogs to be resizable.
- * 25 Jan 2016  5054       randerso    Converted to stand alone window
- * 08 Feb 2016  5312       randerso    Deleted isDisposed() added isOpen()
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Oct 05, 2008           lvenable  Initial creation.
+ * Apr 02, 2009           lvenable  TTR fixes.
+ * Nov 18, 2010  2235     cjeanbap  Changed button, hideDialogBtn, text and
+ *                                  store previous location.
+ * Jan 13, 2011  7375     cjeanbap  Commented out shell.setVisible(...) in
+ *                                  acknowledgeLastMessage().
+ * Apr 20, 2015  4311     lvenable  Fixed text field to accept really long text
+ *                                  strings.
+ * Jun 29, 2015  4311     randerso  Reworking AlertViz dialogs to be resizable.
+ * Jan 25, 2016  5054     randerso  Converted to stand alone window
+ * Feb 08, 2016  5312     randerso  Deleted isDisposed() added isOpen()
+ * Feb 14, 2017  6029     randerso  Ensure popup does not appear on top of panels,
+ *                                  Made popup appear on monitor with AlertViz bar
+ *                                  Ensure popup cannot be dragged on top of panels.
+ * Feb 28, 2017  6066     randerso  Move dialog up, if necessary, when expanded
+ *
  * </pre>
- * 
+ *
  * @author lvenable
- * @version 1.0
- * 
+ *
  */
-public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
-        DisposeListener {
+public class AlertPopupMessageDlg
+        implements MouseMoveListener, MouseListener, DisposeListener {
     private static final int MAX_INITIAL_LINES = 5;
 
     private static final int WIDTH_IN_CHARS = 135;
@@ -99,6 +106,11 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
      * Dialog shell.
      */
     private Shell shell;
+
+    /**
+     * The parent shell
+     */
+    private Shell parent;
 
     /**
      * The display control.
@@ -179,7 +191,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
     /**
      * Array of status messages.
      */
-    private final ArrayList<StatusMessage> statMsgArray = new ArrayList<StatusMessage>();
+    private final java.util.List<StatusMessage> statMsgArray = new ArrayList<>();
 
     /**
      * Source label.
@@ -232,16 +244,6 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
     private Point origin;
 
     /**
-     * Adjusted dialog location.
-     */
-    private Point dialogLoc;
-
-    /**
-     * Actual dialog X, Y coordinate.
-     */
-    private Point dialogXY;
-
-    /**
      * Dialog background color.
      */
     private Color bgColor;
@@ -280,10 +282,15 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
 
     private int controlWidth;
 
+    private Point minSize;
+
+    private Point savedLoc = null;
+
     /**
      * Constructor.
-     * 
-     * @param display
+     *
+     * @param parent
+     *            the shell of the AlertMessageDlg
      * @param statMsg
      *            Status message.
      * @param expanded
@@ -293,9 +300,11 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
      * @param startUpRGB
      *            Color to be displayed at startup.
      */
-    public AlertPopupMessageDlg(Display display, StatusMessage statMsg,
+    public AlertPopupMessageDlg(Shell parent, StatusMessage statMsg,
             boolean expanded, Listener listener, RGB startUpRGB) {
-        this.display = display;
+
+        this.parent = parent;
+        this.display = parent.getDisplay();
         eventListener = listener;
         statMsgArray.add(statMsg);
         this.expanded = expanded;
@@ -308,7 +317,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
      * Initialize the shell
      */
     private void initShell(RGB startUp) {
-        shell = new Shell(display, SWT.ON_TOP | SWT.RESIZE);
+        shell = new Shell(display, SWT.DIALOG_TRIM | SWT.ON_TOP | SWT.RESIZE);
         shell.setText("Alert Visualization Popup Message Dialog");
 
         shell.addDisposeListener(this);
@@ -348,23 +357,20 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Open method used to display the dialog.
-     * 
+     *
      */
     private void open() {
+        minSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        shell.setMinimumSize(minSize);
+        shell.setSize(minSize);
 
-        setInitialDialogLocation();
+        setDialogLocation();
 
         initialized = true;
 
         showHideLog();
 
         shell.open();
-
-        while (!shell.isDisposed()) {
-            if (!display.readAndDispatch()) {
-                display.sleep();
-            }
-        }
     }
 
     /**
@@ -378,7 +384,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
         /*
          * compute preferred height to display entire message.
          */
-        int screenWidth = display.getPrimaryMonitor().getBounds().width;
+        int screenWidth = parent.getMonitor().getClientArea().width;
 
         /*
          * compute width of controls as the lesser of WIDTH_IN_CHARS or
@@ -420,10 +426,10 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
         moveLabel.setFont(labelFont);
         moveLabel.addMouseListener(this);
         moveLabel.addMouseMoveListener(this);
-        moveLabel.setBackground(display
-                .getSystemColor(SWT.COLOR_TITLE_BACKGROUND));
-        moveLabel.setForeground(display
-                .getSystemColor(SWT.COLOR_TITLE_FOREGROUND));
+        moveLabel.setBackground(
+                display.getSystemColor(SWT.COLOR_TITLE_BACKGROUND));
+        moveLabel.setForeground(
+                display.getSystemColor(SWT.COLOR_TITLE_FOREGROUND));
     }
 
     /**
@@ -445,8 +451,8 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
         sourceLbl.setLayoutData(gd);
 
         priorityLbl = new Label(topLabelComp, SWT.BORDER);
-        priorityLbl.setText(priorityStr
-                + statMsgArray.get(0).getPriority().ordinal());
+        priorityLbl.setText(
+                priorityStr + statMsgArray.get(0).getPriority().ordinal());
         gd = new GridData(200, SWT.DEFAULT);
         gd.verticalIndent = 10;
         priorityLbl.setLayoutData(gd);
@@ -468,12 +474,13 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
         messageComp.setLayoutData(gd);
         messageComp.setBackground(display.getSystemColor(SWT.COLOR_RED));
 
-        messageTF = new Text(messageComp, SWT.BORDER | SWT.MULTI | SWT.WRAP
-                | SWT.V_SCROLL);
+        messageTF = new Text(messageComp,
+                SWT.BORDER | SWT.MULTI | SWT.WRAP | SWT.V_SCROLL);
         messageTF.setEditable(false);
         messageTF.setText(statMsgArray.get(0).getMessage());
 
-        int preferredHeight = messageTF.computeSize(controlWidth, SWT.DEFAULT).y;
+        int preferredHeight = messageTF.computeSize(controlWidth,
+                SWT.DEFAULT).y;
 
         /*
          * compute size to display only max initial lines
@@ -577,7 +584,8 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
         dblClickLBl.setForeground(display.getSystemColor(SWT.COLOR_DARK_BLUE));
         dblClickLBl.setLayoutData(gd);
 
-        msgLogList = new List(logComp, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        msgLogList = new List(logComp,
+                SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Rectangle size = msgLogList.computeTrim(0, 0, controlWidth,
                 msgLogList.getItemHeight() * NUM_LIST_ITEMS);
@@ -673,6 +681,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     private void adjustHeight(int delta) {
+
         Point minSize = shell.getMinimumSize();
         minSize.y += delta;
         shell.setMinimumSize(minSize);
@@ -681,6 +690,25 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
         size.x += SWT_BUG_FACTOR;
         size.y += delta + SWT_BUG_FACTOR;
         shell.setSize(size);
+
+        if (delta < 0 && savedLoc != null) {
+            shell.setLocation(savedLoc);
+            savedLoc = null;
+        }
+
+        Point prevLoc = shell.getLocation();
+        Rectangle dialogBounds = shell.getBounds();
+        Rectangle clientArea = shell.getMonitor().getClientArea();
+        if (dialogBounds.y + dialogBounds.height > clientArea.y
+                + clientArea.height) {
+            dialogBounds.y = clientArea.y + clientArea.height
+                    - dialogBounds.height;
+        }
+
+        shell.setLocation(dialogBounds.x, dialogBounds.y);
+        if (!prevLoc.equals(shell.getLocation())) {
+            savedLoc = prevLoc;
+        }
     }
 
     /**
@@ -702,8 +730,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
         timeLbl.setText(dateFormat.format(sm.getEventTime()));
         messageTF.setText(sm.getMessage());
         int desiredHeight = Math.min(MAX_INITIAL_LINES,
-                messageTF.getLineCount())
-                * messageTF.getLineHeight();
+                messageTF.getLineCount()) * messageTF.getLineHeight();
         Rectangle clientArea = messageTF.getClientArea();
         if (clientArea.height < desiredHeight) {
             Rectangle trim = messageTF.computeTrim(clientArea.x, clientArea.y,
@@ -717,20 +744,8 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
     }
 
     /**
-     * Bring the dialog to the front.
-     */
-    public void dialogToFront() {
-        // This is the way SWT works to bring a dialog
-        // to the front of the display when it is hidden
-        // under another dialog.
-        shell.setLocation(dialogXY);
-        shell.setFocus();
-        shell.setVisible(true);
-    }
-
-    /**
      * Add a new status message.
-     * 
+     *
      * @param sm
      *            Status message.
      */
@@ -779,7 +794,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Get the formatted status message.
-     * 
+     *
      * @param sm
      *            Status message.
      * @return Formatted status message.
@@ -814,8 +829,8 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
         StatusMessage sm = statMsgArray.get(index);
 
         try {
-            SystemStatusHandler
-                    .acknowledge(sm, System.getProperty("user.name"));
+            SystemStatusHandler.acknowledge(sm,
+                    System.getProperty("user.name"));
         } catch (Exception ex) {
             Container.logInternal(Priority.ERROR, "Acknowledge failed...", ex);
             return;
@@ -842,8 +857,8 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
         StatusMessage sm = statMsgArray.get(0);
 
         try {
-            SystemStatusHandler
-                    .acknowledge(sm, System.getProperty("user.name"));
+            SystemStatusHandler.acknowledge(sm,
+                    System.getProperty("user.name"));
         } catch (Exception ex) {
             Container.logInternal(Priority.ERROR, "Acknowledge last failed...",
                     ex);
@@ -864,7 +879,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Set the background color of the dialog and all components.
-     * 
+     *
      * @param rgb
      */
     private void setBackgroundColors(RGB rgb) {
@@ -932,11 +947,9 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
             try {
                 SystemStatusHandler.acknowledge(message, userName);
             } catch (Exception ex) {
-                Container
-                        .logInternal(
-                                Priority.ERROR,
-                                "AlertPopupMessaeDlg: exception acknowledging message.",
-                                ex);
+                Container.logInternal(Priority.ERROR,
+                        "AlertPopupMessaeDlg: exception acknowledging message.",
+                        ex);
             }
         }
 
@@ -954,36 +967,28 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
     /**
      * Sets initial location of dialog.
      */
-    private void setInitialDialogLocation() {
+    private void setDialogLocation() {
 
-        if (dialogXY == null) {
-            Point minSize = shell.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-            shell.setMinimumSize(minSize);
+        Rectangle clientArea = parent.getMonitor().getClientArea();
 
-            int screenHeight = display.getBounds().height;
-            int screenWidth = display.getPrimaryMonitor().getBounds().width;
-
-            Point size = minSize;
-            shell.setSize(size);
-
-            dialogXY = new Point((screenWidth - size.x) / 2,
-                    (screenHeight - size.y) / 4);
-            shell.setLocation(dialogXY);
-        } else {
-            shell.setLocation(dialogXY);
-        }
+        int x = clientArea.x + Math.max(0, (clientArea.width - minSize.x) / 2);
+        int y = clientArea.y + Math.max(0, (clientArea.height - minSize.y) / 4);
+        shell.setLocation(x, y);
+        savedLoc = null;
     }
 
     /**
      * Shows the dialog.
-     * 
+     *
      * @param show
      *            True to show dialog, false to hide.
      */
     public void showDialog() {
         if (initialized) {
-            shell.setLocation(dialogXY);
-            shell.setVisible(true);
+            if (!shell.isVisible()) {
+                shell.setVisible(true);
+                setDialogLocation();
+            }
 
             showSelectedListData();
             msgLogList.showSelection();
@@ -994,7 +999,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Get the number of unacknowledged messages.
-     * 
+     *
      * @return Number of unacknowledged messages.
      */
     public int getNumberOfMessages() {
@@ -1004,7 +1009,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
     /**
      * Returns whether dialog is open or not, checks that she shell is not null,
      * not disposed and visible.
-     * 
+     *
      * @return True if open, false if not.
      */
     public boolean dialogIsOpen() {
@@ -1013,7 +1018,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Mouse double-click event.
-     * 
+     *
      * @param e
      *            Mouse event.
      */
@@ -1024,7 +1029,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Mouse button down event.
-     * 
+     *
      * @param e
      *            Mouse event.
      */
@@ -1036,7 +1041,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Mouse button up event.
-     * 
+     *
      * @param e
      *            Mouse event.
      */
@@ -1047,7 +1052,7 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
 
     /**
      * Mouse move event.
-     * 
+     *
      * @param e
      *            Mouse event.
      */
@@ -1055,16 +1060,32 @@ public class AlertPopupMessageDlg implements MouseMoveListener, MouseListener,
     public void mouseMove(MouseEvent e) {
         if ((origin != null) && (moveDialog == true)) {
             // Move the dialog.
-            dialogLoc = display.map(shell, null, e.x, e.y);
-            dialogXY.x = dialogLoc.x - origin.x;
-            dialogXY.y = dialogLoc.y - origin.y;
-            shell.setLocation(dialogXY.x, dialogXY.y);
+            Rectangle dialogBounds = shell.getBounds();
+            dialogBounds.x = dialogBounds.x + (e.x - origin.x);
+            dialogBounds.y = dialogBounds.y + (e.y - origin.y);
+
+            // don't allow the dialog to move over the top or bottom
+            // panels
+            Monitor m = DialogUtil.getCursorMonitor(display);
+            Rectangle clientArea = m.getClientArea();
+            if (dialogBounds.y < clientArea.y) {
+                dialogBounds.y = clientArea.y;
+            }
+
+            if (dialogBounds.y + dialogBounds.height > clientArea.y
+                    + clientArea.height) {
+                dialogBounds.y = clientArea.y + clientArea.height
+                        - dialogBounds.height;
+            }
+
+            shell.setLocation(dialogBounds.x, dialogBounds.y);
+            savedLoc = null;
         }
     }
 
     /**
      * Returns true if dialog is open
-     * 
+     *
      * @return True if open, false if not.
      */
     public boolean isOpen() {

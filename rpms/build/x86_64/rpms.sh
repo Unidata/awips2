@@ -1,36 +1,76 @@
-#!/bin/bash -vf
+#!/bin/bash
 
 function buildRPM()
 {
-   if [[ ${1} == "awips2-localization" ]]; then
+   local name=$(echo "${1}" | awk -F/ '{print $1}')
+   local arch=$(echo "${1}" | awk -F/ '{print $2}')
+   # Arguments:
+   #   ${1} == the name of the rpm.
+   findSpecFile "${name}"
+   if [ $? -ne 0 ]; then
+      echo "ERROR: '${name}' is not a recognized AWIPS II RPM."
+      exit 1
+   fi
 
-      buildLocalization
-
-   else
-
-      lookupRPM "${1}"
-
-      if [ $? -ne 0 ]; then
-         echo "ERROR: '${1}' is not a recognized AWIPS II RPM."
-         exit 1
-      fi
-
-      buildRPMExec "${RPM_SPECIFICATION}"
-   fi 
+        buildRPMExec "${RPM_SPECIFICATION}" "" "${arch}"
 
    return 0
+}
+
+# Arguments
+#   ${1} == The component name to find a spec file for.
+# Note: This function will scan the baseline lookup script first
+#  then if not found continue looking in the external repos until
+#  the first match is found. 
+#
+# Returns 0 if found and sets ${RPM_SPECIFICATION}
+# Returns 1 if not found.
+function findSpecFile()
+{
+    local _component=${1}
+
+    lookupRPM "${_component}"
+    if [ $? -eq 0 ]; then
+       return 0
+    fi
+
+    # Not found in baseline scan the external repos
+    for rpm_contribution in `ls -1d ${WORKSPACE}/rpms-*`; do
+
+        local _build_dir="${rpm_contribution}/build"
+        local _lookup_script="${_build_dir}/lookupWA_RPM.sh"
+
+        source "${_lookup_script}"
+        if [ $? -ne 0 ]; then
+            echo "ERROR: unable to access the expected WA lookup script - ${_lookup_script}"
+            exit 1
+        fi
+
+        lookupWA_RPM "${_component}" "${rpm_contribution}"
+        if [ $? -eq 0 ]; then
+           return 0
+        fi
+    done
+    return 1
 }
 
 # Arguments
 #   ${1} == The Directory With The Specs File And Possibly Other Custom
 #               Scripts That May Need To Be Merged Into A Component.
 #   ${2} == The name of the CAVE RPM that will be built.
-function buildRPMExec() {
+function buildRPMExec()
+{
    local COMPONENT_DIR=${1}
    local COMPONENT_SPECS=${COMPONENT_DIR}/component.spec
    export RPM_NAME=${2}
+   local arch=${3}
 
-   /usr/bin/rpmbuild -bb \
+   arch_flags=()
+   if [ -n "$arch" ]; then
+       arch_flags+=(setarch "${arch}")
+   fi
+
+   "${arch_flags[@]}" /usr/bin/rpmbuild -bb \
       --define '_topdir %(echo ${AWIPSII_TOP_DIR})' \
       --define '_baseline_workspace %(echo ${WORKSPACE})' \
       --define '_uframe_eclipse %(echo ${UFRAME_ECLIPSE})' \
@@ -51,27 +91,31 @@ function buildRPMExec() {
    fi
 }
 
-function buildEDEX() {
+function buildEDEX()
+{
    cd ${WORKSPACE}/rpms/awips2.edex/deploy.builder
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the edex rpms."
       exit 1
    fi
+
    /bin/bash build.sh
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the edex rpms."
       exit 1
    fi
+
    return 0
 }
 
-function buildCAVE() {
+function buildCAVE()
+{
    cd ${WORKSPACE}/rpms/awips2.cave/deploy.builder
-   echo "in ${WORKSPACE}/rpms/awips2.cave/deploy.builder"
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the cave rpms."
       exit 1
    fi
+
    /bin/bash build.sh
    if [ $? -ne 0 ]; then
       echo "ERROR: Failed to build the cave rpms."

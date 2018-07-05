@@ -18,7 +18,6 @@
 # further licensing information.
 # #
 
-
 #
 # Implements IGridData and wraps around a Java IGridData.
 #  
@@ -32,10 +31,15 @@
 #    08/06/14        3185          njensen        Only import Java classes when necessary
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
 #    11/02/15        5079          dgilling       Fix typo in getRawData.
-#    11/10/16        5900          bsteffen       Correct grid shape, return longitude
-#    
-# 
+#    10/14/16        5916          bsteffen       Correct grid shape, return longitude
 #
+#
+
+##
+# This is a base file that is not intended to be overridden.
+##
+
+
 
 from awips.dataaccess import IGridData
 import JData

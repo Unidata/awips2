@@ -69,7 +69,7 @@ public class TextReportAction extends AbstractHandler {
             TextReportDlg dataSourcesDlg = dataSourcesDlgMap.get(lid);
             if (dataSourcesDlg == null || dataSourcesDlg.isDisposed()) {
                 dataSourcesDlg = new TextReportDlg(shell, lid);
-                dataSourcesDlg.setCloseCallback(new ICloseCallback() {
+                dataSourcesDlg.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {

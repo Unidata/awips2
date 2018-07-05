@@ -100,6 +100,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jul 29, 2015 4263       dgilling    Support changes to TextProductManager.
  * Aug 24, 2015 4749       dgilling    Reorganize dialog close and dispose.
  * Nov 18, 2015 5129       dgilling    Support new IFPClient.
+ * Aug 22, 2017 18044      wkwock      Auto fill-in issued site for backup mode.
  * 
  * </pre>
  * 
@@ -221,6 +222,10 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
         setShellStyle(SWT.TITLE | SWT.MODELESS | SWT.CLOSE | SWT.RESIZE);
         this.dataMgr = dataMgr;
         this.textProductMgr = this.dataMgr.getTextProductMgr();
+
+        String currentSite = dataMgr.getSiteID();
+        textProductMgr.setIssuedBy(currentSite);
+        
     }
 
     @Override
@@ -406,7 +411,7 @@ public class FormatterLauncherDialog extends CaveJFACEDialog implements
                     String issuedBy = textProductMgr.getIssuedBy();
                     issuedByDlg = new IssuanceSiteIdDlg(
                             FormatterLauncherDialog.this.getShell(), issuedBy);
-                    issuedByDlg.setCloseCallback(new ICloseCallback() {
+                    issuedByDlg.addCloseCallback(new ICloseCallback() {
 
                         @Override
                         public void dialogClosed(Object returnValue) {

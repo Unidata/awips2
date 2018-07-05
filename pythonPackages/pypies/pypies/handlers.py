@@ -34,6 +34,7 @@
 #    06/12/13        2102          njensen        Raise uncaught exceptions to force http code 500
 #    11/06/14        3549          njensen        Log time to receive data
 #    07/30/15        1574          nabowle        Handle DeleteOrphansRequest
+#    11/15/16        5992          bsteffen       Log size
 # 
 #
 
@@ -74,6 +75,7 @@ def pypies_response(request):
         try:
             data=request.data
             timeMap['receiveData']=time.time()-startTime
+            timeMap['size']=len(data)
             startTime = time.time()
             obj = dynamicserialize.deserialize(data)
         except:

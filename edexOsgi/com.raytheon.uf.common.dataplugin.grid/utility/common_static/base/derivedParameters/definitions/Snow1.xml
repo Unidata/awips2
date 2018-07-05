@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <!--
 //
 // Partial Thickness Precipitation Type Icons - Snow1
@@ -25,16 +29,16 @@ FIELD: |1.e37|
 FIELD: |0.| 
 
 -->
-<DerivedParameter name="850-1000 sn thk" abbreviation="Snow1" xmlns:ns2="group" xmlns:ns3="http://www.example.org/productType">
+<DerivedParameter name="850-1000 sn thk" abbreviation="Snow1">
     <Method levels="Surface" name="Test">
-        <Field level="1000MB-850MB" abbreviation="dZ"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="-1.0E37"/>
-        <ConstantField value="1299.0"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="1.0"/>
-        <ConstantField value="1300.0"/>
-        <ConstantField value="1.0E37"/>
-        <ConstantField value="0.0"/>
+        <Field level="1000MB-850MB" abbreviation="dZ" />
+        <ConstantField value="1.0" />
+        <ConstantField value="-1.0E37" />
+        <ConstantField value="1299.0" />
+        <ConstantField value="1.0" />
+        <ConstantField value="1.0" />
+        <ConstantField value="1300.0" />
+        <ConstantField value="1.0E37" />
+        <ConstantField value="0.0" />
     </Method>
 </DerivedParameter>

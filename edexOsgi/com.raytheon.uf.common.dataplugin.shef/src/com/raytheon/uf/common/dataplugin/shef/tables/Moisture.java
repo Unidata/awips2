@@ -19,6 +19,7 @@
 **/
 package com.raytheon.uf.common.dataplugin.shef.tables;
 // default package
+
 // Generated Oct 17, 2008 2:22:17 PM by Hibernate Tools 3.2.2.GA
 
 import java.io.Serializable;
@@ -31,6 +32,7 @@ import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -49,6 +51,7 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 19, 2011      10672     jkorman Move refactor to new project
  * Oct 07, 2013       2361     njensen Removed XML annotations
  * May 23, 2016       5590     bkowal  Cleanup.
+ * Dec 18, 2017       6554     bkowal  Implemented {@link ICheckValue}.
  * 
  * </pre>
  * 
@@ -57,7 +60,8 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 @Entity
 @Table(name = "moisture")
 @DynamicSerialize
-public class Moisture extends PersistableDataObject<MoistureId> implements Serializable {
+public class Moisture extends PersistableDataObject<MoistureId>
+        implements Serializable, ICheckValue {
 
     private static final long serialVersionUID = 1L;
 
@@ -106,13 +110,13 @@ public class Moisture extends PersistableDataObject<MoistureId> implements Seria
     }
 
     @EmbeddedId
-    @AttributeOverrides( {
-            @AttributeOverride(name = "lid", column = @Column(name = "lid", nullable = false, length = 8)),
-            @AttributeOverride(name = "pe", column = @Column(name = "pe", nullable = false, length = 2)),
-            @AttributeOverride(name = "dur", column = @Column(name = "dur", nullable = false)),
-            @AttributeOverride(name = "ts", column = @Column(name = "ts", nullable = false, length = 2)),
-            @AttributeOverride(name = "extremum", column = @Column(name = "extremum", nullable = false, length = 1)),
-            @AttributeOverride(name = "obstime", column = @Column(name = "obstime", nullable = false, length = 29)) })
+    @AttributeOverrides({
+            @AttributeOverride(name = "lid", column = @Column(name = "lid", nullable = false, length = 8) ),
+            @AttributeOverride(name = "pe", column = @Column(name = "pe", nullable = false, length = 2) ),
+            @AttributeOverride(name = "dur", column = @Column(name = "dur", nullable = false) ),
+            @AttributeOverride(name = "ts", column = @Column(name = "ts", nullable = false, length = 2) ),
+            @AttributeOverride(name = "extremum", column = @Column(name = "extremum", nullable = false, length = 1) ),
+            @AttributeOverride(name = "obstime", column = @Column(name = "obstime", nullable = false, length = 29) ) })
     public MoistureId getId() {
         return this.id;
     }
@@ -186,4 +190,12 @@ public class Moisture extends PersistableDataObject<MoistureId> implements Seria
         this.postingtime = postingtime;
     }
 
+    @Transient
+    @Override
+    public String getCompareValue() {
+        if (value == null) {
+            return null;
+        }
+        return value.toString();
+    }
 }

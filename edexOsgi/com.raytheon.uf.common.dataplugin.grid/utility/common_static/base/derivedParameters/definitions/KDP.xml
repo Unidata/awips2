@@ -18,11 +18,15 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter abbreviation="KDP" name="Specific Differential Phase" unit="deg/km">
     <Method name="SliceSample" levels="S,0.5kmAgl>10kmAgl,FH,TEMP,WetBulb0">
-    	<Field abbreviation="KDP" level="3D"/>
-    	<Field abbreviation="P"/>
-    	<ConstantField value="-2"/>
-    	<ConstantField value="1"/>
+        <Field abbreviation="KDP" level="3D" />
+        <Field abbreviation="P" />
+        <ConstantField value="-2" />
+        <ConstantField value="1" />
     </Method>
 </DerivedParameter>

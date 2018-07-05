@@ -41,15 +41,15 @@ import com.raytheon.uf.common.time.DataTime.FLAG;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.uf.viz.core.interp.IInterpolation;
-import com.raytheon.uf.viz.core.interp.InterpolationRequest;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.uf.viz.xy.InterpUtils;
 import com.raytheon.uf.viz.xy.crosssection.adapter.AbstractCrossSectionAdapter;
 import com.raytheon.uf.viz.xy.crosssection.graph.CrossSectionGraph;
-import com.raytheon.viz.core.graphing.util.MeteolibInterpolation;
-import com.raytheon.viz.core.slice.request.HeightScale;
-import com.raytheon.viz.core.slice.request.HeightScale.ScaleType;
+import com.raytheon.uf.viz.xy.interp.IInterpolation;
+import com.raytheon.uf.viz.xy.interp.InterpolationRequest;
+import com.raytheon.uf.viz.xy.interp.MeteolibInterpolation;
+import com.raytheon.uf.viz.xy.scales.HeightScale;
+import com.raytheon.uf.viz.xy.scales.HeightScale.ScaleType;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**

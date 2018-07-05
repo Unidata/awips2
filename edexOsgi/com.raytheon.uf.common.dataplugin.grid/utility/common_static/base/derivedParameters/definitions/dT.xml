@@ -18,9 +18,13 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an incremental override file, indicating that the files
+        at different localization levels will be combined. 
+    -->
 <DerivedParameter unit="℃" name="Vrt Temp Chg" abbreviation="dT" xmlns:ns2="group">
     <Method name="Difference" levels="C,MB">
-        <Field abbreviation="T" level="lower"/>
-        <Field abbreviation="T" level="upper"/>
+        <Field abbreviation="T" level="lower" />
+        <Field abbreviation="T" level="upper" />
     </Method>
 </DerivedParameter>

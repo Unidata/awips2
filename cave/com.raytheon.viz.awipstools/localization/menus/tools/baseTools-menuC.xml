@@ -18,25 +18,26 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-		
-	<contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.choosebyid"
-		menuText="Choose By ID..." id="chooseByIDTool" />
-	
-	<!-- example arbitrary command below, commandAction parameter is required, 
-	the others default to false if undefined.  If captureOutput is true then after 
-	the launched command closes a dialog box will show the contents printed to 
-	standard output.  If showStdOut is true then standard output will be echoed on 
-	standard out of cave ( not very useful ) -->
-	<!--
-	<contribute xsi:type="command"
-		commandId="com.raytheon.viz.awipstools.arbitrary"
-		menuText="ps -A" >
-		<parameter key="commandAction" value="/bin/ps -A" />
-		<parameter key="captureOutput" value="true" />
-		<parameter key="showStdOut" value="false" />
-	</contribute>
-	-->
-	
+    <contribute xsi:type="command"
+        commandId="com.raytheon.viz.awipstools.choosebyid" menuText="Choose By ID..."
+        id="chooseByIDTool" />
+    <!-- example arbitrary command below, commandAction parameter is required, _
+    the others default to false if undefined.  If captureOutput is true then after 
+    the launched command closes a dialog box will show the contents printed to 
+    standard output.  If showStdOut is true then standard output will be echoed on 
+    standard out of cave ( not very useful ) -->
+    <!--  
+    <contribute xsi:type="command"
+        commandId="com.raytheon.viz.awipstools.arbitrary" menuText="ps -A">
+        <parameter key="commandAction" value="/bin/ps -A" />
+        <parameter key="captureOutput" value="true" />
+        <parameter key="showStdOut" value="false" />
+    </contribute>
+    -->
 </menuTemplate>

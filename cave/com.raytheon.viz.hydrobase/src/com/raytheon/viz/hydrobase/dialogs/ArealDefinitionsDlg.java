@@ -340,7 +340,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
                     TextEditorDlg teDlg = textEditorDlgMap.get(f);
                     if (teDlg == null || teDlg.isDisposed()) {
                         teDlg = new TextEditorDlg(shell, false, f);
-                        teDlg.setCloseCallback(new ICloseCallback() {
+                        teDlg.addCloseCallback(new ICloseCallback() {
 
                             @Override
                             public void dialogClosed(Object returnValue) {
@@ -584,7 +584,7 @@ public class ArealDefinitionsDlg extends CaveSWTDialog {
             TextEditorDlg ted = textEditorDlgMap.get(f);
             if (ted == null || ted.isDisposed()) {
                 ted = new TextEditorDlg(shell, true, f);
-                ted.setCloseCallback(new ICloseCallback() {
+                ted.addCloseCallback(new ICloseCallback() {
 
                     @Override
                     public void dialogClosed(Object returnValue) {
