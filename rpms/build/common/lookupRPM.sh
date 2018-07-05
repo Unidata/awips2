@@ -85,6 +85,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/scientific"
       return 0
    fi
+   if [ "${1}" = "awips2-python-scipy" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/scipy"
+      return 0
+   fi
    if [ "${1}" = "awips2-python-tables" ]; then
       export RPM_SPECIFICATION="${installer_dir}/tables"
       return 0

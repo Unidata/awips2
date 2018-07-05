@@ -103,6 +103,7 @@ function build_python() {
    buildRPM "awips2-python-matplotlib"
    buildRPM "awips2-python-shapely"
    buildRPM "awips2-python-scientific"
+   buildRPM "awips2-python-scipy"
    buildRPM "awips2-python-qpid"
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-cycler"
@@ -126,8 +127,8 @@ function build_server() {
    buildRPM "awips2"
    buildRPM "awips2-ldm"
    buildRPM "awips2-tools"
+   buildRPM "awips2-gfesuite"
    build_pypies
-   buildRPM "awips2-data.gfe"
    buildLocalization
 }
 function build_ade() {

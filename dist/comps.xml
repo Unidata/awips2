@@ -15,8 +15,9 @@
          <packagereq type="default">awips2-python</packagereq>
          <packagereq type="default">awips2-python-cython</packagereq>
          <packagereq type="default">awips2-python-dateutil</packagereq>
-         <packagereq type="default">awips2-python-numpy</packagereq>
+         <packagereq type="default">awips2-python-h5py</packagereq>
          <packagereq type="default">awips2-python-jep</packagereq>
+         <packagereq type="default">awips2-python-numpy</packagereq>
          <packagereq type="default">awips2-python-pyparsing</packagereq>
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-setuptools</packagereq>
@@ -62,6 +63,7 @@
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-qpid</packagereq>
          <packagereq type="default">awips2-python-scientific</packagereq>
+         <packagereq type="default">awips2-python-scipy</packagereq>
          <packagereq type="default">awips2-python-setuptools</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
@@ -101,6 +103,7 @@
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-qpid</packagereq>
          <packagereq type="default">awips2-python-scientific</packagereq>
+         <packagereq type="default">awips2-python-scipy</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
          <packagereq type="default">awips2-python-tables</packagereq>
@@ -120,7 +123,6 @@
       <uservisible>true</uservisible>
       <packagelist>
          <packagereq type="default">awips2</packagereq>
-         <packagereq type="default">awips2-cli</packagereq>
          <packagereq type="default">awips2-common-base</packagereq>
          <packagereq type="default">awips2-database</packagereq>
          <packagereq type="default">awips2-data.gfe</packagereq>
@@ -156,6 +158,7 @@
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-qpid</packagereq>
          <packagereq type="default">awips2-python-scientific</packagereq>
+         <packagereq type="default">awips2-python-scipy</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
          <packagereq type="default">awips2-python-tables</packagereq>
@@ -177,7 +180,6 @@
       <uservisible>true</uservisible>
       <packagelist>
          <packagereq type="default">awips2</packagereq>
-         <packagereq type="default">awips2-cli</packagereq>
          <packagereq type="default">awips2-common-base</packagereq>
          <packagereq type="default">awips2-database</packagereq>
          <packagereq type="default">awips2-data.gfe</packagereq>
@@ -214,6 +216,7 @@
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-qpid</packagereq>
          <packagereq type="default">awips2-python-scientific</packagereq>
+         <packagereq type="default">awips2-python-scipy</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
          <packagereq type="default">awips2-python-tables</packagereq>
@@ -248,6 +251,7 @@
          <packagereq type="default">awips2-python-pyparsing</packagereq>
          <packagereq type="default">awips2-python-pytz</packagereq>
          <packagereq type="default">awips2-python-scientific</packagereq>
+         <packagereq type="default">awips2-python-scipy</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
          <packagereq type="default">awips2-python-tables</packagereq>
