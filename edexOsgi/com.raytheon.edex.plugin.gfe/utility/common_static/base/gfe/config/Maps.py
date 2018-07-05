@@ -311,10 +311,10 @@ rfc.editAreaName = ['ISC','site_id']
 rfc.groupName = 'ISC'
 
 #  NHA ISC area
-domain = ShapeTable('nhadomain')
-domain.name = "TropicalISC"
-domain.groupName = "ISC"
-domain.editAreaName = "ISC_NHA"
+#domain = ShapeTable('nhadomain')
+#domain.name = "TropicalISC"
+#domain.groupName = "ISC"
+#domain.editAreaName = "ISC_NHA"
 
 #    Storm Surge Watch/Warning Area
 # stormsurgeww = ShapeTable('stormsurgeww')
