@@ -210,10 +210,6 @@ function lookupRPM()
       export RPM_SPECIFICATION="${awips2_upc_dir}/Installer.ldm"
       return 0
    fi
-   if [ "${1}" = "awips2-localization" ]; then
-      export RPM_SPECIFICATION="${awips2_core_dir}/Installer.localization"
-      return 0
-   fi
    if [ "${1}" = "awips2-python-awips" ]; then
       export RPM_SPECIFICATION="/awips2/repo/python-awips"
       return 0
