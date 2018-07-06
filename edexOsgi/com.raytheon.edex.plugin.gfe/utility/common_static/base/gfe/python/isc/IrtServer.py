@@ -229,9 +229,9 @@ def sendWfoMessage(siteID, msgFile):
     
 
 def putTCVFiles(siteID, tarFile):
-    import LocalizationSupport
-    import glob
-    import TCVUtil
+    from . import LocalizationSupport
+    from . import glob
+    from . import TCVUtil
     
     logEvent("Receiving TCV files from " + siteID)
     

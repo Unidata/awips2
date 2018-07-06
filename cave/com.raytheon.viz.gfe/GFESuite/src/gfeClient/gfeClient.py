@@ -35,10 +35,10 @@ import argparse
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.request.GfeClientRequest import GfeClientRequest
 from dynamicserialize.dstypes.java.util import Date
-from ufpy import ThriftClient
-from ufpy import UsageArgumentParser
-from ufpy.UsageArgumentParser import StoreTimeAction
-from ufpy.UsageArgumentParser import TIME_FORMAT
+from awips import ThriftClient
+from awips import UsageArgumentParser
+from awips.UsageArgumentParser import StoreTimeAction
+from awips.UsageArgumentParser import TIME_FORMAT
 
 def validateArgs(args=None):
 

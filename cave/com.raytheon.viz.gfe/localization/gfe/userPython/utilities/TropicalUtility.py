@@ -38,7 +38,7 @@ import os
 import re
 import string
 
-from ufpy.dataaccess import DataAccessLayer
+from awips.dataaccess import DataAccessLayer
 
 import GridManipulation
 import HazardUtils

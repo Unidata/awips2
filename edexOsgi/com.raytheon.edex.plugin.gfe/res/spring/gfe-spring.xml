@@ -35,9 +35,48 @@
         <constructor-arg ref="smartInitSrv"/>
     </bean>
 
+    <bean id="spcWatch" class="com.raytheon.edex.plugin.gfe.watch.SPCWatchSrv"/>
+    <bean id="tpcWatch" class="com.raytheon.edex.plugin.gfe.watch.TPCWatchSrv"/>
+    <bean id="wclWatch" class="com.raytheon.edex.plugin.gfe.watch.WCLWatchSrv"/>
+
     <bean id="vtecChangeListener" class="com.raytheon.edex.plugin.gfe.server.notify.VTECTableChangeListener"/>
 
     <camelContext id="gfe-camel-spring" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <route id="SPCWatch">
+            <from uri="vm:gfe.spcWatch"/>
+            <doTry>
+                <bean ref="spcWatch" method="handleWatch"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:gfeWatch?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="TPCWatch">
+            <from uri="vm:gfe.tpcWatch"/>
+            <doTry>
+                <bean ref="tpcWatch" method="handleWatch"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:gfeWatch?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
+
+        <route id="WCLWatch">
+            <from uri="direct-vm:wclWatch"/>
+            <doTry>
+                <bean ref="wclWatch" method="handleWclWatch"/>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to
+                        uri="log:gfeWatch?level=ERROR"/>
+                </doCatch>
+            </doTry>
+        </route>
 
         <route id="smartInitTrigger">
             <from uri="timer://smartInitTimer?fixedRate=true&amp;period=30000"/>

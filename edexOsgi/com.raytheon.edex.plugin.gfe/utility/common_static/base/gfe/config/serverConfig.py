@@ -52,7 +52,7 @@
 #    01/19/2015          #4014     dgilling       Added ETSS.
 #    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
 #    01/19/2015          #4014     dgilling       Added ETSS.
-#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and WaveWatch
+#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
 #    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
 #    03/30/2015          #17288    bhunder        Added Guam-RTMA to D2D models
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
@@ -2324,7 +2324,7 @@ else:   #######DCS3501 WEST_CONUS
 #
 #   "East CONUS/Imager Visible"
 #   "East CONUS/Imager 11 micron IR"
-#   "East CONUS/Imager 13 micron IR"
+#   "East CONUS/Imager 13 micron (IR)"
 #   "East CONUS/Imager 3.9 micron IR"
 #
 
@@ -2340,7 +2340,7 @@ elif SID == "HFO":
 elif SID == "SJU":
     SATDATA = [("East CONUS/Imager Visible", "visibleEast"),
                ("East CONUS/Imager 11 micron IR", "ir11East"),
-               ("East CONUS/Imager 13 micron IR", "ir13East"),
+               ("East CONUS/Imager 13 micron (IR)", "ir13East"),
                ("East CONUS/Imager 3.9 micron IR", "ir39East"),
                ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
 
@@ -2352,12 +2352,12 @@ elif SID == "GUM":
 else:
     SATDATA = [("West CONUS/Imager Visible", "visibleWest"),
                ("West CONUS/Imager 11 micron IR", "ir11West"),
-               ("West CONUS/Imager 13 micron IR", "ir13West"),
+               ("West CONUS/Imager 13 micron (IR)", "ir13West"),
                ("West CONUS/Imager 3.9 micron IR", "ir39West"),
                ("West CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporWest"),
                ("East CONUS/Imager Visible", "visibleEast"),
                ("East CONUS/Imager 11 micron IR", "ir11East"),
-               ("East CONUS/Imager 13 micron IR", "ir13East"),
+               ("East CONUS/Imager 13 micron (IR)", "ir13East"),
                ("East CONUS/Imager 3.9 micron IR", "ir39East"),
                ("East CONUS/Imager 6.7-6.5 micron IR (WV)", "waterVaporEast")]
 
@@ -2368,8 +2368,8 @@ else:
 #---------------------------------------------------------------------------
 # base urls for the ISC Routing Table
 ISC_ROUTING_TABLE_ADDRESS = {
-    "ANCF" : "http://svcbu-ancf.er.awips.noaa.gov:8080/irt",
-    "BNCF" : "http://svcbu-bncf.er.awips.noaa.gov:8080/irt"
+    "ANCF" : "http://localhost:8080/irt",
+    "BNCF" : "http://localhost:8080/irt"
     }
 
 
@@ -2685,7 +2685,7 @@ for s in ['ALR', 'FWR', 'KRF', 'MSR', 'ORN', 'PTR', 'RHA', 'RSA', 'STR', 'TAR',
     modelDict['FFG'+s] = {'D2DMODELS': 'FFG-'+s}
 
 modelDict['GFS20'] = {
-            'D2DMODELS': 'GFS20',
+            'D2DMODELS': 'GFS215',
             'D2DAccumulativeElements': ['tp3hr','tp6hr', 'tp', 'cp', 'crain', 'csnow', 'cfrzr', 'cicep'],
             'DB': ('GFS20', 'GRID', '', NO,  NO, 2, 0),
             'Parms': [([Wetflag], FireWx1300TC),
@@ -2723,8 +2723,8 @@ modelDict['GWW'] = {
                      ],
             }
 
-modelDict['WaveWatch'] = {
-            'D2DMODELS': 'WaveWatch',}
+modelDict['GWW233'] = {
+            'D2DMODELS': 'GWW233',}
 
 modelDict['GlobalWave'] = {
             'D2DMODELS': 'GlobalWave',
@@ -2838,7 +2838,7 @@ modelDict['NAHwave4'] = {
 
 modelDict['NAM12'] = {
             'D2DAccumulativeElements': ['tp', 'cp', 'crain', 'csnow', 'cfrzr', 'cicep'],
-            'D2DMODELS': 'NAM12',
+            'D2DMODELS': 'ETA218',
             'DB': ('NAM12', 'GRID', '', NO,  NO, 2, 0),
             'INITMODULES': 'NAM12',
             'Parms': STD3_MODEL,
@@ -2846,11 +2846,11 @@ modelDict['NAM12'] = {
 
 modelDict['NAM20'] = {
             'D2DAccumulativeElements': ['tp', 'cp'],
-            'D2DMODELS': 'NAM20',}
+            'D2DMODELS': 'mesoEta215',}
 
 modelDict['NAM40'] = {
             'D2DAccumulativeElements': ['tp', 'cp'],
-            'D2DMODELS': 'NAM40',
+            'D2DMODELS': 'mesoEta212',
             'DB': ('NAM40', 'GRID', '', NO,  NO, 2, 0),
             'Parms': STD3_MODEL,
             }
@@ -2924,11 +2924,11 @@ modelDict['RTMA'] = {
             'Parms': RTMAPARMS,
             }
 
-modelDict['RAP13'] = {
+modelDict['RUC13'] = {
             'D2DAccumulativeElements': ['tp', 'cp'],
-            'D2DMODELS': 'RAP13',
-            'DB': ('RAP13', 'GRID', '', NO,  NO, 2, 0),
-            'INITMODULES': 'RAP13',
+            'D2DMODELS': 'RUC130',
+            'DB': ('RUC13', 'GRID', '', NO,  NO, 2, 0),
+            'INITMODULES': 'RUC13',
             'INITSKIPS': [1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20, 22, 23],
             'Parms': STD1_MODEL,
             }
@@ -2945,7 +2945,7 @@ modelDict['SPC'] = {
             'D2DDBVERSIONS': 8, 'D2DMODELS': 'SPCGuide',}
 
 modelDict['SREF'] = {
-            'D2DMODELS': 'SREF40',
+            'D2DMODELS': 'SREF212',
             'DB': ('SREF', 'GRID', '', NO,  NO, 3, 0),
             'INITMODULES': 'SREF',
             'Parms': [([Td, Temp, Wind], TC1),
@@ -3178,11 +3178,11 @@ if SID in groups['ALASKA_SITES']:
     
     updateModelDict(modelDict,'ESTOFS','D2DMODELS', 'estofsAK')
     updateModelDict(modelDict,'ETSS','D2DMODELS', 'ETSS-AK')
-    updateModelDict(modelDict,'GFS20','D2DMODELS', 'AK-GFS22')
+    updateModelDict(modelDict,'GFS20','D2DMODELS', 'GFS217')
     updateModelDict(modelDict,'HIRESWarw','D2DMODELS', 'HiResW-ARW-AK')
     updateModelDict(modelDict,'HIRESWnmm','D2DMODELS', 'HiResW-NMM-AK')
     updateModelDict(modelDict,'MOSGuide','D2DMODELS', 'MOSGuide-AK')
-    updateModelDict(modelDict,'NAM12','D2DMODELS', 'AK-NAM11')
+    updateModelDict(modelDict,'NAM12','D2DMODELS', 'ETA242')
     updateModelDict(modelDict,'NamDNG','D2DMODELS', 'AK-NamDNG3')
     updateModelDict(modelDict,'NationalBlend','D2DMODELS', 'NationalBlendAK')
     updateModelDict(modelDict,'RTMA','D2DMODELS', 'AK-RTMA3')
@@ -3213,7 +3213,7 @@ elif SID == "HFO":
             'Parms': STD6_MODEL,
             }
 
-    updateModelDict(modelDict,'WaveWatch','D2DMODELS', 'WaveWatch')
+    updateModelDict(modelDict,'GWW233','D2DMODELS', 'GWW233')
     updateModelDict(modelDict,'GlobalWave','D2DMODELS', 'GlobalWave')
     updateModelDict(modelDict,'RTMA','D2DMODELS', 'HI-RTMA')
     updateModelDict(modelDict,'NamDNG','D2DMODELS', 'HI-NamDNG5')
@@ -3228,7 +3228,7 @@ elif SID == "HFO":
     updateModelDict(modelDict,'MOSGuide','D2DMODELS', 'MOSGuide-HI')
     updateModelDict(modelDict,'NationalBlend','D2DMODELS', 'NationalBlendHI')
     # Model databases for HFO
-    includeOnly = ['ECMWFHiRes', 'ESTOFS', 'GFS75', 'WaveWatch', 'GlobalWave',
+    includeOnly = ['ECMWFHiRes', 'ESTOFS', 'GFS75', 'GWW233', 'GlobalWave',
                    'HIRESWarw', 'HIRESWnmm', 'MOSGuide', 'NamDNG', 'NationalBlend',
                    'RTMA', 'RTOFS-Honolulu', 'SPC', 'TPCProb', 'TPCProbPrelim', 'nwpsCG1GUM',
                    'nwpsCG1HFO', 'nwpsTrkngCG0GUM', 'nwpsTrkngCG0HFO',
@@ -3259,7 +3259,7 @@ elif SID == "GUM":
 elif SID == "SJU":
     updateModelDict(modelDict,'GFS80','D2DMODELS', 'AVN211')
     updateModelDict(modelDict,'NAM80','D2DMODELS', 'ETA')
-    updateModelDict(modelDict,'WaveWatch','D2DMODELS', 'WaveWatch')
+    updateModelDict(modelDict,'GWW233','D2DMODELS', 'GWW233')
     updateModelDict(modelDict,'GlobalWave','D2DMODELS', 'GlobalWave')
     updateModelDict(modelDict,'WNAwave10','D2DMODELS', 'WNAwave10')
     updateModelDict(modelDict,'WNAwave4','D2DMODELS', 'WNAwave4')
@@ -3273,10 +3273,10 @@ elif SID == "SJU":
     updateModelDict(modelDict,'RTOFS-Atlantic','D2DMODELS', 'RTOFS-Atlantic')
     updateModelDict(modelDict,'ESTOFS','D2DMODELS', 'estofsPR')
     updateModelDict(modelDict,'NAHwave4','D2DMODELS', 'NAHwave4')
-    updateModelDict(modelDict,'GFS20','D2DMODELS', 'PR-GFS')
+    updateModelDict(modelDict,'GFS20','D2DMODELS', 'GFS20-PRICO')
     updateModelDict(modelDict,'NationalBlend','D2DMODELS', 'NationalBlendPR')
     # Model databases for SJU
-    includeOnly = ['ECMWFHiRes', 'ESTOFS', 'GFS20', 'GFS80', 'WaveWatch',
+    includeOnly = ['ECMWFHiRes', 'ESTOFS', 'GFS20', 'GFS80', 'GWW233',
                    'GlobalWave', 'HIRESWarw', 'HIRESWnmm', 'NAHwave4', 'NAM80',
                    'NationalBlend', 'RTMA', 'RTOFS-Atlantic', 'SPC', 'TPCProb',
                    'TPCProbPrelim', 'WNAwave10', 'WNAwave4',

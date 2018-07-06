@@ -28,13 +28,13 @@
 
 from Init import *
 ##--------------------------------------------------------------------------
-## Module that calculates surface weather elements from RAP40 model
+## Module that calculates surface weather elements from RUC80 model
 ## output.
 ##
 ##--------------------------------------------------------------------------
-class RAP40Forecaster(Forecaster):
+class RUC80Forecaster(Forecaster):
     def __init__(self):
-        Forecaster.__init__(self, "RAP40")
+        Forecaster.__init__(self, "RUC80")
 
 ##--------------------------------------------------------------------------
 ## These levels will be used to create vertical soundings.  These are
@@ -531,4 +531,4 @@ class RAP40Forecaster(Forecaster):
         return lal
 
 def main():
-    RAP40Forecaster().run()
+    RUC80Forecaster().run()

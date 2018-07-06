@@ -43,6 +43,10 @@ class Procedure (SmartScript.SmartScript):
                     "Haines", "MixHgt"]
         #
         print "Copying grids from models"
+        dbID = self.findDatabase("DGEX")
+        tr = self.createTimeRange(0, 168, "Database", dbID)
+        self.copyCmd(elements, dbID, tr)
+        #  
         dbID = self.findDatabase("GFS80")
         tr = self.createTimeRange(0, 168, "Database", dbID)
         self.copyCmd(elements, dbID, tr)
@@ -51,7 +55,7 @@ class Procedure (SmartScript.SmartScript):
         tr = self.createTimeRange(0, 60, "Database", dbID)
         self.copyCmd(elements, dbID, tr)
         #Copy 
-        dbID = self.findDatabase("RAP40")
+        dbID = self.findDatabase("RUC80")
         tr = self.createTimeRange(0, 12, "Database", dbID)
         self.copyCmd(elements, dbID, tr)
 
