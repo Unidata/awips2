@@ -199,7 +199,6 @@ if [ ! "${NCEP_DIR}" = "" ]; then
       "${PSQL} -U awipsadmin -d postgres -c \"DROP TABLESPACE ncep\""
       
    # remove the maps data directory that we created
-   echo "Attempting To Remove Directory: ${NCEP_DIR}"
    if [ -d "${NCEP_DIR}" ]; then
        su - ${DB_OWNER} -c "rmdir ${NCEP_DIR}"
    fi

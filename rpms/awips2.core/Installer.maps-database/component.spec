@@ -273,7 +273,6 @@ if [ ! "${MAPS_DIR}" = "" ]; then
       "${PSQL} -U awipsadmin -d postgres -c \"DROP TABLESPACE maps\"" >> ${SQL_LOG}
    
    # remove the maps data directory that we created
-   echo "Attempting To Removing Directory: ${MAPS_DIR}"
    if [ -d "${MAPS_DIR}" ]; then
       su - ${DB_OWNER} -c "rmdir ${MAPS_DIR}" >> ${SQL_LOG}
    fi
