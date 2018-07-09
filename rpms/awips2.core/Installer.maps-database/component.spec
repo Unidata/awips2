@@ -132,7 +132,7 @@ fi
 
 # Is there a maps database?
 MAPS_DB_EXISTS="false"
-MAPS_DB=`${PSQL} -U awipsadmin -l | grep maps | awk '{print $1}'`
+MAPS_DB=`${PSQL} -U awips -l | grep maps | awk '{print $1}'`
 if [ "${MAPS_DB}" = "maps" ]; then
    MAPS_DB_EXISTS="true"
    # We Have a Maps Database, There Is Nothing To Do.
@@ -152,27 +152,27 @@ if [ "${MAPS_DB_EXISTS}" = "false" ]; then
    # Run the setup sql for the maps database.
    SQL_FILE="/awips2/database/sqlScripts/share/sql/maps/createMapsDb.sql"
    su - ${DB_OWNER} -c \
-      "${PSQL} -d postgres -U awipsadmin -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
+      "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_FILE}" >> ${SQL_LOG} 2>&1
    RC=$?
    if [ ! "${RC}" -eq 0 ]; then
       printFailureMessage
    fi
 
    su - ${DB_OWNER} -c \
-      "${PSQL} -d maps -U awipsadmin -q -p 5432 -c \"CREATE EXTENSION postgis;\"" >> ${SQL_LOG} 2>&1
+      "${PSQL} -d maps -U awips -q -p 5432 -c \"CREATE EXTENSION postgis;\"" >> ${SQL_LOG} 2>&1
    if [ $? -ne 0 ]; then
       printFailureMessage
    fi
    
    su - ${DB_OWNER} -c \
-      "${PSQL} -d maps -U awipsadmin -q -p 5432 -c \"CREATE EXTENSION postgis_topology;\"" >> ${SQL_LOG} 2>&1
+      "${PSQL} -d maps -U awips -q -p 5432 -c \"CREATE EXTENSION postgis_topology;\"" >> ${SQL_LOG} 2>&1
    if [ $? -ne 0 ]; then
       printFailureMessage
    fi
 
    SQL_FILE="/awips2/postgresql/share/contrib/postgis-2.4/legacy.sql"
    su - ${DB_OWNER} -c \
-      "${PSQL} -d maps -U awipsadmin -q -p 5432 -f ${SQL_FILE}" >>${SQL_LOG} 2>&1
+      "${PSQL} -d maps -U awips -q -p 5432 -f ${SQL_FILE}" >>${SQL_LOG} 2>&1
    if [ $? -ne 0 ]; then
        printFailureMessage
    fi
@@ -180,10 +180,10 @@ if [ "${MAPS_DB_EXISTS}" = "false" ]; then
    # Import the data into the maps database.
    DB_ARCHIVE="/awips2/database/sqlScripts/share/sql/maps/maps.db"
    su - ${DB_OWNER} -c \
-      "${PG_RESTORE} -d maps -U awipsadmin -p 5432 -n mapdata ${DB_ARCHIVE}" >> ${SQL_LOG} 2>&1
+      "${PG_RESTORE} -d maps -U awips -p 5432 -n mapdata ${DB_ARCHIVE}" >> ${SQL_LOG} 2>&1
    
    su - ${DB_OWNER} -c \
-      "${PG_RESTORE} -d maps -U awipsadmin -p 5432 -n public -t geometry_columns -a ${DB_ARCHIVE}" \
+      "${PG_RESTORE} -d maps -U awips -p 5432 -n public -t geometry_columns -a ${DB_ARCHIVE}" \
       >> ${SQL_LOG} 2>&1
 fi
 
@@ -255,22 +255,22 @@ if [ ! "${RC}" = "0" ]; then
 fi
 
 # Is there a maps database?
-MAPS_DB=`${PSQL} -U awipsadmin -l | grep maps | awk '{print $1}'`
+MAPS_DB=`${PSQL} -U awips -l | grep maps | awk '{print $1}'`
 
 if [ "${MAPS_DB}" = "maps" ]; then
    # drop the maps database
    su - ${DB_OWNER} -c \
-      "${DROPDB} -U awipsadmin maps" >> ${SQL_LOG}
+      "${DROPDB} -U awips maps" >> ${SQL_LOG}
 fi
 
 # Is there a maps tablespace?
 # ask psql where the maps tablespace is ...
-MAPS_DIR=`${PSQL} -U awipsadmin -d postgres -c "\db" | grep maps | awk '{print $5}'`
+MAPS_DIR=`${PSQL} -U awips -d postgres -c "\db" | grep maps | awk '{print $5}'`
 
 if [ ! "${MAPS_DIR}" = "" ]; then
    # drop the maps tablespace
    su - ${DB_OWNER} -c \
-      "${PSQL} -U awipsadmin -d postgres -c \"DROP TABLESPACE maps\"" >> ${SQL_LOG}
+      "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE maps\"" >> ${SQL_LOG}
    
    # remove the maps data directory that we created
    if [ -d "${MAPS_DIR}" ]; then

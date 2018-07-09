@@ -26,8 +26,8 @@ WITH (
   OIDS=FALSE
 );
 ALTER TABLE cpg_session
-  OWNER TO awipsadmin;
-GRANT ALL ON TABLE cpg_session TO awipsadmin;
+  OWNER TO awips;
+GRANT ALL ON TABLE cpg_session TO awips;
 GRANT SELECT, UPDATE, INSERT, TRUNCATE, DELETE, TRIGGER ON TABLE cpg_session TO awips;
 GRANT SELECT, UPDATE, INSERT, TRUNCATE, DELETE, TRIGGER ON TABLE cpg_session TO pguser;
 
@@ -46,7 +46,7 @@ WITH (
   OIDS=FALSE
 );
 ALTER TABLE sent_prod_record
-  OWNER TO awipsadmin;
-GRANT ALL ON TABLE sent_prod_record TO awipsadmin;
+  OWNER TO awips;
+GRANT ALL ON TABLE sent_prod_record TO awips;
 GRANT SELECT, UPDATE, INSERT, TRUNCATE, DELETE, TRIGGER ON TABLE sent_prod_record TO awips;
 GRANT SELECT, UPDATE, INSERT, TRUNCATE, DELETE, TRIGGER ON TABLE sent_prod_record TO pguser;

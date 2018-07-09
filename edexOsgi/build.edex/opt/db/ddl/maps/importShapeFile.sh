@@ -72,7 +72,7 @@ if [[ "${TABLE}" == "mapdata" && $# -gt 2 ]] ; then
     TABLE=`echo "${3}" | tr '[:upper:]' '[:lower:]'`
 fi
 
-PGUSER=awipsadmin
+PGUSER=awips
 PGPORT=5432
 PGBINDIR=/awips2/postgresql/bin/
 PSQLBINDIR=/awips2/psql/bin/

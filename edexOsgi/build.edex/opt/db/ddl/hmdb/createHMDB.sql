@@ -20,6 +20,6 @@
 \set ON_ERROR_STOP 1
 DROP DATABASE IF EXISTS hmdb;
 DROP TABLESPACE IF EXISTS hmdb;
-CREATE TABLESPACE hmdb OWNER awipsadmin LOCATION '%{tablespace_dir}%/hmdb';
+CREATE TABLESPACE hmdb OWNER awips LOCATION '%{tablespace_dir}%/hmdb';
 COMMENT ON TABLESPACE hmdb IS 'HMDB Database tablespace';
-CREATE DATABASE hmdb OWNER awipsadmin TABLESPACE hmdb;
+CREATE DATABASE hmdb OWNER awips TABLESPACE hmdb;

@@ -120,19 +120,19 @@ perl -p -i -e "s/%{tablespace_dir}%/${TABLESPACE_DIR_ESCAPED}/g" \
    
 
  su - ${DB_OWNER} -c \
-   "${PSQL} -d postgres -U awipsadmin -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepDb.sql" >> ${SQL_LOG} 2>&1
+   "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepDb.sql" >> ${SQL_LOG} 2>&1
  su - ${DB_OWNER} -c \
-   "${PSQL} -d postgres -U awipsadmin -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepSchemas.sql" >> ${SQL_LOG} 2>&1
+   "${PSQL} -d postgres -U awips -q -p 5432 -f ${SQL_SHARE_DIR}/createNcepSchemas.sql" >> ${SQL_LOG} 2>&1
  su - ${DB_OWNER} -c \
-   "${PSQL} -d ncep -U awipsadmin -q -p 5432 -c \"CREATE EXTENSION postgis;\"" >> ${SQL_LOG} 2>&1   
+   "${PSQL} -d ncep -U awips -q -p 5432 -c \"CREATE EXTENSION postgis;\"" >> ${SQL_LOG} 2>&1   
  su - ${DB_OWNER} -c \
-   "${PSQL} -d ncep -U awipsadmin -q -p 5432 -c \"CREATE EXTENSION postgis_topology;\"" >> ${SQL_LOG} 2>&1
+   "${PSQL} -d ncep -U awips -q -p 5432 -c \"CREATE EXTENSION postgis_topology;\"" >> ${SQL_LOG} 2>&1
  su - ${DB_OWNER} -c \
-   "${PSQL} -d ncep -U awipsadmin -q -p 5432 -f ${LEGACY_SQL}" >> ${SQL_LOG} 2>&1
+   "${PSQL} -d ncep -U awips -q -p 5432 -f ${LEGACY_SQL}" >> ${SQL_LOG} 2>&1
  su - ${DB_OWNER} -c \
-   "${SQL_SHARE_DIR}/createNcepDb.sh ${PSQL_INSTALL} 5432 awipsadmin ${SQL_SHARE_DIR} ${SQL_LOG}"
+   "${SQL_SHARE_DIR}/createNcepDb.sh ${PSQL_INSTALL} 5432 awips ${SQL_SHARE_DIR} ${SQL_LOG}"
  su - ${DB_OWNER} -c \
-   "${SQL_SHARE_DIR}/initializeNcepDb.sh ${POSTGRESQL_INSTALL} awipsadmin 5432 ${SQL_SHARE_DIR} ${SQL_LOG}"
+   "${SQL_SHARE_DIR}/initializeNcepDb.sh ${POSTGRESQL_INSTALL} awips 5432 ${SQL_SHARE_DIR} ${SQL_LOG}"
  su - ${DB_OWNER} -c \
    "${DATABASE_INSTALL}/sqlScripts/share/sql/alter_database_roles_and_permissions.sh ncep" >> ${SQL_LOG} 2>&1
    
@@ -187,16 +187,15 @@ if [ ! "${RC}" = "0" ]; then
 fi
 
  su - ${DB_OWNER} -c \
-   "${DROPDB} -U awipsadmin ncep"
+   "${DROPDB} -U awips ncep"
 
 # Is there a ncep tablespace?
 # ask psql where the ncep tablespace is ...
-NCEP_DIR=`${PSQL} -U awipsadmin -d postgres -c "\db" | grep ncep | awk '{print $5}'`
+NCEP_DIR=`${PSQL} -U awips -d postgres -c "\db" | grep ncep | awk '{print $5}'`
 
 if [ ! "${NCEP_DIR}" = "" ]; then
-   echo "Dropping ncep tablespace..."
     su - ${DB_OWNER} -c \
-      "${PSQL} -U awipsadmin -d postgres -c \"DROP TABLESPACE ncep\""
+      "${PSQL} -U awips -d postgres -c \"DROP TABLESPACE ncep\"" > /dev/null 2>&1 
       
    # remove the maps data directory that we created
    if [ -d "${NCEP_DIR}" ]; then

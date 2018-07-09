@@ -8,7 +8,7 @@
 # only need to run this once per server.
 
 psql="/awips2/psql/bin/psql"
-db_superuser=awipsadmin
+db_superuser=awips
 postgres_data_dir=/awips2/database/data
 
 cleanup_exit () {

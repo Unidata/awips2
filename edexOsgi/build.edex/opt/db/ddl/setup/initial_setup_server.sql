@@ -25,28 +25,28 @@
 ALTER USER %{databaseUsername} with password 'postgres' login superuser createdb createrole;
 CREATE USER postgres superuser;
 
--- connect as postgres user to allow rename of primary user to awipsadmin
+-- connect as postgres user to allow rename of primary user to awips
 \c postgres postgres
 
-ALTER USER %{databaseUsername} rename to awipsadmin;
-ALTER USER awipsadmin with password 'awips';
+ALTER USER %{databaseUsername} rename to awips;
+ALTER USER awips with password 'awips';
 
-\c postgres awipsadmin
+\c postgres awips
 
 CREATE USER awips with password 'awips' login; 
 
 --Create the metadata tablespace
-CREATE TABLESPACE metadata owner awipsadmin location '%{tablespace_dir}/metadata';
+CREATE TABLESPACE metadata owner awips location '%{tablespace_dir}/metadata';
 
 --Create the database
-CREATE DATABASE metadata OWNER awipsadmin TABLESPACE metadata;
+CREATE DATABASE metadata OWNER awips TABLESPACE metadata;
 
 --Switch to the metadata database
 \c metadata;
 
 --Create the AWIPS schema
 GRANT CONNECT, TEMPORARY ON DATABASE metadata TO awips;
-CREATE SCHEMA awips AUTHORIZATION awipsadmin;
+CREATE SCHEMA awips AUTHORIZATION awips;
 
 -- Grant privileges to awips
 GRANT USAGE ON SCHEMA awips to awips; -- Don't grant create
@@ -57,12 +57,12 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA awips GRANT ALL ON TYPES TO awips;
 
 ALTER DATABASE metadata SET search_path = awips, public, topology;
 
-COMMENT ON ROLE awipsadmin IS 'Primary AWIPS admin user';
+COMMENT ON ROLE awips IS 'Primary AWIPS admin user';
 COMMENT ON ROLE awips IS 'Primary AWIPS user';
 COMMENT ON DATABASE metadata IS 'AWIPS Metadata Database';
 COMMENT ON TABLESPACE metadata IS 'AWIPS Metadata Database Tablespace';
 COMMENT ON SCHEMA awips IS 'AWIPS Schema';
 
-CREATE TABLESPACE pgdata_ihfs OWNER awipsadmin LOCATION '%{tablespace_dir}/pgdata_ihfs';
+CREATE TABLESPACE pgdata_ihfs OWNER awips LOCATION '%{tablespace_dir}/pgdata_ihfs';
 COMMENT ON TABLESPACE pgdata_ihfs IS 'IHFS Database tablespace';
 

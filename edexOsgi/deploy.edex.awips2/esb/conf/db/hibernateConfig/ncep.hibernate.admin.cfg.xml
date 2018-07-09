@@ -35,7 +35,7 @@
         <property name="connection.url">
             jdbc:postgresql://${db.addr}:${db.port}/ncep
         </property>
-        <property name="connection.username">awipsadmin</property>
+        <property name="connection.username">awips</property>
         <property name="connection.password">awips</property>
         <property name="connection.release_mode">
             after_transaction

@@ -34,7 +34,7 @@
         <property name="connection.url">
             jdbc:postgresql://${db.addr}:${db.port}/metadata
         </property>
-        <property name="connection.username">awipsadmin</property>
+        <property name="connection.username">awips</property>
         <property name="connection.password">awips</property>
         <property name="connection.release_mode">after_transaction</property>
         <property name="jdbc.batch_size">100</property>
