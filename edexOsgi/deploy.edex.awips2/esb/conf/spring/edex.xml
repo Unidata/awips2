@@ -32,7 +32,6 @@
           <entry key="maxprefetch" value="0" />
           <entry key="sync_publish" value="all" />
           <entry key="sync_ack" value="true" />
-          <entry key="ssl" value="${JMS_SSL_ENABLED}" />
         </map>
       </property>
     </bean>
