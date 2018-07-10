@@ -48,7 +48,6 @@
                         <bean ref="radarDecoder" method="decode" />
                         <to uri="direct-vm:persistIndexAlert" />
                     </pipeline>
-                    <to uri="jms-generic:queue:fsiRadar" />
                 </multicast>
                 <doCatch>
                     <exception>com.raytheon.uf.common.dataplugin.exception.MalformedDataException</exception>
