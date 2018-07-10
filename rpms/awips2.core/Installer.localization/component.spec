@@ -375,7 +375,7 @@ function restoreHydroDb()
    
    # perform the restoration
    echo "Restoring Database ${DAMCAT_DATABASE} ..." >> ${log_file}
-   ${a2_pg_restore} -U awips -C -d postgres ${hydro_db_directory}/${DAMCAT_DATABASE} \
+   ${a2_pg_restore} -U awipsadmin -C -d postgres ${hydro_db_directory}/${DAMCAT_DATABASE} \
       >> ${log_file} 2>&1
    # do not check the return code because any errors encountered during
    # the restoration may cause the return code to indicate a failure even
@@ -384,7 +384,7 @@ function restoreHydroDb()
    echo "" >> ${log_file} 
    
    echo "Restoring Database ${IHFS_DATABASE} ..." >> ${log_file}
-   ${a2_pg_restore} -U awips -C -d postgres ${hydro_db_directory}/${IHFS_DATABASE} \
+   ${a2_pg_restore} -U awipsadmin -C -d postgres ${hydro_db_directory}/${IHFS_DATABASE} \
       >> ${log_file} 2>&1
    # do not check the return code because any errors encountered during
    # the restoration may cause the return code to indicate a failure even

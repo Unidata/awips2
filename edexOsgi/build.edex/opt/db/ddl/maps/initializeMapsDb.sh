@@ -35,7 +35,7 @@ DATABASEDIR=/awips2/database/sqlScripts/share/sql/maps
 POSTGIS_CONTRIB=/awips2/postgresql/share/contrib/postgis-2.2
 PGBINDIR=/awips2/postgresql/bin
 PSQLBINDIR=/awips2/psql/bin
-PGUSER=awips
+PGUSER=awipsadmin
 PGPORT=5432
 
 ${PSQLBINDIR}/psql -d postgres -U $PGUSER -q -p $PGPORT -f ${DATABASEDIR}/createMapsDb.sql

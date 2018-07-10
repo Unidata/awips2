@@ -144,7 +144,7 @@ function printFailureMessage() {
 
 AWIPS_DEFAULT_OWNER="awips"
 AWIPS_DEFAULT_USER="awips"
-AWIPS_DEFAULT_DB_ADMIN="awips"
+AWIPS_DEFAULT_DB_ADMIN="awipsadmin"
 AWIPS_DEFAULT_GROUP="fxalpha"
 AWIPS_DEFAULT_PORT="5432"
 
@@ -278,8 +278,8 @@ fi
 
 execute_initial_sql_script ${SQL_SHARE_DIR}/initial_setup_server.sql > /dev/null 2>&1
 
-/awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis;" > /dev/null 2>&1
-/awips2/psql/bin/psql -U awips -d metadata -c "CREATE EXTENSION postgis_topology;" > /dev/null 2>&1
+/awips2/psql/bin/psql -U awipsadmin -d metadata -c "CREATE EXTENSION postgis;" > /dev/null 2>&1
+/awips2/psql/bin/psql -U awipsadmin -d metadata -c "CREATE EXTENSION postgis_topology;" > /dev/null 2>&1
 execute_psql_sql_script /awips2/postgresql/share/contrib/postgis-2.4/legacy.sql metadata > /dev/null 2>&1
 execute_psql_sql_script ${SQL_SHARE_DIR}/permissions.sql metadata > /dev/null 2>&1
 execute_psql_sql_script ${SQL_SHARE_DIR}/fxatext.sql metadata > /dev/null 2>&1

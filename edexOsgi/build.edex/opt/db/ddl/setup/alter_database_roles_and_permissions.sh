@@ -2,7 +2,7 @@
 # alters all database objects to be owned by awips admin. Gives CRUD roles to pg_user and awips accounts.
 
 PSQL='/awips2/psql/bin/psql'
-adminUser='awips'
+adminUser='awipsadmin'
 users=('awips' 'pguser')
 
 as_awips='sudo -u awips -i '

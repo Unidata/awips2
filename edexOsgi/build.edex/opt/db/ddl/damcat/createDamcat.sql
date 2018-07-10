@@ -20,6 +20,6 @@
 \set ON_ERROR_STOP 1
 DROP DATABASE IF EXISTS dc_ob7oax;
 DROP TABLESPACE IF EXISTS damcat;
-CREATE TABLESPACE damcat OWNER awips LOCATION '%{tablespace_dir}%/damcat';
+CREATE TABLESPACE damcat OWNER awipsadmin LOCATION '%{tablespace_dir}%/damcat';
 COMMENT ON TABLESPACE damcat IS 'DAMCAT Database tablespace';
-CREATE DATABASE dc_ob7oax OWNER awips TABLESPACE damcat;
+CREATE DATABASE dc_ob7oax OWNER awipsadmin TABLESPACE damcat;

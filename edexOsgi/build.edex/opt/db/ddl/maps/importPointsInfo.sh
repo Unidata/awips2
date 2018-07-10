@@ -36,7 +36,7 @@ SCHEMA=${2}
 TABLE=`echo "${3}" | tr '[:upper:]' '[:lower:]'`
 
 if [ -z $4 ] ; then
-    PGUSER=awips
+    PGUSER=awipsadmin
 else
     PGUSER=${4}
 fi

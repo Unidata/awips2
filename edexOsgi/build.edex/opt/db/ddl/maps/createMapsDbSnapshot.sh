@@ -34,7 +34,7 @@ if [ $# -lt 1 ] ; then
 fi
 
 PGBINDIR=/awips2/postgresql/bin
-PGUSER=awips
+PGUSER=awipsadmin
 PGPORT=5432
 
 if [ -z $1 ] ; then

@@ -22,7 +22,7 @@
 # Configuration ###############################################################
 
 # Credentials
-db_superuser=awips
+db_superuser=awipsadmin
 db_rep_user=replication # for connecting to master
 
 # Master server info
