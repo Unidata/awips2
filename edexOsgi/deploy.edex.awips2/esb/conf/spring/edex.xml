@@ -36,13 +36,10 @@
       </property>
     </bean>
 
-    <bean id="secureAmqConnectionURL" class="com.raytheon.uf.common.jms.JmsSslConfiguration" factory-method="configureURL">
-      <constructor-arg ref="amqConnectionURL" />
-    </bean>
-
     <!-- specify the connection to the broker (qpid) -->
     <bean id="amqConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
-       <constructor-arg ref="secureAmqConnectionURL"/>
+       <constructor-arg type="java.lang.String" value="amqp://guest:guest@/${JMS_VIRTUALHOST}?brokerlist='${JMS_SERVER}?retries='9999'&amp;heartbeat='0'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
+       <!-- <constructor-arg ref="amqConnectionURL"/> -->
     </bean>
 
     <bean id="jmsPooledConnectionFactory" class="com.raytheon.uf.common.jms.JmsPooledConnectionFactory">
