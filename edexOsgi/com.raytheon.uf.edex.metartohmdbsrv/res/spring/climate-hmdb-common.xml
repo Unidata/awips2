@@ -17,7 +17,7 @@
     <bean id="hmdbSessionFactory" class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
 
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/hmdb.hibernate.cfg.xml</value>
+            <value>file:///${edex.home}/conf/db/hibernateConfig/hmdb/hibernate.cfg.xml</value>
         </property>
         <property name="databaseSessionConfiguration" ref="hmdbDbSessionConfig" />
     </bean>
@@ -30,7 +30,7 @@
     <bean id="admin_hmdbSessionFactory" class="com.raytheon.uf.edex.database.DatabaseSessionFactoryBean">
 
         <property name="configLocation">
-            <value>file:///${edex.home}/conf/db/hibernateConfig/hmdb.hibernate.admin.cfg.xml</value>
+            <value>file:///${edex.home}/conf/db/hibernateConfig/hmdb/hibernate.admin.cfg.xml</value>
         </property>
         <property name="databaseSessionConfiguration" ref="hmdbDbSessionConfig" />
     </bean>

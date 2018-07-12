@@ -25,19 +25,27 @@
     <session-factory>
 
         <!-- JDBC Properties -->
+
         <property name="connection.driver_class">
             org.postgresql.Driver
         </property>
         <property name="dialect">
-            org.hibernate.spatial.dialect.postgis.PostgisDialect
+            org.hibernate.dialect.PostgreSQLDialect
         </property>
         <property name="connection.url">
-            jdbc:postgresql://${db.addr}:${db.port}/metadata
+            jdbc:postgresql://${db.addr}:${db.port}/${ih.db.name}
         </property>
-        <property name="connection.username">awipsadmin</property>
-        <property name="connection.password">awips</property>
-        <property name="connection.release_mode">after_transaction</property>
-        <property name="jdbc.batch_size">100</property>
+        <property name="connection.username">awips</property>
+        <property name="connection.sslmode">${db.auth.sslmode}</property>
+        <property name="connection.sslfactory">org.postgresql.ssl.jdbc4.LibPQFactory</property>
+        <property name="connection.sslcert">${db.auth.dir}/awips.crt</property>
+        <property name="connection.sslkey">${db.auth.dir}/awips.pk8</property>
+        <property name="connection.sslrootcert">${db.auth.dir}/root.crt</property>
+        <property name="connection.release_mode">
+            after_transaction
+        </property>
+        <property name="jdbc.batch_size">20</property>
+
 
         <!-- Optional Hibernate Configuration Properties -->
         <!-- Write all SQL statements to console -->
@@ -57,20 +65,20 @@
         <!-- Additional properties may be added to c3p0.properties -->
         <property name="hibernate.c3p0.initial_pool_size">0</property>
         <property name="hibernate.c3p0.min_size">0</property>
-        <property name="hibernate.c3p0.max_size">5</property>
+        <property name="hibernate.c3p0.max_size">10</property>
         <property name="hibernate.c3p0.acquire_increment">1</property>
-        <property name="hibernate.c3p0.idle_test_period">10</property>
-        <property name="hibernate.c3p0.max_idle_time">10</property>
+        <property name="hibernate.c3p0.idle_test_period">60</property>
+        <property name="hibernate.c3p0.max_idle_time">600</property>
         <property name="hibernate.c3p0.preferred_test_query">select 1</property>
-        <property name="hibernate.c3p0.timeout">${db.metadata.pool.timeout}</property>
+        <property name="hibernate.c3p0.timeout">300</property>
         <property name="hibernate.c3p0.max_statements">10</property>
 
-        <property name="hibernate.generate_statistics">false</property>
-        <property name="hibernate.transaction.factory_class">org.hibernate.transaction.JDBCTransactionFactory</property>
-        <property name="hibernate.cache.use_second_level_cache">false</property>
-        <property name="hibernate.jdbc.use_streams_for_binary">false</property>
+
+        <!-- Cache Properties -->
         <property name="hibernate.cache.use_query_cache">false</property>
+        <property name="hibernate.cache.use_second_level_cache">false</property>
         <property name="hibernate.query.plan_cache_max_strong_references">8</property>
         <property name="hibernate.query.plan_cache_max_soft_references">16</property>
+
     </session-factory>
 </hibernate-configuration>
