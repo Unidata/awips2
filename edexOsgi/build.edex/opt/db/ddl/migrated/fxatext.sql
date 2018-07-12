@@ -20,8 +20,8 @@
 drop database if exists fxatext;
 create database fxatext with TEMPLATE = template0 ENCODING = 'SQL_ASCII';
 \c fxatext;
-create user postgres superuser;
 create user pguser nosuperuser;
+
 --
 -- PostgreSQL database dump
 --
@@ -29,17 +29,19 @@ create user pguser nosuperuser;
 SET client_encoding = 'SQL_ASCII';
 SET check_function_bodies = false;
 
-SET SESSION AUTHORIZATION 'postgres';
-
 --
 -- TOC entry 4 (OID 2200)
 -- Name: public; Type: ACL; Schema: -; Owner: postgres
 --
+GRANT ALL ON DATABASE fxatext TO awipsadmin;
+GRANT CONNECT, TEMPORARY ON DATABASE fxatext TO public;
 
 REVOKE ALL ON SCHEMA public FROM PUBLIC;
 GRANT ALL ON SCHEMA public TO PUBLIC;
 
-
-SET SESSION AUTHORIZATION 'pguser';
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE, TRIGGER, TRUNCATE ON TABLES TO awips; -- Don't grant references
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO awips;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON FUNCTIONS TO awips;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TYPES TO awips;
 
 SET search_path = public, pg_catalog;

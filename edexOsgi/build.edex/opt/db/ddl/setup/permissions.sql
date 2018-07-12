@@ -17,5 +17,5 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-alter table awips.geometry_columns owner to awips;
-alter table awips.spatial_ref_sys owner to awips;
+alter table awips.geometry_columns owner to awipsadmin;
+alter table awips.spatial_ref_sys owner to awipsadmin;
