@@ -142,6 +142,10 @@ function lookupRPM()
       return 0
    fi
    # FOSS RPMs
+   if [ "${1}" = "awips2-qpid-java" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/qpid-java"
+      return 0
+   fi
    if [ "${1}" = "awips2-qpid-java-client" ]; then
       export RPM_SPECIFICATION="${installer_dir}/qpid-java-client"
       return 0
