@@ -41,14 +41,8 @@ if [ $? -ne 0 ]; then
 fi
 
 GFE_SRC_DIR="%{_static_files}/gfe"
-gfe_tar="${GFE_SRC_DIR}/gfeData.tgz"
-if [ ! -f ${gfe_tar} ]; then
-   echo "File ${gfe_tar} not found!"
-   exit 1
-fi
 
-/bin/tar -xvf ${gfe_tar} \
-   -C ${RPM_BUILD_ROOT}/awips2/edex/data
+cp -r ${GFE_SRC_DIR} ${RPM_BUILD_ROOT}/awips2/edex/data
 if [ $? -ne 0 ]; then
    exit 1
 fi
