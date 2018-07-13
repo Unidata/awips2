@@ -11,35 +11,9 @@
     <!-- Separated out database specific beans to separate file so they can be loaded by themselves if necessary -->
     <import resource="file:///${edex.home}/conf/spring/edex-db.xml"/>
 
-    <!-- MaxPrefetch set at 0, due to DataPool routers getting messages backed up behind long running tasks -->
-    <bean id="amqConnectionURL" class="com.raytheon.uf.common.jms.AMQConnectionURLBean">
-      <constructor-arg value="amqp://guest:guest@/${JMS_VIRTUALHOST}" />
-      <property name="brokerDetails">
-        <bean class="org.apache.qpid.client.AMQBrokerDetails">
-          <constructor-arg value="${JMS_SERVER}" />
-          <property name="properties">
-            <map>
-              <entry key="retries" value="9999" />
-              <entry key="heartbeat" value="0" />
-              <entry key="connecttimeout" value="5000" />
-              <entry key="connectdelay" value="5000" />
-            </map>
-          </property>
-        </bean>
-      </property>
-      <property name="options">
-        <map>
-          <entry key="maxprefetch" value="0" />
-          <entry key="sync_publish" value="all" />
-          <entry key="sync_ack" value="true" />
-        </map>
-      </property>
-    </bean>
-
     <!-- specify the connection to the broker (qpid) -->
     <bean id="amqConnectionFactory" class="org.apache.qpid.client.AMQConnectionFactory">
        <constructor-arg type="java.lang.String" value="amqp://guest:guest@/${JMS_VIRTUALHOST}?brokerlist='${JMS_SERVER}?retries='9999'&amp;heartbeat='0'&amp;connecttimeout='5000'&amp;connectdelay='5000''&amp;maxprefetch='0'&amp;sync_publish='all'&amp;sync_ack='true'"/>
-       <!-- <constructor-arg ref="amqConnectionURL"/> -->
     </bean>
 
     <bean id="jmsPooledConnectionFactory" class="com.raytheon.uf.common.jms.JmsPooledConnectionFactory">
