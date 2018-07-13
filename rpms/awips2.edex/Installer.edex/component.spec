@@ -124,9 +124,6 @@ fi
 %pre
 
 %post
-# Set ipaddress in setup.env and run chkconfig for init.d services
-/awips2/edex/bin/edex setup > /dev/null 2>&1
-
 # We need to create a link to the python shared library if it does not exist.
 pushd . > /dev/null 2>&1
 if [ -d /awips2/python/lib ]; then
