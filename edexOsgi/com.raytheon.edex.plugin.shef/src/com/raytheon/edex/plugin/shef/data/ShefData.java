@@ -20,8 +20,6 @@
 package com.raytheon.edex.plugin.shef.data;
 
 import java.util.Date;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.raytheon.edex.plugin.shef.util.SHEFDate;
 import com.raytheon.edex.plugin.shef.util.ShefParm;
@@ -34,7 +32,8 @@ import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.Probability;
 import com.raytheon.uf.common.dataplugin.shef.util.ParameterCode.TypeSource;
 import com.raytheon.uf.common.dataplugin.shef.util.SHEFTimezone;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
-import com.raytheon.uf.common.serialization.ISerializableObject;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 
 /**
  * SHEF Data parent object
@@ -43,16 +42,21 @@ import com.raytheon.uf.common.serialization.ISerializableObject;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ * Date         Ticket#     Engineer    Description
+ * ------------ ---------   ----------- --------------------------
  * 03/19/08     387         M. Duff     Initial creation.  
  * 10/16/2008   1548        jelkins     Integrated ParameterCode Types
  * 04/29/2014   3088        mpduff      cleanup.
  * 06/26/2014   3321        mpduff      Added ingestfilter primary key getter.
+ * 01/10/2018   5049        mduff       ShefParm is now provided to this class.
  * 
  * </pre>
  */
-public class ShefData implements ISerializableObject {
+public class ShefData {
+
+    private final IUFStatusHandler logger = UFStatus.getHandler(ShefData.class);
+
+    private ShefParm shefParm;
 
     private String stringValue = null;
 
@@ -109,10 +113,12 @@ public class ShefData implements ISerializableObject {
     private boolean revisedRecord = false;
 
     /**
-     * Empty constructor
+     * Constructor.
+     * 
+     * @param ShefParm
      */
-    public ShefData() {
-
+    public ShefData(ShefParm shefParm) {
+        this.shefParm = shefParm;
     }
 
     /**
@@ -128,6 +134,11 @@ public class ShefData implements ISerializableObject {
      */
     public void setStringValue(String stringValue) {
         this.stringValue = stringValue;
+        if (stringValue == null) {
+            value = null;
+            return;
+        }
+
         try {
             boolean neg = false;
             int negPos = stringValue.indexOf('-');
@@ -140,8 +151,7 @@ public class ShefData implements ISerializableObject {
                 value *= -1.0;
             }
         } catch (NumberFormatException nfe) {
-            value = null;
-        } catch (NullPointerException npe) {
+            logger.warn("Invalid value: " + stringValue, nfe);
             value = null;
         }
     }
@@ -279,15 +289,13 @@ public class ShefData implements ISerializableObject {
                     // check to see if this is a valid typesource
                     String key = paramType + paramSource;
 
-                    Integer n = ShefParm.getTypeSourceCode(key);
+                    Integer n = shefParm.getTypeSourceCode(key);
                     if ((n != null) && (n == 1)) {
                         TypeSource ts = TypeSource.getEnum(key);
                         dataTypeCode = paramType;
                         dataSourceCode = paramSource;
 
                         setTypeSource(ts);
-                    } else {
-
                     }
 
                     Duration duration = Duration.INSTANTENOUS;
@@ -524,10 +532,7 @@ public class ShefData implements ISerializableObject {
      *            the creationDateObj to set
      */
     public void setCreationDateObj(Date creationDate) {
-        SHEFDate d = new SHEFDate(creationDate, SHEFTimezone.GMT_TIMEZONE);
-        if (d != null) {
-            createTime = d;
-        }
+        createTime = new SHEFDate(creationDate, SHEFTimezone.GMT_TIMEZONE);
     }
 
     /**
@@ -586,10 +591,7 @@ public class ShefData implements ISerializableObject {
      *            the observationTimeObj to set
      */
     public void setObservationTimeObj(Date observationTime) {
-        SHEFDate d = new SHEFDate(observationTime, SHEFTimezone.GMT_TIMEZONE);
-        if (d != null) {
-            obsTime = d;
-        }
+        obsTime = new SHEFDate(observationTime, SHEFTimezone.GMT_TIMEZONE);
     }
 
     public void setObsTime(SHEFDate date) {
@@ -669,7 +671,7 @@ public class ShefData implements ISerializableObject {
         if ("S".equals(unitsCode)) {
             if (physicalElement != null) {
                 String key = physicalElement.getCode();
-                Double cf = ShefParm.getPhysicalElementConversionFactor(key);
+                Double cf = shefParm.getPhysicalElementConversionFactor(key);
                 Double n = doConversion(physicalElement, unitsCode, value);
                 if (n == null) {
                     if (cf != null) {
@@ -775,8 +777,8 @@ public class ShefData implements ISerializableObject {
         receiver.append((revisedRecord) ? " 1" : " 0");
         receiver.append(" ");
         // Data source
-        receiver.append(String.format("%-8s", (dataSource != null) ? dataSource
-                : " "));
+        receiver.append(
+                String.format("%-8s", (dataSource != null) ? dataSource : " "));
         receiver.append(" ");
         // Time series indicator
         receiver.append(String.format("%3d", timeSeriesId));
@@ -867,40 +869,5 @@ public class ShefData implements ISerializableObject {
             }
         }
         return dValue;
-    }
-
-    /**
-     * 
-     * @param args
-     */
-    public static final void main(String[] args) {
-
-        // ShefData d = new ShefData();
-        //
-        // d.setParameterCodeString("AD","Z");
-        //
-        // System.out.println(d);
-        //
-        // double dv = 0.04;
-        //
-        // System.out.println(String.format("[%.3f]",dv));
-        //
-
-        double adjustedValue = 10;
-        double divisor = 1;
-        double base = 0;
-        double multiplier = 1000;
-        double adder = 0;
-
-        double n = (adjustedValue / divisor + base) * multiplier + adder;
-
-        System.out.println(n);
-
-        Pattern Q_CODES = Pattern.compile("Q[^BEF]");
-        Matcher m = Q_CODES.matcher("QI");
-        if (m.matches()) {
-            System.out.println("found");
-        }
-
     }
 }

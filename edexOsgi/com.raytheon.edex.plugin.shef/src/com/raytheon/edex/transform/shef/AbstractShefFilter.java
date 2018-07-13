@@ -1,36 +1,34 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.edex.transform.shef;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
-import com.raytheon.uf.common.localization.LocalizationContext;
-import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.serialization.JAXBManager;
@@ -44,28 +42,27 @@ import com.raytheon.uf.edex.decodertools.core.filterimpl.WMOHeaderFilterElement;
 
 /**
  * Abstraction of a Shef Filter.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2015 4783       bkowal      Initial creation
  * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
  * Jul 13, 2016 5744       mapeters    Retrieve config files from common_static
  *                                     instead of edex_static
- * 
+ * Nov 02, 2017 6132       mapeters    Support localization overrides for filter file
+ *
  * </pre>
- * 
+ *
  * @author bkowal
  */
 
 public abstract class AbstractShefFilter {
 
-    private static final String ERROR_1_FMT = "Could not create {%s} context for file \"%s\"";
-
-    private static final String ERROR_2_FMT = "File %s does not exist";
+    private static final String ERROR_FMT = "File %s does not exist";
 
     protected static final String METAR_CFG = "metar.cfg";
 
@@ -81,36 +78,27 @@ public abstract class AbstractShefFilter {
         this.init();
     }
 
-    protected AbstractShefFilter(String configFile, String localContext,
+    protected AbstractShefFilter(String configFile,
             final Class<? extends AbstractShefFilter> shefFilterClass) {
         this.init();
         this.filterConfigFile = configFile;
-        this.readConfig(localContext, shefFilterClass);
+        this.readConfig(shefFilterClass);
     }
 
-    private void readConfig(String localContext,
+    private void readConfig(
             final Class<? extends AbstractShefFilter> shefFilterClass) {
         try {
             /*
              * Retrieve and verify the existence of the configuration file.
              */
+            String configPath = FILTERS_DIR + IPathManager.SEPARATOR
+                    + filterConfigFile;
             IPathManager manager = PathManagerFactory.getPathManager();
-            if (manager == null) {
-                throw new Exception("Failed to construct a Path Manager.");
-            }
-            LocalizationContext context = manager.getContext(
-                    LocalizationType.COMMON_STATIC,
-                    LocalizationLevel.valueOf(localContext));
-            if (context == null) {
-                throw new Exception(String.format(ERROR_1_FMT, localContext,
-                        this.filterConfigFile));
-            }
-            Path configPath = Paths.get(
-                    manager.getFile(context, FILTERS_DIR).getAbsolutePath())
-                    .resolve(filterConfigFile);
-            if (!Files.exists(configPath)) {
-                throw new Exception(String.format(ERROR_2_FMT,
-                        configPath.toString()));
+            ILocalizationFile configFile = manager.getStaticLocalizationFile(
+                    LocalizationType.COMMON_STATIC, configPath);
+            if (configFile == null || !configFile.exists()) {
+                throw new FileNotFoundException(
+                        String.format(ERROR_FMT, configPath));
             }
 
             /*
@@ -120,8 +108,10 @@ public abstract class AbstractShefFilter {
                     shefFilterClass, RadiusFilterElement.class,
                     RectFilterElement.class, StationIdFilterElement.class,
                     WMOHeaderFilterElement.class);
-            byte[] data = Files.readAllBytes(configPath);
-            Object obj = jaxb.unmarshalFromXml(new String(data));
+            Object obj;
+            try (InputStream is = configFile.openInputStream()) {
+                obj = jaxb.unmarshalFromInputStream(is);
+            }
             if (shefFilterClass.isInstance(obj)
                     || obj instanceof PluginDataObjectFilter) {
                 this.buildRun(obj, this.filterConfigFile);
@@ -147,19 +137,18 @@ public abstract class AbstractShefFilter {
                  * Only allow keep to be set to false. Once false it stays that
                  * way.
                  */
-                if (AbstractObsFilter.INCLUDE_TYPE.equals(element
-                        .getFilterType())) {
+                if (AbstractObsFilter.INCLUDE_TYPE
+                        .equals(element.getFilterType())) {
                     // Did the filter pass?
                     if (r == null) {
                         // If we fail an element, exit now.
                         keep = false;
                         break;
                     }
-                } else if (AbstractObsFilter.EXCLUDE_TYPE.equals(element
-                        .getFilterType())) {
+                } else if (AbstractObsFilter.EXCLUDE_TYPE
+                        .equals(element.getFilterType())) {
                     if (r != null) {
-                        // There was a match, so we want to remove this
-                        // item.
+                        // There was a match, so we want to remove this item.
                         keep = false;
                         // And there's no reason for further checks.
                         break;

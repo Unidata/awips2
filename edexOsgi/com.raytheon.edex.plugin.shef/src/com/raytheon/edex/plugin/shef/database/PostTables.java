@@ -19,6 +19,7 @@
  **/
 package com.raytheon.edex.plugin.shef.database;
 
+import java.io.Serializable;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -39,6 +40,10 @@ import com.raytheon.edex.plugin.shef.ohdlib.GagePP;
 import com.raytheon.edex.plugin.shef.ohdlib.GagePPOptions;
 import com.raytheon.edex.plugin.shef.ohdlib.GagePPOptions.shef_dup;
 import com.raytheon.edex.plugin.shef.ohdlib.PrecipUtils;
+import com.raytheon.edex.plugin.shef.util.FcstPEPDOLookupUtil;
+import com.raytheon.edex.plugin.shef.util.ObsPEPDOLookupUtil;
+import com.raytheon.edex.plugin.shef.util.ObsPrecipPDOLookupUtil;
+import com.raytheon.edex.plugin.shef.util.PDOLookupReturn;
 import com.raytheon.edex.plugin.shef.util.PrecipitationUtils;
 import com.raytheon.edex.plugin.shef.util.ShefStats;
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
@@ -47,6 +52,9 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Arealfcst;
 import com.raytheon.uf.common.dataplugin.shef.tables.Arealobs;
 import com.raytheon.uf.common.dataplugin.shef.tables.Commentvalue;
 import com.raytheon.uf.common.dataplugin.shef.tables.Contingencyvalue;
+import com.raytheon.uf.common.dataplugin.shef.tables.ICheckValue;
+import com.raytheon.uf.common.dataplugin.shef.tables.Latestobsvalue;
+import com.raytheon.uf.common.dataplugin.shef.tables.LatestobsvalueId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Pairedvalue;
 import com.raytheon.uf.common.dataplugin.shef.tables.PairedvalueId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Procvalue;
@@ -89,10 +97,11 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * 09/03/2014              mpduff      postRiverStatus() writes directly, not via batch
  * 10/16/2014   3454       bphillip    Upgrading to Hibernate 4
  * Aug 05, 2015 4486       rjpeter     Changed Timestamp to Date.
+ * Dec 18, 2017 6554       bkowal      Added checkForAndHandleDuplicate to avoid running SQL procedures that are guaranteed
+ *                                     to fail because the configuration does not allow record updates.
  * </pre>
  * 
  * @author mduff
- * @version 1.0
  */
 
 public class PostTables {
@@ -106,13 +115,8 @@ public class PostTables {
     private static final String RIVER_STATUS_INSERT_STATEMENT = "INSERT INTO riverstatus values(?,?,?,?,?,?,?,?,?)";
 
     private static final String RIVER_STATUS_UPDATE_STATEMENT = "UPDATE riverstatus SET lid = ? , "
-            + "pe = ? , "
-            + "dur = ? , "
-            + "ts = ? , "
-            + "extremum = ? ,"
-            + "probability = ? , "
-            + "validtime = ? , "
-            + "basistime = ? , "
+            + "pe = ? , " + "dur = ? , " + "ts = ? , " + "extremum = ? ,"
+            + "probability = ? , " + "validtime = ? , " + "basistime = ? , "
             + "value = ? " + "WHERE lid= ? AND pe= ? AND ts= ?";
 
     private static GagePPOptions gagePPOptions;
@@ -190,20 +194,39 @@ public class PostTables {
             basisTime.setTime(0);
         }
 
-        String procName = "latestobs";
-        if (dataValue.equals("")) {
-            dataValue = "-9999.0";
-        }
+        final String procName = "latestobs";
 
         /* now call the PostgreSQL function */
         start = System.currentTimeMillis();
-        execFunction(procName, record, shefData, locId, dataValue, qualifier,
-                qualityCode, productId, productTime, postTime, duplicateOption,
-                stats);
-        end = System.currentTimeMillis();
-        end = System.currentTimeMillis();
-        stats.addElapsedTimeIngest(end - start);
-        stats.incrementLatestObs();
+        LatestobsvalueId id = new LatestobsvalueId();
+        id.setLid(locId);
+        id.setPe(shefData.getPhysicalElement().getCode());
+        id.setDur(shefData.getDurationValue());
+        id.setTs(shefData.getTypeSource().getCode());
+        id.setExtremum(shefData.getExtremum().getCode());
+        id.setObstime(shefData.getObservationTimeObj());
+        if (dataValue.isEmpty()) {
+            dataValue = ShefConstants.SHEF_MISSING;
+        }
+        id.setValue(Double.parseDouble(dataValue));
+        id.setRevision((record.isRevisedRecord() ? (short) 1 : (short) 0));
+        id.setShefQualCode(qualifier);
+        id.setQualityCode((int) qualityCode);
+        id.setProductId(productId);
+        id.setProducttime(productTime);
+        id.setPostingtime(postTime);
+
+        if (checkForAndHandleDuplicate(shefData, locId, dataValue,
+                duplicateOption, Latestobsvalue.class, id, false)) {
+            stats.incrementIgnored();
+        } else {
+            execFunction(procName, record, shefData, locId, dataValue,
+                    qualifier, qualityCode, productId, productTime, postTime,
+                    duplicateOption, stats);
+            end = System.currentTimeMillis();
+            stats.addElapsedTimeIngest(end - start);
+            stats.incrementLatestObs();
+        }
     }
 
     /**
@@ -231,8 +254,8 @@ public class PostTables {
         short dur = Short.parseShort(shefData.getDuration().getValue() + "");
         String ts = shefData.getTypeSource().getCode();
         String extremum = shefData.getExtremum().getCode();
-        float probability = Float.parseFloat(shefData.getProbability()
-                .getValue() + "");
+        float probability = Float
+                .parseFloat(shefData.getProbability().getValue() + "");
         Date validTime = shefData.getObservationTimeObj();
 
         // CONCERN : Is this the correct behavior when the basisTime is missing?
@@ -299,8 +322,8 @@ public class PostTables {
         id.setExtremum(shefData.getExtremum().getCode());
         id.setLid(locId);
         id.setPe(shefData.getPhysicalElement().getCode());
-        id.setProbability(Float.parseFloat(shefData.getProbability().getValue()
-                + ""));
+        id.setProbability(
+                Float.parseFloat(shefData.getProbability().getValue() + ""));
 
         pairedValue.setPostingtime(postTime);
         pairedValue.setProductId(productId);
@@ -321,8 +344,8 @@ public class PostTables {
             // lid, pe, dur, ts, extremum, probability, validtime, basistime,
             // ref_value
             sql = "select value from pairedvalue where lid = '" + locId
-                    + "' and pe = '" + pe + "' and dur = " + dur
-                    + " and ts = '" + ts + "' and extremum = '" + extremum
+                    + "' and pe = '" + pe + "' and dur = " + dur + " and ts = '"
+                    + ts + "' and extremum = '" + extremum
                     + "' and probability = " + probability
                     + " and validtime = '"
                     + ShefConstants.POSTGRES_DATE_FORMAT.format(validTime)
@@ -356,8 +379,8 @@ public class PostTables {
                     /* data was properly added to table */
                     stats.incrementRejected();
                 } else {
-                    if (AppsDefaults.getInstance().getBoolean(
-                            ShefConstants.DUP_MESSAGE, false)) {
+                    if (AppsDefaults.getInstance()
+                            .getBoolean(ShefConstants.DUP_MESSAGE, false)) {
                         log.info("Ignoring duplicate PairedValue for " + locId
                                 + ", " + productId + ", "
                                 + shefData.getObservationTime());
@@ -397,19 +420,31 @@ public class PostTables {
             Date validTime, Date postTime, DataType type) {
 
         String procName = null;
+        Class<?> daoClass = null;
+        Serializable id = null;
 
         if (DataType.READING.equals(type)) {
             /* see if the data is a precip report of some kind */
-            int precipIndex = PrecipitationUtils.getPrecipitationIndex(shefData
-                    .getPhysicalElement());
+            int precipIndex = PrecipitationUtils
+                    .getPrecipitationIndex(shefData.getPhysicalElement());
 
             /* post all non-precip observed data */
             if (precipIndex == ShefConstants.NOT_PRECIP) {
                 procName = "obs_pe";
+                PDOLookupReturn pdoLookupReturn = ObsPEPDOLookupUtil.lookupPDO(
+                        shefData.getPhysicalElement().getCode(), locId,
+                        shefData);
+                daoClass = pdoLookupReturn.getDaoClass();
+                id = pdoLookupReturn.getId();
 
                 /* now call the PostgreSQL function */
             } else {
                 procName = "obs_precip";
+                PDOLookupReturn pdoLookupReturn = ObsPrecipPDOLookupUtil
+                        .lookupPDO(shefData.getPhysicalElement().getCode(),
+                                locId, shefData);
+                daoClass = pdoLookupReturn.getDaoClass();
+                id = pdoLookupReturn.getId();
 
                 /*
                  * if gpp is enabled, and the switch for this record dictates,
@@ -417,12 +452,11 @@ public class PostTables {
                  * a file that will be sent to the gpp server after the product
                  * is fully processed. if PP, only consider hourly data.
                  */
-                boolean gage_pp_enable = AppsDefaults.getInstance().getBoolean(
-                        "gage_pp_enable", false);
+                boolean gage_pp_enable = AppsDefaults.getInstance()
+                        .getBoolean("gage_pp_enable", false);
 
                 if (gage_pp_enable
                         && (ingestSwitch == ShefConstants.IngestSwitch.POST_PE_AND_HOURLY)) {
-
                     PrecipRecord precip = new PrecipRecord(shefData);
                     precip.setPostingTime(postTime);
                     precip.setQualCode(qualityCode);
@@ -433,9 +467,10 @@ public class PostTables {
 
                     if ((PhysicalElement.PRECIPITATION_INCREMENT.equals(pe))
                             && ((shefData.getDuration() == Duration._1_DAY)
-                                    || (shefData.getDuration() == Duration._1_PERIOD) || (shefData
-                                    .getDuration() == Duration._6_HOUR))) {
-
+                                    || (shefData
+                                            .getDuration() == Duration._1_PERIOD)
+                                    || (shefData
+                                            .getDuration() == Duration._6_HOUR))) {
                         PrecipitationUtils.writePrecipGpp(shefData, record,
                                 qualityCode, productId, productTime, postTime,
                                 locId, qualifier, dataValue);
@@ -444,15 +479,17 @@ public class PostTables {
                     }
                     if ((PhysicalElement.PRECIPITATION_ACCUMULATOR.equals(pe))
                             || ((PhysicalElement.PRECIPITATION_INCREMENT
-                                    .equals(pe)) && ((shefData.getDuration() == Duration._60_MINUTES) || (shefData
-                                    .getDuration() == Duration._1_HOUR)))) {
-
-                        if (dataValue.equals("")) {
+                                    .equals(pe))
+                                    && ((shefData
+                                            .getDuration() == Duration._60_MINUTES)
+                                            || (shefData
+                                                    .getDuration() == Duration._1_HOUR)))) {
+                        if (dataValue.isEmpty()) {
                             dataValue = ShefConstants.SHEF_MISSING;
                         }
 
-                        if (PrecipUtils.checkPrecipWindow(
-                                shefData.getObsTime(), pe, gagePPOptions)) {
+                        if (PrecipUtils.checkPrecipWindow(shefData.getObsTime(),
+                                pe, gagePPOptions)) {
                             PrecipitationUtils.writePrecipGpp(shefData, record,
                                     qualityCode, productId, productTime,
                                     postTime, locId, qualifier, dataValue);
@@ -462,63 +499,81 @@ public class PostTables {
                     }
                 }
             }
-
         } else if (DataType.FORECAST.equals(type)) {
             procName = "fcst_pe";
+            PDOLookupReturn pdoLookupReturn = FcstPEPDOLookupUtil.lookupPDO(
+                    shefData.getPhysicalElement().getCode(), locId, shefData,
+                    validTime);
+            daoClass = pdoLookupReturn.getDaoClass();
+            id = pdoLookupReturn.getId();
         }
 
         long start = System.currentTimeMillis();
         int status = -1;
 
-        if (DataType.FORECAST.equals(type)) {
-            status = execFcstFunc(procName, record, shefData, locId, dataValue,
-                    qualifier, qualityCode, productId, productTime, postTime,
-                    duplicateOption, ingestSwitch, stats, validTime);
+        if (checkForAndHandleDuplicate(shefData, locId, dataValue,
+                duplicateOption, daoClass, id, true)) {
+            stats.incrementIgnored();
         } else {
-            /* now call the PostgreSQL function */
-            status = execFunction(procName, record, shefData, locId, dataValue,
-                    qualifier, qualityCode, productId, productTime, postTime,
-                    duplicateOption, ingestSwitch, stats);
-        }
+            if (DataType.FORECAST.equals(type)) {
+                status = execFcstFunc(procName, record, shefData, locId,
+                        dataValue, qualifier, qualityCode, productId,
+                        productTime, postTime, duplicateOption, ingestSwitch,
+                        stats, validTime);
+            } else {
+                /* now call the PostgreSQL function */
+                status = execFunction(procName, record, shefData, locId,
+                        dataValue, qualifier, qualityCode, productId,
+                        productTime, postTime, duplicateOption, ingestSwitch,
+                        stats);
+            }
 
-        long end = System.currentTimeMillis();
+            long end = System.currentTimeMillis();
 
-        if (status < 0) {
-            log.error(record.getTraceId() + " - PostgresSQL error " + status
-                    + " executing " + procName + " function for " + locId
-                    + ", " + shefData.getObservationTimeObj().toString() + ", "
-                    + productTime.toString() + ", " + productId + ", "
-                    + postTime.toString());
-            stats.incrementErrorMessages();
-        } else {
-            if ((DataType.READING.equals(type))
-                    || (DataType.PROCESSED.equals(type))) {
-                stats.incrementObsPe();
-                if (shefData.getPhysicalElement().getCategory() == PhysicalElementCategory.HEIGHT) {
-                    stats.incrementObsHeight();
-                    stats.setElapsedTimeHeightIngest(end - start);
+            if (status < 0) {
+                log.error(record.getTraceId() + " - PostgresSQL error " + status
+                        + " executing " + procName + " function for " + locId
+                        + ", " + shefData.getObservationTimeObj().toString()
+                        + ", " + productTime.toString() + ", " + productId
+                        + ", " + postTime.toString());
+                stats.incrementErrorMessages();
+            } else {
+                if ((DataType.READING.equals(type))
+                        || (DataType.PROCESSED.equals(type))) {
+                    stats.incrementObsPe();
+                    if (shefData.getPhysicalElement()
+                            .getCategory() == PhysicalElementCategory.HEIGHT) {
+                        stats.incrementObsHeight();
+                        stats.setElapsedTimeHeightIngest(end - start);
 
-                } else if ((shefData.getPhysicalElement() != PhysicalElement.PRESSURE_ATMOSPHERIC)
-                        && (shefData.getPhysicalElement() != PhysicalElement.PRESSURE_ATMOSPHERIC_3HR)
-                        && (shefData.getPhysicalElement() != PhysicalElement.PRESSURE_CHARACTERISTIC)
-                        && (shefData.getPhysicalElement() != PhysicalElement.PRESSURE_SEA_LEVEL)) {
-                    stats.incrementObsPrecip();
-                    stats.addElapsedTimePrecipIngest(end - start);
-                } else {
-                    stats.addElapsedTimeOtherIngest(end - start);
-                }
-            } else if (DataType.FORECAST.equals(type)) {
-                stats.incrementForecastPe();
-                stats.addElapsedTimeForecastIngest(end - start);
+                    } else if ((shefData
+                            .getPhysicalElement() != PhysicalElement.PRESSURE_ATMOSPHERIC)
+                            && (shefData
+                                    .getPhysicalElement() != PhysicalElement.PRESSURE_ATMOSPHERIC_3HR)
+                            && (shefData
+                                    .getPhysicalElement() != PhysicalElement.PRESSURE_CHARACTERISTIC)
+                            && (shefData
+                                    .getPhysicalElement() != PhysicalElement.PRESSURE_SEA_LEVEL)) {
+                        stats.incrementObsPrecip();
+                        stats.addElapsedTimePrecipIngest(end - start);
+                    } else {
+                        stats.addElapsedTimeOtherIngest(end - start);
+                    }
+                } else if (DataType.FORECAST.equals(type)) {
+                    stats.incrementForecastPe();
+                    stats.addElapsedTimeForecastIngest(end - start);
 
-                /*
-                 * track which lid/pe combinations have been processed for
-                 * forecast river data.
-                 */
-                if ((shefData.getPhysicalElement().getCategory() == PhysicalElementCategory.HEIGHT)
-                        || (shefData.getPhysicalElement().getCategory() == PhysicalElementCategory.DISCHARGE)) {
-                    loadForecastInfo(locId, shefData.getPhysicalElement(),
-                            stats);
+                    /*
+                     * track which lid/pe combinations have been processed for
+                     * forecast river data.
+                     */
+                    if ((shefData.getPhysicalElement()
+                            .getCategory() == PhysicalElementCategory.HEIGHT)
+                            || (shefData.getPhysicalElement()
+                                    .getCategory() == PhysicalElementCategory.DISCHARGE)) {
+                        loadForecastInfo(locId, shefData.getPhysicalElement(),
+                                stats);
+                    }
                 }
             }
         }
@@ -591,10 +646,10 @@ public class PostTables {
             probability = value.getId().getProbability();
             dataValue = value.getValue();
             revision = value.getRevision();
-            validTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getValidtime());
-            basisTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getBasistime());
+            validTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getValidtime());
+            basisTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getBasistime());
 
             appendStr = "probability = " + probability + " and "
                     + "validtime = '" + validTime + "' and " + "basistime = '"
@@ -609,10 +664,10 @@ public class PostTables {
             probability = value.getId().getProbability();
             dataValue = value.getValue();
             revision = value.getRevision();
-            validTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getValidtime());
-            basisTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getBasistime());
+            validTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getValidtime());
+            basisTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getBasistime());
 
             appendStr = "probability = " + probability + " and "
                     + "validtime = '" + validTime + "' and " + "basistime = '"
@@ -626,8 +681,8 @@ public class PostTables {
             extremum = value.getId().getExtremum();
             dataValue = value.getValue();
             revision = value.getRevision();
-            validTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getObstime());
+            validTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getObstime());
 
             appendStr = "obstime = '" + validTime + "'";
         } else if (dataObj instanceof Rejecteddata) {
@@ -641,10 +696,10 @@ public class PostTables {
             probability = value.getId().getProbability();
             dataValue = value.getValue();
             revision = value.getRevision();
-            validTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getValidtime());
-            basisTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getBasistime());
+            validTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getValidtime());
+            basisTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getBasistime());
             String postingTime = ShefConstants.POSTGRES_DATE_FORMAT
                     .format(value.getId().getPostingtime());
 
@@ -662,10 +717,10 @@ public class PostTables {
             probability = value.getId().getProbability();
             dataValue = value.getValue();
             revision = value.getRevision();
-            validTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getValidtime());
-            basisTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getBasistime());
+            validTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getValidtime());
+            basisTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getBasistime());
 
             appendStr = "probability = " + probability + " and "
                     + "validtime = '" + validTime + "' and " + "basistime = '"
@@ -681,8 +736,8 @@ public class PostTables {
             extremum = value.getId().getExtremum();
             dataValue = value.getValue();
             revision = value.getRevision();
-            validTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getObstime());
+            validTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getObstime());
 
             appendStr = "obstime = '" + validTime + "'";
         } else if (dataObj instanceof Arealfcst) {
@@ -695,10 +750,10 @@ public class PostTables {
             dataValue = value.getValue();
             revision = value.getRevision();
             probability = value.getId().getProbability();
-            validTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getValidtime());
-            basisTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getBasistime());
+            validTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getValidtime());
+            basisTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getBasistime());
 
             appendStr = "probability = " + probability + " and "
                     + "validtime = '" + validTime + "' and " + "basistime = '"
@@ -712,8 +767,8 @@ public class PostTables {
             extremum = value.getId().getExtremum();
             dataValue = value.getId().getValue();
             revision = value.getId().getRevision();
-            validTime = ShefConstants.POSTGRES_DATE_FORMAT.format(value.getId()
-                    .getObstime());
+            validTime = ShefConstants.POSTGRES_DATE_FORMAT
+                    .format(value.getId().getObstime());
 
             appendStr = "obstime = '" + validTime + "'";
 
@@ -792,8 +847,8 @@ public class PostTables {
                     /*
                      * don't perform the overwrite since conditions were not met
                      */
-                    if (AppsDefaults.getInstance().getBoolean(
-                            ShefConstants.DUP_MESSAGE, false)) {
+                    if (AppsDefaults.getInstance()
+                            .getBoolean(ShefConstants.DUP_MESSAGE, false)) {
                         log.info("Ignoring duplicate " + tableName + " for "
                                 + locId + ", " + validTime);
                     }
@@ -806,8 +861,10 @@ public class PostTables {
             } else {
                 log.error("Query = [" + sql + "]");
             }
-            log.error(dataObj.getTraceId() + " - PostgresSQL error updating "
-                    + tableName + " for " + locId + ", " + validTime, e);
+            log.error(
+                    dataObj.getTraceId() + " - PostgresSQL error updating "
+                            + tableName + " for " + locId + ", " + validTime,
+                    e);
             stats.incrementErrorMessages();
         }
     }
@@ -820,8 +877,8 @@ public class PostTables {
     public void postUnknownStation(Unkstn unkstn, ShefStats stats) {
         /* Build the sql query string */
         StringBuilder sql = new StringBuilder();
-        sql.append("select lid from unkstn where lid = '" + unkstn.getLid()
-                + "'");
+        sql.append(
+                "select lid from unkstn where lid = '" + unkstn.getLid() + "'");
 
         try {
             Object[] result = dao.executeSQLQuery(sql.toString());
@@ -836,12 +893,11 @@ public class PostTables {
             }
         } catch (Exception e) {
             log.error("Query = [" + sql.toString() + "]");
-            log.error(
-                    unkstn.getTraceId()
-                            + " - PostgresSQL error updating UnkStn for "
-                            + unkstn.getLid() + ", "
-                            + unkstn.getProducttime().toString() + ", "
-                            + unkstn.getPostingtime().toString(), e);
+            log.error(unkstn.getTraceId()
+                    + " - PostgresSQL error updating UnkStn for "
+                    + unkstn.getLid() + ", "
+                    + unkstn.getProducttime().toString() + ", "
+                    + unkstn.getPostingtime().toString(), e);
             stats.incrementErrorMessages();
         }
     }
@@ -938,13 +994,12 @@ public class PostTables {
     }
 
     private int execFunction(String functionName, ShefRecord record,
-            ShefData shefData, String locId, String dataValue,
-            String qualifier, long qualityCode, String productId,
-            Date productTime, Date postTime, String duplicateOption,
-            ShefStats stats) {
+            ShefData shefData, String locId, String dataValue, String qualifier,
+            long qualityCode, String productId, Date productTime, Date postTime,
+            String duplicateOption, ShefStats stats) {
         CallableStatement cs = null;
         int status = -1;
-        if (dataValue.equals("")) {
+        if (dataValue.isEmpty()) {
             dataValue = ShefConstants.SHEF_MISSING;
         }
         try {
@@ -960,8 +1015,8 @@ public class PostTables {
             cs.setInt(3, shefData.getDurationValue());
             cs.setString(4, shefData.getTypeSource().getCode());
             cs.setString(5, shefData.getExtremum().getCode());
-            cs.setTimestamp(6, new Timestamp(shefData.getObservationTimeObj()
-                    .getTime()));
+            cs.setTimestamp(6,
+                    new Timestamp(shefData.getObservationTimeObj().getTime()));
             cs.setDouble(7, Double.parseDouble(dataValue));
             cs.setString(8, qualifier);
             cs.setInt(9, (int) qualityCode);
@@ -986,17 +1041,16 @@ public class PostTables {
             if (status == 0) {
                 conn.commit();
             } else {
-                throw new Exception("PostgresSQL error executing function "
-                        + functionName);
+                throw new Exception(
+                        "PostgresSQL error executing function " + functionName);
             }
         } catch (Exception e) {
             log.error("Error updating/committing PE insert for PE "
                     + shefData.getPhysicalElement());
             log.error("Record Data: " + record);
-            log.error(
-                    record.getTraceId()
-                            + " - PostgresSQL error executing function "
-                            + functionName, e);
+            log.error(record.getTraceId()
+                    + " - PostgresSQL error executing function " + functionName,
+                    e);
         }
         return status;
     }
@@ -1009,13 +1063,13 @@ public class PostTables {
      * @return - status of action, 1 is good, 0 is bad
      */
     private int execFunction(String functionName, ShefRecord record,
-            ShefData shefData, String locId, String dataValue,
-            String qualifier, long qualityCode, String productId,
-            Date productTime, Date postTime, String duplicateOption,
-            ShefConstants.IngestSwitch ingestSwitch, ShefStats stats) {
+            ShefData shefData, String locId, String dataValue, String qualifier,
+            long qualityCode, String productId, Date productTime, Date postTime,
+            String duplicateOption, ShefConstants.IngestSwitch ingestSwitch,
+            ShefStats stats) {
         CallableStatement cs = null;
         int status = -1;
-        if (dataValue.equals("")) {
+        if (dataValue.isEmpty()) {
             dataValue = ShefConstants.SHEF_MISSING;
         }
         try {
@@ -1031,8 +1085,8 @@ public class PostTables {
             cs.setInt(3, shefData.getDurationValue());
             cs.setString(4, shefData.getTypeSource().getCode());
             cs.setString(5, shefData.getExtremum().getCode());
-            cs.setTimestamp(6, new java.sql.Timestamp(shefData
-                    .getObservationTimeObj().getTime()));
+            cs.setTimestamp(6, new java.sql.Timestamp(
+                    shefData.getObservationTimeObj().getTime()));
             cs.setDouble(7, Double.parseDouble(dataValue));
             cs.setString(8, qualifier);
             cs.setInt(9, (int) qualityCode);
@@ -1058,16 +1112,16 @@ public class PostTables {
             if (status == 0) {
                 conn.commit();
             } else {
-                throw new Exception("PostgresSQL error executing function "
-                        + functionName);
+                throw new Exception(
+                        "PostgresSQL error executing function " + functionName);
             }
         } catch (Exception e) {
             log.error("Record Data: " + record);
             log.error(record.getTraceId()
-                    + " - PostgresSQL error executing function " + functionName);
-            log.error(
-                    "Error updating/committing PE insert for PE "
-                            + shefData.getPhysicalElement(), e);
+                    + " - PostgresSQL error executing function "
+                    + functionName);
+            log.error("Error updating/committing PE insert for PE "
+                    + shefData.getPhysicalElement(), e);
         }
         return status;
     }
@@ -1080,19 +1134,19 @@ public class PostTables {
      * @return - status of action, 1 is good, 0 is bad
      */
     private int execFcstFunc(String functionName, ShefRecord record,
-            ShefData shefData, String locId, String dataValue,
-            String qualifier, long qualityCode, String productId,
-            Date productTime, Date postTime, String duplicateOption,
-            ShefConstants.IngestSwitch ingestSwitch, ShefStats stats,
-            Date validTime) {
-
+            ShefData shefData, String locId, String dataValue, String qualifier,
+            long qualityCode, String productId, Date productTime, Date postTime,
+            String duplicateOption, ShefConstants.IngestSwitch ingestSwitch,
+            ShefStats stats, Date validTime) {
         CallableStatement cs = null;
         java.sql.Timestamp timeStamp = null;
         int status = -1;
-        if (dataValue.equals("")) {
+        if (dataValue.isEmpty()) {
             dataValue = ShefConstants.SHEF_MISSING;
         }
 
+        int doOverwrite = determineUpdateAction(duplicateOption,
+                shefData.isRevisedRecord());
         try {
             conn = getConnection();
             cs = statementMap.get(functionName);
@@ -1140,11 +1194,6 @@ public class PostTables {
 
             timeStamp = new java.sql.Timestamp(postTime.getTime());
             cs.setTimestamp(15, timeStamp);
-
-            int doOverwrite = 0;
-
-            doOverwrite = determineUpdateAction(duplicateOption,
-                    shefData.isRevisedRecord());
             cs.setInt(16, doOverwrite);
 
             cs.registerOutParameter(17, java.sql.Types.INTEGER);
@@ -1155,10 +1204,10 @@ public class PostTables {
         } catch (Exception e) {
             log.error("Record Data: " + record);
             log.error(record.getTraceId()
-                    + " - PostgresSQL error executing function " + functionName);
-            log.error(
-                    "Error updating/committing PE insert for PE "
-                            + shefData.getPhysicalElement(), e);
+                    + " - PostgresSQL error executing function "
+                    + functionName);
+            log.error("Error updating/committing PE insert for PE "
+                    + shefData.getPhysicalElement(), e);
             stats.incrementErrorMessages();
         }
 
@@ -1173,16 +1222,20 @@ public class PostTables {
         StringBuilder message = new StringBuilder("shef_duplicate : ");
         if ("ALWAYS_OVERWRITE".equals(token)) {
             gagePPOptions.setShef_duplicate(shef_dup.ALWAYS_OVERWRITE);
-            message.append("ALWAYS_OVERWRITE (always process duplicate reports)");
+            message.append(
+                    "ALWAYS_OVERWRITE (always process duplicate reports)");
         } else if ("USE_REVCODE".equals(token)) {
             gagePPOptions.setShef_duplicate(shef_dup.USE_REVCODE);
-            message.append("USE_REVCODE (only process duplicate reports if they are revisions");
+            message.append(
+                    "USE_REVCODE (only process duplicate reports if they are revisions");
         } else if ("IF_DIFFERENT_AND_REVCODE".equals(token)) {
             gagePPOptions.setShef_duplicate(shef_dup.IF_DIFFERENT_AND_REVCODE);
-            message.append("IF_DIFFERENT_OR_REVCODE (only process duplicate reports if they are revisions or their values are different");
+            message.append(
+                    "IF_DIFFERENT_OR_REVCODE (only process duplicate reports if they are revisions or their values are different");
         } else {
             gagePPOptions.setShef_duplicate(shef_dup.IF_DIFFERENT);
-            message.append("IF_DIFFERENT (only process duplicate reports if their values are different");
+            message.append(
+                    "IF_DIFFERENT (only process duplicate reports if their values are different");
         }
         log.info(message.toString());
 
@@ -1242,8 +1295,8 @@ public class PostTables {
                     .floatValue();
             ps.setFloat(6, probability);
 
-            timeStamp = new java.sql.Timestamp(shefDataValue
-                    .getObservationTimeObj().getTime());
+            timeStamp = new java.sql.Timestamp(
+                    shefDataValue.getObservationTimeObj().getTime());
             ps.setTimestamp(7, timeStamp);
 
             Date basisDate = shefDataValue.getCreationDateObj();
@@ -1269,7 +1322,8 @@ public class PostTables {
         } catch (Exception e) {
             if (updateFlag) {
                 log.error(String.format(
-                        "Error updating into RiverStatus with [%s]", record), e);
+                        "Error updating into RiverStatus with [%s]", record),
+                        e);
             } else {
                 log.error(String.format(
                         "Error inserting into RiverStatus with [%s]", record),
@@ -1290,8 +1344,8 @@ public class PostTables {
         return status;
     }
 
-    private PreparedStatement getRiverStatusPreparedStatement(boolean updateFlag)
-            throws SQLException {
+    private PreparedStatement getRiverStatusPreparedStatement(
+            boolean updateFlag) throws SQLException {
         if (updateFlag) {
             PreparedStatement riverStatusUpdateStatement = conn
                     .prepareCall(RIVER_STATUS_UPDATE_STATEMENT);
@@ -1350,5 +1404,82 @@ public class PostTables {
                 log.error("An error occured executing batch update for " + key);
             }
         }
+    }
+
+    private boolean checkForAndHandleDuplicate(final ShefData shefData,
+            final String locId, final String dataValue,
+            final String duplicateOption, final Class<?> daoClass,
+            final Serializable id, final boolean alwaysUpdateIfMissing) {
+        if (daoClass == null || id == null) {
+            /*
+             * The Stored Procedure will not recognize the associated shef data.
+             */
+            return false;
+        }
+        final CoreDao lookupDao = new CoreDao(
+                DaoConfig.forClass("ihfs", daoClass));
+        PersistableDataObject<?> pdo = lookupDao.queryById(id);
+        if (pdo == null) {
+            /*
+             * No duplicate records exist.
+             */
+            return false;
+        }
+        /*
+         * Are updates allowed?
+         */
+        final int doOverwrite = determineUpdateAction(duplicateOption,
+                shefData.isRevisedRecord());
+        if (doOverwrite == ShefConstants.UPDATE_ACTION) {
+            /*
+             * Record will always be updated no matter what.
+             */
+            return false;
+        }
+        if (pdo instanceof ICheckValue) {
+            /*
+             * Two possibilities here. (1) the value will always be updated if
+             * it is currently "missing" regardless of how the update action has
+             * been defined in Apps Defaults (2) the record will be updated if
+             * the new value is different per the update action specified in
+             * Apps Defaults.
+             */
+            ICheckValue checkValue = (ICheckValue) pdo;
+            final String compareValue = checkValue.getCompareValue();
+            if (compareValue == null) {
+                /*
+                 * This should never happen because the current hydro ihfs has
+                 * the concept of a Missing value filler.
+                 */
+                throw new IllegalStateException(
+                        "Encountered unexpected null data value for "
+                                + daoClass.getSimpleName()
+                                + " with identifier: " + id.toString() + ".");
+            }
+            if ((alwaysUpdateIfMissing
+                    && compareValue.startsWith(ShefConstants.SHEF_MISSING))
+                    || (doOverwrite == ShefConstants.IF_DIFFERENT_UPDATE_ACTION
+                            && !compareValue.equals(dataValue))) {
+                return false;
+            } else {
+                /*
+                 * The value is a duplicate and there is no path to update it.
+                 * Ensure that no SQL procedures are executed beyond this point
+                 * because they are guaranteed to fail.
+                 */
+                if (AppsDefaults.getInstance()
+                        .getBoolean(ShefConstants.DUP_MESSAGE, false)) {
+                    log.info("Ignoring duplicate " + daoClass.getSimpleName()
+                            + " for: " + id.toString() + ".");
+                }
+                return true;
+            }
+        }
+
+        /*
+         * Nothing to indicate that they record may not be a candidate for
+         * updates.
+         */
+        return false;
     }
 }

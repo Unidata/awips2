@@ -45,51 +45,49 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
  * ------------ ---------- ----------- --------------------------
  * Apr 18, 2008 387        M. Duff     Initial Version.
  * Dec 16, 2015 5166       kbisanz     Update logging to use SLF4J
+ * Jan 10, 2018 5049       mduff       Made class not so static.
  * 
  * </pre>
  * 
  * @author mduff
- * @version 1.0
  */
 
 public class ShefParm {
-    static {
-        log = LoggerFactory
-                .getLogger(com.raytheon.edex.plugin.shef.util.ShefParm.class);
-        physicalElementConversion = new HashMap<String, Double>();
-        durationCodeValues = new HashMap<String, Short>();
-        typeSourceCodes = new HashMap<String, Integer>();
-        extremumCodes = new HashMap<String, Integer>();
-        probabilityCodeValues = new HashMap<String, Float>();
-        sendCodesDuration = new HashMap<String, String>();
-        dataQualifierCodes = new HashMap<String, Integer>();
-        MAX_ERRORS = 0;
-        populate();
-    }
-
-    private static Map<String, Double> physicalElementConversion;
-
-    private static Map<String, Short> durationCodeValues;
-
-    private static Map<String, Integer> typeSourceCodes;
-
-    private static Map<String, Integer> extremumCodes;
-
-    private static Map<String, Float> probabilityCodeValues;
-
-    private static Map<String, String> sendCodesDuration;
-
-    private static Map<String, Integer> dataQualifierCodes;
-
-    private static int MAX_ERRORS;
-
-    private static final Logger log;
-
     private static final String PLUGIN_NAME = "shef";
 
     private static final String PROPFILE_NAME = "SHEFPARM";
 
-    private static int fileSection = 0;
+    private Map<String, Double> physicalElementConversion;
+
+    private Map<String, Short> durationCodeValues;
+
+    private Map<String, Integer> typeSourceCodes;
+
+    private Map<String, Integer> extremumCodes;
+
+    private Map<String, Float> probabilityCodeValues;
+
+    private Map<String, String> sendCodesDuration;
+
+    private Map<String, Integer> dataQualifierCodes;
+
+    private int MAX_ERRORS;
+
+    private static final Logger log = LoggerFactory
+            .getLogger(com.raytheon.edex.plugin.shef.util.ShefParm.class);;
+
+    private int fileSection = 0;
+
+    public ShefParm() {
+        durationCodeValues = new HashMap<>();
+        typeSourceCodes = new HashMap<>();
+        extremumCodes = new HashMap<>();
+        probabilityCodeValues = new HashMap<>();
+        sendCodesDuration = new HashMap<>();
+        dataQualifierCodes = new HashMap<>();
+        physicalElementConversion = new HashMap<>();
+        MAX_ERRORS = 0;
+    }
 
     /**
      * Get a Physical Element conversion factor
@@ -98,7 +96,7 @@ public class ShefParm {
      *            - Physical Element
      * @return - the conversion factor
      */
-    public static Double getPhysicalElementConversionFactor(String key) {
+    public Double getPhysicalElementConversionFactor(String key) {
         return physicalElementConversion.get(key);
     }
 
@@ -109,7 +107,7 @@ public class ShefParm {
      *            - Duration Code
      * @return - the Duration Code value
      */
-    public static Short getDurationCodeValue(String key) {
+    public Short getDurationCodeValue(String key) {
         return durationCodeValues.get(key);
     }
 
@@ -120,7 +118,7 @@ public class ShefParm {
      *            - Type Source
      * @return - 1 if valid code, null if invalid
      */
-    public static Integer getTypeSourceCode(String key) {
+    public Integer getTypeSourceCode(String key) {
         return typeSourceCodes.get(key);
     }
 
@@ -131,7 +129,7 @@ public class ShefParm {
      *            - Extremum Code
      * @return - 1 if valid code, null if invalid
      */
-    public static Integer getExtremumCode(String key) {
+    public Integer getExtremumCode(String key) {
         return extremumCodes.get(key);
     }
 
@@ -142,7 +140,7 @@ public class ShefParm {
      *            - Probability Code
      * @return - Probability Code's value
      */
-    public static Float getProbabilityCodeValue(String key) {
+    public Float getProbabilityCodeValue(String key) {
         return probabilityCodeValues.get(key);
     }
 
@@ -153,7 +151,7 @@ public class ShefParm {
      *            - Code
      * @return - Default Values
      */
-    public static String getSendCodeDurationDefaults(String key) {
+    public String getSendCodeDurationDefaults(String key) {
         return sendCodesDuration.get(key);
     }
 
@@ -164,7 +162,7 @@ public class ShefParm {
      *            - Extremum Code
      * @return - 1 if valid code, null if invalid
      */
-    public static Integer getDataQualifierCodes(String key) {
+    public Integer getDataQualifierCodes(String key) {
         return dataQualifierCodes.get(key);
     }
 
@@ -173,14 +171,14 @@ public class ShefParm {
      * 
      * @return - the maximum number of errors
      */
-    public static Integer getMaxErrors() {
+    public Integer getMaxErrors() {
         return MAX_ERRORS;
     }
 
     /**
      * Populate the values from the file.
      */
-    private static void populate() {
+    public void populate() {
 
         PathManager pathMgr = (PathManager) PathManagerFactory.getPathManager();
 
@@ -189,43 +187,18 @@ public class ShefParm {
         File baseDir = pathMgr.getFile(ctx, PLUGIN_NAME);
         File srcFile = new File(baseDir, PROPFILE_NAME);
 
-        BufferedReader in = null;
-        try {
-            in = new BufferedReader(new FileReader(srcFile));
+        try (BufferedReader in = new BufferedReader(new FileReader(srcFile))) {
             String line = null;
             while ((line = in.readLine()) != null) {
                 processLine(line);
             }
             in.close();
         } catch (IOException ioe) {
-            ioe.printStackTrace();
-            log.error("Error loading " + PROPFILE_NAME);
+            log.error("Error loading " + PROPFILE_NAME, ioe);
         }
     }
 
-    private static String expandPE(String pe) {
-        // 0123456
-        // ADZZZZZ
-        StringBuilder peCode = new StringBuilder("--IRZZ");
-        if ((pe != null) && (pe.length() >= 2)) {
-            for (int i = 0; i < pe.length() && (i < peCode.length()); i++) {
-                peCode.setCharAt(i, pe.charAt(i));
-            }
-        }
-        char z4 = peCode.charAt(3);
-        char z5 = peCode.charAt(5);
-        if ('Z' == z4) {
-            if ('Z' == z5) {
-                peCode.setCharAt(3, 'R');
-            } else {
-                // FIXME: This is an error
-            }
-        }
-
-        return peCode.toString();
-    }
-
-    private static void processLine(String line) {
+    private void processLine(String line) {
         String[] pair = null;
         if (line.startsWith("$")) {
             return;
@@ -237,7 +210,7 @@ public class ShefParm {
             }
             return;
         } else {
-            if (line.equals("SHEFPARM")) {
+            if ("SHEFPARM".equals(line)) {
                 return;
             }
             switch (fileSection) {
@@ -275,11 +248,5 @@ public class ShefParm {
                 break;
             }
         }
-    }
-
-    public static final void main(String[] args) {
-
-        String s = expandPE("ADZZZZZ");
-        System.out.println(s);
     }
 }

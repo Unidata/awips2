@@ -24,9 +24,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.TimeZone;
 
 import com.raytheon.edex.plugin.shef.ShefSeparator.ShefDecoderInput;
@@ -63,6 +61,8 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Apr 29, 2014   3088     mpduff      Changed to use UFStatus logging.
  * Apr 27, 2015   4377     skorolev    Corrected set up the default product id.
  * Mar 10, 2016   5352     mduff       Truncated identifier to 10 characters.
+ * Jan 10, 2018   5049     mduff       Rewrote parsing.
+ * May 25, 2018   5049     mduff       Fixed bug introduced during refactor.
  * 
  * </pre>
  * 
@@ -77,7 +77,9 @@ public class SHEFParser {
     private static final SHEFErrors ERR_LOGGER = SHEFErrors
             .registerLogger(SHEFParser.class);
 
-    private static final HashMap<TokenType, Integer> STARTTYPES = new HashMap<TokenType, Integer>();
+    private static final String NEWLINE = "\n";
+
+    private static final HashMap<TokenType, Integer> STARTTYPES = new HashMap<>();
     static {
         STARTTYPES.put(TokenType.A_REC, 0);
         STARTTYPES.put(TokenType.A_REC_R, 0);
@@ -87,7 +89,7 @@ public class SHEFParser {
         STARTTYPES.put(TokenType.E_REC_R, 0);
     }
 
-    private static final HashSet<PhysicalElement> VALID_TRACE_PE = new HashSet<PhysicalElement>();
+    private static final HashSet<PhysicalElement> VALID_TRACE_PE = new HashSet<>();
     static {
         VALID_TRACE_PE.add(PhysicalElement.PRECIPITATION_ACCUMULATOR);
         VALID_TRACE_PE.add(PhysicalElement.PRECIPITATION_INCREMENT);
@@ -98,14 +100,12 @@ public class SHEFParser {
 
     }
 
-    private static final HashSet<String> EOD_SENDCODES = new HashSet<String>();
+    private static final HashSet<String> EOD_SENDCODES = new HashSet<>();
     static {
         EOD_SENDCODES.add("HY");
         EOD_SENDCODES.add("PY");
         EOD_SENDCODES.add("QY");
     }
-
-    private static final String CARRIAGECONTROL = "\r\n";
 
     private String message;
 
@@ -116,8 +116,6 @@ public class SHEFParser {
     private WMOHeader wmoHeader;
 
     private Date productDate;
-
-    private String recordType;
 
     private List<ParserToken> parts;
 
@@ -131,16 +129,13 @@ public class SHEFParser {
 
     // The observation time is the second positional field in each of
     // the "A", "B", or "E" data records. This is a mandatory item and
-    // will be completely evaluationed once the timezone has been set.
+    // will be completely evaluated once the timezone has been set.
     // After that time the obsTime and timeZone must not change.
     private String obsTime = null;
 
     private SHEFDate masterDate = null;
 
     private SHEFDate obsDate = null;
-
-    //
-    private boolean was24Hour = false;
 
     // The timezone is the third positional field in a SHEF record. This
     // item is optional and if missing shall default to "Z". Do not set
@@ -150,9 +145,6 @@ public class SHEFParser {
 
     private TimeZone tz = null;
 
-    //
-    //
-    //
     private SHEFDate adjObsDate = null;
 
     // The createTime may be evaluated at any time during the data scan. This
@@ -179,11 +171,11 @@ public class SHEFParser {
 
     private String bRecordDataSource = null;
 
-    private AppsDefaults appDefaults = AppsDefaults.getInstance();
-
     private boolean emitSkippedValues = false;
 
     private String reportLead = null;
+
+    private ShefParm shefParm;
 
     /**
      * Constructor
@@ -191,17 +183,19 @@ public class SHEFParser {
      * @param sdi
      *            ShefDecoderInput
      */
-    public SHEFParser(ShefDecoderInput sdi) {
+    public SHEFParser(ShefDecoderInput sdi, AppsDefaults appDefaults,
+            ShefParm shefParm) {
         message = sdi.record;
         traceId = sdi.traceId;
         awipsHeader = sdi.awipsHeader;
         wmoHeader = sdi.wmoHeader;
         productDate = sdi.productDate;
+        this.shefParm = shefParm;
+        message = clearTabs(message);
+        parts = tokenize(message);
 
-        parts = tokenize(clearTabs(message));
-
-        emitSkippedValues = appDefaults.getBoolean(
-                ShefConstants.SHEF_EMIT_SKIPPED, false);
+        emitSkippedValues = appDefaults
+                .getBoolean(ShefConstants.SHEF_EMIT_SKIPPED, false);
 
         partsIndex = 0;
     }
@@ -285,8 +279,8 @@ public class SHEFParser {
      */
     public void incrementAdjObsDate(ParserToken increment) {
         if ((adjObsDate != null) && (increment != null)) {
-            SHEFDate date = SHEFDate.increment(adjObsDate,
-                    increment.getToken(), 2);
+            SHEFDate date = SHEFDate.increment(adjObsDate, increment.getToken(),
+                    2);
             if (date != null) {
                 adjObsDate = date;
             }
@@ -403,52 +397,48 @@ public class SHEFParser {
      * @return The decoded ShefRecord
      */
     public ShefRecord decode() {
-        boolean revision = false;
         ShefRecord record = null;
 
         // Synchronize to the start of the data.
         ParserToken t = null;
-        while (parts.size() > 0) {
+        while (!parts.isEmpty()) {
             t = parts.remove(partsIndex);
             if (STARTTYPES.containsKey(t.getType())) {
                 break;
             }
         }
 
-        if (parts.size() <= 0) {
+        if (parts.isEmpty()) {
             log.error("No data parsed from report.\n" + message);
             return record;
         }
         record = new ShefRecord();
         setCurrentQualifier("Z");
         switch (t.getType()) {
-        case A_REC_R: {
-            revision = true;
-        }
+        case A_REC_R:
         case A_REC: {
             record.setShefType(ShefRecord.ShefType.A);
+            boolean revision = t.getType() == TokenType.A_REC_R;
             record.setRevisedRecord(revision);
             if ((record = parseARecord(record)) != null) {
                 record.setLocationId(locationId);
             }
             break;
         }
-        case B_REC_R: {
-            revision = true;
-        }
+        case B_REC_R:
         case B_REC: {
             record.setShefType(ShefRecord.ShefType.B);
+            boolean revision = t.getType() == TokenType.B_REC_R;
             record.setRevisedRecord(revision);
             if ((record = parseBRecord(record)) != null) {
                 record.setLocationId(locationId);
             }
             break;
         }
-        case E_REC_R: {
-            revision = true;
-        }
+        case E_REC_R:
         case E_REC: {
             record.setShefType(ShefRecord.ShefType.E);
+            boolean revision = t.getType() == TokenType.E_REC_R;
             record.setRevisedRecord(revision);
             if ((record = parseERecord(record)) != null) {
                 record.setLocationId(locationId);
@@ -493,8 +483,8 @@ public class SHEFParser {
                         d.toPostData();
                         i++;
                     } else {
-                        if (ShefConstants.SHEF_SKIPPED.equals(d
-                                .getStringValue())) {
+                        if (ShefConstants.SHEF_SKIPPED
+                                .equals(d.getStringValue())) {
                             data.remove(i);
                         } else {
                             d.toPostData();
@@ -520,12 +510,14 @@ public class SHEFParser {
         reportLead = null;
         if (getPositionalData()) {
             StringBuilder sb = new StringBuilder();
-            PRIMARY: for (int i = 0; i < parts.size();) {
-                ParserToken t = parts.remove(i);
+            boolean exit = false;
+            while (!parts.isEmpty() && !exit) {
+                ParserToken t = parts.remove(0);
                 sb.append(t.getRawToken());
                 switch (t.getType()) {
                 case TIMEZONE: {
-                    break PRIMARY;
+                    exit = true;
+                    break;
                 }
                 case OBS_DATE_4:
                 case OBS_DATE_6:
@@ -764,10 +756,10 @@ public class SHEFParser {
                     }
 
                     s = token.getToken();
-                    int currError = ShefUtil.validatePEDTSEP(s);
+                    int currError = ShefUtil.validatePEDTSEP(s, shefParm);
                     if (currError == 0) {
-                        PhysicalElement pe = PhysicalElement.getEnum(s
-                                .substring(0, 2));
+                        PhysicalElement pe = PhysicalElement
+                                .getEnum(s.substring(0, 2));
                         if (!PhysicalElement.UNKNOWN.equals(pe)) {
                             pedtsep = s;
                         } else {
@@ -847,7 +839,7 @@ public class SHEFParser {
                 }
                 } // switch
                 if ((pedtsep != null) && (value != null)) {
-                    ShefData data = new ShefData();
+                    ShefData data = new ShefData(shefParm);
                     data.setParameterCodeString(pedtsep, currentDuration);
                     data.setLocationId(getLocationId());
                     data.setObservationTime(record.getRecordDate());
@@ -891,7 +883,7 @@ public class SHEFParser {
 
                     break;
                 }
-            } // for
+            }
         }
         return record;
     }
@@ -900,7 +892,8 @@ public class SHEFParser {
      * Invalidate this record if PE in {HY QY PY} and the timezone is zulu.
      * 
      */
-    private boolean validateRecord(List<ParserToken> tokens, ShefRecord record) {
+    private boolean validateRecord(List<ParserToken> tokens,
+            ShefRecord record) {
         boolean isValid = true;
         int error = 0;
         for (ParserToken token : tokens) {
@@ -908,13 +901,11 @@ public class SHEFParser {
             if (token != null) {
                 String pe = token.getSendCode();
                 if (pe != null) {
-                    if (pe != null) {
-                        if (pe.startsWith("HY") || pe.startsWith("QY")
-                                || pe.startsWith("PY")) {
-                            if ("Z".equals(timeZone)) {
-                                isValid = false;
-                                error = SHEFErrorCodes.LOG_035;
-                            }
+                    if (pe.startsWith("HY") || pe.startsWith("QY")
+                            || pe.startsWith("PY")) {
+                        if ("Z".equals(timeZone)) {
+                            isValid = false;
+                            error = SHEFErrorCodes.LOG_035;
                         }
                     }
                 }
@@ -931,11 +922,6 @@ public class SHEFParser {
     // * B Record specific methods.
     // *********************************
 
-    /**
-     * 
-     * @param record
-     * @return
-     */
     private ShefRecord parseBRecord(ShefRecord record) {
         reportLead = null;
 
@@ -974,8 +960,8 @@ public class SHEFParser {
                 parts = saveList;
                 fixupDates(parts, tz);
 
-                List<ParserToken> pattern = new ArrayList<ParserToken>();
-                List<List<ParserToken>> bdata = new ArrayList<List<ParserToken>>();
+                List<ParserToken> pattern = new ArrayList<>();
+                List<List<ParserToken>> bdata = new ArrayList<>();
                 int idx = 0;
                 boolean end = false;
                 boolean addToken = false;
@@ -991,20 +977,20 @@ public class SHEFParser {
                         pattern.add(t);
                     }
                 }
-                List<ParserToken> bLine = new ArrayList<ParserToken>();
+                List<ParserToken> bLine = new ArrayList<>();
                 addToken = false;
                 for (; !end && idx < parts.size(); idx++) {
                     ParserToken t = parts.get(idx);
                     if (TokenType.B_END.equals(t.getType())) {
-                        if (bLine.size() > 0) {
+                        if (!bLine.isEmpty()) {
                             bdata.add(bLine);
                         }
                         break;
                     } else if (TokenType.B_DATA.equals(t.getType())) {
-                        if (bLine.size() > 0) {
+                        if (!bLine.isEmpty()) {
                             bdata.add(bLine);
                         }
-                        bLine = new ArrayList<ParserToken>();
+                        bLine = new ArrayList<>();
                         addToken = true;
                         continue;
                     }
@@ -1016,13 +1002,14 @@ public class SHEFParser {
                 if (validatePattern(pattern)) {
                     for (List<ParserToken> subList : bdata) {
                         identifyBData(subList);
-                        identifyUnknownToken(
-                                subList.subList(1, subList.size()), true);
+                        identifyUnknownToken(subList.subList(1, subList.size()),
+                                true);
                         // Make a copy of the master date so that each data line
                         // gets a clean copy.
                         SHEFDate localMaster = new SHEFDate(masterDate);
                         try {
-                            interpretData(record, pattern, subList, localMaster);
+                            interpretData(record, pattern, subList,
+                                    localMaster);
                         } catch (Exception e) {
                             ERR_LOGGER.error(getClass(),
                                     createRecordHeader(record, reportLead)
@@ -1030,10 +1017,8 @@ public class SHEFParser {
                             ERR_LOGGER.error(getClass(),
                                     createDataLine(subList));
                             ERR_LOGGER.error(getClass(), "?");
-                            ERR_LOGGER.error(getClass(),
-                                    "Exception " + e.getLocalizedMessage());
-                            ERR_LOGGER
-                                    .error(getClass(), SHEFErrorCodes.LOG_090);
+                            ERR_LOGGER.error(getClass(), SHEFErrorCodes.LOG_090,
+                                    e);
                         }
 
                     }
@@ -1131,7 +1116,8 @@ public class SHEFParser {
                     TokenType tt = t.getType();
                     switch (tt) {
                     case PEDTSEP: {
-                        error = ShefUtil.validatePEDTSEP(t.getRawToken());
+                        error = ShefUtil.validatePEDTSEP(t.getRawToken(),
+                                shefParm);
                         valid = (error == 0);
                         break;
                     }
@@ -1141,7 +1127,8 @@ public class SHEFParser {
                         break;
                     }
                     case QUAL_CODE: {
-                        valid = isValidQualityCode(t.getRawToken().substring(2));
+                        valid = isValidQualityCode(
+                                t.getRawToken().substring(2));
                         error = SHEFErrorCodes.LOG_085;
                         break;
                     }
@@ -1176,7 +1163,6 @@ public class SHEFParser {
      * @param subList
      */
     private void identifyBData(List<ParserToken> subList) {
-
         TokenType last = TokenType.NIL;
         TokenType next = TokenType.LOC_ID;
         for (int i = 0; i < subList.size();) {
@@ -1219,7 +1205,8 @@ public class SHEFParser {
                     if (TokenType.SLASH.equals(tt.getType())) {
                         if (TokenType.SLASH.equals(last)) {
                             // only set an empty if the last token was a SLASH
-                            subList.set(i, new ParserToken("", TokenType.EMPTY));
+                            subList.set(i,
+                                    new ParserToken("", TokenType.EMPTY));
                             i++;
                         } else {
                             subList.remove(i);
@@ -1246,7 +1233,7 @@ public class SHEFParser {
      * 
      */
     private void parseLineData() {
-        List<ParserToken> newTokens = new ArrayList<ParserToken>();
+        List<ParserToken> newTokens = new ArrayList<>();
         newTokens.add(new ParserToken("", TokenType.B_PATTERN));
         TokenType last = TokenType.NIL;
         for (ParserToken t : parts) {
@@ -1283,7 +1270,7 @@ public class SHEFParser {
             }
             }
         }
-        if (newTokens.size() > 0) {
+        if (!newTokens.isEmpty()) {
             parts = newTokens;
         }
     }
@@ -1449,7 +1436,7 @@ public class SHEFParser {
                     }
 
                     s = pToken.getToken();
-                    int currError = ShefUtil.validatePEDTSEP(s);
+                    int currError = ShefUtil.validatePEDTSEP(s, shefParm);
                     PhysicalElement pe = null;
                     if (currError == 0) {
                         pe = PhysicalElement.getEnum(s.substring(0, 2));
@@ -1525,10 +1512,10 @@ public class SHEFParser {
                             // this
                             if (!reSync && (value != null)) {
 
-                                ShefData data = new ShefData();
-                                data.setParameterCodeString(
-                                        pedtsep,
-                                        (currentDurationOverride == null) ? currentDuration
+                                ShefData data = new ShefData(shefParm);
+                                data.setParameterCodeString(pedtsep,
+                                        (currentDurationOverride == null)
+                                                ? currentDuration
                                                 : currentDurationOverride);
                                 data.setLocationId(lid);
                                 data.setDataSource(bRecordDataSource);
@@ -1554,22 +1541,23 @@ public class SHEFParser {
                                         data.setQualifier(qualifierOverride);
                                     }
                                     data.setRetainedComment(retainedComment);
-                                    data.setRevisedRecord(record
-                                            .isRevisedRecord());
-                                    data.fixupDuration((durationValueOverride == null) ? durationValue
-                                            : durationValueOverride);
+                                    data.setRevisedRecord(
+                                            record.isRevisedRecord());
+                                    data.fixupDuration(
+                                            (durationValueOverride == null)
+                                                    ? durationValue
+                                                    : durationValueOverride);
 
                                     if (trace) {
-                                        if (legalTraceValue(data
-                                                .getPhysicalElement())) {
+                                        if (legalTraceValue(
+                                                data.getPhysicalElement())) {
                                             record.addDataValue(data);
                                         } else {
-                                            ERR_LOGGER
-                                                    .error(getClass(),
-                                                            createRecordHeader(
-                                                                    record,
-                                                                    reportLead)
-                                                                    + createDataLine(pattern));
+                                            ERR_LOGGER.error(getClass(),
+                                                    createRecordHeader(record,
+                                                            reportLead)
+                                                            + createDataLine(
+                                                                    pattern));
                                             ERR_LOGGER.error(getClass(),
                                                     createDataLine(bdata));
                                             ERR_LOGGER.error(getClass(), " ?");
@@ -1592,7 +1580,8 @@ public class SHEFParser {
                             trace = false;
                             break;
                         }
-                        bToken = bdata.get(bDataPtr++);
+                        bToken = bdata.get(bDataPtr);
+                        bDataPtr++;
 
                         exitStatus = tokenError(record, pattern, bdata, bToken);
                         if (exitStatus == 1) {
@@ -1733,8 +1722,8 @@ public class SHEFParser {
                         case UNKNOWN: {
                             if (isMissingValue(bToken.getToken())) {
                                 value = ShefConstants.SHEF_MISSING;
-                                qualifier = getMissingQualifier(bToken
-                                        .getToken());
+                                qualifier = getMissingQualifier(
+                                        bToken.getToken());
                             } else if (isTraceValue(bToken.getToken())) {
                                 value = ShefConstants.SHEF_TRACE;
                                 trace = true;
@@ -1747,10 +1736,10 @@ public class SHEFParser {
                             // We only want to process a new data item if we've
                             // set the data.
                             if (value != null) {
-                                ShefData data = new ShefData();
-                                data.setParameterCodeString(
-                                        pedtsep,
-                                        (currentDurationOverride == null) ? currentDuration
+                                ShefData data = new ShefData(shefParm);
+                                data.setParameterCodeString(pedtsep,
+                                        (currentDurationOverride == null)
+                                                ? currentDuration
                                                 : currentDurationOverride);
                                 data.setLocationId(lid);
                                 data.setDataSource(bRecordDataSource);
@@ -1774,29 +1763,30 @@ public class SHEFParser {
                                         data.setQualifier(qualifierOverride);
                                     }
                                     if (retainedComment != null) {
-                                        data.setRetainedComment(retainedComment);
+                                        data.setRetainedComment(
+                                                retainedComment);
                                         retainedComment = null;
                                     } else {
                                         lastData = data;
                                     }
-                                    data.setRevisedRecord(record
-                                            .isRevisedRecord());
+                                    data.setRevisedRecord(
+                                            record.isRevisedRecord());
 
-                                    data.fixupDuration((durationValueOverride == null) ? durationValue
-                                            : durationValueOverride);
-                                    if (trace
-                                            && ShefConstants.SHEF_TRACE
-                                                    .equals(value)) {
-                                        if (legalTraceValue(data
-                                                .getPhysicalElement())) {
+                                    data.fixupDuration(
+                                            (durationValueOverride == null)
+                                                    ? durationValue
+                                                    : durationValueOverride);
+                                    if (trace && ShefConstants.SHEF_TRACE
+                                            .equals(value)) {
+                                        if (legalTraceValue(
+                                                data.getPhysicalElement())) {
                                             record.addDataValue(data);
                                         } else {
-                                            ERR_LOGGER
-                                                    .error(getClass(),
-                                                            createRecordHeader(
-                                                                    record,
-                                                                    reportLead)
-                                                                    + createDataLine(pattern));
+                                            ERR_LOGGER.error(getClass(),
+                                                    createRecordHeader(record,
+                                                            reportLead)
+                                                            + createDataLine(
+                                                                    pattern));
                                             ERR_LOGGER.error(getClass(),
                                                     createDataLine(bdata));
                                             ERR_LOGGER.error(getClass(), " ?");
@@ -1846,7 +1836,7 @@ public class SHEFParser {
                 }
             } // for
             if (value != null) {
-                ShefData data = new ShefData();
+                ShefData data = new ShefData(shefParm);
                 data.setLocationId(lid);
                 data.setDataSource(bRecordDataSource);
                 data.setObservationTime(record.getRecordDate());
@@ -1871,8 +1861,8 @@ public class SHEFParser {
                             currentDurationOverride);
                     data.setRetainedComment(retainedComment);
                     data.setRevisedRecord(record.isRevisedRecord());
-                    data.fixupDuration((durationValueOverride == null) ? durationValue
-                            : durationValueOverride);
+                    data.fixupDuration((durationValueOverride == null)
+                            ? durationValue : durationValueOverride);
                     if (trace && ShefConstants.SHEF_TRACE.equals(value)) {
                         if (legalTraceValue(data.getPhysicalElement())) {
                             record.addDataValue(data);
@@ -1882,8 +1872,8 @@ public class SHEFParser {
                                             + createDataLine(pattern));
                             ERR_LOGGER.error(getClass(), createDataLine(bdata));
                             ERR_LOGGER.error(getClass(), " ?");
-                            ERR_LOGGER
-                                    .error(getClass(), SHEFErrorCodes.LOG_031);
+                            ERR_LOGGER.error(getClass(),
+                                    SHEFErrorCodes.LOG_031);
                         }
                     } else {
                         record.addDataValue(data);
@@ -1986,19 +1976,12 @@ public class SHEFParser {
         return errorCondition;
     }
 
-    /**
-     * 
-     * @param baseTime
-     * @param drOuter
-     * @param drInner
-     * @param record
-     * @return
-     */
     private SHEFDate getRelativeDate(SHEFDate baseTime, ParserToken drOuter,
             ParserToken drInner, ShefRecord record, boolean overRide) {
         SHEFDate date = null;
         ParserToken dateRelative = null;
-        if ((drOuter != null) && (TokenType.DATE_REL.equals(drOuter.getType()))) {
+        if ((drOuter != null)
+                && (TokenType.DATE_REL.equals(drOuter.getType()))) {
             if (drInner == null) {
                 dateRelative = drOuter;
             } else {
@@ -2034,11 +2017,6 @@ public class SHEFParser {
     // * E Record specific methods.
     // *********************************
 
-    /**
-     * 
-     * @param record
-     * @return
-     */
     private ShefRecord parseERecord(ShefRecord record) {
         reportLead = null;
 
@@ -2047,13 +2025,15 @@ public class SHEFParser {
             correctMissingDelimiters();
 
             StringBuilder sb = new StringBuilder();
-            PRIMARY: for (int i = 0; i < parts.size();) {
-                ParserToken t = parts.remove(i);
+            boolean exit = false;
+            while (!parts.isEmpty() && !exit) {
+                ParserToken t = parts.remove(0);
                 sb.append(t.getRawToken());
 
                 switch (t.getType()) {
                 case TIMEZONE: {
-                    break PRIMARY;
+                    exit = true;
+                    break;
                 }
                 case OBS_DATE_4:
                 case OBS_DATE_6:
@@ -2200,11 +2180,12 @@ public class SHEFParser {
                     case PEDTSEP: {
                         if (!inData) {
                             String s = token.getToken();
-                            int currError = ShefUtil.validatePEDTSEP(s);
+                            int currError = ShefUtil.validatePEDTSEP(s,
+                                    shefParm);
 
                             if (currError == 0) {
-                                PhysicalElement pe = PhysicalElement.getEnum(s
-                                        .substring(0, 2));
+                                PhysicalElement pe = PhysicalElement
+                                        .getEnum(s.substring(0, 2));
                                 if (!PhysicalElement.UNKNOWN.equals(pe)) {
                                     pedtsep = s;
                                 }
@@ -2214,7 +2195,8 @@ public class SHEFParser {
                                         // do we have a variable duration
                                         // defined?
                                         if (!"Z".equals(currentDuration)) {
-                                            if ("Z".equals(currentDurationOverride)) {
+                                            if ("Z".equals(
+                                                    currentDurationOverride)) {
                                                 currError = SHEFErrorCodes.LOG_032;
                                             }
                                         } else {
@@ -2405,7 +2387,7 @@ public class SHEFParser {
                     }
                     } // switch
                     if ((pedtsep != null) && (value != null)) {
-                        ShefData data = new ShefData();
+                        ShefData data = new ShefData(shefParm);
                         data.setParameterCodeString(pedtsep, currentDuration);
                         data.setLocationId(getLocationId());
                         data.setObservationTime(record.getRecordDate());
@@ -2532,8 +2514,8 @@ public class SHEFParser {
                     break;
                 }
                 case QUAL_CODE: {
-                    isValid = isValidQualityCode(token.getRawToken().substring(
-                            2));
+                    isValid = isValidQualityCode(
+                            token.getRawToken().substring(2));
                     error = SHEFErrorCodes.LOG_021;
                     break;
                 }
@@ -2592,7 +2574,7 @@ public class SHEFParser {
         TokenType COMMA = TokenType.COMMA;
         TokenType SPACE = TokenType.SPACE;
 
-        if ((parts != null) && (parts.size() > 0)) {
+        if ((parts != null) && (!parts.isEmpty())) {
             ParserToken last = null;
             // First pass through we are going to look for possible commas in
             // the data.
@@ -2612,8 +2594,8 @@ public class SHEFParser {
                     } else {
                         if ((last != null) && (last.getType() != null)) {
                             if (last.isValueToken()) {
-                                parts.set(i - 1, new ParserToken("",
-                                        TokenType.EMPTY));
+                                parts.set(i - 1,
+                                        new ParserToken("", TokenType.EMPTY));
                                 t = getToken(parts, i);
                                 if (t.isValueToken()) {
                                     parts.remove(i);
@@ -2661,7 +2643,7 @@ public class SHEFParser {
      *            A list of tokens to process.
      * @return The Interval Code token found, or null if none were found.
      */
-    private static ParserToken findInterval(List<ParserToken> tokens) {
+    private ParserToken findInterval(List<ParserToken> tokens) {
         ParserToken token = null;
         int prevInt = -1;
         for (int i = 0; i < tokens.size();) {
@@ -2698,147 +2680,116 @@ public class SHEFParser {
      * Tokenize the current message.
      * 
      * @param message
-     * @return
+     * @return List of ParserToken objects
      */
-    private static List<ParserToken> tokenize(String message) {
-        List<ParserToken> tokens = new ArrayList<ParserToken>();
+    List<ParserToken> tokenize(String message) {
+        List<ParserToken> tokens = null;
+        String type = message.substring(0, message.indexOf(' '));
+
+        if (type.startsWith(".A")) {
+            tokens = parseAData(message);
+        } else if (type.startsWith(".B")) {
+            tokens = parseBData(message);
+        } else if (type.startsWith(".E")) {
+            tokens = parseEData(message);
+        } else {
+            ERR_LOGGER.error(getClass(), "Invalid record type: " + type);
+        }
+
+        tokens = identifyEmpty(tokens);
+
+        return tokens;
+    }
+
+    private List<ParserToken> parseAData(String message) {
+        List<ParserToken> tokens = new ArrayList<>();
+        if (message == null) {
+            return tokens;
+        }
         tokens.add(new ParserToken("", TokenType.START));
-        if (message != null) {
-            StringTokenizer st = new StringTokenizer(message, "/"
-                    + CARRIAGECONTROL + ",", true);
-            TokenType last = null;
-            while (st.hasMoreTokens()) {
-                String currToken = st.nextToken();
-                // Constructor will attempt to determine the token type
-                ParserToken t = new ParserToken(currToken.trim());
-                if (TokenType.COMMA.equals(last) && currToken.startsWith(" ")) {
-                    tokens.add(new ParserToken(" ", TokenType.SPACE));
-                }
-                if (TokenType.UNKNOWN.equals(t.getType())
-                        || TokenType.SPACEINMIDDLE.equals(t.getType())) {
-                    // check possible failures
-                    List<ParserToken> subList = subTokenize(currToken);
-                    if (subList != null) {
-                        tokens.addAll(subList);
+        String[] lines = message.split("(?<=[\\r\\n])|(?=[\\r\\n])");
+        for (String line : lines) {
+            String[] parts = line.split("\\s+");
+            // Format specifier
+            ParserToken t = new ParserToken(parts[0]);
+            tokens.add(t);
+
+            // Location ID
+            t = new ParserToken(parts[1], TokenType.LOC_ID);
+            tokens.add(t);
+
+            // Date
+            t = new ParserToken(parts[2]);
+            tokens.add(t);
+
+            for (int i = 3; i < parts.length; i++) {
+                String s = parts[i];
+                if (s.indexOf('/') > -1) {
+                    String[] sa = s.split("(?<=/)|(?=/)");
+                    for (String s1 : sa) {
+                        t = new ParserToken(s1);
+                        tokens.add(t);
                     }
                 } else {
+                    tokens.add(new ParserToken(s));
+                }
+            }
+        }
+
+        return tokens;
+    }
+
+    private List<ParserToken> parseBData(String message) {
+        List<ParserToken> tokens = new ArrayList<>();
+        if (message == null) {
+            return tokens;
+        }
+        tokens.add(new ParserToken("", TokenType.START));
+        String[] lines = message.split("(?<=[\\r\\n])|(?=[\\r\\n])");
+        String bLine = lines[0];
+        String[] parts = bLine.split("\\s+");
+        // Format specifier
+        ParserToken t = new ParserToken(parts[0]);
+        tokens.add(t);
+
+        // Message Source
+        t = new ParserToken(parts[1]);
+        tokens.add(t);
+
+        // Date
+        t = new ParserToken(parts[2]);
+        tokens.add(t);
+
+        for (int i = 3; i < parts.length; i++) {
+            String s = parts[i];
+            if (s.indexOf('/') > -1) {
+                String[] sa = s.split("(?<=/)|(?=/)");
+                for (String ss : sa) {
+                    t = new ParserToken(ss);
                     tokens.add(t);
                 }
-                if (tokens.size() > 0) {
-                    last = tokens.get(tokens.size() - 1).getType();
-                }
+            } else {
+                t = new ParserToken(s);
+                tokens.add(t);
             }
-            tokens = identifyEmpty(collapseSpaces(tokens));
         }
 
-        return tokens;
-    }
-
-    /**
-     * 
-     * @param token
-     * @return
-     */
-    private static List<ParserToken> subTokenize(String token) {
-        TokenType UNKNOWN = TokenType.UNKNOWN;
-        List<ParserToken> tokens = new ArrayList<ParserToken>();
-
-        // Tokenize by spaces
-        StringTokenizer st = new StringTokenizer(token, " ", true);
-        String lastToken = null;
-        while (st.hasMoreTokens()) {
-            String currToken = st.nextToken();
-            if ((" ".equals(currToken) && " ".equals(lastToken))) {
+        // Data lines
+        for (int i = 1; i < lines.length; i++) {
+            if (NEWLINE.equals(lines[i])) {
+                tokens.add(new ParserToken(lines[i]));
                 continue;
             }
-            ParserToken tt = new ParserToken(currToken);
-            if (TokenType.UNKNOWN.equals(tt.getType())) {
-                tt = tt.check_D_Directives();
-            }
-            tokens.add(tt);
-            lastToken = currToken;
-        }
-
-        // Make a pass through the tokens to see if there are any
-        // ill-formed retained comments
-        for (int i = 0; i < tokens.size(); i++) {
-            ParserToken t = tokens.get(i);
-            if (t != null) {
-                String s = t.getToken();
-                int pos = s.indexOf("\"");
-                if (pos < 0) {
-                    pos = s.indexOf("\'");
-                }
-                // Do we need to split this token?
-                if (pos > 0) {
-                    // Let the system try to reidentify the token
-                    ParserToken tt = new ParserToken(s.substring(0, pos));
-                    tokens.set(i, tt);
-                    tt = new ParserToken(s.substring(pos),
-                            TokenType.RETAINEDCOMMENT);
-                    i++;
-                    tokens.add(i, tt);
-                }
-            }
-        }
-
-        // We may have split retained comments so attempt to put them
-        // back together
-        for (int i = 0; i < tokens.size(); i++) {
-            ParserToken t = tokens.get(i);
-            String quoteType = null;
-            if (UNKNOWN.equals(t.getType())) {
-                int startIndex = -1;
-                int endIndex = -1;
-                String s = t.getToken();
-                if ((s != null) && (s.length() > 0)) {
-                    if (s.startsWith("\"")) {
-                        if (s.endsWith("\"")) {
-                            continue;
-                        } else {
-                            quoteType = "\"";
-                        }
-                    } else if (s.startsWith("\'")) {
-                        if (s.endsWith("\'")) {
-                            continue;
-                        } else {
-                            quoteType = "\'";
-                        }
+            String[] sa = lines[i].split("\\s+");
+            for (String ss : sa) {
+                if (ss.contains("/")) {
+                    String[] qq = ss.split("(?<=/)|(?=/)");
+                    for (String q : qq) {
+                        tokens.add(new ParserToken(q));
                     }
-                    // we found the beginning of a comment, but the end wasn't
-                    // in the same token so we need to find it.
-                    if (quoteType != null) {
-                        startIndex = i;
-                        // move to the next token
-                        i++;
-                        for (; i < tokens.size(); i++) {
-                            s = tokens.get(i).getToken();
-                            if (s.endsWith(quoteType)) {
-                                endIndex = i + 1;
-                                break;
-                            }
-                        }
-                        // Check if we found an ending quote. End of line ends
-                        // a comment so its legal to not find one.
-                        if (endIndex < 0) {
-                            endIndex = i + 1;
-                        }
-                        StringBuilder sb = new StringBuilder();
-                        t = tokens.get(startIndex);
-                        sb.append(t.getToken().substring(1));
-                        for (int ii = startIndex + 1; ii < endIndex; endIndex--) {
-                            ParserToken tt = tokens.remove(ii);
-                            s = tt.getToken();
-                            if (s.endsWith("\"")) {
-                                sb.append(s.substring(0, s.length() - 1));
-                            } else {
-                                sb.append(s);
-                            }
-                        }
-                        ParserToken newToken = new ParserToken(sb.toString()
-                                .trim(), TokenType.RETAINEDCOMMENT);
-                        tokens.set(startIndex, newToken);
-                    }
+                } else {
+                    t = new ParserToken(ss);
+                    tokens.add(t);
                 }
             }
         }
@@ -2846,8 +2797,30 @@ public class SHEFParser {
         return tokens;
     }
 
-    private static List<ParserToken> identifyNeededSlashes(
-            List<ParserToken> tokens) {
+    private List<ParserToken> parseEData(String message) {
+        List<ParserToken> tokens = new ArrayList<>();
+        if (message == null) {
+            return tokens;
+        }
+        tokens.add(new ParserToken("", TokenType.START));
+        String[] lines = message.split("[\\r\\n]+");
+        String eLine = lines[0];
+        String[] parts = eLine.split("\\s+");
+        for (String part : parts) {
+            if (part.contains("/")) {
+                String[] sa = part.split("(?<=/)|(?=/)");
+                for (String s : sa) {
+                    tokens.add(new ParserToken(s));
+                }
+            } else {
+                tokens.add(new ParserToken(part));
+            }
+        }
+
+        return tokens;
+    }
+
+    private List<ParserToken> identifyNeededSlashes(List<ParserToken> tokens) {
         TokenType SLASH = TokenType.SLASH;
         TokenType UNKNOWN = TokenType.UNKNOWN;
         TokenType NUMERIC = TokenType.NUMERIC;
@@ -2893,12 +2866,7 @@ public class SHEFParser {
         return tokens;
     }
 
-    /**
-     * 
-     * @param tokens
-     * @return
-     */
-    private static List<ParserToken> identifyEmpty(List<ParserToken> tokens) {
+    private List<ParserToken> identifyEmpty(List<ParserToken> tokens) {
 
         TokenType SLASH = TokenType.SLASH;
         TokenType SPACE = TokenType.SPACE;
@@ -2906,7 +2874,7 @@ public class SHEFParser {
 
         TokenType NIL = TokenType.NIL;
 
-        List<ParserToken> newTokens = new ArrayList<ParserToken>();
+        List<ParserToken> newTokens = new ArrayList<>();
 
         TokenType last = TokenType.NIL;
 
@@ -2956,10 +2924,12 @@ public class SHEFParser {
                     last = t.getType();
                 }
             }
-        } // for
+        }
+
         if (SLASH.equals(last)) {
             newTokens.add(new ParserToken("", TokenType.EMPTY));
         }
+
         return newTokens;
     }
 
@@ -2971,7 +2941,8 @@ public class SHEFParser {
      * @param isBData
      *            Is the list the data sublist from a B record?
      */
-    private void identifyUnknownToken(List<ParserToken> tokens, boolean isBData) {
+    private void identifyUnknownToken(List<ParserToken> tokens,
+            boolean isBData) {
         if (tokens != null) {
             for (int i = 0; i < tokens.size();) {
                 ParserToken t = tokens.get(i);
@@ -2988,20 +2959,22 @@ public class SHEFParser {
                             } else {
                                 if (i > 0) {
                                     ParserToken tt = tokens.get(i - 1);
-                                    if (TokenType.PEDTSEP.equals(tt.getType())) {
-                                        // if the previous token is a PE token,
-                                        // then
-                                        // treat as missing
+                                    if (TokenType.PEDTSEP
+                                            .equals(tt.getType())) {
+                                        /*
+                                         * if the previous token is a PE token,
+                                         * then treat as missing
+                                         */
                                         tt = new ParserToken(
                                                 ShefConstants.SHEF_MISSING,
                                                 TokenType.NUMERIC);
                                         tokens.set(i, tt);
-                                    } else if (TokenType.SLASH.equals(tt
-                                            .getType())) {
-                                        // if the previous token is a SLASH
-                                        // token,
-                                        // then
-                                        // treat as a PE
+                                    } else if (TokenType.SLASH
+                                            .equals(tt.getType())) {
+                                        /*
+                                         * if the previous token is a SLASH then
+                                         * treat as a PE
+                                         */
                                         tt = new ParserToken(s,
                                                 TokenType.PEDTSEP);
                                         tokens.set(i, tt);
@@ -3009,16 +2982,16 @@ public class SHEFParser {
                                 }
                             }
                         } else {
-                            PhysicalElement pe = PhysicalElement.getEnum(s
-                                    .substring(0, 2));
+                            PhysicalElement pe = PhysicalElement
+                                    .getEnum(s.substring(0, 2));
                             if (!PhysicalElement.UNKNOWN.equals(pe)) {
 
                                 int error = SHEFErrorCodes.LOG_000;
                                 String sendCode = null;
 
-                                String trans = ShefParm
-                                        .getSendCodeDurationDefaults(pe
-                                                .getCode());
+                                String trans = shefParm
+                                        .getSendCodeDurationDefaults(
+                                                pe.getCode());
                                 if (trans != null) {
                                     if (trans.length() > 3) {
                                         // Handle the send code translation
@@ -3072,16 +3045,13 @@ public class SHEFParser {
                         tt.setTrace(true);
                         tokens.set(i, tt);
                     } else {
-                        // With the
-                        // We have a problem!
                         log.error(traceId + "- Could not identify token " + t);
                     }
                     i++;
                 } else if (TokenType.SPACE.equals(t.getType())) {
                     if (isBData) {
-                        if ((i < tokens.size() - 2)
-                                && (TokenType.SLASH.equals(tokens.get(i + 1)
-                                        .getType()))) {
+                        if ((i < tokens.size() - 2) && (TokenType.SLASH
+                                .equals(tokens.get(i + 1).getType()))) {
                             tokens.set(i, new ParserToken("", TokenType.EMPTY));
                         } else {
                             tokens.remove(i);
@@ -3090,8 +3060,8 @@ public class SHEFParser {
                         tokens.remove(i);
                     }
                 } else if (TokenType.DECIMAL.equals(t.getType())) {
-                    ParserToken tt = new ParserToken(
-                            ShefConstants.SHEF_MISSING, TokenType.NUMERIC);
+                    ParserToken tt = new ParserToken(ShefConstants.SHEF_MISSING,
+                            TokenType.NUMERIC);
                     tokens.set(i, tt);
                 } else {
                     i++;
@@ -3114,8 +3084,8 @@ public class SHEFParser {
         if (movePastSpaces()) {
             ParserToken t = parts.get(partsIndex);
 
-            if (ShefUtil.between(ShefConstants.LOWER_LID_LIMIT, t.getToken()
-                    .length(), ShefConstants.UPPER_LID_LIMIT)) {
+            if (ShefUtil.between(ShefConstants.LOWER_LID_LIMIT,
+                    t.getToken().length(), ShefConstants.UPPER_LID_LIMIT)) {
                 setLocationId(t.getToken());
 
                 t = ParserToken.createLocIdToken(getLocationId());
@@ -3127,7 +3097,8 @@ public class SHEFParser {
                 partsIndex++;
                 movePastSpaces();
                 if (partsIndex < parts.size()) {
-                    t = parts.get(partsIndex++);
+                    t = parts.get(partsIndex);
+                    partsIndex++;
                     // This should be the observation time
                     int obsTimeIndex = -1;
                     if (TokenType.NUMERIC.equals(t.getType())) {
@@ -3233,7 +3204,7 @@ public class SHEFParser {
             movePastSpaces();
         }
         return foundPositionalData;
-    } //
+    }
 
     /**
      * Move past any SPACE tokens in the data list.
@@ -3243,7 +3214,7 @@ public class SHEFParser {
     private boolean movePastSpaces() {
         boolean moreData = true;
         ParserToken t = null;
-        while ((parts.size() > 0) && (partsIndex < parts.size())) {
+        while ((!parts.isEmpty()) && (partsIndex < parts.size())) {
             t = parts.get(partsIndex);
             if (TokenType.SPACE.equals(t.getType())) {
                 parts.remove(partsIndex);
@@ -3251,31 +3222,8 @@ public class SHEFParser {
                 break;
             }
         }
-        moreData = parts.size() > 0;
+        moreData = !parts.isEmpty();
         return moreData;
-    }
-
-    /**
-     * Collapse runs of spaces into a single space.
-     * 
-     * @param tokenList
-     * @return
-     */
-    private static List<ParserToken> collapseSpaces(List<ParserToken> tokenList) {
-        TokenType SPACE = TokenType.SPACE;
-        List<ParserToken> newList = new ArrayList<ParserToken>();
-        TokenType lastToken = null;
-        for (ParserToken t : tokenList) {
-            if (SPACE.equals(t.getType())) {
-                if (!SPACE.equals(lastToken)) {
-                    newList.add(t);
-                }
-            } else {
-                newList.add(t);
-            }
-            lastToken = t.getType();
-        }
-        return newList;
     }
 
     /**
@@ -3287,7 +3235,7 @@ public class SHEFParser {
      * @param tz
      *            The timezone to adjust time to.
      */
-    private static void fixupDates(List<ParserToken> tokens, TimeZone tz) {
+    private void fixupDates(List<ParserToken> tokens, TimeZone tz) {
         for (ParserToken t : tokens) {
             switch (t.getType()) {
             case DATE_CREATE:
@@ -3298,11 +3246,12 @@ public class SHEFParser {
                     t.adjustToTimezone(tz);
                     t.getDateData().validate();
                 }
+                break;
             }
             default: {
                 // nothing
             }
-            } // end switch
+            }
         }
     }
 
@@ -3408,7 +3357,7 @@ public class SHEFParser {
      * @param units
      * @return
      */
-    private static Short getDuration(ParserToken token, String units) {
+    private Short getDuration(ParserToken token, String units) {
         Short duration = null;
         try {
             Short value = Short.parseShort(token.getToken().substring(3));
@@ -3435,7 +3384,7 @@ public class SHEFParser {
      *            The value to check.
      * @return Is this value a possible missing value?
      */
-    private static boolean isMissingValue(String value) {
+    private boolean isMissingValue(String value) {
         boolean isMissing = false;
         if ("+".equals(value)) {
             isMissing = true;
@@ -3457,7 +3406,7 @@ public class SHEFParser {
         return isMissing;
     }
 
-    private static String getMissingQualifier(String value) {
+    private String getMissingQualifier(String value) {
         String qualifier = null;
         if ("mm".equals(value)) {
             qualifier = "M";
@@ -3474,35 +3423,19 @@ public class SHEFParser {
      *            The value to check.
      * @return Is this value a possible trace value?
      */
-    private static boolean isTraceValue(String value) {
-        boolean isTrace = false;
-        if ("T".equals(value)) {
-            isTrace = true;
-        } else if ("t".equals(value)) {
-            isTrace = true;
-        }
-        return isTrace;
+    private boolean isTraceValue(String value) {
+        return "T".equals(value.toUpperCase());
     }
 
-    /**
-     * 
-     * @param pe
-     * @return
-     */
-    private static boolean legalTraceValue(PhysicalElement pe) {
+    private boolean legalTraceValue(PhysicalElement pe) {
         return VALID_TRACE_PE.contains(pe);
     }
 
-    /**
-     * 
-     * @param qualCode
-     * @return
-     */
     private boolean isValidQualityCode(String qualCode) {
         // Set to false by exception
         boolean isValid = true;
         if (qualCode != null) {
-            isValid = (ShefParm.getDataQualifierCodes(qualCode) != null);
+            isValid = (shefParm.getDataQualifierCodes(qualCode) != null);
         } else {
             isValid = false;
         }
@@ -3515,7 +3448,7 @@ public class SHEFParser {
      * @param unitsCode
      * @return
      */
-    private static boolean isValidUnits(String unitsCode) {
+    private boolean isValidUnits(String unitsCode) {
         // Set to false by exception
         boolean isValid = true;
         if (unitsCode != null) {
@@ -3526,13 +3459,7 @@ public class SHEFParser {
         return isValid;
     }
 
-    /**
-     * 
-     * @param list
-     * @param i
-     * @return
-     */
-    private static ParserToken getToken(List<ParserToken> list, int i) {
+    private ParserToken getToken(List<ParserToken> list, int i) {
         ParserToken t = null;
         if ((list != null) && (i < list.size())) {
             t = list.get(i);
@@ -3544,39 +3471,7 @@ public class SHEFParser {
         return t;
     }
 
-    /**
-     * 
-     * @param msg
-     *            The message data being parsed.
-     * @param index
-     *            The current position of the message pointer.
-     * @param comment
-     *            A not-null buffer to receive the comment.
-     * @return The modified index position.
-     */
-    private static int getRetainedComment(String msg, int index,
-            StringBuilder comment) {
-        char retainedChar = msg.charAt(index++);
-        for (; index < msg.length();) {
-            if (retainedChar == msg.charAt(index)) {
-                // move past the terminating quote
-                index++;
-                break;
-            }
-            if ('\n' == msg.charAt(index) || '\r' == msg.charAt(index)) {
-                break;
-            }
-            comment.append(msg.charAt(index++));
-        }
-        return index;
-    }
-
-    /**
-     * 
-     * @param rec
-     * @return
-     */
-    private static String createRecordHeader(ShefRecord rec, String reportLead) {
+    private String createRecordHeader(ShefRecord rec, String reportLead) {
         StringBuilder recData = new StringBuilder(".");
         if (rec != null) {
             recData.append(rec.getShefType().name());
@@ -3589,89 +3484,29 @@ public class SHEFParser {
         return recData.toString();
     }
 
-    /**
-     * 
-     * @param p
-     * @return
-     */
-    private static String createDataLine(List<ParserToken> p) {
+    private String createDataLine(List<ParserToken> tokens) {
         StringBuilder sb = new StringBuilder();
-        Iterator<ParserToken> it = p.iterator();
-        while (it.hasNext()) {
-            ParserToken t = it.next();
-            if (t.getSendCode() != null) {
-                sb.append(t.getSendCode());
+        for (ParserToken token : tokens) {
+            if (token.getSendCode() != null) {
+                sb.append(token.getSendCode());
             } else {
-                sb.append(t.getRawToken());
+                sb.append(token.getRawToken());
             }
-            if (it.hasNext()) {
-                sb.append(" ");
-            }
+            sb.append(" ");
         }
-        return sb.toString();
+
+        return sb.toString().trim();
     }
 
-    private static String clearTabs(String message) {
+    private String clearTabs(String message) {
         if (message != null) {
-            StringBuilder sb = new StringBuilder(message);
-            for (int i = 0; i < sb.length(); i++) {
-                if ('\t' == sb.charAt(i)) {
-                    sb.setCharAt(i, ' ');
-                }
-            }
-            message = sb.toString();
+            message = message.replaceAll("\\t", " ");
         }
+
         return message;
     }
 
-    /**
-     *  
-     */
-    public void dumpTokens() {
-        for (ParserToken t : parts) {
-            System.out.println(t);
-        }
+    private ShefParm getShefParm() {
+        return this.shefParm;
     }
-
-    /**
-     * @param args
-     */
-    public static void main(String[] args) {
-
-        // List<ParserToken> list =
-        // tokenize(".E  EE0165    0323 Z  DH01/HGI/DIH1 /\n" +
-        // ".E1  1.0  2..0  3+0 \"comment 3\"  4.0 \"comment 4\"  5.0  6.0");
-
-        // .A AA0447I 991216 Z DH09/ TX 10 \"Comm\" /
-        // .A AA0447J 991216 Z DH09/ TX 30\"Comm\" /
-        // .A AA0447K 991216 Z DH09/ TX 40M \"comment\" /
-        // .A AA0447L 991216 Z DH09/ TX 20M\"comment\" /
-        // .A AA0447M 991216 Z DH09/ TX 20A \"comment\" /
-        // .A AA0447N 991216 Z DH09/ TX 20A\"comment\" /
-        // .A AA0447P 991216 Z DH09/ TX 20R\'comment\' /
-
-        // tokenize(".A  AA0447L  991216  Z  DH09/ TX  20M\"comment\"");
-
-        // List<ParserToken> list =
-        // tokenize(".E1  1.0  2..0  3+0 \"comment 3\"  4.0 \"comment 4\"  5.0  6.0 \"comment 5\"\n");
-
-        // System.out
-        // .println("------------------------------------------------------------");
-        // for (ParserToken t : list) {
-        // System.out.println(t);
-        // }
-
-        List<ParserToken> list = tokenize(".E1  1.0  2..0  3+0 \"comment 3\"  4.0 \"comment 4\"  5.0  6.0 \"comment 5 \"");
-
-        System.out
-                .println("------------------------------------------------------------");
-        for (ParserToken t : list) {
-            System.out.println(t);
-        }
-
-        ParserToken t = new ParserToken("HY");
-        System.out.println(t + " " + t.getError());
-
-    }
-
 }

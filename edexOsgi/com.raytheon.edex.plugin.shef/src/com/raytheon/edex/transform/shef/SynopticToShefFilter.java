@@ -1,33 +1,33 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.edex.transform.shef;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
@@ -39,24 +39,25 @@ import com.raytheon.uf.edex.decodertools.core.filterimpl.PluginDataObjectFilter;
 /**
  * Used to filter synoptic messages before sending them to
  * {@link SMToShefTransformer}.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 28, 2015 4783       bkowal      Initial creation
- * 
+ * Nov 02, 2017 6132       mapeters    Support localization overrides for filter file
+ *
  * </pre>
- * 
+ *
  * @author bkowal
- * @version 1.0
  */
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 @DynamicSerialize
 public class SynopticToShefFilter extends AbstractShefFilter {
+
     @XmlElement
     @DynamicSerializeElement
     private List<SynopticToShefRun> synopticToShefRun;
@@ -68,8 +69,8 @@ public class SynopticToShefFilter extends AbstractShefFilter {
         this.synopticToShefRun = new ArrayList<>();
     }
 
-    public SynopticToShefFilter(String configFile, String localContext) {
-        super(configFile, localContext, SynopticToShefFilter.class);
+    public SynopticToShefFilter(String configFile) {
+        super(configFile, SynopticToShefFilter.class);
 
         for (SynopticToShefRun run : synopticToShefRun) {
             logger.info("Filter name = " + run.getFilterName()
@@ -82,13 +83,6 @@ public class SynopticToShefFilter extends AbstractShefFilter {
         this.synopticToShefRun = new ArrayList<>();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.edex.transform.shef.AbstractShefFilter#buildRun(java.lang
-     * .Object, java.lang.String)
-     */
     @Override
     protected void buildRun(Object obj, String configFile) {
         if (obj instanceof PluginDataObjectFilter) {
@@ -127,7 +121,7 @@ public class SynopticToShefFilter extends AbstractShefFilter {
     @Override
     public PluginDataObject[] filter(PluginDataObject[] reports) {
         Map<Integer, SynopticToShefRun> matchList = new HashMap<>();
-        List<PluginDataObject> reportList = new ArrayList<PluginDataObject>();
+        List<PluginDataObject> reportList = new ArrayList<>();
         for (PluginDataObject report : reports) {
             for (SynopticToShefRun run : this.synopticToShefRun) {
                 PluginDataObject resultRpt = filterARun(report,
@@ -139,10 +133,10 @@ public class SynopticToShefFilter extends AbstractShefFilter {
                 }
             }
         }
-        if (matchList.isEmpty() == false) {
+        if (!matchList.isEmpty()) {
             SMToShefTransformer.setMatchMap(matchList);
         }
-        return (PluginDataObject[]) reportList.toArray(new PluginDataObject[0]);
+        return reportList.toArray(new PluginDataObject[0]);
     }
 
     /**
@@ -156,7 +150,8 @@ public class SynopticToShefFilter extends AbstractShefFilter {
      * @param synopticToShefRun
      *            the synopticToShefRun to set
      */
-    public void setSynopticToShefRun(List<SynopticToShefRun> synopticToShefRun) {
+    public void setSynopticToShefRun(
+            List<SynopticToShefRun> synopticToShefRun) {
         this.synopticToShefRun = synopticToShefRun;
     }
 }

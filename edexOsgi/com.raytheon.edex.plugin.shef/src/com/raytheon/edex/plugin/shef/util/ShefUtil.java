@@ -37,13 +37,14 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
  * 03/19/08     387         M. Duff     Initial creation.
  * 12/12/08     1786        J. Sanchez  Handled date parsing exceptions.  
  * 01/12/08     1846        J. Sanchez  Update parseCreationDate to use default year.
  * May 14, 2014 2536        bclement    moved WMO Header to common, removed unused log
  * Aug 05, 2015 4486        rjpeter     Changed Timestamp to Date.
+ * Jan 10, 2018 5049        mduff       ShefParm is passed in when needed.
  * </pre>
  */
 public final class ShefUtil {
@@ -78,7 +79,7 @@ public final class ShefUtil {
         Calendar recordTime = Calendar.getInstance();
         recordTime.setTime(recordDate);
 
-        if (time.indexOf("/") > -1) {
+        if (time.indexOf('/') > -1) {
             /* Split the string apart and set the individual values */
             parts = time.split("/");
             for (String part : parts) {
@@ -105,7 +106,7 @@ public final class ShefUtil {
              * Put the pieces together to get a full time stamp Start with the
              * century and work to the right
              */
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
 
             if ((dt != null) && (dy != null)) {
                 sb.append(dt + dy);
@@ -113,7 +114,7 @@ public final class ShefUtil {
                 dy = String.valueOf(recordTime.get(Calendar.YEAR)).substring(0,
                         2);
                 sb.append(dt + dy);
-            } else if (dy == null) {
+            } else {
                 int year = recordTime.get(Calendar.YEAR);
                 sb.append(year);
             }
@@ -174,7 +175,7 @@ public final class ShefUtil {
 
             timeString = sb.toString();
         } else {
-            StringBuffer sb = new StringBuffer();
+            StringBuilder sb = new StringBuilder();
             String year = String.valueOf(recordTime.get(Calendar.YEAR));
             String month = String.valueOf(recordTime.get(Calendar.MONTH) + 1);
             String day = String.valueOf(recordTime.get(Calendar.DAY_OF_MONTH));
@@ -410,14 +411,14 @@ public final class ShefUtil {
         int year = 0;
 
         cal.setTimeInMillis(System.currentTimeMillis());
-        year = cal.get(Calendar.YEAR); // retrieves current year
+        year = cal.get(Calendar.YEAR);
         currentDate = cal.getTime();
 
         cal.setTime(creationDate);
         cal.set(Calendar.YEAR, year);
 
         if (cal.after(currentDate)) {
-            --year; // uses the previous year
+            --year;
         }
 
         return String.valueOf(year);
@@ -446,7 +447,7 @@ public final class ShefUtil {
             positive = false;
         }
         String relativeAmount = null;
-        if (relativeValue.equals("DRE")) {
+        if ("DRE".equals(relativeValue)) {
             relativeAmount = relativeValue;
         } else {
             relativeAmount = relativeValue.substring(4);
@@ -457,41 +458,41 @@ public final class ShefUtil {
             if (positive) {
                 obsTimeCal.add(Calendar.SECOND, new Integer(relativeAmount));
             } else {
-                obsTimeCal.add(Calendar.SECOND, (new Integer(relativeAmount))
-                        * -1);
+                obsTimeCal.add(Calendar.SECOND,
+                        (new Integer(relativeAmount)) * -1);
             }
             break;
         case 'N':
             if (positive) {
                 obsTimeCal.add(Calendar.MINUTE, new Integer(relativeAmount));
             } else {
-                obsTimeCal.add(Calendar.MINUTE, (new Integer(relativeAmount))
-                        * -1);
+                obsTimeCal.add(Calendar.MINUTE,
+                        (new Integer(relativeAmount)) * -1);
             }
             break;
         case 'H':
             if (positive) {
                 obsTimeCal.add(Calendar.HOUR, new Integer(relativeAmount));
             } else {
-                obsTimeCal.add(Calendar.HOUR, (new Integer(relativeAmount))
-                        * -1);
+                obsTimeCal.add(Calendar.HOUR,
+                        (new Integer(relativeAmount)) * -1);
             }
             break;
         case 'D':
             if (positive) {
-                obsTimeCal.add(Calendar.DAY_OF_MONTH, new Integer(
-                        relativeAmount));
+                obsTimeCal.add(Calendar.DAY_OF_MONTH,
+                        new Integer(relativeAmount));
             } else {
-                obsTimeCal.add(Calendar.DAY_OF_MONTH, (new Integer(
-                        relativeAmount)) * -1);
+                obsTimeCal.add(Calendar.DAY_OF_MONTH,
+                        (new Integer(relativeAmount)) * -1);
             }
             break;
         case 'M':
             if (positive) {
                 obsTimeCal.add(Calendar.MONTH, new Integer(relativeAmount));
             } else {
-                obsTimeCal.add(Calendar.MONTH, (new Integer(relativeAmount))
-                        * -1);
+                obsTimeCal.add(Calendar.MONTH,
+                        (new Integer(relativeAmount)) * -1);
             }
             break;
         case 'E':
@@ -503,8 +504,8 @@ public final class ShefUtil {
             if (positive) {
                 obsTimeCal.add(Calendar.YEAR, new Integer(relativeAmount));
             } else {
-                obsTimeCal.add(Calendar.YEAR, (new Integer(relativeAmount))
-                        * -1);
+                obsTimeCal.add(Calendar.YEAR,
+                        (new Integer(relativeAmount)) * -1);
             }
             break;
         }
@@ -596,7 +597,7 @@ public final class ShefUtil {
                 century--;
             }
             returnVal = (century * 100) + pYear;
-        } else { // recordDate length must be 8
+        } else {
             date = ShefConstants.YYYYMMDD_FORMAT.parse(dateString);
             calendar.setTime(date);
             returnVal = calendar.get(Calendar.YEAR);
@@ -612,19 +613,17 @@ public final class ShefUtil {
      * @return - the identifier
      */
     public static synchronized String createIdentifier(WMOHeader wmoHeader) {
-        String retVal = null;
-        StringBuffer sb = new StringBuffer();
-        sb.append(wmoHeader.getWmoHeader() + "::::");
-        sb.append(wmoHeader.getA1() + "::::");
-        sb.append(wmoHeader.getA2() + "::::");
-        sb.append(wmoHeader.getIi() + "::::");
-        sb.append(wmoHeader.getT1() + "::::");
-        sb.append(wmoHeader.getT2() + "::::");
-        sb.append(wmoHeader.getBBBIndicator() + "::::");
-        sb.append(wmoHeader.getCccc() + "::::");
+        StringBuilder sb = new StringBuilder();
+        sb.append(wmoHeader.getWmoHeader()).append("::::");
+        sb.append(wmoHeader.getA1()).append("::::");
+        sb.append(wmoHeader.getA2()).append("::::");
+        sb.append(wmoHeader.getIi()).append("::::");
+        sb.append(wmoHeader.getT1()).append("::::");
+        sb.append(wmoHeader.getT2()).append("::::");
+        sb.append(wmoHeader.getBBBIndicator()).append("::::");
+        sb.append(wmoHeader.getCccc()).append("::::");
         sb.append(wmoHeader.getYYGGgg());
-        retVal = sb.toString();
-        return retVal;
+        return sb.toString();
     }
 
     /**
@@ -656,7 +655,7 @@ public final class ShefUtil {
         return ((lower < value) && (value < upper));
     }
 
-    public static final int validatePEDTSEP(String pedtsep) {
+    public static final int validatePEDTSEP(String pedtsep, ShefParm shefParm) {
         // Set to non-error code for switch statement flowdown.
         int err = -1;
 
@@ -671,47 +670,59 @@ public final class ShefUtil {
 
             switch (pedtsep.length()) {
             case 7: {
-                if (ShefParm.getProbabilityCodeValue(pedtsep.substring(6, 7)) == null) {
-                    // "Non-existent value for given probability parameter code",
+                if (shefParm.getProbabilityCodeValue(
+                        pedtsep.substring(6, 7)) == null) {
+                    // "Non-existent value for given probability parameter
+                    // code",
                     err = SHEFErrorCodes.LOG_063;
                 } else {
                     err = 0;
                 }
+                break;
             }
             case 6: {
                 if (err <= 0) {
-                    if (ShefParm.getExtremumCode(pedtsep.substring(5, 6)) == null) {
-                        // "Non-existent value for given extremum parameter code"
+                    if (shefParm
+                            .getExtremumCode(pedtsep.substring(5, 6)) == null) {
+                        // "Non-existent value for given extremum parameter
+                        // code"
                         err = SHEFErrorCodes.LOG_061;
                     } else {
                         err = 0;
                     }
                 }
+                break;
             }
-            case 5: // Type Source
+            case 5:
                 if (err <= 0) {
-                    if (ShefParm.getTypeSourceCode(pedtsep.substring(3, 5)) == null) {
-                        // "Non-existent value for given type and source parameter code"
+                    if (shefParm.getTypeSourceCode(
+                            pedtsep.substring(3, 5)) == null) {
+                        // "Non-existent value for given type and source
+                        // parameter code"
                         err = SHEFErrorCodes.LOG_034;
                     } else {
                         err = 0;
                     }
                 }
+                break;
             case 3: {
                 // Duration
                 if (err <= 0) {
-                    if (ShefParm.getDurationCodeValue(pedtsep.substring(2, 3)) == null) {
-                        // "Non-existent value for given duration parameter code"
+                    if (shefParm.getDurationCodeValue(
+                            pedtsep.substring(2, 3)) == null) {
+                        // "Non-existent value for given duration parameter
+                        // code"
                         err = SHEFErrorCodes.LOG_060;
                     } else {
                         err = 0;
                     }
                 }
+                break;
             }
             case 2: {
                 if (err <= 0) {
-                    if (ShefParm.getPhysicalElementConversionFactor(pedtsep
-                            .substring(0, 2)) == null) {
+                    if (shefParm.getPhysicalElementConversionFactor(
+                            pedtsep.substring(0, 2)) == null) {
                         // "An expected parameter code is missing"
                         err = SHEFErrorCodes.LOG_003;
                     } else {
@@ -722,12 +733,14 @@ public final class ShefUtil {
             }
             case 1: {
                 // This is an error
-                // "Parameter code too short or field misinterpreted as parameter code",
+                // "Parameter code too short or field misinterpreted as
+                // parameter code",
                 err = 64;
                 break;
             }
             default: {
-                // "Parameter code too short or field misinterpreted as parameter code",
+                // "Parameter code too short or field misinterpreted as
+                // parameter code",
                 err = SHEFErrorCodes.LOG_064;
             }
             }

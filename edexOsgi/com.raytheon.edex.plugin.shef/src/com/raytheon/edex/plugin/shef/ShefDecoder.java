@@ -26,6 +26,7 @@ import com.raytheon.edex.plugin.shef.ShefSeparator.ShefDecoderInput;
 import com.raytheon.edex.plugin.shef.data.ShefRecord;
 import com.raytheon.edex.plugin.shef.database.PostShef;
 import com.raytheon.edex.plugin.shef.database.PurgeText;
+import com.raytheon.edex.plugin.shef.util.ShefParm;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -39,8 +40,8 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * 
  * SOFTWARE HISTORY
  * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
  * 03/19/2008   387         M. Duff     Initial creation.  
  * 06/02/2008   1166        M. Duff     Added checks for null data objects.
  * 10/16/2008   1548        jelkins     Integrated ParameterCode Types
@@ -55,6 +56,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * 12/--/2009               jkorman     Major refactor - split into ShefDecoder/SHEFParser
  * 03/07/2013   15071       W. Kwock    Skip empty data files.
  * 04/28/2014   3088        mpduff      Use UFStatus logging, various cleanup.
+ * 01/10/2018   5049        mduff       Pass ShefParm to the ShefParser.
  * </pre>
  */
 public class ShefDecoder {
@@ -65,6 +67,8 @@ public class ShefDecoder {
     // SHEF never returns real data to edex, so create an empty data array
     // here.
     private PluginDataObject[] records = new PluginDataObject[0];
+
+    private ShefParm shefParm;
 
     /**
      * Constructor
@@ -79,6 +83,8 @@ public class ShefDecoder {
      * @param name
      */
     public ShefDecoder(String name) {
+        shefParm = new ShefParm();
+        shefParm.populate();
     }
 
     /**
@@ -91,8 +97,8 @@ public class ShefDecoder {
      * @return PluginDataObject[] of decoded data
      */
     public PluginDataObject[] decode(byte[] data, Headers headers) {
-        boolean archiveMode = AppsDefaults.getInstance().getBoolean(
-                "ALLOW_ARCHIVE_DATA", false);
+        boolean archiveMode = AppsDefaults.getInstance()
+                .getBoolean("ALLOW_ARCHIVE_DATA", false);
 
         String traceId = null;
 
@@ -123,7 +129,7 @@ public class ShefDecoder {
                 postDate = getPostTime(startTime);
             }
 
-            PostShef postShef = new PostShef(postDate);
+            PostShef postShef = new PostShef(postDate, shefParm);
             if (separator.hasNext()) {
                 PurgeText pText = new PurgeText(postDate);
                 pText.storeTextProduct(separator);
@@ -138,12 +144,6 @@ public class ShefDecoder {
         return records;
     }
 
-    /**
-     * 
-     * @param data
-     * @param headers
-     * @return
-     */
     public PluginDataObject[] decodeNoWMOHeader(byte[] data, Headers headers) {
         String traceId = null;
 
@@ -169,7 +169,7 @@ public class ShefDecoder {
 
             PostShef postShef = null;
             try {
-                postShef = new PostShef(postDate);
+                postShef = new PostShef(postDate, shefParm);
             } catch (Exception e) {
                 logger.error("Could not create PostShef", e);
             }
@@ -199,7 +199,8 @@ public class ShefDecoder {
             while (separator.hasNext()) {
                 ShefDecoderInput sdi = separator.next();
                 try {
-                    SHEFParser parser = new SHEFParser(sdi);
+                    SHEFParser parser = new SHEFParser(sdi, appDefaults,
+                            shefParm);
                     ShefRecord shefRecord = parser.decode();
                     if (shefRecord != null) {
                         if (shefRecord.getDataValues() != null) {
@@ -209,8 +210,9 @@ public class ShefDecoder {
                                 }
                                 postShef.post(shefRecord);
                             } catch (Throwable tt) {
-                                logger.error(traceId
-                                        + "- Could not post record.", tt);
+                                logger.error(
+                                        traceId + "- Could not post record.",
+                                        tt);
                             }
                         } else {
                             logger.info(traceId + "- No data records in file.");
@@ -219,39 +221,21 @@ public class ShefDecoder {
                         logger.info(traceId + "- No records in file.");
                     }
                 } catch (Exception ee) {
-                    logger.error(traceId + "- Could not parse SHEF report.", ee);
+                    logger.error(traceId + "- Could not parse SHEF report.",
+                            ee);
                 }
             } // while()
             if (dataProcessed) {
-                postShef.logStats(traceId, System.currentTimeMillis()
-                        - startTime);
+                postShef.logStats(traceId,
+                        System.currentTimeMillis() - startTime);
             }
         } finally {
             postShef.close();
         }
     }
 
-    /**
-     * 
-     * @param startTime
-     * @return
-     */
-    private static Date getPostTime(long startTime) {
+    private Date getPostTime(long startTime) {
         // Force time to nearest second.
         return new Date(startTime - (startTime % 1000));
-    }
-
-    /*
-     * 
-     */
-    public static final void main(String[] args) {
-
-        long t = System.currentTimeMillis();
-        Date postDateA = new Date(t);
-        t = t - (t % 1000);
-        Date postDateB = new Date(t);
-
-        System.out.println(postDateA.getTime());
-        System.out.println(postDateB.getTime());
     }
 }
