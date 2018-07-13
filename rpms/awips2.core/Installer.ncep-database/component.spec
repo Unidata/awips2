@@ -196,7 +196,7 @@ NCEP_DIR=`${PSQL} -U awipsadmin -d postgres -c "\db" | grep ncep | awk '{print $
 if [ ! "${NCEP_DIR}" = "" ]; then
    echo "Dropping ncep tablespace..."
     su - ${DB_OWNER} -c \
-      "${PSQL} -U awipsadmin -d postgres -c \"DROP TABLESPACE ncep\""
+      "${PSQL} -U awipsadmin -d postgres -c \"DROP TABLESPACE ncep\"" > /dev/null 2>&1
       
    # remove the maps data directory that we created
    if [ -d "${NCEP_DIR}" ]; then
