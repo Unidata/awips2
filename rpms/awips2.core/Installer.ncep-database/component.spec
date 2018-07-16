@@ -194,7 +194,6 @@ fi
 NCEP_DIR=`${PSQL} -U awipsadmin -d postgres -c "\db" | grep ncep | awk '{print $5}'`
 
 if [ ! "${NCEP_DIR}" = "" ]; then
-   echo "Dropping ncep tablespace..."
     su - ${DB_OWNER} -c \
       "${PSQL} -U awipsadmin -d postgres -c \"DROP TABLESPACE ncep\"" > /dev/null 2>&1
       
