@@ -144,6 +144,27 @@
          unpack="false"/>
 
    <plugin
+         id="com.raytheon.edex.plugin.binlightning"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="com.raytheon.edex.plugin.binlightning.legacy"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
+         id="gov.noaa.nws.ost.edex.plugin.binlightning"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
+
+   <plugin
          id="com.raytheon.uf.edex.plugin.cwa"
          download-size="0"
          install-size="0"
