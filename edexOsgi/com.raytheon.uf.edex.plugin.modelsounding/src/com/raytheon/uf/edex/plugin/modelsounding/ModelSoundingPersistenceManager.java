@@ -130,8 +130,6 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
                 }
 
                 if (container != null) {
-                    ITimer timer = TimeUtil.getTimer();
-                    timer.start();
                     List<PluginDataObject> pdoList = container.getPdos();
                     if ((pdoList != null) && !pdoList.isEmpty()) {
                         PluginDataObject[] pdos = pdoList
@@ -139,11 +137,6 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
                         try {
                             EDEXUtil.getMessageProducer().sendSync(
                                     "modelSoundingPersistIndexAlert", pdos);
-                            timer.stop();
-                            logger.info("Stored container: "
-                                    + container.getKey() + ", size: "
-                                    + container.size() + ", in "
-                                    + timer.getElapsedTime() + "ms");
                         } catch (EdexException e) {
                             logger.error("Failed to persist " + pdos.length
                                     + " PluginDataObject(s) for key: "
