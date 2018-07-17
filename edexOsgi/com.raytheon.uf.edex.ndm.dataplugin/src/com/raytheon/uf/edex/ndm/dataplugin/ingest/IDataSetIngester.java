@@ -17,7 +17,7 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.ndm.ingest;
+package com.raytheon.uf.edex.ndm.dataplugin.ingest;
 
 
 /**

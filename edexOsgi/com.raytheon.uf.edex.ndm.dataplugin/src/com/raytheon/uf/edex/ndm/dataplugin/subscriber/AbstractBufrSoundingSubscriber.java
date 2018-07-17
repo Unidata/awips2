@@ -40,7 +40,7 @@ import com.raytheon.uf.common.pointdata.vadriver.VA_Driver;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
+import com.raytheon.uf.edex.ndm.dataplugin.ingest.INationalDatasetSubscriber;
 
 /**
  * A National Dataset Subscriber for BUFR Sounding Data

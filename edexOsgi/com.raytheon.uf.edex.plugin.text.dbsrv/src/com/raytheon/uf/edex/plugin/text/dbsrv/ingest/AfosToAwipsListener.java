@@ -53,7 +53,7 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils;
 import com.raytheon.uf.edex.database.cluster.ClusterLockUtils.LockState;
 import com.raytheon.uf.edex.database.cluster.ClusterTask;
-import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
+import com.raytheon.uf.edex.ndm.dataplugin.ingest.INationalDatasetSubscriber;
 import com.raytheon.uf.edex.plugin.text.AfosToAwipsUtil;
 
 /**
