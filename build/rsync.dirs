@@ -1,6 +1,7 @@
 edexOsgi/* cave/* localization/*
-javaUtilities/* rpms pythonPackages nativeLib/* 
+javaUtilities/* rpms pythonPackages 
 *.pdf
+../awips2-nativelib/*
 ../awips2-core/common/* 
 ../awips2-core/edex/* 
 ../awips2-core/features/* 
