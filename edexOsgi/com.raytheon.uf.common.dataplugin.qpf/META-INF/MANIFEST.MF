@@ -1,0 +1,15 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: QPF common Plug-in
+Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.qpf
+Bundle-Version: 1.14.0.qualifier
+Bundle-Vendor: RAYTHEON
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Export-Package: com.raytheon.uf.common.dataplugin.qpf
+Require-Bundle: javax.persistence;bundle-version="1.0.0",
+ com.raytheon.uf.common.serialization,
+ com.raytheon.uf.common.monitor;bundle-version="1.11.5",
+ com.raytheon.uf.common.dataplugin.radar;bundle-version="1.0.0",
+ com.raytheon.uf.common.geospatial,
+ com.raytheon.uf.common.dataplugin,
+ com.raytheon.uf.common.datastorage

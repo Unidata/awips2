@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
+<statisticsConfig>
+    <!-- Event Type should be fully qualified name of stat event -->
+    <statisticsEvent type="com.raytheon.uf.common.stats.LoadEvent" displayName="Load Time" category="FFMP Load Times"
+        rawOfflineRetentionDays="90" aggregateOfflineRetentionDays="90">
+        <statisticsGroup name="type" displayName="Type" />
+        <!-- Processing time available display units:
+             ms, Seconds, Minutes, Hours -->
+        <statisticsAggregate field="loadTime" displayName="Loading Time" displayUnit="ms" />
+    </statisticsEvent>
+</statisticsConfig>
