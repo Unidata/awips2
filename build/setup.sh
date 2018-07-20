@@ -18,25 +18,12 @@ dirs=" -v `pwd`:/awips2/repo/awips2-builds:rw "
 
 #
 # If local source directories, exist, mount them to the container
-if [ -d /awips2/repo/awips2-cimss ]; then		dirs+=" -v /awips2/repo/awips2-cimss:/awips2/repo/awips2-cimss ";fi
-if [ -d /awips2/repo/awips2-core-foss ]; then		dirs+=" -v /awips2/repo/awips2-core-foss:/awips2/repo/awips2-core-foss ";fi
-if [ -d /awips2/repo/awips2-core ]; then		dirs+=" -v /awips2/repo/awips2-core:/awips2/repo/awips2-core ";fi
-if [ -d /awips2/repo/awips2-data-delivery ]; then	dirs+=" -v /awips2/repo/awips2-data-delivery:/awips2/repo/awips2-data-delivery ";fi
-if [ -d /awips2/repo/awips2-drawing ]; then		dirs+=" -v /awips2/repo/awips2-drawing:/awips2/repo/awips2-drawing ";fi
-if [ -d /awips2/repo/awips2-foss ]; then		dirs+=" -v /awips2/repo/awips2-foss:/awips2/repo/awips2-foss ";fi
-if [ -d /awips2/repo/awips2-goesr ]; then		dirs+=" -v /awips2/repo/awips2-goesr:/awips2/repo/awips2-goesr ";fi
-if [ -d /awips2/repo/awips2-gsd ]; then			dirs+=" -v /awips2/repo/awips2-gsd:/awips2/repo/awips2-gsd ";fi
-if [ -d /awips2/repo/awips2-hazards ]; then		dirs+=" -v /awips2/repo/awips2-hazards:/awips2/repo/awips2-hazards ";fi
-if [ -d /awips2/repo/awips2-nasa ]; then		dirs+=" -v /awips2/repo/awips2-nasa:/awips2/repo/awips2-nasa ";fi
-if [ -d /awips2/repo/awips2-ncep ]; then		dirs+=" -v /awips2/repo/awips2-ncep:/awips2/repo/awips2-ncep ";fi
-if [ -d /awips2/repo/awips2-nws ]; then			dirs+=" -v /awips2/repo/awips2-nws:/awips2/repo/awips2-nws ";fi
-if [ -d /awips2/repo/awips2-ogc ]; then			dirs+=" -v /awips2/repo/awips2-ogc:/awips2/repo/awips2-ogc ";fi
-if [ -d /awips2/repo/awips2-ohd ]; then			dirs+=" -v /awips2/repo/awips2-ohd:/awips2/repo/awips2-ohd ";fi
-if [ -d /awips2/repo/awips2-rpm ]; then			dirs+=" -v /awips2/repo/awips2-rpm:/awips2/repo/awips2-rpm ";fi
-if [ -d /awips2/repo/awips2-static ]; then 		dirs+=" -v /awips2/repo/awips2-static:/awips2/repo/awips2-static ";fi
-if [ -d /awips2/repo/awips2-swpc ]; then		dirs+=" -v /awips2/repo/awips2-swpc:/awips2/repo/awips2-swpc ";fi
-if [ -d /awips2/repo/awips2-unidata ]; then		dirs+=" -v /awips2/repo/awips2-unidata:/awips2/repo/awips2-unidata ";fi
-if [ -d /awips2/repo/python-awips ]; then		dirs+=" -v /awips2/repo/python-awips:/awips2/repo/python-awips ";fi
+for dn in `cat build/repos`
+do
+  echo $dn
+  if [ -d /awips2/repo/$dn ]; then		dirs+=" -v /awips2/repo/${dn}:/awips2/repo/${dn} ";fi
+done
+
 #
 # Run Docker AWIPS ADE Image
 #
