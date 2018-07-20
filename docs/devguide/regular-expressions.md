@@ -188,9 +188,6 @@ Standard LDM regular expressions from **/awips2/ldm/etc/pqact.conf**
       # NAM-40km (awip3d)  - exclude awip12 = NAM12 since it is on NGRID (exclude NAM 90km)
       CONDUIT ^data/nccf/com/nam/.*nam.*(awip3d).*!(grib2)/ncep/(NAM_84)/#([^/]*)/([0-9]{8})([0-9]{4})(F[0-1]..)/([^/]*)/.*! (......)
               FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/conduit/\3/\5_\6Z_\7_\8-(seq).\1.grib2
-      # DGEX
-      NGRID   ^[LM].E... KWBD ...... !grib2/[^/]*/([^/]*)/#[^/]*/([0-9]{8})([0-9]{4})(F[0-9]{3})/([^/]*)
-              FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/noaaport/DGEX/\1_\2_\3Z_\4_\5-(seq).grib2
       # NOAAport HRRR
       NGRID   Y.C.[0-9][0-9] KWBY ...... !grib2/[^/]*/[^/]*/#[^/]*/([0-9]{12})F(...)/(.*)/.*
               FILE    -overwrite -log -close -edex    /awips2/data_store/grib2/noaaport/HRRR/\1_F\2_\3_(seq).grib2

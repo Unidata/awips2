@@ -43,7 +43,7 @@ class Procedure (SmartScript.SmartScript):
                     "Haines", "MixHgt"]
         #
         print "Copying grids from models"
-        dbID = self.findDatabase("DGEX")
+        dbID = self.findDatabase("RAP13")
         tr = self.createTimeRange(0, 168, "Database", dbID)
         self.copyCmd(elements, dbID, tr)
         #  

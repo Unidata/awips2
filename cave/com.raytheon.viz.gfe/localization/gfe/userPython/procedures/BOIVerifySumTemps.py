@@ -62,7 +62,7 @@ BADTHRESHOLD=10
 #  has the most possible models I could think of...
 #
 MODLIST=["Official","MOSGuideBC","MOSGuide","GFS40","GFS40BC",
-         "ADJMAV","ADJMAVBC","NAM12","NAM12BC","DGEX","DGEXBC",
+         "ADJMAV","ADJMAVBC","NAM12","NAM12BC",
          "ADJMEX","ADJMEXBC","ADJMET","ADJMETBC","SREF","SREFBC",
          "ADJFWC","ADJFWCBC","ADJDGX","ADJDGXBC",]
 #

@@ -116,12 +116,6 @@
     <versionsToKeep>1</versionsToKeep>
     <modTimeToWait>00-00:15:00</modTimeToWait>
   </rule>
-  <!-- Purge rule for the DGEX (DGEX) model -->
-  <rule>
-    <keyValue>DGEX</keyValue>
-    <versionsToKeep>2</versionsToKeep>
-    <modTimeToWait>00-00:15:00</modTimeToWait>
-  </rule>
   <!-- Purge rule for the HPCGuide (HPCGuide) model -->
   <rule>
     <keyValue>HPCGuide</keyValue>
