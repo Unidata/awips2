@@ -41,7 +41,6 @@
                 <pipeline>
                     <bean ref="stringToFile" />
                     <bean ref="bufrssmiDecoder" method="decode" />
-                    <bean ref="ssmiSHFilter" method="filter" />
                     <to uri="direct-vm:persistIndexAlert" />
                 </pipeline>
                 <doCatch>

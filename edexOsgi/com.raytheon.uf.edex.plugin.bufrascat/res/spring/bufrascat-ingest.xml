@@ -41,7 +41,6 @@
                 <pipeline>
                     <bean ref="stringToFile" />
                     <bean ref="bufrascatDecoder" method="decode" />
-                    <bean ref="ascatSHFilter" method="filter" />
                     <to uri="direct-vm:persistIndexAlert" />
                 </pipeline>
                 <doCatch>
