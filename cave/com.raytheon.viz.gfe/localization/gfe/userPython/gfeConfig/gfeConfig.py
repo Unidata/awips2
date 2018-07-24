@@ -1689,12 +1689,7 @@ Scripts = [
       "-d {productDB} ",
 
     "Make and Send HTI:" +
-     "/awips2/GFESuite/hti/bin/make_hti.sh {site}",
-
-    "Official Grids to LDAD: " +
-    "ifpAG -h {host} -r {port} -o - -d {productDB} | gzip -9 > " +
-    " /data/fxa/LDAD/ifp/Official/.incoming; " +
-    "mv /data/fxa/LDAD/ifp/Official/.incoming /data/fxa/LDAD/ifp/Official/{ztime} &"
+     "/awips2/GFESuite/hti/bin/make_hti.sh {site}"
     ]
 
 ##   Note: Please define TextProducts through
