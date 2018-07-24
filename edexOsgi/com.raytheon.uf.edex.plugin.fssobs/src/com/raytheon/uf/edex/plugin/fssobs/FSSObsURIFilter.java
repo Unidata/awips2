@@ -62,7 +62,7 @@ public class FSSObsURIFilter extends URIFilter {
     public FSSObsURIFilter(String name, Set<String> stations) {
         super(name);
         logger.info("FSSObsFilter " + name + " Filter construction...");
-        setDataTypes(new String[] { "obs", "sfcobs", "ldadmesonet" });
+        setDataTypes(new String[] { "obs", "sfcobs" });
         setExclude(false);
         SimpleDateFormat datef = new SimpleDateFormat(datePattern);
         datef.setTimeZone(TimeZone.getTimeZone("Zulu"));
@@ -97,11 +97,6 @@ public class FSSObsURIFilter extends URIFilter {
                 Pattern maritimePattern = getMaritimePattern(station);
                 statusHandler.info("Adding Pattern for type: "+ObConst.MARITIME+" Pattern: "+maritimePattern.toString());
                 getMatchURIs().put(maritimePattern, 0l);
-                break;
-            case ObConst.MESONET:
-                Pattern mesowestPattern = getMesowestPattern(station);
-                statusHandler.info("Adding Pattern for type: "+ObConst.MESONET+" Pattern: "+mesowestPattern.toString());
-                getMatchURIs().put(mesowestPattern, 0l);
                 break;
             default:
                 statusHandler.error("Get unknown data type " + dataType);
@@ -288,22 +283,6 @@ public class FSSObsURIFilter extends URIFilter {
                 + uriSeperator);
         return maritimePattern;
     }
-
-    /**
-     * Gets Mesowest Pattern.
-     * 
-     * @param mesowestPattern
-     *            the mesowestPattern to set
-     */
-    private Pattern getMesowestPattern(String station) {
-        // There is no dataURI for ldadmesonet data
-        // /ldadmesonet/2011-06-29_22:10:00.0/mesonet/NWSRAWS/RINN4/41.1181/-74.2403
-        Pattern mesowestPattern = Pattern.compile("/ldadmesonet/" + wildCard
-                + uriSeperator + wildCard + uriSeperator + wildCard
-                + uriSeperator + station);
-        return mesowestPattern;
-    }
-
 
     /**
      * Sets pattern for ships "1003", drifting buoys "1006" and MAROBs "1007".

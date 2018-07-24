@@ -14,7 +14,6 @@ EDEX plugins which provide access to datasets via the [python-awips](http://pyth
 | BUFR MOS         | bufrmos-dataaccess |
 | BURF UA          | bufrua-dataaccess |
 | Climate DB       | climate-dataaccess |
-| LDAD mesonet     | ldadmesonet-dataaccess |
 | Model Soundings  | modelsounding-dataaccess |
 | METAR            | obs-dataaccess |
 | PIREPs           | pirep-dataaccess |

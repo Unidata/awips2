@@ -93,8 +93,6 @@ public class FSSObsConfig {
                 tableRow = FSSObsUtils.getRecordFromMetar(uri);
             } else if (dt.equals("sfcobs")) {
                 tableRow = FSSObsUtils.getRecordFromMaritime(uri);
-            } else if (dt.equals("ldadmesonet")) {
-                tableRow = FSSObsUtils.getRecordFromMesowest(uri);
             }
         } catch (PluginException e) {
             statusHandler.handle(Priority.PROBLEM, "Could not create type: "

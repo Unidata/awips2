@@ -14,16 +14,6 @@ PRODUCTdir="${HTI_HOME}/data"        # Where the hti output/data will go
 ARCHIVE="YES"                        # YES, graphics/kml will be archived with 
                                      # each run, NO otherwise.
 
-# LDAD setup
-LDADserver="ls1"             # Name of local rsync server
-LDADuser="ldad"                      # User on local rsync server
-LDAD_DATA="/data/ldad/hti"           # Directory where output is stored on
-                                     # local rsync server
-
-# CONSOLIDATED WEB FARM setup
-NWSHQ_RSYNCSERVER="sync.weather.gov" # Name of remote rsync server
-
-
 # OPTIONAL: Local office processing
 # The setup below is for site that do processing on local office Linux
 # workstations using Doug Gaer's webapps package.  (NOTE: the webapps

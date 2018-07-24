@@ -131,9 +131,6 @@ public class FSSObsUtils {
     /** plug-in for MARITIME data */
     private static final String SFCOBS = "sfcobs";
 
-    /** plug-in for MESONET data */
-    private static final String LDADMESONET = "ldadmesonet";
-
     /** Selected column in database **/
     private static final String SLCT = "dataURI";
 
@@ -235,42 +232,6 @@ public class FSSObsUtils {
             statusHandler.handle(Priority.ERROR, e.getLocalizedMessage(), e);
         }
         return recFromMaritime;
-    }
-
-    /**
-     * Gets Mesowest record from ldadmesonet.
-     * 
-     * @param uri
-     * @return mesowest record
-     * @throws PluginException
-     */
-    public static FSSObsRecord getRecordFromMesowest(String uri)
-            throws PluginException {
-
-        FSSObsRecord recFromMesowest = null;
-        PointDataQuery request = null;
-        PointDataContainer result = null;
-        try {
-            Map<String, RequestConstraint> rcMap = RequestConstraint
-                    .toConstraintMapping(DataURIUtil.createDataURIMap(uri));
-            rcMap.remove("pluginName");
-            request = new PointDataQuery(LDADMESONET);
-            for (Entry<String, RequestConstraint> entry : rcMap.entrySet()) {
-                RequestConstraint rc = entry.getValue();
-                String value = rc.getConstraintValue();
-                String type = rc.getConstraintType().getOperand();
-                request.addParameter(entry.getKey(), value, type);
-            }
-            request.setParameters(FSSObsDataTransform.MESOWEST_PARAMS_LIST);
-            result = request.execute();
-            if (result != null) {
-                recFromMesowest = FSSObsDataTransform
-                        .fromLdadmesowestRecord(result);
-            }
-        } catch (Exception e) {
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-        return recFromMesowest;
     }
 
     /**

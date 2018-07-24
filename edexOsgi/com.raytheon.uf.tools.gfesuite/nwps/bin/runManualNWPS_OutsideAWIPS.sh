@@ -146,9 +146,6 @@ logit "### Setting Up SWAN Input Model Forcing Time Range"
 logit " "
 ##################################################################
 
-logit " "
-logit "scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/"
-logit " "
 
 echo "" > $WRKSWN
 echo "____________________NWPS RUN REQUEST DETAILS__________" >> $WRKSWN
@@ -168,8 +165,6 @@ echo "Psurge % Exceedance: ${EXCD}" >> $WRKSWN
 echo "Running model in: ${WHERETORUN}" >> $WRKSWN
 echo "" >> $WRKSWN
 echo "______________________________________________________" >> $WRKSWN
-
-#scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
 
 ##################################################################
 logit "### CREATE THE WIND NETCDF FILE AND SEND OVER TO SWAN BOX FOR PROCESSING:"
@@ -194,159 +189,6 @@ chmod 666 ${NWPSLOCAL}/wcoss/${GFEDomainname}/${gfedomainname}_inp_args.ctl
 cd ${NWPSLOCAL}/wcoss/${GFEDomainname}
 NWPSWINDGRID="NWPSWINDGRID_${gfedomainname}_$(date +%Y%m%d%H%M)_$$.tar.gz"
 tar cvfz ${NWPSWINDGRID} ${gfedomainname}_inp_args.ctl ${gfedomainname}_domain_setup.cfg ${wcoss_textfile}
-scp ${NWPSWINDGRID} ldad@ls1:/tmp/
-
-function WCOSSUpload {
-    logit " "
-    logit "RUNNING IN NCEP"
-    logit " "
-    
-    logit "Running ldmsend to ${REGION} LDM servers for WCOSS run"
-
-    if [ "${LDMSEND}" == "/usr/local/ldm/util/ldmsend_nws" ]
-    then
-	status1=$(ssh ldad@ls1 "cd /tmp; ${LDMSEND} -vxnl- -h ${LDMSERVER1} -f EXP -o 3600 -r 1 -R 100 -T 25 -p '^NWPSWINDGRID_.*' ${NWPSWINDGRID}" 2>> ${logfile})
-	status2=$(ssh ldad@ls1 "cd /tmp; ${LDMSEND} -vxnl- -h ${LDMSERVER2} -f EXP -o 3600 -r 1 -R 100 -T 25 -p '^NWPSWINDGRID_.*' ${NWPSWINDGRID}" 2>> ${logfile})
-	
-	if [ "${status1}" == "PASS" ] && [ "${status2}" == "PASS" ]
-	then
-	    echo "" >> $WRKSWN
-	    echo "____________________NWPS WIND GRID UPLOAD PASSED__________" >> $WRKSWN
-	    echo "" >> $WRKSWN
-	    echo "INFO - Wind grid upload run for ${GFEDomainname} passed: ${date}" >> $WRKSWN
-	    echo "" >> $WRKSWN
-	    echo "INFO - Uploaded to ${REGION} LDM servers" >> $WRKSWN
-	    echo "" >> $WRKSWN
-	    echo "INFO - Model run was initiated" >> $WRKSWN
-	    echo "" >> $WRKSWN
-	    echo "______________________________________________________" >> $WRKSWN
-	    scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
-	fi
-
-	if [ "${status1}" != "PASS" ] && [ "${status2}" != "PASS" ]
-	then
-	    echo "" >> $WRKSWN
-	    echo "____________________NWPS WIND GRID UPLOAD FAILED__________" >> $WRKSWN
-	    echo "" >> $WRKSWN
-	    echo "ERROR - Wind grid upload run for ${GFEDomainname} failed: ${date}" >> $WRKSWN
-	    echo "" >> $WRKSWN
-	    echo "ERROR - Could not upload to any ${REGION} LDM server" >> $WRKSWN
-	    echo "ERROR - Upload failed to ${LDMSERVER1} and ${LDMSERVER2}" >> $WRKSWN
-	    echo "" >> $WRKSWN
-	    echo "ERROR - No model run was initiated" >> $WRKSWN
-	    echo "" >> $WRKSWN
-	    echo "______________________________________________________" >> $WRKSWN
-	    scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
-	else
-	    if [ "${status1}" != "PASS" ]
-	    then
-		echo "" >> $WRKSWN
-		echo "____________________NWPS WIND GRID UPLOAD WARNING__________" >> $WRKSWN
-		echo "" >> $WRKSWN
-		echo "" >> $WRKSWN
-		echo "WARN - Could not upload to ${REGION} LDM server #1" >> $WRKSWN
-		echo "WRAN - Upload failed to ${LDMSERVER1}" >> $WRKSWN
-		echo "" >> $WRKSWN
-		echo "INFO - Model run was initiated from ${LDMSERVER2}" >> $WRKSWN
-		echo "" >> $WRKSWN
-		echo "______________________________________________________" >> $WRKSWN
-		scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
-	    fi
-	    if [ "${status2}" != "PASS" ]
-	    then
-		echo "" >> $WRKSWN
-		echo "____________________NWPS WIND GRID UPLOAD WARNING__________" >> $WRKSWN
-		echo "" >> $WRKSWN
-		echo "" >> $WRKSWN
-		echo "WARN - Could not upload to ${REGION} LDM server #2" >> $WRKSWN
-		echo "WRAN - Upload failed to ${LDMSERVER2}" >> $WRKSWN
-		echo "" >> $WRKSWN
-		echo "INFO - Model run was initiated from ${LDMSERVER1}" >> $WRKSWN
-		echo "" >> $WRKSWN
-		echo "______________________________________________________" >> $WRKSWN
-		scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
-	    fi
-	fi
-
-    else
-	ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER1} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a ${logfile}
-	ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${LDMSERVER2} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a ${logfile}
-        scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
-    fi
-    ssh ldad@ls1 rm -fv /tmp/${NWPSWINDGRID}
-}
-
-if [ $WHERETORUN == "Both" ]
-then
-
-    logit " "
-    logit "RUNNING IN WORKSTATION"
-    logit " "
-    logit "### ROUTING 3 WIND FILES NEEDED BY SWAN THROUGH LDAD TO LOCAL WORKSTATION:"
-
-    if [ $MULTISITE == "Yes" ]
-    then
-
-       logit "Running ldmsend to workstation"
-       ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${WORKSTATION} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
-
-    else
-
-       logit "ssh ldad@ls1 mkdir -p ${DIR}"
-       logit "scp ${SCPARGS} $Output_File ldad@ls1:${DIR}"
-       logit "scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}"
-       logit "scp ${SCPARGS} $flagfile ldad@ls1:${DIR}"
-
-       ssh ldad@ls1 mkdir -p ${DIR}
-       scp ${SCPARGS} $Output_File ldad@ls1:${DIR}  | tee -a $logfile
-       scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}  | tee -a $logfile
-       scp ${SCPARGS} $flagfile ldad@ls1:${DIR}     | tee -a $logfile
-
-       logit "Runtime Parameters are: $RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD"
-       ssh ${SSHARGS} ldad@ls1 echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD > ${DIR}/inp_args" 2>&1 | tee -a $logfile
-
-    fi
-
-    WCOSSUpload
-
-elif [ $WHERETORUN == "Local" ]
-then
-
-    logit " "
-    logit "RUNNING IN WORKSTATION"
-    logit " "
-    logit "### ROUTING 3 WIND FILES NEEDED BY SWAN THROUGH LDAD TO LOCAL WORKSTATION:"
-
-    if [ $MULTISITE == "Yes" ]
-    then
-
-       logit "Running ldmsend to workstation"
-       ssh ldad@ls1 "cd /tmp; /usr/local/ldm/bin/ldmsend -v -h ${WORKSTATION} -f EXP ${NWPSWINDGRID}" 2>&1 | tee -a $logfile
-
-    else
-
-       logit "ssh ldad@ls1 mkdir -p ${DIR}"
-       logit "scp ${SCPARGS} $Output_File ldad@ls1:${DIR}"
-       logit "scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}"
-       logit "scp ${SCPARGS} $flagfile ldad@ls1:${DIR}"
-
-       ssh ldad@ls1 mkdir -p ${DIR}
-       scp ${SCPARGS} $Output_File ldad@ls1:${DIR}  | tee -a $logfile
-       scp ${SCPARGS} $textfile.gz ldad@ls1:${DIR}  | tee -a $logfile
-       scp ${SCPARGS} $flagfile ldad@ls1:${DIR}     | tee -a $logfile
-
-       logit "Runtime Parameters are: $RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD"
-       ssh ${SSHARGS} ldad@ls1 echo "$RUNLEN:$WNA:$NEST:$GS:$WINDS:$WEB:$PLOT:$DELTAC:$HOTSTART:$WATERLEVELS:$CORE:$EXCD > ${DIR}/inp_args" 2>&1 | tee -a $logfile
-
-    fi
-    ssh ldad@ls1 rm -fv /tmp/${NWPSWINDGRID}
-    scp ${SCPARGS} $WRKSWN ldad@ls1:/data/Incoming/
-
-else
-
-    WCOSSUpload
-
-fi
 
 logit " "
 ##################################################################
