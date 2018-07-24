@@ -1,7 +1,7 @@
 #!/bin/sh
 # runs a jstack every X seconds until killed
 
-basePath="/data/fxa/cave"
+basePath="/awips2/cave/fxa/cave"
 hostName=`hostname -s`
 hostPath="${basePath}/${hostName}"
 
