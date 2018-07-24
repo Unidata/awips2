@@ -65,9 +65,6 @@ cp -p %{_baseline_workspace}/${CONFIGURATION_DIR}/*.{key,crt} \
 cp %{_baseline_workspace}/${CONFIGURATION_DIR}/${CONF_FILE} \
    ${RPM_BUILD_ROOT}/awips2/database/data
 
-#cp %{_baseline_workspace}/installers/Linux/.global \
-#   ${RPM_BUILD_ROOT}/awips2/database
-
 PATH_TO_DDL="build.edex/opt/db/ddl"
 PATH_TO_REPLICATION="build.edex/opt/db/replication"
 
@@ -298,18 +295,12 @@ su - ${AWIPS_DEFAULT_USER} -c \
    "${SQL_SHARE_DIR}/createClimateDB.sh ${PSQL_INSTALL} ${POSTGRESQL_INSTALL} ${AWIPS_DEFAULT_PORT} ${AWIPS_DEFAULT_DB_ADMIN} ${SQL_SHARE_DIR} ${SQL_LOG}" > /dev/null 2>&1
 
 # install replication role if this is a central registry server
-#source /awips2/database/.global 2>/dev/null
-#if [ -e /awips2/fxa/INSTALL/awips2/scripts/.global ]; then
-#    source /awips2/fxa/INSTALL/awips2/scripts/.global
-#fi
 #case $SITE_IDENTIFIER in
 #    ${centralCaseArray} ) 
 #        execute_psql_sql_script ${SQL_SHARE_DIR}/createReplicationRole.sql metadata
 #        ;;
 #    *)  ;;
 #esac
-#
-#rm -f /awips2/database/.global
 
 ${SQL_SHARE_DIR}/alter_database_roles_and_permissions.sh > /dev/null 2>&1
 

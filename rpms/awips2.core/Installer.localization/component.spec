@@ -262,18 +262,6 @@ function importShapefiles() {
    return 0
 }
 
-function removeHydroDbDirectory(){
-   # remove the hydro db directory since it is not officially part of the localization.
-   if [ -d ${hydro_db_directory} ]; then
-      rm -rf ${hydro_db_directory}
-      if [ $? -ne 0 ]; then
-         echo "WARNING: Failed to remove hydro db directory from localization."
-         echo "         Please remove directory manually: ${hydro_db_directory}."
-      fi
-   fi
-   return 0
-}
-
 function restoreHydroDb(){
    if [ ! -d ${hydro_db_directory} ]; then
       return 0
@@ -300,7 +288,6 @@ function restoreHydroDb(){
 prepare_pg
 importShapefiles
 restoreHydroDb
-removeHydroDbDirectory
 stop_pg
 
 exit 0
