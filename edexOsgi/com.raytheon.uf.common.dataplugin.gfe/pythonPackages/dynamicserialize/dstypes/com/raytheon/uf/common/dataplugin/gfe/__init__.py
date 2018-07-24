@@ -35,7 +35,6 @@ __all__ = [
             'request',
             'server',
             'slice',
-            'svcbu',
             'weather'
           ]
 

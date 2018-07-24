@@ -237,7 +237,6 @@
     <LOGDIR>logDir</LOGDIR>
     <FXADEBUGSAVEBADTEXTFILES>fxaDebugSaveBadTextFiles</FXADEBUGSAVEBADTEXTFILES>
     <ARCHIVEDIR>archiveDir</ARCHIVEDIR>
-    <SVCBACKUP>svcBackupDir</SVCBACKUP>
     <MHS_DATA>mhsData</MHS_DATA>
 </properties>
 

@@ -1900,7 +1900,6 @@
            point="com.raytheon.uf.viz.core.component">
            <component key="gfeclient" class="com.raytheon.viz.gfe.gfeclient.GfeClient"/>
         <component key="gfeClientServer" class="com.raytheon.viz.gfe.gfeclient.GfeClientServer"/>
-        <component key="ServiceBackup" class="com.raytheon.viz.gfe.ServiceBackupComponent"/>
         <component key="ActivateSite" class="com.raytheon.viz.gfe.ActivateSiteComponent"/>
     </extension>
  <extension

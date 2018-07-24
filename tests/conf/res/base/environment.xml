@@ -50,8 +50,7 @@
 	<staticDir>${env:edex.home}/data/static</staticDir>
 	<gfeSmartInitEnable>true</gfeSmartInitEnable>
 	<fxaDebugSaveBadTextFiles>false</fxaDebugSaveBadTextFiles>
-	<svcBackupDir>${env:edex.home}/../GFESuite/</svcBackupDir>
-	<mhsData>/data/fxa/mhs</mhsData>
+	<mhsData>/awips2/fxa/data/fxa/mhs</mhsData>
 </properties>
 
 
