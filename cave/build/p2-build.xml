@@ -182,6 +182,9 @@
 			<param name="feature" value="com.raytheon.uf.viz.dataplugins.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.uf.viz.dat.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.core.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
@@ -192,6 +195,9 @@
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.viz.warngen.feature" />
+		</antcall>
+		<antcall target="p2.build.repo">
+			<param name="feature" value="com.raytheon.viz.warnings.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.grid.feature" />
@@ -247,30 +253,27 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.datadelivery.feature" />
 		</antcall>
-        <antcall target="p2.build.repo">
-            <param name="feature" value="com.raytheon.uf.viz.npp.feature" />
-        </antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="com.raytheon.uf.viz.npp.feature" />
+        	</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.skewt.feature" />
 		</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.viz.volumebrowser.feature" />
 		</antcall>
-        <antcall target="p2.build.repo">
-            <param name="feature" value="com.raytheon.uf.viz.d2d.nsharp.feature" />
-        </antcall>
-        <antcall target="p2.build.repo">
-            <param name="feature" value="com.raytheon.uf.viz.npp.sounding.feature" />
-        </antcall>
-        <antcall target="p2.build.repo">
-             <param name="feature" value="com.raytheon.uf.viz.ncep.npp.feature" />
-        </antcall>      
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="com.raytheon.uf.viz.d2d.nsharp.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="com.raytheon.uf.viz.npp.sounding.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+         		<param name="feature" value="com.raytheon.uf.viz.ncep.npp.feature" />
+        	</antcall>      
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.acarssounding.feature" />
 		</antcall>
-                <antcall target="p2.build.repo">
-                <param name="feature" value="com.raytheon.uf.viz.ncep.npp.feature" />
-                </antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.gfe.feature" />
 		</antcall>
@@ -280,6 +283,9 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="com.raytheon.uf.viz.d2d.ui.awips.feature" />
 		</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="com.raytheon.uf.viz.d2d.damagepath.feature" />
+        	</antcall>
 		<antcall target="p2.build.repo">
 			<param name="feature" value="edu.wisc.ssec.cimss.viz.convectprob.feature" />
 		</antcall>
@@ -298,66 +304,46 @@
 		<antcall target="p2.build.repo">
 			<param name="feature" value="gov.noaa.nws.obs.viz.geodata.feature" />
 		</antcall>
-	
 		<antcall target="p2.build.repo">
 			<param name="feature" value="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature" />
 		</antcall>
-
-        <antcall target="p2.build.repo">
-            <param name="feature" value="com.raytheon.uf.viz.d2d.damagepath.feature" />
-        </antcall>
-
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="com.raytheon.uf.viz.ohd.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="com.raytheon.uf.viz.scan.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="com.raytheon.uf.viz.server.edex.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="com.raytheon.uf.viz.vtec.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="com.raytheon.viz.dataaccess.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="edu.ucar.unidata.uf.viz.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="gov.noaa.gsd.viz.hazards.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="gov.noaa.nws.ncep.swpc.viz.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="gov.noaa.nws.ocp.viz.climate.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="gov.noaa.nws.ocp.viz.firewx.feature" />
+        	</antcall>
+        	<antcall target="p2.build.repo">
+        		<param name="feature" value="gov.noaa.nws.ocp.viz.psh.feature" />
+        	</antcall>
 		<antcall target="cleanup.features" />
 	</target>
 
-	<target name="wa-build" depends="p2.build" description="Builds work assignment specific features after the main build">
-		<for param="wa.feature.list.file">
-			<fileset dir="${basedir}" includes="*-wa-build.properties" />
-			<sequential>
-				<var name="wa.features" unset="true" />
-				<property file="@{wa.feature.list.file}" />
-				<for list="${wa.features}" param="wa.feature">
-					<sequential>
-						<antcall target="p2.build.repo">
-							<param name="feature" value="@{wa.feature}" />
-						</antcall>
-					</sequential>
-				</for>
-			</sequential>
-		</for>
-	</target>
-
-	<target name="wa-cleanup" depends="wa-build" description="Removes references to WA-specific features that should not be built as an RPM.">
-		<for param="wa.feature.list.file">
-			<fileset dir="${basedir}" includes="*-wa-build.properties" />
-			<sequential>
-				<var name="wa.features.ignore" unset="true" />
-				<property file="@{wa.feature.list.file}" />
-				<for list="${wa.features.ignore}" param="wa.feature">
-					<sequential>
-						<if>
-							<available file="${basedir}/cave/p2/features/@{wa.feature}" type="dir" />
-							<then>
-								<!-- Remove the feature directory. -->
-								<delete includeemptydirs="true">
-									<fileset dir="${basedir}/cave/p2/features/@{wa.feature}" />
-								</delete>
-
-								<!-- Remove references to the feature from features.txt -->
-								<exec executable="/bin/sed" output="${basedir}/cave/p2/dist/features.txt.tmp">
-									<arg value="/@{wa.feature}/d" />
-									<arg value="${basedir}/cave/p2/dist/features.txt" />
-								</exec>
-								<move file="${basedir}/cave/p2/dist/features.txt.tmp" tofile="${basedir}/cave/p2/dist/features.txt" />
-							</then>
-						</if>
-					</sequential>
-				</for>
-			</sequential>
-		</for>
-	</target>
-
-	<target name="main" depends="clean, p2.build, wa-build, wa-cleanup" />
+	<target name="main" depends="clean, p2.build" />
 
 	<target name="p2.build.repo">
 		<!-- Copy The Feature -->
@@ -469,15 +455,6 @@
 			<then>
 				<delete includeemptydirs="true">
 					<fileset dir="${basedir}/cave/p2/features/com.raytheon.uf.common.base.feature" />
-				</delete>
-			</then>
-		</if>
-		<!-- Remove 'com.raytheon.uf.viz.collaboration.product.feature' -->
-		<if>
-			<available file="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature" type="dir" />
-			<then>
-				<delete includeemptydirs="true">
-					<fileset dir="${basedir}/cave/p2/features/com.raytheon.uf.viz.collaboration.product.feature" />
 				</delete>
 			</then>
 		</if>
