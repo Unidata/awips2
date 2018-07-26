@@ -65,7 +65,7 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <autoLockText>true</autoLockText>
  
  <!-- Enables/disables the 'Dam Break Threat Area' button -->
-<enableDamBreakThreat>true</enableDamBreakThreat>
+<enablePresetThreat>true</enablePresetThreat>
  
   <!-- Included watches: If a tornado watch or severe thunderstorm watch is to be 
  	included with the warning product include TO.A and/or SV.A, 
