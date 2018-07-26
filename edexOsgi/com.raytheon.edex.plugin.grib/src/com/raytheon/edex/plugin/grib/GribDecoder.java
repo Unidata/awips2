@@ -72,7 +72,7 @@ public class GribDecoder implements Processor {
                 .getBody();
         byte gribEdition = inMessage.getGribEdition();
         exchange.getIn().setHeader("dataType", "grib" + gribEdition);
-        statusHandler.info("Decoding file: " + inMessage.getFileName());
+        //statusHandler.info("Decoding file: " + inMessage.getFileName());
 
         ITimer timer = TimeUtil.getTimer();
         GridRecord[] records = null;
