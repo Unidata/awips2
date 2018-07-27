@@ -204,8 +204,6 @@ if [ -d /awips2/cave ]; then
    updateCaveVersion
 fi
 
-chown -R awips:fxalpha /awips2/cave
-
 %postun
 rm -rf /awips2/cave
 
