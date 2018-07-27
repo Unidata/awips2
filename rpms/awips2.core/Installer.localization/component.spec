@@ -46,7 +46,7 @@ fi
 
 # Build all WFO site localization Map Scales (Regional.xml and WFO.xml)
 BUILD_DIR=%{_baseline_workspace}/rpms/awips2.core/Installer.localization/
-UTIL=%{_baseline_workspace}/localization/utility
+UTIL=%{_static_files}/localization
 #file=$BUILD_DIR/wfo.dat
 file=$BUILD_DIR/coords.dat
 regional=$BUILD_DIR/coords_regional.dat
