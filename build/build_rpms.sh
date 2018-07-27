@@ -40,7 +40,7 @@ if [ ! -d awips2-unidata ]; then        git clone https://github.com/Unidata/awi
 #
 # AWIPS Static files are too large to host on github
 #
-if [ ! -d awips2-static ]; then
+if [ ! -d awips2-static && ! $rpmname = "buildCAVE" ]; then
    mkdir awips2-static
    cd awips2-static
    wget https://www.unidata.ucar.edu/downloads/awips2/static.tar

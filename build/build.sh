@@ -42,7 +42,11 @@ mkdir -p ${AWIPSII_TOP_DIR}/{BUILD,RPMS,SOURCES,SPECS,SRPMS}
 pushd . > /dev/null 2>&1
 cd ${BASELINE}
 mkdir -p ${WORKSPACE}
-RSYNC_DIRS=`cat $dir/rsync.dirs`
+if  [[ ${2} = "buildCAVE" ]]; then
+   RSYNC_DIRS=`cat $dir/rsync.dirs |grep -v nativelib`
+else
+   RSYNC_DIRS=`cat $dir/rsync.dirs`
+fi
 rsync -ruql --delete --exclude-from=${dir}/excludes ${RSYNC_DIRS} ${WORKSPACE}
 
 popd > /dev/null 2>&1

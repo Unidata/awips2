@@ -16,13 +16,20 @@ rpmname=$2
 dirs=" -v `pwd`:/awips2/repo/awips2-builds:rw "
 . /awips2/repo/awips2-builds/build/buildEnvironment.sh
 
-#
 # If local source directories, exist, mount them to the container
-for dn in `cat build/repos`
-do
-  echo $dn
-  if [ -d /awips2/repo/$dn ]; then		dirs+=" -v /awips2/repo/${dn}:/awips2/repo/${dn} ";fi
-done
+if [ $rpmname = "buildCAVE" ]; then
+  for dn in `cat build/repos| grep -v static| grep -v nativelib`
+  do
+    echo $dn
+    if [ -d /awips2/repo/$dn ]; then		dirs+=" -v /awips2/repo/${dn}:/awips2/repo/${dn} ";fi
+  done
+else
+  for dn in `cat build/repos`
+  do
+    echo $dn
+    if [ -d /awips2/repo/$dn ]; then		dirs+=" -v /awips2/repo/${dn}:/awips2/repo/${dn} ";fi
+  done
+fi
 
 #
 # Run Docker AWIPS ADE Image
