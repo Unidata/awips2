@@ -20,16 +20,7 @@ sendCWFnotification="no"            # Tell forecaster when netcdf rsync complete
 turnOffAllNotifications="yes"       # This will turn off all banner messages.
 
 ### new ldad configuration ###
-locServer="ldad@ls1"                # Name of local rsync server.
-locDirectory="/data/ldad/grid"      # Directory where grids are stored on the
-                                    # local rsync server. Note that file will be
-                                    # stored in $site sub directory.
-locRsyncSwitches="--address=192.168.1.10" # Needed to fix a noaanet rysnc problem.
-
-# Consolidated web farm
-remServer1="sync.weather.gov"       # Name of remote rsync server.
-remDirectory1="netcdf-wfo"          # Directory where grids are stored on the
-                                    # remote rsync server.
+locDirectory="/awips2/GFESuite/data/grid" # Directory where grids are stored
 
 # Edit area to limit the portion of the grid domain to send to the webfarms.
 mask=ISC_Send_Area

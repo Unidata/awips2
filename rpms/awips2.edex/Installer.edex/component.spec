@@ -124,6 +124,9 @@ fi
 %pre
 
 %post
+if [ ! -d /awips2/edex/data/archive ]; then
+   mkdir -p /awips2/edex/data/archive
+fi
 # We need to create a link to the python shared library if it does not exist.
 pushd . > /dev/null 2>&1
 if [ -d /awips2/python/lib ]; then

@@ -664,7 +664,6 @@ HistoryModelColor_HPCQPF = '#3dc9ff'
 HistoryModelColor_HPCGuide = '#3dc9ff'
 HistoryModelColor_RFCQPF = '#3bffb7'
 HistoryModelColor_Restore = '#e0a0ff'
-HistoryModelColor_DGEX = 'orange'
 HistoryModelColor_MOSGuide = '#e608ff'
 HistoryModelColor_OPCTAFBE = '#a0a0cc'
 HistoryModelColor_OPCTAFBSW = '#a0a0cc'
@@ -695,7 +694,6 @@ HistoryModelText_HPCQPF = 'HPCQPF'
 HistoryModelText_HPCGuide = 'HPCGuide'
 HistoryModelText_RFCQPF = 'RFCQPF'
 HistoryModelText_Restore = 'Restore'
-HistoryModelText_DGEX = 'DGEX'
 HistoryModelText_MOSGuide = 'GMOS'
 HistoryModelText_OPCTAFBE = 'OPC'
 HistoryModelText_OPCTAFBSW = 'OPC'
@@ -1691,12 +1689,7 @@ Scripts = [
       "-d {productDB} ",
 
     "Make and Send HTI:" +
-     "xterm -e ssh px2f /awips2/GFESuite/hti/bin/make_hti.sh {site}",
-
-    "Official Grids to LDAD: " +
-    "ifpAG -h {host} -r {port} -o - -d {productDB} | gzip -9 > " +
-    " /data/fxa/LDAD/ifp/Official/.incoming; " +
-    "mv /data/fxa/LDAD/ifp/Official/.incoming /data/fxa/LDAD/ifp/Official/{ztime} &"
+     "/awips2/GFESuite/hti/bin/make_hti.sh {site}"
     ]
 
 ##   Note: Please define TextProducts through

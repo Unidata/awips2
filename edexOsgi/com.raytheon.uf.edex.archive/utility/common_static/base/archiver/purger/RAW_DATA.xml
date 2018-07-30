@@ -119,7 +119,7 @@
      Example with multiple <dirPattern>s
      <category>
         <name>Observation</name>
-        <selectedRetentionHours>168</selectedRetentionHours>
+        <selectedRetentionHours>1</selectedRetentionHours>
         <dataSet>
            <dirPattern>(acars|airep|airmet|taf)</dirPattern>
            <dirPattern>(bufrsigwx|sfcobs)/.*</dirPattern>
@@ -149,4 +149,141 @@
   <name>Raw</name>
   <rootDir>/awips2/data_store/</rootDir>
   <defaultRetentionHours>1</defaultRetentionHours>
+  <category>
+    <name>Local</name>
+    <selectedRetentionHours>1</selectedRetentionHours>
+    <dataSet>
+      <dirPattern>(manual)/grib/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+      <filePattern>.*(LAPS|MSAS).*</filePattern>
+      <timeType>Date</timeType>
+      <displayLabel>{1}-LAPS/MSAS</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </dataSet>
+    <dataSet>
+      <dirPattern>(manual)/grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(mpe)</dirPattern>
+      <filePattern>.*_(\d{4})(\d{2})(\d{2})(\d{2})z.*</filePattern>
+      <timeType>Date</timeType>
+      <displayLabel>{1}-MPE Local</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </dataSet>
+    <dataSet>
+      <dirPattern>(manual)/grib/(\d{4})(\d{2})(\d{2})/(\d{2})/(mpe)</dirPattern>
+      <filePattern>(ZETA98_)[A-Z].*(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})z.*</filePattern>
+      <timeType>Date</timeType>
+      <displayLabel>{1}-HPE/BiasHPE</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </dataSet>
+    <dataSet>
+      <dirPattern>(manual)/.*taf/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+      <timeType>Date</timeType>
+      <displayLabel>{1}-Local TAFs</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </dataSet>
+    <dataSet>
+      <dirPattern>(manual)/shef/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+      <timeType>Date</timeType>
+      <displayLabel>{1}-Various SHEF Products</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </dataSet>
+    <dataSet>
+      <dirPattern>(manual)/text/\d{8}/\d{2}</dirPattern>
+      <timeType>EpochSec</timeType>
+      <filePattern>.*(\d{10})</filePattern>
+      <displayLabel>{1}-Various Local Text Products</displayLabel>
+      <dateGroupIndices>2</dateGroupIndices>
+    </dataSet>
+    <dataSet>
+      <dirPattern>(manual)/warning/\d{8}/\d{2}</dirPattern>
+      <timeType>EpochSec</timeType>
+      <filePattern>.*(\d{10})</filePattern>
+      <displayLabel>{1}-Local Warnings</displayLabel>
+      <dateGroupIndices>2</dateGroupIndices>
+    </dataSet>
+  </category>
+  <category>
+    <name>Model</name>
+    <selectedRetentionHours>1</selectedRetentionHours>
+    <dataSet>
+      <dirPattern>(grib|grib2)/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
+      <displayLabel>{1} - {6}</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </dataSet>
+    <dataSet>
+      <dirPattern>(bufrmos|modelsounding)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+      <displayLabel>{1}</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </dataSet>
+  </category>
+  <category>
+    <name>Observation</name>
+    <selectedRetentionHours>1</selectedRetentionHours>
+    <dataSet>
+      <dirPattern>(airep|binlightning|bufrascat|bufrhdw|bufrmthdw|bufrssmi|entlightning|lsr|MAROB|maritime|metar|misc_sfc_obs|pirep|sfcobs|shef|svrwx|synoptic)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+      <displayLabel>{1}</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </dataSet>
+    <dataSet>
+      <dirPattern>(acars)/(.*)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+      <displayLabel>{1} - {2}</displayLabel>
+      <dateGroupIndices>3,4,5,6</dateGroupIndices>
+    </dataSet>
+  </category>
+  <category>
+    <name>Products</name>
+    <selectedRetentionHours>1</selectedRetentionHours>
+    <dataSet>
+      <dirPattern>(airmet|bufrncwf|bufrsigwx|climate|convsigmet|cwa|fire_wx_spot_fcst_reports|forecast|intlsigmet|misc_adm_messages|nonconvsigmet|redbook|summaries|tcg|tcs|text|wwa|xml)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+      <displayLabel>{1}</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </dataSet>
+  </category>
+  <category>
+    <name>radar</name>
+    <selectedRetentionHours>1</selectedRetentionHours>
+    <dataSet>
+      <dirPattern>radar/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
+      <displayLabel>{5}</displayLabel>
+      <dateGroupIndices>1,2,3,4</dateGroupIndices>
+    </dataSet>
+  </category>
+  <category>
+    <name>Radar (Local)</name>
+    <selectedRetentionHours>1</selectedRetentionHours>
+    <dataSet>
+      <dirPattern>radar/([k|t|e|f]\w{3})/.*</dirPattern>    <!-- one level like GSM or HI -->  <!-- e and f are for FAA ASR and ARSR radars -->
+      <dirPattern>radar/(k...|t...|e...|f...)/.*/.*</dirPattern>  <!-- two levels like ML -->
+      <dirPattern>radar/(k...|t...|e...|f...)/.*/.*/.*</dirPattern>  <!-- three levels like ML -->
+      <dirPattern>radar/(k...|t...|e...|f...)/.*/.*/.*/.*</dirPattern>  <!-- four levels like Z -->
+      <dirPattern>radar/(k...|t...|e...|f...)/.*/.*/.*/.*/.*</dirPattern>  
+      <!-- five levels like Z (superres) -->
+      <filePattern>(\w{4}).(\d*).(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(.*)
+      </filePattern>
+      <displayLabel>{1}</displayLabel>
+      <dateGroupIndices>4,5,6,7</dateGroupIndices>
+    </dataSet>
+    <dataSet>
+      <dirPattern>radar/(t...)/.*/.*/.*/.*/(netcdf)/.*</dirPattern>
+      <filePattern>(\d{4})(\d{2})(\d{2})_(\d{2})(\d{2})(.*)</filePattern>
+      <displayLabel>{1}-{2}</displayLabel>
+      <dateGroupIndices>3,4,5,6</dateGroupIndices>
+    </dataSet>
+  </category>
+  <category>
+    <name>Satellite</name>
+    <selectedRetentionHours>1</selectedRetentionHours>
+    <dataSet>
+      <dirPattern>sat/(\d{4})(\d{2})(\d{2})/(\d{2})/(.*)</dirPattern>
+      <displayLabel>{5}</displayLabel>
+      <dateGroupIndices>1,2,3,4</dateGroupIndices>
+    </dataSet>
+  </category>
+  <category>
+    <name>Profiles</name>
+    <selectedRetentionHours>1</selectedRetentionHours>
+    <dataSet>
+      <dirPattern>(bufrua|goessounding|poessounding|profiler|raobs|upperair)/(\d{4})(\d{2})(\d{2})/(\d{2})</dirPattern>
+      <displayLabel>{1}</displayLabel>
+      <dateGroupIndices>2,3,4,5</dateGroupIndices>
+    </dataSet>
+  </category>
 </archive>

@@ -1,6 +1,7 @@
 edexOsgi/* cave/* localization/*
-javaUtilities/* rpms pythonPackages nativeLib/* 
+javaUtilities/* rpms pythonPackages 
 *.pdf
+../awips2-nativelib/*
 ../awips2-core/common/* 
 ../awips2-core/edex/* 
 ../awips2-core/features/* 
@@ -11,8 +12,11 @@ javaUtilities/* rpms pythonPackages nativeLib/*
 ../awips2-rpm/installers
 ../awips2-nws/common/* 
 ../awips2-nws/viz/* 
-../awips2-nws/features/* 
+../awips2-nws/features/*
 ../awips2-nws/edex/* 
+../awips2-hazards/edex/*
+../awips2-hazards/common/*
+../awips2-hazards/viz/*
 ../awips2-ncep/common/* 
 ../awips2-ncep/viz/* 
 ../awips2-ncep/features/* 
@@ -21,3 +25,30 @@ javaUtilities/* rpms pythonPackages nativeLib/*
 ../awips2-goesr/cave/* 
 ../awips2-unidata/*
 ../python-awips
+../awips2-cimss/viz/*
+../awips2-cimss/edex/*
+../awips2-cimss/common/*
+../awips2-collaboration/viz/*
+../awips2-collaboration/features/*
+../awips2-collaboration/common/*
+../awips2-collaboration/foss/*
+../awips2-data-delivery/common/*
+../awips2-data-delivery/edex/*
+../awips2-data-delivery/features/*
+../awips2-data-delivery/viz/*
+../awips2-drawing/viz/*
+../awips2-drawing/features/*
+../awips2-gsd/viz/*
+../awips2-gsd/features/*
+../awips2-nasa/edex/*
+../awips2-ogc/foss/*
+../awips2-ogc/edex/*
+../awips2-ogc/features/*
+../awips2-ohd/edex/*
+../awips2-ohd/apps/*
+../awips2-ohd/features/*
+../awips2-ohd/lib/*
+../awips2-swpc/common/*
+../awips2-swpc/edex/*
+../awips2-swpc/viz/*
+../awips2-swpc/features/*

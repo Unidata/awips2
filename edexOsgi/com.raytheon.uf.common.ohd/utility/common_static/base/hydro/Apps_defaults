@@ -246,7 +246,7 @@ mpe_display_maps   : statesCounties
 #  database selection tokens
 server_name        : ONLINE      # Informix database server name
 db_name            : hd_ob92oax  # IHFS database name
-damcat_db_name     : dc_ob5oax   # Dam Catalog database name
+damcat_db_name     : dc_ob7oax   # Dam Catalog database name
 hdb_db_name        : ob81_histdata # Historical database. 
 pghost             : localhost   # The machine PostGres is running on
 pguser             : awips       # The user allowed to access PostGres
@@ -292,7 +292,7 @@ shefdecode_host    : dx1f                     # controlling UNIX system.
 shefdecode_dir     : $(apps_dir)/shefdecode   # main directory location
 shefdecode_bin     : $(shefdecode_dir)/bin    # executable programs location
 shefdecode_input   : $(shefdecode_dir)/input  # SHEF parameter file location
-shef_data_dir      : /data/fxa/ispan/hydro    # input products location
+shef_data_dir      : /awips2/fxa/data/fxa/ispan/hydro    # input products location
 
 shefdecode_log     : $(shefdecode_dir)/logs/decoder  # daily log files location
 shef_error_dir     : $(shefdecode_dir)/logs/product  # product log files location
@@ -684,7 +684,7 @@ pproc_util_log_dir : $(pproc_log)/misc       # miscellaneous logs
 # DecodeDPA tokens (formerly DecodeHDP tokens that looked like hdp_*)
 
 dpa_log_dir      : $(pproc_log)/decodedpa             # DPA Decoder logs
-dpa_prod_dir     : /data/fxa/ispan/hdp                # DPA input directory
+dpa_prod_dir     : /awips2/fxa/data/fxa/ispan/hdp                # DPA input directory
 dpa_gather       : $(pproc_local_data)/dpa_gather     # DPA gather directory
 dpa_error_dir    : $(pproc_local_data)/stage1_error   # DPA error files
 dpa_arch_dir     : $(pproc_local_data)/stage1_archive # DPA archives
@@ -924,7 +924,7 @@ mpe_freezing_data_dir      :   $(mpe_gageqc_dir)/freezing_level
 mpe_maz_dir                :   $(mpe_freezing_data_dir)/MAZ
 mpe_grid_freezing_dir      :   $(mpe_freezing_data_dir)/grid
 mpe_point_freezing_dir     :   $(mpe_freezing_data_dir)/point
-ruc_model_data_dir         :   /data/fxa/Grid/SBN/netCDF/CONUS211/RUC
+ruc_model_data_dir         :   /awips2/fxa/data/fxa/Grid/SBN/netCDF/CONUS211/RUC
 
 ### MPE 1 hour mosaics and fields and supporting reference fields.
 mpe_avgrmosaic_dir         :   $(mpe_fieldgen_product_dir)/avgrmosaic
@@ -1065,7 +1065,7 @@ mpe_generate_areal_qpe     :   OFF
 gaq_rfc_list			   :   MBRFC,NCRFC
 gaq_dur_list			   :   1,6,24
 gaq_app_dir                :   $(pproc_local_data)/app/gen_areal_qpe
-gaq_input_dir              :   /data/fxa/Grid/SBN/netCDF/HRAP/QPE
+gaq_input_dir              :   /awips2/fxa/data/fxa/Grid/SBN/netCDF/HRAP/QPE
 gaq_log_dir                :   $(pproc_log)/gen_areal_qpe
 gaq_rfc_mask_dir           :   $(gaq_app_dir)
 gaq_temp_xmrg_dir          :   $(rfcwide_output_dir)/rfcqpe_temp
@@ -1083,11 +1083,11 @@ adjust_PC_startingtime  :  4          #allow PC starting time tolerance
 
 ### tokens for sending MPE mean field bias data to the ORPG
 
-bias_message_dir  :  $(apps_dir)/data/fxa/radar/envData
+bias_message_dir  :  $(apps_dir)/awips2/fxa/data/fxa/radar/envData
 
 ### tokens for Lightning Data processing
 
-lightning_input_dir   :   /data/fxa/point/binLightning/netcdf
+lightning_input_dir   :   /awips2/fxa/data/fxa/point/binLightning/netcdf
 
 lightning_log_dir     :   $(pproc_log)/lightning_proc
 
@@ -1616,7 +1616,7 @@ vsys_rls                : $(verify_rls)            #Not really needed, but consi
 
 # ================== RFC Archive Database tokens ===============================
 
-archive_shefdata_dir    : /data/fxa/ispan/hydro_adbs           # directory for archive data
+archive_shefdata_dir    : /awips2/fxa/data/fxa/ispan/hydro_adbs           # directory for archive data
 archive_enable          : OFF                                  # ON/OFF - Enable or Disable
                                                                # archive data feed (OFF by default)
 metar_output_dir        : $(whfs_local_data_dir)/metar_output  # metar2shef temp output directory 
@@ -1881,8 +1881,8 @@ hdb_map_projection   : FLAT       # The initial map projection used by HDB.
                                   # Possible values: FLAT, POLAR, HRAP
 # ====================== DHM Token =======================
 dhm_data_dir               : $(ofs_files)/$(ofs_level)/dhmdata	 # DHM data dir
-dhm_d2d_data_dir           : /data/fxa/Grid/LOCAL/netCDF/DHM  # d2d data dir
-dhm_d2d_notify_bin_dir     : /awips/fxa/bin              # d2d notify bin dir
+dhm_d2d_data_dir           : /awips2/fxa/data/fxa/Grid/LOCAL/netCDF/DHM  # d2d data dir
+dhm_d2d_notify_bin_dir     : /awips2/fxa/bin              # d2d notify bin dir
 rdhm_input_dir             :  $(geo_data)
 dhm_rain_plus_melt_data_dir:  $(geo_data)
 

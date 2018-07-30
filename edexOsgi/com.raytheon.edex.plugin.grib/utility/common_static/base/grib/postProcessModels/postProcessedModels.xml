@@ -58,7 +58,7 @@
     </postProcessedModel>
 
     <postProcessedModel id="LiftedIndex">
-        <modelName>GFS.*|ETA.*|DGEX.*|HiResW.*</modelName>
+        <modelName>GFS.*|ETA.*|HiResW.*</modelName>
         <processorName>LiftedIndexPostProcessor</processorName>
     </postProcessedModel>
 

@@ -4551,6 +4551,7 @@ ZGV           0 GOVERNORS HARBOUR,BAHAMA ISL            2517  -7632     0  0
 ZIN           0 GREAT INAGUA ISLAND,BAHAMA I            2083  -7367     0  0
 ZIY           0 GRAND CAYMAN,BRITISH WEST IN            1917  -8138     0  0
 ZKI           0 KITIMAT/B.C.,CANADA                     5400 -12867     0  0
+ZLS           0 STELLA MARIS NDB, BAHAMA ISL            2358  -7526     0  0
 ZMH           0 MARSH HARBOUR; ABACO IS,BAHA            2652  -7708     0  0
 ZPC           0 PINCHER CREEK AIRPORT            -- CN  4952 -11398     0  0
 ZPH           0 ZEPHYR HILLS,FL                         2822  -8215     0  0

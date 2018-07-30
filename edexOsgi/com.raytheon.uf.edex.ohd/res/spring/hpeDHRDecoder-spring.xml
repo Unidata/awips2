@@ -1,0 +1,79 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://camel.apache.org/schema/spring
+    http://camel.apache.org/schema/spring/camel-spring.xsd">
+
+    <bean id="radarDecompressor" class="com.raytheon.edex.plugin.radar.RadarDecompressor" />
+    <bean id="dhrDecodeSrv" class="com.raytheon.uf.edex.ohd.pproc.HPEDhrSrv" />
+
+    <bean id="dhrGather" class="com.raytheon.uf.edex.plugin.mpe.gather.dhr.DHRGather" />
+
+    <bean id="dhrDecoder"
+        class="com.raytheon.uf.edex.plugin.mpe.gather.dhr.DHRDecoder" />
+    <bean id="dspDecoder"
+        class="com.raytheon.uf.edex.plugin.mpe.gather.dsp.DSPDecoder" />
+
+    <bean id="dhrDistRegistry" factory-bean="distributionSrv"
+        factory-method="register">
+        <constructor-arg value="dhr" />
+        <constructor-arg value="jms-durable:queue:Ingest.dhr" />
+    </bean>
+
+    <camelContext id="nonClusteredDHRroutes"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <!-- Begin non-clustered dhr Routes -->
+        <route id="dhrIngestFilter">
+            <from uri="jms-durable:queue:Ingest.dhr" />
+            <setHeader headerName="pluginName">
+                <constant>dhr</constant>
+            </setHeader>
+            <doTry>
+                <pipeline>
+                    <bean ref="setIngestHeaderFields" />
+                    <bean ref="stringToFile" />
+                    <bean ref="radarDecompressor" method="decompressWithHeader" />
+                    <bean ref="dhrDecodeSrv" method="filter" />
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:dhr?level=INFO" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <camelContext id="clusteredDHRroutes"
+        xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
+        <!-- Begin dhr Routes -->
+        <route id="dhrIngestRoute">
+            <from uri="jms-durable:queue:dhrProcess" />
+            <doTry>
+                <pipeline>
+                    <bean ref="serializationUtil" method="transformFromThrift" />
+                    <bean ref="dhrDecodeSrv" method="process" />
+                    <filter>
+                        <method ref="dhrGather" method="executeAllowed" />
+                        <filter>
+                            <method ref="dhrGather" method="precipExists" />
+                            <bean ref="dhrDecoder" method="execute" />
+                            <bean ref="dspDecoder" method="execute" />
+                            <!-- TODO: this will eventually continue the route to HPE Field
+                              Gen -->
+                        </filter>
+                    </filter>
+                </pipeline>
+                <doCatch>
+                    <exception>java.lang.Throwable</exception>
+                    <to uri="log:dhr?level=INFO" />
+                </doCatch>
+            </doTry>
+        </route>
+    </camelContext>
+
+    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
+        <constructor-arg ref="clusteredDHRroutes" />
+    </bean>
+
+</beans>

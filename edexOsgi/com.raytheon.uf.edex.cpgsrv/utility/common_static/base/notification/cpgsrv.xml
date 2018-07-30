@@ -33,7 +33,7 @@
         <timeToLive>120000</timeToLive>
         <metadataMap>
             <mapping key="pluginName">
-                <constraint constraintValue="grid, radar, qpf, obs, sfcobs, ldadmesonet, satellite" constraintType="IN"/>
+                <constraint constraintValue="grid, radar, qpf, obs, sfcobs, satellite" constraintType="IN"/>
             </mapping>
         </metadataMap>
     </pluginNotification>

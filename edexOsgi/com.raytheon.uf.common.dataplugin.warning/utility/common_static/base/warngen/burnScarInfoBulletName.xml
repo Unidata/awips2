@@ -10,8 +10,8 @@
      This is done in order to get WarnGen to read in the lat/lon box.
      This process can be done for any pre-configured FFW box. -->
 <!-- 
-<damInfoBullets>
-<damInfoBullet bulletGroup="dam" bulletText="FourMile Burn Area" bulletName="FourMileBurnArea"  parseString="FOURMILE BURN AREA" showString="FOURMILE BURN AREA" coords="LAT...LON 4006 10542 4008 10537 4005 10535 4002 10540"/>
-</damInfoBullets>
+<presetInfoBullets>
+<presetInfoBullet bulletGroup="dam" bulletText="FourMile Burn Area" bulletName="FourMileBurnArea"  parseString="FOURMILE BURN AREA" showString="FOURMILE BURN AREA" coords="LAT...LON 4006 10542 4008 10537 4005 10535 4002 10540"/>
+</presetInfoBullets>
 -->
 <!-- End of example. Begin your site specific information here. -->

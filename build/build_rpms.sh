@@ -27,19 +27,20 @@ pushd $REPO
 # If local source directories, exist, mount them to the
 # container, otherwise clone the repo from github
 #
-if [ ! -d awips2-ncep ]; then           git clone https://github.com/Unidata/awips2-ncep.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
-if [ ! -d awips2-goesr ]; then          git clone https://github.com/Unidata/awips2-goesr.git --branch unidata_${AWIPSII_VERSION} --single-branch       ;fi
-if [ ! -d awips2-unidata ]; then        git clone https://github.com/Unidata/awips2-unidata.git --branch unidata_${AWIPSII_VERSION} --single-branch     ;fi
-if [ ! -d awips2-core ]; then           git clone https://github.com/Unidata/awips2-core.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
 if [ ! -d awips2-core-foss ]; then      git clone https://github.com/Unidata/awips2-core-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch   ;fi
+if [ ! -d awips2-core ]; then           git clone https://github.com/Unidata/awips2-core.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
 if [ ! -d awips2-foss ]; then           git clone https://github.com/Unidata/awips2-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
+if [ ! -d awips2-goesr ]; then          git clone https://github.com/Unidata/awips2-goesr.git --branch unidata_${AWIPSII_VERSION} --single-branch       ;fi
+if [ ! -d awips2-hazards ]; then        git clone https://github.com/Unidata/awips2-hazards.git --branch development --single-branch         ;fi
+if [ ! -d awips2-ncep ]; then           git clone https://github.com/Unidata/awips2-ncep.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
 if [ ! -d awips2-nws ]; then            git clone https://github.com/Unidata/awips2-nws.git --branch unidata_${AWIPSII_VERSION} --single-branch         ;fi
 if [ ! -d awips2-rpm ]; then            git clone https://github.com/Unidata/awips2-rpm.git --branch unidata_${AWIPSII_VERSION} --single-branch         ;fi
+if [ ! -d awips2-unidata ]; then        git clone https://github.com/Unidata/awips2-unidata.git --branch unidata_${AWIPSII_VERSION} --single-branch     ;fi
 
 #
 # AWIPS Static files are too large to host on github
 #
-if [ ! -d awips2-static ]; then
+if [ ! -d awips2-static && ! $rpmname = "buildCAVE" ]; then
    mkdir awips2-static
    cd awips2-static
    wget https://www.unidata.ucar.edu/downloads/awips2/static.tar

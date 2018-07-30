@@ -13,8 +13,7 @@
 # Date of last revision:  08/18/17                                             #
 #                                                                              #
 # Script description: This script can create a netcdf file containing IFPS     #
-#    grids, quality control the netcdf file, send the file to a local rsync    #
-#    server (ls2/3), and then rsync the file to the remote rsync servers.      #
+#    quality controlled grids.                                                 #
 #    Quality Control involves iscMosaic'ing the contents of the netcdf file    #
 #    into the Restore database in GFE. If a failure is detected for any of the #
 #    grids, then the forecasters will get a red-banner alarm and the script    #
@@ -31,7 +30,8 @@
 # Directory program runs from:  /awips2/GFESuite/bin                           #
 #                                                                              #
 # Needed configuration on ls2/3:  For each wfo that you run this script for,   #
-#                                 you will need a /data/ldad/grid/wfo          #
+#                                 you will need a                              #
+#                                 /awips2/GFESuite/data/grid/<wfo>             #
 #                                 directory. (where wfo is the 3 character     #
 #                                 wfo id)                                      #
 #                                                                              #
@@ -125,10 +125,10 @@
 #            supposed to stop. Instead it kept trying. vtm                     #
 # 06/19/08:  Changed the directory on AWIPS where the netcdf file is created.  #
 #            Now using a drive local to machine for performance reasons.       #
-#            New directory is now /awips/fxa/netcdf. This directory will be    #
+#            New directory is now /awips2/fxa/netcdf. This directory will be    #
 #            created by the script if it doesn't exist. vtm                    #
 # 06/19/08:  Changed script to remove AWIPS netcdf and log files sooner. vtm   #
-# 07/10/08:  Made the /awips/fxa/netcdf configurable for by DX and LX machines.#
+# 07/10/08:  Made the /awips2/fxa/netcdf configurable for by DX and LX machines.#
 #            vtm                                                               #
 # 07/11/08:  Pointed most all of script feedback to a log file that can be     #
 #            found in the /awips/GFESuite/primary/data/logfiles/yyyymmdd/      #
@@ -149,6 +149,7 @@
 #            Replaced DXwrkDir and WRKDIR with PROGRAM_ equivalents. vtm       #
 # 08/18/17:  Added code to purge log directory after 14 days. vtm              #
 # 08/18/17:  Reworked rsync check. DCS 17527. vtm                              #
+# 07/23/18:  Removed all rsync and ssh commands                                #
 ################################################################################
 # check to see if site id was passed as argument
 # if not then exit from the script
@@ -351,198 +352,51 @@ echo "space used in ${PROGRAM_DATA}:  $(cd ${PROGRAM_DATA}; du -m --max-depth=1)
 echo ... finished >> $LOG_FILE
 echo " " >> $LOG_FILE
 
-# if directory to write to is not on local rysnc server, create it. DR 16464
-if ! ssh ${locServer} "[ -d ${locDirectory} ]" 2> /dev/null  ;then
-     ssh ${locServer} mkdir ${locDirectory}
+if ! [ -d ${locDirectory} ] 2> /dev/null  ;then
+     mkdir ${locDirectory}
 fi
 
-# Clean up orphaned files on the local rsync server.
-echo cleaning up orphaned files on $locServer in the ${locDirectory}/${site} directory at $(date) >> $LOG_FILE
-ssh $locServer "find ${locDirectory}/${site} -mmin +720 -exec rm {} -f \;" >> $LOG_FILE 2>&1
+# Clean up orphaned files
+echo cleaning up orphaned files in the ${locDirectory}/${site} directory at $(date) >> $LOG_FILE
+find ${locDirectory}/${site} -mmin +720 -exec rm {} -f \; >> $LOG_FILE 2>&1
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
-
-# move optimized netcdf file to the local rsync server.
-for i in 1 2 3
-do
-   CHK=`ssh -q -o "BatchMode yes" -o "ConnectTimeout 5" $locServer "echo success"`;
-   if [ "success" = $CHK ] >/dev/null 2>&1
-   then
-      echo attempt $i to scp optimized netcdf file to $locServer at $(date) >> $LOG_FILE
-      scp ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf.gz ${locServer}:${locDirectory}/${site} >> $LOG_FILE 2>&1
-      echo ...finished. >> $LOG_FILE
-      echo " " >> $LOG_FILE
-      break
-   fi
-
-   # failed to connect - wait 5 seconds and try again
-   sleep 5
-done
-
-if [[ $CHK != "success" ]] ;then
-   if [[ $turnOffAllNotifications == "no" ]] ;then
-       ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "Failed to send optimized netcdf file to $locServer. Script stopped." -s
-   fi
-   # cleanup the zipped optimized file on AWIPS
-   rm -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf.gz
-   echo "Failed to send optimized netcdf file to $locServer at $(date). Script stopped." >> $LOG_FILE
-   exit 1
-fi
 
 # cleaning up the zipped optimized file on AWIPS.
-echo cleaning up the zipped optimized file on AWIPS at $(date) >> $LOG_FILE
-rm -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf.gz
-echo ...finished. >> $LOG_FILE
-echo " " >> $LOG_FILE
+#echo cleaning up the zipped optimized file on AWIPS at $(date) >> $LOG_FILE
+#rm -f ${PROGRAM_DATA}/CurrentFcst.$$.${site}.opt.cdf.gz
+#echo ...finished. >> $LOG_FILE
+#echo " " >> $LOG_FILE
 
-# Notify forecaster that the quality control check passed and rsyncing will begin.
+# Notify forecaster that the quality control check passed
 if [[ $SendQCgoodNotification == "yes" ]] ;then
    echo sending forecaster notification that QC passed at $(date) >> $LOG_FILE
    if [[ $turnOffAllNotifications == "no" ]] ;then
-      ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} netcdf file passed quality control check. Now rsyncing the file to the webfarms." -s
+      ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} netcdf file passed quality control check." -s
    fi
    echo ...finished. >> $LOG_FILE
    echo " " >> $LOG_FILE
 fi
 
 # change file permissions
-echo changed permissions of the uncompressed netcdf files on $locServer at $(date) >> $LOG_FILE
-ssh $locServer "/bin/chmod 2775 ${locDirectory}/${site}/CurrentFcst.$$.${site}.opt.cdf.gz"
+echo changed permissions of the uncompressed netcdf files at $(date) >> $LOG_FILE
+/bin/chmod 2775 ${locDirectory}/${site}/CurrentFcst.$$.${site}.opt.cdf.gz
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
-# make backup copies of the netcdf files so manual rsync commands can be used
-echo make backup of the compressed netcdf files on $locServer at $(date) >> $LOG_FILE
-ssh $locServer "cp ${locDirectory}/${site}/CurrentFcst.$$.${site}.opt.cdf.gz ${locDirectory}/${site}/vtm.opt.cdf.gz"
+# make backup copies of the netcdf files
+echo make backup of the compressed netcdf files at $(date) >> $LOG_FILE
+cp ${locDirectory}/${site}/CurrentFcst.$$.${site}.opt.cdf.gz ${locDirectory}/${site}/vtm.opt.cdf.gz
 echo ...finished. >> $LOG_FILE
 echo " " >> $LOG_FILE
 
 # change the timestamp on the files
-echo updated the time stamps of the compressed and uncompressed netcdf files on $locServer at $(date) >> $LOG_FILE
-ssh $locServer "touch ${locDirectory}/${site}/CurrentFcst.$$.${site}.opt.cdf.gz"
-ssh $locServer "touch ${locDirectory}/${site}/vtm.opt.cdf.gz"
+echo updated the time stamps of the compressed and uncompressed netcdf files at $(date) >> $LOG_FILE
+touch ${locDirectory}/${site}/CurrentFcst.$$.${site}.opt.cdf.gz
+touch ${locDirectory}/${site}/vtm.opt.cdf.gz
 echo ...finished. >> $LOG_FILE
-echo " " >> $LOG_FILE
-
-rsyncCompleted=0
-rsyncAttempt=0
-while [[ $rsyncCompleted == "0" ]]
-do
-   echo checking to see if another rsync process is running >> $LOG_FILE
-   # Checking to see if another rsync process is running. If so, then wait.
-   try=0
-   rsync_ok="yes"
-   grepCMD="/usr/bin/rsync -rDvlzt ${locRsyncSwitches}"
-   while ( ssh $locServer "ps -elf | grep \"${grepCMD}\" | grep -q -v grep" )
-   do
-      (( try = $try + 1 ))
-      if (( $try > $rsyncWait )) ;then
-         echo Waited more than $rsyncWait minutes to start a rsync to the Web Farm >> $LOG_FILE
-         echo but another rsync process is still running - so could not. >> $LOG_FILE
-         if [[ $turnOffAllNotifications == "no" ]] ;then
-            ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} GFE netcdf file NOT sent to the Consolidated web farm. Another rsync process blocked transfer." -s
-         fi
-         rsync_ok="no"
-         break
-      fi
-      echo A rsync is already active...waiting 1 minute at $(date) >> $LOG_FILE
-      sleep 60
-   done
-
-
-   if [[ $rsync_ok == "yes" ]] ;then
-      # create the rsync test data file
-      RSYNC_LOG_FILE="${PROGRAM_DATA}/rsync.$$.log"
-      echo "" > $RSYNC_LOG_FILE
-      
-      # launch the rsync process that sends the netcdf file to the consolidated web farm at $(date)
-      echo " " >> $LOG_FILE
-      echo starting netcdf file rsync to consolidated webserver at $(date) >> $LOG_FILE
-      echo " " >> $LOG_FILE
-      (( rsyncAttempt = $rsyncAttempt + 1 ))
-      rsyncCMD="/usr/bin/rsync -rDvlzt ${locRsyncSwitches} --stats --progress ${locDirectory}/${site}/CurrentFcst.$$.${site}.opt.cdf.gz ${remServer1}::${remDirectory1}/CurrentFcst.${site}.cdf.gz"
-      ssh $locServer "$rsyncCMD" >> $LOG_FILE 2> $RSYNC_LOG_FILE
-      echo $rsyncCMD >> $LOG_FILE
-      echo "...finished." >> $LOG_FILE
-      echo " " >> $LOG_FILE
-      
-      if [[ $checkCWFavailability == "yes" ]] ;then
-      
-         # Grep rsync test file for a host of errors
-         error1=$(grep "connection unexpectedly closed" $RSYNC_LOG_FILE)
-         error2=$(grep "failed to connect" $RSYNC_LOG_FILE)
-         error3=$(grep "Connection closed by remote host" $RSYNC_LOG_FILE)
-         error4=$(grep "Name or service not known" $RSYNC_LOG_FILE)
-         error5=$(grep "Temporary failure in name resolution" $RSYNC_LOG_FILE)
-         rsyncFlag="Fail"
-         if [[ $error1 == "" && $error2 == "" && $error3 == "" && $error4 == "" && $error5 == "" ]] ;then
-            rsyncFlag="Pass"
-         fi
-
-         # Check to see if netcdf file was posted at the Consolidated Web Farm. If not, then send red banner message.
-         # If it did then send a notification to the forecasters that the send was successful.
-         if [[ $rsyncFlag == "Fail" ]] ;then
-            if [[ $turnOffAllNotifications == "no" ]] ;then
-               ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "Rysnc of grids to sync.weather.gov has failed. Attempting rsync again. ${error1} ${error2} ${error3} ${error4}" -s
-            fi
-            echo Detected that grids did NOT make it to the Consolidated web farm at $(date) >> $LOG_FILE
-            echo "Rysnc of grids to sync.weather.gov has failed. Attempting rsync again. ${error1} ${error2} ${error3} ${error4}" >> $LOG_FILE
-            if [[ $sendEmailNotification == "yes" ]] ;then
-               echo "X-Priority: 3" > ${PROGRAM_DATA}/email.txt
-               echo "Subject: CWF Grid Rsync Report" >> ${PROGRAM_DATA}/email.txt
-               echo "Rysnc of grids to sync.weather.gov has failed. Attempting rsync again. ${error1} ${error2} ${error3} ${error4}" >> ${PROGRAM_DATA}/email.txt
-               scp ${PROGRAM_DATA}/email.txt ${locServer}:${locDirectory}/email.txt
-               if [[ $emailAddress1 != "" ]] ;then
-                  ssh $locServer "/usr/sbin/sendmail -FAWIPS -fldad ${emailAddress1} < ${locDirectory}/email.txt"
-               fi
-               if [[ $emailAddress2 != "" ]] ;then
-                  ssh $locServer "/usr/sbin/sendmail -FAWIPS -fldad ${emailAddress2} < ${locDirectory}/email.txt"
-               fi
-               if [[ $emailAddress3 != "" ]] ;then
-                  ssh $locServer "/usr/sbin/sendmail -FAWIPS -fldad ${emailAddress3} < ${locDirectory}/email.txt"
-               fi
-            fi
-         else
-            rsyncCompleted=1
-            if [[ $sendCWFnotification == "yes" ]] ;then
-               echo Detected that grids DID make it to the consolidated web farm at $(date) >> $LOG_FILE
-               if [[ $turnOffAllNotifications == "no" ]] ;then
-                  ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} GFE netcdf file sent to the consolidated web farm." -s
-               fi
-            fi
-         fi
-      else
-         rsyncCompleted=1
-         if [[ $sendCWFnotification == "yes" ]] ;then
-            echo Detected that grids DID make it to the consolidated web farm at $(date) >> $LOG_FILE
-            if [[ $turnOffAllNotifications == "no" ]] ;then
-               ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} GFE netcdf file sent to the consolidated web farm." -s
-            fi
-         fi
-      fi
-      if [[ ( $rsyncAttempt > 5 ) && ( $rsyncCompleted = 0) ]] ;then
-         rsyncCompleted=1
-         if [[ $turnOffAllNotifications == "no" ]] ;then
-            ${GFESUITE_BIN}/sendGfeMessage -h ${CDSHOST} -c NDFD -m "${SITE} GFE netcdf file was NOT sent to the Consolidated Web Farm, because rsync connection is broken." -s
-         fi
-         echo Detected that grids did NOT make it to the Consolidated web farm at $(date) >> $LOG_FILE
-      fi
-      rm -f $RSYNC_LOG_FILE
-         
-   fi
-   
-done
-echo "...finished." >> $LOG_FILE
-echo " " >> $LOG_FILE
-      
-# removing the zipped netcdf file
-echo removing the zipped netcdf files on $locServer at $(date) >> $LOG_FILE
-ssh $locServer "rm -f ${locDirectory}/${site}/CurrentFcst.$$.${site}.opt.cdf.gz"
-echo "...finished." >> $LOG_FILE
 echo " " >> $LOG_FILE
 
 echo script finished at $(date) >> $LOG_FILE
 echo " " >> $LOG_FILE
-   
 exit
-

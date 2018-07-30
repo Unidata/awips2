@@ -19,8 +19,8 @@ Any of the data menus can be customized in the Localization Perspective.
             </include>
         	<include installTo="menu:models" 
                      fileName="menus/volume/allFamilies.xml">
-                     <substitute key="modelName" value="DGEX" />
-                     <substitute key="menuName" value="DGEX" />
+                     <substitute key="modelName" value="GFS" />
+                     <substitute key="menuName" value="GFS" />
                      <substitute key="frameCount" value="41" />
                      <substitute key="TP" value="TP"/>
             </include>

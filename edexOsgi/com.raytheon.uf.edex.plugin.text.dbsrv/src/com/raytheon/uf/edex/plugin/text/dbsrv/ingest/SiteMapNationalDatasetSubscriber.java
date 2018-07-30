@@ -40,7 +40,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.core.EdexException;
-import com.raytheon.uf.edex.ndm.ingest.INationalDatasetSubscriber;
+import com.raytheon.uf.edex.ndm.dataplugin.ingest.INationalDatasetSubscriber;
 
 /**
  * Site Map NDM subscriber.

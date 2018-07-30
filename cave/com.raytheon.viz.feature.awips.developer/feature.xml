@@ -70,6 +70,38 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.viz.dat.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.scan.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.dataaccess.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.collaboration.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.ohd.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="gov.noaa.nws.ncep.swpc.viz.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="edu.ucar.unidata.uf.viz.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.viz.warnings.feature"
+         version="0.0.0"/>
+
+   <includes
          id="com.raytheon.uf.viz.grid.feature"
          version="0.0.0"/>
 
@@ -210,23 +242,11 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.bmh.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.uf.viz.server.edex.feature"
          version="0.0.0"/>
 
    <includes
          id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="gov.noaa.nws.ocp.viz.firewx.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.viz.warnings.feature"
          version="0.0.0"/>
 
    <includes

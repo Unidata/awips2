@@ -64,7 +64,6 @@ list(dataTypes)
      'gfe',
      'grid',
      'hydro',
-     'ldadmesonet',
      'maps',
      'modelsounding',
      'obs',

@@ -89,7 +89,7 @@ MULTISITE="No"
 # In the multisite worstation version, the file is pushed to the workstation 
 # through ldad using ldm. old ldad scripts no longer used.
 #
-DIR="/data/ldad/nwps/input"
+DIR="/awips2/GFESuite/data/nwps/input"
 #
 # If running model in a local workstation also outside AWIPS, Make sure the WORKSTATION VARIABLE NAME BELOW MATCHES HOSTNAME OF YOUR 
 # LOCAL MODELING BOX. The arfument passed for the variable comes from the runManualNWPS_OutsideAWIPS.sh script

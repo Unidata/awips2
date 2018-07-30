@@ -83,13 +83,13 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  </durations>
 
 <!-- Enables/disables the 'Dam Break Threat Area' button -->
-<enableDamBreakThreat>true</enableDamBreakThreat>
+<enablePresetThreat>true</enablePresetThreat>
 
 
 <!-- TO ENABLE A PRE-SET POLYGON FOR YOUR AIRPORT, THE FOLLOWING MUST OCCUR
-1.) enableDamBreakThreat attribute above must be included and set to true
-2.) Airports must be contained in a damInfoBullets section, with each
-    airport set within an damInfoBullet group. 
+1.) enablePresetThreat attribute above must be included and set to true
+2.) Airports must be contained in a presetInfoBullets section, with each
+    airport set within an presetInfoBullet group. 
 3.) The radio button bulletGroup attribute must be set to "dam".
 4.) coords= section must appear exactly as the polygon would appear in WarnGen text
 
@@ -104,12 +104,12 @@ to get this button label changed.
  
 <bulletActionGroups>
 <bulletActionGroup action="NEW">
- <damInfoBullets>
-  <damInfoBullet bulletText="*****Choose Airport*****...(Choose 1) " bulletType="title"/>
-  <damInfoBullet bulletName="SUM" bulletText="Some Airport (SUM)" bulletGroup="dam" coords="LAT...LON 2982 9279 2984 9303 2997 9300 2999 9278"/>
-  <damInfoBullet bulletName="ANT" bulletText="Another Airport (ANT)" bulletGroup="dam" coords="LAT...LON 3057 9329 3058 9346 3069 9345 3070 9329"/>
+ <presetInfoBullets>
+  <presetInfoBullet bulletText="*****Choose Airport*****...(Choose 1) " bulletType="title"/>
+  <presetInfoBullet bulletName="SUM" bulletText="Some Airport (SUM)" bulletGroup="dam" coords="LAT...LON 2982 9279 2984 9303 2997 9300 2999 9278"/>
+  <presetInfoBullet bulletName="ANT" bulletText="Another Airport (ANT)" bulletGroup="dam" coords="LAT...LON 3057 9329 3058 9346 3069 9345 3070 9329"/>
   <!-- You can add additional airports using the same format above -->
- </damInfoBullets>  
+ </presetInfoBullets>  
  <bullets>
   <bullet bulletText="SELECT AIRPORT AT BOTTOM AND THEN CLICK" bulletType="title"/>
   <bullet bulletText="DAM THREAT AREA BUTTON IN WARNGEN" bulletType="title"/>
@@ -125,12 +125,12 @@ to get this button label changed.
  </bullets>
 </bulletActionGroup>
 <bulletActionGroup action="COR">
- <damInfoBullets>
-  <damInfoBullet bulletText="*****Choose Airport*****...(Choose 1) " bulletType="title"/>
-  <damInfoBullet bulletName="SUM" bulletText="Some Airport (SUM)" bulletGroup="dam" coords="LAT...LON 2982 9279 2984 9303 2997 9300 2999 9278"/>
-  <damInfoBullet bulletName="ANT" bulletText="Another Airport (ANT)" bulletGroup="dam" coords="LAT...LON 3057 9329 3058 9346 3069 9345 3070 9329"/>
+ <presetInfoBullets>
+  <presetInfoBullet bulletText="*****Choose Airport*****...(Choose 1) " bulletType="title"/>
+  <presetInfoBullet bulletName="SUM" bulletText="Some Airport (SUM)" bulletGroup="dam" coords="LAT...LON 2982 9279 2984 9303 2997 9300 2999 9278"/>
+  <presetInfoBullet bulletName="ANT" bulletText="Another Airport (ANT)" bulletGroup="dam" coords="LAT...LON 3057 9329 3058 9346 3069 9345 3070 9329"/>
   <!-- You can add additional airports using the same format above -->
- </damInfoBullets>  
+ </presetInfoBullets>  
  <bullets>
   <!-- You can add additional airports using the same format above -->
   <bullet bulletText="****Choose Specific Threats****" bulletType="title"/>

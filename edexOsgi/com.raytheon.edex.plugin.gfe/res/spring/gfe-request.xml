@@ -91,26 +91,6 @@
         <property name="provider" ref="brokerRestProvider" />
     </bean>
 
-    <!-- Service Backup Handlers -->
-
-    <bean id="GetPrimarySiteHandler" class="com.raytheon.uf.edex.site.handlers.GetPrimarySiteHandler"/>
-    <bean id="GetServiceBackupServerRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetServiceBackupServerRequestHandler"/>
-    <bean id="AbortOperationRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.AbortOperationRequestHandler"/>
-    <bean id="GetSvcBuJobStatusHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetServiceBackupJobStatusHandler" />
-    <bean id="CleanupSvcBuRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CleanupSvcBuRequestHandler"/>
-    <bean id="CheckPrimarySiteHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.CheckServiceBackupPrimarySiteHandler"/>
-    <bean id="GetServiceBackupPrimarySitesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetServiceBackupPrimarySiteHandler"/>
-    <bean id="ExportConfRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportConfRequestHandler"/>
-    <bean id="ExportDataToFailedSiteRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportDataToFailedSiteRequestHandler"/>
-    <bean id="ExportFailedSiteDataToCCRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportFailedSiteDataToCCRequestHandler"/>
-    <bean id="ExportGridsRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ExportGridsRequestHandler"/>
-    <bean id="ImportConfRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ImportConfRequestHandler"/>
-    <bean id="ImportDigitalDataRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ImportDigitalDataRequestHandler"/>
-    <bean id="ProcessReceivedConfRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ProcessReceivedConfRequestHandler"/>
-    <bean id="ProcessReceivedDigitalDataRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.ProcessReceivedDigitalDataRequestHandler"/>
-    <bean id="GetGfeStartCmdRequestHandler" class="com.raytheon.edex.plugin.gfe.server.handler.svcbu.GetGfeStartCmdRequestHandler"/>
-    <!-- End Service Backup Handlers -->
-
     <!-- ISC Send Beans -->
 
     <bean id="iscSendQueue" class="com.raytheon.edex.plugin.gfe.isc.IscSendQueue" factory-method="getInstance"/>
@@ -155,10 +135,6 @@
 
     <bean id="logPurger" class="com.raytheon.edex.plugin.gfe.log.LogPurger"/>
 
-    <bean id="svcBuLogPurger" class="com.raytheon.edex.plugin.gfe.svcbackup.SvcbuCleanupLogsTask">
-        <constructor-arg value="${purge.svcbu.logs.retention}" />
-    </bean>
-
     <bean id="productIscPurger" class="com.raytheon.uf.common.dataplugin.gfe.util.FilePurger">
         <constructor-arg value="/awips2/GFESuite/products/ISC"/> <!--  directory to be purged -->
         <constructor-arg value="2419200000"/> <!-- purge age: 28 days in milliseconds -->
@@ -171,28 +147,11 @@
 
     <camelContext id="gfe-request-camel" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
 
-        <endpoint id="exportDigitalDataCron" uri="clusteredquartz://gfe/exportDigitalData/?cron=${gfe.cron}"/>
         <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.gfe.logs.cron}"/>
         <endpoint id="gfeProductIscPurgeCron" uri="clusteredquartz://gfe/purgeGfeProductsIsc/?cron=${purge.gfe.products.isc.cron}"/>
         <endpoint id="gfeProductAtblPurgeCron" uri="clusteredquartz://gfe/purgeGfeProductsAtbl/?cron=${purge.gfe.products.atbl.cron}"/>
-        <endpoint id="svcbuLogPurgeCron" uri="clusteredquartz://gfe/purgeSvcbuLogs/?cron=${purge.svcbu.logs.cron}"/>
         <endpoint id="gfeClearOrphanedLocksCron" uri="clusteredquartz://gfe/clearGfeOrhpanedLocks/?cron=${clear.gfe.orphaned.locks.cron}"/>
         <endpoint id="iscDataRecEndpoint" uri="jms-durable:queue:gfeIscDataReceive?concurrentConsumers=${iscDataRec.threads}"/>
-
-        <route id="exportDigitalData">
-            <from uri="exportDigitalDataCron"/>
-            <to uri="jms-generic:queue:exportDigitalDataWork"/>
-        </route>
-        <route id="exportDigitalDataWork">
-            <from uri="jms-generic:queue:exportDigitalDataWork"/>
-            <doTry>
-                <bean ref="ExportGridsRequestHandler" method="exportGridsCron"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
 
         <route id="purgeGfeLogs">
             <from uri="gfeLogPurgeCron"/>
@@ -237,22 +196,6 @@
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
                     <to 
-                        uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="purgeSvcbuLogs">
-            <from uri="svcbuLogPurgeCron"/>
-            <to uri="jms-generic:queue:purgeSvcbuLogWork"/>
-        </route>
-        <route id="purgeSvcbuLogWork">
-            <from uri="jms-generic:queue:purgeSvcbuLogWork"/>
-            <doTry>
-                <bean ref="svcBuLogPurger" method="run"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to
                         uri="log:svcBackup?level=ERROR"/>
                 </doCatch>
             </doTry>
