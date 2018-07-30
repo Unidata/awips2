@@ -1194,7 +1194,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_17.1.1/docs/edex/distributed-computing.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/edex/distributed-computing.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
                   <h1>Distributed EDEX</h1>
@@ -1250,8 +1250,8 @@ COMMIT
 <p class="admonition-title">The two ports left open to all connections (9581,9582) in addition to default port 22 are for outside CAVE client connections</p>
 </div>
 <h3 id="3-database-config">3. Database Config<a class="headerlink" href="#3-database-config" title="Permanent link"></a></h3>
-<p>In the file <code>/awips2/data/pg_hba.conf</code> you define remote connections for all postgres tables with as <code>&lt;IP address&gt;/32</code>, after the block of IPv4 local connections:</p>
-<pre><code>vi /awips2/data/pg_hba.conf
+<p>In the file <code>/awips2/database/data/pg_hba.conf</code> you define remote connections for all postgres tables with as <code>&lt;IP address&gt;/32</code>, after the block of IPv4 local connections:</p>
+<pre><code>vi /awips2/database/data/pg_hba.conf
 
 # IPv4 local connections:
 host    fxatext     all         127.0.0.1/32          trust
@@ -1376,7 +1376,7 @@ psql -U awips -h &lt;remote IP address&gt; -p 5432 metadata
 <hr />
 <h2 id="additional-notes">Additional Notes<a class="headerlink" href="#additional-notes" title="Permanent link"></a></h2>
 <ul>
-<li>Be mindful of what IP address and hostnames are used in <code>/awips2/edex/bin/setup.env</code> and <code>/awips2/data/pg_hba.conf</code>, and that they are resolvable from the command line.  Consult or edit <code>/etc/hosts</code> as needed.</li>
+<li>Be mindful of what IP address and hostnames are used in <code>/awips2/edex/bin/setup.env</code> and <code>/awips2/database/data/pg_hba.conf</code>, and that they are resolvable from the command line.  Consult or edit <code>/etc/hosts</code> as needed.</li>
 <li>
 <p>You can install multiple <code>awips2-ingest</code> servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (<code>DB_ADDR</code> and <code>PYPIES_SERVER</code> in <code>/awips2/edex/bin/setup.env</code>):</p>
 </li>

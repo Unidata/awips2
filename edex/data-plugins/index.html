@@ -981,7 +981,7 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_17.1.1/docs/edex/data-plugins.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/edex/data-plugins.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
                 <style>
@@ -1014,6 +1014,14 @@ td:first-child { font-weight: bold }
 <td align="left">“Airmen’s Meteorological Information”: aviation weather advisories for potentially hazardous, but non-severe weather</td>
 </tr>
 <tr>
+<td align="left">aqi</td>
+<td align="left">Air Quality Index point obs</td>
+</tr>
+<tr>
+<td align="left">asdi</td>
+<td align="left">FAA Aircraft Situation Data for Industry</td>
+</tr>
+<tr>
 <td align="left">atcf</td>
 <td align="left">Automated Tropical Cyclone Forecast</td>
 </tr>
@@ -1044,14 +1052,6 @@ td:first-child { font-weight: bold }
 <tr>
 <td align="left">bufrncwf</td>
 <td align="left">National Convective Weather Forecast for Aviation</td>
-</tr>
-<tr>
-<td align="left">bufrobs</td>
-<td align="left">BUFR formatted surface and sea obs</td>
-</tr>
-<tr>
-<td align="left">bufrquikscat</td>
-<td align="left">NASA QuikSCAT (Quick Scatterometer) satellite carrying the SeaWinds scatterometer (OOS 2009)</td>
 </tr>
 <tr>
 <td align="left">bufrsigwx</td>
@@ -1090,12 +1090,28 @@ td:first-child { font-weight: bold }
 <td align="left">Aviation Center Weather Advisory, issued by CWSUs (Center Weather Service Units)</td>
 </tr>
 <tr>
+<td align="left">cwat</td>
+<td align="left">County Warning Area Threat produced by SCAN (System for Convection Analysis and Nowcasting). CWAT was formerly called SCAN Convective Threat Index (SCTI).</td>
+</tr>
+<tr>
 <td align="left">dmw</td>
 <td align="left">GOES-R Derived Motion Winds</td>
 </tr>
 <tr>
+<td align="left">editedregions</td>
+<td align="left">Hazard Services Edited Regions</td>
+</tr>
+<tr>
+<td align="left">editedevents</td>
+<td align="left">Hazard Services Edited Events</td>
+</tr>
+<tr>
 <td align="left">ffg</td>
 <td align="left">Flash flood guidance metadata (countybased ffg from RFCs)</td>
+</tr>
+<tr>
+<td align="left">ffmp</td>
+<td align="left">Flash Flood Monitoring and Prediction data (raw data inputs: radar, gridded flash flood guidance from River Forecast Centers, highresolution precipitation estimates [HPE] and nowcasts [HPN], QPF from SCAN and gage data from the IHFS [Integrated Hydrologic Forecast System]          database. Radar data [with WSR-88D product mnemonics and numbers] needed for FFMP are Digital Hybrid Reflectivity [DHR, 32] and  Digital Precipitation Rate [DPR, 176]. The raw GRIB files containing RFC Flash Flood Guidance are identified in the tables in Part 2 of this document as NWS_151 or FFG-XXX, where XXX is an RFC identifier such as TUA, KRF, or ALR. The WMO header for the RFC FFG begins with “ZEGZ98”. )</td>
 </tr>
 <tr>
 <td align="left">fog</td>
@@ -1106,8 +1122,28 @@ td:first-child { font-weight: bold }
 <td align="left">MPE Rapid Refresh Freezing Level scheduled process (MpeRUCFreezingLevel)</td>
 </tr>
 <tr>
+<td align="left">fssobs</td>
+<td align="left">Observations for the Fog monitor, SNOW, and SAFESEAS (raw data inputs: METAR, Mesonet, maritime, buoys, MAROBs).</td>
+</tr>
+<tr>
+<td align="left">geodata</td>
+<td align="left">NetCDF JTS Geometry records</td>
+</tr>
+<tr>
+<td align="left">geomag</td>
+<td align="left">SWPC Geomagnetic Forecast (RTKP)</td>
+</tr>
+<tr>
 <td align="left">gfe</td>
 <td align="left">Graphical Forecast Editor grids</td>
+</tr>
+<tr>
+<td align="left">ghcd</td>
+<td align="left">SWPC Generic High Cadence Data</td>
+</tr>
+<tr>
+<td align="left">glm</td>
+<td align="left">GOES Geostationary Lightning Mapper</td>
 </tr>
 <tr>
 <td align="left">goesr</td>
@@ -1142,6 +1178,10 @@ td:first-child { font-weight: bold }
 <td align="left">Local Storm Reports</td>
 </tr>
 <tr>
+<td align="left">madis</td>
+<td align="left">NCEP Meteorological Assimilation Data Ingest System</td>
+</tr>
+<tr>
 <td align="left">manualIngest</td>
 <td align="left">Manual data ingest plugin</td>
 </tr>
@@ -1162,12 +1202,24 @@ td:first-child { font-weight: bold }
 <td align="left">NASA Moderate-resolution Imaging Spectroradiometer</td>
 </tr>
 <tr>
+<td align="left">mpe</td>
+<td align="left">Multi-sensor Precipitation Estimation</td>
+</tr>
+<tr>
+<td align="left">mping</td>
+<td align="left">Meteorological Phenomena Identification Near the Ground (mPING)</td>
+</tr>
+<tr>
 <td align="left">ncpafm</td>
 <td align="left">NCEP Point/Area Forecast Matrices data</td>
 </tr>
 <tr>
 <td align="left">ncscat</td>
 <td align="left">NCEP ASCAT/Quikscat records</td>
+</tr>
+<tr>
+<td align="left">nctaf</td>
+<td align="left">NCEP TAF decoders</td>
 </tr>
 <tr>
 <td align="left">nctext</td>
@@ -1184,6 +1236,10 @@ td:first-child { font-weight: bold }
 <tr>
 <td align="left">nonconvsigmet</td>
 <td align="left">Aviation Significant Meteorological Information for non-convective weather</td>
+</tr>
+<tr>
+<td align="left">npp sounding</td>
+<td align="left">National Polar-Orbiting Partnership Satellites Soundings</td>
 </tr>
 <tr>
 <td align="left">ntrans</td>
@@ -1210,6 +1266,14 @@ td:first-child { font-weight: bold }
 <td align="left">Polar Operational Environmental Satellite soundings</td>
 </tr>
 <tr>
+<td align="left">preciprate</td>
+<td align="left">Precipitation Rate from SCAN. Raw data input: radar data [with WSR-88D product mnemonic and number] needed for preciprate are Digital Hybrid Reflectivity [DHR, 32].</td>
+</tr>
+<tr>
+<td align="left">qpf</td>
+<td align="left">Quantitative Precipitation Forecast from SCAN. (raw data inputs: radar and some RUC130 fields. Radar data [with WSR-88D product mnemonics and numbers] needed for SCAN’s QPF are 0.5 degree Base Reflectivity [Z, 19], 4 km Vertically Integrated Liquid [VIL, 57], and Storm Track [STI, 58]. The RUC130 field needed is 700 mb Wind, as defined in the SCANRunSiteConfig.xml file.)</td>
+</tr>
+<tr>
 <td align="left">radar</td>
 <td align="left">WSR-88D and TDWR data</td>
 </tr>
@@ -1234,12 +1298,16 @@ td:first-child { font-weight: bold }
 <td align="left">Satellite-estimated Pecipiration (hydroApps)</td>
 </tr>
 <tr>
+<td align="left">scan</td>
+<td align="left">SCAN (System for Convection Analysis and Nowcasting). (Inputs for the SCAN Table include radar, cloud-to-ground lightning from the NLDN, fields from RAP13, and CWAT. Specific radar products [with WSR-88D product mnemonics and numbers] are: 1 km Composite Reflectivity [CZ, 37]; 0.5 degree Base Reflectivity [Z, 19]; 4 km Vertically Integrated Liquid [VIL, 57]; Storm Track [STI, 58]; Mesocyclone Detections [MD, 141]; and Tornadic Vortex Signature [TVS, 61].</td>
+</tr>
+<tr>
 <td align="left">sfcobs</td>
 <td align="left">Surface observations other than METAR format including buoys</td>
 </tr>
 <tr>
 <td align="left">sgwh</td>
-<td align="left">NCEP BUFR Significant Wave Height data - SGWH (Jason-1), SGWHA (Altika), SGWHC (CryoSat), SGWHE (Envisat), SGWHG (GFO), or SGWH2 (Jason-2)</td>
+<td align="left">NCEP BUFR Significant Wave Height data - SGWH (Jason-1), SGWHA (Altika), SGWHC (CryoSat), SGWHE (Envisat), SGWHG (GFO), SGWH2 (Jason-2), or Jason-3</td>
 </tr>
 <tr>
 <td align="left">shef</td>
@@ -1247,7 +1315,11 @@ td:first-child { font-weight: bold }
 </tr>
 <tr>
 <td align="left">solarimage</td>
-<td align="left">NCEP SWPC Solar imagery</td>
+<td align="left">SWPC Solar imagery</td>
+</tr>
+<tr>
+<td align="left">spc</td>
+<td align="left">Storm Prediction Center Convective Outlook KML files</td>
 </tr>
 <tr>
 <td align="left">ssha</td>
@@ -1291,7 +1363,11 @@ td:first-child { font-weight: bold }
 </tr>
 <tr>
 <td align="left">viirs</td>
-<td align="left">Visible Infrared Imaging Radiometer Suite data</td>
+<td align="left">NPP Visible Infrared Imaging Radiometer Suite data</td>
+</tr>
+<tr>
+<td align="left">vil</td>
+<td align="left">Cell-based Vertically Integrated Liquid from SCAN  (Input is radar)</td>
 </tr>
 <tr>
 <td align="left">warning</td>
