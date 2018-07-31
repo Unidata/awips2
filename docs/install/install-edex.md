@@ -1,18 +1,11 @@
-# <i class="fa fa-linux"></i> EDEX for Linux 
 
-!!! note "System Requirements"
+## Download and Install EDEX
 
-	* **64-bit CentOS/RHEL 6 or 7**
-	* **16+ CPU** cores (each CPU core is one more decoder which can run in parallel) 
-	* **24GB+** RAM
-	* **500GB+** disk space
-	* A **Solid State Drive (SSD)** is highly recommended
+[Latest Release 17.1.1-6 (June 13, 2018)](https://www.unidata.ucar.edu/blogs/news/category/AWIPS)
 
-An **SSD** should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.
-
-**64-bit CentOS/RHEL 6 and 7** are the only supported operating systems for EDEX. You may have luck with Fedora Core 12 to 14 and Scientific Linux. 
-
-EDEX is not supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.
+|                                          |   |
+|:----------------------------------------:|:--|
+| <h1><i class="fa fa-linux"></i> Linux  </h1> | <h4>[install.sh --edex <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)  </h4>       <p>Installs to /awips2/ directories.</p> <tt><code>chmod 755 install.sh<br>sudo ./install.sh --edex</code></tt><p>Start and Stop:</p><p><tt>edex start<br>edex stop</tt></p><div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>16+ CPU cores (each CPU core is one more decoder which can run in parallel)</li><li>24GB RAM</li><li>700GB+ disk space</li><li>A **Solid State Drive (SSD)** is highly recommended</li></ul></div> <p>An **SSD** should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.</p><p>**64-bit CentOS/RHEL 6 and 7** are the only supported operating systems for EDEX. You may have luck with Fedora Core 12 to 14 and Scientific Linux.</p><p>EDEX is not supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.</p>|
 
 > ### [Read More: Distributed EDEX, Installing Across Multiple Machines](/edex/distributed-computing/)
 
@@ -23,112 +16,150 @@ EDEX is not supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.
 All of these command should be run as **root**
 
 ### 1. Create AWIPS User
-
-Create user awips and group fxalpha
-
-	groupadd fxalpha && useradd -G fxalpha awips
-
-or if the awips account already exists:
-
-	groupadd fxalpha && usermod -G fxalpha awips
+>
+>Create user awips and group fxalpha
+>
+>	    groupadd fxalpha && useradd -G fxalpha awips
+>
+>or if the awips account already exists:
+>
+>	    groupadd fxalpha && usermod -G fxalpha awips
 
 ### 2. Install EDEX
+>
+>Download and run [install.sh --edex <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)
+> 
+>    	wget https://www.unidata.ucar.edu/software/awips2/install.sh
+>    	chmod 755 install.sh
+>    	sudo ./install.sh --edex
+> 	
+>
+>
+>!!! note "**install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
+>
+>       1. Saves the appropriate Yum repo file to `/etc/yum.repos.d/awips2.repo`
+>       2. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
+>       3. Creates `/awips2/data_store` if it does not exist already
+>       4. Runs `yum groupinstall awips2-server`
+>       5. Attempts to configure the EDEX hostname defined in `/awips2/edex/bin/setup.env`
+>       6. Alerts the user if the *awips* account does not exist (the RPMs will still install)
 
-Download and run [install.sh --edex <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)
- 
- 	wget https://www.unidata.ucar.edu/software/awips2/install.sh
- 	chmod 755 install.sh
- 	sudo ./install.sh --edex
- 	
-`install.sh --edex` will perform the following steps (it's always a good idea to review downloaded shell scripts):
-
-1. Saves the appropriate Yum repo file to `/etc/yum.repos.d/awips2.repo`
-2. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
-3. Creates `/awips2/data_store` if it does not exist already
-4. Runs `yum groupinstall awips2-server`
-5. Attempts to configure the EDEX hostname defined in `/awips2/edex/bin/setup.env`
-6. Alerts the user if the *awips* account does not exist (the RPMs will still install)
-
-### 3. Check `/etc/hosts` against `/awips2/edex/bin/setup.env`
-
-EDEX Server Administrators should check that the addresses and names defined in `/awips2/edex/bin/setup.env` are resolvable from both inside and outside the server, and make appropriate edits to `/etc/hosts` 
-
-For example, in the XSEDE Jetstream cloud, the fully-qualified domain name defined in `/awips2/edex/bin/setup.env`
-
-    export EXT_ADDR=js-196-132.jetstream-cloud.org
-    export DB_ADDR=localhost
-    export DB_PORT=5432
-    export BROKER_ADDR=localhost
-    export PYPIES_SERVER=http://${EXT_ADDR}:9582
-
-is directed within to localhost in `/etc/hosts`
-
-    127.0.0.1   localhost localhost.localdomain js-196-132.jetstream-cloud.org
-
-
+### 3. EDEX Setup
+>
+> The command `edex setup` will try to determine your fully-qualified domain name and set it in `/awips2/edex/bin/setup.env`. EDEX Server Administrators should double-check that the addresses and names defined in setup.env are resolvable from both inside and outside the server, and make appropriate edits to `/etc/hosts` if necessary.  
+>
+>For example, in the XSEDE Jetstream cloud, the fully-qualified domain name defined in `/awips2/edex/bin/setup.env`
+>
+>       export EXT_ADDR=js-196-132.jetstream-cloud.org
+>       export DB_ADDR=localhost
+>       export DB_PORT=5432
+>       export BROKER_ADDR=localhost
+>       export PYPIES_SERVER=http://${EXT_ADDR}:9582
+>
+>is directed within to localhost in `/etc/hosts`
+>
+>       127.0.0.1   localhost localhost.localdomain js-196-132.jetstream-cloud.org
 
 ### 4. Configure iptables
-
-Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data to CAVE clients and the Python API.
-
-- **To open ports to all connections**
-    
-		vi /etc/sysconfig/iptables
-    
-		*filter
-		:INPUT ACCEPT [0:0]
-		:FORWARD ACCEPT [0:0]
-		:OUTPUT ACCEPT [0:0]
-		-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-		-A INPUT -p icmp -j ACCEPT
-		-A INPUT -i lo -j ACCEPT
-		-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
-		-A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
-		-A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
-		-A INPUT -j REJECT --reject-with icmp-host-prohibited
-		-A FORWARD -j REJECT --reject-with icmp-host-prohibited
-		COMMIT
-
-- **To open ports to specific IP addresses**
-    
-		vi /etc/sysconfig/iptables
-    
-		*filter
-		:INPUT DROP [0:0]
-		:FORWARD DROP [0:0]
-		:OUTPUT ACCEPT [0:0]
-		:EXTERNAL - [0:0]
-		:EDEX - [0:0]
-		-A INPUT -i lo -j ACCEPT
-		-A INPUT -p icmp --icmp-type any -j ACCEPT
-		-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
-		-A INPUT -s 128.117.140.0/24 -j EDEX
-		-A INPUT -s 128.117.156.0/24 -j EDEX
-		-A INPUT -j EXTERNAL
-		-A EXTERNAL -j REJECT
-		-A EDEX -m state --state NEW -p tcp --dport 22 -j ACCEPT
-		-A EDEX -m state --state NEW -p tcp --dport 9581 -j ACCEPT
-		-A EDEX -m state --state NEW -p tcp --dport 9582 -j ACCEPT
-		-A EDEX -j REJECT
-		COMMIT
-    
+>
+>Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data to CAVE clients and the Python API.
+>
+>- **To open ports to all connections**
+>     
+>		    vi /etc/sysconfig/iptables
+>    
+>		    *filter
+>		    :INPUT ACCEPT [0:0]
+>		    :FORWARD ACCEPT [0:0]
+>		    :OUTPUT ACCEPT [0:0]
+>		    -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+>		    -A INPUT -p icmp -j ACCEPT
+>   		-A INPUT -i lo -j ACCEPT
+>   		-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+>   		-A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
+>   		-A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
+>   		-A INPUT -j REJECT --reject-with icmp-host-prohibited
+>   		-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+>		COMMIT
+>
+>- **To open ports to specific IP addresses**
+>    
+>   		vi /etc/sysconfig/iptables
+>       
+>   		*filter
+>   		:INPUT DROP [0:0]
+>   		:FORWARD DROP [0:0]
+>   		:OUTPUT ACCEPT [0:0]
+>   		:EXTERNAL - [0:0]
+>   		:EDEX - [0:0]
+>   		-A INPUT -i lo -j ACCEPT
+>   		-A INPUT -p icmp --icmp-type any -j ACCEPT
+>   		-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+>   		-A INPUT -s 128.117.140.0/24 -j EDEX
+>   		-A INPUT -s 128.117.156.0/24 -j EDEX
+>   		-A INPUT -j EXTERNAL
+>   		-A EXTERNAL -j REJECT
+>   		-A EDEX -m state --state NEW -p tcp --dport 22 -j ACCEPT
+>   		-A EDEX -m state --state NEW -p tcp --dport 9581 -j ACCEPT
+>   		-A EDEX -m state --state NEW -p tcp --dport 9582 -j ACCEPT
+>   		-A EDEX -j REJECT
+>   		COMMIT
+>    
 > In this example, the IP range `128.117.140.0/24` will match all 128.117.140.* addresses, while `128.117.156.0/24` will match 128.117.156.*.
+> 
+>**Restart iptables**
+>
+>   	service iptables restart
+>
+>For CentOS 7 error *Redirecting to /bin/systemctl restart  iptables.service
+>Failed to restart iptables.service: Unit iptables.service failed to load: No such file or directory.*
+>
+>The solution is:
+>	
+>   	yum install iptables-services
+>   	systemctl enable iptables
+>   	service iptables restart
+
+
+### 5. Start EDEX
+>
+>       edex setup
+>       edex start
+>
+>To manually start, stop, and restart:
+>
+>       service edex_postgres start
+>       service httpd-pypies start
+>       service qpidd start
+>       service edex_camel start
+>
+>The fifth service, **edex_ldm**, does **not run at boot** to prevent filling up disk space if EDEX is not running. 
+>
+>       ldmadmin start
+>
+>To start *all services except the LDM* (good for troubleshooting):
+>
+>       edex start base
+>
+>To restart EDEX
+>
+>       edex restart
  
-**Restart iptables**
 
-	service iptables restart
+---
 
-For CentOS 7 error *Redirecting to /bin/systemctl restart  iptables.service
-Failed to restart iptables.service: Unit iptables.service failed to load: No such file or directory.*
+## Additional Steps
 
-The solution is:
-	
-	yum install iptables-services
-	systemctl enable iptables
-	service iptables restart
+### /etc/security/limits.conf
 
+**/etc/security/limits.conf** defines the number of user processes and files (this step is automatically performed by `install.sh --edex`). Without these definitions, Qpid is known to crash during periods of high ingest.
+    
+    awips soft nproc 65536
+    awips soft nofile 65536
 
-### 5. Ensure SELinux is Disabled
+---
+
+### Ensure SELinux is Disabled
 
 	vi /etc/sysconfig/selinux
 
@@ -145,11 +176,7 @@ The solution is:
 
 !!! note "Read more about selinux at [redhat.com](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html/Security-Enhanced_Linux/sect-Security-Enhanced_Linux-Enabling_and_Disabling_SELinux-Disabling_SELinux.html)"
 
- **reboot if necessary**, required if iptables was updated.
-
 ---
-
-## Additional Steps
 
 ### SSD Mount
 
@@ -169,28 +196,7 @@ If you want to increase EDEX data retention you should mount a large disk to **/
 
 ---
 
-## EDEX Setup
-
-The command **edex setup** attempts to add the domain name of your server. 
-
-- **/awips2/edex/bin/setup.env** should contain the fully-qualified domain name, externally resolved, localhost will not work. 
-
-        export AW_SITE_IDENTIFIER=OAX
-        export EDEX_SERVER=edex-cloud.unidata.ucar.edu
-
-- **/awips2/ldm/etc/ldmd.conf** contains the upstream server (default *idd.unidata.ucar.edu*, which requires you connect form a .edu domain). This file also contains the **edexBridge** hostname (default *localhost*). 
-
-        EXEC    "pqact -e"
-        EXEC    "edexBridge -s localhost"
-
-- **/etc/security/limits.conf** defines the number of user processes and files (this step is automatically performed by `install.sh --edex`). Without these definitions, Qpid is known to crash during periods of high ingest.
-    
-        awips soft nproc 65536
-        awips soft nofile 65536
-
----
-
-## LDM 
+### Configure LDM Feeds 
 
 EDEX installs its own version of the LDM to the directory **/awips2/ldm**.  As with a the default LDM configuration, two files are used to control what IDD feeds are ingested:
 
@@ -218,54 +224,7 @@ EDEX installs its own version of the LDM to the directory **/awips2/ldm**.  As w
 
 ---
 
-## Start and Stop
-
-to start all EDEX services, including the LDM:
-
-    edex start
-    
-    Starting EDEX PostgreSQL:                                  [  OK  ]
-    Starting httpd:                                            [  OK  ]
-    Starting QPID                                              [  OK  ]
-    Starting EDEX Camel (request): 
-    Starting EDEX Camel (ingest): 
-    Starting EDEX Camel (ingestGrib): 
-    Starting AWIPS LDM:The product-queue is OK.
-
-to stop:
-
-    edex stop
-
-    Stopping EDEX Camel (request): 
-    Stopping EDEX Camel (ingest): 
-    Stopping EDEX Camel (ingestGrib): 
-    Stopping QPID                                              [  OK  ]
-    Stopping httpd:                                            [  OK  ]
-    Stopping EDEX PostgreSQL:                                  [  OK  ]
-    Stopping AWIPS LDM:Stopping the LDM server...
-
-To manually start, stop, and restart:
-
-    service edex_postgres start
-    service httpd-pypies start
-    service qpidd start
-    service edex_camel start
-
-The fifth service, **edex_ldm**, does **not run at boot** to prevent filling up disk space if EDEX is not running. 
-
-    ldmadmin start
-
-To start *all services except the LDM* (good for troubleshooting):
-
-    edex start base
-
-To restart EDEX
-
-    edex restart
-
----
-
-## Directories to know
+### Directories to Know
 
 * `/awips2` - Contains all of the installed AWIPS software. 
 * `/awips2/edex/logs` - EDEX logs.
@@ -281,6 +240,6 @@ To restart EDEX
 
 ---
 
-## What Version is my EDEX?
+### What Version is my EDEX?
 
     rpm -qa | grep awips2-edex

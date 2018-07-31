@@ -17,32 +17,46 @@
 [qpid]: http://qpid.apache.org 
 
 
-[Unidata AWIPS](https://www.unidata.ucar.edu/software/awips2/) is a meteorological display and analysis package originally developed by the [National Weather Service](http://www.nws.noaa.gov/ost/SEC/AE/) and [Raytheon](http://www.raytheon.com/capabilities/products/awips/), repackaged by Unidata to support non-operational use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives).
+ [Unidata AWIPS](https://www.unidata.ucar.edu/software/awips2/) is a modified and extended version of AWIPS (originally developed by NWS and Raytheon) for non-operational use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives).
 
-AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an [LDM](#ldm) client requesting data from the [Unidata IDD](https://www.unidata.ucar.edu/projects/#idd). These data files are then decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex). 
+AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an [LDM](#ldm) client requesting data from the [Unidata IDD](https://www.unidata.ucar.edu/projects/#idd). Various raw data and product files (grib, BUFR, text, gini, McIDAS, NetCDF, more) are  decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex), which then serves these data and products to  clients over http. 
 
 Unidata supports two visualization frameworks for rendering data: [CAVE](install/install-cave), and the Python Data Access Framework ([python-awips](http://python-awips.readthedocs.io)).
 
 ---
 
-## Install CAVE Viz Client
+## Download and Install CAVE
 
-|                |                        |
-|----------------|-----------------------:|
-| Linux x86_64   | [install.sh --cave <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)         |
-| macOS	         | Download and install both<br>[awips2-cave-17.1.1.dmg <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg)<br>[awips-python.pkg <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)|
-| 32-bit Windows | [awips-cave.msi <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)        |
-| 64-bit Windows | [awips-cave.amd64.msi <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi)  |
+> [Release 17.1.1-6, June 13, 2018](https://www.unidata.ucar.edu/blogs/news/category/AWIPS)
+
+|                                          |   |
+|:----------------------------------------:|:--|
+| <h1><i class="fa fa-linux"></i> Linux  </h1> | <h4>[install.sh --cave <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)  </h4>       <p>For CentOS/Red Hat 6 and 7. Installs to /awips2/cave and writes files to ~/caveData.</p> <tt><code>chmod 755 install.sh<br>sudo ./install.sh --cave</code></tt><p>Run CAVE from the Linux Desktop menu Applications > Internet > AWIPS CAVE, or from the command line as simply `cave`.</p> <p><img src="../../images/cave_linux_menu.png" style="width:300px;"></p><div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>OpenGL 2.0 capable device</li><li>4GB RAM</li><li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a></li><li>approx. 2GB disk space for data caching (~/caveData)</li></ul></div><p>You can reset CAVE at any time by removing the **~/caveData** directory (on macOS **~/Library/caveData**) and reconnecting to an EDEX server. </p>  |
+
+
+|                                          |   |
+|:----------------------------------------:|:--|
+| <h1><i class="fa fa-apple"></i> macOS	      </h1>|<h4>    Download and install both<br>[awips2-cave-17.1.1-6.dmg <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1-6.dmg)<br>[awips-python.pkg <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)</h4>  <p>Writes and syncs files to ~/Library/caveData.</p> <p> **awips-python.pkg** is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, jep must be installed in some way (it is assumed in /Library/Python/2.7/site-packages/jep/)</p>|
+
+|                                          |   |
+|:----------------------------------------:|:--|
+| <h1><i class="fa fa-windows"></i> 32-bit Windows </h1> | <h4> [awips-cave.msi <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)        </h4> <p>Windows clients are still based on the CAVE 16.2.2 code base and provided in lieu of no 17.1.1 client.</p> <p>Writes files to caveData in the user's home directory.</p>  |
+| <h1><i class="fa fa-windows"></i> 64-bit Windows </h1> | <h4> [awips-cave.amd64.msi <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi)  </h4>  <p>Windows clients are still based on the CAVE 16.2.2 code base and provided in lieu of no 17.1.1 client.</p> <p>Writes files to caveData in the user's home directory.</p> <div class="admonition warning"><p class="admonition-title">Beta status</p><p>Client-side Python scripts (including Derived Parameters) do not work on Windows</p></div>|
+
+
+> [Read full CAVE install instructions](install/install-cave)
 
 ---
 
-## Install EDEX Data Server
+## Download and Install EDEX
 
-|                |                        |
-|----------------|-----------------------:|
-| Linux x86_64   | [install.sh --edex<i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)         |
+> [Release 17.1.1-6, June 13, 2018](https://www.unidata.ucar.edu/blogs/news/category/AWIPS)
 
-[Read full EDEX install instructions...](install/install-edex)
+|                                          |   |
+|:----------------------------------------:|:--|
+| <h1><i class="fa fa-linux"></i> Linux  </h1> | <h4>[install.sh --edex <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)  </h4>       <p>Installs to /awips2/ directories.</p> <tt><code>chmod 755 install.sh<br>sudo ./install.sh --edex</code></tt><p>Start and Stop:</p><p><tt>edex start<br>edex stop</tt></p><div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>16+ CPU cores (each CPU core is one more decoder which can run in parallel)</li><li>24GB RAM</li><li>700GB+ disk space</li>|
+
+> [Read full EDEX install instructions](install/install-edex)
 
 ---
 
@@ -52,6 +66,13 @@ Unidata AWIPS source code and binaries (RPMs) are considered to be in the public
 
 ---
 
+## AWIPS Data in the Cloud
+
+Unidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter **`edex-cloud.unidata.ucar.edu`** (without *http://* before, or *:9581/services* after).
+
+![EDEX in the cloud](../images/boEbFSf28t.gif)
+
+---
 
 ## Distributed Computing
 
