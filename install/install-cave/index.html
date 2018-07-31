@@ -218,8 +218,6 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
-      
-    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Install CAVE
@@ -233,29 +231,13 @@
 <nav class="md-nav md-nav--secondary">
   
   
-    
-  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#linux" title=" Linux" class="md-nav__link">
-     Linux
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#macos" title=" macOS" class="md-nav__link">
-     macOS
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#windows" title=" Windows" class="md-nav__link">
-     Windows
+  <a href="#download-and-install-cave" title="Download and Install CAVE" class="md-nav__link">
+    Download and Install CAVE
   </a>
   
 </li>
@@ -1017,29 +999,13 @@
 <nav class="md-nav md-nav--secondary">
   
   
-    
-  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#linux" title=" Linux" class="md-nav__link">
-     Linux
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#macos" title=" macOS" class="md-nav__link">
-     macOS
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#windows" title=" Windows" class="md-nav__link">
-     Windows
+  <a href="#download-and-install-cave" title="Download and Install CAVE" class="md-nav__link">
+    Download and Install CAVE
   </a>
   
 </li>
@@ -1075,81 +1041,54 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/install/install-cave.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                <h1 id="download-and-install-cave">Download and Install CAVE<a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h1>
-<hr />
-<p><img style="width:300px;float:right;" src="../../images/Unidata_AWIPS2_CAVE.png"></p>
+                <h2 id="download-and-install-cave">Download and Install CAVE<a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h2>
+<p><a href="https://www.unidata.ucar.edu/blogs/news/category/AWIPS">Latest Release 17.1.1-6 (June 13, 2018)</a></p>
 <table>
 <thead>
 <tr>
-<th></th>
-<th align="right">current release 17.1.1</th>
+<th align="center"></th>
+<th align="left"></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Linux x86_64</td>
-<td align="right"><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh <i class="fa fa-download"></i></a></td>
-</tr>
-<tr>
-<td>macOS</td>
-<td align="right">Download and install both<br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a><br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></td>
-</tr>
-<tr>
-<td>32-bit Windows</td>
-<td align="right"><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></td>
-</tr>
-<tr>
-<td>64-bit Windows</td>
-<td align="right"><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a></td>
+<td align="center"><h1><i class="fa fa-linux"></i> Linux  </h1></td>
+<td align="left"><h4><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh --cave <i class="fa fa-download"></i></a>  </h4>       <p>For CentOS/Red Hat 6 and 7. Installs to /awips2/cave and writes files to ~/caveData.</p> <tt><code>chmod 755 install.sh<br>sudo ./install.sh --cave</code></tt><p>Run CAVE from the Linux Desktop menu Applications &gt; Internet &gt; AWIPS CAVE, or from the command line as simply <code>cave</code>.</p> <p><img src="../../images/cave_linux_menu.png" style="width:300px;"></p><div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>OpenGL 2.0 capable device</li><li>4GB RAM</li><li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a></li><li>approx. 2GB disk space for data caching (~/caveData)</li></ul></div><p>You can reset CAVE at any time by removing the <strong>~/caveData</strong> directory (on macOS <strong>~/Library/caveData</strong>) and reconnecting to an EDEX server. </p></td>
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="linux"><i class="fa fa-linux"></i> Linux<a class="headerlink" href="#linux" title="Permanent link"></a></h2>
-<ul>
-<li><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh <i class="fa fa-download"></i></a></li>
-</ul>
-<p>For CentOS/Red Hat 6 and 7. Installs to <strong>/awips2/cave</strong> and writes files to <strong>~/caveData</strong>.</p>
-<p>Install CAVE for Linux</p>
-<pre><code>wget https://www.unidata.ucar.edu/software/awips2/install.sh
-chmod 755 install.sh
-sudo ./install.sh --cave
-</code></pre>
-<p>Run CAVE from the menu <strong>Applications</strong> &gt; <strong>Internet</strong> &gt; <strong>AWIPS CAVE</strong>, or from the command line as simply <code>cave</code>.</p>
-<p><img alt="" src="../../images/cave_linux_menu.png" /></p>
-<div class="admonition note">
-<p class="admonition-title">System Requirements</p>
-<ul>
-<li>x86_64 CentOS/RHEL 6 or 7</li>
-<li>OpenGL 2.0</li>
-<li>4GB RAM</li>
-<li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a> for your graphics card</li>
-<li>2GB disk space for caching datasets in <strong>~/caveData</strong></li>
-</ul>
-</div>
-<hr />
-<h2 id="macos"><i class="fa fa-apple"></i> macOS<a class="headerlink" href="#macos" title="Permanent link"></a></h2>
-<p>CAVE for macOS requires the <strong><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg</a></strong> package be installed in order for <strong>derived parameters</strong> to work.</p>
-<ul>
-<li><a href="https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a></li>
-<li><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></li>
-</ul>
-<p><em>awips-python.pkg</em> is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, <a href="https://github.com/mrj0/jep/">jep</a> must be installed in some way (it is assumed in <code>/Library/Python/2.7/site-packages/jep/</code>).  You are free to install jep yourself but should know that simply to install via source code or pip requires the Oracle JDK and Xcode and its Command Line Tools.  The <strong><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg</a></strong> package is provided as a workaround for this.</p>
-<div class="admonition info">
-<p class="admonition-title">CAVE for macOS writes and syncs files to ~/Library/caveData</p>
-</div>
-<hr />
-<h2 id="windows"><i class="fa fa-windows"></i> Windows<a class="headerlink" href="#windows" title="Permanent link"></a></h2>
-<p>Windows clients are still based on the CAVE 16.2.2 code base and provided in lieu of no 17.1.1 client.</p>
-<ul>
-<li><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></li>
-<li><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a></li>
-</ul>
-<p>Writes files to <strong>caveData</strong> in the user's home directory.</p>
-<div class="admonition warning">
-<p class="admonition-title">Beta status</p>
-<p>Client-side Python scripts (including Derived Parameters) do not work on Windows</p>
-</div>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><h1><i class="fa fa-apple"></i> macOS       </h1></td>
+<td align="left"><h4>    Download and install both<br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1-6.dmg">awips2-cave-17.1.1-6.dmg <i class="fa fa-download"></i></a><br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></h4>  <p>Writes and syncs files to ~/Library/caveData.</p> <p> <strong>awips-python.pkg</strong> is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, jep must be installed in some way (it is assumed in /Library/Python/2.7/site-packages/jep/)</p></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><h1><i class="fa fa-windows"></i> 32-bit Windows </h1></td>
+<td align="left"><h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a>        </h4> <p>Windows clients are still based on the CAVE 16.2.2 code base and provided in lieu of no 17.1.1 client.</p> <p>Writes files to caveData in the user's home directory.</p></td>
+</tr>
+<tr>
+<td align="center"><h1><i class="fa fa-windows"></i> 64-bit Windows </h1></td>
+<td align="left"><h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a>  </h4>  <p>Windows clients are still based on the CAVE 16.2.2 code base and provided in lieu of no 17.1.1 client.</p> <p>Writes files to caveData in the user's home directory.</p> <div class="admonition warning"><p class="admonition-title">Beta status</p><p>Client-side Python scripts (including Derived Parameters) do not work on Windows</p></div></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="awips-data-in-the-cloud">AWIPS Data in the Cloud<a class="headerlink" href="#awips-data-in-the-cloud" title="Permanent link"></a></h2>
 <p>Unidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>

@@ -228,15 +228,15 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install-cave-viz-client" title="Install CAVE Viz Client" class="md-nav__link">
-    Install CAVE Viz Client
+  <a href="#download-and-install-cave" title="Download and Install CAVE" class="md-nav__link">
+    Download and Install CAVE
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#install-edex-data-server" title="Install EDEX Data Server" class="md-nav__link">
-    Install EDEX Data Server
+  <a href="#download-and-install-edex" title="Download and Install EDEX" class="md-nav__link">
+    Download and Install EDEX
   </a>
   
 </li>
@@ -244,6 +244,13 @@
         <li class="md-nav__item">
   <a href="#license" title="License" class="md-nav__link">
     License
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#awips-data-in-the-cloud" title="AWIPS Data in the Cloud" class="md-nav__link">
+    AWIPS Data in the Cloud
   </a>
   
 </li>
@@ -1086,15 +1093,15 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install-cave-viz-client" title="Install CAVE Viz Client" class="md-nav__link">
-    Install CAVE Viz Client
+  <a href="#download-and-install-cave" title="Download and Install CAVE" class="md-nav__link">
+    Download and Install CAVE
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#install-edex-data-server" title="Install EDEX Data Server" class="md-nav__link">
-    Install EDEX Data Server
+  <a href="#download-and-install-edex" title="Download and Install EDEX" class="md-nav__link">
+    Download and Install EDEX
   </a>
   
 </li>
@@ -1102,6 +1109,13 @@
         <li class="md-nav__item">
   <a href="#license" title="License" class="md-nav__link">
     License
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#awips-data-in-the-cloud" title="AWIPS Data in the Cloud" class="md-nav__link">
+    AWIPS Data in the Cloud
   </a>
   
 </li>
@@ -1201,57 +1215,92 @@
                 
                 <h1 id="unidata-awips-user-manual">Unidata AWIPS User Manual<a class="headerlink" href="#unidata-awips-user-manual" title="Permanent link"></a></h1>
 <hr />
-<p><a href="https://www.unidata.ucar.edu/software/awips2/">Unidata AWIPS</a> is a meteorological display and analysis package originally developed by the <a href="http://www.nws.noaa.gov/ost/SEC/AE/">National Weather Service</a> and <a href="http://www.raytheon.com/capabilities/products/awips/">Raytheon</a>, repackaged by Unidata to support non-operational use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.</p>
-<p>AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an <a href="#ldm">LDM</a> client requesting data from the <a href="https://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. These data files are then decoded and stored as HDF5 and Postgres metadata by <a href="./install/install-edex">EDEX</a>. </p>
+<p><a href="https://www.unidata.ucar.edu/software/awips2/">Unidata AWIPS</a> is a modified and extended version of AWIPS (originally developed by NWS and Raytheon) for non-operational use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.</p>
+<p>AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an <a href="#ldm">LDM</a> client requesting data from the <a href="https://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. Various raw data and product files (grib, BUFR, text, gini, McIDAS, NetCDF, more) are  decoded and stored as HDF5 and Postgres metadata by <a href="./install/install-edex">EDEX</a>, which then serves these data and products to  clients over http. </p>
 <p>Unidata supports two visualization frameworks for rendering data: <a href="./install/install-cave">CAVE</a>, and the Python Data Access Framework (<a href="http://python-awips.readthedocs.io">python-awips</a>).</p>
 <hr />
-<h2 id="install-cave-viz-client">Install CAVE Viz Client<a class="headerlink" href="#install-cave-viz-client" title="Permanent link"></a></h2>
+<h2 id="download-and-install-cave">Download and Install CAVE<a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h2>
+<blockquote>
+<p><a href="https://www.unidata.ucar.edu/blogs/news/category/AWIPS">Release 17.1.1-6, June 13, 2018</a></p>
+</blockquote>
 <table>
 <thead>
 <tr>
-<th></th>
-<th align="right"></th>
+<th align="center"></th>
+<th align="left"></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Linux x86_64</td>
-<td align="right"><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh --cave <i class="fa fa-download"></i></a></td>
-</tr>
-<tr>
-<td>macOS</td>
-<td align="right">Download and install both<br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1.dmg">awips2-cave-17.1.1.dmg <i class="fa fa-download"></i></a><br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></td>
-</tr>
-<tr>
-<td>32-bit Windows</td>
-<td align="right"><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></td>
-</tr>
-<tr>
-<td>64-bit Windows</td>
-<td align="right"><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a></td>
+<td align="center"><h1><i class="fa fa-linux"></i> Linux  </h1></td>
+<td align="left"><h4><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh --cave <i class="fa fa-download"></i></a>  </h4>       <p>For CentOS/Red Hat 6 and 7. Installs to /awips2/cave and writes files to ~/caveData.</p> <tt><code>chmod 755 install.sh<br>sudo ./install.sh --cave</code></tt><p>Run CAVE from the Linux Desktop menu Applications &gt; Internet &gt; AWIPS CAVE, or from the command line as simply <code>cave</code>.</p> <p><img src="../../images/cave_linux_menu.png" style="width:300px;"></p><div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>OpenGL 2.0 capable device</li><li>4GB RAM</li><li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a></li><li>approx. 2GB disk space for data caching (~/caveData)</li></ul></div><p>You can reset CAVE at any time by removing the <strong>~/caveData</strong> directory (on macOS <strong>~/Library/caveData</strong>) and reconnecting to an EDEX server. </p></td>
 </tr>
 </tbody>
 </table>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><h1><i class="fa fa-apple"></i> macOS       </h1></td>
+<td align="left"><h4>    Download and install both<br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips2-cave-17.1.1-6.dmg">awips2-cave-17.1.1-6.dmg <i class="fa fa-download"></i></a><br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></h4>  <p>Writes and syncs files to ~/Library/caveData.</p> <p> <strong>awips-python.pkg</strong> is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, jep must be installed in some way (it is assumed in /Library/Python/2.7/site-packages/jep/)</p></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><h1><i class="fa fa-windows"></i> 32-bit Windows </h1></td>
+<td align="left"><h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a>        </h4> <p>Windows clients are still based on the CAVE 16.2.2 code base and provided in lieu of no 17.1.1 client.</p> <p>Writes files to caveData in the user's home directory.</p></td>
+</tr>
+<tr>
+<td align="center"><h1><i class="fa fa-windows"></i> 64-bit Windows </h1></td>
+<td align="left"><h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.amd64.msi">awips-cave.amd64.msi <i class="fa fa-download"></i></a>  </h4>  <p>Windows clients are still based on the CAVE 16.2.2 code base and provided in lieu of no 17.1.1 client.</p> <p>Writes files to caveData in the user's home directory.</p> <div class="admonition warning"><p class="admonition-title">Beta status</p><p>Client-side Python scripts (including Derived Parameters) do not work on Windows</p></div></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><a href="./install/install-cave">Read full CAVE install instructions</a></p>
+</blockquote>
 <hr />
-<h2 id="install-edex-data-server">Install EDEX Data Server<a class="headerlink" href="#install-edex-data-server" title="Permanent link"></a></h2>
+<h2 id="download-and-install-edex">Download and Install EDEX<a class="headerlink" href="#download-and-install-edex" title="Permanent link"></a></h2>
+<blockquote>
+<p><a href="https://www.unidata.ucar.edu/blogs/news/category/AWIPS">Release 17.1.1-6, June 13, 2018</a></p>
+</blockquote>
 <table>
 <thead>
 <tr>
-<th></th>
-<th align="right"></th>
+<th align="center"></th>
+<th align="left"></th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>Linux x86_64</td>
-<td align="right"><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh --edex<i class="fa fa-download"></i></a></td>
+<td align="center"><h1><i class="fa fa-linux"></i> Linux  </h1></td>
+<td align="left"><h4><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh --edex <i class="fa fa-download"></i></a>  </h4>       <p>Installs to /awips2/ directories.</p> <tt><code>chmod 755 install.sh<br>sudo ./install.sh --edex</code></tt><p>Start and Stop:</p><p><tt>edex start<br>edex stop</tt></p><div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>16+ CPU cores (each CPU core is one more decoder which can run in parallel)</li><li>24GB RAM</li><li>700GB+ disk space</li></td>
 </tr>
 </tbody>
 </table>
-<p><a href="./install/install-edex">Read full EDEX install instructions...</a></p>
+<blockquote>
+<p><a href="./install/install-edex">Read full EDEX install instructions</a></p>
+</blockquote>
 <hr />
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link"></a></h2>
 <p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file. </p>
+<hr />
+<h2 id="awips-data-in-the-cloud">AWIPS Data in the Cloud<a class="headerlink" href="#awips-data-in-the-cloud" title="Permanent link"></a></h2>
+<p>Unidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>
+<p><img alt="EDEX in the cloud" src="./../images/boEbFSf28t.gif" /></p>
 <hr />
 <h2 id="distributed-computing">Distributed Computing<a class="headerlink" href="#distributed-computing" title="Permanent link"></a></h2>
 <p>AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data.  While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS can consist of a dozen servers or more, because the AWIPS source code was hard-coded with the NWS network configuration, the early Unidata releases were stripped of operation-specific configurations and plugins, and released specifically for standalone installation. This made sense given that a single EDEX instance with a Solid State Drive could handle most of the entire NOAAport data volume.  However, with GOES-R(16) coming online, and more gridded forecast models being created at finer temporal and spatial resolutions, there was now a need to distribute EDEX data decoding in order to handle this firehose of data.</p>
