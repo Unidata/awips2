@@ -27,6 +27,7 @@ javaUtilities/* rpms pythonPackages
 ../python-awips
 ../awips2-cimss/viz/*
 ../awips2-cimss/edex/*
+../awips2-cimss/features/*
 ../awips2-cimss/common/*
 ../awips2-collaboration/viz/*
 ../awips2-collaboration/features/*

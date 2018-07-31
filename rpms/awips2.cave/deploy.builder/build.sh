@@ -210,6 +210,8 @@ if [ -d ${REPO_DEST} ]; then
 fi
 mkdir -p ${REPO_DEST}
 
+# The file awips2-builds/cave/build/features.txt contains a list of files to build
+
 cp -v ${build_project_dir}/build.properties.p2 ${pde2_base_dir}/build.properties
 for feature in `cat ${build_project_dir}/features.txt`; do
 /awips2/java/bin/java -jar ${_pde_launcher_jar} -application org.eclipse.ant.core.antRunner \
@@ -239,10 +241,6 @@ for feature in `cat ${build_project_dir}/features.txt`; do
 done
 
 buildCAVEProduct ${awips_product} "awips2-cave"
-
 buildRPMExec "Installer.cave-wrapper" ""
-
-buildCAVEProduct ${ncep_product} "awips2-cave-ncep"
-
-buildCAVEProduct ${gfeclient_product} "awips2-cave-gfeclient"
-
+#buildCAVEProduct ${ncep_product} "awips2-cave-ncep"
+#buildCAVEProduct ${gfeclient_product} "awips2-cave-gfeclient"
