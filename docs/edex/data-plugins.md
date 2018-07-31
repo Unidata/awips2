@@ -76,7 +76,7 @@ td:first-child { font-weight: bold }
 |  cwat |  County Warning Area Threat produced by SCAN (System for Convection Analysis and Nowcasting). CWAT was formerly called SCAN Convective Threat Index (SCTI). |
 |  ffg  |  Flash flood guidance metadata (countybased ffg from RFCs) |
 |  ffmp | Flash Flood Monitoring and Prediction data (raw data inputs: radar, gridded flash flood guidance from River Forecast Centers, highresolution precipitation estimates [HPE] and nowcasts [HPN], QPF from SCAN and gage data from the IHFS [Integrated Hydrologic Forecast System]          database. Radar data [with WSR-88D product mnemonics and numbers] needed for FFMP are Digital Hybrid Reflectivity [DHR, 32] and  Digital Precipitation Rate [DPR, 176]. The raw GRIB files containing RFC Flash Flood Guidance are identified in the tables in Part 2 of this document as NWS_151 or FFG-XXX, where XXX is an RFC identifier such as TUA, KRF, or ALR. The WMO header for the RFC FFG begins with “ZEGZ98”. ) |
-|  fog  |  Fog Monitor. Raw data inputs: METAR, Mesonet, maritime, buoys, MAROBs, and satellite [visible, 3.9 µm, and 10.7 µm])  |
+|  fog  |  [Fog Monitor](http://www.nws.noaa.gov/mdl/fog_monitor/). Raw data inputs: METAR, Mesonet, maritime, buoys, MAROBs, and satellite [visible, 3.9 µm, and 10.7 µm])  |
 |  freezingLevel  |  MPE Rapid Refresh Freezing Level scheduled process (MpeRUCFreezingLevel)  |
 |  fssobs | Observations for the Fog monitor, SNOW, and SAFESEAS (raw data inputs: METAR, Mesonet, maritime, buoys, MAROBs). | 
 |  lsr  |  Local Storm Reports  |
