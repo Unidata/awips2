@@ -43,7 +43,7 @@ pushd . > /dev/null 2>&1
 cd ${BASELINE}
 mkdir -p ${WORKSPACE}
 if  [[ ${2} = "buildCAVE" ]]; then
-   RSYNC_DIRS=`cat $dir/rsync.dirs |grep -v nativelib`
+   RSYNC_DIRS=`cat $dir/rsync.dirs |grep -v nativelib | grep -v awips2-rpm`
 else
    RSYNC_DIRS=`cat $dir/rsync.dirs`
 fi
