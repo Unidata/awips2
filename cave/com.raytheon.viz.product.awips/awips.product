@@ -123,6 +123,19 @@
       <feature id="com.raytheon.uf.viz.ncep.perspective.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.skewt.feature"/>
       <feature id="com.raytheon.uf.viz.server.edex.feature"/>
+      <feature id="com.raytheon.uf.viz.dat.feature"/>
+      <feature id="com.raytheon.uf.viz.datadelivery.feature"/>
+      <feature id="edu.wisc.ssec.cimss.viz.convectprob.feature"/>
+      <feature id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"/>
+      <feature id="com.raytheon.uf.viz.satellite.goesr.feature"/>
+      <feature id="com.raytheon.uf.viz.ohd.feature"/>
+      <feature id="com.raytheon.uf.viz.scan.feature"/>
+      <feature id="edu.ucar.unidata.uf.viz.feature"/>
+      <feature id="gov.noaa.nws.ncep.swpc.viz.feature"/>
+      <feature id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"/>
+      <feature id="gov.noaa.nws.ocp.viz.climate.feature"/>
+      <feature id="gov.noaa.nws.ocp.viz.firewx.feature"/>
+      <feature id="gov.noaa.nws.ocp.viz.psh.feature"/>
    </features>
 
    <configurations>

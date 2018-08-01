@@ -34,7 +34,6 @@ if [ ! -d awips2-goesr ]; then          git clone https://github.com/Unidata/awi
 if [ ! -d awips2-hazards ]; then        git clone https://github.com/Unidata/awips2-hazards.git --branch development --single-branch         ;fi
 if [ ! -d awips2-ncep ]; then           git clone https://github.com/Unidata/awips2-ncep.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
 if [ ! -d awips2-nws ]; then            git clone https://github.com/Unidata/awips2-nws.git --branch unidata_${AWIPSII_VERSION} --single-branch         ;fi
-if [ ! -d awips2-rpm ]; then            git clone https://github.com/Unidata/awips2-rpm.git --branch unidata_${AWIPSII_VERSION} --single-branch         ;fi
 if [ ! -d awips2-unidata ]; then        git clone https://github.com/Unidata/awips2-unidata.git --branch unidata_${AWIPSII_VERSION} --single-branch     ;fi
 
 #
