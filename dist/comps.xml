@@ -195,7 +195,6 @@
          <packagereq type="default">awips2-edex-dat</packagereq>
          <packagereq type="default">awips2-edex-datadelivery</packagereq>
          <packagereq type="default">awips2-edex-hazards</packagereq>
-         <packagereq type="default">awips2-edex-ohd</packagereq>
          <packagereq type="default">awips2-edex-ogc</packagereq>
          <!-- <packagereq type="default">awips2-edex-swpc</packagereq> -->
          <packagereq type="default">awips2-hydroapps</packagereq>
