@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.radar.gl;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.media.opengl.GL;
+import com.jogamp.opengl.GL2;
 
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.coverage.grid.GridGeometry2D;
@@ -117,7 +117,7 @@ public class RadarRadialMesh extends AbstractGLMesh {
     public RadarRadialMesh(RadialMeshData data,
             GeneralGridGeometry targetGeometry, CacheKey cacheKey)
             throws VizException {
-        super(GL.GL_TRIANGLE_STRIP);
+        super(GL2.GL_TRIANGLE_STRIP);
         this.data = data;
         this.cacheKey = cacheKey;
         ProjectedCRS crs = CRSCache.getInstance().constructStereographic(

@@ -22,7 +22,7 @@ package com.raytheon.uf.viz.gl.image.stipple;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.media.opengl.GL;
+import com.jogamp.opengl.GL2;
 
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.viz.core.DrawableImage;
@@ -75,7 +75,7 @@ public class GLStippledColormappedImageExtension
         IColormappedImageExtension cmapExt = target
                 .getExtension(IColormappedImageExtension.class);
         boolean result = true;
-        GL gl = target.getGl();
+        GL2 gl = target.getGl().getGL2();
         for (DrawableImage image : images) {
             GLStippledColormappedImage stippled = (GLStippledColormappedImage) image
                     .getImage();
@@ -148,14 +148,14 @@ public class GLStippledColormappedImageExtension
                     }
                     byte[] pattern = patterns.get(i);
                     if (pattern != null) {
-                        gl.glEnable(GL.GL_POLYGON_STIPPLE);
+                        gl.glEnable(GL2.GL_POLYGON_STIPPLE);
                         gl.glPolygonStipple(pattern, 0);
                     }
                     params.setAlphaMask(alphaMask);
                     params.setUseMask(true);
                     result &= cmapExt.drawRasters(paintProps, images);
                     if (pattern != null) {
-                        gl.glDisable(GL.GL_POLYGON_STIPPLE);
+                        gl.glDisable(GL2.GL_POLYGON_STIPPLE);
                     }
                     /* Reset the alpha for the next loop. */
                     for (int a = alphaStart; a < alphaEnd; a += 1) {
