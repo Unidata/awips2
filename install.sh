@@ -2,15 +2,16 @@
 # about:  AWIPS install manager
 # devorg: Unidata Program Center
 # author: <mjames@ucar.edu>
-# use: ./install.sh (--cave|--edex|--ingest|--help)
+# use: ./install.sh (--cave|--edex|--database|--ingest|--help)
 
 dir="$( cd "$(dirname "$0")" ; pwd -P )"
 
-usage="$(basename "$0") [-h] (--cave|--edex|--ingest) #script to install Unidata AWIPS components.\n
+usage="$(basename "$0") [-h] (--cave|--edex|--database|--ingest) #script to install Unidata AWIPS components.\n
     -h, --help           show this help text\n
     --cave               install CAVE for x86_64 Linux\n
-    --edex, --server     install EDEX Standaone Server for x86_64 Linux\n
-    --ingest             install EDEX Ingest Node Server for x86_64 Linux\n"
+    --edex, --server     install EDEX Standaone Server x86_64 Linux\n
+    --database           install EDEX Request/Database x86_64 Linux\n
+    --ingest             install EDEX Ingest Node Server x86_64 Linux\n"
 
 function stop_edex_services {
   for srvc in edex_ldm edex_camel qpidd httpd-pypies edex_postgres ; do
@@ -64,7 +65,7 @@ function check_edex {
       rm -rf /awips2/database/data/
     fi
   fi
-  for dir in /awips2/tmp /awips2/data_store ; do
+  for dir in /awips2/tmp /awips2/data_store /awips2/crawl; do
     if [ ! -d $dir ]; then
       echo "creating $dir"
       mkdir -p $dir
@@ -115,6 +116,10 @@ case $key in
     --server|--edex)
         server_prep
         yum groupinstall awips2-server -y 2>&1 | tee -a /tmp/awips-install.log
+        ;;
+    --database)
+        server_prep
+        yum groupinstall awips2-database -y 2>&1 | tee -a /tmp/awips-install.log
         ;;
     --ingest)
         server_prep
