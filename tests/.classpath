@@ -31,7 +31,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.status"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.viz.core"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.auth"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.plugin.nwsauth"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.auth"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.registry.ebxml"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.registry.ebxml"/>
@@ -55,8 +54,6 @@
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.registry.event"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.stats"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.stats"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.viz.plugin.nwsauth"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.edex.plugin.nwsauth"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/com.raytheon.uf.common.units"/>
 	<classpathentry exported="true" kind="src" path="/com.raytheon.uf.viz.stats"/>
 	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/org.dom4j"/>
