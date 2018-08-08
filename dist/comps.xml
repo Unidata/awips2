@@ -88,6 +88,8 @@
          <packagereq type="default">awips2-edex-cots</packagereq>
          <packagereq type="default">awips2-edex-dataplugins</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
+         <packagereq type="default">awips2-edex-datadelivery</packagereq>
+         <packagereq type="default">awips2-edex-ogc</packagereq>
          <packagereq type="default">awips2-java</packagereq>
          <packagereq type="default">awips2-ldm</packagereq>
          <packagereq type="default">awips2-python</packagereq>
@@ -106,6 +108,7 @@
          <packagereq type="default">awips2-python-scipy</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
+         <packagereq type="default">awips2-python-stomp.py</packagereq>
          <packagereq type="default">awips2-python-tables</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
          <packagereq type="default">awips2-qpid-java-broker</packagereq>
@@ -137,6 +140,8 @@
          <packagereq type="default">awips2-edex-ncep</packagereq>
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
          <packagereq type="default">awips2-edex-request</packagereq>
+         <packagereq type="default">awips2-edex-datadelivery</packagereq>
+         <packagereq type="default">awips2-edex-ogc</packagereq>
          <packagereq type="default">awips2-httpd-pypies</packagereq>
          <packagereq type="default">awips2-java</packagereq>
          <packagereq type="default">awips2-maps-database</packagereq>
@@ -160,6 +165,7 @@
          <packagereq type="default">awips2-python-scipy</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
+         <packagereq type="default">awips2-python-stomp.py</packagereq>
          <packagereq type="default">awips2-python-tables</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
          <packagereq type="default">awips2-qpid-java-broker</packagereq>
@@ -193,9 +199,7 @@
          <packagereq type="default">awips2-edex-ncep</packagereq>
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
          <packagereq type="default">awips2-edex-dat</packagereq>
-         <packagereq type="default">awips2-edex-datadelivery</packagereq>
          <packagereq type="default">awips2-edex-hazards</packagereq>
-         <packagereq type="default">awips2-edex-ogc</packagereq>
          <!-- <packagereq type="default">awips2-edex-swpc</packagereq> -->
          <packagereq type="default">awips2-hydroapps</packagereq>
          <packagereq type="default">awips2-httpd-pypies</packagereq>
@@ -223,6 +227,7 @@
          <packagereq type="default">awips2-python-scipy</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
+         <packagereq type="default">awips2-python-stomp.py</packagereq>
          <packagereq type="default">awips2-python-tables</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
          <packagereq type="default">awips2-qpid-java-broker</packagereq>
@@ -255,6 +260,8 @@
          <packagereq type="default">awips2-edex-gfe</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
+         <packagereq type="default">awips2-edex-datadelivery</packagereq>
+         <packagereq type="default">awips2-edex-ogc</packagereq>
          <packagereq type="default">awips2-httpd-pypies</packagereq>
          <packagereq type="default">awips2-httpd-pypies-tools</packagereq>
          <packagereq type="default">awips2-java</packagereq>
@@ -280,6 +287,7 @@
          <packagereq type="default">awips2-python-scipy</packagereq>
          <packagereq type="default">awips2-python-shapely</packagereq>
          <packagereq type="default">awips2-python-six</packagereq>
+         <packagereq type="default">awips2-python-stomp.py</packagereq>
          <packagereq type="default">awips2-python-tables</packagereq>
          <packagereq type="default">awips2-python-werkzeug</packagereq>
          <packagereq type="default">awips2-qpid-java-broker</packagereq>

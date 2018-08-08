@@ -104,6 +104,7 @@ function build_python() {
    buildRPM "awips2-python-shapely"
    buildRPM "awips2-python-scientific"
    buildRPM "awips2-python-scipy"
+   buildRPM "awips2-python-stomp.py"
    buildRPM "awips2-python-qpid"
    buildRPM "awips2-python-werkzeug"
    buildRPM "awips2-python-cycler"

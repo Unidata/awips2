@@ -101,6 +101,10 @@ function lookupRPM()
       export RPM_SPECIFICATION="${installer_dir}/shapely"
       return 0
    fi
+   if [ "${1}" = "awips2-python-stomp.py" ]; then
+      export RPM_SPECIFICATION="${installer_dir}/stomp.py/"
+      return 0
+   fi
    if [ "${1}" = "awips2-ncep-database" ]; then
       export RPM_SPECIFICATION="${awips2_core_dir}/Installer.ncep-database"
       return 0
