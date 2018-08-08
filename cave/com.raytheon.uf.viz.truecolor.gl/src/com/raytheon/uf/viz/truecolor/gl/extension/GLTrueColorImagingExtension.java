@@ -154,7 +154,7 @@ public class GLTrueColorImagingExtension extends AbstractGLSLImagingExtension
                 renderingGamma = 1.0;
                 writeToImage = null;
                 trueColorImage.setImageParameters(parameters.keySet());
-                trueColorImage.bind(target.getGl());
+                trueColorImage.bind(target.getGl().getGL2());
                 return imageCoverage;
             } else {
                 target.drawRasters(paintProps,
