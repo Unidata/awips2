@@ -21,7 +21,7 @@ package com.raytheon.uf.edex.registry.ebxml.util;
 
 import java.util.List;
 
-import com.raytheon.uf.common.util.ClusterIdUtil;
+import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
 
 /**
@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.registry.ebxml.dao.RegistryObjectDao;
  * ------------ ---------- ----------- --------------------------
  * Feb 06, 2014 2771       bgonzale     Initial creation
  * Apr 23, 2014 2992       dhladky      General way to get all registries.
+ * Aug 08, 2018            mjames       Standalone Registry Configuration
  * 
  * </pre>
  * 
@@ -63,7 +64,7 @@ public class RegistryIdUtil {
      * @return Registry ID.
      */
     public static String getId() {
-        return ClusterIdUtil.getId();
+        return EDEXUtil.getEdexSite();
     }
     
     /**

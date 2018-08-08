@@ -67,6 +67,7 @@ In the [Azure portal](https://portal.azure.com):
 		-A INPUT -m state --state NEW -m tcp -p tcp --dport 5672 -j ACCEPT
 		-A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
 		-A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
+		# -A INPUT -m state --state NEW -m tcp -p tcp --dport 9588 -j ACCEPT # registry/dd
 		-A INPUT -j REJECT --reject-with icmp-host-prohibited
 		-A FORWARD -j REJECT --reject-with icmp-host-prohibited
 		COMMIT

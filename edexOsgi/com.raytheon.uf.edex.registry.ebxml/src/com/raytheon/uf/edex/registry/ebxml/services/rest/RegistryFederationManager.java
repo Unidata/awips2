@@ -78,7 +78,6 @@ import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.common.util.ClusterIdUtil;
 import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.edex.core.EDEXUtil;
 import com.raytheon.uf.edex.database.DataAccessLayerException;
@@ -202,6 +201,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
  * Sep 01, 2016  5810     tjensen   Added improved logging messages
  * Sep 22, 2016  5762     tjensen   Harden replication code
  * Oct 04, 2016  5762     tjensen   Fix connection check
+ * Aug 08, 2018           mjames    Standalone Registry Configuration
  *
  * </pre>
  *
@@ -850,7 +850,7 @@ public class RegistryFederationManager
                  * duplicate data is not sent again
                  */
                 restClient.getRegistryFederationManager(remoteRegistryUrl)
-                        .updateRegistryEvents(ClusterIdUtil.getId(),
+                        .updateRegistryEvents(RegistryIdUtil.getId(),
                                 String.valueOf(start));
 
                 syncMsg.append("Registry synchronization using [")

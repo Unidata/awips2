@@ -63,6 +63,8 @@ All of these command should be run as **root**
 ### 4. Configure iptables
 >
 >Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data to CAVE clients and the Python API.
+> 
+>If you are running a Registry (Data Delivery) server, you will also want to open port **9588**.
 >
 >- **To open ports to all connections**
 >     
@@ -78,6 +80,7 @@ All of these command should be run as **root**
 >   		-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
 >   		-A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
 >   		-A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
+>   		#-A INPUT -m state --state NEW -m tcp -p tcp --dport 9588 -j ACCEPT # for registry/dd
 >   		-A INPUT -j REJECT --reject-with icmp-host-prohibited
 >   		-A FORWARD -j REJECT --reject-with icmp-host-prohibited
 >		COMMIT
@@ -104,6 +107,7 @@ All of these command should be run as **root**
 >   		-A EDEX -m state --state NEW -p tcp --dport 22 -j ACCEPT
 >   		-A EDEX -m state --state NEW -p tcp --dport 9581 -j ACCEPT
 >   		-A EDEX -m state --state NEW -p tcp --dport 9582 -j ACCEPT
+>   		#-A EDEX -m state --state NEW -p tcp --dport 9588 -j ACCEPT # for registry/dd
 >   		-A EDEX -j REJECT
 >   		COMMIT
 > 

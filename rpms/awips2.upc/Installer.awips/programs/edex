@@ -14,7 +14,7 @@
 #               qpidd                                                   #
 #               edex_ldm                                                #
 #                                                                       #
-# edex log [ingest|request|grib|text|satellite|radar|ldm]               #
+# edex log [ingest|request|grib|text|satellite|radar|ldm|registry]      #
 #       Monitors the current day's requested log. Defaults to ingest.   #
 #                                                                       #
 # edex setup                                                            #
@@ -31,6 +31,7 @@
 # 09/2017 M.James/Unidata       Rudimentary remote db password control, #
 #                               remove pg_hba.conf edits                #
 # 01/2018 M.James/Unidata       Added qpid-stat wrapper as edex qpid    #
+# 08/2018 M.James/Unidata       Registry logging                        #
 #-----------------------------------------------------------------------#
 . /etc/profile.d/awips2.sh
 # directories definitions
@@ -115,6 +116,13 @@ edex_status() { # report back edex server on/off status
       edex_request_pid=`ps aux | grep edex.run.mode=request | awk '{ print $2 }'`
       echo ' EDEXrequest :: running :: pid '$edex_request_pid''
    fi
+   edex_reg_ps=`ps aux | grep edex.run.mode=centralRegistry | awk '{ print $15 }'`
+   if [ -z $edex_reg_ps ]; then
+      echo ' EDEXregistry :: not running'   
+   else
+      edex_reg_pid=`ps aux | grep edex.run.mode=centralRegistry | awk '{ print $2 }'`
+      echo ' EDEXregistry :: running :: pid '$edex_reg_pid''
+   fi
 
    if [ -d "/awips2/ldm" ]; then
       ldmd_ps=`ps aux | grep ldmd | grep -v "grep ldmd" | head -1 | awk '{ print $2 }'`
@@ -183,6 +191,13 @@ edex_log() { # display todays log, default to ingest
       tail_log
       exit;
    fi
+   # Registry
+   if [ "${args[1]}" == 'registry' ]; then
+      YMD=`date -u '+%Y%m%d'`
+      LOG_FILE=${LOG_PATH}/edex-centralRegistry-${YMD}.log
+      tail_log
+      exit;
+   fi
    # OHD
    if [ "${args[1]}" == 'ohd' ]; then
       YMD=`date -u '+%Y%m%d'`
@@ -212,6 +227,7 @@ edit_setup() {
    sed -i.setup_$YMD 's/external/'$HOSTNAME'/g' $EDEX_ENV_FILE
    echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
    echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
+   sed -i 's/external/'$HOSTNAME'/g' /awips2/edex/conf/resources/*
 }
 
 edex_edits() {
