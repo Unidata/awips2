@@ -1,4 +1,6 @@
-ntralRegistry mode was designed to be an ebXML registry plus all the
+#!/bin/bash
+##
+# The centralRegistry mode was designed to be an ebXML registry plus all the
 # components necessary to harvest data from a data provider and manage
 # SBN/Shared Subscriptions. Anything registry-related that is meant to run
 # only once for all of the NWS would run in this mode.

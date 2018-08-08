@@ -124,6 +124,10 @@ fi
 %pre
 
 %post
+
+echo "#generated on $(date)" > $LIST_FILE
+echo "export SERVICES=('ingest' 'ingestGrib' 'request')" >> $LIST_FILE
+
 if [ ! -d /awips2/edex/data/archive ]; then
    mkdir -p /awips2/edex/data/archive
 fi
