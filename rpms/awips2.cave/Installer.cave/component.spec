@@ -194,7 +194,7 @@ function updateCaveVersion() {
    # about.mappings in the com.raytheon.viz.product.awips plugin.
    AWIPS_VERSION_TXT=/awips2/cave/awipsVersion.txt
 
-   echo "-DvizVersion=%{_component_version}-%{_component_release}" > ${AWIPS_VERSION_TXT}
+   echo "-DcaveVersion=%{_component_version}-%{_component_release}" > ${AWIPS_VERSION_TXT}
    echo "-DbuildDate=%{_component_build_date}" >> ${AWIPS_VERSION_TXT}
    echo "-DbuildTime=%{_component_build_time}" >> ${AWIPS_VERSION_TXT}
    echo "-DbuildSystem=%{_component_build_system}" >> ${AWIPS_VERSION_TXT}
