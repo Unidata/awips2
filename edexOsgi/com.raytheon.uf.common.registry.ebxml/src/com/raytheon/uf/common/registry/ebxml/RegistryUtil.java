@@ -51,7 +51,6 @@ import com.raytheon.uf.common.registry.ebxml.slots.SlotConverter;
 import com.raytheon.uf.common.registry.ebxml.slots.StringSlotConverter;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.time.util.ImmutableDate;
-import com.raytheon.uf.common.util.ClusterIdUtil;
 import com.raytheon.uf.common.util.CollectionUtil;
 import com.raytheon.uf.common.util.ReflectionException;
 import com.raytheon.uf.common.util.ReflectionUtil;
@@ -87,6 +86,7 @@ import com.raytheon.uf.common.util.ReflectionUtil;
  * Jul 10, 2014  1717     bphillip  Changed default user
  * Jul 28, 2014  3474     dhladky   Fixed bad default user settings.
  * Aug 25, 2016  5846     rjpeter   Remove InternationalString from DB
+ * Aug 08, 2018           mjames    Standalone Registry Configuration
  * 
  * </pre>
  * 
@@ -123,7 +123,8 @@ public final class RegistryUtil {
     /**
      * The default internal owner is the local registry ID
      */
-    public static final String registryUser = ClusterIdUtil.getId();
+
+    public static final String registryUser = System.getenv("AW_SITE_IDENTIFIER");
 
     // A private mapping of attribute types to slot types, used when storing an
     // object to the registry to map QueryableAttributes to SlotConverters.
