@@ -7,25 +7,8 @@
     </contribute>
     
     <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
-        menuText="Intl SIGMET Turb" id="INTLSIGMETTURB">
-        <substitute key="hazardType" value="TURBULENCE" />
-        <substitute key="color" value="#ffff00" />
-        <substitute key="name" value="Turbulence SIGMET" />
+        menuText="International SIGMETs" id="INTLSIGMET">
     </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
-        menuText="Intl SIGMET Thunderstorm" id="INTLSIGMETSTORM">
-        <substitute key="hazardType" value="THUNDERSTORM" />
-        <substitute key="color" value="#00ffff" />
-        <substitute key="name" value="Thunderstorm SIGMET" />
-    </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/IntlSigmet.xml"
-        menuText="Intl SIGMET Icing" id="INTLSIGMETICING">
-        <substitute key="hazardType" value="ICING" />
-        <substitute key="color" value="#00ff00" />
-        <substitute key="name" value="Icing SIGMET" />
-    </contribute>
-    
-    
     
     <contribute xsi:type="bundleItem" file="bundles/NonConvSigmet.xml"
         menuText="SIGMET Turbulence" id="SIGMETTURB">

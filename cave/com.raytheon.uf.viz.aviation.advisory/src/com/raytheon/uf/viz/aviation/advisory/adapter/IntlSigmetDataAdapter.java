@@ -22,6 +22,7 @@ package com.raytheon.uf.viz.aviation.advisory.adapter;
 import gov.noaa.nws.ncep.common.dataplugin.intlsigmet.IntlSigmetLocation;
 import gov.noaa.nws.ncep.common.dataplugin.intlsigmet.IntlSigmetRecord;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -45,7 +46,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 2, 2009            bsteffen     Initial creation
+ * Oct  2, 2009            bsteffen    Initial creation
+ * Aug 10, 2018            mjames      Label with valid period. 
  * 
  * </pre>
  * 
@@ -54,6 +56,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 @XmlAccessorType(XmlAccessType.NONE)
 public class IntlSigmetDataAdapter extends AbstractAdvisoryDataAdapter {
+
+    final SimpleDateFormat FRAME_DATE_FORMAT = new SimpleDateFormat("dd/HHmm"); 
 
     private static final float LINE_WIDTH = 1.5f;
 
@@ -90,8 +94,14 @@ public class IntlSigmetDataAdapter extends AbstractAdvisoryDataAdapter {
                 coords[loc.getIndex() - 1] = new Coordinate(loc.getLongitude(),
                         loc.getLatitude());
             }
+
+            String startTimeText  = new String(FRAME_DATE_FORMAT.format(sigmetRecord.getStartTime().getTime()));
+            String endTimeText  = new String(FRAME_DATE_FORMAT.format(sigmetRecord.getEndTime().getTime()));
+            
             String label = sigmetRecord.getSequenceNumber()
-                    + sigmetRecord.getMessageID();
+                    + sigmetRecord.getMessageID() 
+                    + "\n" 
+                    + startTimeText + "-" + endTimeText;
             if (sigmetRecord.getDistance() != -9999 && coords.length <= 2) {
                 if (coords.length == 1) {
                     AdvisoryRecord aRecord = new AdvisoryRecord(coords[0],
