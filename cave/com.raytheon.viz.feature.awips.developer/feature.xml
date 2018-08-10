@@ -256,7 +256,6 @@
    <includes
          id="gov.noaa.nws.ocp.viz.psh.feature"
          version="0.0.0"/>
-   
 
    <includes
          id="gov.noaa.nws.ocp.viz.climate.feature"
@@ -264,6 +263,10 @@
 
    <includes
          id="gov.noaa.nws.ocp.viz.firewx.feature"
+         version="0.0.0"/>
+
+   <includes
+         id="com.raytheon.uf.viz.aviation.advisory.feature"
          version="0.0.0"/>
 
    <requires>
