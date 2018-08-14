@@ -14,39 +14,58 @@
         ________________________Mail_Stop_B8
         ________________________Omaha,_NE_68106
         ________________________402.291.0100
-        Z
+        
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Moisture(11.2-12.3 u)" id="goesr-moisture">
-        <substitute key="element" value="satMoisture"/>
-        <substitute key="colormap" value="Grid/Gridded Data"/>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" menuText="Split Window(10.3-12.3 μm)"
+        id="goesr-moisture">
+        <substitute key="element" value="satMoisture" />
+        <substitute key="colormap" value="GOES-R/IR/dust_and_moisture_split_window" />
     </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Cloud Phase(8.5-11.2 u)" id="goesr-cloud-phase">
-        <substitute key="element" value="satCloudPhase"/>
-        <substitute key="colormap" value="Grid/Gridded Data"/>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" menuText="Split Cloud Top Phase (11.2-8.4 μm)"
+        id="goesr-splitcloudtopphase">
+        <substitute key="element" value="satSplitCloudTopPhase" />
+        <substitute key="colormap" value="Grid/Gridded Data" />
     </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Fog (3.9-11.2 u)" id="goesr-fog">
-        <substitute key="element" value="satFog"/>
-        <substitute key="colormap" value="Grid/Gridded Data"/>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" menuText="Night Fog (10.3-3.9 μm)" id="goesr-fog">
+        <substitute key="element" value="satFog" />
+        <substitute key="colormap" value="GOES-R/IR/fogdiff_blue" />
     </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Snow (0.64-1.61 u)" id="goesr-snow">
-        <substitute key="element" value="satSnow"/>
-        <substitute key="colormap" value="Grid/Gridded Data"/>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" menuText="Day Fog (3.9-10.3 μm)" id="goesr-dayfog">
+        <substitute key="element" value="satDayFog" />
+        <substitute key="colormap" value="Grid/Gridded Data" />
     </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Vegetation (0.64-0.87 u)" id="goesr-vegetation">
-        <substitute key="element" value="satVegetation"/>
-        <substitute key="colormap" value="Grid/Gridded Data"/>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" menuText="Split Fire (2.2-1.6 μm)" id="goesr-splitfire">
+        <substitute key="element" value="satSplitFire" />
+        <substitute key="colormap" value="GOES-R/IR/enhanced-rainbow-11" />
     </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-                menuText="Upper Level Info(11.2-6.19 u)" id="goesr-upper-level-info">
-        <substitute key="element" value="satUpperLevelInfo"/>
-        <substitute key="colormap" value="Grid/Gridded Data"/>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" menuText="Split Ozone (9.6-10.3 μm)" id="goesr-splitozone">
+        <substitute key="element" value="satSplitOzone" />
+        <substitute key="colormap" value="Grid/Gridded Data" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" menuText="Split Water Vapor (6.19-7.3 μm)" id="goesr-SplitWV">
+        <substitute key="element" value="SplitWV" />
+        <substitute key="colormap" value="Grid/Gridded Data" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" menuText="Split Snow (1.6-0.64 μm)" id="goesr-SplitSnow">
+        <substitute key="element" value="satSplitSnow" />
+        <substitute key="colormap" value="Grid/Gridded Data" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" menuText="Vegetation (0.64-0.87 μm)"
+        id="goesr-vegetation">
+        <substitute key="element" value="satVegetation" />
+        <substitute key="colormap" value="Grid/Gridded Data" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" menuText="Upper Level Info(11.2-6.19 μm)"
+        id="goesr-upper-level-info">
+        <substitute key="element" value="satUpperLevelInfo" />
+        <substitute key="colormap" value="Grid/Gridded Data" />
     </contribute>
 </menuTemplate>

@@ -1,88 +1,115 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="titleItem" titleText="------ GOES East ------" id="goesrBestRes"/>
-    <contribute xsi:type="subinclude" fileName="menus/satellite/goesr/goesrBestResConusByChannel.xml"/>
-	
-    <contribute xsi:type="separator" id="MySeparatorId"/>
 
-    <contribute xsi:type="subinclude" subMenu="Derived Products" 
-    		fileName="menus/satellite/goesr/goesrLevel2.xml">
-        <substitute key="sector" value="ECONUS" />
-    </contribute>
-    
-    <contribute xsi:type="subinclude" subMenu="Derived Motion Winds" 
-    		fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml">
-    	<substitute key="orbitalSlot" value="GOES-East"/>
-        <substitute key="scene" value="CONUS" />
-        <substitute key="plugin" value="dmw" />
-    </contribute>
-
-    <contribute xsi:type="subinclude" subMenu="Geostationary Lightning Mapper (GLM)" 
-    		fileName="menus/lightning/glmlightningMenuItems.xml">
-    </contribute>
-    
-    <contribute xsi:type="separator" id="MySeparatorId"/>
-
-    <contribute xsi:type="subinclude" subMenu="GOES East - Full Disk"
-        fileName="menus/satellite/goesr/goesrByChannel.xml">
-        <substitute key="sector" value="EFD" />
-        <substitute key="entity" value="GOES-16" />
-    </contribute>
+        <contribute xsi:type="titleItem" titleText="------ GOES-East ------" id="goesrBestRes" />
+        <contribute xsi:type="subinclude" 
+        	fileName="menus/satellite/goesr/goesrBestResConusByChannel.xml"/>
+        
+	    <contribute xsi:type="subinclude" subMenu="Derived Products"
+	    	 fileName="menus/satellite/goesr/goesrLevel2.xml" >
+			<substitute key="sector" value="ECONUS" />
+		</contribute>
+		
+    	<contribute xsi:type="subinclude" subMenu="Channel Differences" 
+    		fileName="menus/satellite/goesr/goesrLocallyDerived.xml">
+        	<substitute key="sector" value="ECONUS" />
+        	<substitute key="entity" value="GOES-16" />
+    	</contribute>
     	
-    <contribute xsi:type="subinclude" subMenu="GOES East - Mesoscale Sector 1"
-        fileName="menus/satellite/goesr/goesrByChannel.xml">
-        <substitute key="sector" value="EMESO-1" />
-        <substitute key="entity" value="GOES-16" />
-    </contribute>
-    <contribute xsi:type="subinclude" subMenu="GOES East - Mesoscale Sector 2"
-        fileName="menus/satellite/goesr/goesrByChannel.xml">
-        <substitute key="sector" value="EMESO-2" />
-        <substitute key="entity" value="GOES-16" />
-    </contribute>
-    <contribute xsi:type="subinclude" subMenu="GOES East - Puerto Rico Sector"
-        fileName="menus/satellite/goesr/goesrByChannel.xml">
-        <substitute key="sector" value="PRREGI" />
-        <substitute key="entity" value="GOES-16" />
-    </contribute>
-    
-	<contribute xsi:type="subMenu" menuText="GOES West">
-		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Imager Visible" id="visible">
-	        <substitute key="element" value="Imager Visible"/>
-			<substitute key="sector" value="GOES-West"/>
-	    	<substitute key="entity" value="GOES-15(P)"/>
-	        <substitute key="colormap" value="Sat/VIS/Linear"/>
+	    <contribute xsi:type="subinclude" subMenu="Derived Motion Winds" 
+	    	fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml">
+	    	<substitute key="orbitalSlot" value="GOES-East"/>
+	        <substitute key="scene" value="CONUS" />
+	        <substitute key="plugin" value="dmw" />
 	    </contribute>
-	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Imager 11 micron IR" id="irWindow">
-	        <substitute key="element" value="Imager 11 micron IR"/>
-			<substitute key="sector" value="GOES-West"/>
-	    	<substitute key="entity" value="GOES-15(P)"/>
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+	    
+	    <contribute xsi:type="subinclude" subMenu="Geostationary Lightning Mapper (GLM)" 
+	    	fileName="menus/lightning/glmlightningMenuItems.xml">
 	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Imager 13 micron IR" id="irWindow">
-	        <substitute key="element" value="Imager 13 micron IR"/>
-			<substitute key="sector" value="GOES-West"/>
-	    	<substitute key="entity" value="GOES-15(P)"/>
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-	    </contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Imager 3.5-4.0 micron IR (Fog)" id="irWindow">
-	        <substitute key="element" value="Imager 3.5-4.0 micron IR (Fog)"/>
-			<substitute key="sector" value="GOES-West"/>
-	    	<substitute key="entity" value="GOES-15(P)"/>
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-	    </contribute>
-	    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
-	                menuText="Imager 6.7-6.5 micron IR (WV)" id="waterVapor">
-	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-			<substitute key="sector" value="GOES-West"/>
-	    	<substitute key="entity" value="GOES-15(P)"/>
-	        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
-	    </contribute>
-	</contribute>
+	    
+	    <contribute xsi:type="separator" id="MySeparatorId"/>
 	
-    <contribute xsi:type="separator" id="MySeparatorId"/>
-    
+	    <contribute xsi:type="subinclude" subMenu="GOES East - Full Disk"
+	        fileName="menus/satellite/goesr/goesrByChannel.xml">
+	        <substitute key="sector" value="EFD" />
+	        <substitute key="entity" value="GOES-16" />
+	    </contribute>
+	    	
+	    <contribute xsi:type="subinclude" subMenu="GOES East - Mesoscale Sector 1"
+	        fileName="menus/satellite/goesr/goesrByChannel.xml">
+	        <substitute key="sector" value="EMESO-1" />
+	        <substitute key="entity" value="GOES-16" />
+	    </contribute>
+	    <contribute xsi:type="subinclude" subMenu="GOES East - Mesoscale Sector 2"
+	        fileName="menus/satellite/goesr/goesrByChannel.xml">
+	        <substitute key="sector" value="EMESO-2" />
+	        <substitute key="entity" value="GOES-16" />
+	    </contribute>
+	    <contribute xsi:type="subinclude" subMenu="GOES East - Puerto Rico Sector"
+	        fileName="menus/satellite/goesr/goesrByChannel.xml">
+	        <substitute key="sector" value="PRREGI" />
+	        <substitute key="entity" value="GOES-16" />
+	    </contribute>
+	    
+	    <contribute xsi:type="subMenu" menuText="GOES West">
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="Imager Visible" id="visible">
+		        <substitute key="element" value="Imager Visible"/>
+				<substitute key="sector" value="GOES-West"/>
+		    	<substitute key="entity" value="GOES-15(P)"/>
+		        <substitute key="colormap" value="Sat/VIS/Linear"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="Imager 11 micron IR" id="irWindow">
+		        <substitute key="element" value="Imager 11 micron IR"/>
+				<substitute key="sector" value="GOES-West"/>
+		    	<substitute key="entity" value="GOES-15(P)"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="Imager 13 micron IR" id="irWindow">
+		        <substitute key="element" value="Imager 13 micron IR"/>
+				<substitute key="sector" value="GOES-West"/>
+		    	<substitute key="entity" value="GOES-15(P)"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="Imager 3.5-4.0 micron IR (Fog)" id="irWindow">
+		        <substitute key="element" value="Imager 3.5-4.0 micron IR (Fog)"/>
+				<substitute key="sector" value="GOES-West"/>
+		    	<substitute key="entity" value="GOES-15(P)"/>
+		        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+		                menuText="Imager 6.7-6.5 micron IR (WV)" id="waterVapor">
+		        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
+				<substitute key="sector" value="GOES-West"/>
+		    	<substitute key="entity" value="GOES-15(P)"/>
+		        <substitute key="colormap" value="Sat/WV/RAMSDIS WV"/>
+		    </contribute>
+		</contribute>
+
+    	<contribute xsi:type="separator" id="MySeparatorId"/>
+	   
+	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Conus" 
+	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
+	        <substitute key="sector" value="WCONUS" />
+	        <substitute key="entity" value="GOES%" />
+	    </contribute>
+	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Full Disk" 
+	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
+	        <substitute key="sector" value="WFD" />
+	        <substitute key="entity" value="GOES%" />
+	    </contribute>
+	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Mesoscale 1" 
+	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
+	        <substitute key="sector" value="WMESO-1" />
+	        <substitute key="entity" value="GOES%" />
+	    </contribute>
+	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Mesoscale 2" 
+	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
+	        <substitute key="sector" value="WMESO-2" />
+	        <substitute key="entity" value="GOES%" />
+	    </contribute>
+
 </menuTemplate>
