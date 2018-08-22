@@ -217,8 +217,8 @@ public class McidasSatelliteLookups {
         return creatingEntityLookup.map.get(sensorSource);
     }
 
-    public String getAreaName(int areaNumber) {
-        return areaNameLookup.map.get(areaNumber);
+    public String getAreaName(int sensorSource) {
+        return areaNameLookup.map.get(sensorSource);
     }
 
     private static McidasSatelliteLookups instance;
