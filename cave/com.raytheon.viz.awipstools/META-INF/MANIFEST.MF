@@ -30,7 +30,7 @@ Export-Package: com.raytheon.viz.awipstools,
  com.raytheon.viz.awipstools.ui.action,
  com.raytheon.viz.awipstools.ui.display,
  com.raytheon.viz.awipstools.ui.layer
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: com.raytheon.uf.common.inventory.exception,
  com.raytheon.viz.core,
  com.raytheon.viz.core.interval
