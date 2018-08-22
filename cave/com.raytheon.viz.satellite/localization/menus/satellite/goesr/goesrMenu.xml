@@ -5,6 +5,8 @@
         <contribute xsi:type="subinclude" 
         	fileName="menus/satellite/goesr/goesrBestResConusByChannel.xml"/>
         
+       	<contribute xsi:type="separator" id="MySeparatorId"/>
+        
 	    <contribute xsi:type="subinclude" subMenu="Derived Products"
 	    	 fileName="menus/satellite/goesr/goesrLevel2.xml" >
 			<substitute key="sector" value="ECONUS" />
