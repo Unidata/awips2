@@ -120,9 +120,6 @@ public class EmailSender {
             emailProperties = PropertiesUtil.read(emailPropertiesFile);
             statusHandler.debug("Email properties loaded!");
             jaxbManager = new JAXBManager(NotificationType.class);
-        } else {
-            statusHandler
-                    .warn("Registry email notification capability is disabled.");
         }
         sender = "Registry@"
                 + InetAddress.getLocalHost().getCanonicalHostName();
