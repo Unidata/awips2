@@ -59,7 +59,7 @@ public class IntlSigmetDataAdapter extends AbstractAdvisoryDataAdapter {
 
     final SimpleDateFormat FRAME_DATE_FORMAT = new SimpleDateFormat("dd/HHmm"); 
 
-    private static final float LINE_WIDTH = 1.5f;
+    private static final float LINE_WIDTH = 3.0f;
 
     private static final LineStyle LINE_STYLE = LineStyle.SOLID;
 
