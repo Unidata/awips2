@@ -28,7 +28,7 @@
         Mar 31, 2014    #2934    dgilling    Updated params for pSurge2.0/PHISH data.
         Jul 03, 2014  DR 14068   mfoster     Added parameters for 3km AK-RTMA
         Dec 15, 2014  DR 14024   jwatson     Added parameters for 2.5km GFSLAMPGrid
-        Feb 24, 2015  DR 16671   byin        Added HPBL for RUC13
+        Feb 24, 2015  DR 16671   byin        Added HPBL for RAP13
         May 21, 2015  DR 17515   bhunder     Added parameters for URMA25
         Jun 29, 2015    #4537    rferrel     Added parameters for HRRR.
         Oct 08, 2015    #4958    dgilling    Added parameters for NationalBlend.
@@ -593,9 +593,34 @@
     <alias base="PTypIcePellets">ptypicepellets</alias>
     <alias base="SNOWLVL">snowlvl</alias>
     <alias base="SNOWRATIO">snowratio</alias>
-    <alias base="PBE">pbe</alias>
-    <alias base="NBE">nbe</alias>
     <alias base="RIPCOP">ripcop</alias>
     <alias base="EROSNP">erosnp</alias>
     <alias base="OWASHP">owashp</alias>
+    <alias base="MIXHT">mixht</alias>
+    <alias base="TRWSPD">trwspd</alias>
+    <alias base="TRWDIR">trwdir</alias>
+    <alias base="VRATE">vrate</alias>
+    <alias base="HINDEX6hr">hindex6hr</alias>
+    <alias base="FOSINDX6hr">fosindx6hr</alias>
+    <alias base="MAXREF1hr">maxref1hr</alias>
+    <alias base="PWTHER">pwther</alias>
+    <alias base="TOTSN1hr">totsn1hr</alias>
+    <alias base="FICEAC1hr">ficeac1hr</alias>
+    <alias base="TOTSN6hr">totsn6hr</alias>
+    <alias base="FICEAC6hr">ficeac6hr</alias>
+    <alias base="TP10pct6hr">tp10pct6hr</alias>
+    <alias base="TP50pct6hr">tp50pct6hr</alias>
+    <alias base="TP90pct6hr">tp90pct6hr</alias>
+    <alias base="ThP1hr">thp1hr</alias>
+    <alias base="DRYTPPROB3hr">drytpprob3hr</alias>
+    <alias base="WGS50pct">wgs50pct</alias>
+    <alias base="WS50pct">ws50pct</alias>
+    <alias base="Vis50pct">vis50pct</alias>
+    <alias base="T50pct">t50pct</alias>
+    <alias base="PMSL10pct">pmsl10pct</alias>
+    <alias base="PMSL50pct">pmsl50pct</alias>
+    <alias base="PMSL90pct">pmsl90pct</alias>
+    <alias base="CC">cc</alias>
+    <alias base="MaxTW">maxtw</alias>
+    <alias base="LLWSHgt">llwshgt</alias>
 </aliasList>

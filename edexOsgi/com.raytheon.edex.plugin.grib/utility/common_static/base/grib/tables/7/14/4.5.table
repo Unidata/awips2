@@ -2,7 +2,7 @@
 #192-254 Reserved for local use
 192:192:Level at Specified Pressure Difference from Ground to Level:Pa:PDLY:LYRBL
 193:193:Eta Level:Eta value:ELYR:ETA
-200:200:Entire Atmosphere::NONE:EA
+200:200:Entire Atmosphere::EA
 201:201:Entire Ocean::NONE
 204:204:Highest Tropospheric Freezing Level::HTFL
 206:206:Grid Scale Cloud Bottom Level::GSCBL

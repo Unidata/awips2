@@ -108,7 +108,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <dataMapping>
                 <entry displayValue='50.0' pixelValue='0'/>
                 <entry displayValue='55.0' pixelValue='17'/>
@@ -313,7 +313,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
 		</paramLevelMatches>
 		<imageStyle>
 		    <displayUnits>in</displayUnits>
-			<defaultColormap>Grid/gridded data</defaultColormap>
+			<defaultColormap>Grid/Gridded Data</defaultColormap>
 			<dataMapping>
 			    <entry displayValue='0.0' pixelValue='0'/>
 				<entry displayValue='1.0' pixelValue='17'/>
@@ -341,7 +341,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='1.0' pixelValue='17'/>
@@ -368,7 +368,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='2.0' pixelValue='17'/>
@@ -395,7 +395,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='2.0' pixelValue='17'/>
@@ -423,7 +423,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
            <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='2.0' pixelValue='17'/>
@@ -450,7 +450,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
            <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='2.0' pixelValue='17'/>
@@ -477,7 +477,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='2.0' pixelValue='17'/>
@@ -505,7 +505,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='2.0' pixelValue='17'/>
@@ -532,7 +532,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='2.0' pixelValue='17'/>
@@ -559,7 +559,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='2.0' pixelValue='17'/>
@@ -586,7 +586,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
            <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='2.0' pixelValue='17'/>
@@ -613,7 +613,7 @@ ARIFFG100, then the style rule parameter tag will look like this example....
         </paramLevelMatches>
         <imageStyle>
             <displayUnits>in</displayUnits>
-            <defaultColormap>Grid/gridded data</defaultColormap>
+            <defaultColormap>Grid/Gridded Data</defaultColormap>
             <dataMapping>
                 <entry displayValue='0.0' pixelValue='0'/>
                 <entry displayValue='2.0' pixelValue='17'/>

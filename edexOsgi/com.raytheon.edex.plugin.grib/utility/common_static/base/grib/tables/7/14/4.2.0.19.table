@@ -1,4 +1,5 @@
 # Product Discipline 0: Meteorological products, Parameter Category 19: Physical atmospheric properties
+3:3:Mixed Layer Depth:m:MIXHT
 #192-254 Reserved for local use
 192:192:Maximum Snow Albedo:%:MXSALB
 193:193:Snow-Free Albedo:%:SNFALB
@@ -44,5 +45,6 @@
 233:233:Icing probability:non-dim:ICPRB
 234:234:Icing severity:non-dim:ICSEV
 235:235:Snow Level:m:SNOWLVL
+236:236:Snow Level:m:SNOWLVL
 255:255:Missing
 

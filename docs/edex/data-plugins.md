@@ -82,7 +82,7 @@ td:first-child { font-weight: bold }
 |  lsr  |  Local Storm Reports  |
 |  mpe  | Multi-sensor Precipitation Estimation |
 |  preciprate | Precipitation Rate from SCAN. Raw data input: radar data [with WSR-88D product mnemonic and number] needed for preciprate are Digital Hybrid Reflectivity [DHR, 32]. |
-|  qpf | Quantitative Precipitation Forecast from SCAN. (raw data inputs: radar and some RUC130 fields. Radar data [with WSR-88D product mnemonics and numbers] needed for SCAN’s QPF are 0.5 degree Base Reflectivity [Z, 19], 4 km Vertically Integrated Liquid [VIL, 57], and Storm Track [STI, 58]. The RUC130 field needed is 700 mb Wind, as defined in the SCANRunSiteConfig.xml file.)   |
+|  qpf | Quantitative Precipitation Forecast from SCAN. (raw data inputs: radar and some RAP13 fields. Radar data [with WSR-88D product mnemonics and numbers] needed for SCAN’s QPF are 0.5 degree Base Reflectivity [Z, 19], 4 km Vertically Integrated Liquid [VIL, 57], and Storm Track [STI, 58]. The RAP13 field needed is 700 mb Wind, as defined in the SCANRunSiteConfig.xml file.)   |
 |  satpre  |  Satellite-estimated Pecipiration (hydroApps)  |
 |  scan   |  SCAN (System for Convection Analysis and Nowcasting). (Inputs for the SCAN Table include radar, cloud-to-ground lightning from the NLDN, fields from RAP13, and CWAT. Specific radar products [with WSR-88D product mnemonics and numbers] are: 1 km Composite Reflectivity [CZ, 37]; 0.5 degree Base Reflectivity [Z, 19]; 4 km Vertically Integrated Liquid [VIL, 57]; Storm Track [STI, 58]; Mesocyclone Detections [MD, 141]; and Tornadic Vortex Signature [TVS, 61]. |
 |  shef  |  Standard Hydrometeorological Exchange Format data.   |

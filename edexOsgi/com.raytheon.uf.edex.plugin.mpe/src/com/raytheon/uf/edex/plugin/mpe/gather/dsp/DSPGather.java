@@ -17,13 +17,13 @@
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
-package com.raytheon.uf.edex.plugin.mpe.gather.dhr;
+package com.raytheon.uf.edex.plugin.mpe.gather.dsp;
 
 import com.raytheon.uf.edex.plugin.mpe.gather.MpeRadarGather;
 import com.raytheon.uf.edex.plugin.mpe.gather.MpeRadarGatherConstants;
 
 /**
- * Replacement for the DHRgather script.
+ * Replacement for the DSPgather script.
  *
  * <pre>
  *
@@ -31,22 +31,16 @@ import com.raytheon.uf.edex.plugin.mpe.gather.MpeRadarGatherConstants;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Jun 24, 2016 4625       bkowal      Initial creation
- * Nov 22, 2016 5588       nabowle     Check PSM param for precipitation.
- * Jan 10, 2016 6058       bkowal      Silently ignore invalid DHR input files. Do not fully
- *                                     read an entire file just to check for precip.
- * Jul 24, 2018 5588       mapeters    Fix determination of whether DHR product has precip,
- *                                     account for legacy/java decode paths using separate
- *                                     gather dirs, abstracted out to {@link MpeRadarGather}
+ * Jul 24, 2018 5588       mapeters    Initial creation
  *
  * </pre>
  *
- * @author bkowal
+ * @author mapeters
  */
-public class DHRGather extends MpeRadarGather {
+public class DSPGather extends MpeRadarGather {
 
-    public DHRGather() {
-        super(MpeRadarGatherConstants.DHR_PRODUCT_TYPE,
-                MpeRadarGatherConstants.AppsDefaults.DHR_PROD_DIR);
+    protected DSPGather() {
+        super(MpeRadarGatherConstants.DSP_PRODUCT_TYPE,
+                MpeRadarGatherConstants.AppsDefaults.DSP_PROD_DIR);
     }
 }

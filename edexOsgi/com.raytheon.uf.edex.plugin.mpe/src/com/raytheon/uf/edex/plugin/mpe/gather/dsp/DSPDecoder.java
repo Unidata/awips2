@@ -48,6 +48,8 @@ import com.raytheon.uf.edex.plugin.mpe.gather.radar.MpeRadarInputException;
  * Nov 22, 2016 5588       nabowle     Initial creation
  * Dec 14, 2016 5588       nabowle     Fix negative values. Round to 3 decimals
  *                                     to match legacy.
+ * Jul 19, 2018 5588       mapeters    Change rounding to truncating to match
+ *                                     legacy
  *
  * </pre>
  *
@@ -56,7 +58,11 @@ import com.raytheon.uf.edex.plugin.mpe.gather.radar.MpeRadarInputException;
 
 public class DSPDecoder extends MpeRadarDecoder<DSPRadarFile> {
 
-    private static final float ROUND_FACTOR = 1000F;
+    /**
+     * The factor that determines the number of decimal places to truncate the
+     * data values to (1000 = 3 decimal places).
+     */
+    private static final float TRUNCATE_FACTOR = 1000F;
 
     private DspradarDao radarDao = new DspradarDao();
 
@@ -120,14 +126,14 @@ public class DSPDecoder extends MpeRadarDecoder<DSPRadarFile> {
 
             for (int j = 0; j < MpeRadarDecodeConstants.MAX_JHRAP; j++) {
                 for (int i = 0; i < MpeRadarDecodeConstants.MAX_IHRAP; i++) {
-                    ledos.writeFloat(roundFloat(data[j][i]));
+                    ledos.writeFloat(truncateFloat(data[j][i]));
                 }
             }
         }
     }
 
-    private float roundFloat(float f) {
-        return Math.round(f * ROUND_FACTOR) / ROUND_FACTOR;
+    private float truncateFloat(float f) {
+        return (int) (f * TRUNCATE_FACTOR) / TRUNCATE_FACTOR;
     }
 
     @Override

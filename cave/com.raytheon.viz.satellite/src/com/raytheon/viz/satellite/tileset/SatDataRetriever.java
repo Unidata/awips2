@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -24,18 +24,13 @@ import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
-import java.text.ParseException;
-import java.text.ParsePosition;
-import java.util.Map;
 
 import javax.measure.unit.Unit;
-import javax.measure.unit.UnitFormat;
 
 import com.raytheon.uf.common.colormap.image.ColorMapData;
 import com.raytheon.uf.common.colormap.image.ColorMapData.ColorMapDataType;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
-import com.raytheon.uf.common.dataplugin.satellite.units.goes.PolarPrecipWaterPixel;
-import com.raytheon.uf.common.dataplugin.satellite.units.water.BlendedTPWPixel;
+import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnitsUtil;
 import com.raytheon.uf.common.datastorage.DataStoreFactory;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.ByteDataRecord;
@@ -48,16 +43,15 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.data.IColorMapDataRetrievalCallback;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
-import com.raytheon.viz.satellite.SatelliteConstants;
 
 /**
  * {@link IColorMapDataRetrievalCallback} for satellite imagery data. Supports
  * signed and unsigned byte and short data
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jun 20, 2013  2122     mschenke    Initial creation
@@ -66,11 +60,11 @@ import com.raytheon.viz.satellite.SatelliteConstants;
  * Apr 09, 2014  2947     bsteffen    Improve flexibility of sat derived
  *                                    parameters.
  * Apr 15, 2014  4388     bsteffen    Add method to get signed vs. unsigned from data record.
- * 
+ * Jul 31, 2018  6389     mapeters    Units methods extracted to SatelliteUnitsUtil
+ *
  * </pre>
- * 
+ *
  * @author mschenke
- * @version 1.0
  */
 public class SatDataRetriever implements IColorMapDataRetrievalCallback {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -92,7 +86,7 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.viz.core.data.IDataRetrievalCallback#getData()
      */
     @Override
@@ -100,10 +94,10 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
         Buffer data = null;
         Unit<?> dataUnit = Unit.ONE;
         boolean signed = false;
-        Request req = Request.buildSlab(new int[] { this.datasetBounds.x,
-                this.datasetBounds.y }, new int[] {
-                this.datasetBounds.x + this.datasetBounds.width,
-                this.datasetBounds.y + this.datasetBounds.height });
+        Request req = Request.buildSlab(
+                new int[] { this.datasetBounds.x, this.datasetBounds.y },
+                new int[] { this.datasetBounds.x + this.datasetBounds.width,
+                        this.datasetBounds.y + this.datasetBounds.height });
         IDataRecord[] dataRecord = null;
         try {
             dataRecord = DataCubeContainer.getDataRecord(record, req,
@@ -141,89 +135,39 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
             dataType = ColorMapData.getDataType(data);
         }
 
-        return new ColorMapData(data, new int[] { datasetBounds.width,
-                datasetBounds.height }, dataType, dataUnit);
+        return new ColorMapData(data,
+                new int[] { datasetBounds.width, datasetBounds.height },
+                dataType, dataUnit);
     }
 
     /**
-     * @param record2
-     * @return
+     * @deprecated use {@link SatelliteUnitsUtil#getRecordUnit(SatelliteRecord)}
      */
+    @Deprecated
     public static Unit<?> getRecordUnit(SatelliteRecord record) {
-        Unit<?> recordUnit = null;
-        String physicalElement = record.getPhysicalElement();
-
-        if (record.getUnits() != null && record.getUnits().isEmpty() == false) {
-            try {
-                recordUnit = UnitFormat.getUCUMInstance().parseProductUnit(
-                        record.getUnits(), new ParsePosition(0));
-            } catch (ParseException e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "Unable to parse satellite units: "
-                                        + record.getUnits(), e);
-            }
-        }
-
-        if (physicalElement.equals(SatelliteConstants.PRECIP)) {
-            String creatingEntity = record.getCreatingEntity();
-            if (creatingEntity.equals(SatelliteConstants.DMSP)
-                    || creatingEntity.equals(SatelliteConstants.POES)) {
-                recordUnit = new PolarPrecipWaterPixel();
-            } else if (creatingEntity.equals(SatelliteConstants.MISC)) {
-                recordUnit = new BlendedTPWPixel();
-            }
-        }
-
-        return recordUnit;
+        return SatelliteUnitsUtil.getRecordUnit(record);
     }
 
     /**
-     * Extracts the data units for the data record given the PDO's base unit
-     * 
-     * @param recordUnit
-     * @param dataRecord
-     * @return
+     * @deprecated use {@link SatelliteUnitsUtil#getDataUnit(Unit, IDataRecord)}
      */
+    @Deprecated
     public static Unit<?> getDataUnit(Unit<?> recordUnit,
             IDataRecord dataRecord) {
-        Unit<?> units = recordUnit != null ? recordUnit : Unit.ONE;
-        Map<String, Object> attrs = dataRecord.getDataAttributes();
-        if (attrs != null) {
-            Number offset = (Number) attrs.get(SatelliteRecord.SAT_ADD_OFFSET);
-            Number scale = (Number) attrs.get(SatelliteRecord.SAT_SCALE_FACTOR);
-
-            if (offset != null) {
-                double offsetVal = offset.doubleValue();
-                if (offsetVal != 0.0) {
-                    units = units.plus(offsetVal);
-                }
-            }
-            if (scale != null) {
-                double scaleVal = scale.doubleValue();
-                if (scaleVal != 0.0) {
-                    units = units.times(scaleVal);
-                }
-            }
-        }
-        return units;
+        return SatelliteUnitsUtil.getDataUnit(recordUnit, dataRecord);
     }
 
+    /**
+     * @deprecated use {@link SatelliteUnitsUtil#isSigned(IDataRecord)}
+     */
+    @Deprecated
     public static boolean isSigned(IDataRecord record) {
-        Map<String, Object> attrs = record.getDataAttributes();
-        if (attrs != null) {
-            Boolean signed = (Boolean) attrs
-                    .get(SatelliteRecord.SAT_SIGNED_FLAG);
-            if (signed != null && signed) {
-                return true;
-            }
-        }
-        return false;
+        return SatelliteUnitsUtil.isSigned(record);
     }
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -239,33 +183,42 @@ public class SatDataRetriever implements IColorMapDataRetrievalCallback {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         SatDataRetriever other = (SatDataRetriever) obj;
         if (dataset == null) {
-            if (other.dataset != null)
+            if (other.dataset != null) {
                 return false;
-        } else if (!dataset.equals(other.dataset))
+            }
+        } else if (!dataset.equals(other.dataset)) {
             return false;
+        }
         if (datasetBounds == null) {
-            if (other.datasetBounds != null)
+            if (other.datasetBounds != null) {
                 return false;
-        } else if (!datasetBounds.equals(other.datasetBounds))
+            }
+        } else if (!datasetBounds.equals(other.datasetBounds)) {
             return false;
+        }
         if (record == null) {
-            if (other.record != null)
+            if (other.record != null) {
                 return false;
-        } else if (!record.equals(other.record))
+            }
+        } else if (!record.equals(other.record)) {
             return false;
+        }
         return true;
     }
 

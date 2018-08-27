@@ -86,21 +86,6 @@
     </levels>
   </gridParameterInfo>
   <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
-    <short_name>tpHPC</short_name>
-    <long_name>6 hr Total Precip</long_name>
-    <units>mm</units>
-    <udunits>millimeter</udunits>
-    <uiname>totPrecip</uiname>
-    <valid_range>0.0</valid_range>
-    <valid_range>1000.0</valid_range>
-    <fillValue>-99999.0</fillValue>
-    <n3D>0</n3D>
-    <levelsDesc>SFC</levelsDesc>
-    <levels>
-      <level>SFC</level>
-    </levels>
-  </gridParameterInfo>
-  <gridParameterInfo xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="parameterInfo">
     <short_name>tpALR</short_name>
     <long_name>6 hr Total Precip for RFC-&gt; ALR</long_name>
     <units>mm</units>

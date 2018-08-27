@@ -42,6 +42,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------ ---------- ----------- --------------------------
  * Nov 22, 2016 5588       nabowle     Initial creation
  * Dec 14, 2015 5588       nabowle     Fix caching.
+ * Jul 19, 2018 5588       mapeters    Reverse lat/lon in Coordinates so
+ *                                     lon=x and lat=y
  *
  * </pre>
  *
@@ -81,7 +83,7 @@ public class MpeRadarDecodeUtils {
     public static void buildLookupTable(int radLat, int radLon,
             int[][] quarterHrapToRadarAzimuth,
             int[][] quarterHrapToRadarRange) {
-        Coordinate coord = new Coordinate(radLat, radLon);
+        Coordinate coord = new Coordinate(radLon, radLat);
         SoftReference<int[][][]> cachedRef = lookupCache.get(coord);
         if (cachedRef != null) {
             int[][][] cachedTable = cachedRef.get();

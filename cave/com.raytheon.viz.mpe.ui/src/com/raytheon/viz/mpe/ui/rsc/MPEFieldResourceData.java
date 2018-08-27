@@ -60,6 +60,7 @@ import com.raytheon.viz.mpe.ui.rfcmask.RfcMask;
  * Mar 01, 2017 6160       bkowal      Implemented {@link #getDisplayString()}.
  * Oct 30, 2017 17911      wkwock      Display RFC QPE
  * May 04, 2018 20677      wkwock      Fix display WFO QPE data issue.
+ * Jul 31, 2018 20677      wkwock      Add check for null pointer.
  * 
  * </pre>
  * 
@@ -310,7 +311,11 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
     public void maskData(MPEFieldFrame frame) {
         if (frame.origData == null) {
             frame.origData = frame.data.clone();
-            frame.origEditedData = frame.editedData.clone();
+            if (frame.editedData != null) {
+                frame.origEditedData = frame.editedData.clone();
+            } else {
+                frame.origEditedData = null;
+            }
 
             if (maskXmrg == null) {
                 AppsDefaults appsDefaults = AppsDefaults.getInstance();
@@ -336,7 +341,9 @@ public class MPEFieldResourceData extends AbstractMPEGriddedResourceData {
                 for (int i = 0; i < maskData.length; i++) {
                     if (maskData[i] == 0) {
                         frame.data[i] = CommonHydroConstants.MISSING_VALUE;
-                        frame.editedData[i] = CommonHydroConstants.MISSING_VALUE;
+                        if (frame.editedData != null) {
+                            frame.editedData[i] = CommonHydroConstants.MISSING_VALUE;
+                        }
                     }
                 }
             } else {

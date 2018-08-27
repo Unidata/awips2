@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -30,25 +30,26 @@ import com.raytheon.uf.common.ohd.AppsDefaults;
 /**
  * Apps_Defaults utility to convert String-based Apps_Defaults properties to
  * usable Java objects.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 2, 2016  5614       bkowal      Initial creation
  * May 13, 2016 5576       bkowal      Updated to be more of a general utility for
  *                                     Apps_Defaults property conversions.
  * Jun 13, 2016 5576       bkowal      Added {@link #parallelExecEnabled()}.
- * Jun 29, 2016 5576       bkowal      Added a TODO explaning future steps.
+ * Jun 29, 2016 5576       bkowal      Added a todo explaining future steps.
  * Jul 12, 2016 4619       bkowal      Relocated to common.
  * Aug 10, 2016 4619       bkowal      The parallel write flag is now a constant to
  *                                     ensure it is not accidentally overwritten.
  * Aug 07, 2017 6334       bkowal      Directories are now created with 770 permissions and files 660.
- * 
+ * Jul 19, 2018 5588       mapeters    Added {@link #getPathForTokenWithoutCreating(String)}
+ *
  * </pre>
- * 
+ *
  * @author bkowal
  */
 
@@ -66,7 +67,7 @@ public final class AppsDefaultsConversionWrapper {
      * currently enabled. TODO: completely remove this method when the decision
      * is made to transition to the new MPE framework. Expect several errors
      * that will need to be resolved after removing this method.
-     * 
+     *
      * @return {@code true}, if parallel execution is enabled; {@code false},
      *         otherwise
      */
@@ -76,16 +77,18 @@ public final class AppsDefaultsConversionWrapper {
 
     /**
      * Retrieves a {@link Path} associated with an Apps_Defaults token. Will
-     * also verify that that Path exists and make any required standard
-     * modifications to the Path before returning it.
-     * 
+     * also make any required standard modifications to the Path before
+     * returning it.
+     *
+     * Note that the path will NOT be created if it doesn't exist. See
+     * {@link #getPathForToken(String)} if it should be created in this case.
+     *
      * @param token
      *            the specified Apps_Defaults token.
-     * @return the {@link Path} associated with the specified token.
-     * @throws AppsDefaultsPathException
+     * @return the {@link Path} associated with the specified token, which may
+     *         not exist.
      */
-    public static Path getPathForToken(final String token)
-            throws AppsDefaultsPathException {
+    public static Path getPathForTokenWithoutCreating(final String token) {
         final String directory = AppsDefaults.getInstance().getToken(token);
         if (directory == null) {
             throw new IllegalArgumentException("No " + AppsDefaults.NAME
@@ -99,6 +102,29 @@ public final class AppsDefaultsConversionWrapper {
                     + PARALLEL_DIRECTORY;
             directoryPath = Paths.get(destinationRoot, destinationDirectory);
         }
+
+        return directoryPath;
+    }
+
+    /**
+     * Retrieves a {@link Path} associated with an Apps_Defaults token. Will
+     * also make any required standard modifications to the Path before
+     * returning it.
+     *
+     * Note that the path will be created if it doesn't exist. See
+     * {@link #getPathForTokenWithoutCreating(String)} if it doesn't need to be
+     * created.
+     *
+     * @param token
+     *            the specified Apps_Defaults token.
+     * @return the {@link Path} associated with the specified token, which is
+     *         guaranteed to exist.
+     * @throws AppsDefaultsPathException
+     *             if an I/O error occurs when trying to create the path
+     */
+    public static Path getPathForToken(final String token)
+            throws AppsDefaultsPathException {
+        Path directoryPath = getPathForTokenWithoutCreating(token);
         if (!Files.exists(directoryPath)) {
             try {
                 com.raytheon.uf.common.util.file.Files.createDirectories(
@@ -114,7 +140,7 @@ public final class AppsDefaultsConversionWrapper {
 
     /**
      * Retrieves a {@link Boolean} for Apps_Defaults properties.
-     * 
+     *
      * @param token
      *            the specified token identifying the property to retrieve.
      * @return {@code null} if the property is not found. True if the retrieved

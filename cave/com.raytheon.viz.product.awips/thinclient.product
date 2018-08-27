@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/caveData -user @user.home/caveData
+      <programArgs>-data @user.home/caveData -user @user.home/caveData -alertviz -vm "C:/Program Files/Raytheon/AWIPS II/Java/jre/bin/javaw.exe"
       </programArgs>
       <programArgsLin>-consoleLog
       </programArgsLin>
@@ -63,10 +63,12 @@
       </win>
    </launcher>
 
+
    <vm>
       <linux include="true">jdk1.7.0</linux>
       <windows include="true">jdk1.7.0</windows>
    </vm>
+
 
    <plugins>
    </plugins>
@@ -104,15 +106,19 @@
       <feature id="com.raytheon.uf.viz.ncep.perspective.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.thinclient.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.npp.feature" version="1.0.0.qualifier"/>
-      <feature id="com.raytheon.uf.viz.d2d.skewt.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.npp.sounding.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.d2d.skewt.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.acarssounding.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.viz.avnfps.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.viz.hydro.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.dat.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.gfe.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.d2d.damagepath.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.gisdatastore.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.ui.awips.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.alertview.feature" version="1.0.0.qualifier"/>
-      <feature id="com.raytheon.uf.viz.d2d.damagepath.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.ffmp.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.scan.feature" version="1.0.0.qualifier"/>
    </features>
 
    <configurations>
@@ -121,5 +127,12 @@
       <plugin id="org.eclipse.equinox.common" autoStart="true" startLevel="2" />
       <plugin id="org.eclipse.equinox.ds" autoStart="true" startLevel="2" />
    </configurations>
+
+   <preferencesInfo>
+      <targetfile overwrite="false"/>
+   </preferencesInfo>
+
+   <cssInfo>
+   </cssInfo>
 
 </product>

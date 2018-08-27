@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -89,11 +89,11 @@ import ucar.unidata.io.RandomAccessFile;
 
 /**
  * Grib decoder implementation for decoding grib version 1 files.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Mar 11, 2010  4758     bphillip  Initial Creation
@@ -111,10 +111,12 @@ import ucar.unidata.io.RandomAccessFile;
  * Apr 11, 2016  5564     bsteffen  Move localization files to common_static
  * Apr 19, 2016  5572     bsteffen  Move GribModelLookup to common
  * Sep 11, 2017  6406     bsteffen  Upgrade ucar
- * 
- * 
+ * Aug 02, 2018  7397     mapeters  Fix parameter table lookups so standard
+ *                                  ucar lookups are used
+ *
+ *
  * </pre>
- * 
+ *
  * @author bphillip
  */
 public class Grib1Decoder {
@@ -123,7 +125,7 @@ public class Grib1Decoder {
 
     /**
      * http://www.nco.ncep.noaa.gov/pmb/docs/on388/tableb.html#FOS
-     * 
+     *
      * Grib files using these coverages have an entire row of data that is
      * located at the pole. Rather than sending the same value multiple times,
      * they only send a single point. Since we must have a data value for each
@@ -159,25 +161,21 @@ public class Grib1Decoder {
                                 LocalizationLevel.BASE),
                         "/grib/ucar/userTables.lst")
                 .getPath();
-        Grib1ParamTables tables;
         try {
-            Grib1ParamTables.Lookup lookup = new Grib1ParamTables.Lookup();
-            lookup.readLookupTable(ucarUserFile);
-            tables = new Grib1ParamTables(lookup, null);
+            Grib1ParamTables.addParameterTableLookup(ucarUserFile);
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error reading user parameter tables for ucar grib decoder",
                     e);
-            tables = new Grib1ParamTables(null, null);
         }
-        paramTables = tables;
+        paramTables = new Grib1ParamTables();
     }
 
     /**
      * Decodes the grib file provided.
-     * 
-     * @param gribFileName
-     *            The name of the file to be decoded
+     *
+     * @param message
+     *            message describing the grib file to decode
      * @return The decoded GridRecords
      * @throws GribException
      *             If decoding the file fails or encounters problems
@@ -227,7 +225,7 @@ public class Grib1Decoder {
 
     /**
      * Decodes a single record from the grib file
-     * 
+     *
      * @param rec
      *            The record to decode
      * @param raf
@@ -443,12 +441,12 @@ public class Grib1Decoder {
                  * https://github.com/Unidata/thredds/issues/82. That bug only
                  * identifies the problem with cubicSpline interpolation, but
                  * linear interpolation is making the same assumptions.
-                 * 
+                 *
                  * The problem is that the ucar interpolation method assumes the
                  * data is cylindrical and it spaces the points evenly along the
                  * cylinder, while fillThinedGrids only interpolates in the 2D
                  * space of the grid.
-                 * 
+                 *
                  * For example if you have a row with only 2 data points then
                  * fillThinnedGrid would place one point on the left and the
                  * other on the right and the grid is filled by interpolating
@@ -462,7 +460,7 @@ public class Grib1Decoder {
                  * those points to fill the right half. If you have a worldwide
                  * grid Lat/Lon then this treatment makes sense because the
                  * projection is a cylinder.
-                 * 
+                 *
                  * We get thinned grids in "quadrant" form, using grids 37-44.
                  * These grids are definitely not a cylinder so the ucar method
                  * is wrong.
@@ -586,7 +584,7 @@ public class Grib1Decoder {
     /**
      * Resizes a 1-D data array into a 2-D array based on the provided row and
      * column count
-     * 
+     *
      * @param data
      *            The 1-D array of data
      * @param columnCount
@@ -660,7 +658,7 @@ public class Grib1Decoder {
 
     /**
      * Resizes a 2-D array of data to a 1-D array
-     * 
+     *
      * @param data
      *            The 2-D array of data
      * @param rowCount
@@ -683,7 +681,7 @@ public class Grib1Decoder {
 
     /**
      * Extracts a sub-grid of data from a 2-D array of data
-     * 
+     *
      * @param data
      *            The 2-D array of data
      * @param startColumn
@@ -746,7 +744,7 @@ public class Grib1Decoder {
 
     /**
      * Flips the grid according to the scan mode in the GDS
-     * 
+     *
      * @param data
      *            The data
      * @param nx
@@ -782,7 +780,7 @@ public class Grib1Decoder {
 
     /**
      * Gets the time ranges for the data
-     * 
+     *
      * @param refTime
      *            The reference time
      * @param timeRange
@@ -829,7 +827,7 @@ public class Grib1Decoder {
 
     /**
      * Gets the spatial information from the grib record
-     * 
+     *
      * @param gdsVars
      *            The gds values
      * @param gridNumber
@@ -963,7 +961,7 @@ public class Grib1Decoder {
 
     /**
      * Checks the cache for the GridCoverage object.
-     * 
+     *
      * @param coverage
      *            The coverage to check the cache for
      * @param gridNumber
@@ -995,7 +993,7 @@ public class Grib1Decoder {
 
     /**
      * Look up a model name based off the grib numbers
-     * 
+     *
      * @param centerId
      * @param subcenterId
      * @param process
@@ -1011,7 +1009,7 @@ public class Grib1Decoder {
 
     /**
      * Check if the forecast flag should be removed
-     * 
+     *
      * @param time
      *            The datatime to remove forecast flag if needed
      * @param centerId
@@ -1033,7 +1031,7 @@ public class Grib1Decoder {
     /**
      * Constructs a data time object from the time information extracted from
      * the grib record
-     * 
+     *
      * @param refTime
      *            The reference time
      * @param forecastTime
@@ -1060,7 +1058,7 @@ public class Grib1Decoder {
 
     /**
      * Converts a time value to seconds
-     * 
+     *
      * @param value
      *            The value to convert
      * @param fromUnit
@@ -1114,7 +1112,7 @@ public class Grib1Decoder {
 
     /**
      * Converts a grib 1 level to the equivalent grib 2 representation
-     * 
+     *
      * @param ltype1
      *            The type of level
      * @param lval1
@@ -1284,7 +1282,7 @@ public class Grib1Decoder {
 
     /**
      * Gets the level information
-     * 
+     *
      * @param centerID
      *            The center
      * @param subcenterID
@@ -1369,7 +1367,7 @@ public class Grib1Decoder {
 
     /**
      * Bounds a longitude to between -180 and 180
-     * 
+     *
      * @param lon
      *            The longitude to correct
      * @return The corrected longitude
@@ -1393,7 +1391,7 @@ public class Grib1Decoder {
 
     /**
      * Bounds a latitude to between -90 and 90
-     * 
+     *
      * @param lat
      *            The latitude to correct
      * @return The corrected latitude

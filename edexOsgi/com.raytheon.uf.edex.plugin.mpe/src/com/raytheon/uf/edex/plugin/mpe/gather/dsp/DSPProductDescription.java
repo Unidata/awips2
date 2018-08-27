@@ -36,6 +36,7 @@ import com.raytheon.uf.edex.plugin.mpe.gather.radar.MpeRadarProductDescription;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 22, 2016 5588       nabowle     Initial creation
+ * Jul 19, 2018 5588       mapeters    Fix parsing of maxPrecipValue
  *
  * </pre>
  *
@@ -43,8 +44,6 @@ import com.raytheon.uf.edex.plugin.mpe.gather.radar.MpeRadarProductDescription;
  */
 
 public class DSPProductDescription extends MpeRadarProductDescription {
-
-    private static final float PRECIP_DIVIDEND = 10.0f;
 
     private static final class DSPDescriptionIndices {
 
@@ -56,7 +55,7 @@ public class DSPProductDescription extends MpeRadarProductDescription {
 
         public static final int DATA_LVL_SCALE_INDEX = 22;
 
-        public static final int MAX_PRECIP_INDEX = 21;
+        public static final int MAX_PRECIP_INDEX = 37;
     }
 
     private Calendar startDateTime;
@@ -71,7 +70,8 @@ public class DSPProductDescription extends MpeRadarProductDescription {
 
     private short julianBeginTime;
 
-    public DSPProductDescription(ByteBuffer buf) throws InvalidMpeRadarException {
+    public DSPProductDescription(ByteBuffer buf)
+            throws InvalidMpeRadarException {
         super(buf);
     }
 
@@ -84,8 +84,7 @@ public class DSPProductDescription extends MpeRadarProductDescription {
                 (short) (julianBeginTime / TimeUtil.SECONDS_PER_MINUTE));
         minDataLevel = data[DSPDescriptionIndices.MIN_DATA_LVL_INDEX];
         dataLevelScaleFactor = data[DSPDescriptionIndices.DATA_LVL_SCALE_INDEX];
-        maxPrecipValue = data[DSPDescriptionIndices.MAX_PRECIP_INDEX]
-                / PRECIP_DIVIDEND;
+        maxPrecipValue = data[DSPDescriptionIndices.MAX_PRECIP_INDEX];
     }
 
     /**

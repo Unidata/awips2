@@ -22,7 +22,7 @@
 # This is a base file that is not intended to be overridden.
 ##
 
-# Version 2017.12.13-0
+# Version 2018.6.5-0
 
 import GenericHazards
 import JsonSupport
@@ -1457,7 +1457,7 @@ class SectionCommon():
         self._sectionHeaderName = sectionHeaderName
         self._segment = segment
         self._tr = None
-        self.isThreatNoneForEntireStorm = True
+        self.isThreatNoneForEntireStorm = False
 
     def _isThreatNoneForEntireStorm(self, threatName):
         previousAdvisories = self._textProduct._getPreviousAdvisories()
@@ -1471,7 +1471,7 @@ class SectionCommon():
             if advisory["ZoneData"][self._segment][threatName] != "None":
                 return False
         
-        return True
+        return False
     
     def _setProductPartValue(self, dictionary, productPartName, value):
         dictionary[self._sectionName + '._' + productPartName] = value

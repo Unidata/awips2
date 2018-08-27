@@ -52,6 +52,7 @@
 # Jul 17, 2017  DR19976  MPorricelli Add labeling of Probability Matched Mean fields#
 # Nov 29, 2017  6536     bsteffen    Handle redundant statistical specifiers better.
 # Feb 07, 2018  7213     nabowle     Only allow P-ETSS to create Statistical parameters.
+# Mar 19, 2018  20395    wkwock      Added PDS template 15
 #
 
 import grib2
@@ -444,7 +445,7 @@ class GribDecoder():
         # Templates 0-11 are ordered the same for the most part and can therefore be processed the same
         # Exception cases are handled accordingly
 
-        if pdsTemplateNumber <= 12:
+        if pdsTemplateNumber <= 12 or pdsTemplateNumber == 15:
 
             # Get the basic level and parameter information
             if (pdsTemplate[0] == 255):
@@ -477,7 +478,13 @@ class GribDecoder():
 
             levelName = None;
             levelUnit = None;
-            gribLevel = GribTableLookup.getInstance().getTableValue(centerID, subcenterID, LEVELS_TABLE, int(pdsTemplate[9]))
+            
+            #In case the 1st level is 'SFC' and the 2nd level is 'FHAG', use FHAG as the level number
+            levelNumber = int(pdsTemplate[9])
+            levelNumber2 = int(pdsTemplate[12])
+            if levelNumber == 1 and levelNumber2 == 103:
+                levelNumber = levelNumber2
+            gribLevel = GribTableLookup.getInstance().getTableValue(centerID, subcenterID, LEVELS_TABLE, levelNumber)
 
             if gribLevel is not None:
                levelName = gribLevel.getAbbreviation();
@@ -519,10 +526,7 @@ class GribDecoder():
                 else:
                     levelTwoValue = float(pdsTemplate[14] * pow(10, pdsTemplate[13] * -1))
 
-            if levelName == 'SFC' and levelOneValue != float(0):
-                levelOneValue = float(0)
-
-            if levelName == 'EATM':
+            if levelName == 'EATM' or levelName == 'SFC':
                 levelOneValue = float(0)
                 levelTwoValue = float(Level.getInvalidLevelValue())
 

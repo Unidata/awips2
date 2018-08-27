@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
 # 
@@ -18,6 +18,23 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 #
+#
+# SOFTWARE HISTORY
+#
+# Date         Ticket#    Engineer    Description
+# ------------ ---------- ----------- --------------------------
+# Sep 22, 2016 5885       tgurney     Initial creation
+# Jan  4, 2017 6056       tgurney     Fix tmp dir cleanup
+# Mar 16, 2017 6184       tgurney     Update to fetch and use SSL certificates
+# Mar 29, 2017 6184       tgurney     Fix SSL certificate sync from master
+# Apr  4, 2017 6184       tgurney     Set correct permissions on cert directory
+# Apr  4, 2017 6122       tgurney     Move database to /awips2/database
+#                                     + cleanup and fixes for postgres 9.5.x
+# Aug  6, 2018 7431       tgurney     Bug fixes. Allow starting without a
+#                                     pg_hba.conf on standby server
+#
+##
+
 
 # Configuration ###############################################################
 
@@ -37,7 +54,7 @@ ssl_dir=/awips2/database/ssl
 tablespace_dir=/awips2/database/tablespaces
 
 # pg_hba.conf backup location
-hba_backup="$(mktemp pg_hba.backup.XXXXXX)"
+hba_backup="$(mktemp /tmp/pg_hba.backup.XXXXXX)"
 rm -f "${hba_backup}"
 
 # For logging the output of this script
@@ -54,7 +71,7 @@ pg_basebackup=${pg_dir}/bin/pg_basebackup
 pg_ctl=${pg_dir}/bin/pg_ctl
 psql=/awips2/psql/bin/psql
 
-${as_awips}='sudo -u awips -i '
+as_awips='sudo -u awips -i '
 
 log() {
     echo $* | ${as_awips} tee -a "${log_file}"
@@ -73,22 +90,26 @@ stop_server() {
     do_pg_ctl -m fast stop && sleep 1
     do_pg_ctl -s status
     # error code 3 from pg_ctl means server is not running
-    [[ "$?" -eq 3 ]]; return $?
+    # 4 means there is no database in the data dir, this is okay
+    [[ "$?" -eq 3 || "$?" -eq 4 ]]; return $?
 }
 
 make_clean_db_dirs() {
-    for dir in ("${data_dir}" "${tablespace_dir}"); do
-        rm -rf "${dir}"
-        ${as_awips} mkdir -p "${dir}"
-        ${as_awips} chmod 700 "${dir}"
-    done
+    rm -rf "${data_dir}"
+    ${as_awips} mkdir -p "${data_dir}"
+    ${as_awips} chmod 700 "${data_dir}"
+    rm -rf "${tablespace_dir}"
+    ${as_awips} mkdir -p "${tablespace_dir}"
+    ${as_awips} chmod 700 "${tablespace_dir}"
 }
 
 restore_pg_hba() {
     if [[ -f "${hba_backup}" ]]; then
         log "INFO: Restoring backed up pg_hba.conf"
-        ${as_awips} mv "${hba_backup}" "${data_dir}"/pg_hba.conf
+        ${as_awips} cp -a "${hba_backup}" "${data_dir}"/pg_hba.conf
         ${as_awips} chmod 600 "${data_dir}"/pg_hba.conf
+    else
+	log "WARN: No backed up pg_hba.conf to restore"
     fi
 }
 
@@ -171,6 +192,7 @@ trap 'cleanup_exit' SIGINT SIGTERM
 
 # Get certificates from master
 master_ssl_dir="${ssl_dir}/replication/${master_hostname}"
+echo ${as_awips} mkdir -p "${master_ssl_dir}"
 ${as_awips} mkdir -p "${master_ssl_dir}"
 log "INFO: Downloading SSL certs and keyfile from ${master_hostname}"
 # must ssh as root to skip password prompt
@@ -184,6 +206,9 @@ find "${ssl_dir}"/replication -xdev -type d -exec chmod 700 {} \;
 # Backup pg_hba.conf
 if [[ -f "${data_dir}/pg_hba.conf" ]]; then
     ${as_awips} cp -a "${data_dir}/pg_hba.conf" "${hba_backup}" || cleanup_exit
+    log "INFO: Backup of pg_hba.conf is at ${hba_backup}"
+else
+    log "WARN: Cannot backup local ${data_dir}/pg_hba.conf because it does not exist. Continuing anyway."
 fi
 
 # Delete all database files
@@ -206,7 +231,11 @@ ${as_awips} "${pg_basebackup}" \
     --username="${db_rep_user}" \
     --port=${master_port} \
     --db="${ssl_part}" \
-    -D "${data_tmpdir}" || cleanup_exit
+    -D "${data_dir}" 2>&1 | tee -a ${log_file}
+
+if [[ "${PIPESTATUS[0]}" != "0" ]]; then
+    cleanup_exit
+fi
 
 
 # Write recovery.conf
@@ -247,5 +276,7 @@ if [[ "${is_recovery}" != "t" ]]; then
     log "ERROR: not in recovery mode."
     cleanup_exit
 fi
+
+rm -f "${hba_backup}"
 
 log "INFO: Setup is complete. No errors reported."

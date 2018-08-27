@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -29,6 +29,8 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+
+import org.hibernate.annotations.Index;
 
 import com.raytheon.uf.common.dataplugin.NullUtil;
 import com.raytheon.uf.common.dataplugin.annotations.DataURI;
@@ -46,11 +48,11 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * space in the db since across time most grid data has the same
  * level/parameter/etc so having all other information in a separate table saves
  * space and improves theoretical performance.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * May 21, 2012           bsteffen    Initial creation
@@ -60,16 +62,18 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Aug 03, 2016  4360     rferrel     Add name to unique constraint.
  *                                     Made datasetId, secondaryId, ensembleId, non-nullable.
  *                                     Now use EMPTY_STRING for null values and created static nullValue_ methods
- * 
+ * Aug 03, 2018  7424     tjensen     Add index to GridCoverage location
+ *
  * </pre>
- * 
+ *
  * @author bsteffen
  * @version 1.0
  */
 @Entity
-@Table(name = "grid_info", uniqueConstraints = { @UniqueConstraint(name = "uk_grid_info_datauri_fields", columnNames = {
-        "datasetid", "parameter_abbreviation", "level_id", "secondaryid",
-        "ensembleid", "location_id" }) })
+@Table(name = "grid_info", uniqueConstraints = {
+        @UniqueConstraint(name = "uk_grid_info_datauri_fields", columnNames = {
+                "datasetid", "parameter_abbreviation", "level_id",
+                "secondaryid", "ensembleid", "location_id" }) })
 @SequenceGenerator(name = "GRIDINFO_GENERATOR", sequenceName = "gridinfo_seq", allocationSize = 1)
 @DynamicSerialize
 public class GridInfoRecord extends PersistableDataObject<Integer> {
@@ -109,6 +113,7 @@ public class GridInfoRecord extends PersistableDataObject<Integer> {
     @ManyToOne(optional = false)
     @PrimaryKeyJoinColumn
     @DataURI(position = 3, converter = GridCoverageConverter.class)
+    @Index(name = "grid_info_location_id_index")
     @DynamicSerializeElement
     private GridCoverage location;
 

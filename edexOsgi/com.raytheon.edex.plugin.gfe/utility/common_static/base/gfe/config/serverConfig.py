@@ -52,7 +52,7 @@
 #    01/19/2015          #4014     dgilling       Added ETSS.
 #    02/11/2015          #4053     rferrel        Added GLWN and moved GLERL to display only for Great Lakes sites..
 #    01/19/2015          #4014     dgilling       Added ETSS.
-#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and GWW233
+#    02/24/2015          #16692    byin           Added RTMA. Removed gfsLR and WaveWatch
 #    03/19/2015          #4300     randerso       Remove GUMa as it is obsolete (per Shannon White)
 #    03/30/2015          #17288    bhunder        Added Guam-RTMA to D2D models
 #    03/30/2015          #17206    yteng          Changed some parameters that are not rate parameters
@@ -102,8 +102,10 @@
 #    11/28/2017          6539      randerso       Made P-ETSS and TPCSurgeProb elements D2DAccumulativeElements
 #    12/06/2017        DCS20267    psantos        Add NWPS Rip Current Guidance
 #    12/20/2017          20510     ryu            changes to StormTotalSnow parameter
+#    02/23/2018          #20395    wkwock         Added NBM3.1 elements.
 #    04/03/2018        DR20656     arivera        Missing comma: "Dune Erosion Probability" in optionalParmsDict['marine']
 #    05/09/2018        DR20715     arivera        Missing comma: groups['marineSites'] after 'AVAK'
+#    06/18/2018          16729     ryu            Remove tpHPC element from RFCQPF model and the smart init for the model.
 #
 ####################################################################################################
 
@@ -865,7 +867,7 @@ for r in siteRegion:
         myRegion=r
         break
 
-groups['powt']=list(siteRegion['CR'])
+groups['powt']=list(groups['OCONUS_SITES']+ siteRegion['CR'] + siteRegion['ER'] + siteRegion['SR'] + siteRegion['WR'])
 groups['marineSites']=[
                        # CONUS WFOs
                        "CAR","GYX","BOX","OKX","PHI","LWX","AKQ","MHX","ILM","CHS",
@@ -1128,13 +1130,20 @@ PPI01=('PPI01', SCALAR, '%', '1-H Precip Potential Index', 100.0, 0.0, 0, NO)
 PPI06=('PPI06', SCALAR, '%', '6-H Precip Potential Index', 100.0, 0.0, 0, NO)
 PositiveEnergyAloft=("PositiveEnergyAloft" , SCALAR, "j/kg", "Positive energy aloft" , 500.0, 0.0, 1, NO)
 NegativeEnergyLowLevel=("NegativeEnergyLowLevel" , SCALAR, "j/kg", "Negative energy in the low levels" , 0.0, -500.0, 1, NO)
-PoTIP=('PotSleet', SCALAR, '%', 'Prob of Sleet', 100.0, 0.0, 0, NO)
-PoTR=('PotRain', SCALAR, '%', 'Prob of Rain', 100.0, 0.0, 0, NO)
-PoTS=('PotSnow', SCALAR, '%', 'Prob of Snow', 100.0, 0.0, 0, NO)
-PoTZR=('PotFreezingRain', SCALAR, '%', 'Prob of Freezing Rain', 100.0, 0.0, 0, NO)
-MaxTwAloft=("MaxTwAloft", SCALAR, 'C', 'Max Wet-Bulb Temp in Warm Nose', 40.0, -20.0, 1, NO)
-ProbIcePresent=("ProbIcePresent", SCALAR, "%", "Prob of Ice Present", 100.0, 0.0, 0, NO)
-ProbRefreezeSleet=("ProbRefreezeSleet", SCALAR, "%", "Prob of Refreeze into Sleet", 100.0, 0.0, 0, NO)
+SnowAmt01 = ("SnowAmt01", SCALAR, "in", "1-h Snow Accumulation", 20.0, 0.0, 1, YES)
+IceAccum01 = ("IceAccum01", SCALAR, "inch", "1-h Ice Accumulation", maxIceVal, 0.0, 3, NO)
+IceAccum = ("IceAccum", SCALAR, "inch", "6-h Ice Accumulation", 13.0, 0.0, 3, NO)
+TstmPrb1 = ("TstmPrb1", SCALAR, "%", "1-h SREF-based Prob. of a Thunderstorm", 100.0, 0.0, 0, NO)
+DryTstmPrb = ("DryTstmPrb", SCALAR, "%", "3-h SREF-based Prob. of a Dry Thunderstorm", 100.0, 0.0, 0, NO)
+WGS50pct =("WGS50pct", SCALAR, "kts", "10-m Wind Gust",125.0 , 0.0, 0, NO)
+WS50Prcntl30m =("WS50Prcntl30m", SCALAR, "kts", "30-m Wind Speed", 125.0, 0.0, 0, NO)
+WS50Prcntl80m =("WS50Prcntl80m", SCALAR, "kts", "80-m Wind Speed", 125.0, 0.0, 0, NO)
+Vis50pct =("Vis50pct", SCALAR, "SM", "Visibility",10.0 , 0.0, 3, NO)
+T50pct =("T50pct", SCALAR, "F", "Air Temperature", maxTempVal, minTempVal, 1, NO)
+PMSL10pct =("PMSL10pct", SCALAR, "mb", "10th percentile Mean Sea Level Pressure", 1100.0, 900.0, 1, NO)
+PMSL50pct =("PMSL50pct", SCALAR, "mb", "50th percentile Mean Sea Level Pressure", 1100.0, 900.0, 1, NO)
+PMSL90pct =("PMSL90pct", SCALAR, "mb", "90th percentile Mean Sea Level Pressure", 1100.0, 900.0, 1, NO)
+FosBerg = ("FosBerg", SCALAR, "none", "Fosberg Fire Weather Index", 100.0, 0.0, 0, NO)
 
 
 
@@ -2368,8 +2377,8 @@ else:
 #---------------------------------------------------------------------------
 # base urls for the ISC Routing Table
 ISC_ROUTING_TABLE_ADDRESS = {
-    "ANCF" : "http://localhost:8080/irt",
-    "BNCF" : "http://localhost:8080/irt"
+    "ANCF" : "http://svcbu-ancf.er.awips.noaa.gov:8080/irt",
+    "BNCF" : "http://svcbu-bncf.er.awips.noaa.gov:8080/irt"
     }
 
 
@@ -2685,7 +2694,7 @@ for s in ['ALR', 'FWR', 'KRF', 'MSR', 'ORN', 'PTR', 'RHA', 'RSA', 'STR', 'TAR',
     modelDict['FFG'+s] = {'D2DMODELS': 'FFG-'+s}
 
 modelDict['GFS20'] = {
-            'D2DMODELS': 'GFS215',
+            'D2DMODELS': 'GFS20',
             'D2DAccumulativeElements': ['tp3hr','tp6hr', 'tp', 'cp', 'crain', 'csnow', 'cfrzr', 'cicep'],
             'DB': ('GFS20', 'GRID', '', NO,  NO, 2, 0),
             'Parms': [([Wetflag], FireWx1300TC),
@@ -2723,8 +2732,8 @@ modelDict['GWW'] = {
                      ],
             }
 
-modelDict['GWW233'] = {
-            'D2DMODELS': 'GWW233',}
+modelDict['WaveWatch'] = {
+            'D2DMODELS': 'WaveWatch',}
 
 modelDict['GlobalWave'] = {
             'D2DMODELS': 'GlobalWave',
@@ -2838,7 +2847,7 @@ modelDict['NAHwave4'] = {
 
 modelDict['NAM12'] = {
             'D2DAccumulativeElements': ['tp', 'cp', 'crain', 'csnow', 'cfrzr', 'cicep'],
-            'D2DMODELS': 'ETA218',
+            'D2DMODELS': 'NAM12',
             'DB': ('NAM12', 'GRID', '', NO,  NO, 2, 0),
             'INITMODULES': 'NAM12',
             'Parms': STD3_MODEL,
@@ -2846,11 +2855,11 @@ modelDict['NAM12'] = {
 
 modelDict['NAM20'] = {
             'D2DAccumulativeElements': ['tp', 'cp'],
-            'D2DMODELS': 'mesoEta215',}
+            'D2DMODELS': 'NAM20',}
 
 modelDict['NAM40'] = {
             'D2DAccumulativeElements': ['tp', 'cp'],
-            'D2DMODELS': 'mesoEta212',
+            'D2DMODELS': 'NAM40',
             'DB': ('NAM40', 'GRID', '', NO,  NO, 2, 0),
             'Parms': STD3_MODEL,
             }
@@ -2882,7 +2891,9 @@ modelDict['NamDNG'] = {
             }
 
 modelDict['NationalBlend'] = {
-            'D2DAccumulativeElements': ["pop12hr", "pop", "pop6hr", "tp", "ppi1hr", "ppi6hr", "tp1hr", "tp6hr", "thp3hr", "thp6hr"],
+            'D2DAccumulativeElements': ["pop12hr", "pop", "pop6hr", "tp", "ppi1hr", "ppi6hr",
+                                        "tp1hr", "tp6hr", "thp3hr", "thp6hr",
+                                        "totsn1hr", "totsn6hr", "ficeac1hr", "ficeac6hr"],
             'D2DMODELS': 'NationalBlend',
             'DB': ('NationalBlend', 'GRID', '', NO,  NO, 7, 0),
             'INITMODULES': 'NationalBlend',
@@ -2890,11 +2901,24 @@ modelDict['NationalBlend'] = {
                      ([QPF1,PPI01,CloudBasePrimary,Ceiling,Visibility],TC1),
                      ([PoTIP, PoTR, PoTRW, PoTS, PoTSW, PoTZR,],TC1),
                      ([SnowLevel,MaxTwAloft,ProbIcePresent, ProbRefreezeSleet,SnowRatio],TC1),
-                     ([PositiveEnergyAloft,NegativeEnergyLowLevel],TC1),
-                     ([TstmPrb3],TC3NG),
-                     ([TstmPrb6,QPF,PoP6,PPI06],TC6NG),
+                     ([PositiveEnergyAloft, NegativeEnergyLowLevel],TC1),
+                     ([MixHgt, TransWind, LLWS, VentRate, LLWSHgt, Radar,
+                       SigWaveHgt, Weather, Haines, FosBerg,
+                       SnowAmt01, IceAccum01, TstmPrb1],TC1),
+                     ([TstmPrb3, DryTstmPrb],TC3NG),
+                     ([TstmPrb6, QPF, PoP6, PPI06, SnowAmt, IceAccum,
+                       QPF10Prcntl, QPF50Prcntl, QPF90Prcntl],TC6NG),
                      ([MaxT], MaxTTC), ([MinT], MinTTC),
-                     ([MaxRH], MaxRHTC), ([MinRH], MinRHTC),([PoP],TC12NG),
+                     ([MaxRH], MaxRHTC), ([MinRH], MinRHTC),([PoP, TstmPrb12],TC12NG),
+                     ],
+            }
+
+modelDict['NationalBlendOC'] = {
+            'D2DMODELS': 'NationalBlendOC',
+            'DB': ('NationalBlend', 'GRID', '', NO,  NO, 2, 0),
+            'INITMODULES': 'NationalBlendOC',
+            'Parms': [([WGS50pct, WS50Prcntl30m, WS50Prcntl80m, Vis50pct, T50pct,
+                       PMSL10pct, PMSL50pct, PMSL90pct], TC1),
                      ],
             }
 
@@ -2908,10 +2932,8 @@ modelDict['PWPF'] = {
             'D2DMODELS': 'PWPF',}
 
 modelDict['RFCQPF'] = {
-            'D2DAccumulativeElements': ['tpHPC'],
             'D2DMODELS': 'RFCqpf',
             'DB': ('RFCQPF', 'GRID', '', NO,  NO, 4, 0),
-            'INITMODULES': 'RFCQPF',
             'Parms': [([QPF], TC6NG),
                      ],
             }
@@ -2924,11 +2946,11 @@ modelDict['RTMA'] = {
             'Parms': RTMAPARMS,
             }
 
-modelDict['RUC13'] = {
+modelDict['RAP13'] = {
             'D2DAccumulativeElements': ['tp', 'cp'],
-            'D2DMODELS': 'RUC130',
-            'DB': ('RUC13', 'GRID', '', NO,  NO, 2, 0),
-            'INITMODULES': 'RUC13',
+            'D2DMODELS': 'RAP13',
+            'DB': ('RAP13', 'GRID', '', NO,  NO, 2, 0),
+            'INITMODULES': 'RAP13',
             'INITSKIPS': [1, 2, 4, 5, 7, 8, 10, 11, 13, 14, 16, 17, 19, 20, 22, 23],
             'Parms': STD1_MODEL,
             }
@@ -3178,11 +3200,11 @@ if SID in groups['ALASKA_SITES']:
     
     updateModelDict(modelDict,'ESTOFS','D2DMODELS', 'estofsAK')
     updateModelDict(modelDict,'ETSS','D2DMODELS', 'ETSS-AK')
-    updateModelDict(modelDict,'GFS20','D2DMODELS', 'GFS217')
+    updateModelDict(modelDict,'GFS20','D2DMODELS', 'AK-GFS22')
     updateModelDict(modelDict,'HIRESWarw','D2DMODELS', 'HiResW-ARW-AK')
     updateModelDict(modelDict,'HIRESWnmm','D2DMODELS', 'HiResW-NMM-AK')
     updateModelDict(modelDict,'MOSGuide','D2DMODELS', 'MOSGuide-AK')
-    updateModelDict(modelDict,'NAM12','D2DMODELS', 'ETA242')
+    updateModelDict(modelDict,'NAM12','D2DMODELS', 'AK-NAM11')
     updateModelDict(modelDict,'NamDNG','D2DMODELS', 'AK-NamDNG3')
     updateModelDict(modelDict,'NationalBlend','D2DMODELS', 'NationalBlendAK')
     updateModelDict(modelDict,'RTMA','D2DMODELS', 'AK-RTMA3')
@@ -3213,7 +3235,7 @@ elif SID == "HFO":
             'Parms': STD6_MODEL,
             }
 
-    updateModelDict(modelDict,'GWW233','D2DMODELS', 'GWW233')
+    updateModelDict(modelDict,'WaveWatch','D2DMODELS', 'WaveWatch')
     updateModelDict(modelDict,'GlobalWave','D2DMODELS', 'GlobalWave')
     updateModelDict(modelDict,'RTMA','D2DMODELS', 'HI-RTMA')
     updateModelDict(modelDict,'NamDNG','D2DMODELS', 'HI-NamDNG5')
@@ -3228,7 +3250,7 @@ elif SID == "HFO":
     updateModelDict(modelDict,'MOSGuide','D2DMODELS', 'MOSGuide-HI')
     updateModelDict(modelDict,'NationalBlend','D2DMODELS', 'NationalBlendHI')
     # Model databases for HFO
-    includeOnly = ['ECMWFHiRes', 'ESTOFS', 'GFS75', 'GWW233', 'GlobalWave',
+    includeOnly = ['ECMWFHiRes', 'ESTOFS', 'GFS75', 'WaveWatch', 'GlobalWave',
                    'HIRESWarw', 'HIRESWnmm', 'MOSGuide', 'NamDNG', 'NationalBlend',
                    'RTMA', 'RTOFS-Honolulu', 'SPC', 'TPCProb', 'TPCProbPrelim', 'nwpsCG1GUM',
                    'nwpsCG1HFO', 'nwpsTrkngCG0GUM', 'nwpsTrkngCG0HFO',
@@ -3259,7 +3281,7 @@ elif SID == "GUM":
 elif SID == "SJU":
     updateModelDict(modelDict,'GFS80','D2DMODELS', 'AVN211')
     updateModelDict(modelDict,'NAM80','D2DMODELS', 'ETA')
-    updateModelDict(modelDict,'GWW233','D2DMODELS', 'GWW233')
+    updateModelDict(modelDict,'WaveWatch','D2DMODELS', 'WaveWatch')
     updateModelDict(modelDict,'GlobalWave','D2DMODELS', 'GlobalWave')
     updateModelDict(modelDict,'WNAwave10','D2DMODELS', 'WNAwave10')
     updateModelDict(modelDict,'WNAwave4','D2DMODELS', 'WNAwave4')
@@ -3273,10 +3295,10 @@ elif SID == "SJU":
     updateModelDict(modelDict,'RTOFS-Atlantic','D2DMODELS', 'RTOFS-Atlantic')
     updateModelDict(modelDict,'ESTOFS','D2DMODELS', 'estofsPR')
     updateModelDict(modelDict,'NAHwave4','D2DMODELS', 'NAHwave4')
-    updateModelDict(modelDict,'GFS20','D2DMODELS', 'GFS20-PRICO')
+    updateModelDict(modelDict,'GFS20','D2DMODELS', 'PR-GFS')
     updateModelDict(modelDict,'NationalBlend','D2DMODELS', 'NationalBlendPR')
     # Model databases for SJU
-    includeOnly = ['ECMWFHiRes', 'ESTOFS', 'GFS20', 'GFS80', 'GWW233',
+    includeOnly = ['ECMWFHiRes', 'ESTOFS', 'GFS20', 'GFS80', 'WaveWatch',
                    'GlobalWave', 'HIRESWarw', 'HIRESWnmm', 'NAHwave4', 'NAM80',
                    'NationalBlend', 'RTMA', 'RTOFS-Atlantic', 'SPC', 'TPCProb',
                    'TPCProbPrelim', 'WNAwave10', 'WNAwave4',

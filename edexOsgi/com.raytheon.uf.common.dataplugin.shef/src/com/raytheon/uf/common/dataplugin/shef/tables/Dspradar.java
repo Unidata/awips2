@@ -18,9 +18,6 @@
 * further licensing information.
 **/
 package com.raytheon.uf.common.dataplugin.shef.tables;
-// default package
-
-import java.io.Serializable;
 
 // Generated Oct 17, 2008 2:22:17 PM by Hibernate Tools 3.2.2.GA
 
@@ -34,12 +31,15 @@ import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.persist.PersistableDataObject;
+import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
@@ -52,19 +52,22 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
- * Aug 19, 2011      10672     jkorman Move refactor to new project
- * Oct 07, 2013       2361     njensen Removed XML annotations
- * Nov 21, 2016       5588     nabowle Cleanup.
+ * Aug 19, 2011 10672      jkorman     Move refactor to new project
+ * Oct 07, 2013 2361       njensen     Removed XML annotations
+ * Nov 21, 2016 5588       nabowle     Cleanup.
+ * Jul 25, 2018 5588       mapeters    Added NamedQueries annotation
  *
  * </pre>
  *
  * @author jkorman
  */
+@NamedQueries({
+        @NamedQuery(name = Dspradar.SELECT_BY_RAD_ID_BETWEEN_OBS_TIME, query = Dspradar.SELECT_BY_RAD_ID_BETWEEN_OBS_TIME_HQL) })
 @Entity
 @Table(name = "dspradar")
-@com.raytheon.uf.common.serialization.annotations.DynamicSerialize
+@DynamicSerialize
 public class Dspradar extends PersistableDataObject<DspradarId>
-        implements Serializable, IGriddedRadarRecord {
+        implements IGriddedRadarRecord {
 
     private static final long serialVersionUID = 1L;
 
@@ -287,6 +290,7 @@ public class Dspradar extends PersistableDataObject<DspradarId>
         this.JEndTime = JEndTime;
     }
 
+    @Override
     @Column(name = "mean_field_bias")
     public Short getMeanFieldBias() {
         return this.meanFieldBias;
@@ -305,6 +309,7 @@ public class Dspradar extends PersistableDataObject<DspradarId>
         this.sampleSize = sampleSize;
     }
 
+    @Override
     @Column(name = "grid_filename", length = 20)
     public String getGridFilename() {
         return this.gridFilename;
