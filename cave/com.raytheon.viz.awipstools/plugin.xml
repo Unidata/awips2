@@ -143,10 +143,6 @@
             commandId="com.raytheon.viz.awipstools.home">
       </handler>
       <handler
-            class="com.raytheon.viz.awipstools.ui.action.LapsToolsAction"
-            commandId="com.raytheon.viz.awipstools.lapstools">
-      </handler>
-      <handler
             class="com.raytheon.viz.awipstools.ui.action.UnitsCalculatorAction"
             commandId="com.raytheon.viz.awipstools.unitscalculator">
       </handler>
