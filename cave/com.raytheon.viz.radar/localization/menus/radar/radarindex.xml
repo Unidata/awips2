@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuContributionFile>
+    <include installTo="menu:radar?after=RADAR_MENU_START"
+        fileName="menus/radar/baseRadarMenu.xml">
+    </include>
+</menuContributionFile>

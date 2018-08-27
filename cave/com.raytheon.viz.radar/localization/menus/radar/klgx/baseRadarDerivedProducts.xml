@@ -24,6 +24,12 @@
     <contribute xsi:type="subMenu" menuText="Hydrometeor Classification"
         id="${icao}SubMenuBestResHC">
         <contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+            menuText="0.0 HC" id="${icao}00HydroMeteor">
+            <substitute key="icao" value="${icao}" />
+            <substitute key="product" value="165" />
+            <substitute key="elevation" value="0.0--0.0" />
+        </contribute>
+        <contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
             menuText="0.5 HC" id="${icao}05HydroMeteor">
             <substitute key="icao" value="${icao}" />
             <substitute key="product" value="165" />

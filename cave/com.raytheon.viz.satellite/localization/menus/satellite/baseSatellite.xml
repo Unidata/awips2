@@ -570,9 +570,10 @@
 		        <substitute key="offset" value="1800"/>
 		    </contribute>
 		
-		<contribute xsi:type="subMenu" menuText="GOES High Density Winds">
+			<contribute xsi:type="separator" id="MySeparatorId"/>
+
 			<contribute xsi:type="titleItem"
-				titleText="------ Satellite-Derived Winds  ------" id="SatDerivedWindLine" />
+				titleText="------ GOES High Density Satellite-Derived Winds  ------" id="SatDerivedWindLine" />
 			<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
 				menuText="IR Plot" id="irPlot">
 				<substitute key="pluginName" value="bufrhdw" />
@@ -609,9 +610,12 @@
 				<substitute key="pluginName" value="bufrhdw" />
 				<substitute key="source" value="GOES"/>
 			</contribute>
+			
 			<contribute xsi:type="separator" id="MySeparatorId" />
+			
 			<contribute xsi:type="titleItem"
-				titleText="------ Satellite Layer Winds  ------" id="SatLayerdWindLine" />
+				titleText="------ GOES High Density Satellite Layer Winds  ------" id="SatLayerdWindLine" />
+				
 			<contribute xsi:type="bundleItem" file="bundles/SatelliteLayerPlot.xml"
 				menuText="200hPa Layer Plot" id="200hPaLayerPlot">
 				<substitute key="pluginName" value="bufrhdw" />
@@ -668,10 +672,10 @@
 				<substitute key="legend" value="1050mb-900mb" />
 				<substitute key="between" value="90100--105000" />
 			</contribute>
-		</contribute>
-		<contribute xsi:type="subMenu" menuText="MTSAT High Density Winds">
+
 			<contribute xsi:type="titleItem"
-				titleText="------ Satellite-Derived Winds  ------" id="SatDerivedWindLine" />
+				titleText="------ MTSAT High Density Satellite-Derived Winds  ------" id="SatDerivedWindLine" />
+				
 			<contribute xsi:type="bundleItem" file="bundles/SatelliteWindPlots.xml"
 				menuText="IR Plot" id="irPlot">
 				<substitute key="pluginName" value="bufrmthdw" />
@@ -757,7 +761,6 @@
 				<substitute key="legend" value="1050mb-900mb" />
 				<substitute key="between" value="90100--105000" />
 			</contribute>
-		</contribute>
 	</contribute>
 	
 </menuTemplate>

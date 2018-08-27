@@ -19,8 +19,24 @@
 		further_licensing_information.
 	-->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="titleItem" titleText="------ Best Res Z+V combo------"
+	<contribute xsi:type="titleItem" titleText="------ Best Res Z+V combo ------"
 		id="BestResZV" />
+	<contribute xsi:type="bundleItem"
+		file="bundles/DefaultRadarBlendedBestRes.xml" menuText="0.0 Z+V"
+		id="${icao}008bitZV">
+		<substitute key="icao" value="${icao}" />
+		<substitute key="product1" value="153" />
+		<substitute key="product2" value="94" />
+		<substitute key="product3" value="19" />
+		<substitute key="product4" value="20" />
+		<substitute key="mode1" value="" />
+		<substitute key="product5" value="154" />
+		<substitute key="product6" value="99" />
+		<substitute key="product7" value="27" />
+		<substitute key="product8" value="25" />
+		<substitute key="mode2" value="" />
+		<substitute key="elevation" value="0.0--0.0" />
+	</contribute>
 	<contribute xsi:type="bundleItem"
 		file="bundles/DefaultRadarBlendedBestRes.xml" menuText="0.5 Z+V"
 		id="${icao}058bitZV">
@@ -54,22 +70,6 @@
 		<substitute key="elevation" value="0.9--0.9" />
 	</contribute>
 	<contribute xsi:type="bundleItem"
-		file="bundles/DefaultRadarBlendedBestRes.xml" menuText="1.5 Z+V"
-		id="${icao}158bitZV">
-		<substitute key="icao" value="${icao}" />
-		<substitute key="product1" value="153" />
-		<substitute key="product2" value="94" />
-		<substitute key="product3" value="19" />
-		<substitute key="product4" value="20" />
-		<substitute key="mode1" value="" />
-		<substitute key="product5" value="154" />
-		<substitute key="product6" value="99" />
-		<substitute key="product7" value="27" />
-		<substitute key="product8" value="25" />
-		<substitute key="mode2" value="" />
-		<substitute key="elevation" value="1.5--1.5" />
-	</contribute>
-	<contribute xsi:type="bundleItem"
 		file="bundles/DefaultRadarBlendedBestRes.xml" menuText="All Tilts Z+V"
 		id="${icao}AllTiltsZV">
 		<substitute key="icao" value="${icao}" />
@@ -86,6 +86,22 @@
 		<substitute key="elevation" value="0.0--360.0" />
 	</contribute>
 	<contribute xsi:type="subMenu" menuText="${icao} Hi Z+V tilts">
+		<contribute xsi:type="bundleItem"
+			file="bundles/DefaultRadarBlendedBestRes.xml" menuText="1.5 Z+V"
+			id="${icao}154bit8bitZV">
+			<substitute key="icao" value="${icao}" />
+			<substitute key="product1" value="153" />
+			<substitute key="product2" value="94" />
+			<substitute key="product3" value="19" />
+			<substitute key="product4" value="20" />
+			<substitute key="mode1" value="" />
+			<substitute key="product5" value="154" />
+			<substitute key="product6" value="99" />
+			<substitute key="product7" value="27" />
+			<substitute key="product8" value="25" />
+			<substitute key="mode2" value="" />
+			<substitute key="elevation" value="1.5--1.5" />
+		</contribute>
 		<contribute xsi:type="bundleItem"
 			file="bundles/DefaultRadarBlendedBestRes.xml" menuText="1.8 Z+V"
 			id="${icao}184bit8bitZV">

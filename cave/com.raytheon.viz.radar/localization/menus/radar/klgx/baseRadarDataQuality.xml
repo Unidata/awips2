@@ -63,6 +63,12 @@
 		<contribute xsi:type="subMenu" menuText="${icao} Refl Clut Prob"
 			id="${icao}ReflClutProb">
 			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="0.0 CLR" id="${icao}00CLR">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="132" />
+				<substitute key="elevation" value="0.0--0.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 				menuText="0.5 CLR" id="${icao}05CLR">
 				<substitute key="icao" value="${icao}" />
 				<substitute key="product" value="132" />
@@ -168,6 +174,12 @@
 		<contribute xsi:type="subMenu" menuText="${icao} Vel Clut Prob"
 			id="${icao}DataQualityVelClutProb">
 			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
+				menuText="0.0 CLD" id="${icao}00CLD">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="133" />
+				<substitute key="elevation" value="0.0--0.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
 				menuText="0.5 CLD" id="${icao}05CLD">
 				<substitute key="icao" value="${icao}" />
 				<substitute key="product" value="133" />
@@ -270,5 +282,4 @@
 				<substitute key="elevation" value="0.0--360.0" />
 			</contribute>
 		</contribute>
-		<contribute xsi:type="subinclude" subMenu="${icao} Dual Pol Raw Products" fileName="menus/radar/dualPol/baseRadarDualPolRawProducts.xml" />
 </menuTemplate>

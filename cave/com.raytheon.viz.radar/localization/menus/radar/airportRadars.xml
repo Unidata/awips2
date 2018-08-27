@@ -19,14 +19,5 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="${icao} Data Quality"
-		id="${icao}TerminalDataQuality">
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarXY.xml"
-			menuText="TDWR SPG Unit Status" id="${icao}TerminalTDWRSPGUnitStatus"
-			editorType="com.raytheon.viz.radar.ui.xy.RadarXYEditor">
-			<substitute key="icao" value="${icao}" />
-			<substitute key="product" value="2" />
-			<substitute key="insetMap" value="false" />
-		</contribute>
-	</contribute>
+	<contribute xsi:type="separator" id="baseAirportRadarSeparator" />
 </menuTemplate>

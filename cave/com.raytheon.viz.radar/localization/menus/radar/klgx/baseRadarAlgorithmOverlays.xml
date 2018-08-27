@@ -23,6 +23,14 @@
 		<contribute xsi:type="subMenu" menuText="Melting Layer"
 			id="${icao}AlgorithmOverlaysSubMenuMeltingLayer">
 			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
+				menuText="0.0 ML" id="${icao}00MeltingLayer">
+				<substitute key="icao" value="${icao}" />
+				<substitute key="product" value="166" />
+				<substitute key="mode" value="" />
+				<substitute key="latest" value="false" />
+				<substitute key="elevation" value="0.0--0.0" />
+			</contribute>
+			<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
 				menuText="0.5 ML" id="${icao}05MeltingLayer">
 				<substitute key="icao" value="${icao}" />
 				<substitute key="product" value="166" />
@@ -215,22 +223,6 @@
 			<substitute key="latest" value="true" />
 			<substitute key="elevation" value="0.0--360.0" />
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
-			menuText="Gust Front MIGFA (GFM)" id="${icao}GustFrontMIGFA">
-			<substitute key="icao" value="${icao}" />
-			<substitute key="product" value="140" />
-			<substitute key="mode" value="" />
-			<substitute key="latest" value="true" />
-			<substitute key="elevation" value="0.0--360.0" />
-		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/DefaultRadarGraphic.xml"
-            menuText="Microburst AMDA (MBA)" id="${icao}MicroburstAMDA">
-            <substitute key="icao" value="${icao}" />
-            <substitute key="product" value="196" />
-            <substitute key="mode" value="" />
-            <substitute key="latest" value="true" />
-            <substitute key="elevation" value="0.0--360.0" />
-        </contribute>
 		<contribute xsi:type="command"
 			commandId="com.raytheon.viz.radar.ui.RadarDisplayControls" menuText="Radar Display Controls..."
 			id="${icao}GraphicsRadarDisplayControls" />
