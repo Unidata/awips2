@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
  * Nov 22, 2016 5588      nabowle     Initial creation
  * Jan 10, 2016 6058      bkowal      Updated to allow extracting only the symbology
  *                                    from a radar data file.
+ * Jul 19, 2018 5588      mapeters    Fix readParams() ignoring the last param
  *
  * </pre>
  *
@@ -153,7 +154,7 @@ public class MpeRadarSymbologyData {
     private void readParams(final ByteBuffer buf, float[] paramArray,
             String parameterType) throws InvalidMpeRadarException {
         String paramStr;
-        for (int i = 0; i < paramArray.length - 1; i++) {
+        for (int i = 0; i < paramArray.length; i++) {
             paramStr = readNextParamString(buf);
             if (paramStr.isEmpty()) {
                 paramArray[i] = EMPTY_PARAM;
@@ -190,7 +191,7 @@ public class MpeRadarSymbologyData {
      */
     protected int getParametersCount(final ByteBuffer buf,
             Pattern searchPattern, String parameterType)
-                    throws InvalidMpeRadarException {
+            throws InvalidMpeRadarException {
         char firstChar = searchPattern.toString().charAt(0);
         byte[] checkBytes = new byte[PARAM_LEN];
         buf.get(checkBytes);

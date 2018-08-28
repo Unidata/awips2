@@ -4,7 +4,7 @@ Bundle-Name: FSS Obs
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.fssobs
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: com.raytheon.uf.common.dataplugin.fssobs
 Require-Bundle: com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.serialization,

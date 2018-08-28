@@ -4978,4 +4978,61 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             </contourLabeling>
         </contourStyle>
     </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>LLWSHgt</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits label="hft">ft*100.0</displayUnits>
+            <contourLabeling labelSpacing="4" maxLabel="." minMaxLabelFormat="#0">
+                <values>5 10 15 20</values>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <singleLevel units="CBL" />
+            <parameter>CC</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits label="hft">ft*100.0</displayUnits>
+            <contourLabeling labelSpacing="4">
+                <values>0 1 2 6 10 20 31 100 200</values>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <singleLevel units="CLG" />
+            <parameter>CC</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits label="ft">ft</displayUnits>
+            <contourLabeling labelSpacing="6">
+                <values>0 100 200 600 1000 2000 3100 10000 20000</values>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>MIXHT</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits>m</displayUnits>
+            <contourLabeling labelSpacing="4">
+                <increment>1</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
+    <styleRule>
+        <paramLevelMatches>
+            <parameter>HTSGW</parameter>
+        </paramLevelMatches>
+        <contourStyle>
+            <displayUnits>ft</displayUnits>
+            <contourLabeling labelSpacing="4">
+                <increment>1</increment>
+            </contourLabeling>
+        </contourStyle>
+    </styleRule>
 </styleRuleset>

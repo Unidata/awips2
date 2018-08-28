@@ -29,14 +29,12 @@
             id="com.raytheon.viz.volumebrowser.volumeBrowser"
             name="Volume Browser">
       </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
       <command
             id="com.raytheon.viz.volumebrowser.volumeBrowserRef"
             name="Volume Browser">
-            <commandParameter
-                  id="viewType"
-                  name="viewType"
-                  optional="false">
-            </commandParameter>
       </command>
    </extension>
    <extension
@@ -57,14 +55,14 @@
        <path
           application="D2D"
           localizationType="CAVE_STATIC,COMMON_STATIC"
-          name="Volume Browser Sources"
-          value="volumebrowser" 
+          name="Volume Browser"
+          value="level/mappings" 
           recursive="true">
        </path>
        <path
           application="D2D"
           localizationType="CAVE_STATIC"
-          name="Volume Browser Height Scales"
+          name="Height Scales"
           value="scales" 
           recursive="true">
        </path>
@@ -75,7 +73,7 @@
             locationURI="menu:volume?after=top">
              <command
                    commandId="com.raytheon.viz.volumebrowser.volumeBrowserRef"
-                   label="Volume Browser">
+                   label="Browser...">
              </command>
              <separator name="afterVB" visible="false"/>
              <separator name="VolumeBundles" visible="true"/>

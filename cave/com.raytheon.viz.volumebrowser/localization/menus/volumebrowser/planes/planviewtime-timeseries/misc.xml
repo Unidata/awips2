@@ -81,6 +81,7 @@
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="120agl" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="150agl" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="400agl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="0.61-40kmAgl" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="EchoTop" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="El" indentText="false" />
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="SIG0.8-0.5"
@@ -160,4 +161,9 @@
             indentText="false" />
     </contribute>
     <contribute xsi:type="menuItem" textLookup="LevelMapping" key="NTAT" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="2FHAG" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="10FHAG" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="0-0.61kmAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="30mAgl" indentText="false" />
+    <contribute xsi:type="menuItem" textLookup="LevelMapping" key="80mAgl" indentText="false" />
 </menuTemplate>

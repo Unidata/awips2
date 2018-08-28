@@ -412,14 +412,14 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
+
    <plugin
          id="com.raytheon.uf.edex.plugin.bufrmthdw"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
--->
+
    <plugin
          id="com.raytheon.uf.edex.plugin.bufrncwf"
          download-size="0"
@@ -483,14 +483,14 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
+
    <plugin
          id="com.raytheon.uf.common.dataplugin.bufrmthdw"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
--->
+
    <plugin
          id="com.raytheon.uf.common.dataplugin.bufrncwf"
          download-size="0"
@@ -566,7 +566,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
+
    <plugin
          id="com.raytheon.uf.edex.plugin.acars"
          download-size="0"
@@ -594,7 +594,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
--->
+
    <plugin
          id="com.raytheon.edex.plugin.grib"
          download-size="0"
@@ -876,14 +876,14 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
+
    <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.atcf"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-    -->     
+    
    <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.aww"
          download-size="0"
@@ -953,14 +953,14 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
+
    <plugin
          id="gov.noaa.nws.ncep.edex.plugin.atcf"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-    -->     
+  
    <plugin
          id="gov.noaa.nws.ncep.edex.plugin.convsigmet"
          download-size="0"
@@ -1023,7 +1023,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
+
    <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.sgwh"
          download-size="0"
@@ -1051,14 +1051,14 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
--->
+
    <plugin
          id="gov.noaa.nws.ncep.edex.common"
          download-size="0"
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
+
    <plugin
          id="gov.noaa.nws.ncep.edex.plugin.sgwh"
          download-size="0"
@@ -1086,7 +1086,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
--->
+
    <plugin
          id="gov.noaa.nws.ncep.common.log4j.config"
          download-size="0"
@@ -1141,7 +1141,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-<!--
+
    <plugin
          id="gov.noaa.nws.ncep.common.dataplugin.modis"
          download-size="0"
@@ -1155,7 +1155,7 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
-    -->     
+    
    <plugin
          id="gov.nasa.gsfc.fits"
          download-size="0"

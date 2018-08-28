@@ -1,49 +1,639 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
-    <!-- 
-        This is an absolute override file, indicating that a higher priority 
-        version of the file will completely replace a lower priority version
-        of the file. 
-    -->
+<!-- This_software_was_developed_and_/_or_modified_by_Raytheon_Company, pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government. 
+	U.S._EXPORT_CONTROLLED_TECHNICAL_DATA This_software_product_contains_export-restricted_data_whose 
+	export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires 
+	an_export_license_or_other_authorization. Contractor_Name:________Raytheon_Company 
+	Contractor_Address:_____6825_Pine_Street,_Suite_340 ________________________Mail_Stop_B8 
+	________________________Omaha,_NE_68106 ________________________402.291.0100 
+	See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for further_licensing_information. -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="bundleItem"
-        file="bundles/DefaultRadarCodedMessage.xml" menuText="10km Radar Coded Msg"
-        id="10kmRadarCodedMsg" />
-    <contribute xsi:type="subinclude" fileName="menus/radar/airportRadars.xml" />
-    <contribute xsi:type="titleItem" titleText="------ Mosaic ------"
-        id="RadarMosaic" />
-    <contribute xsi:type="subinclude"
-        fileName="menus/radar/regionalMosaicMenus.xml" />
-    <contribute xsi:type="subinclude"
-        fileName="menus/radar/radarMosaicProductMenu.xml" />
-    <contribute xsi:type="separator" id="belowRadarMosaics" />
-    <contribute xsi:type="subMenu" menuText="Dial Radars"
-        id="RadarMenuDialRadarsSubMenu">
-        <contribute xsi:type="subinclude" subMenu="Local Dial Radars"
-            id="localDialRadar" fileName="menus/radar/dialRadars.xml">
+	<contribute xsi:type="bundleItem" file="bundles/nexradAvailability.xml"
+			menuText="NEXRAD Display" id="NEXRADDisplay">
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="NEXRAD Stations"
+		id="RadarMenuDialAllRadarsSubMenu">
+		<contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kabr" key="icao"/>
         </contribute>
-        <contribute xsi:type="subinclude" subMenu="All Dial Radars"
-            id="allDialRadar" fileName="menus/radar/dialAllRadars.xml">
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kabx" key="icao"/>
         </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kakq" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kama" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kamx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kapx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="karx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="katx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kbbx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kbgm" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kbhx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kbis" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kblx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kbmx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kbox" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kbro" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kbuf" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kbyx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kcae" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kcbw" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kcbx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kccx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kcle" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kclx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kcrp" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kcxx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kcys" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kdax" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kddc" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kdfx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kdgx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kdix" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kdlh" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kdmx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kdox" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kdtx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kdvn" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kdyx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="keax" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kemx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kenx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="keox" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kepz" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kesx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kevx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kewx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="keyx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kfcx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kfdr" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kfdx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kffc" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kfsd" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kfsx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kftg" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kfws" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kggw" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kgjx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kgld" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kgrb" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kgrk" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kgrr" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kgsp" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kgwx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kgyx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="khdx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="khgx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="khnx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="khpx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="khtx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kict" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kicx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kiln" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kilx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kind" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kinx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kiwa" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kiwx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kjan" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kjax" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kjgx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kjkl" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="klbb" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="klch" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/klgx/baseLocalRadarMenu.xml">
+            <substitute value="klgx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="klix" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="klnx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="klot" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="klrx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="klsx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kltx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="klvx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="klwx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="klzk" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmaf" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmax" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmbx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmhx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmkx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmlb" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmob" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmpx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmqt" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmrx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmsx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmtx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmux" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmvx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kmxx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="knkx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="knqa" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="koax" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kohx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kokx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kotx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kpah" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kpbz" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kpdt" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kpoe" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kpux" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="krax" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="krgx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kriw" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="krlx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="krtx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ksfx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ksgf" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kshv" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ksjt" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ksox" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ksrx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ktbw" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ktfx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ktlh" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ktlx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ktwx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="ktyx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kudx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kuex" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kvax" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kvbx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kvnx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kvtx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kvwx" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="kyux" key="icao"/>
+        </contribute>
+        	<contribute xsi:type="separator" id="nonConusNexrad" />
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="pabc" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="pacg" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="paec" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="pahg" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="paih" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="pakc" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="papd" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="pgua" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="phki" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="phkm" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="phmo" key="icao"/>
+        </contribute>
+        <contribute xsi:type="subinclude" fileName="menus/radar/dualPol/baseLocalRadarMenu.xml">
+            <substitute value="phwa" key="icao"/>
+        </contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="TDWR Stations"
+		id="RadarMenuTwdrRadarsSubMenu">
+		<contribute xsi:type="subinclude" fileName="menus/radar/tdwrRadars.xml" />
+	</contribute>
+	<contribute xsi:type="titleItem" titleText="------ FNEXRAD Composites ------"
+		id="RadarMosaic" />
+	<!--  Unidata Composite -->
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="DHR - Digital Hybrid Reflectivity" id="DHR">
+        <substitute key="element" value="DHR"/>
+        <substitute key="colormap" value="Radar/DHR"/>
+		<substitute key="interpolate" value="false"/>
     </contribute>
-    <contribute xsi:type="subinclude"
-        fileName="menus/radar/baseRadarApplications.xml" />
-</menuTemplate>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="DVL - Digital VIL" id="DVL">
+        <substitute key="element" value="DVL"/>
+        <substitute key="colormap" value="Radar/OSF/Digital VIL"/>
+		<substitute key="interpolate" value="false"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="EET - Enhanced Echo Tops" id="EET">
+        <substitute key="element" value="EET"/>
+        <substitute key="colormap" value="Radar/Enhanced Echo Tops"/>
+		<substitute key="interpolate" value="false"/>
+    </contribute>	
+    <contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+                menuText="HHC - Hybrid Hydrometeor Classification" id="HHC">
+        <substitute key="element" value="HHC"/>
+        <substitute key="colormap" value="Radar/HHC NEXRCOMP"/>
+		<substitute key="interpolate" value="false"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+		menuText="DAA - One-Hour Digital Accum Array" id="DAA">
+        <substitute key="element" value="DAA"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
+		<substitute key="interpolate" value="true"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+		menuText="DTA - Storm-Total Precipitation" id="DTA">
+        <substitute key="element" value="DTA"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
+		<substitute key="interpolate" value="true"/>
+    </contribute>
+	<contribute xsi:type="bundleItem" file="bundles/DefaultRadarComposite.xml" 
+		menuText="OHA - One-Hour Accumulation" id="OHA">
+        <substitute key="element" value="OHA"/>
+        <substitute key="colormap" value="Radar/8-bit STP"/>
+		<substitute key="interpolate" value="true"/>
+    </contribute>
+	<contribute xsi:type="titleItem" titleText="------ NEXRAD Mosaic ------"
+		id="RadarMosaic" />
+	<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="N0Q - 0.5 Reflectivity" id="Radar05Reflectivity">
+			<substitute key="product" value="153,94,19,20" />
+			<substitute key="elevation" value="0.5" />
+			<substitute key="name" value="N0Q 0.5 Reflectivity" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="DHR - Hybrid Scan Reflectivity" id="RadarHybridScanRefl">
+			<substitute key="product" value="32,33" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="DHR Hybrid Scan Refl" />
+ 		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="DVL - Digital Vert integrated Liquid" id="RadarDigitalVertIntegratedLiquid">
+			<substitute key="product" value="134" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="DVL Digital Vert integrated Liquid" />
+		</contribute>
+		
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="HHC - Hybrid Hydrometeor Classification" id="RadarHybridHydroClass">
+			<substitute key="product" value="177" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="HHC Hybrid Hydro Class" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="EET - Enhanced Echo Tops" id="RadarEnhancedEchoTopsClass">
+			<substitute key="product" value="135" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="EET Enhanced Echo Tops" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="DSP - Digital Storm Total Precip" id="RadarDigitalStormTotalPrecip">
+			<substitute key="product" value="138" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="DSP Digital Storm Total Precip" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="DPR - Inst Precip Rate" id="InstPrecipRateDPR">
+			<substitute key="product" value="176" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="DPR Inst Precip Rate (in/hr)" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="DTA - Storm Total Accum (STA)" id="RadarDualPolStormTotal">
+			<substitute key="product" value="172" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="DTA Storm Total Accum" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="DSD - Storm Total Accum Diff" id="RadarDualPolStormTotal">
+			<substitute key="product" value="175" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="DSD Storm Total Accum Diff" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="DAA - 1 Hour Digital Accumulation Array" id="RadarDualPol1hrPrecip">
+			<substitute key="product" value="170" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="DAA 1hr Digital Accumulation Array" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="OHA - 1 Hour Accumulation" id="RadarDualPol1hrAccum">
+			<substitute key="product" value="169" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="name" value="OHA 1hr Accum" />
+		</contribute>
+		<contribute xsi:type="subinclude"
+			fileName="menus/radar/regionalMosaicMenus.xml" subMenu="Dual Pol User 3hr Accum /hrly (DUA)"
+			id="RadarUserSelectablePrecip3hr">
+			<substitute key="product" value="173" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="layer" value="3.0" />
+			<substitute key="name" value="Dual Pol User 3hr Accum /hrly (DUA)" />
+		</contribute>
+		<contribute xsi:type="subinclude"
+			fileName="menus/radar/regionalMosaicMenus.xml" subMenu="Dual Pol User 24hr Accum @12Z (DUA)"
+			id="RadarUserSelectablePrecip24hr">
+			<substitute key="product" value="173" />
+			<substitute key="elevation" value="0.0" />
+			<substitute key="layer" value="6.0" />
+			<substitute key="name" value="Dual Pol User 24hr Accum @12Z (DUA)" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="N0X - 0.5 Differential Reflectivity (ZDR)" id="Radar05ZDR">
+			<substitute key="product" value="159,158" />
+			<substitute key="elevation" value="0.5" />
+			<substitute key="name" value="N0X Diff Reflectivity" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="N0K - 0.5 Specific Diff Phase (KDP)" id="Radar05KDP">
+			<substitute key="product" value="163,162" />
+			<substitute key="elevation" value="0.5" />
+			<substitute key="name" value="N0K Specific Diff Phase" />
+		</contribute>
+		<contribute xsi:type="subinclude" fileName="menus/radar/regionalMosaicMenus.xml"
+			subMenu="N0C - 0.5 Correlation Coeff (CC)" id="Radar05CC">
+			<substitute key="product" value="161,160" />
+			<substitute key="elevation" value="0.5" />
+			<substitute key="name" value="N0C Correlation Coefficient" />
+		</contribute>
+	<contribute xsi:type="separator" id="belowRadarMosaics" />
+	<contribute xsi:type="subinclude" fileName="menus/radar/baseRadarApplications.xml" />
+</menuTemplate> 

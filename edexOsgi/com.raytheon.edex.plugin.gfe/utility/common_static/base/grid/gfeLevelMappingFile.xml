@@ -284,6 +284,9 @@
     <Level key="FHAG10">
         <DatabaseLevel levelName="FHAG" levelOneValue="10.0" unit="m"/>
     </Level>
+    <Level key="FHAG30">
+        <DatabaseLevel levelName="FHAG" levelOneValue="30.0" unit="m"/>
+    </Level>
     <Level key="FHAG80">
         <DatabaseLevel levelName="FHAG" levelOneValue="80.0" unit="m"/>
     </Level>
@@ -293,6 +296,9 @@
     <Level key="FHAG4000">
         <DatabaseLevel levelName="FHAG" levelOneValue="4000.0" unit="m"/>
     </Level>
+    <Level key="FHAG0610">
+        <DatabaseLevel levelName="FHAG" levelOneValue="0.0" levelTwoValue="610.0" unit="m"/>
+    </Level>
     <Level key="FHAG01000">
         <DatabaseLevel levelName="FHAG" levelOneValue="0.0" levelTwoValue="1000.0" unit="m"/>
     </Level>
@@ -301,6 +307,9 @@
     </Level>
     <Level key="FHAG06000">
         <DatabaseLevel levelName="FHAG" levelOneValue="0.0" levelTwoValue="6000.0" unit="m"/>
+    </Level>
+    <Level key="FHAG61040000">
+        <DatabaseLevel levelName="FHAG" levelOneValue="610.0" levelTwoValue="40000.0" unit="m"/>
     </Level>
     <Level key="FRZ">
         <DatabaseLevel levelName="FRZ" levelOneValue="0.0"/>
@@ -670,5 +679,8 @@
     </Level>
     <Level key="NTAT">
         <DatabaseLevel levelName="NTAT" levelOneValue="0.0"/>
+    </Level>
+    <Level key="MWSL">
+        <DatabaseLevel levelName="MWSL" levelOneValue="0.0"/>
     </Level>
 </LevelMappings>

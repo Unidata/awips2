@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
 import javax.measure.unit.UnitFormat;
 
@@ -38,20 +39,25 @@ import com.raytheon.uf.common.dataaccess.exception.DataRetrievalException;
 import com.raytheon.uf.common.dataaccess.exception.InvalidIdentifiersException;
 import com.raytheon.uf.common.dataaccess.impl.AbstractGridDataPluginFactory;
 import com.raytheon.uf.common.dataaccess.impl.DefaultGridData;
+import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
 import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnits;
+import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnitsUtil;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
+import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.geospatial.data.UnitConvertingDataFilter;
+import com.raytheon.uf.common.geospatial.util.SubGridGeometryCalculator;
 import com.raytheon.uf.common.numeric.source.DataSource;
 
 /**
  * A data factory for getting satellite data from the metadata database. There
  * are currently not any required identifiers.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer    Description
  * ------------- -------- ----------- --------------------------
  * Jan 02, 2012           bkowal      Initial creation
@@ -70,9 +76,11 @@ import com.raytheon.uf.common.numeric.source.DataSource;
  * Aug 01, 2016  2416     tgurney     Add dataURI as optional identifier
  * Mar 06, 2017  6142     bsteffen    Remove dataURI as optional identifier
  * Aug 29, 2017  6389     bsteffen    Ensure location names are unique.
- * 
+ * Jul 31, 2018  6389     mapeters    Override getDataSource() to handle unit
+ *                                    conversion for GOES-R
+ *
  * </pre>
- * 
+ *
  * @author bkowal
  */
 public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
@@ -149,7 +157,7 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
 
     /**
      * Builds the base constraint map based on the supplied grid request
-     * 
+     *
      * @param request
      *            the original grid request
      * @return the base constraint map
@@ -221,6 +229,32 @@ public class SatelliteGridFactory extends AbstractGridDataPluginFactory {
             idValStrings.add(idValue.toString());
         }
         return idValStrings.toArray(new String[idValues.length]);
+    }
+
+    @Override
+    protected DataSource getDataSource(PluginDataObject pdo,
+            SubGridGeometryCalculator subGrid) {
+        IDataRecord dataRecord = getDataRecord(pdo, subGrid);
+        if (dataRecord == null) {
+            return null;
+        }
+
+        // Get converter from data unit to record unit
+        Unit<?> recordUnit = SatelliteUnitsUtil
+                .getRecordUnit((SatelliteRecord) pdo);
+        if (recordUnit == null) {
+            recordUnit = Unit.ONE;
+        }
+        Unit<?> dataUnit = SatelliteUnitsUtil.getDataUnit(recordUnit,
+                dataRecord);
+        UnitConverter converter = dataUnit.getConverterTo(recordUnit);
+
+        // Construct unit-converting data source
+        DataSource dataSource = DataWrapperUtil
+                .constructArrayWrapper(dataRecord, false);
+        dataSource = UnitConvertingDataFilter.apply(dataSource, converter);
+        return dataSource;
+
     }
 
     protected static String generateLocationName(

@@ -22,7 +22,7 @@ package com.raytheon.uf.edex.plugin.mpe.gather.radar;
 import java.text.SimpleDateFormat;
 
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.uf.edex.plugin.mpe.gather.dhr.DHRGatherConstants;
+import com.raytheon.uf.edex.plugin.mpe.gather.MpeRadarGatherConstants;
 
 /**
  * Constants for decoding DHR and DSP files. Based on
@@ -35,6 +35,7 @@ import com.raytheon.uf.edex.plugin.mpe.gather.dhr.DHRGatherConstants;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 22, 2016 5588       nabowle     Initial creation
+ * Jul 18, 2018 5588       mapeters    Fix DSP dir constants
  *
  * </pre>
  *
@@ -44,13 +45,13 @@ import com.raytheon.uf.edex.plugin.mpe.gather.dhr.DHRGatherConstants;
 public class MpeRadarDecodeConstants {
 
     public static class AppsDefaults {
-        public static final String DSP_GRID_DIR = "dhr_grid_dir";
+        public static final String DSP_GRID_DIR = "dsp_grid_dir";
 
-        public static final String DSP_PROD_DIR = "dhr_prod_dir";
+        public static final String DSP_PROD_DIR = "dsp_prod_dir";
 
         public static final String DHR_GRID_DIR = "dhr_grid_dir";
 
-        public static final String DHR_PROD_DIR = DHRGatherConstants.AppsDefaults.DHR_PROD_DIR;
+        public static final String DHR_PROD_DIR = MpeRadarGatherConstants.AppsDefaults.DHR_PROD_DIR;
     }
 
     public static final ThreadLocal<SimpleDateFormat> filenameDateFormat = TimeUtil
@@ -129,7 +130,7 @@ public class MpeRadarDecodeConstants {
 
     public static final int SHORT_BYTES = 2;
 
-    public static final int DEFAULT_BUILD_VERSION = DHRGatherConstants.DHR_DEFAULT_VERSION;
+    public static final int DEFAULT_BUILD_VERSION = MpeRadarGatherConstants.DHR_DEFAULT_VERSION;
 
     private MpeRadarDecodeConstants() {
     }

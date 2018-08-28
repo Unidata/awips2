@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Path;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -44,10 +45,11 @@ import com.raytheon.uf.edex.core.EdexException;
 import com.raytheon.uf.edex.database.dao.CoreDao;
 import com.raytheon.uf.edex.database.dao.DaoConfig;
 import com.raytheon.uf.edex.ohd.MainMethod;
+import com.raytheon.uf.edex.plugin.mpe.gather.dhr.DHRGather;
 
 /**
  * Service implementation for decoding DHR radar files.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -67,9 +69,12 @@ import com.raytheon.uf.edex.ohd.MainMethod;
  * Jan 10, 2016 6058       bkowal      Removed direct usage of the Java-based DHRGather.
  * Aug 02, 2017 6334       bkowal      Write DHR/DSP gather files with the correct permissions.
  * Aug 07, 2017 6334       bkowal      Directories are now created with 770 permissions and files 660.
- * 
+ * Jul 19, 2018 5588       mapeters    More fully separate legacy/java decode paths (e.g. use separate
+ *                                     gather dirs), use separate JMS uris for DHR/DSP in java path
+ *
+ *
  * </pre>
- * 
+ *
  * @author snaples
  */
 public class HPEDhrSrv {
@@ -104,7 +109,11 @@ public class HPEDhrSrv {
 
     private static final int DT_IDX = 2;
 
-    private static final String JMS_QUEUE_URI = "jms-durable:queue:dhrProcess";
+    private static final String DHR_JMS_QUEUE_URI = "jms-durable:queue:dhrProcess";
+
+    private static final String DSP_JMS_QUEUE_URI = "jms-durable:queue:dspProcess";
+
+    private static final String LEGACY_DHR_DSP_JMS_QUEUE_URI = "jms-durable:queue:legacyDhrDspProcess";
 
     private final AppsDefaults appsDefaults = AppsDefaults.getInstance();
 
@@ -127,27 +136,32 @@ public class HPEDhrSrv {
     public static final String KSH = "ksh";
 
     /**
-     * Route endpoint for "dhrIngestRoute". Takes a message, writes the file to
-     * disk, and then runs the DHR data processing scripts so the file is
-     * ingested.
-     * 
+     * Route endpoint for "legacyDhrDspIngestRoute". Takes a message, writes the
+     * file to disk, and then runs the DHR data processing scripts so the file
+     * is ingested. This is everything necessary for legacy processing of the
+     * given message.
+     *
      * @param message
      *            A <code>HPEDhrMessage</code> describing the DHR radar file to
      *            be ingested.
      */
-    public void process(HPEDhrMessage message) {
-        try {
-            writeFile(message);
-        } catch (FileNotFoundException e) {
-            logger.handle(Priority.PROBLEM, "HPE cannot create output file.",
-                    e);
-            return;
-        } catch (IOException e) {
-            logger.handle(Priority.PROBLEM,
-                    "HPE Error writing updated contents of HPE file", e);
-            return;
+    public void legacyProcess(HPEDhrMessage message) {
+        if (writeFile(message, true)) {
+            runLegacyGatherScripts();
         }
-        runGatherScripts();
+    }
+
+    /**
+     * Route endpoint for "dhrIngestRoute" and "dspIngestRoute". Takes a message
+     * and writes the file to disk so that it can be used by DHR/DSP Gather.
+     *
+     * @param message
+     *            A <code>HPEDhrMessage</code> describing the DHR radar file to
+     *            be ingested.
+     * @return true if the file was successfully written, false otherwise
+     */
+    public boolean prepareForGather(HPEDhrMessage message) {
+        return writeFile(message, false);
     }
 
     /**
@@ -156,49 +170,60 @@ public class HPEDhrSrv {
      * <p>
      * This method removes the leading bytes to ensure proper decoding of DHR
      * files.
-     * 
+     *
      * @param message
      *            A <code>HPEDhrMessage</code> describing the DHR radar file to
      *            be ingested.
-     * @throws FileNotFoundException
-     *             If the output file cannot be created or opened for any
-     *             reason.
-     * @throws IOException
-     *             If an I/O error occurs while writing the file.
+     * @param legacy
+     *            whether to write the file to the legacy product dir or the
+     *            Java-based product dir
+     * @return true if the file was successfully written, false otherwise
      */
-    private void writeFile(HPEDhrMessage message)
-            throws FileNotFoundException, IOException {
+    private boolean writeFile(HPEDhrMessage message, boolean legacy) {
         String dtype = message.getDtype();
         String outname = dtype + message.getRadarId() + "." + message.getDt();
+
+        String dirToken = DHR.equals(dtype) ? DHR_PROD_DIR : DSP_PROD_DIR;
         String outPath;
-        if (dtype.equals(DHR)) {
-            outPath = appsDefaults.getToken(DHR_PROD_DIR);
+        if (legacy) {
+            outPath = appsDefaults.getToken(dirToken);
         } else {
-            outPath = appsDefaults.getToken(DSP_PROD_DIR);
-        }
-        File oP = new File(outPath);
-        if (!oP.exists()) {
-            com.raytheon.uf.common.util.file.Files.createDirectories(
-                    oP.toPath(),
-                    FilePermissionConstants.POSIX_DIRECTORY_ATTRIBUTES);
+            Path path = AppsDefaultsConversionWrapper
+                    .getPathForTokenWithoutCreating(dirToken);
+            outPath = path.toAbsolutePath().toString();
         }
 
-        byte[] fileContents = message.getData();
-        int offset = findStartRadarData(new String(fileContents, 0, 80));
-        String outFile = FileUtil.join(outPath, outname);
-        try (OutputStream os = IOPermissionsHelper.getOutputStream(
-                new File(outFile).toPath(),
-                FilePermissionConstants.POSIX_FILE_SET);
-                BufferedOutputStream bos = new BufferedOutputStream(os)) {
-            bos.write(fileContents, offset, fileContents.length - offset);
+        try {
+            File oP = new File(outPath);
+            if (!oP.exists()) {
+                com.raytheon.uf.common.util.file.Files.createDirectories(
+                        oP.toPath(),
+                        FilePermissionConstants.POSIX_DIRECTORY_ATTRIBUTES);
+            }
+
+            byte[] fileContents = message.getData();
+            int offset = findStartRadarData(new String(fileContents, 0, 80));
+            String outFile = FileUtil.join(outPath, outname);
+            try (OutputStream os = IOPermissionsHelper.getOutputStream(
+                    new File(outFile).toPath(),
+                    FilePermissionConstants.POSIX_FILE_SET);
+                    BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                bos.write(fileContents, offset, fileContents.length - offset);
+            }
+            return true;
+        } catch (FileNotFoundException e) {
+            logger.warn("HPE cannot create output file.", e);
+        } catch (IOException e) {
+            logger.warn("HPE Error writing updated contents of HPE file", e);
         }
+        return false;
     }
 
     /**
-     * Route endpoint for "dhrIngestFilter". Reads the given file to memory and
-     * determines whether or not this file is a DHR radar file. If it is, a
-     * message is sent to a JMS queue so it is later ingested.
-     * 
+     * Route endpoint for "dhrDspIngestFilter". Reads the given file to memory
+     * and determines whether or not this file is a DHR/DSP radar file. If it
+     * is, a message is sent to a JMS queue so it is later ingested.
+     *
      * @param fileContents
      *            The radar file content
      * @param headers
@@ -239,9 +264,12 @@ public class HPEDhrSrv {
 
     /**
      * Takes the given parameters and constructs a <code>HPEDhrMessage</code> to
-     * be placed onto the queue used by <code>HPEDhrSrv</code> for actual data
-     * processing.
-     * 
+     * be placed onto the appropriate queues used by <code>HPEDhrSrv</code> for
+     * actual data processing. If parallel exec is enabled, the file will be
+     * placed both on the legacy DHR/DSP queue, and the product-type-specific
+     * queue for Java processing. Otherwise, it will just be placed on the
+     * legacy queue.
+     *
      * @param data
      *            The contents of the radar file.
      * @param radid
@@ -261,13 +289,20 @@ public class HPEDhrSrv {
             String dt) throws SerializationException, EdexException {
         HPEDhrMessage message = new HPEDhrMessage(data, radid, dtype, dt);
         byte[] messageData = SerializationUtil.transformToThrift(message);
-        EDEXUtil.getMessageProducer().sendAsyncUri(JMS_QUEUE_URI, messageData);
+        EDEXUtil.getMessageProducer().sendAsyncUri(LEGACY_DHR_DSP_JMS_QUEUE_URI,
+                messageData);
+        if (AppsDefaultsConversionWrapper.parallelExecEnabled()) {
+            String jmsQueueUri = DHR.equals(dtype) ? DHR_JMS_QUEUE_URI
+                    : DSP_JMS_QUEUE_URI;
+            EDEXUtil.getMessageProducer().sendAsyncUri(jmsQueueUri,
+                    messageData);
+        }
     }
 
     /**
      * Runs the DSPgather and DHRgather data processing scripts.
      */
-    private void runGatherScripts() {
+    private void runLegacyGatherScripts() {
         int exitValue = MainMethod.runProgram(KSH,
                 appsDefaults.getToken(PPROC_BIN) + File.separatorChar
                         + DSP_GATHER);
@@ -295,7 +330,7 @@ public class HPEDhrSrv {
     /**
      * Given a radar file name and file header, this function determines whether
      * or not this file is a DHR radar file.
-     * 
+     *
      * @param fileName
      *            The name of the radar file
      * @param fileHeader
@@ -355,7 +390,7 @@ public class HPEDhrSrv {
     /**
      * Given the header data from a radar file, this function determines the
      * ending offset of the WMO header.
-     * 
+     *
      * @param headerInfo
      *            The header data from a radar file.
      * @return Returns the offset after the last character in the WMO header.

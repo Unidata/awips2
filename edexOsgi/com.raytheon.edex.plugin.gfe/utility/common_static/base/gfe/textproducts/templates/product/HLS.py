@@ -1,4 +1,4 @@
-# Version 2018.02.26-2
+# Version 2018.06.05
 
 import GenericHazards
 import string, time, os, re, types, copy, LogStream, collections
@@ -1253,7 +1253,7 @@ class TextProduct(HLSTCV_Common.TextProduct):
             self.debug_print("Looking at zone %s" % (zone), 1)
             for key in advisory["ZoneData"][zone]:
                 if "Threat" not in key or "highestHunkerDown" in key:
-                    break
+                    continue
 
                 if key not in seenValidThreatLevel:
                     seenValidThreatLevel[key] = False

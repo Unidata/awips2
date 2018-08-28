@@ -10,11 +10,6 @@
 		
 		<antcall target="cleanup" />
 		
-		<!-- Determine if any Work Assignments have been specified. -->
-		<condition property="wa.enabled">
-			<not><equals arg1="${wa.to.deploy}" arg2="" /></not>
-		</condition>
-		
 		<antcall target="deploy.esb" />
 		<if>
 			<equals arg1="${deploy.data}" arg2="true" />

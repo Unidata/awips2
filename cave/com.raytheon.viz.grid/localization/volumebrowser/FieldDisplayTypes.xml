@@ -24,6 +24,8 @@
     -->
 <fieldDisplayTypesFile>
     <field key="Wind" displayTypes="BARB,ARROW,STREAMLINE" />
+    <field key="TransWind" displayTypes="BARB,ARROW,STREAMLINE" />
+    <field key="LLWSWind" displayTypes="BARB,ARROW,STREAMLINE" />
     <field key="geoW" displayTypes="BARB,ARROW" />
     <field key="ageoW" displayTypes="BARB,ARROW" />
     <field key="ageoVC" displayTypes="STREAMLINE" />

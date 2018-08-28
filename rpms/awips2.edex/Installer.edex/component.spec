@@ -124,6 +124,10 @@ fi
 %pre
 
 %post
+
+echo "#generated on $(date)" > /etc/init.d/edexServiceList
+echo "export SERVICES=('ingest' 'ingestGrib' 'request')" >> /etc/init.d/edexServiceList
+
 if [ ! -d /awips2/edex/data/archive ]; then
    mkdir -p /awips2/edex/data/archive
 fi

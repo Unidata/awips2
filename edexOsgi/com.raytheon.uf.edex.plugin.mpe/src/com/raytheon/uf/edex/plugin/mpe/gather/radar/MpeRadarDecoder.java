@@ -25,8 +25,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import javax.xml.bind.JAXBException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +34,6 @@ import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.mpe.util.AppsDefaultsConversionWrapper;
 import com.raytheon.uf.common.mpe.util.AppsDefaultsPathException;
-import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
 
@@ -56,6 +53,8 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
  * ------------ ---------- ----------- --------------------------
  * Dec 01, 2016 5588       nabowle     Initial creation
  * Dec 16, 2016 5588       nabowle     Throw exceptions for invalid azimuth and range.
+ * Jul 19, 2018 5588       mapeters    Account for legacy/java decode paths using separate
+ *                                     gather dirs
  *
  * </pre>
  *
@@ -63,7 +62,9 @@ import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
  */
 
 public abstract class MpeRadarDecoder<T extends MpeRadarFile<?>> {
-    private static SingleTypeJAXBManager<MpeRadarDecoderConfig> jaxb;
+
+    private static final SingleTypeJAXBManager<MpeRadarDecoderConfig> JAXB = SingleTypeJAXBManager
+            .createWithoutException(MpeRadarDecoderConfig.class);
 
     private volatile boolean initialized;
 
@@ -127,14 +128,14 @@ public abstract class MpeRadarDecoder<T extends MpeRadarFile<?>> {
                     "Unable to retrieve the grid dir.", e);
         }
 
-        String prodDir = AppsDefaults.getInstance()
-                .getToken(this.appsDefaultProductDir, null);
-        File productDir = new File(prodDir);
-        if (!Files.exists(productDir.toPath())) {
+        Path prodDir = AppsDefaultsConversionWrapper
+                .getPathForTokenWithoutCreating(this.appsDefaultProductDir);
+        if (!Files.exists(prodDir)) {
             throw new MpeRadarDecodeException(
                     "Unable to retrieve the product dir.");
         }
 
+        File productDir = prodDir.toFile();
         File[] files = productDir.listFiles();
         for (File file : files) {
             if (!file.isFile()) {
@@ -148,17 +149,10 @@ public abstract class MpeRadarDecoder<T extends MpeRadarFile<?>> {
                 radarFile = loadRadarFile(path,
                         MpeRadarDecodeConstants.DEFAULT_BUILD_VERSION);
             } catch (MpeRadarInputException e) {
-                if (AppsDefaultsConversionWrapper.parallelExecEnabled()) {
-                    logger.info(
-                            "{} would be deleted because it is not a valid radar file.",
-                            path, e);
-                } else {
-                    logger.info(
-                            "{} will be deleted because it is not a valid radar file.",
-                            path, e);
-                    file.delete();
-                }
-
+                logger.info(
+                        "{} will be deleted because it is not a valid radar file.",
+                        path, e);
+                file.delete();
                 continue;
             }
 
@@ -175,6 +169,9 @@ public abstract class MpeRadarDecoder<T extends MpeRadarFile<?>> {
             if (this.writeToDb) {
                 writeRadarRecords(radarFile);
             }
+
+            // Successfully processed, delete the temp file
+            file.delete();
         }
     }
 
@@ -206,17 +203,8 @@ public abstract class MpeRadarDecoder<T extends MpeRadarFile<?>> {
             return;
         }
 
-        if (jaxb == null) {
-            try {
-                jaxb = new SingleTypeJAXBManager<>(MpeRadarDecoderConfig.class);
-            } catch (JAXBException e) {
-                logger.error("Unable to initialize the JAXB Manager.", e);
-                return;
-            }
-        }
-
         try (InputStream is = localizationFile.openInputStream()) {
-            MpeRadarDecoderConfig config = jaxb.unmarshalFromInputStream(is);
+            MpeRadarDecoderConfig config = JAXB.unmarshalFromInputStream(is);
             this.writeToDb = config.getWriteToDB();
             logger.debug("Configuration from {} has been read.",
                     this.configFile);

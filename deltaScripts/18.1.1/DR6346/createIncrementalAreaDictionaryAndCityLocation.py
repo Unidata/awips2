@@ -6,12 +6,13 @@
 # overrides of these files.
 ##
 
+import copy
 import logging
 import glob
 import imp
+import os
 import os.path
 import pprint
-import re
 import shutil
 
 
@@ -141,48 +142,86 @@ from DefaultCityLocation import CityLocation
 
 
 def create_incremental_area_dictionary():
-    for file in glob.iglob(AREA_DICT_GLOB_PATH):
-        log.info("Generating incremental override file [%s]...", file)
+    for site_file in glob.iglob(AREA_DICT_GLOB_PATH):
+        log.info("Generating incremental override file [%s]...", site_file)
         
-        base_file = file.replace("site", "configured", 1)
+        base_file = site_file.replace("site", "configured", 1)
         if not os.path.isfile(base_file):
             log.error("Could not find CONFIGURED level file [%s].", base_file)
             log.error("Skipping to next file.")
+            continue
+
+        with open(site_file, 'r') as f:
+            contents = f.read()
+            if "from DefaultAreaDictionary import AreaDictionary" in contents:
+                log.info("Site AreaDictionary file [%s] has already been upgraded.", site_file)
+                continue
         
-        log.debug("Using configured file [%s]...", base_file)
-        log.debug("Using site file [%s]...", file)
+        log.info("Using configured file [%s]...", base_file)
+        log.info("Using site file [%s]...", site_file)
         
         configured_module = imp.load_source('base', base_file)
-        site_module = imp.load_source('override', file)    
+        site_module = imp.load_source('override', site_file)    
         configured_dict = configured_module.AreaDictionary
         site_dict = site_module.AreaDictionary
         
         diffs = diff_dicts(configured_dict, site_dict)
         log.debug("AreaDictionary Differences: %r", diffs)
-        write_override_file(file, 'AreaDictionary', diffs, AREA_DICT_HEADER)
+        write_override_file(site_file, 'AreaDictionary', diffs, AREA_DICT_HEADER)
+
+        delete_files(base_file + '*')
 
 def create_incremental_city_location():
-    for file in glob.iglob(CITY_LOC_GLOB_PATH):
-        log.info("Generating incremental override file [%s]...", file)
+    for site_file in glob.iglob(CITY_LOC_GLOB_PATH):
+        log.info("Generating incremental override file [%s]...", site_file)
         
-        base_file = file.replace("site", "configured", 1)
+        base_file = site_file.replace("site", "configured", 1)
         if not os.path.isfile(base_file):
             log.error("Could not find CONFIGURED level file [%s].", base_file)
-            log.error("Skipping to next file..")
+            log.error("Skipping to next file.")
+            continue
+
+        with open(site_file, 'r') as f:
+            contents = f.read()
+            if "from DefaultCityLocation import CityLocation" in contents:
+                log.info("Site CityLocation file [%s] has already been upgraded.", site_file)
+                continue
         
-        log.debug("Using configured file [%s]...", base_file)
-        log.debug("Using site file [%s]...", file)
+        log.info("Using configured file [%s]...", base_file)
+        log.info("Using site file [%s]...", site_file)
         
         configured_module = imp.load_source('base', base_file)
-        site_module = imp.load_source('override', file)    
+        site_module = imp.load_source('override', site_file)    
         configured_dict = configured_module.CityLocation
         site_dict = site_module.CityLocation
         
         diffs = diff_dicts(configured_dict, site_dict)
         log.debug("CityLocation Differences: %r", diffs)
-        write_override_file(file, 'CityLocation', diffs, CITY_LOCATION_HEADER)
+        write_override_file(site_file, 'CityLocation', diffs, CITY_LOCATION_HEADER)
 
-def diff_dicts(base, override, level=0):
+        delete_files(base_file + '*')
+
+def diff_dicts(base, override):
+    differences = []
+    
+    keys = set().union(base.keys(), override.keys())
+    # log.debug("Combined keys: %s", keys)
+    
+    for key in sorted(keys):
+        if key not in base:
+            log.debug("Key [%s] in override, but not base.", key)
+            differences.append((key, copy.copy(override[key]), True))
+        elif key not in override:
+            log.debug("Key [%s] in base, but not override.", key)
+        else:
+            sub_diffs = sub_diff_dicts(base[key], override[key])
+            if sub_diffs:
+                log.debug("Differences for key [%s]: %r", key, sub_diffs)
+                differences.append((key, sub_diffs, False))
+    
+    return differences
+
+def sub_diff_dicts(base, override, level=0):
     differences = {}
     
     keys = set().union(base.keys(), override.keys())
@@ -191,45 +230,50 @@ def diff_dicts(base, override, level=0):
     for key in sorted(keys):
         if key not in base:
             log.debug("Key [%s] in override, but not base.", key)
-            differences[key] = override[key].copy()
+            differences[key] = copy.copy(override[key])
         elif key not in override:
             log.debug("Key [%s] in base, but not override.", key)
         else:
-            if level != 1:
-                sub_diffs = diff_dicts(base[key], override[key], level+1)
-                if sub_diffs:
-                    log.debug("Differences for key [%s]: %r", key, sub_diffs)
-                    differences[key] = sub_diffs
-            else:
-                if base[key] != override[key]:
+            if base[key] != override[key]:
                     differences[key] = override[key]
     
     return differences
 
-def write_override_file(file, object_name, object_value, header):
-    backup_file = file + ".bak.dr_6346"
+def write_override_file(file_name, object_name, object_value, header):
+    backup_file = file_name + ".bak.dr_6346"
     log.info("Writing backup file [%s]", backup_file)
     try:
-        shutil.copy(file, backup_file)
+        shutil.copy(file_name, backup_file)
     except:
         log.exception("Unable to write backup file [%s]", backup_file)
-        log.error("Skipping file [%s]", file)
+        log.error("Skipping file [%s]", file_name)
         return
     
-    log.info("Writing override file [%s]", file)
+    log.info("Writing override file [%s]", file_name)
     try:
-        with open(file, 'w') as out_file:
+        with open(file_name, 'w') as out_file:
             printer = pprint.PrettyPrinter()
             
             out_file.write(header)
-            for key in sorted(object_value.keys()):
-                for sub_key in sorted(object_value[key].keys()):
-                    out_file.write("{}[{}][{}] = {}".format(object_name, key, sub_key, printer.pformat(object_value[key][sub_key])))
+            for (key, value, added) in sorted(object_value, key=lambda i: i[0]):
+                if added:
+                    out_file.write("{}[{!r}] = {}".format(object_name, key, printer.pformat(value)))
                     out_file.write('\n')
+                else:
+                    for sub_key in sorted(value.keys()):
+                        out_file.write("{}[{!r}][{!r}] = {}".format(object_name, key, sub_key, printer.pformat(value[sub_key])))
+                        out_file.write('\n')
                 out_file.write('\n')
     except:
-        log.exception("Unable to write incremental override file [%s]", file)
-        log.critical("Restore backup file [%s] to [%s] before restarting EDEX.", backup_file, file)
+        log.exception("Unable to write incremental override file [%s]", file_name)
+        log.critical("Restore backup file [%s] to [%s] before restarting EDEX.", backup_file, file_name)
+
+def delete_files(file_pattern):
+    for f in glob.iglob(file_pattern):
+        try:
+            os.remove(f)
+        except:
+            log.exception("Unable to delete file [%s].", f)
 
 def main():
     log.info("Starting delta script for DR #6346: creating incremental overrides for AreaDictionary.py and CityLocation.py...")

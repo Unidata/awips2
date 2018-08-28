@@ -31,7 +31,6 @@
     <include installTo="menu:tools?after=tools.E" fileName="menus/tools/baseTools-menuE.xml"/>
     <include installTo="menu:tools?after=tools.Fe" fileName="menus/tools/baseTools-menuF.xml"/>
     <include installTo="menu:tools?after=tools.H" fileName="menus/tools/baseTools-menuH.xml"/>
-    <include installTo="menu:tools?after=tools.L" fileName="menus/tools/baseTools-menuL.xml"/>
     <include installTo="menu:tools?after=tools.Pu" fileName="menus/tools/baseTools-menuP.xml"/>
     <include installTo="menu:tools?after=tools.Ran" fileName="menus/tools/baseTools-menuR.xml"/>
     <include installTo="menu:tools?after=tools.S" fileName="menus/tools/baseTools-menuS.xml"/>

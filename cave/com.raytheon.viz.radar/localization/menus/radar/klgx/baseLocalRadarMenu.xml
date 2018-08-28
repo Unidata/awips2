@@ -19,5 +19,34 @@
         further_licensing_information.
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-    <contribute xsi:type="subinclude" fileName="menus/radar/with0p2/baseLocalRadarMenu.xml" />
+    <contribute xsi:type="subMenu" menuText="${icao}">
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/klgx/baseRadarBestResZSRM.xml" />
+        <contribute xsi:type="separator" id="${icao}BestResZV" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/klgx/baseRadarBestResZV.xml" />
+        <contribute xsi:type="separator"
+            id="${icao}4PanelZSRM_ZDRV_KDP_HC_CCSW" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/klgx/baseRadarFourPanel.xml" />
+        <contribute xsi:type="separator" id="${icao}BestResBase" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/klgx/baseRadarBestResBase.xml" />
+        <contribute xsi:type="separator" id="${icao}RadarPrecip" />
+        <contribute xsi:type="subinclude" subMenu="${icao} Precip"
+            fileName="menus/radar/dualPol/baseRadarPrecip.xml" />
+        <contribute xsi:type="subinclude" subMenu="${icao} Derived Products"
+            fileName="menus/radar/klgx/baseRadarDerivedProducts.xml" />
+        <contribute xsi:type="subinclude" subMenu="${icao} Algorithm Overlays"
+            fileName="menus/radar/klgx/baseRadarAlgorithmOverlays.xml" />
+        <contribute xsi:type="subinclude" subMenu="${icao} four panel"
+            fileName="menus/radar/dualPol/baseRadarFourPanelBestRes.xml" />
+        <contribute xsi:type="subinclude" subMenu="${icao} Data Quality"
+            fileName="menus/radar/klgx/baseRadarDataQuality.xml" />
+        <contribute xsi:type="subinclude" subMenu="${icao} 4-bit/Legacy Prods"
+            fileName="menus/radar/klgx/baseRadarLegacy.xml" />
+        <!-- <contribute xsi:type="subinclude" subMenu="${icao} Obsolete Products" fileName="menus/radar/klgx/baseRadarObsolete.xml" />  -->
+        <contribute xsi:type="subinclude" subMenu="Radar Applications"
+            fileName="menus/radar/baseRadarApplications.xml" />
+    </contribute>
 </menuTemplate> 

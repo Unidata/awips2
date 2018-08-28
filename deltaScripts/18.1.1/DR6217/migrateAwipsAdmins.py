@@ -126,6 +126,14 @@ NWS_ROLE_DATA = {
         ]
     }
 
+def formatElement(element):
+    s = "<" + element.tag
+    if element.attrib:
+        for id, value in element.items():
+            s += ' %s="%s"' % (id, value)
+    s += ">"
+    return s
+
 def validateSchema(element, schema):
     # validates the xml is syntactically correct based on the provided schema
     # there is no validation of the content, just the format

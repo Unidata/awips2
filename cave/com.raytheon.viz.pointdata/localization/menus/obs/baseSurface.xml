@@ -128,9 +128,9 @@
 	    <contribute xsi:type="titleItem" 
 			titleText="------ Maritime ------" id="MaritimeLine"/>
 		
-		<contribute xsi:type="bundleItem" file="bundles/MaritimePlot.xml"
-				menuText="Maritime Plot" id="MaritimePlot">
-	    </contribute>
+		<contribute xsi:type="bundleItem" file="bundles/maritimeFixedBuoy.xml"
+        	menuText="Maritime Plot" id="FixedBuoys" />
+	        
 		<contribute xsi:type="bundleItem" file="bundles/SeaStatePlot.xml" 
 	           menuText="Fixed Sea State" id="FixedSeaState">
 	        <substitute key="svg" value="seaStateDesign.svg"/>

@@ -55,7 +55,6 @@ import org.opengis.referencing.operation.TransformException;
 import com.raytheon.uf.common.colormap.prefs.ColorMapParameters;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasin;
-import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPBasinMetaData;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGap;
 import com.raytheon.uf.common.dataplugin.ffmp.FFMPGuidanceBasin;
@@ -209,9 +208,8 @@ import com.vividsolutions.jts.geom.Point;
  * Sep 14, 2016 3241        bsteffen    Update deprecated JTSCompiler method calls
  * Jan 23, 2017 6032        njensen     Implement IExtraTextGeneratingResource
  * May 05  2017  DR 14336   lshi        FFMP VGB value differences between A1 and A2
- * May 15, 2017  DR 11861   lshi        FFMP use of QPF in calculating QPE in Basin Table
  * Sep 15, 2017  DR 20297   lshi        FFMP AlertViz errors when changing layers and 
- *                                      opening basin trend graphs 
+ *                                      opening basin trend graphs
  * 
  * </pre>
  * 
@@ -1930,24 +1928,16 @@ public class FFMPResource
             List<Long> pfafs) {
 
         float qpe = 0.0f;
-        float guid = 0.0f;
-        Float qpf = null;
+        float guid = 0.0f;        
         float diff = Float.NaN;
         String ffgType = getFFGName();
-
-        FFMPRecord qpfRecord = this.getQpfRecord(getPaintTime().getRefTime());
-        FFMPBasinData qpfBasin = null;
-        if (qpfRecord != null) {
-            qpfBasin = qpfRecord.getBasinData();
-        }
-
+        
         try {
             if (aggregate) {
                 if (isWorstCase()) {
                     List<Float> qpes = null;
                     List<Float> guids = null;
-                    List<Float> qpfs = null;
-
+                    
                     if ((getQpeRecord() != null)
                             && (getGuidanceRecord() != null)) {
                         qpes = getQpeRecord().getBasinData().getAccumValues(
@@ -1959,12 +1949,9 @@ public class FFMPResource
                                         getGuidanceInterpolation(ffgType),
                                         getGuidSourceExpiration(ffgType));
                     }
-                    if (qpfBasin != null) {
-                        qpfs = qpfBasin.getAccumValues(pfafs, getTableTime(),
-                                recentTime, getQpfSourceExpiration(), isRate());
-                    }
+                    
                     if ((qpes != null) && (guids != null)) {
-                        diff = FFMPUtils.getMaxDiffValue(qpes, qpfs, guids);
+                        diff = FFMPUtils.getMaxDiffValue(qpes, guids);
                     }
                 } else {
                     if ((getQpeRecord() != null)
@@ -1979,15 +1966,8 @@ public class FFMPResource
                                 .getAverageGuidanceValue(pfafs,
                                         getGuidanceInterpolation(ffgType),
                                         getGuidSourceExpiration(ffgType));
-
-                        if (qpfBasin != null) {
-                            qpf = qpfBasin.getAccumAverageValue(pfafs,
-                                    getTableTime(), recentTime,
-                                    getQpfSourceExpiration(), getResourceData()
-                                            .getPrimarySourceXML().isRate());
-                        }
-
-                        diff = FFMPUtils.getDiffValue(qpe, qpf, guid);
+                        
+                        diff = FFMPUtils.getDiffValue(qpe, guid);
                     }
                 }
             } else {
@@ -2003,12 +1983,8 @@ public class FFMPResource
                     guid = forceValue(pfafs,
                             getBasin(key, getField(), recentTime, aggregate),
                             guid);
-
-                    if (qpfBasin != null) {
-                        qpf = qpfBasin.get(key).getAccumValue(getTableTime(),
-                                recentTime, getQpfSourceExpiration(), isRate());
-                    }
-                    diff = FFMPUtils.getDiffValue(qpe, qpf, guid);
+                    
+                    diff = FFMPUtils.getDiffValue(qpe, guid);
                 }
             }
         } catch (Exception e) {
@@ -2029,22 +2005,15 @@ public class FFMPResource
 
         float qpe = 0.0f;
         float guid = 0.0f;
-        Float qpf = null;
         float ratio = Float.NaN;
         String ffgType = getFFGName();
 
-        FFMPRecord qpfRecord = this.getQpfRecord(getPaintTime().getRefTime());
-        FFMPBasinData qpfBasin = null;
-        if (qpfRecord != null) {
-            qpfBasin = qpfRecord.getBasinData();
-        }
-
+        
         try {
             if (aggregate) {
                 if (isWorstCase()) {
                     List<Float> qpes = null;
-                    List<Float> guids = null;
-                    List<Float> qpfs = null;
+                    List<Float> guids = null;                    
                     if (getQpeRecord() != null) {
                         qpes = getQpeRecord().getBasinData().getAccumValues(
                                 pfafs, getTableTime(), recentTime,
@@ -2056,13 +2025,9 @@ public class FFMPResource
                                         getGuidanceInterpolation(ffgType),
                                         getGuidSourceExpiration(ffgType));
                     }
-                    if (qpfBasin != null) {
-                        qpfs = qpfBasin.getAccumValues(pfafs, getTableTime(),
-                                recentTime, getQpfSourceExpiration(), isRate());
-                    }
-
+                    
                     if ((qpes != null) && (guids != null)) {
-                        ratio = FFMPUtils.getMaxRatioValue(qpes, qpfs, guids);
+                        ratio = FFMPUtils.getMaxRatioValue(qpes, guids);
                     }
                 } else {
                     if ((getQpeRecord() != null)
@@ -2077,15 +2042,7 @@ public class FFMPResource
                                 .getAverageGuidanceValue(pfafs,
                                         getGuidanceInterpolation(ffgType),
                                         getGuidSourceExpiration(ffgType));
-
-                        if (qpfBasin != null) {
-                            qpf = qpfBasin.getAccumAverageValue(pfafs,
-                                    getTableTime(), recentTime,
-                                    getQpfSourceExpiration(), getResourceData()
-                                            .getPrimarySourceXML().isRate());
-                        }
-
-                        ratio = FFMPUtils.getRatioValue(qpe, qpf, guid);
+                        
                     }
                 }
             } else {
@@ -2097,14 +2054,8 @@ public class FFMPResource
                             (FFMPGuidanceBasin) getGuidanceRecord()
                                     .getBasinData().get(key),
                             recentTime, ffgType);
-                    qpf = null;
-
-                    if (qpfBasin != null) {
-                        qpf = qpfBasin.get(key).getAccumValue(getTableTime(),
-                                recentTime, getQpfSourceExpiration(), isRate());
-                    }
-
-                    ratio = FFMPUtils.getRatioValue(qpe, qpf, guid);
+                    
+                    ratio = FFMPUtils.getRatioValue(qpe, guid);
                 }
             }
         } catch (Exception e) {
@@ -3404,8 +3355,7 @@ public class FFMPResource
 
                     Float guidancev = 0.0f;
                     Float qpev = fgd.getQpe(fgdQpeTime).floatValue();
-                    Float qpfv = Float.NaN;
-
+                    
                     // Initialize to NaN. If there is no guidance then we want
                     // NaN as the default value as it will be "missing".
                     double diff = Double.NaN;
@@ -3432,9 +3382,8 @@ public class FFMPResource
 
                         Double qpf = fgd.getQpf(fgdQpeTime);
                         if (qpf != null){
-                            qpfv = qpf.floatValue();
-                            diff = FFMPUtils.getDiffValue(qpev, qpfv, guidancev);
-                            ratio = FFMPUtils.getRatioValue(qpev, qpfv, guidancev);
+                            diff = FFMPUtils.getDiffValue(qpev, guidancev);
+                            ratio = FFMPUtils.getRatioValue(qpev, guidancev);
                         }
                     }
 

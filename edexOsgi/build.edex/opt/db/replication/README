@@ -18,6 +18,15 @@ Every server should have one line for every server in the replication setup,
 including itself--thus all servers should have the same lines. This enables
 quickly changing which server is the master without extra configuration.
 
+Also you need to add a SSL certificate and key for the "replication" DB role.
+You have to create these files yourself, except for root.crt which is the
+root certificate for the database--you can copy that one straight from
+/awips2/database/ssl. Put them here:
+
+/awips2/database/ssl/replication/${hostname -s}/replication.crt
+/awips2/database/ssl/replication/${hostname -s}/replication.key
+/awips2/database/ssl/replication/${hostname -s}/root.crt
+
 
 SETTING UP STANDBYS
 -------------------

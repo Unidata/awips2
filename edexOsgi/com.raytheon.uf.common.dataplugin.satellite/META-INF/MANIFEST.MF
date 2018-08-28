@@ -4,7 +4,7 @@ Bundle-Name: Satellite Common
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.satellite
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.6
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.raytheon.uf.common.dataplugin;bundle-version="1.12.1174",
  com.raytheon.uf.common.serialization;bundle-version="1.12.1174",
  javax.persistence;bundle-version="1.0.0",
@@ -24,3 +24,4 @@ Export-Package: com.raytheon.uf.common.dataplugin.satellite,
  com.raytheon.uf.common.dataplugin.satellite.units.goes.convert,
  com.raytheon.uf.common.dataplugin.satellite.units.ir,
  com.raytheon.uf.common.dataplugin.satellite.units.water
+Import-Package: com.raytheon.uf.common.status

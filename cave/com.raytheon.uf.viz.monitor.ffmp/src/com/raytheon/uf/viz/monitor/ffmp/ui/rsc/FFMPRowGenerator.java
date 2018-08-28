@@ -63,8 +63,7 @@ import com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.FfmpTableConfigData;
  * Jul 15, 2013 2184       dhladky     Remove all HUC's for storage except ALL
  * Apr 30, 2014 2060       njensen     Safety checks for null guidance
  * Oct 12, 2015 4948       dhladky     Improved forced FFG handling.
- * Mar 07  2017 DR 11861   lshi        FFMP use of QPF in Basin Table
- * Apr 12, 2017 DR 11250   lshi        VGBs inclusion for localization was incorrect 
+ * Apr 12, 2017 DR 11250   lshi        VGBs inclusion for localization was incorrect
  * 
  * </pre>
  * 
@@ -179,7 +178,7 @@ public class FFMPRowGenerator implements Runnable {
         Float guidance = Float.NaN;
         Float qpe = Float.NaN;
         Float rate = Float.NaN;
-        Float qpf = null;
+        Float qpf = Float.NaN;
         FIELDS rowField = FIELDS.NAME;
 
         if (isVGB) {
@@ -272,8 +271,8 @@ public class FFMPRowGenerator implements Runnable {
 
                         // If guidance is NaN then it cannot be > 0
                         if (!qpe.isNaN() && (guidance > 0.0f)) {
-                            ratioValue = FFMPUtils.getRatioValue(qpe, qpf, guidance);
-                            diffValue = FFMPUtils.getDiffValue(qpe, qpf, guidance);
+                            ratioValue = FFMPUtils.getRatioValue(qpe, guidance);
+                            diffValue = FFMPUtils.getDiffValue(qpe, guidance);
                         }
                         trd.setTableCellData(i + 5, new FFMPTableCellData(
                                 FIELDS.RATIO, ratioValue));
@@ -339,8 +338,8 @@ public class FFMPRowGenerator implements Runnable {
 
                         // If guidance is NaN then it cannot be > 0
                         if (!qpe.isNaN() && (guidance > 0.0f)) {
-                            ratioValue = FFMPUtils.getRatioValue(qpe, qpf, guidance);
-                            diffValue = FFMPUtils.getDiffValue(qpe, qpf, guidance);
+                            ratioValue = FFMPUtils.getRatioValue(qpe, guidance);
+                            diffValue = FFMPUtils.getDiffValue(qpe, guidance);
                         }
                         trd.setTableCellData(i + 5, new FFMPTableCellData(
                                 FIELDS.RATIO, ratioValue));
@@ -457,8 +456,8 @@ public class FFMPRowGenerator implements Runnable {
                         float diffValue = Float.NaN;
                         // If guidance is NaN then it cannot be > 0
                         if (!qpe.isNaN() && (guidance > 0.0f)) {
-                            ratioValue = FFMPUtils.getRatioValue(qpe, qpf, guidance);
-                            diffValue = FFMPUtils.getDiffValue(qpe, qpf, guidance);
+                            ratioValue = FFMPUtils.getRatioValue(qpe, guidance);
+                            diffValue = FFMPUtils.getDiffValue(qpe, guidance);
                         }
                         trd.setTableCellData(i + 5, new FFMPTableCellData(
                                 FIELDS.RATIO, ratioValue));
@@ -535,7 +534,7 @@ public class FFMPRowGenerator implements Runnable {
         Float qpe = Float.NaN;
         Float guidance = Float.NaN;
         Float rate = Float.NaN;
-        Float qpf = null;
+        Float qpf = Float.NaN;
         Float ratioValue = Float.NaN;
         Float diffValue = Float.NaN;
 
@@ -700,16 +699,12 @@ public class FFMPRowGenerator implements Runnable {
                                     ft, huc);
                         }
                         
-                        List<Float> qpfs = null;
-                        if (qpfBasin != null ){
-                            qpfs = qpfBasin.getAccumValues(pfafs, monitor.getQpfWindow().getAfterTime(), monitor.getQpfWindow().getBeforeTime(), expirationTime, isRate);
-                        }
-
+                        
                         if ((!qpes.isEmpty())
                                 && ((guids != null) && (!guids.isEmpty()))) {
                             ratioValue = FFMPUtils
-                                    .getMaxRatioValue(qpes, qpfs, guids);
-                            diffValue = FFMPUtils.getMaxDiffValue(qpes, qpfs, guids);
+                                    .getMaxRatioValue(qpes, guids);
+                            diffValue = FFMPUtils.getMaxDiffValue(qpes, guids);
                         }
                         trd.setTableCellData(i + 5, new FFMPTableCellData(
                                 FIELDS.RATIO, ratioValue));
@@ -770,14 +765,12 @@ public class FFMPRowGenerator implements Runnable {
             ArrayList<Long> pfafs, Float qpe) {
         Float guidance;
         Float ratioValue;
-        Float diffValue;
-        Float qpfValue;
+        Float diffValue;        
         int i = 0;
         for (String guidType : guidBasins.keySet()) {
             guidance = Float.NaN;
             diffValue = Float.NaN;
-            ratioValue = Float.NaN;
-            qpfValue = null;
+            ratioValue = Float.NaN;            
             FFFGForceUtil forceUtil = forceUtils.get(guidType);
             forceUtil.setSliderTime(sliderTime);
 
@@ -813,19 +806,10 @@ public class FFMPRowGenerator implements Runnable {
                         FIELDS.GUIDANCE, Float.NaN));
             }
             
-            if (qpfBasin != null) {
-                FFMPBasin basin = qpfBasin.get(cBasin.getPfaf());
-                if (basin != null) {
-                    FFMPTimeWindow window = monitor.getQpfWindow();
-                    qpfValue = basin.getAverageValue(window.getAfterTime(),
-                            window.getBeforeTime());
-                }
-            }
-
             // If guidance is NaN then it cannot be > 0
             if (!qpe.isNaN() && (guidance > 0.0f)) {
-                ratioValue = FFMPUtils.getRatioValue(qpe, qpfValue, guidance);
-                diffValue = FFMPUtils.getDiffValue(qpe, qpfValue, guidance);
+                ratioValue = FFMPUtils.getRatioValue(qpe, guidance);
+                diffValue = FFMPUtils.getDiffValue(qpe, guidance);
             }
             trd.setTableCellData(i + 5, new FFMPTableCellData(FIELDS.RATIO,
                     ratioValue));

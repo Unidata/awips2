@@ -84,6 +84,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 27 Apr 2016  5483        randerso    Fix GUI sizing issues
  * 10/02/2017   DR20030     qzhu        Fix problems of importing rating curve
  * 11/07/2017   DR19987     jdeng       Can't Insert a Point in the Middle of Rating Curve Table
+ * Aug. 1 2018  DR20030     jdeng       Fix problems of importing rating curve, rework on all white
+ *                                      spaces.
  * </pre>
  * 
  * @author lvenable
@@ -1192,7 +1194,7 @@ public class RatingCurveDlg extends CaveSWTDialog {
 
             // Read File Line By Line
             while ((strLine = br.readLine()) != null) {
-                String[] line = strLine.trim().split("\t");
+                String[] line = strLine.trim().split("\\s+");
                 // should be ordered stage, flow separated by a space
                 if (line.length == 2) {
                     rci.add(new Double(line[0]), new Double(line[1]));

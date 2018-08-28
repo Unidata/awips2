@@ -121,7 +121,6 @@ import com.vividsolutions.jts.geom.LineString;
  *                                     if there is no storm motion.
  * 03-18-2016  ASM #18751 D. Friedman Followup for #18421: Do not set StormTrackState.oneStormAngle
  *                                     when motion is zero.
- * 06-07-2018             mjames@ucar Do not post data.
  * 
  * </pre>
  * 
@@ -1002,6 +1001,7 @@ public class StormTrackDisplay implements IRenderable {
         }
         state.speed = speed;
 
+        postData(state);
     }
 
     private void generateNewTrackInfo(StormTrackState state, int anchorIndex,
@@ -1154,6 +1154,7 @@ public class StormTrackDisplay implements IRenderable {
         state.timePoints = timePoints;
         state.futurePoints = futurePoints;
 
+        postData(state);
     }
 
     private Coordinate updateAnchorPoint(StormTrackState currentState,
@@ -1465,6 +1466,21 @@ public class StormTrackDisplay implements IRenderable {
      */
     private double unadjustAngle(double angle) {
         return (360 + angle) % 360;
+    }
+
+    private void postData(StormTrackState state) {
+        if (!(state.speed > 0)) {
+            return;
+        }
+        StormTrackData data = new StormTrackData();
+        Coordinate[] coords = new Coordinate[state.timePoints.length];
+        for (int i = 0; i < coords.length; ++i) {
+            coords[i] = new Coordinate(state.timePoints[i].coord);
+        }
+        data.setCoordinates(coords);
+        data.setMotionDirection(state.angle);
+        data.setMotionSpeed((int) mpsToKts.convert(state.speed));
+        dataManager.setStormTrackData(data);
     }
 
 }

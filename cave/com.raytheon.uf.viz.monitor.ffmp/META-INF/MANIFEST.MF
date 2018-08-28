@@ -22,7 +22,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.common.style;bundle-version="1.0.0",
  com.raytheon.uf.common.plugin.hpe;bundle-version="1.14.3",
  com.raytheon.uf.viz.core.rsc;bundle-version="1.14.0"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Import-Package: com.raytheon.viz.core
 Export-Package: com.raytheon.uf.viz.monitor.ffmp,

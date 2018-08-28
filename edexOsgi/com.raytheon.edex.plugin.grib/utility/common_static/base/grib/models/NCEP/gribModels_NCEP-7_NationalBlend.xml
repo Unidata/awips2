@@ -71,6 +71,36 @@
         </process>
     </model>
 
+    <!-- 
+        DThP3hr is repackaged from SPC.
+    -->
+    <model>
+        <name>NationalBlend</name>
+        <center>7</center>
+        <subcenter>9</subcenter>
+        <grids>
+            <id>NBMv3</id>
+        </grids>
+        <process>
+            <id>113</id>
+        </process>
+    </model>
+
+    <!-- 
+        Fosberg Fire Weather Index (mxffwi) is repackaged from SPC.
+    -->
+    <model>
+        <name>NationalBlend</name>
+        <center>7</center>
+        <subcenter>14</subcenter>
+        <grids>
+            <id>NBMv3</id>
+        </grids>
+        <process>
+            <id>104</id>
+        </process>
+    </model>
+
     <!--Alaska-->
     <model>
         <name>NationalBlendAK</name>

@@ -24,7 +24,7 @@ Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.11.7";resolution:=
  com.raytheon.uf.edex.database,
  com.raytheon.uf.common.datastorage,
  org.slf4j;bundle-version="1.7.12"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: com.raytheon.uf.edex.plugin.cwat,
  com.raytheon.uf.edex.plugin.cwat.common
 Import-Package: com.raytheon.edex.urifilter,

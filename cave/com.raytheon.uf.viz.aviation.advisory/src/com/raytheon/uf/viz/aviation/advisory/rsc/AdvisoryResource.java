@@ -105,8 +105,6 @@ public class AdvisoryResource extends
 
     private Coordinate nonStandardInspectCoordinate;
 
-    private float magnification;
-
     private SymbolLoader symbolLoader;
 
     protected AdvisoryResource(AdvisoryResourceData resourceData,
@@ -195,7 +193,7 @@ public class AdvisoryResource extends
         if (font != null) {
             font.dispose();
         }
-        this.font = target.initializeFont("Monospace", 8, new Style[] {});
+        this.font = target.initializeFont("Monospace", 12, new Style[] {});
         this.symbolLoader = new SymbolLoader();
     }
 
@@ -263,7 +261,6 @@ public class AdvisoryResource extends
                 } else {
                     double[] pixelLoc = descriptor.worldToPixel(new double[] {
                             record.getLabelLoc().x, record.getLabelLoc().y });
-                    font.setMagnification(magnification);
 
                     DrawableString dStrings = new DrawableString(
                             record.getLabel(), color);
@@ -286,7 +283,6 @@ public class AdvisoryResource extends
             List<DrawableString> strings = new ArrayList<DrawableString>();
             for (AdvisoryRecord record : records.get(curDataTime)) {
                 if (record.getType() == AdvisoryResourceType.AREA) {
-                    font.setMagnification(magnification);
                     double[] pixelLoc = descriptor.worldToPixel(new double[] {
                             record.getLabelLoc().x, record.getLabelLoc().y });
                     String[] labels = record.getLabel().split("\n");
@@ -318,7 +314,6 @@ public class AdvisoryResource extends
                 } else if (record.getType() == AdvisoryResourceType.TEXT) {
                     double[] pixelLoc = descriptor.worldToPixel(new double[] {
                             record.getLabelLoc().x, record.getLabelLoc().y });
-                    font.setMagnification(magnification);
 
                     DrawableString dStrings = new DrawableString(
                             record.getLabel(), color);
@@ -343,9 +338,6 @@ public class AdvisoryResource extends
                 LineStyle.DOTTED);
         target.drawWireframeShape(dashedShape, color, lineWidth,
                 LineStyle.DASHED);
-
-        magnification = (float) (1 * getCapability(
-                MagnificationCapability.class).getMagnification());
 
         // Questionable
         // double density = getCapability(DensityCapability.class).getDensity();
@@ -388,7 +380,6 @@ public class AdvisoryResource extends
                 Arrays.fill(colors, color);
                 double xLoc = extent.getMinX() + (50 * zoomLevel);
                 double yLoc = extent.getMinY() + (100 * zoomLevel);
-                font.setMagnification(magnification);
 
                 DrawableString dStrings = new DrawableString(
                         nonStandardInspectStrings, colors);

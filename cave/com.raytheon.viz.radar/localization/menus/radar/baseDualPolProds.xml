@@ -18,11 +18,6 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
-    <!-- 
-        This is an absolute override file, indicating that a higher priority 
-        version of the file will completely replace a lower priority version
-        of the file. 
-    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="subMenu" menuText="${icao} Diff Refl (ZDR)"
         id="diffReflZDR">
@@ -450,6 +445,7 @@
             <substitute key="elevation" value="0.0--360.0" />
         </contribute>
     </contribute>
+
     <contribute xsi:type="subMenu" menuText="${icao} Melting Layer (ML)"
         id="{icao}MeltingLayerML">
         <contribute xsi:type="bundleItem"
@@ -817,6 +813,7 @@
         </contribute>
     </contribute>
     <contribute xsi:type="separator" id="${icao}BelowDualPolHCA4Panel" />
+
     <contribute xsi:type="titleItem" titleText="------ Dual Pol Precip ------"
         id="${icao}DualPolPrecip" />
     <contribute xsi:type="bundleItem" file="bundles/DefaultRadarBestRes.xml"
@@ -895,6 +892,7 @@
         <substitute key="layer" value="6.0" />
     </contribute>
     <contribute xsi:type="separator" id="Below${icao}User24hrAccum" />
+
     <contribute xsi:type="titleItem"
         titleText="------ Dual Pol Minus Legacy Accum ------" id="${icao}DualPolMinusLegacyAccum" />
     <contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"
@@ -910,6 +908,7 @@
         <substitute key="elevation" value="0.0--0.0" />
     </contribute>
     <contribute xsi:type="separator" id="Below${icao}OneHourAccumDOD" />
+
     <contribute xsi:type="titleItem" titleText="------ Four Bit ------"
         id="${icao}FourBit" />
     <contribute xsi:type="bundleItem" file="bundles/DefaultRadar.xml"

@@ -25,6 +25,13 @@
 # Configuration Guides->Smart Initialization Configuration section of the GFE 
 # Online Help for guidance on creating a new smart init 
 ##
+# ----------------------------------------------------------------------------
+#
+#     SOFTWARE HISTORY
+#
+#    Date            Ticket#       Engineer       Description
+#    ------------    ----------    -----------    --------------------------
+#    02/23/2018      #20395        wkwock         Added NBM3.1 elements.
 
 from numpy import *
 
@@ -276,7 +283,7 @@ class NationalBlendForecaster(Forecaster):
         #  values.
         CloudBasePrimary = where(less(CloudBasePrimary, 0), 250, CloudBasePrimary)
 
-        return self.smoothpm(CloudBasePrimary, 3)
+        return CloudBasePrimary
 
     def calcMaxRH(self, MAXRH12hr_FHAG2):
         return MAXRH12hr_FHAG2
@@ -287,8 +294,8 @@ class NationalBlendForecaster(Forecaster):
     #===========================================================================
     # Calc MaxTwAloft - Convert K to C
     #===========================================================================
-    def calcMaxTwAloft(self, MaxTW_EA):
-        return (MaxTW_EA - 273.15)
+    def calcMaxTwAloft(self, maxtw_FHAG61040000):
+        return (maxtw_FHAG61040000 - 273.15)
 
     def calcMinRH(self, MINRH12hr_FHAG2):
         return MINRH12hr_FHAG2
@@ -299,14 +306,14 @@ class NationalBlendForecaster(Forecaster):
     #===========================================================================
     # NegativeEnergyLowLevel
     #===========================================================================
-    def calcNegativeEnergyLowLevel(self, nbe_EA):
-        return nbe_EA
+    def calcNegativeEnergyLowLevel(self, nbe_SFC):
+        return nbe_SFC
 
     #===========================================================================
     # Positive Energy Aloft
     #===========================================================================
-    def calcPositiveEnergyAloft(self, pbe_EA):
-        return pbe_EA
+    def calcPositiveEnergyAloft(self, pbe_FHAG61040000):
+        return pbe_FHAG61040000
 
     def calcPoP(self, pop_SFC):
         return pop_SFC
@@ -420,6 +427,395 @@ class NationalBlendForecaster(Forecaster):
         return(ptypsnow_SFC)
     def calcPotFreezingRain(self, ptypfreezingrain_SFC):
         return(ptypfreezingrain_SFC)
+
+    def calcTransWind(self, trwspd_EA, trwdir_EA):
+        newmag=self.convertMsecToKts(trwspd_EA)
+        return (newmag, trwdir_EA)
+
+    def calcLLWS(self, wind_FHAG0610):
+        mag, dir = wind_FHAG0610
+        Mask = mag >= 150
+        mag = self.convertMsecToKts(mag)    # convert to knots from m/s
+        mag[Mask] = 0
+        dir[Mask] = 0
+        return (mag, dir)
+
+    def calcSnowAmt(self, totsn6hr_SFC):
+        return (totsn6hr_SFC * 1000) / 25.4
+
+    def calcMixHgt(self, mixht_EA):
+        return mixht_EA / 0.3048
+
+    def calcVentRate(self, vrate_EA):
+        return vrate_EA
+
+    def calcHaines(self, hindex6hr_EA):
+        return hindex6hr_EA
+
+    def calcFosBerg(self, fosindx6hr_SFC):
+        return fosindx6hr_SFC
+
+    def calcLLWSHgt(self, llwshgt_FHAG0610):
+        return llwshgt_FHAG0610 * 32.808398951
+
+    def calcRadar(self, maxref1hr_FHAG1000):
+        return maxref1hr_FHAG1000
+
+    def calcSigWaveHgt(self, htsgw_SFC):
+        return htsgw_SFC / 0.3048
+
+    def calcWx(self, pwther_SFC):
+        #https://graphical.weather.gov/definitions/defineWx.html
+        wx = pwther_SFC.astype(int8)
+        outOfAreaMask = logical_or(greater(wx, 7),less(wx, 0))
+        wx[outOfAreaMask] = 0
+
+        wxtypes = ["<NoCov>:<NoWx>:<NoInten>:<NoVis>:",
+                   "Chc:R:-:<NoVis>:",
+                   "SChc:R:-:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:",
+                   "Def:R:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:",
+                   "Chc:R:m:<NoVis>:",
+                   "SChc:R:m:<NoVis>:",
+                   "Def:R:+:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:",
+                   "Chc:R:+:<NoVis>:",
+                   "Iso:T:<NoInten>:<NoVis>:^SChc:RW:-:<NoVis>:",
+                   "Chc:RW:-:<NoVis>:^Iso:T:<NoInten>:<NoVis>:",
+                   "Chc:RW:-:<NoVis>:^Sct:T:<NoInten>:<NoVis>:",
+                   "SChc:S:-:<NoVis>:^SChc:R:-:<NoVis>:",
+                   "Chc:S:-:<NoVis>:^Chc:R:-:<NoVis>:",
+                   "SChc:S:-:<NoVis>:",
+                   "SChc:R:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Chc:S:-:<NoVis>:",
+                   "Chc:R:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Lkly:S:-:<NoVis>:^Lkly:R:-:<NoVis>:",
+                   "Lkly:S:-:<NoVis>:",
+                   "Lkly:S:m:<NoVis>:",
+                   "Lkly:S:m:<NoVis>:^Lkly:R:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Def:R:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^Lkly:S:-:<NoVis>:",
+                   "Def:S:m:<NoVis>:",
+                   "Def:R:-:<NoVis>:^Lkly:S:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Lkly:S:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^SChc:R:-:<NoVis>:",
+                   "Chc:S:m:<NoVis>:",
+                   "SChc:S:m:<NoVis>:",
+                   "Def:S:+:<NoVis>:",
+                   "Lkly:S:+:<NoVis>:",
+                   "Chc:R:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Def:S:+:<NoVis>:^Def:R:+:<NoVis>:",
+                   "Def:S:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Chc:R:-:<NoVis>:",
+                   "Lkly:S:m:<NoVis>:^SChc:R:m:<NoVis>:",
+                   "Def:S:m:<NoVis>:^Def:R:m:<NoVis>:",
+                   "Def:S:m:<NoVis>:^Chc:ZR:m:<NoVis>:",
+                   "Lkly:S:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Lkly:S:-:<NoVis>:^SChc:R:-:<NoVis>:",
+                   "Def:S:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Def:S:m:<NoVis>:^SChc:R:m:<NoVis>:",
+                   "Chc:S:-:<NoVis>:^SChc:R:-:<NoVis>:",
+                   "Lkly:RW:-:<NoVis>:^Iso:T:<NoInten>:<NoVis>:",
+                   "Chc:S:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Lkly:S:+:<NoVis>:^Lkly:R:+:<NoVis>:",
+                   "Lkly:RW:-:<NoVis>:^Sct:T:<NoInten>:<NoVis>:",
+                   "Lkly:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Lkly:S:-:<NoVis>:^Chc:R:-:<NoVis>:",
+                   "Chc:S:+:<NoVis>:",
+                   "Chc:S:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Lkly:S:m:<NoVis>:^Chc:ZR:m:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Chc:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "SChc:S:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "SChc:ZR:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "SChc:ZR:-:<NoVis>:",
+                   "Def:RW:-:<NoVis>:^Iso:T:<NoInten>:<NoVis>:",
+                   "SChc:S:m:<NoVis>:^SChc:R:m:<NoVis>:",
+                   "Chc:RW:m:<NoVis>:^Iso:T:<NoInten>:<NoVis>:",
+                   "Lkly:RW:m:<NoVis>:^Iso:T:<NoInten>:<NoVis>:",
+                   "Chc:RW:m:<NoVis>:^Sct:T:<NoInten>:<NoVis>:",
+                   "Lkly:RW:m:<NoVis>:^Sct:T:<NoInten>:<NoVis>:",
+                   "Def:RW:-:<NoVis>:^Sct:T:<NoInten>:<NoVis>:",
+                   "Def:RW:m:<NoVis>:^Sct:T:<NoInten>:<NoVis>:",
+                   "Def:RW:m:<NoVis>:^Iso:T:<NoInten>:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Lkly:R:-:<NoVis>:",
+                   "Chc:S:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Def:S:+:<NoVis>:^Chc:ZR:+:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Lkly:S:-:<NoVis>:^Lkly:ZR:-:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^Lkly:S:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^Lkly:S:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Lkly:ZR:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^Def:S:-:<NoVis>:",
+                   "Lkly:S:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "SChc:IP:-:<NoVis>:^SChc:S:-:<NoVis>:^SChc:R:-:<NoVis>:",
+                   "Chc:IP:-:<NoVis>:^Chc:S:-:<NoVis>:^Chc:R:-:<NoVis>:",
+                   "Def:S:+:<NoVis>:^Chc:R:+:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Lkly:S:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Lkly:S:m:<NoVis>:",
+                   "Def:RW:+:<NoVis>:^Iso:T:<NoInten>:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^SChc:S:m:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Chc:R:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Chc:IP:m:<NoVis>:",
+                   "Chc:R:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^Chc:IP:m:<NoVis>:",
+                   "Chc:R:-:<NoVis>:^SChc:IP:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Def:R:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Def:R:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Def:R:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Chc:IP:m:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^SChc:IP:+:<NoVis>:",
+                   "Def:R:+:<NoVis>:^SChc:IP:+:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^SChc:ZR:+:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Chc:ZR:m:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^Chc:ZR:+:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Chc:IP:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Def:R:+:<NoVis>:^Chc:IP:+:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^Chc:IP:+:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Chc:IP:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Chc:IP:m:<NoVis>:^Chc:ZR:m:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^Chc:IP:+:<NoVis>:^SChc:ZR:+:<NoVis>:",
+                   "Def:R:+:<NoVis>:^Chc:IP:+:<NoVis>:^SChc:ZR:+:<NoVis>:",
+                   "Def:R:m:<NoVis>:^SChc:IP:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Def:R:+:<NoVis>:^SChc:IP:+:<NoVis>:^SChc:ZR:+:<NoVis>:",
+                   "Def:R:+:<NoVis>:^SChc:ZR:+:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Chc:IP:m:<NoVis>:^Chc:ZR:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Chc:IP:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^SChc:IP:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^SChc:ZR:+:<NoVis>:^SChc:IP:+:<NoVis>:",
+                   "Def:R:+:<NoVis>:^SChc:ZR:+:<NoVis>:^SChc:IP:+:<NoVis>:",
+                   "Def:R:+:<NoVis>:^Chc:ZR:+:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Lkly:IP:m:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^SChc:IP:+:<NoVis>:^SChc:ZR:+:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^Chc:ZR:+:<NoVis>:^SChc:IP:+:<NoVis>:",
+                   "Def:R:+:<NoVis>:^Chc:ZR:+:<NoVis>:^SChc:IP:+:<NoVis>:",
+                   "Def:R:m:<NoVis>:^SChc:ZR:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^Chc:IP:+:<NoVis>:^Chc:ZR:+:<NoVis>:",
+                   "Def:R:+:<NoVis>:^Chc:IP:+:<NoVis>:^Chc:ZR:+:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Chc:ZR:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Def:R:+:<NoVis>:^Lkly:IP:+:<NoVis>:^SChc:ZR:+:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Lkly:IP:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^Lkly:IP:+:<NoVis>:^SChc:ZR:+:<NoVis>:",
+                   "Def:R:+:<NoVis>:^Lkly:IP:+:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Chc:IP:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Lkly:IP:m:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^Lkly:R:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Lkly:IP:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Lkly:R:+:<NoVis>:^Lkly:IP:+:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Lkly:IP:m:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^Lkly:R:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Def:R:-:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^Lkly:ZR:-:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Lkly:ZR:+:<NoVis>:^Chc:R:+:<NoVis>:",
+                   "Chc:S:+:<NoVis>:^Chc:R:+:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Chc:IP:-:<NoVis>:^Chc:R:-:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^SChc:R:m:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Chc:S:m:<NoVis>:^SChc:R:m:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^SChc:IP:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Chc:ZR:m:<NoVis>:^SChc:R:m:<NoVis>:",
+                   "Chc:ZR:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^Chc:ZR:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^SChc:ZR:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^SChc:ZR:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^SChc:IP:m:<NoVis>:^SChc:S:m:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^SChc:IP:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^SChc:IP:m:<NoVis>:^SChc:S:m:<NoVis>:",
+                   "Chc:ZR:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^Chc:IP:m:<NoVis>:^SChc:ZR:m:<NoVis>:",
+                   "Def:R:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^SChc:S:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^SChc:S:m:<NoVis>:",
+                   "Chc:ZR:m:<NoVis>:^SChc:S:m:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Chc:IP:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Chc:IP:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Chc:S:m:<NoVis>:^Chc:IP:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Chc:ZR:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^Chc:ZR:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Chc:S:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Chc:ZR:m:<NoVis>:^Chc:IP:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Chc:R:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^SChc:R:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Chc:S:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Chc:S:m:<NoVis>:^Chc:IP:m:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^Lkly:R:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Lkly:IP:m:<NoVis>:^Chc:ZR:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Chc:R:m:<NoVis>:^Chc:IP:m:<NoVis>:",
+                   "Def:R:-:<NoVis>:^Chc:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Def:R:m:<NoVis>:^SChc:IP:m:<NoVis>:^SChc:S:m:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Chc:IP:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Lkly:S:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^SChc:ZR:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^SChc:S:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^SChc:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^SChc:IP:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^SChc:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Lkly:S:m:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^Chc:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Lkly:IP:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Chc:ZR:m:<NoVis>:^Chc:IP:m:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Chc:R:m:<NoVis>:^Chc:IP:m:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Lkly:ZR:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Def:IP:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Lkly:IP:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:^Chc:IP:m:<NoVis>:^SChc:R:m:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^Chc:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Chc:ZR:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Chc:IP:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Lkly:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^SChc:IP:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Chc:R:m:<NoVis>:^Chc:IP:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Lkly:S:-:<NoVis>:^Lkly:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Lkly:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Def:ZR:-:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Chc:IP:m:<NoVis>:^Chc:R:m:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^Chc:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^Chc:R:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^Chc:R:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Chc:R:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Chc:ZR:m:<NoVis>:^Chc:IP:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^Chc:IP:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^Chc:R:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:^Chc:R:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^Chc:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^Chc:R:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^Chc:IP:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^SChc:S:m:<NoVis>:",
+                   "Chc:ZR:m:<NoVis>:^Chc:S:m:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^Chc:R:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^Chc:R:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^SChc:ZR:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Chc:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^Lkly:IP:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^Lkly:IP:-:<NoVis>:^Chc:R:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^Lkly:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^Def:IP:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Def:R:m:<NoVis>:^Lkly:IP:m:<NoVis>:^Lkly:S:m:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Lkly:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Lkly:R:m:<NoVis>:^Lkly:IP:m:<NoVis>:^Lkly:S:m:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Def:S:-:<NoVis>:^Def:R:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Chc:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Lkly:IP:-:<NoVis>:^Lkly:S:-:<NoVis>:^Lkly:R:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Def:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^SChc:IP:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Lkly:IP:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Def:R:-:<NoVis>:^Chc:IP:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^SChc:R:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Def:ZR:m:<NoVis>:^Def:IP:m:<NoVis>:^Def:S:m:<NoVis>:",
+                   "Def:S:m:<NoVis>:^SChc:IP:m:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Def:R:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Lkly:S:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Def:S:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Lkly:IP:-:<NoVis>:",
+                   "Lkly:ZR:m:<NoVis>:",
+                   "Def:IP:-:<NoVis>:^Def:S:-:<NoVis>:^Lkly:ZR:-:<NoVis>:",
+                   "Def:S:-:<NoVis>:^Lkly:ZR:-:<NoVis>:^Lkly:IP:-:<NoVis>:",
+                   "Chc:R:-:<NoVis>:^SChc:ZR:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Def:ZR:-:<NoVis>:^Lkly:IP:-:<NoVis>:^Lkly:S:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^Lkly:IP:-:<NoVis>:^Lkly:S:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^SChc:R:-:<NoVis>:",
+                   "Lkly:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^Chc:R:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^SChc:R:-:<NoVis>:",
+                   "Chc:R:-:<NoVis>:^Chc:IP:-:<NoVis>:^Chc:S:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Chc:R:-:<NoVis>:^Chc:ZR:-:<NoVis>:",
+                   "Lkly:R:-:<NoVis>:^Lkly:IP:-:<NoVis>:^Lkly:S:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:^SChc:S:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^Chc:S:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Chc:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Chc:S:-:<NoVis>:^Chc:ZR:-:<NoVis>:^Chc:IP:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^Chc:S:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Chc:ZR:-:<NoVis>:^SChc:S:-:<NoVis>:^SChc:IP:-:<NoVis>:",
+                   "Def:S:+:<NoVis>:^SChc:ZR:+:<NoVis>:",
+                   "SChc:R:-:<NoVis>:^SChc:IP:-:<NoVis>:^SChc:S:-:<NoVis>:",
+               ]
+
+        
+        return (wx, wxtypes)
+
+    def calcSnowAmt01(self, totsn1hr_SFC):
+        return (totsn1hr_SFC * 1000) / 25.4
+
+    def calcIceAccum01(self, ficeac1hr_SFC):
+        return (ficeac1hr_SFC * 1000) / 25.4
+
+    def calcIceAccum(self, ficeac6hr_SFC):
+        return (ficeac6hr_SFC * 1000) / 25.4
+
+    def calcQPF10Prcntl(self, tp10pct6hr_SFC):
+        return tp10pct6hr_SFC / 25.4
+
+    def calcQPF50Prcntl(self, tp50pct6hr_SFC):
+        return tp50pct6hr_SFC / 25.4
+    
+    def calcQPF90Prcntl(self, tp90pct6hr_SFC):
+        return tp90pct6hr_SFC / 25.4
+
+    def calcTstmPrb1(self, thp1hr_SFC):
+        return thp1hr_SFC
+
+    def calcDryTstmPrb(self, drytpprob3hr_SFC):
+        return drytpprob3hr_SFC
+
+    def calcTstmPrb12(self, thp12hr_SFC):
+        return thp12hr_SFC
 
 def main():
     NationalBlendForecaster().run()

@@ -41,6 +41,7 @@ import com.raytheon.uf.edex.plugin.mpe.gather.radar.MpeRadarSymbologyData;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Nov 22, 2016 5588       nabowle     Initial creation
+ * Jul 24, 2018 5588       mapeters    Use MpeRadarFile.BUILD_VERSION_5 constant
  *
  * </pre>
  *
@@ -122,7 +123,7 @@ public class DSPRadarFile extends MpeRadarFile<DSPProductDescription> {
         adapt.setMaxZrefl(params[i++]);
         adapt.setMinBirng(params[i++]);
 
-        if (getVersion() == 5) {
+        if (getVersion() == MpeRadarFile.BUILD_VERSION_5) {
             adapt.setMaxStmspd(params[i++]);
             adapt.setMaxTimdif(params[i++]);
             adapt.setMinArtcon(params[i++]);

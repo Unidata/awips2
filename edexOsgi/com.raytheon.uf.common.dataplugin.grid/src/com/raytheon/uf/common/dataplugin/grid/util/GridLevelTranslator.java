@@ -42,6 +42,7 @@ import com.raytheon.uf.common.style.level.SingleLevel;
  * Jul 30, 2007           chammack     Initial Creation.
  * May 01, 2014  DCS 027  MPorricelli  Add WBZ level
  * Aug 15, 2016  5821     bsteffen     Add TROP level
+ * May 18, 2018  20395    wkwock       Add CBL and CLG level
  * 
  * </pre>
  * 
@@ -86,6 +87,10 @@ public class GridLevelTranslator {
             level = new SingleLevel(Level.LevelType.FRZ);
         } else if (levelType.equalsIgnoreCase("WBZ")) {
             level = new SingleLevel(Level.LevelType.WBZ);            
+        } else if (levelType.equalsIgnoreCase("CBL")) {
+            level = new SingleLevel(Level.LevelType.CBL);
+        } else if (levelType.equalsIgnoreCase("CLG")) {
+            level = new SingleLevel(Level.LevelType.CLG);
         } else {
             return new SingleLevel(Level.LevelType.DEFAULT);
         }

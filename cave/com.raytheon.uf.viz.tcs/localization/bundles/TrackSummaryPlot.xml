@@ -33,7 +33,7 @@
                         <capabilities />
                     </loadProperties>
                     <resourceData xsi:type="tcsResourceData"
-                        plotSource="${legend} Hurricane Tracks"
+                        plotSource="Hurricane Tracks"
                         isUpdatingOnMetadataOnly="false"
                         isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>

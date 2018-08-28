@@ -130,6 +130,8 @@ import com.raytheon.viz.ui.editor.IMultiPaneEditor;
  * Mar 06, 2017  6161      mduff        Added getFieldData()
  * Oct 06, 2017  6407      bkowal       Cleanup. Updates to support GOES-R SATPRE.
  * Apr 10, 2017  17911     mgamazaychikov/wkwock   Add loadRFCQPEXmrg.
+ * Jun 22, 2018  7321      smanoj       fixed issue with hourly grid cells not displaying according to color scale
+ *                                      and color scale on the lower left corner not displaying numeric values.
  * 
  * </pre>
  * 
@@ -1137,6 +1139,7 @@ public class MPEDisplayManager {
         ColorMapParameters params = new ColorMapParameters();
         params.setFormatString("0.00");
         params.setDisplayUnit(displayUnit);
+        params.setDataUnit(dataUnit);
 
         UnitConverter displayToData = MPEConversionUtils
                 .constructConverter(displayUnit, dataUnit);
@@ -1199,6 +1202,10 @@ public class MPEDisplayManager {
 
         params.setColorMap(new ColorMap(cvUse, red, green, blue));
         params.setDataMapping(dm);
+        params.setDataMin(0);
+        params.setDataMax(numColors - 1);
+        params.setColorMapMin(params.getDataMin());
+        params.setColorMapMax(params.getDataMax());
 
         // Check for Index parameter and set labels to radar sites
         // Determine and store radar type (S/D/M) for display in legend
