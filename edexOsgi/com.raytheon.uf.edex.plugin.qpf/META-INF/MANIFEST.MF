@@ -24,6 +24,6 @@ Import-Package: com.raytheon.edex.urifilter,
  com.raytheon.uf.common.dataplugin.grid,
  com.raytheon.uf.edex.core,
  com.raytheon.uf.edex.plugin.scan.common
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: com.raytheon.uf.edex.plugin.qpf,
  com.raytheon.uf.edex.plugin.qpf.common

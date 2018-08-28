@@ -13,6 +13,6 @@ Require-Bundle: com.raytheon.uf.common.dataplugin.cwat,
  com.raytheon.uf.common.dataplugin;bundle-version="1.14.0",
  com.raytheon.uf.common.datastorage;bundle-version="1.15.0",
  com.raytheon.uf.common.geospatial;bundle-version="1.14.2"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.viz.cwat

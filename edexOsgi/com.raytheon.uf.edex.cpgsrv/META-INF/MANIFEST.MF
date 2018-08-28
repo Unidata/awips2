@@ -11,7 +11,7 @@ Require-Bundle: com.raytheon.edex.common,
  com.raytheon.uf.edex.event;bundle-version="1.0.0",
  com.raytheon.uf.common.event;bundle-version="1.0.0",
  org.slf4j;bundle-version="1.7.12"
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.cpgsrv
 Import-Package: com.raytheon.uf.common.monitor.cpg
