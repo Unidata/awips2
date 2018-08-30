@@ -6,7 +6,7 @@
 
 We create and use the Docker image unidata/awips-ade to build the two RHEL binary distributions of AWIPS (RPMS). The directory **awips2-builds/build/awips-ade/** contains Dockerfiles for 64-bit EL6 and EL7 CentOS.
 
-    ./build/awips-ade/docker_build.sh ${os_version}
+    ./build/awips-ade/awips-ade.sh ${os_version}
 
 where **${os_version}** is either *el6* or *el7*.
 
