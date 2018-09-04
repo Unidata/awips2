@@ -1349,31 +1349,14 @@ COMMIT
 <p>In the file <code>/awips2/database/data/pg_hba.conf</code> you define remote connections for all postgres tables with as <code>&lt;IP address&gt;/32</code>, after the block of IPv4 local connections:</p>
 <pre><code>vi /awips2/database/data/pg_hba.conf
 
-# IPv4 local connections:
-host    fxatext     all         127.0.0.1/32          trust
-host    hd_ob92oax  all         127.0.0.1/32          trust
-host    dc_ob7oax   all         127.0.0.1/32          trust
-host    hmdb        all         127.0.0.1/32          trust
-host    metadata    all         127.0.0.1/32          md5
-host    maps        all         127.0.0.1/32          md5
-host    postgres    all         127.0.0.1/32          md5
-host    ncep        all         127.0.0.1/32          md5
-host    ebxml       all         127.0.0.1/32          trust
-host    replication replication 127.0.0.1/32          md5
-# Remote connections
-host    fxatext     all         10.0.0.7/32       md5
-host    hd_ob92oax  all         10.0.0.7/32       md5
-host    dc_ob7oax   all         10.0.0.7/32       md5
-host    hmdb        all         10.0.0.7/32       md5
-host    metadata    all         10.0.0.7/32       md5
-host    maps        all         10.0.0.7/32       md5
-host    postgres    all         10.0.0.7/32       md5
-host    ncep        all         10.0.0.7/32       md5
-host    ebxml       all         10.0.0.7/32       md5
-host    replication replication 10.0.0.7/32       md5
+# "local" is for Unix domain socket connections only
+local      all   all                               trust
+hostssl    all   all         10.0.0.7/32           cert clientcert=1
+hostssl    all   all         162.0.0.0/8           cert clientcert=1
+hostssl    all   all         127.0.0.1/32          cert clientcert=1
 # IPv6 local connections:
-host    all         all         ::1/128               md5
-host    replication replication ::1/128               md5
+hostssl    all   all         ::1/128               cert clientcert=1
+hostnossl  all   all         ::1/128               md5
 </code></pre>
 <h3 id="4-start-edex">4. Start EDEX<a class="headerlink" href="#4-start-edex" title="Permanent link"></a></h3>
 <pre><code>edex start database
