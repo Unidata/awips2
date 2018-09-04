@@ -50,9 +50,6 @@ IP=`/sbin/ifconfig $usedev | grep -v "inet6" | grep "inet" | awk '{ print $2 }' 
 
 # truncate
 IP_CIDR="${IP%.*}"
-editFiles=($EDEX_ENV_FILE)
-boolFiles=(true)
-editFuncs=(edit_setup)
 
 YMD=`date '+%Y%m%d'`
 
@@ -224,34 +221,14 @@ edex_log() { # display todays log, default to ingest
 
 # See /awips2/edex/bin/setup.env
 edit_setup() {
-   sed -i.setup_$YMD 's/external.fqdn/'$HOSTNAME'/g' $EDEX_ENV_FILE
-   echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
-   echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
-   # registry/data delivery fqdn
-   sed -i 's/external.fqdn/'$HOSTNAME'/g' /awips2/edex/conf/resources/*.properties
-}
-
-edex_edits() {
-   for index in ${!editFiles[*]}; do
-      if ${boolFiles[$index]}; then
-         ${editFuncs[$index]}
-      fi
-   done
-   echo '[done]'
-   exit;
-}
-
-edex_ipexit() { # abandon ip editing, post msg to guide manual edits
-   for index in ${!editFiles[*]}; do
-                if ${boolFiles[$index]}; then
-                        editCom+='\t'${editFiles[$index]}'\n'
-                fi
-        done
-   echo -e '[edex] Exiting EDEX IP Setup'
-   echo -e ''
-   echo -e ' You may need to MANUALLY EDIT the following files'
-   echo -e '\n'$editCom
-   echo -e ' for EDEX to work properly. \n'
+   if grep -q external.fqdn "$EDEX_ENV_FILE"; then
+      echo '[edex] EDEX IP and Hostname Setup'
+      sed -i.setup_$YMD 's/external.fqdn/'$HOSTNAME'/g' $EDEX_ENV_FILE
+      echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
+      echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
+      # registry/data delivery fqdn
+      sed -i 's/external.fqdn/'$HOSTNAME'/g' /awips2/edex/conf/resources/*.properties
+   fi
 }
 
 edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
@@ -273,15 +250,12 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
    chkconfig edex_camel --add
    chkconfig edex_camel on --level 35
 
-   echo '[edex] EDEX IP and Hostname Setup'
    # check files exist
    continue=true
-   for index in ${!editFiles[*]}; do
-      if [[ ! -f ${editFiles[$index]} ]]; then
-         echo '[Error] ** '${editFiles[$index]}' not found.'
-         continue=false
-      fi
-   done
+   if [[ ! -f ${EDEX_ENV_FILE} ]]; then
+      echo '[Error] ** '${EDEX_ENV_FILE}' not found.'
+      continue=false
+   fi
    if ! $continue; then
       echo 'Exiting'
       exit;
@@ -293,16 +267,12 @@ edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
       #echo '[edit] ldm regutil...'
       su - awips -c 'regutil -s '$HOSTNAME' /hostname'
    fi
-   echo ''
-   edex_edits
-   if [ $continue=true ]; then
-      echo ' EDEX correctly configured'
-   fi
-   echo ''
+   edit_setup
 }
 
 edex_start() { # start all edex services
    edex_cleanup
+   edex_setup
    for dir in /awips2/tmp /awips2/data_store ; do
       if [ ! -d $dir ]; then
          mkdir -p $dir
