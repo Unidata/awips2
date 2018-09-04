@@ -46,11 +46,10 @@ fi
 
 # Build all WFO site localization Map Scales (Regional.xml and WFO.xml)
 BUILD_DIR=%{_baseline_workspace}/rpms/awips2.core/Installer.localization/
-UTIL=%{_static_files}/localization
-#file=$BUILD_DIR/wfo.dat
+UTIL=${AWIPSII_STATIC_FILES}/localization
+COMMON_DIR=$BUILD_DIR/common_static
 file=$BUILD_DIR/coords.dat
 regional=$BUILD_DIR/coords_regional.dat
-#<gridGeometry rangeX="LOWX HIGHX" rangeY="LOWY HIGHY" envelopeMinX="MINX" envelopeMaxX="MAXX" envelopeMinY="MINY" envelopeMaxY="MAXY">
 
 for site in $(cat $file |cut -c -3)
 do
@@ -68,11 +67,9 @@ do
    maxy=$(cat $file  |grep $site | cut -d"," -f11 | tr -d '[[:space:]]')
 
    # CAVE
-   CAVE_DIR=$UTIL/cave_static/site/$site
+   CAVE_DIR=$BUILD_DIR/utility/cave_static/site/$site/
    mkdir -p $CAVE_DIR
-   cp -R $BUILD_DIR/utility/cave_static/* $CAVE_DIR
-   mkdir -p ~/awips2-builds/localization/localization/utility/cave_static/site/$site
-   cp -R $BUILD_DIR/utility/cave_static/* ~/awips2-builds/localization/localization/utility/cave_static/site/$site
+   cp -R $UTIL/cave_static/* $CAVE_DIR
    grep -rl 'LOWX'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/LOWX/'$lowx'/g'
    grep -rl 'HIGHX' $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/HIGHX/'$highx'/g'
    grep -rl 'LOWY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/LOWY/'$lowy'/g'
@@ -81,8 +78,6 @@ do
    grep -rl 'MAXX'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MAXX/'$maxx'/g'
    grep -rl 'MINY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MINY/'$miny'/g'
    grep -rl 'MAXY'  $CAVE_DIR/bundles/scales/WFO.xml | xargs sed -i 's/MAXY/'$maxy'/g'
-
-   #cp $CAVE_DIR/bundles/scales/WFO.xml ~/awips2-core/viz/com.raytheon.uf.viz.core.maps/localization/bundles/scales/WFO/$site.xml
 
    lowx=$(cat $regional  |grep $site | cut -d"," -f4  | tr -d '[[:space:]]')
    highx=$(cat $regional |grep $site | cut -d"," -f5  | tr -d '[[:space:]]')
@@ -105,22 +100,16 @@ do
    grep -rl 'XXX' $CAVE_DIR | xargs sed -i 's/XXX/'$site'/g'
    grep -rl 'LATITUDE' $CAVE_DIR | xargs sed -i 's/LATITUDE/'$lat'/g'
    grep -rl 'LONGITUDE' $CAVE_DIR | xargs sed -i 's/LONGITUDE/'$lon'/g'
+
    # EDEX
-   EDEX_DIR=$UTIL/common_static/site/$site
-   mkdir -p $EDEX_DIR
-   cp -R $BUILD_DIR/utility/siteconfig/* $EDEX_DIR/
-   grep -rl 'XXX' $EDEX_DIR | xargs sed -i 's/XXX/'$site'/g'
+   SITE_DIR=$COMMON_DIR/site/$site
+   mkdir -p $SITE_DIR
+   cp -R $UTIL/siteconfig/* $SITE_DIR/
+   grep -rl 'XXX' $SITE_DIR | xargs sed -i 's/XXX/'$site'/g'
 done
 
-# Copy existing (default) OAX and TBW map scales
-#cp -R %{_baseline_workspace}/localization.OAX/utility/cave_static/site/* %{_baseline_workspace}/localization/utility/cave_static/site/
-#cp -R %{_baseline_workspace}/localization.TBW/utility/cave_static/site/* %{_baseline_workspace}/localization/utility/cave_static/site/
-
 # COMMON
-COMMON_DIR=$UTIL/common_static
-mkdir -p $COMMON_DIR
-cp -R $BUILD_DIR/utility/common_static/* $COMMON_DIR/
-
+cp -R $UTIL/common_static/* $COMMON_DIR/
 
 %install
 if [ ! -d %{_baseline_workspace}/%{_localization_directory} ]; then
