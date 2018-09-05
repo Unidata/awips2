@@ -1,6 +1,6 @@
 
 
-As of Unidata AWIPS 17.1.1, the GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Geostationary Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.
+The GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Geostationary Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.
 
 GOES-R products are accessible in the menu **Satellite** > **GOES-16 Provisional Products**
 
@@ -85,7 +85,7 @@ Decoded GOES-R satellite images are stored in `/awips2/edex/data/hdf5/satellite/
 
 Level 2+ products are described as derived environmental variables which will be created and disseminated when GOES-16 is used operationally (compared to **Level 0**, described as unprocessed instrument data at full resolution, and **Level 1b** products, described as radiometric and geometric correction applied to produce parameters in physical units). 
 
-Unidata does not currently have access to these products, but EDEX 17.1.1 can support their ingest if made available. 
+Unidata does not currently have access to these products, but EDEX can support their ingest if a feed is available. 
 
 [Read more about GOES-R data levels...](http://www.goes-r.gov/ground/overview.html)
 

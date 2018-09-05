@@ -2,7 +2,7 @@ WarnGen is an AWIPS graphics application for creating and issuing warnings as is
 
 !!! warning "In order to select a feature it must be within your *CAVE localization* coverage (load **Maps** > **County Warning Areas** to see coverages)"
 
-Steps involved in using WarnGen in Unidata AWIPS CAVE 17.1.1
+Steps involved in using WarnGen in Unidata AWIPS CAVE
 
 * Load NEXRAD Display from the Radar menu.
 * Choose a WFO site with active severe weather (LKZ is used in the video).
