@@ -13,12 +13,12 @@ Quick instructions on how to deploy CAVE from Eclipse.
         
 2. `yum clean all && yum groupinstall awips2-ade`
 
-    This will install Eclipse (4.5), Java (1.8), Ant, Maven, Python 2.7 and its modules (Numpy, Matplotlib, Shapely, others). 
+    This will install Eclipse (4.6.1), Java (1.8), Ant (1.9.6), Maven, Python 2.7 and its modules (Numpy, Matplotlib, Shapely, others). 
 
 
 3. `git clone https://github.com/Unidata/awips2.git`
 
-    The full list of repositories required as of release 17.1.1:
+    The full list of repositories required:
     
         git clone https://github.com/Unidata/awips2.git
         git clone https://github.com/Unidata/awips2-core.git
