@@ -203,31 +203,31 @@ public class GridUpdater extends GridInventoryUpdater {
              * real state of the record here and it is left to the receiver of
              * updates to figure it out.
              */
-            GridRecord schrödingersRecord = new GridRecord();
+            GridRecord schrodingersRecord = new GridRecord();
             DataTime time = record.getDataTime();
-            schrödingersRecord.setDataTime(new DataTime(time.getRefTime(),
+            schrodingersRecord.setDataTime(new DataTime(time.getRefTime(),
                     time.getFcstTime() - value.timeOffset));
-            schrödingersRecord.setDatasetId(value.node.getModelName());
+            schrodingersRecord.setDatasetId(value.node.getModelName());
 
             Parameter param = new Parameter(
                     value.node.getDesc().getAbbreviation(),
                     value.node.getDesc().getName(),
                     value.node.getDesc().getUnit());
-            schrödingersRecord.setParameter(param);
-            schrödingersRecord.setLevel(value.node.getLevel());
+            schrodingersRecord.setParameter(param);
+            schrodingersRecord.setLevel(value.node.getLevel());
             if (value.node instanceof GatherLevelNode) {
-                schrödingersRecord.setEnsembleId(null);
+                schrodingersRecord.setEnsembleId(null);
             } else {
-                schrödingersRecord.setEnsembleId(record.getEnsembleId());
+                schrodingersRecord.setEnsembleId(record.getEnsembleId());
             }
-            schrödingersRecord.setSecondaryId(record.getSecondaryId());
-            schrödingersRecord.setLocation(record.getLocation());
+            schrodingersRecord.setSecondaryId(record.getSecondaryId());
+            schrodingersRecord.setLocation(record.getLocation());
             try {
-                uriUpdateQueue.put(schrödingersRecord.getDataURI());
+                uriUpdateQueue.put(schrodingersRecord.getDataURI());
             } catch (InterruptedException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Failed to send derived update for "
-                                + schrödingersRecord.getDataURI(),
+                                + schrodingersRecord.getDataURI(),
                         e);
             }
         }
