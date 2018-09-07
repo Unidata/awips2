@@ -115,7 +115,12 @@ public class TextWsPythonScript {
 
     public void dispose() {
         if (jep != null) {
-            jep.close();
+            try {
+				jep.close();
+			} catch (JepException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
             jep = null;
         }
     }
