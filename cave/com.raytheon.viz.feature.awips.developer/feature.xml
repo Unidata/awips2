@@ -70,10 +70,6 @@
          version="0.0.0"/>
 
    <includes
-         id="com.raytheon.uf.viz.scan.feature"
-         version="0.0.0"/>
-
-   <includes
          id="com.raytheon.viz.dataaccess.feature"
          version="0.0.0"/>
 
@@ -119,14 +115,6 @@
 
    <includes
          id="com.raytheon.uf.viz.d2d.nsharp.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.archive.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.ncep.perspective.feature"
          version="0.0.0"/>
 
    <includes
@@ -183,10 +171,6 @@
 
    <includes
          id="com.raytheon.uf.viz.d2d.gfe.feature"
-         version="0.0.0"/>
-
-   <includes
-         id="com.raytheon.uf.viz.server.edex.feature"
          version="0.0.0"/>
 
    <includes

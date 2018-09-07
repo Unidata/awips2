@@ -14,7 +14,7 @@
    </configIni>
 
    <launcherArgs>
-      <programArgs>-data @user.home/Library/caveData -user @user.home/Library/caveData -clean -consoleLog -alertviz -thinclient
+      <programArgs>-data @user.home/Library/caveData -user @user.home/Library/caveData -clean -consoleLog
       </programArgs>
       <vmArgs>-Xmx4536M
 -XX:+UseG1GC
@@ -39,7 +39,7 @@
 -XX:G1HeapWastePercent=5
 -XX:SoftRefLRUPolicyMSPerMB=1000
 -DvizVersion=18.1.1
--DbuildSystem=macOS/Eclipse
+-DbuildSystem=macOS
       </vmArgs>
       <vmArgsWin>-Dfile.encoding=UTF-8
       </vmArgsWin>
@@ -60,10 +60,12 @@
       </win>
    </launcher>
 
+
    <vm>
       <macos include="true">org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8</macos>
       <windows include="true">jdk1.7.0</windows>
    </vm>
+
 
    <plugins>
    </plugins>
