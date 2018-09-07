@@ -11,6 +11,6 @@ Require-Bundle: javax.persistence;bundle-version="1.0.0",
  com.raytheon.uf.common.geospatial,
  com.raytheon.uf.common.dataplugin,
  com.raytheon.uf.common.datastorage
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.common.dataplugin.cwat

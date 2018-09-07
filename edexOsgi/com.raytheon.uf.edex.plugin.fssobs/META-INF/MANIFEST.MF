@@ -4,7 +4,7 @@ Bundle-Name: Datobs
 Bundle-SymbolicName: com.raytheon.uf.edex.plugin.fssobs
 Bundle-Version: 1.14.1.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.raytheon.uf.edex.cpgsrv;bundle-version="1.12.1153",
  com.raytheon.edex.common;bundle-version="1.12.1153",
  com.raytheon.uf.common.dataplugin.fssobs;bundle-version="1.0.0",

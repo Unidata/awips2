@@ -4,4 +4,4 @@ Bundle-Name: Request
 Bundle-SymbolicName: com.raytheon.uf.edex.registry.request
 Bundle-Version: 1.15.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8

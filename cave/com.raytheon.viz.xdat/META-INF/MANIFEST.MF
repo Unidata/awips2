@@ -14,7 +14,7 @@ Require-Bundle: org.eclipse.ui,
  com.raytheon.uf.viz.personalities.cave;bundle-version="1.15.0",
  com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174"
 Bundle-ActivationPolicy: lazy
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Import-Package: com.raytheon.uf.common.ohd,
  com.raytheon.uf.common.time,
  com.raytheon.uf.common.time.util,

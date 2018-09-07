@@ -16,7 +16,7 @@ Require-Bundle: com.raytheon.uf.common.monitor;bundle-version="1.0.0",
  com.raytheon.uf.edex.decodertools;bundle-version="1.12.1174"
 Import-Package: com.raytheon.uf.common.status,
  com.raytheon.uf.edex.decodertools.time
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Export-Package: com.raytheon.uf.edex.plugin.fog,
  com.raytheon.uf.edex.plugin.fog.common

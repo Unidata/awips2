@@ -4,7 +4,7 @@ Bundle-Name: Fog common Plug-in
 Bundle-SymbolicName: com.raytheon.uf.common.dataplugin.fog
 Bundle-Version: 1.14.0.qualifier
 Bundle-Vendor: RAYTHEON
-Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: com.raytheon.uf.common.dataplugin.fog,
  com.raytheon.uf.common.dataplugin.fog.analysis
 Require-Bundle: javax.persistence;bundle-version="1.0.0",
