@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/", 
-            "text": "Unidata AWIPS User Manual\n\uf0c1\n\n\n\n\nUnidata AWIPS\n is a modified and extended version of AWIPS (originally developed by NWS and Raytheon) for non-operational use in research and education by \nUCAR member institutions\n.\n\n\nAWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an \nLDM\n client requesting data from the \nUnidata IDD\n. Various raw data and product files (grib, BUFR, text, gini, McIDAS, NetCDF, more) are  decoded and stored as HDF5 and Postgres metadata by \nEDEX\n, which then serves these data and products to  clients over http. \n\n\nUnidata supports two visualization frameworks for rendering data: \nCAVE\n, and the Python Data Access Framework (\npython-awips\n).\n\n\n\n\nDownload and Install CAVE\n\uf0c1\n\n\n\n\nRelease 18.1.1-1, September 5, 2018\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Linux  \n\n\ninstall.sh --cave \n  \n       \nFor CentOS/Red Hat 6 and 7. Installs to /awips2/cave and writes files to ~/caveData.\n \nchmod 755 install.sh\nsudo ./install.sh --cave\nRun CAVE from the Linux Desktop menu Applications \n Internet \n AWIPS CAVE, or from the command line as simply \ncave\n.\n \nSystem Requirements\nx86_64 CentOS/RHEL 6 or 7\nOpenGL 2.0 capable device\n4GB RAM\nLatest NVIDIA driver\napprox. 2GB disk space for data caching (~/caveData)\nYou can reset CAVE at any time by removing the \n~/caveData\n directory (on macOS \n~/Library/caveData\n) and reconnecting to an EDEX server. \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n macOS       \n\n\n    Download and install both\nawips2-cave-18.1.1-1.dmg \nawips-python.pkg \n \nSupported Graphics Devices for macOS\nIntel HD Graphics\nIntel Iris\nNVIDIA GeForce\nUnsupported Graphics Devices for macOS\nAMD Radeon R9\nAMD Radeon Pro\nAMD FirePro D300\n \nWrites and syncs files to ~/Library/caveData.\n \nawips-python.pkg\n is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, jep must be installed in some way (it is assumed in /Library/Python/2.7/site-packages/jep/)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n 64-bit Windows \n\n\n \nawips-cave.amd64.msi \n  \n  \nWrites files to caveData in the user's home directory.\n\n\n\n\n\n\n\n\n\n\nRead full CAVE install instructions\n\n\n\n\n\n\nDownload and Install EDEX\n\uf0c1\n\n\n\n\nRelease 18.1.1-1, September 5, 2018\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Linux  \n\n\ninstall.sh --edex \n  \n       \nInstalls to /awips2/ directories.\n \nchmod 755 install.sh\nsudo ./install.sh --edex\nStart and Stop:\nedex start\nedex stop\nSystem Requirements\nx86_64 CentOS/RHEL 6 or 7\n16+ CPU cores (each CPU core is one more decoder which can run in parallel)\n24GB RAM\n700GB+ disk space\n\n\n\n\n\n\n\n\n\n\nRead full EDEX install instructions\n\n\n\n\n\n\nLicense\n\uf0c1\n\n\nUnidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the \nMaster Rights\n licensing file. \n\n\n\n\nAWIPS Data in the Cloud\n\uf0c1\n\n\nUnidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter \nedex-cloud.unidata.ucar.edu\n (without \nhttp://\n before, or \n:9581/services\n after).\n\n\n\n\n\n\nDistributed Computing\n\uf0c1\n\n\nAWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data.  While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS can consist of a dozen servers or more, because the AWIPS source code was hard-coded with the NWS network configuration, the early Unidata releases were stripped of operation-specific configurations and plugins, and released specifically for standalone installation. This made sense given that a single EDEX instance with a Solid State Drive could handle most of the entire NOAAport data volume.  However, with GOES-R(16) coming online, and more gridded forecast models being created at finer temporal and spatial resolutions, there was now a need to distribute EDEX data decoding in order to handle this firehose of data.\n\n\n\n\nRead More: \nDistributed EDEX\n\n\n\n\n\n\n\n\nSoftware Components\n\uf0c1\n\n\n\n\nEDEX\n\n\nCAVE\n\n\nLDM\n\n\nedexBridge\n\n\nQpid\n\n\nPostgreSQL\n\n\nHDF5\n\n\nPyPIES\n\n\n\n\nEDEX\n\uf0c1\n\n\nThe main server for AWIPS.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands \nedex start\n and \nedex stop\n, which runs the system script \n/etc/rc.d/init.d/edex_camel\n\n\n\n\nRead More: How to Install EDEX\n\n\n\n\nCAVE\n\uf0c1\n\n\nCommon AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include \nD2D\n (Display Two-Dimensional), \nGFE\n (Graphical Forecast Editor), and \nNCP\n (National Centers Perspective). CAVE is started with the command \n/awips2/cave/cave.sh\n or \ncave.sh\n\n\n\n\nRead More: How to Install CAVE\n\n\n\n\n\n\nLDM\n\uf0c1\n\n\nhttps://www.unidata.ucar.edu/software/ldm/\n\n\nThe \nLDM\n (Local Data Manager), developed and supported by Unidata, is a suite of client and server programs designed for data distribution, and is the fundamental component comprising the Unidata Internet Data Distribution (IDD) system. In AWIPS, the LDM provides data feeds for grids, surface observations, upper-air profiles, satellite and radar imagery and various other meteorological datasets.   The LDM writes data directly to file and alerts EDEX via Qpid when a file is available for processing.  The LDM is started and stopped with the commands \nedex start\n and \nedex stop\n, which runs the commands \nservice edex_ldm start\n and \nservice edex_ldm stop\n\n\nedexBridge\n\uf0c1\n\n\nedexBridge, invoked in the LDM configuration file \n/awips2/ldm/etc/ldmd.conf\n, is used by the LDM to post \"data available\" messaged to Qpid, which alerts the EDEX Ingest server that a file is ready for processing.\n\n\nQpid\n\uf0c1\n\n\nhttp://qpid.apache.org\n\n\nApache Qpid\n, the Queue Processor Interface Daemon, is the messaging system used by AWIPS to facilitate communication between services.  When the LDM receives a data file to be processed, it employs \nedexBridge\n to send EDEX ingest servers a message via Qpid.  When EDEX has finished decoding the file, it sends CAVE a message via Qpid that data are available for display or further processing. Qpid is started and stopped by \nedex start\n and \nedex stop\n, and is controlled by the system script \n/etc/rc.d/init.d/qpidd\n\n\nPostgreSQL\n\uf0c1\n\n\nhttp://www.postgresql.org\n\n\nPostgreSQL\n, known simply as Postgres, is a relational database management system (DBMS) which handles the storage and retrieval of metadata, database tables and some decoded data.  The storage and reading of EDEX metadata is handled by the Postgres DBMS.  Users may query the metadata tables by using the termainal-based front-end for Postgres called \npsql\n. Postgres is started and stopped by \nedex start\n and \nedex stop\n, and is controlled by the system script \n/etc/rc.d/init.d/edex_postgres\n\n\nHDF5\n\uf0c1\n\n\nhttp://www.hdfgroup.org/HDF5/\n\n\nHierarchical Data Format (v.5)\n is the primary data storage format used by AWIPS for processed grids, satellite and radar imagery and other products.   Similar to netCDF, developed and supported by Unidata, HDF5 supports multiple types of data within a single file.  For example, a single HDF5 file of radar data may contain multiple volume scans of base reflectivity and base velocity as well as derived products such as composite reflectivity.  The file may also contain data from multiple radars. HDF5 is stored in \n/awips2/edex/data/hdf5/\n\n\nPyPIES (httpd-pypies)\n\uf0c1\n\n\nPyPIES\n, Python Process Isolated Enhanced Storage, was created for AWIPS to isolate the management of HDF5 Processed Data Storage from the EDEX processes.  PyPIES manages access, i.e., reads and writes, of data in the HDF5 files.  In a sense, PyPIES provides functionality similar to a DBMS (i.e PostgreSQL for metadata); all data being written to an HDF5 file is sent to PyPIES, and requests for data stored in HDF5 are processed by PyPIES.\n\n\nPyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by \nedex start\n and \nedex stop\n, and is controlled by the system script \n/etc/rc.d/init.d/httpd-pypies", 
+            "text": "Unidata AWIPS User Manual\n\uf0c1\n\n\n\n\nUnidata AWIPS\n is a modified and extended version of AWIPS (originally developed by NWS and Raytheon) for non-operational use in research and education by \nUCAR member institutions\n.\n\n\nAWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an \nLDM\n client requesting data from the \nUnidata IDD\n. Various raw data and product files (grib, BUFR, text, gini, McIDAS, NetCDF, more) are  decoded and stored as HDF5 and Postgres metadata by \nEDEX\n, which then serves these data and products to  clients over http. \n\n\nUnidata supports two visualization frameworks for rendering data: \nCAVE\n, and the Python Data Access Framework (\npython-awips\n).\n\n\n\n\nDownload and Install CAVE\n\uf0c1\n\n\n\n\nRelease 18.1.1-1, September 7, 2018\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Linux  \n\n\ninstall.sh --cave \n  \n       \nFor CentOS/Red Hat 6 and 7. Installs to /awips2/cave and writes files to ~/caveData.\n \nchmod 755 install.sh\nsudo ./install.sh --cave\nRun CAVE from the Linux Desktop menu Applications \n Internet \n AWIPS CAVE, or from the command line as simply \ncave\n.\n \nSystem Requirements\nx86_64 CentOS/RHEL 6 or 7\nOpenGL 2.0 capable device\n4GB RAM\nLatest NVIDIA driver\napprox. 2GB disk space for data caching (~/caveData)\nYou can reset CAVE at any time by removing the \n~/caveData\n directory (on macOS \n~/Library/caveData\n) and reconnecting to an EDEX server. \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n macOS       \n\n\n    Download and install both\nawips2-cave-18.1.1-1.dmg \nawips-python.pkg \n \nSupported Graphics Devices for macOS\nIntel HD Graphics\nIntel Iris\nNVIDIA GeForce\nUnsupported Graphics Devices for macOS\nAMD Radeon R9\nAMD Radeon Pro\nAMD FirePro D300\n \nWrites and syncs files to ~/Library/caveData.\n \nawips-python.pkg\n is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, jep must be installed in some way (it is assumed in /Library/Python/2.7/site-packages/jep/)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n 64-bit Windows \n\n\n \nawips-cave.amd64.msi \n  \n  \nWrites files to caveData in the user's home directory.\n\n\n\n\n\n\n\n\n\n\nRead full CAVE install instructions\n\n\n\n\n\n\nDownload and Install EDEX\n\uf0c1\n\n\n\n\nRelease 18.1.1-1, September 7, 2018\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Linux  \n\n\ninstall.sh --edex \n  \n       \nInstalls to /awips2/ directories.\n \nchmod 755 install.sh\nsudo ./install.sh --edex\nStart and Stop:\nedex start\nedex stop\nSystem Requirements\nx86_64 CentOS/RHEL 6 or 7\n16+ CPU cores (each CPU core is one more decoder which can run in parallel)\n24GB RAM\n700GB+ disk space\n\n\n\n\n\n\n\n\n\n\nRead full EDEX install instructions\n\n\n\n\n\n\nLicense\n\uf0c1\n\n\nUnidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the \nMaster Rights\n licensing file. \n\n\n\n\nAWIPS Data in the Cloud\n\uf0c1\n\n\nUnidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter \nedex-cloud.unidata.ucar.edu\n (without \nhttp://\n before, or \n:9581/services\n after).\n\n\n\n\n\n\nDistributed Computing\n\uf0c1\n\n\nAWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data.  While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS can consist of a dozen servers or more, because the AWIPS source code was hard-coded with the NWS network configuration, the early Unidata releases were stripped of operation-specific configurations and plugins, and released specifically for standalone installation. This made sense given that a single EDEX instance with a Solid State Drive could handle most of the entire NOAAport data volume.  However, with GOES-R(16) coming online, and more gridded forecast models being created at finer temporal and spatial resolutions, there was now a need to distribute EDEX data decoding in order to handle this firehose of data.\n\n\n\n\nRead More: \nDistributed EDEX\n\n\n\n\n\n\n\n\nSoftware Components\n\uf0c1\n\n\n\n\nEDEX\n\n\nCAVE\n\n\nLDM\n\n\nedexBridge\n\n\nQpid\n\n\nPostgreSQL\n\n\nHDF5\n\n\nPyPIES\n\n\n\n\nEDEX\n\uf0c1\n\n\nThe main server for AWIPS.  Qpid sends alerts to EDEX when data stored by the LDM is ready for processing.  These Qpid messages include file header information which allows EDEX to determine the appropriate data decoder to use.  The default ingest server (simply named ingest) handles all data ingest other than grib messages, which are processed by a separate ingestGrib server.  After decoding, EDEX writes metadata to the database via Postgres and saves the processed data in HDF5 via PyPIES.   A third EDEX server, request, feeds requested data to CAVE clients. EDEX ingest and request servers are started and stopped with the commands \nedex start\n and \nedex stop\n, which runs the system script \n/etc/rc.d/init.d/edex_camel\n\n\n\n\nRead More: How to Install EDEX\n\n\n\n\nCAVE\n\uf0c1\n\n\nCommon AWIPS Visualization Environment. The data rendering and visualization tool for AWIPS. CAVE contains of a number of different data display configurations called perspectives.  Perspectives used in operational forecasting environments include \nD2D\n (Display Two-Dimensional), \nGFE\n (Graphical Forecast Editor), and \nNCP\n (National Centers Perspective). CAVE is started with the command \n/awips2/cave/cave.sh\n or \ncave.sh\n\n\n\n\nRead More: How to Install CAVE\n\n\n\n\n\n\nLDM\n\uf0c1\n\n\nhttps://www.unidata.ucar.edu/software/ldm/\n\n\nThe \nLDM\n (Local Data Manager), developed and supported by Unidata, is a suite of client and server programs designed for data distribution, and is the fundamental component comprising the Unidata Internet Data Distribution (IDD) system. In AWIPS, the LDM provides data feeds for grids, surface observations, upper-air profiles, satellite and radar imagery and various other meteorological datasets.   The LDM writes data directly to file and alerts EDEX via Qpid when a file is available for processing.  The LDM is started and stopped with the commands \nedex start\n and \nedex stop\n, which runs the commands \nservice edex_ldm start\n and \nservice edex_ldm stop\n\n\nedexBridge\n\uf0c1\n\n\nedexBridge, invoked in the LDM configuration file \n/awips2/ldm/etc/ldmd.conf\n, is used by the LDM to post \"data available\" messaged to Qpid, which alerts the EDEX Ingest server that a file is ready for processing.\n\n\nQpid\n\uf0c1\n\n\nhttp://qpid.apache.org\n\n\nApache Qpid\n, the Queue Processor Interface Daemon, is the messaging system used by AWIPS to facilitate communication between services.  When the LDM receives a data file to be processed, it employs \nedexBridge\n to send EDEX ingest servers a message via Qpid.  When EDEX has finished decoding the file, it sends CAVE a message via Qpid that data are available for display or further processing. Qpid is started and stopped by \nedex start\n and \nedex stop\n, and is controlled by the system script \n/etc/rc.d/init.d/qpidd\n\n\nPostgreSQL\n\uf0c1\n\n\nhttp://www.postgresql.org\n\n\nPostgreSQL\n, known simply as Postgres, is a relational database management system (DBMS) which handles the storage and retrieval of metadata, database tables and some decoded data.  The storage and reading of EDEX metadata is handled by the Postgres DBMS.  Users may query the metadata tables by using the termainal-based front-end for Postgres called \npsql\n. Postgres is started and stopped by \nedex start\n and \nedex stop\n, and is controlled by the system script \n/etc/rc.d/init.d/edex_postgres\n\n\nHDF5\n\uf0c1\n\n\nhttp://www.hdfgroup.org/HDF5/\n\n\nHierarchical Data Format (v.5)\n is the primary data storage format used by AWIPS for processed grids, satellite and radar imagery and other products.   Similar to netCDF, developed and supported by Unidata, HDF5 supports multiple types of data within a single file.  For example, a single HDF5 file of radar data may contain multiple volume scans of base reflectivity and base velocity as well as derived products such as composite reflectivity.  The file may also contain data from multiple radars. HDF5 is stored in \n/awips2/edex/data/hdf5/\n\n\nPyPIES (httpd-pypies)\n\uf0c1\n\n\nPyPIES\n, Python Process Isolated Enhanced Storage, was created for AWIPS to isolate the management of HDF5 Processed Data Storage from the EDEX processes.  PyPIES manages access, i.e., reads and writes, of data in the HDF5 files.  In a sense, PyPIES provides functionality similar to a DBMS (i.e PostgreSQL for metadata); all data being written to an HDF5 file is sent to PyPIES, and requests for data stored in HDF5 are processed by PyPIES.\n\n\nPyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by \nedex start\n and \nedex stop\n, and is controlled by the system script \n/etc/rc.d/init.d/httpd-pypies", 
             "title": "Home"
         }, 
         {
@@ -12,12 +12,12 @@
         }, 
         {
             "location": "/#download-and-install-cave", 
-            "text": "Release 18.1.1-1, September 5, 2018", 
+            "text": "Release 18.1.1-1, September 7, 2018", 
             "title": "Download and Install CAVE"
         }, 
         {
             "location": "/#download-and-install-edex", 
-            "text": "Release 18.1.1-1, September 5, 2018", 
+            "text": "Release 18.1.1-1, September 7, 2018", 
             "title": "Download and Install EDEX"
         }, 
         {
@@ -82,12 +82,12 @@
         }, 
         {
             "location": "/install/install-cave/", 
-            "text": "Download and Install CAVE\n\uf0c1\n\n\n\n\nRelease 18.1.1-1, September 5, 2018\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Linux  \n\n\ninstall.sh --cave \n  \n       \nFor CentOS/Red Hat 6 and 7. Installs to /awips2/cave and writes files to ~/caveData.\n \nchmod 755 install.sh\nsudo ./install.sh --cave\nRun CAVE from the Linux Desktop menu Applications \n Internet \n AWIPS CAVE, or from the command line as simply \ncave\n.\n \nSystem Requirements\nx86_64 CentOS/RHEL 6 or 7\nOpenGL 2.0 capable device\n4GB RAM\nLatest NVIDIA driver\napprox. 2GB disk space for data caching (~/caveData)\nYou can reset CAVE at any time by removing the \n~/caveData\n directory (on macOS \n~/Library/caveData\n) and reconnecting to an EDEX server. \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n macOS       \n\n\n    Download and install both\nawips2-cave-18.1.1-1.dmg \nawips-python.pkg \n \nSupported Graphics Devices for macOS\nIntel HD Graphics\nIntel Iris\nNVIDIA GeForce\nUnsupported Graphics Devices for macOS\nAMD Radeon R9\nAMD Radeon Pro\nAMD FirePro D300\n \nWrites and syncs files to ~/Library/caveData.\n \nawips-python.pkg\n is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, jep must be installed in some way (it is assumed in /Library/Python/2.7/site-packages/jep/)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n 64-bit Windows \n\n\n \nawips-cave-18.1.1-1.amd64.msi \n  \n  \nWrites files to caveData in the user's home directory.\n\n\n\n\n\n\n\n\n\n\nAWIPS Data in the Cloud\n\uf0c1\n\n\nUnidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter \nedex-cloud.unidata.ucar.edu\n (without \nhttp://\n before, or \n:9581/services\n after).\n\n\n\n\n\n\nTroubleshooting\n\uf0c1\n\n\nLocalization Preferences Error\n\n\nYou can reset CAVE by removing the \n~/caveData\n directory (on macOS \n~/Library/caveData\n) and then run \ncave\n again to connect to an EDEX server.  Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local \n~/caveData\n (bundles, colormaps, etc.).\n\n\nNo Images Displayed\n\n\nIf you are able to load wire-frame contours but not images, \nupdate your video driver\n.", 
+            "text": "Download and Install CAVE\n\uf0c1\n\n\n\n\nRelease 18.1.1-1, September 7, 2018\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Linux  \n\n\ninstall.sh --cave \n  \n       \nFor CentOS/Red Hat 6 and 7. Installs to /awips2/cave and writes files to ~/caveData.\n \nchmod 755 install.sh\nsudo ./install.sh --cave\nRun CAVE from the Linux Desktop menu Applications \n Internet \n AWIPS CAVE, or from the command line as simply \ncave\n.\n \nSystem Requirements\nx86_64 CentOS/RHEL 6 or 7\nOpenGL 2.0 capable device\n4GB RAM\nLatest NVIDIA driver\napprox. 2GB disk space for data caching (~/caveData)\nYou can reset CAVE at any time by removing the \n~/caveData\n directory (on macOS \n~/Library/caveData\n) and reconnecting to an EDEX server. \n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n macOS       \n\n\n    Download and install both\nawips2-cave-18.1.1-1.dmg \nawips-python.pkg \n \nSupported Graphics Devices for macOS\nIntel HD Graphics\nIntel Iris\nNVIDIA GeForce\nUnsupported Graphics Devices for macOS\nAMD Radeon R9\nAMD Radeon Pro\nAMD FirePro D300\n \nWrites and syncs files to ~/Library/caveData.\n \nawips-python.pkg\n is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, jep must be installed in some way (it is assumed in /Library/Python/2.7/site-packages/jep/)\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n 64-bit Windows \n\n\n \nawips-cave-18.1.1-1.amd64.msi \n  \n  \nWrites files to caveData in the user's home directory.\n\n\n\n\n\n\n\n\n\n\nAWIPS Data in the Cloud\n\uf0c1\n\n\nUnidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter \nedex-cloud.unidata.ucar.edu\n (without \nhttp://\n before, or \n:9581/services\n after).\n\n\n\n\n\n\nTroubleshooting\n\uf0c1\n\n\nLocalization Preferences Error\n\n\nYou can reset CAVE by removing the \n~/caveData\n directory (on macOS \n~/Library/caveData\n) and then run \ncave\n again to connect to an EDEX server.  Your local files have been removed, but if you are re-connecting to an EDEX server you have used before, the remote files will sync again to your local \n~/caveData\n (bundles, colormaps, etc.).\n\n\nNo Images Displayed\n\n\nIf you are able to load wire-frame contours but not images, \nupdate your video driver\n.", 
             "title": "Install CAVE"
         }, 
         {
             "location": "/install/install-cave/#download-and-install-cave", 
-            "text": "Release 18.1.1-1, September 5, 2018", 
+            "text": "Release 18.1.1-1, September 7, 2018", 
             "title": "Download and Install CAVE"
         }, 
         {
@@ -102,12 +102,12 @@
         }, 
         {
             "location": "/install/install-edex/", 
-            "text": "Download and Install EDEX\n\uf0c1\n\n\n\n\nRelease 18.1.1-1, September 5, 2018\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Linux  \n\n\ninstall.sh --edex \n  \n       \nInstalls to /awips2/ directories.\n \nchmod 755 install.sh\nsudo ./install.sh --edex\nStart and Stop:\nedex start\nedex stop\nSystem Requirements\nx86_64 CentOS/RHEL 6 or 7\n16+ CPU cores (each CPU core is one more decoder which can run in parallel)\n24GB RAM\n700GB+ disk space\nA \nSolid State Drive (SSD)\n is highly recommended\n \nAn \nSSD\n should be mounted either to \n/awips2\n (to contain the entire EDEX system) or to \n/awips2/edex/data/hdf5\n (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.\n64-bit CentOS/RHEL 6 and 7\n are the only supported operating systems for EDEX. You may have luck with Fedora Core 12 to 14 and Scientific Linux.\nEDEX is not supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.\n\n\n\n\n\n\n\n\n\n\nRead More: Distributed EDEX, Installing Across Multiple Machines\n\uf0c1\n\n\n\n\n\n\nLinux One-Time Setup\n\uf0c1\n\n\nAll of these command should be run as \nroot\n\n\n1. Create AWIPS User\n\uf0c1\n\n\n\n\nCreate user awips and group fxalpha\n\n\n  groupadd fxalpha \n useradd -G fxalpha awips\n\n\n\nor if the awips account already exists:\n\n\n  groupadd fxalpha \n usermod -G fxalpha awips\n\n\n\n\n\n2. Install EDEX\n\uf0c1\n\n\n\n\nDownload and run \ninstall.sh --edex \n\n\n  wget https://www.unidata.ucar.edu/software/awips2/install.sh\n  chmod 755 install.sh\n  sudo ./install.sh --edex\n\n\n\n\n\ninstall.sh --edex\n will perform the following steps (it's always a good idea to review downloaded shell scripts):\n\n\n\n\nSaves the appropriate Yum repo file to \n/etc/yum.repos.d/awips2.repo\n\n\nIncreases process and file limits for the the \nawips\n account in \n/etc/security/limits.conf\n\n\nCreates \n/awips2/data_store\n if it does not exist already\n\n\nRuns \nyum groupinstall awips2-server\n\n\nAttempts to configure the EDEX hostname defined in \n/awips2/edex/bin/setup.env\n\n\nAlerts the user if the \nawips\n account does not exist (the RPMs will still install)\n\n\n\n\n\n\n\n\n3. EDEX Setup\n\uf0c1\n\n\n\n\nThe command \nedex setup\n will try to determine your fully-qualified domain name and set it in \n/awips2/edex/bin/setup.env\n. EDEX Server Administrators should double-check that the addresses and names defined in setup.env are resolvable from both inside and outside the server, and make appropriate edits to \n/etc/hosts\n if necessary.  \n\n\nFor example, in the XSEDE Jetstream cloud, the fully-qualified domain name defined in \n/awips2/edex/bin/setup.env\n\n\n  export EXT_ADDR=js-196-132.jetstream-cloud.org\n  export DB_ADDR=localhost\n  export DB_PORT=5432\n  export BROKER_ADDR=localhost\n  export PYPIES_SERVER=http://${EXT_ADDR}:9582\n\n\n\nis directed within to localhost in \n/etc/hosts\n\n\n  127.0.0.1   localhost localhost.localdomain js-196-132.jetstream-cloud.org\n\n\n\n\n\n4. Configure iptables\n\uf0c1\n\n\n\n\nConfigure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data to CAVE clients and the Python API.\n\n\nIf you are running a Registry (Data Delivery) server, you will also want to open port \n9588\n.\n\n\n\n\n\n\nTo open ports to all connections\n\n\n  vi /etc/sysconfig/iptables\n\n  *filter\n  :INPUT ACCEPT [0:0]\n  :FORWARD ACCEPT [0:0]\n  :OUTPUT ACCEPT [0:0]\n  -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT\n  -A INPUT -p icmp -j ACCEPT\n  -A INPUT -i lo -j ACCEPT\n  -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT\n  -A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT\n  -A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT\n  #-A INPUT -m state --state NEW -m tcp -p tcp --dport 9588 -j ACCEPT # for registry/dd\n  -A INPUT -j REJECT --reject-with icmp-host-prohibited\n  -A FORWARD -j REJECT --reject-with icmp-host-prohibited\n\n\n\nCOMMIT\n\n\n\n\n\n\nTo open ports to specific IP addresses\n\n\n\n\n\n\nIn this example, the IP range \n128.117.140.0/24\n will match all 128.117.140.\n addresses, while \n128.117.156.0/24\n will match 128.117.156.\n.\n\n\n      vi /etc/sysconfig/iptables\n\n      *filter\n      :INPUT DROP [0:0]\n      :FORWARD DROP [0:0]\n      :OUTPUT ACCEPT [0:0]\n      :EXTERNAL - [0:0]\n      :EDEX - [0:0]\n      -A INPUT -i lo -j ACCEPT\n      -A INPUT -p icmp --icmp-type any -j ACCEPT\n      -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT\n      -A INPUT -s 128.117.140.0/24 -j EDEX\n      -A INPUT -s 128.117.156.0/24 -j EDEX\n      -A INPUT -j EXTERNAL\n      -A EXTERNAL -j REJECT\n      -A EDEX -m state --state NEW -p tcp --dport 22 -j ACCEPT\n      -A EDEX -m state --state NEW -p tcp --dport 9581 -j ACCEPT\n      -A EDEX -m state --state NEW -p tcp --dport 9582 -j ACCEPT\n      #-A EDEX -m state --state NEW -p tcp --dport 9588 -j ACCEPT # for registry/dd\n      -A EDEX -j REJECT\n      COMMIT\n\n\n\nRestart iptables\n\n\n  service iptables restart\n\n\n\nFor CentOS 7 error \nRedirecting to /bin/systemctl restart  iptables.service\nFailed to restart iptables.service: Unit iptables.service failed to load: No such file or directory.\n\n\nThe solution is:\n\n\n  yum install iptables-services\n  systemctl enable iptables\n  service iptables restart\n\n\n\n\n\n5. Start EDEX\n\uf0c1\n\n\n\n\n  edex setup\n  edex start\n\n\n\nTo manually start, stop, and restart:\n\n\n  service edex_postgres start\n  service httpd-pypies start\n  service qpidd start\n  service edex_camel start\n\n\n\nThe fifth service, \nedex_ldm\n, does \nnot run at boot\n to prevent filling up disk space if EDEX is not running. \n\n\n  ldmadmin start\n\n\n\nTo start \nall services except the LDM\n (good for troubleshooting):\n\n\n  edex start base\n\n\n\nTo restart EDEX\n\n\n  edex restart\n\n\n\n\n\n\n\nAdditional Steps\n\uf0c1\n\n\n/etc/security/limits.conf\n\uf0c1\n\n\n/etc/security/limits.conf\n defines the number of user processes and files (this step is automatically performed by \ninstall.sh --edex\n). Without these definitions, Qpid is known to crash during periods of high ingest.\n\n\nawips soft nproc 65536\nawips soft nofile 65536\n\n\n\n\n\nEnsure SELinux is Disabled\n\uf0c1\n\n\nvi /etc/sysconfig/selinux\n\n# This file controls the state of SELinux on the system.\n# SELINUX= can take one of these three values:\n#     enforcing - SELinux security policy is enforced.\n#     permissive - SELinux prints warnings instead of enforcing.\n#     disabled - No SELinux policy is loaded.\nSELINUX=disabled\n# SELINUXTYPE= can take one of these two values:\n#     targeted - Targeted processes are protected,\n#     mls - Multi Level Security protection.\nSELINUXTYPE=targeted\n\n\n\n\n\nRead more about selinux at \nredhat.com\n\n\n\n\n\n\nSSD Mount\n\uf0c1\n\n\nThough a Solid State Drive is not required, it is \nstrongly encouraged\n in order to handle the amount of disk IO for real-time IDD feeds.  \n\n\nThe simplest configuration would be to mount an 500GB+ SSD to \n/awips2\n to contain both the installed software (approx. 20GB) and the real-time data (approx. 150GB per day).\n\n\nThe default \npurge rules\n are configured such that \n/awips2\n does not exceed 450GB. \n/awips2/data_store\n is scoured every hour and should not exceed 50GB. \n\n\nIf you want to increase EDEX data retention you should mount a large disk to \n/awips2/edex/data/hdf5\n since this will be where the archived processed data exists, and any case studies created.\n\n\n    Filesystem      Size  Used Avail Use% Mounted on\n    /dev/sda1        30G  2.5G   26G   9% /\n    tmpfs            28G     0   28G   0% /dev/shm\n    /dev/sdc1       788G   81G  667G  11% /awips2\n    /dev/sdb1       788G   41G  708G  10% /awips2/edex/data/hdf5\n\n\n\n\n\nConfigure LDM Feeds\n\uf0c1\n\n\nEDEX installs its own version of the LDM to the directory \n/awips2/ldm\n.  As with a the default LDM configuration, two files are used to control what IDD feeds are ingested:\n\n\n\n\n\n\n/awips2/ldm/etc/ldmd.conf\n - specifies an upstream LDM server to request data from, and what feeds to request:\n\n\nREQUEST NEXRAD3 \"./p(DHR|DPR|DSP|DTA|DAA|DVL|EET|HHC|N0Q|N0S|N0U|OHA|NVW|NTV|NST).\" idd.unidata.ucar.edu\nREQUEST FNEXRAD|IDS|DDPLUS|UNIWISC \".*\" idd.unidata.ucar.edu\nREQUEST NGRID \".*\" idd.unidata.ucar.edu\nREQUEST NOTHER \"^TIP... KNES.*\" idd.unidata.ucar.edu\n\n\n\n\n\nread more about ldmd.conf in the LDM User Manual\n\n\n\n\n\n\n\n\n/awips2/ldm/etc/pqact.conf\n - specifies the WMO headers and file pattern actions to request:\n\n\n# Redbook graphics\nANY     ^([PQ][A-Z0-9]{3,5}) (....) (..)(..)(..) !redbook [^/]*/([^/]*)/([^/]*)/([^/]*)/([0-9]{8})\n        FILE    -overwrite -close -edex /awips2/data_store/redbook/\\8/\\4\\5Z_\\8_\\7_\\6-\\1_\\2_(seq).rb.%Y%m%d%H\n# NOAAPORT GINI images\nNIMAGE  ^(sat[^/]*)/ch[0-9]/([^/]*)/([^/]*)/([^ ]*) ([^/]*)/([^/]*)/([^/]*)/ (T[^ ]*) ([^ ]*) (..)(..)(..)\n        FILE    -overwrite -close -edex /awips2/data_store/sat/\\(11)\\(12)Z_\\3_\\7_\\6-\\8_\\9_(seq).satz.%Y%m%d%H\n\n\n\n\n\nread more about pqact.conf in the LDM User Manual\n\n\n\n\n\n\nsee available AWIPS LDM feeds\n\n\n\n\n\n\n\n\n\n\nDirectories to Know\n\uf0c1\n\n\n\n\n/awips2\n - Contains all of the installed AWIPS software. \n\n\n/awips2/edex/logs\n - EDEX logs.\n\n\n/awips2/httpd_pypies/var/log/httpd\n - httpd-pypies logs.\n\n\n/awips2/database/data/pg_log\n - PostgreSQL logs.\n\n\n/awips2/qpid/log\n - Qpid logs.\n\n\n/awips2/edex/data/hdf5\n - HDF5 data store. \n\n\n/awips2/edex/data/utility\n - Localization store and configuration files. \n\n\n/awips2/ldm/etc\n - Location of \nldmd.conf\n and \npqact.conf\n\n\n/awips2/ldm/logs\n - LDM logs.\n\n\n/awips2/data_store\n - Raw data store.\n\n\n/awips2/data_store/ingest\n - Manual data ingest endpoint.\n\n\n\n\n\n\nWhat Version is my EDEX?\n\uf0c1\n\n\nrpm -qa | grep awips2-edex", 
+            "text": "Download and Install EDEX\n\uf0c1\n\n\n\n\nRelease 18.1.1-1, September 7, 2018\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n Linux  \n\n\ninstall.sh --edex \n  \n       \nInstalls to /awips2/ directories.\n \nchmod 755 install.sh\nsudo ./install.sh --edex\nStart and Stop:\nedex start\nedex stop\nSystem Requirements\nx86_64 CentOS/RHEL 6 or 7\n16+ CPU cores (each CPU core is one more decoder which can run in parallel)\n24GB RAM\n700GB+ disk space\nA \nSolid State Drive (SSD)\n is highly recommended\n \nAn \nSSD\n should be mounted either to \n/awips2\n (to contain the entire EDEX system) or to \n/awips2/edex/data/hdf5\n (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.\n64-bit CentOS/RHEL 6 and 7\n are the only supported operating systems for EDEX. You may have luck with Fedora Core 12 to 14 and Scientific Linux.\nEDEX is not supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.\n\n\n\n\n\n\n\n\n\n\nRead More: Distributed EDEX, Installing Across Multiple Machines\n\uf0c1\n\n\n\n\n\n\nLinux One-Time Setup\n\uf0c1\n\n\nAll of these command should be run as \nroot\n\n\n1. Create AWIPS User\n\uf0c1\n\n\n\n\nCreate user awips and group fxalpha\n\n\n  groupadd fxalpha \n useradd -G fxalpha awips\n\n\n\nor if the awips account already exists:\n\n\n  groupadd fxalpha \n usermod -G fxalpha awips\n\n\n\n\n\n2. Install EDEX\n\uf0c1\n\n\n\n\nDownload and run \ninstall.sh --edex \n\n\n  wget https://www.unidata.ucar.edu/software/awips2/install.sh\n  chmod 755 install.sh\n  sudo ./install.sh --edex\n\n\n\n\n\ninstall.sh --edex\n will perform the following steps (it's always a good idea to review downloaded shell scripts):\n\n\n\n\nSaves the appropriate Yum repo file to \n/etc/yum.repos.d/awips2.repo\n\n\nIncreases process and file limits for the the \nawips\n account in \n/etc/security/limits.conf\n\n\nCreates \n/awips2/data_store\n if it does not exist already\n\n\nRuns \nyum groupinstall awips2-server\n\n\nAttempts to configure the EDEX hostname defined in \n/awips2/edex/bin/setup.env\n\n\nAlerts the user if the \nawips\n account does not exist (the RPMs will still install)\n\n\n\n\n\n\n\n\n3. EDEX Setup\n\uf0c1\n\n\n\n\nThe command \nedex setup\n will try to determine your fully-qualified domain name and set it in \n/awips2/edex/bin/setup.env\n. EDEX Server Administrators should double-check that the addresses and names defined in setup.env are resolvable from both inside and outside the server, and make appropriate edits to \n/etc/hosts\n if necessary.  \n\n\nFor example, in the XSEDE Jetstream cloud, the fully-qualified domain name defined in \n/awips2/edex/bin/setup.env\n\n\n  export EXT_ADDR=js-196-132.jetstream-cloud.org\n  export DB_ADDR=localhost\n  export DB_PORT=5432\n  export BROKER_ADDR=localhost\n  export PYPIES_SERVER=http://${EXT_ADDR}:9582\n\n\n\nis directed within to localhost in \n/etc/hosts\n\n\n  127.0.0.1   localhost localhost.localdomain js-196-132.jetstream-cloud.org\n\n\n\n\n\n4. Configure iptables\n\uf0c1\n\n\n\n\nConfigure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data to CAVE clients and the Python API.\n\n\nIf you are running a Registry (Data Delivery) server, you will also want to open port \n9588\n.\n\n\n\n\n\n\nTo open ports to all connections\n\n\n  vi /etc/sysconfig/iptables\n\n  *filter\n  :INPUT ACCEPT [0:0]\n  :FORWARD ACCEPT [0:0]\n  :OUTPUT ACCEPT [0:0]\n  -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT\n  -A INPUT -p icmp -j ACCEPT\n  -A INPUT -i lo -j ACCEPT\n  -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT\n  -A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT\n  -A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT\n  #-A INPUT -m state --state NEW -m tcp -p tcp --dport 9588 -j ACCEPT # for registry/dd\n  -A INPUT -j REJECT --reject-with icmp-host-prohibited\n  -A FORWARD -j REJECT --reject-with icmp-host-prohibited\n\n\n\nCOMMIT\n\n\n\n\n\n\nTo open ports to specific IP addresses\n\n\n\n\n\n\nIn this example, the IP range \n128.117.140.0/24\n will match all 128.117.140.\n addresses, while \n128.117.156.0/24\n will match 128.117.156.\n.\n\n\n      vi /etc/sysconfig/iptables\n\n      *filter\n      :INPUT DROP [0:0]\n      :FORWARD DROP [0:0]\n      :OUTPUT ACCEPT [0:0]\n      :EXTERNAL - [0:0]\n      :EDEX - [0:0]\n      -A INPUT -i lo -j ACCEPT\n      -A INPUT -p icmp --icmp-type any -j ACCEPT\n      -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT\n      -A INPUT -s 128.117.140.0/24 -j EDEX\n      -A INPUT -s 128.117.156.0/24 -j EDEX\n      -A INPUT -j EXTERNAL\n      -A EXTERNAL -j REJECT\n      -A EDEX -m state --state NEW -p tcp --dport 22 -j ACCEPT\n      -A EDEX -m state --state NEW -p tcp --dport 9581 -j ACCEPT\n      -A EDEX -m state --state NEW -p tcp --dport 9582 -j ACCEPT\n      #-A EDEX -m state --state NEW -p tcp --dport 9588 -j ACCEPT # for registry/dd\n      -A EDEX -j REJECT\n      COMMIT\n\n\n\nRestart iptables\n\n\n  service iptables restart\n\n\n\nFor CentOS 7 error \nRedirecting to /bin/systemctl restart  iptables.service\nFailed to restart iptables.service: Unit iptables.service failed to load: No such file or directory.\n\n\nThe solution is:\n\n\n  yum install iptables-services\n  systemctl enable iptables\n  service iptables restart\n\n\n\n\n\n5. Start EDEX\n\uf0c1\n\n\n\n\n  edex setup\n  edex start\n\n\n\nTo manually start, stop, and restart:\n\n\n  service edex_postgres start\n  service httpd-pypies start\n  service qpidd start\n  service edex_camel start\n\n\n\nThe fifth service, \nedex_ldm\n, does \nnot run at boot\n to prevent filling up disk space if EDEX is not running. \n\n\n  ldmadmin start\n\n\n\nTo start \nall services except the LDM\n (good for troubleshooting):\n\n\n  edex start base\n\n\n\nTo restart EDEX\n\n\n  edex restart\n\n\n\n\n\n\n\nAdditional Steps\n\uf0c1\n\n\n/etc/security/limits.conf\n\uf0c1\n\n\n/etc/security/limits.conf\n defines the number of user processes and files (this step is automatically performed by \ninstall.sh --edex\n). Without these definitions, Qpid is known to crash during periods of high ingest.\n\n\nawips soft nproc 65536\nawips soft nofile 65536\n\n\n\n\n\nEnsure SELinux is Disabled\n\uf0c1\n\n\nvi /etc/sysconfig/selinux\n\n# This file controls the state of SELinux on the system.\n# SELINUX= can take one of these three values:\n#     enforcing - SELinux security policy is enforced.\n#     permissive - SELinux prints warnings instead of enforcing.\n#     disabled - No SELinux policy is loaded.\nSELINUX=disabled\n# SELINUXTYPE= can take one of these two values:\n#     targeted - Targeted processes are protected,\n#     mls - Multi Level Security protection.\nSELINUXTYPE=targeted\n\n\n\n\n\nRead more about selinux at \nredhat.com\n\n\n\n\n\n\nSSD Mount\n\uf0c1\n\n\nThough a Solid State Drive is not required, it is \nstrongly encouraged\n in order to handle the amount of disk IO for real-time IDD feeds.  \n\n\nThe simplest configuration would be to mount an 500GB+ SSD to \n/awips2\n to contain both the installed software (approx. 20GB) and the real-time data (approx. 150GB per day).\n\n\nThe default \npurge rules\n are configured such that \n/awips2\n does not exceed 450GB. \n/awips2/data_store\n is scoured every hour and should not exceed 50GB. \n\n\nIf you want to increase EDEX data retention you should mount a large disk to \n/awips2/edex/data/hdf5\n since this will be where the archived processed data exists, and any case studies created.\n\n\n    Filesystem      Size  Used Avail Use% Mounted on\n    /dev/sda1        30G  2.5G   26G   9% /\n    tmpfs            28G     0   28G   0% /dev/shm\n    /dev/sdc1       788G   81G  667G  11% /awips2\n    /dev/sdb1       788G   41G  708G  10% /awips2/edex/data/hdf5\n\n\n\n\n\nConfigure LDM Feeds\n\uf0c1\n\n\nEDEX installs its own version of the LDM to the directory \n/awips2/ldm\n.  As with a the default LDM configuration, two files are used to control what IDD feeds are ingested:\n\n\n\n\n\n\n/awips2/ldm/etc/ldmd.conf\n - specifies an upstream LDM server to request data from, and what feeds to request:\n\n\nREQUEST NEXRAD3 \"./p(DHR|DPR|DSP|DTA|DAA|DVL|EET|HHC|N0Q|N0S|N0U|OHA|NVW|NTV|NST).\" idd.unidata.ucar.edu\nREQUEST FNEXRAD|IDS|DDPLUS|UNIWISC \".*\" idd.unidata.ucar.edu\nREQUEST NGRID \".*\" idd.unidata.ucar.edu\nREQUEST NOTHER \"^TIP... KNES.*\" idd.unidata.ucar.edu\n\n\n\n\n\nread more about ldmd.conf in the LDM User Manual\n\n\n\n\n\n\n\n\n/awips2/ldm/etc/pqact.conf\n - specifies the WMO headers and file pattern actions to request:\n\n\n# Redbook graphics\nANY     ^([PQ][A-Z0-9]{3,5}) (....) (..)(..)(..) !redbook [^/]*/([^/]*)/([^/]*)/([^/]*)/([0-9]{8})\n        FILE    -overwrite -close -edex /awips2/data_store/redbook/\\8/\\4\\5Z_\\8_\\7_\\6-\\1_\\2_(seq).rb.%Y%m%d%H\n# NOAAPORT GINI images\nNIMAGE  ^(sat[^/]*)/ch[0-9]/([^/]*)/([^/]*)/([^ ]*) ([^/]*)/([^/]*)/([^/]*)/ (T[^ ]*) ([^ ]*) (..)(..)(..)\n        FILE    -overwrite -close -edex /awips2/data_store/sat/\\(11)\\(12)Z_\\3_\\7_\\6-\\8_\\9_(seq).satz.%Y%m%d%H\n\n\n\n\n\nread more about pqact.conf in the LDM User Manual\n\n\n\n\n\n\nsee available AWIPS LDM feeds\n\n\n\n\n\n\n\n\n\n\nDirectories to Know\n\uf0c1\n\n\n\n\n/awips2\n - Contains all of the installed AWIPS software. \n\n\n/awips2/edex/logs\n - EDEX logs.\n\n\n/awips2/httpd_pypies/var/log/httpd\n - httpd-pypies logs.\n\n\n/awips2/database/data/pg_log\n - PostgreSQL logs.\n\n\n/awips2/qpid/log\n - Qpid logs.\n\n\n/awips2/edex/data/hdf5\n - HDF5 data store. \n\n\n/awips2/edex/data/utility\n - Localization store and configuration files. \n\n\n/awips2/ldm/etc\n - Location of \nldmd.conf\n and \npqact.conf\n\n\n/awips2/ldm/logs\n - LDM logs.\n\n\n/awips2/data_store\n - Raw data store.\n\n\n/awips2/data_store/ingest\n - Manual data ingest endpoint.\n\n\n\n\n\n\nWhat Version is my EDEX?\n\uf0c1\n\n\nrpm -qa | grep awips2-edex", 
             "title": "Install EDEX"
         }, 
         {
             "location": "/install/install-edex/#download-and-install-edex", 
-            "text": "Release 18.1.1-1, September 5, 2018", 
+            "text": "Release 18.1.1-1, September 7, 2018", 
             "title": "Download and Install EDEX"
         }, 
         {
@@ -1284,381 +1284,6 @@
             "location": "/edex/case-studies/#2-set-data-display-time-in-cave", 
             "text": "At the bottom of the CAVE application, double-click the  Time:  entry to bring up a dialog window where you can set CAVE to a previous time, and choose the option of freezing CAVE at that time or allowing CAVE to \"move forward in time\" from that position as if it were real-time.", 
             "title": "2. Set Data Display Time in CAVE"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/", 
-            "text": "AWIPS Hazard Service Display\n\uf0c1\n\n\nHazard Services is a collection of AWIPS applications used by forecasters to create, update, and manage hazards, replacing and unifying hazard generation capabilities.\n\n\n\n\nWarnGen\n\n\nRiverPro\n\n\nGHG\n\n\netc.\n\n\n\n\nIn addition to providing a seamless forecast process for generating short-fused, long-fused, and hydrologic hazards, Hazard Services allows the forecaster to focus on the meteorology of the hazard situation, letting the system take on more of the responsibility for the generation and dissemination of products. \n\n\nLaunching Hazard Services\n\uf0c1\n\n\nHazard Services can be launched from the various CAVE perspectives by selection the toolbar item \"Hazards\".\n\n\nWhen Hazard Services is first started, the Console and the Spatial Display are visible.\n\n\nSpatial Display and Console\n\uf0c1\n\n\nThe \nSpatial Display\n is the Hazard Services drawing layer which is loaded into the CAVE Map Editor when Hazard Services is started. It is the Hazard Services map, displaying hazard areas relative to geopolitical boundaries and handling hazard drawing and editing. Its presence is indicated by the 'Hazard Services (Editable)' line in the CAVE Map Legend, and it supports operations common to other AWIPS drawing layers.\n\n\n\n\nThe \nConsole\n is the main control panel for Hazard Services. It is always displayed if Hazard Services is running. Closing it closes Hazard Services as well.\n\n\n\n\nThe Console is a CAVE View, by default docked within the main window. The Console includes a toolbar and a drop-down (\"view\") menu to the right of or just under its title tab. Below these is the table of hazard events.\n\n\nHazard Services Toolbar\n\uf0c1\n\n\n\n\nHydro  \n\uf0c1\n\n\nThe leftmost icon on the tool bar is an indicator if Hydro hazards are being worked or not (it will turn yellow if any active hazards are hidden from view by a filter). \n\n\nSetup (Settings)\n\uf0c1\n\n\nAllows you to filter displayed hazard information to focus on the meteorological situation of concern. For example, you may want to focus only on hydrological hazards in a particular time scale and over a particular area. \n\n\nThe Settings drop-down menu allows you to select an existing Setting or a recently-used Setting, create a new Setting, edit the current Setting, or delete the current (User) Setting. As new Settings are created, they are added to this drop-down list. The Console\u2019s title tab shows the name of the currently loaded Setting. \n\n\n\n\nSettings can also be viewed and edited in the \nLocalization Perspective\n.\n\n\n\n\nFilters\n\uf0c1\n\n\nAllows quick modification of the filters being used by the current Setting. Events may be filtered by Hazard Type, Site ID, and/or Status. As the filters are altered, the Hazard Event Table contents change to include only those hazards that pass the filters.\n\n\nFor example, with a number of potential events possible, you can select a couple of interest, move them to pending state, and propose one. To reduce  clutter in the Console you can hide potentials using the Filters menu, so that all potential events are still present but hidden in both the Console and the Spatial Display.\n\n\nRecommenders (Tools) \n\uf0c1\n\n\nThe Tools button reveals a drop-down menu listing all the recommenders and other tools available in the current Setting. Recommenders may be run from this menu. When you select a Setting, this menu is populated with appropriate content.\n\n\nProducts\n\uf0c1\n\n\n\n\n\n\nGenerate RVS\u200b\n\n\nWith an FL.x hazard selected in the Console, select this item to bring up\na dialog to write an RVS text product.\n\n\n\n\n\n\nCorrect Product\u200b\n\n\nSelecting the Correct Product option provides a list of products that may be corrected. The dialog includes seven columns: Product Category, Issue Time, Event IDs, Hazard Type, VTEC, Expiration Time, and User Name. You can click in a column header to order by, or type in the Search box at the bottom. Upon selecting an item from the list, the Hazard Information Dialog launches.\n\n\n\n\n\n\nView Product\u200b\n\n\nThis option allows you to review issued products, selecting from a list in a \nSelect Product to View\n dialog. Use the dialog to select the product type (using click, Ctrl-click, Shift-click), then click and select View Product or double-click to see the legacy text.\n\n\nA similar dialog will be produced by selecting the \nView Products for Selected Events\n item from the Console pop-up. In this case, the Filter/Query section is not needed, so you\u2019ll see just the lower portion of the illustrated dialog.\n\n\n\n\n\n\nSpatial Display Modes\n\uf0c1\n\n\nWhen Hazard Services is in Editable state, three buttons set the mode of the Spatial Display, governing how it interprets mouse clicks.\n\n\nDrawing Tools\n\uf0c1\n\n\nThis menu has six choices:\n\n\n\n\n\n\nDraw Polygon\u200b\n\n\nWhen set, mouse clicks on the Spatial Display draw polygons,\none click per node (MB1 click to place a node, MB3 click to complete the polygon).\n\n\n\n\n\n\nAddTo Polygon\u200b\n\n\nIf a polygon is active (hazard selected), this choice allows you to augment the area or create a new separate area that will be logically joined with the current polygon. Example of the latter:\n\n\nNote how the single hazard now comprises two polygons. (When you select Preview, these will be joined into a single polygon for issuance.)\n\n\n\n\n\n\nDraw Freehand Polygon\u200b\n\n\nWhen set, mouse clicks on the Spatial Display draw freehand polygons (MB1 press, drag, and release to draw the polygon's outline). Note that issued text products will conform to current rules limiting polygon vertices to 20 or snapping areas to counties or zones. The freehand, many-vertex, shapes will be modified at some point during the hazard-issuance workflow.\n\n\n\n\n\n\nAddTo Freehand Polygon\u200b\n\n\nSimilar to AddTo Polygon, but drawing is freehand. Note that you can augment both \u201csegments\u201d and freehand polygons with either of the AddTo tools.\n\n\n\n\n\n\nRemove Polygon Vertices\u200b\n\n\nIn the case where you have a polygon with many vertices, it is very difficult to modify a boundary. This tool will remove a section of vertices to make the problem more tractable. With the tool selected, drag with MB1 to enclose a segment of the polygon. When you release, those vertices will be removed.\n\n\n\n\n\n\nRemove Polygon Area\u200b\n\n\nThis tool provides a way to remove sections of a geometry. Press MB1 and drag out an area that intersects your geometry. Upon release, the intersection area will be removed with the new boundary along the curve you drew.\n\n\n\n\n\n\nIf more than one hazard is selected in the Console, only Draw Polygon and Draw Freehand Polygon are available. The others are invalid and dimmed.\n\n\nSelect Event\n\uf0c1\n\n\nThis radio button sets the mode to event selection. When set, mouse clicks on the Spatial Display select hazard events, and drags cause panning. This is the default mode choice of this set of radio buttons.\n\n\nPan\n\uf0c1\n\n\nThis radio button sets the mode to pan mode. When clicked, you can pan the map without inadvertently moving or selecting polygons.\n\n\nMaps for Select by Area\n\uf0c1\n\n\nThe Maps for Select by Area button reveals a drop-down menu allowing the selection of maps that may be used for selecting by area within the Spatial Display. If the button is disabled, no maps that allow select-by-area are currently loaded. If the button is enabled, but a map menu item within the drop-down menu is disabled, that map is loaded but is currently invisible.\n\n\nTemporal Controls\n\uf0c1\n\n\nThere are two buttons used to control the Timeline view at the right side of the Hazard Table. You can also zoom and pan the Timeline using the mouse. \n\n\n\n\n\n\nSelected Time Mode\n\n\nThis options menu allows you to select the time mode, either a single time or range of times.\n\n\n\n\n\n\nShow Current Time\n\n\n\u200bThis button moves the Timeline so that the current time is visible toward its left end.\n\n\n\n\n\n\nView Menu\n\uf0c1\n\n\nThe View menu is a drop-down menu holding menu items for functions that in general are less frequently used than those available via the toolbar.", 
-            "title": "CAVE Display"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#awips-hazard-service-display", 
-            "text": "Hazard Services is a collection of AWIPS applications used by forecasters to create, update, and manage hazards, replacing and unifying hazard generation capabilities.   WarnGen  RiverPro  GHG  etc.   In addition to providing a seamless forecast process for generating short-fused, long-fused, and hydrologic hazards, Hazard Services allows the forecaster to focus on the meteorology of the hazard situation, letting the system take on more of the responsibility for the generation and dissemination of products.", 
-            "title": "AWIPS Hazard Service Display"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#launching-hazard-services", 
-            "text": "Hazard Services can be launched from the various CAVE perspectives by selection the toolbar item \"Hazards\".  When Hazard Services is first started, the Console and the Spatial Display are visible.", 
-            "title": "Launching Hazard Services"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#spatial-display-and-console", 
-            "text": "The  Spatial Display  is the Hazard Services drawing layer which is loaded into the CAVE Map Editor when Hazard Services is started. It is the Hazard Services map, displaying hazard areas relative to geopolitical boundaries and handling hazard drawing and editing. Its presence is indicated by the 'Hazard Services (Editable)' line in the CAVE Map Legend, and it supports operations common to other AWIPS drawing layers.   The  Console  is the main control panel for Hazard Services. It is always displayed if Hazard Services is running. Closing it closes Hazard Services as well.   The Console is a CAVE View, by default docked within the main window. The Console includes a toolbar and a drop-down (\"view\") menu to the right of or just under its title tab. Below these is the table of hazard events.", 
-            "title": "Spatial Display and Console"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#hazard-services-toolbar", 
-            "text": "", 
-            "title": "Hazard Services Toolbar"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#hydro", 
-            "text": "The leftmost icon on the tool bar is an indicator if Hydro hazards are being worked or not (it will turn yellow if any active hazards are hidden from view by a filter).", 
-            "title": "Hydro"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#setup-settings", 
-            "text": "Allows you to filter displayed hazard information to focus on the meteorological situation of concern. For example, you may want to focus only on hydrological hazards in a particular time scale and over a particular area.   The Settings drop-down menu allows you to select an existing Setting or a recently-used Setting, create a new Setting, edit the current Setting, or delete the current (User) Setting. As new Settings are created, they are added to this drop-down list. The Console\u2019s title tab shows the name of the currently loaded Setting.    Settings can also be viewed and edited in the  Localization Perspective .", 
-            "title": "Setup (Settings)"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#filters", 
-            "text": "Allows quick modification of the filters being used by the current Setting. Events may be filtered by Hazard Type, Site ID, and/or Status. As the filters are altered, the Hazard Event Table contents change to include only those hazards that pass the filters.  For example, with a number of potential events possible, you can select a couple of interest, move them to pending state, and propose one. To reduce  clutter in the Console you can hide potentials using the Filters menu, so that all potential events are still present but hidden in both the Console and the Spatial Display.", 
-            "title": "Filters"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#recommenders-tools", 
-            "text": "The Tools button reveals a drop-down menu listing all the recommenders and other tools available in the current Setting. Recommenders may be run from this menu. When you select a Setting, this menu is populated with appropriate content.", 
-            "title": "Recommenders (Tools)"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#products", 
-            "text": "Generate RVS\u200b  With an FL.x hazard selected in the Console, select this item to bring up\na dialog to write an RVS text product.    Correct Product\u200b  Selecting the Correct Product option provides a list of products that may be corrected. The dialog includes seven columns: Product Category, Issue Time, Event IDs, Hazard Type, VTEC, Expiration Time, and User Name. You can click in a column header to order by, or type in the Search box at the bottom. Upon selecting an item from the list, the Hazard Information Dialog launches.    View Product\u200b  This option allows you to review issued products, selecting from a list in a  Select Product to View  dialog. Use the dialog to select the product type (using click, Ctrl-click, Shift-click), then click and select View Product or double-click to see the legacy text.  A similar dialog will be produced by selecting the  View Products for Selected Events  item from the Console pop-up. In this case, the Filter/Query section is not needed, so you\u2019ll see just the lower portion of the illustrated dialog.", 
-            "title": "Products"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#spatial-display-modes", 
-            "text": "When Hazard Services is in Editable state, three buttons set the mode of the Spatial Display, governing how it interprets mouse clicks.", 
-            "title": "Spatial Display Modes"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#drawing-tools", 
-            "text": "This menu has six choices:    Draw Polygon\u200b  When set, mouse clicks on the Spatial Display draw polygons,\none click per node (MB1 click to place a node, MB3 click to complete the polygon).    AddTo Polygon\u200b  If a polygon is active (hazard selected), this choice allows you to augment the area or create a new separate area that will be logically joined with the current polygon. Example of the latter:  Note how the single hazard now comprises two polygons. (When you select Preview, these will be joined into a single polygon for issuance.)    Draw Freehand Polygon\u200b  When set, mouse clicks on the Spatial Display draw freehand polygons (MB1 press, drag, and release to draw the polygon's outline). Note that issued text products will conform to current rules limiting polygon vertices to 20 or snapping areas to counties or zones. The freehand, many-vertex, shapes will be modified at some point during the hazard-issuance workflow.    AddTo Freehand Polygon\u200b  Similar to AddTo Polygon, but drawing is freehand. Note that you can augment both \u201csegments\u201d and freehand polygons with either of the AddTo tools.    Remove Polygon Vertices\u200b  In the case where you have a polygon with many vertices, it is very difficult to modify a boundary. This tool will remove a section of vertices to make the problem more tractable. With the tool selected, drag with MB1 to enclose a segment of the polygon. When you release, those vertices will be removed.    Remove Polygon Area\u200b  This tool provides a way to remove sections of a geometry. Press MB1 and drag out an area that intersects your geometry. Upon release, the intersection area will be removed with the new boundary along the curve you drew.    If more than one hazard is selected in the Console, only Draw Polygon and Draw Freehand Polygon are available. The others are invalid and dimmed.", 
-            "title": "Drawing Tools"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#select-event", 
-            "text": "This radio button sets the mode to event selection. When set, mouse clicks on the Spatial Display select hazard events, and drags cause panning. This is the default mode choice of this set of radio buttons.", 
-            "title": "Select Event"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#pan", 
-            "text": "This radio button sets the mode to pan mode. When clicked, you can pan the map without inadvertently moving or selecting polygons.", 
-            "title": "Pan"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#maps-for-select-by-area", 
-            "text": "The Maps for Select by Area button reveals a drop-down menu allowing the selection of maps that may be used for selecting by area within the Spatial Display. If the button is disabled, no maps that allow select-by-area are currently loaded. If the button is enabled, but a map menu item within the drop-down menu is disabled, that map is loaded but is currently invisible.", 
-            "title": "Maps for Select by Area"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#temporal-controls", 
-            "text": "There are two buttons used to control the Timeline view at the right side of the Hazard Table. You can also zoom and pan the Timeline using the mouse.     Selected Time Mode  This options menu allows you to select the time mode, either a single time or range of times.    Show Current Time  \u200bThis button moves the Timeline so that the current time is visible toward its left end.", 
-            "title": "Temporal Controls"
-        }, 
-        {
-            "location": "/cave/hazard-services-display/#view-menu", 
-            "text": "The View menu is a drop-down menu holding menu items for functions that in general are less frequently used than those available via the toolbar.", 
-            "title": "View Menu"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/", 
-            "text": "Hazard Creation Methods\n\uf0c1\n\n\nRecommender Execution\n\uf0c1\n\n\nRecommender Output\n\uf0c1\n\n\nRiver Flood Recommender\n\uf0c1\n\n\nFlash Flood Recommender\n\uf0c1\n\n\nStorm Track Recommender\n\uf0c1\n\n\nDam/Levee Break Flood Recommender\n\uf0c1\n\n\nBurn Scar Recommender\n\uf0c1\n\n\nCreating a Hazard from a River Gauge\n\uf0c1\n\n\nSelection Tools\n\uf0c1\n\n\nSelect By Area\n\uf0c1\n\n\nFreehand Drawing\n\uf0c1\n\n\nManipulating Hazards\n\uf0c1\n\n\nAdjusting a Hazard Polygon\n\uf0c1\n\n\nMoving a Polygon Vertex\n\uf0c1\n\n\nDeleting a Polygon Vertex\n\uf0c1\n\n\nAdding a Polygon Vertex\n\uf0c1\n\n\nMoving a Hazard Geometry\n\uf0c1\n\n\nHazard Information Dialog\n\uf0c1\n\n\nHazard Type\n\uf0c1\n\n\nTime Range\n\uf0c1\n\n\nDetails (Metadata)\n\uf0c1\n\n\nHazard Status\n\uf0c1\n\n\n#Propose\n\uf0c1\n\n\nPreview\n\uf0c1\n\n\nProduct Staging Dialog\n\uf0c1\n\n\nProduct Editor\n\uf0c1\n\n\nIssue\n\uf0c1\n\n\nEnding and Ended\n\uf0c1", 
-            "title": "Hazard Creation"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#hazard-creation-methods", 
-            "text": "", 
-            "title": "Hazard Creation Methods"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#recommender-execution", 
-            "text": "", 
-            "title": "Recommender Execution"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#recommender-output", 
-            "text": "", 
-            "title": "Recommender Output"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#river-flood-recommender", 
-            "text": "", 
-            "title": "River Flood Recommender"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#flash-flood-recommender", 
-            "text": "", 
-            "title": "Flash Flood Recommender"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#storm-track-recommender", 
-            "text": "", 
-            "title": "Storm Track Recommender"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#damlevee-break-flood-recommender", 
-            "text": "", 
-            "title": "Dam/Levee Break Flood Recommender"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#burn-scar-recommender", 
-            "text": "", 
-            "title": "Burn Scar Recommender"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#creating-a-hazard-from-a-river-gauge", 
-            "text": "", 
-            "title": "Creating a Hazard from a River Gauge"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#selection-tools", 
-            "text": "", 
-            "title": "Selection Tools"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#select-by-area", 
-            "text": "", 
-            "title": "Select By Area"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#freehand-drawing", 
-            "text": "", 
-            "title": "Freehand Drawing"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#manipulating-hazards", 
-            "text": "", 
-            "title": "Manipulating Hazards"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#adjusting-a-hazard-polygon", 
-            "text": "", 
-            "title": "Adjusting a Hazard Polygon"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#moving-a-polygon-vertex", 
-            "text": "", 
-            "title": "Moving a Polygon Vertex"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#deleting-a-polygon-vertex", 
-            "text": "", 
-            "title": "Deleting a Polygon Vertex"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#adding-a-polygon-vertex", 
-            "text": "", 
-            "title": "Adding a Polygon Vertex"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#moving-a-hazard-geometry", 
-            "text": "", 
-            "title": "Moving a Hazard Geometry"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#hazard-information-dialog", 
-            "text": "", 
-            "title": "Hazard Information Dialog"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#hazard-type", 
-            "text": "", 
-            "title": "Hazard Type"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#time-range", 
-            "text": "", 
-            "title": "Time Range"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#details-metadata", 
-            "text": "", 
-            "title": "Details (Metadata)"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#hazard-status", 
-            "text": "", 
-            "title": "Hazard Status"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#propose", 
-            "text": "", 
-            "title": "#Propose"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#preview", 
-            "text": "", 
-            "title": "Preview"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#product-staging-dialog", 
-            "text": "", 
-            "title": "Product Staging Dialog"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#product-editor", 
-            "text": "", 
-            "title": "Product Editor"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#issue", 
-            "text": "", 
-            "title": "Issue"
-        }, 
-        {
-            "location": "/cave/hazard-services-create/#ending-and-ended", 
-            "text": "", 
-            "title": "Ending and Ended"
-        }, 
-        {
-            "location": "/cave/hazard-services-alert/", 
-            "text": "Alerts\n\uf0c1", 
-            "title": "Hazard Alerts"
-        }, 
-        {
-            "location": "/cave/hazard-services-alert/#alerts", 
-            "text": "", 
-            "title": "Alerts"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/", 
-            "text": "Hazard Settings\n\uf0c1\n\n\nChange Site\n\uf0c1\n\n\nCheck Hazard Conflicts\n\uf0c1\n\n\nAuto Check Hazard Conflicts\n\uf0c1\n\n\nAdd To Selected\n\uf0c1\n\n\nShow Hatched Areas\n\uf0c1\n\n\nChange VTEC Mode\n\uf0c1\n\n\nReset Events\n\uf0c1\n\n\nHazard Event Table\n\uf0c1\n\n\nColumn Headers\n\uf0c1\n\n\n\n\n\n\nNon-Timeline Headers\n\n\n\n\n\n\nTimeline Header\n\n\n\n\n\n\nTable Rows\n\uf0c1\n\n\nHazard History\n\uf0c1\n\n\nSettings Overview\n\uf0c1\n\n\nSettings Menu\n\uf0c1\n\n\nSettings Dialog\n\uf0c1\n\n\nHazards Filter Tab\n\uf0c1\n\n\nConsole Tab\n\uf0c1\n\n\nConsole Coloring Tab\n\uf0c1\n\n\nHID/Spatial Tab\n\uf0c1\n\n\nRecommenders Tab\n\uf0c1\n\n\nMaps/Overlays Tab\n\uf0c1", 
-            "title": "Hazard Settings"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#hazard-settings", 
-            "text": "", 
-            "title": "Hazard Settings"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#change-site", 
-            "text": "", 
-            "title": "Change Site"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#check-hazard-conflicts", 
-            "text": "", 
-            "title": "Check Hazard Conflicts"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#auto-check-hazard-conflicts", 
-            "text": "", 
-            "title": "Auto Check Hazard Conflicts"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#add-to-selected", 
-            "text": "", 
-            "title": "Add To Selected"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#show-hatched-areas", 
-            "text": "", 
-            "title": "Show Hatched Areas"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#change-vtec-mode", 
-            "text": "", 
-            "title": "Change VTEC Mode"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#reset-events", 
-            "text": "", 
-            "title": "Reset Events"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#hazard-event-table", 
-            "text": "", 
-            "title": "Hazard Event Table"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#column-headers", 
-            "text": "Non-Timeline Headers    Timeline Header", 
-            "title": "Column Headers"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#table-rows", 
-            "text": "", 
-            "title": "Table Rows"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#hazard-history", 
-            "text": "", 
-            "title": "Hazard History"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#settings-overview", 
-            "text": "", 
-            "title": "Settings Overview"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#settings-menu", 
-            "text": "", 
-            "title": "Settings Menu"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#settings-dialog", 
-            "text": "", 
-            "title": "Settings Dialog"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#hazards-filter-tab", 
-            "text": "", 
-            "title": "Hazards Filter Tab"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#console-tab", 
-            "text": "", 
-            "title": "Console Tab"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#console-coloring-tab", 
-            "text": "", 
-            "title": "Console Coloring Tab"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#hidspatial-tab", 
-            "text": "", 
-            "title": "HID/Spatial Tab"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#recommenders-tab", 
-            "text": "", 
-            "title": "Recommenders Tab"
-        }, 
-        {
-            "location": "/cave/hazard-services-settings/#mapsoverlays-tab", 
-            "text": "", 
-            "title": "Maps/Overlays Tab"
-        }, 
-        {
-            "location": "/cave/hazard-services-example/", 
-            "text": "Hazard Life Cycle\n\uf0c1\n\n\nTransition from Product Centric toward Information Centric\n\uf0c1\n\n\nExamples of Creating, Continuing, and Ending Hazards\n\uf0c1", 
-            "title": "Examples"
-        }, 
-        {
-            "location": "/cave/hazard-services-example/#hazard-life-cycle", 
-            "text": "", 
-            "title": "Hazard Life Cycle"
-        }, 
-        {
-            "location": "/cave/hazard-services-example/#transition-from-product-centric-toward-information-centric", 
-            "text": "", 
-            "title": "Transition from Product Centric toward Information Centric"
-        }, 
-        {
-            "location": "/cave/hazard-services-example/#examples-of-creating-continuing-and-ending-hazards", 
-            "text": "", 
-            "title": "Examples of Creating, Continuing, and Ending Hazards"
         }, 
         {
             "location": "/cave/d2d-grids/", 
