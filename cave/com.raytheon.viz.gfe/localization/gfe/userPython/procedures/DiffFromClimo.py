@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -66,7 +66,7 @@ class Procedure (SmartScript.SmartScript):
         # n      : length of grids - 1.  
         # Determine coefficients
         if grids == []:
-            print "No grids sent to _cublicSpline. No grids returned"
+            print("No grids sent to _cublicSpline. No grids returned")
             return
         gridShape = shape(grids[0])
 
@@ -105,22 +105,22 @@ class Procedure (SmartScript.SmartScript):
         z=[0] * (n+1)                
         # Calculate h and b
         #   range 0 thru n-1
-        for i in xrange(n):
+        for i in range(n):
             h[i] = t[i+1] - t[i]
             b[i] = (y[i+1] - y[i])/h[i]
         # Calculate u and v as functions of h and b
         #   range 1 thru n-1
         u[1] = (2*(h[0] + h[1]))
         v[1] = (6*(b[1]-b[0]))
-        for i in xrange(2, n):
+        for i in range(2, n):
             u[i] = (2.0*(h[i]+h[i-1]) - h[i-1].astype(float32)**2.0/u[i-1])
             v[i] = (6.0*(b[i]-b[i-1]) - h[i-1]*v[i-1]/u[i-1])
         # Calculate z
         #   range 0 thru n
         z[n] = zeros(gridShape)
-        for i in xrange(n-1, 0, -1):
-            if type(u[i]) is types.IntType:
-                print "u[i] is IntType!", i
+        for i in range(n-1, 0, -1):
+            if type(u[i]) is int:
+                print("u[i] is IntType!", i)
                 z[i] = (v[i] - h[i]*z[i+1])/u[i]
         z[0] = zeros(gridShape)
         return z
@@ -129,7 +129,7 @@ class Procedure (SmartScript.SmartScript):
     # This method is a help method to _cubicSpline and should not be
     # called directly
     def _spline3_eval(self, n, t, y, z, x):
-        for i in xrange(n-1, 0, -1):
+        for i in range(n-1, 0, -1):
             if x[0][0]-t[i][0][0] >= 0:
                 break
         h = t[i+1]-t[i]
@@ -157,13 +157,13 @@ class Procedure (SmartScript.SmartScript):
             timeRange = TimeRange.allTimes()
         parm = self.getParm(dbName, WEName, LEVEL)
         if parm is None:
-            print "PFC: dbName =", dbName
-            print "PFC: WEName =", WEName
-            print "PFC: parm is None"
+            print("PFC: dbName =", dbName)
+            print("PFC: WEName =", WEName)
+            print("PFC: parm is None")
             return []
         inv = parm.getGridInventory(timeRange.toJavaObj())
         if inv is None: self.statusBarMsg("inv is None","S")
-        elif len(inv)==0: print self.statusBarMsg("PFC: len(inv)==0","S")
+        elif len(inv)==0: print(self.statusBarMsg("PFC: len(inv)==0","S"))
         trList = []
         for gd in inv:
             tr = TimeRange.TimeRange(gd.getGridTime())
@@ -223,7 +223,7 @@ class Procedure (SmartScript.SmartScript):
         elif parmName == "MinT":
             weName = "mnt"
         else:
-            print "Invalid parmName:", parmName
+            print("Invalid parmName:", parmName)
             return
 
         # get the climo grid inventory
@@ -267,7 +267,7 @@ class Procedure (SmartScript.SmartScript):
         # get the Fcst grid inventory
         fcstInv = self._getWEInventory(MODEL, parmName)
 
-        for i in xrange(len(gridTimes)):
+        for i in range(len(gridTimes)):
             # convert K to F first
             climoGrid = self.KtoF(interpGrids[i])
             climoGrid = clip(climoGrid, minLimit, maxLimit)  # clip to min/max limits

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -58,13 +58,13 @@ def createComboFiles(definitionDir, outputDir, mapDict):
 
         # attempt to read in the Definition dictionary
         try:
-            exec buf
+            exec(buf)
         except:
             LogStream.logProblem("Failure on Definition: ", f)
             continue
 
-        if Definition.has_key("mapNameForCombinations") and \
-          Definition.has_key("defaultEditAreas") and \
+        if "mapNameForCombinations" in Definition and \
+          "defaultEditAreas" in Definition and \
           type(Definition['defaultEditAreas']) is str:
 
             srcDict = {}   #keep track of what zones from what map
@@ -83,7 +83,7 @@ def createComboFiles(definitionDir, outputDir, mapDict):
             LogStream.logVerbose("Generating Combo File: ", outName)
 
             #See if the definition limits the zones to subdomains
-            if Definition.has_key("subDomainUGCs") and \
+            if "subDomainUGCs" in Definition and \
               Definition["subDomainUGCs"] is not None:
                 limitZones = Definition["subDomainUGCs"]
             else:
@@ -140,7 +140,7 @@ Combinations = [
               Definition['defaultEditAreas'])
             count = 1
             for ean in eans:
-                s = s + '       (["' + ean + '"],  "Region' + `count` + \
+                s = s + '       (["' + ean + '"],  "Region' + repr(count) + \
                   '"),\n'
                 count = count + 1
             s = s + '       ]\n\n'

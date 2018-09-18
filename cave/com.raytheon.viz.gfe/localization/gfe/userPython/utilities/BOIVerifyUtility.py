@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-#
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 #
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -147,10 +147,10 @@ class BOIVerifyUtility(SmartScript.SmartScript):
            if name[0:1]!="_":
               execstr="self.CFG['"+name+"']=BOIVerifyConfig."+name
               #execstr="self.CFG['"+name+"']="+name
-              exec execstr
+              exec(execstr)
               execstr="self."+name+"=BOIVerifyConfig."+name
               #execstr="self."+name+"="+name
-              exec execstr
+              exec(execstr)
         #
         #  Setup the REALLY constant variables
         #
@@ -257,7 +257,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                         "cont":["cont","contingency table"],
                         "acont":["acont","areal contingency table"],
                        }
-        self.statIDs=self.statNames.keys()
+        self.statIDs=list(self.statNames.keys())
         self.allStats=[]
         for statName in self.statIDs:
            names=self.statNames[statName]
@@ -278,7 +278,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        #  Make sure parms are well defined
        #
-       parmNames=self.VERCONFIG.keys()
+       parmNames=list(self.VERCONFIG.keys())
        for parmName in parmNames:
           parmInfo=self.getParm(mutid,parmName,"SFC")
           if parmInfo is None:
@@ -365,7 +365,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #  getVerParms - get list of configured verification parameters
     #
     def getVerParms(self):
-       VerParms=self.VERCONFIG.keys()
+       VerParms=list(self.VERCONFIG.keys())
        VerParms.sort()
        return VerParms
     #=================================================================
@@ -405,7 +405,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #
     def getVerParmsObs(self):
        VerParms=[]
-       fparms=self.VERCONFIG.keys()
+       fparms=list(self.VERCONFIG.keys())
        fparms.sort()
        for key in fparms:
           if self.VERCONFIG[key][1]==1:
@@ -422,7 +422,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #
     def getObsParm(self,fcstParm):
        obsparm=""
-       if fcstParm in self.VERCONFIG.keys():
+       if fcstParm in list(self.VERCONFIG.keys()):
           if self.VERCONFIG[fcstParm][1]==1:
              (obsparm,ttype,tval)=self.VERCONFIG[fcstParm][7]
           else:
@@ -438,7 +438,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #
     def getObsCondition(self,fcstParm):
        obsCondition=""
-       if fcstParm in self.VERCONFIG.keys():
+       if fcstParm in list(self.VERCONFIG.keys()):
           if self.VERCONFIG[fcstParm][1]==1:
              (obsparm,obsCondition,obsThreshold)=self.VERCONFIG[fcstParm][7]
        return obsCondition
@@ -452,7 +452,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #
     def getObsThreshold(self,fcstParm):
        obsThreshold=0
-       if fcstParm in self.VERCONFIG.keys():
+       if fcstParm in list(self.VERCONFIG.keys()):
           if self.VERCONFIG[fcstParm][1]==1:
              (obsparm,obsCondition,obsThreshold)=self.VERCONFIG[fcstParm][7]
        return obsThreshold
@@ -462,7 +462,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #                 configured
     #
     def getVerConfig(self,parmName,element):
-       if parmName not in self.VERCONFIG.keys():
+       if parmName not in list(self.VERCONFIG.keys()):
           return None
        config=self.VERCONFIG[parmName]
        return config[element]
@@ -555,7 +555,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #                  offset (in hours).  If not, returns zero.
     #
     def getBaseOffset(self,model):
-       if model in self.BASE_OFFSET.keys():
+       if model in list(self.BASE_OFFSET.keys()):
           offset=self.BASE_OFFSET[model]
        else:
           offset=0
@@ -613,7 +613,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        if self.DEBUG>0:
           self.logMsg("setupFcstrNums reading verification forecasters:")
           numericList=[]
-          for (num,name) in self.FcstrNames.items():
+          for (num,name) in list(self.FcstrNames.items()):
              id=self.FcstrIDs[num]
              numericList.append("%s:%s,%s"%(num,id,name))
           numericList.sort()
@@ -633,7 +633,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     def getFcstrName(self,num):
        name=""
        numstr="%2.2d"%num
-       if numstr in self.FcstrNames.keys():
+       if numstr in list(self.FcstrNames.keys()):
           name=self.FcstrNames[numstr]
        return name
     #=================================================================
@@ -648,14 +648,14 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     def getFcstrID(self,num):
        ID=""
        numstr="%2.2d"%num
-       if numstr in self.FcstrIDs.keys():
+       if numstr in list(self.FcstrIDs.keys()):
           ID=self.FcstrIDs[numstr]
        return ID
     #=================================================================
     #  getFcstrNums - return list of forecaster numbers (as strings)
     #
     def getFcstrNums(self):
-       nums=self.FcstrNames.keys()
+       nums=list(self.FcstrNames.keys())
        nums.sort()
        return nums
     #=================================================================
@@ -666,10 +666,10 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #
     def setFcstrs(self,nameDict,idDict):
        self.FcstrNames={}
-       for (key,value) in nameDict.items():
+       for (key,value) in list(nameDict.items()):
           self.FcstrNames[key]=value
        self.FcstrIDs={}
-       for (key,value) in idDict.items():
+       for (key,value) in list(idDict.items()):
           self.FcstrIDs[key]=value
     #=================================================================
     #  findFcstrNumFromID - takes a forecaster ID string - and returns
@@ -678,8 +678,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #
     def findFcstrNumFromID(self,id):
        num=0
-       if id in self.FcstrIDs.values():
-          for (testnum,testid) in self.FcstrIDs.items():
+       if id in list(self.FcstrIDs.values()):
+          for (testnum,testid) in list(self.FcstrIDs.items()):
              if testid==id:
                 num=int(testnum)
                 break
@@ -691,8 +691,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #
     def findFcstrNumFromName(self,name):
        num=0
-       if id in self.FcstrNames.values():
-          for (testnum,testname) in self.FcstrNames.items():
+       if id in list(self.FcstrNames.values()):
+          for (testnum,testname) in list(self.FcstrNames.items()):
              if testname==name:
                 num=int(testnum)
                 break
@@ -711,7 +711,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           fs.write("# This file maintained by the verification programs\n")
           fs.write("# Please DO NOT EDIT\n")
           fs.write("#\n")
-          numkeys=self.FcstrNames.keys()
+          numkeys=list(self.FcstrNames.keys())
           numkeys.sort()
           for numstr in numkeys:
              name=self.FcstrNames[numstr]
@@ -719,7 +719,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              fs.write("%s,%s,%s\n"%(numstr,id,name))
           fs.close()
           try:
-             os.chmod(filename,0666)
+             os.chmod(filename,0o666)
           except:
              self.logMsg("%s should have 666 permissions"%self.FCSTRNUMFILE)
              return 0
@@ -958,7 +958,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        newDir="%s/Grids/%s"%(self.VERDIR,parm)
        already=os.path.exists(newDir)
        if ((not already)and(modify!=0)):
-          os.umask(0002)
+          os.umask(0o002)
           os.makedirs(newDir)
        return
     #=================================================================
@@ -969,7 +969,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        newDir="%s/Stats/%s"%(self.VERDIR,parm)
        already=os.path.exists(newDir)
        if ((not already)and(modify!=0)):
-          os.umask(0002)
+          os.umask(0o002)
           os.makedirs(newDir)
        return
     #=================================================================
@@ -1062,14 +1062,14 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              self.oncValue1=self.oncData.createVariable('value1','h',('record','ypts','xpts'))
           self.oncIndex.sync()
           self.oncData.sync()
-          os.chmod(newIndex,0775)
-          os.chmod(newData,0775)
+          os.chmod(newIndex,0o775)
+          os.chmod(newData,0o775)
        #
        #  If an old file...hook up variables to the netCDF files
        #
        else:
-          ivarnames=self.oncIndex.variables.keys()
-          dvarnames=self.oncData.variables.keys()
+          ivarnames=list(self.oncIndex.variables.keys())
+          dvarnames=list(self.oncData.variables.keys())
           for name in ('fcstr','btime','stime','etime','vtime','scale','addit'):
              if name not in ivarnames:
                 self.logMsg("Corrupt index file for %s %s detected"%(model,parm))
@@ -1179,14 +1179,14 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              self.fncValue1=self.fncData.createVariable('value1','h',('record','ypts','xpts'))
           self.fncIndex.sync()
           self.fncData.sync()
-          os.chmod(newIndex,0775)
-          os.chmod(newData,0775)
+          os.chmod(newIndex,0o775)
+          os.chmod(newData,0o775)
        #
        #  If an old file...hook up variables to the netCDF files
        #
        else:
-          ivarnames=self.fncIndex.variables.keys()
-          dvarnames=self.fncData.variables.keys()
+          ivarnames=list(self.fncIndex.variables.keys())
+          dvarnames=list(self.fncData.variables.keys())
           for name in ('fcstr','btime','stime','etime','vtime','scale','addit'):
              if name not in ivarnames:
                 self.logMsg("Corrupt index file for %s %s detected"%(model,parm))
@@ -1286,8 +1286,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           self.sncStats=self.sncData.createVariable('stats','f',('record','maxareas','maxstats'))
           self.sncIndex.sync()
           self.sncData.sync()
-          os.chmod(newIndex,0775)
-          os.chmod(newData,0775)
+          os.chmod(newIndex,0o775)
+          os.chmod(newData,0o775)
        #
        #  If an old file...hook up variables to the netCDF files
        #
@@ -2173,11 +2173,11 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                 obrec="-10"  #dummy obs record
              else:
                 obrec="%d"%orecs[0]
-             if obrec in flists.keys():
+             if obrec in list(flists.keys()):
                 flists[obrec].append(fcstrec)
              else:
                 flists[obrec]=[fcstrec]
-          for obrec in flists.keys():
+          for obrec in list(flists.keys()):
              iobrec=int(int(obrec)+0.5)
              obslist=[]
              if (iobrec>=0):
@@ -2254,7 +2254,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           if exit==1:
              return finalCases
        #
-       obskeys=obsCases.keys()
+       obskeys=list(obsCases.keys())
        numgrids=len(obskeys)
        self.logMsg("Observed cases:%d"%numgrids,5)
        obskeys.sort()
@@ -2272,7 +2272,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #  modelList for further processing
        #
        modelList=[]
-       if ((type(models) is types.ListType) or (type(models) is types.TupleType)):
+       if ((type(models) is list) or (type(models) is tuple)):
           for model in models:
              modelList.append(model)
        else:
@@ -2296,7 +2296,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              exit=self.callbackMethod(self.internalMessage)
              if exit==1:
                 return finalCases
-          casekeys=cases.keys()
+          casekeys=list(cases.keys())
           numgrids=len(casekeys)
           self.logMsg("%s has %d potential cases"%(model,numgrids),5)
           if self.getDebug()>=5:
@@ -2331,7 +2331,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #  With only 1 model common cases are easy!
        #
        if totalmodels==1:
-          finalkeys=allCases[model].keys()
+          finalkeys=list(allCases[model].keys())
        #
        #  For mulitple models...Get keys for each model...convert them to
        #  the offsetBasetime (if basetimeOffsets==1)...and find the
@@ -2347,7 +2347,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           minmod=""
           minkeys=-1
           for model in modelList:
-             realKeys=allCases[model].keys()
+             realKeys=list(allCases[model].keys())
              if basetimeOffsets==1:
                 baseOffset=self.getBaseOffset(model)
              else:
@@ -2574,7 +2574,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                       exit=callbackMethod("%d of %d"%(count,totalDays))
                       if exit==1:
                          return cases
-                   if type(date) is types.StringType:
+                   if type(date) is bytes:
                       try:
                          (yea,mon,day)=date.split("/")
                          starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
@@ -2704,7 +2704,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                       exit=callbackMethod("%d of %d"%(count,totalDays))
                       if exit==1:
                          return cases
-                   if type(date) is types.StringType:
+                   if type(date) is bytes:
                       try:
                          (yea,mon,day)=date.split("/")
                          starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,-1))
@@ -2781,7 +2781,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #  modelList for further processing
        #
        modelList=[]
-       if ((type(models) is types.ListType) or (type(models) is types.TupleType)):
+       if ((type(models) is list) or (type(models) is tuple)):
           for model in models:
              modelList.append(model)
        else:
@@ -2802,7 +2802,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                      fromDay=fromDay,numDays=numDays,dayList=dayList,
                      accumHours=accumHours,accumFreq=accumFreq,
                      callbackMethod=self.internCB)
-          casekeys=cases.keys()
+          casekeys=list(cases.keys())
           numgrids=len(casekeys)
           self.logMsg("%s has %d pre-calculated cases"%(model,numgrids),5)
           allCases[model]=cases
@@ -2810,7 +2810,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #  With only 1 model common cases are easy!
        #
        if totalmodels==1:
-          finalkeys=allCases[model].keys()
+          finalkeys=list(allCases[model].keys())
        #
        #  For mulitple models...Get keys for each model...convert them to
        #  the offsetBasetime (if basetimeOffsets==1)...and find the
@@ -2827,7 +2827,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           minmod=""
           minkeys=-1
           for model in modelList:
-             realKeys=allCases[model].keys()
+             realKeys=list(allCases[model].keys())
              if basetimeOffsets==1:
                 baseOffset=self.getBaseOffset(model)*HOURSECS
              else:
@@ -3029,7 +3029,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
                       exit=callbackMethod("%d of %d"%(count,totalDays))
                       if exit==1:
                          return cases
-                   if type(date) is types.StringType:
+                   if type(date) is bytes:
                       try:
                          (yea,mon,day)=date.split("/")
                          starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
@@ -3100,7 +3100,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              else:
                 obrecs=[]
                 for date in dayList:
-                   if type(date) is types.StringType:
+                   if type(date) is bytes:
                       try:
                          (yea,mon,day)=date.split("/")
                          starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
@@ -3163,7 +3163,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              timeRanges=[]
              lastend=0
              for date in dayList:
-                if type(date) is types.StringType:
+                if type(date) is bytes:
                    try:
                       (yea,mon,day)=date.split("/")
                       starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
@@ -3197,7 +3197,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              dayList.sort()
              starts=[]
              for date in dayList:
-                if type(date) is types.StringType:
+                if type(date) is bytes:
                    try:
                       (yea,mon,day)=date.split("/")
                       starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
@@ -3225,7 +3225,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
           periods.append((starttime,endtime))
        else:
           for date in dayList:
-             if type(date) is types.StringType:
+             if type(date) is bytes:
                 try:
                    (yea,mon,day)=date.split("/")
                    starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
@@ -3246,7 +3246,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #  Get logical array of records with right forecaster
        #
        fcstrList=[]
-       if ((type(fcstrs) is types.TupleType)or(type(fcstrs) is types.ListType)):
+       if ((type(fcstrs) is tuple)or(type(fcstrs) is list)):
           for fcstr in fcstrs:
              fcstrList.append(fcstr)
        else:
@@ -3262,14 +3262,14 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #  Get logical array of records with right cycle
        #
        cycleList=[]
-       if ((type(cycles) is types.TupleType)or(type(cycles) is types.ListType)):
+       if ((type(cycles) is tuple)or(type(cycles) is list)):
           for cycle in cycles:
-             if type(cycle) is types.StringType:
+             if type(cycle) is bytes:
                 cycleList.append(int(cycle))
              else:
                 cycleList.append(cycle)
        else:
-          if type(cycles) is types.StringType:
+          if type(cycles) is bytes:
              cycleList.append(int(cycles))
           else:
              cycleList.append(cycles)
@@ -3306,7 +3306,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        fcstrList=[]
        ftype=type(fcstrs)
-       if ((ftype is types.TupleType)or(ftype is types.ListType)):
+       if ((ftype is tuple)or(ftype is list)):
           for fcstr in fcstrs:
              fcstrList.append(fcstr)
        else:
@@ -3322,14 +3322,14 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        cycleList=[]
        ctype=type(cycles)
-       if ((ctype is types.TupleType)or(ctype is types.ListType)):
+       if ((ctype is tuple)or(ctype is list)):
           for cycle in cycles:
-              if type(cycle) is types.StringType:
+              if type(cycle) is bytes:
                   cycleList.append(int(cycle))
               else:
                   cycleList.append(cycle)
        else:
-           if type(cycles) is types.StringType:
+           if type(cycles) is bytes:
                cycleList.append(int(cycles))
            else:
                cycleList.append(cycles)
@@ -4525,7 +4525,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        obrecs=[]
        eoff=self.getEndOffset(parm)
        soff=self.getStartOffset(parm)
-       if type(endDay) is types.StringType:
+       if type(endDay) is bytes:
           try:
              (yea,mon,day)=endDay.split("/")
              endtime=calendar.timegm((int(yea),int(mon),int(day),23,59,59,0,0,-1))+eoff
@@ -4545,7 +4545,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        obrecs=[]
        eoff=self.getEndOffset(parm)
        soff=self.getStartOffset(parm)
-       if type(endDay) is types.StringType:
+       if type(endDay) is bytes:
           try:
              (yea,mon,day)=endDay.split("/")
              endtime=calendar.timegm((int(yea),int(mon),int(day),23,59,59,0,0,-1))+eoff
@@ -4565,7 +4565,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #
     def getEndOffset(self,parm):
        eoff=0
-       keys=self.END_OFFSET_HOURS.keys()
+       keys=list(self.END_OFFSET_HOURS.keys())
        if parm in keys:
           eoff=self.END_OFFSET_HOURS[parm]*HOURSECS
        return eoff
@@ -4577,7 +4577,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #
     def getStartOffset(self,parm):
        soff=0
-       keys=self.START_OFFSET_HOURS.keys()
+       keys=list(self.START_OFFSET_HOURS.keys())
        if parm in keys:
           soff=self.START_OFFSET_HOURS[parm]*HOURSECS
        return soff
@@ -4598,7 +4598,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              exit=callbackMethod("%d of %d"%(count,totalcount))
              if exit==1:
                 return obrecs
-          if type(date) is types.StringType:
+          if type(date) is bytes:
              try:
                 (yea,mon,day)=date.split("/")
                 endtime=calendar.timegm((int(yea),int(mon),int(day),23,59,59,0,0,-1))+eoff
@@ -4630,7 +4630,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
              exit=callbackMethod("%d of %d"%(count,totalcount))
              if exit==1:
                 return obrecs
-          if type(date) is types.StringType:
+          if type(date) is bytes:
              try:
                 (yea,mon,day)=date.split("/")
                 endtime=calendar.timegm((int(yea),int(mon),int(day),23,59,59,0,0,-1))+eoff
@@ -4675,14 +4675,14 @@ class BOIVerifyUtility(SmartScript.SmartScript):
        #
        maxCycles=len(self.getCFG('ALLCYCLES'))
        cycleList=[]
-       if ((type(cycles) is types.TupleType)or(type(cycles) is types.ListType)):
+       if ((type(cycles) is tuple)or(type(cycles) is list)):
           for cycle in cycles:
-             if type(cycle) is types.StringType:
+             if type(cycle) is bytes:
                 cycleList.append(int(cycle))
              else:
                 cycleList.append(cycle)
        else:
-          if type(cycles) is types.StringType:
+          if type(cycles) is bytes:
              cycleList.append(int(cycles))
           else:
              cycleList.append(cycles)
@@ -4727,7 +4727,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     #
     def getFcstPeriod(self,inputParm,endDay,Ndays,model):
        fcstrecs=[]
-       if type(endDay) is types.StringType:
+       if type(endDay) is bytes:
           try:
              (yea,mon,day)=endDay.split("/")
              startOfEndDay=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
@@ -4746,7 +4746,7 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     def getFcstList(self,inputParm,dayList,model):
        fcstrecs=[]
        for date in dayList:
-          if type(date) is types.StringType:
+          if type(date) is bytes:
              try:
                 (yea,mon,day)=date.split("/")
                 starttime=calendar.timegm((int(yea),int(mon),int(day),0,0,0,0,0,0))
@@ -4767,8 +4767,8 @@ class BOIVerifyUtility(SmartScript.SmartScript):
     def logMsg(self,msg,significance=0):
        if significance<=self.DEBUG:
           gmt=time.gmtime()
-          print "%4.4d/%2.2d/%2.2d %2.2d:%2.2d:%2.2d:%s"%(gmt[0],gmt[1],
-                 gmt[2],gmt[3],gmt[4],gmt[5],msg)
+          print("%4.4d/%2.2d/%2.2d %2.2d:%2.2d:%2.2d:%s"%(gmt[0],gmt[1],
+                 gmt[2],gmt[3],gmt[4],gmt[5],msg))
           sys.stdout.flush()
        return
     #=================================================================

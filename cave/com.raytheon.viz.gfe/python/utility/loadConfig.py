@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -38,7 +38,7 @@ from java.lang import String, Float, Integer, Boolean
 def loadPreferences(config):
     try:
         # import the config file
-        if type(config) is types.StringType:
+        if type(config) is bytes:
             configName = config
             mod = __import__(config)
         elif type(config) is types.ModuleType:
@@ -51,11 +51,11 @@ def loadPreferences(config):
         prefs = PythonPreferenceStore(globals)
         Activator.getDefault().setPreferenceStore(prefs)
         return prefs
-    except Exception, e:
+    except Exception as e:
         import LogStream
         import traceback
         LogStream.logProblem("Unknown or invalid config file: %s\n%s" % (configName, traceback.format_exc()))
-        raise Exception, e
+        raise Exception(e)
         
 
 def loadConfig(configName):    

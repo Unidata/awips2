@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -536,14 +536,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # Get variables from Definition and VariableList
         self._definition = argDict["forecastDef"]
-        for key in self._definition.keys():
-            exec "self._" + key + "= self._definition[key]"
+        for key in list(self._definition.keys()):
+            exec("self._" + key + "= self._definition[key]")
 
         varDict = argDict["varDict"]
-        for key in varDict.keys():
-            if type(key) is types.TupleType:
+        for key in list(varDict.keys()):
+            if type(key) is tuple:
                 label, variable = key
-                exec "self._" + variable + "= varDict[key]"
+                exec("self._" + variable + "= varDict[key]")
         
         # Set up product-specific variables
         self._colWidth = 13
@@ -1177,7 +1177,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         gustString = ''
         if windString != "" and windString != self._tableLightWindPhrase:
             if windGustVal >= self._minGustMph and (windGustVal - windMag) >= self._windGustDiffMph:
-                    gustString = ' G'+`int(windGustVal)`
+                    gustString = ' G'+repr(int(windGustVal))
         return windString + gustString
     
     def _qpfVal(self, statDict, timeRange, argList):
@@ -1508,13 +1508,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         else:
             mag1, mag2 = value[0]
             dir = value[1]
-            mag1 = `int(mag1)`
-            mag2 = `int(mag2)`
+            mag1 = repr(int(mag1))
+            mag2 = repr(int(mag2))
             magStr = mag1 + "-" + mag2
             magStrLen = len(magStr)
             rjustLen = magStrLen + 1
             magStr = string.rjust(magStr, rjustLen)
-            if type(dir) is not types.StringType:
+            if type(dir) is not bytes:
                 dir = self.dirToText(dir)
             dirStr = string.rjust(dir,2)
             return dirStr + magStr
@@ -1672,7 +1672,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if haines is None:
             return ""
         min, max, avg = haines
-        return string.strip(`int(avg)`) 
+        return string.strip(repr(int(avg))) 
 
     def _rhRecovery(self, statDict, timeRange, argList):
         element = argList[0]
@@ -1749,7 +1749,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                     vr = vr/1.94/3.2808
                 elif units == "mph-ft":
                     vr = vr*1.15
-            return  `int(self.round(vr, "Nearest", 1))`
+            return  repr(int(self.round(vr, "Nearest", 1)))
         else:
             return ""
 
@@ -1887,7 +1887,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 value = self.round(min, "Nearest", 1000)
             else:
                 return "NO CIG"
-        return `value`
+        return repr(value)
 
     def _addHeadlines(self, headlines):
         # Add the headlines to the list of product headlines

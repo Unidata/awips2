@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -278,7 +278,7 @@ class SAF_Overrides:
         for lac in self._lacList:
             fcst = ""
             # Make sure there is a crsID for each LAC
-            if self._pilDict.has_key(lac):
+            if lac in self._pilDict:
                 self._currentPil = self._pilDict[lac]
                 self._currentLac = lac
                 fcstDict[lac] = self._preProcessProduct(fcst, argDict)
@@ -398,7 +398,7 @@ class SAF_Overrides:
             # Write tower specific text to disk. Normally
             # this will be the /data/fxa/workFiles/nwr/pending
             # directory. Must be full pathname!
-            if self._lacFileDict.has_key(lac):
+            if lac in self._lacFileDict:
                 f=open(self._lacFileDict[lac],"w")
                 f.write(fcst)
                 f.close()
@@ -479,7 +479,7 @@ class SAF_Overrides:
         else:
             # Warning! if self._definition["directiveType"] is not
             # a defined method, the formatter will error out.
-            exec "meth=self." + self._definition["directiveType"]
+            exec("meth=self." + self._definition["directiveType"])
             return meth(argDict)
 
     def _C11_issuance_list(self, argDict):
@@ -1012,7 +1012,7 @@ class SAF_Overrides:
         # areaLabel is a label string such as "Western Virginia"
         # editAreaName must be the name of a GFE defined edit area
         fcst = ""
-        if self._summaryAreaDict.has_key(self._currentLac):
+        if self._currentLac in self._summaryAreaDict:
             editAreaName, areaLabel = self._summaryAreaDict[self._currentLac]
             intro = self._summaryExtendedIntro
             intro = intro + " " + areaLabel

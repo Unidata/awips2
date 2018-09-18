@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-#
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 #
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -130,7 +130,7 @@ def runIfpImage(args):
             else:
                 deltaTime = (setime - self.baseTime) / 3600   #in hours
                 timeString = self.baseTime.stringFmt(baseTimeFormat) + \
-                             '_F' + `deltaTime`
+                             '_F' + repr(deltaTime)
             fname = dir + "/" + prefix + timeString
             return fname
 
@@ -149,13 +149,13 @@ def runIfpImage(args):
                 fmt = "%Y%m%d_%H%M"
                 file = open(fname, 'w')
                 file.write('ValidTime: ' + setime.stringFmt(fmt) + '\n')
-                file.write('NumOfGrids: ' + `len(visualInfo)` + '\n')
+                file.write('NumOfGrids: ' + repr(len(visualInfo)) + '\n')
                 for id, start, end, color, image in visualInfo:
                     if image:
                         imgString = 'IMAGE'
                     else:
                         imgString = 'GRAPHIC'
-                    file.write('Grid: ' + `id` + ' ' + start.stringFmt(fmt)
+                    file.write('Grid: ' + repr(id) + ' ' + start.stringFmt(fmt)
                       + ' ' + end.stringFmt(fmt) + ' ' + color + ' '
                       + imgString + '\n')
                 file.close()
@@ -409,7 +409,7 @@ def runIfpImage(args):
                     viz.outputFiles(fname, showLogo, logoString)
                     self.writeInfo(dir, paintTime, visualInfo)
                 else:
-                    LogStream.logEvent("No grids to generate for ", `paintTime`)
+                    LogStream.logEvent("No grids to generate for ", repr(paintTime))
 
             visuals = None
             mv = None
@@ -477,7 +477,7 @@ def runIfpImage(args):
     try:
         pngw = PngWriter(args.configFile, baseTime, pngTimeRange, args.usrTimeName)
         pngw.paint(outDir)
-    except Exception, e:
+    except Exception as e:
         LogStream.logProblem(LogStream.exc())
     LogStream.logEvent("ifpIMAGE Finished")
 
@@ -525,7 +525,7 @@ def validateArgs(args=None, parents=[]):
     return args
 
 def error(msg):
-    print "ERROR: %s\n" % msg
+    print("ERROR: %s\n" % msg)
 
 def main():
     args = validateArgs()

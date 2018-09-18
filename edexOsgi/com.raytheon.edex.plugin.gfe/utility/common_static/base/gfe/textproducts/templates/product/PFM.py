@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -313,9 +313,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Determine time ranges, for each possible time zone
         self._areaTZ = self.getAreaTZ(argDict, self._areaList)  #all TimeZones
         tzDictTR = {}
-        for key in self._areaTZ.keys():
+        for key in list(self._areaTZ.keys()):
             tz = self._areaTZ[key]
-            if not tzDictTR.has_key(tz):
+            if tz not in tzDictTR:
                  tzDictTR[tz] =  self._determineTimeRanges(argDict, tz)
         self._determineZuluTimeRanges(argDict, tzDictTR)
 
@@ -323,7 +323,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Sample the data. 
         sampleInfo = []
         # determine all of the areas using the same time zone
-        for timeZone in tzDictTR.keys():
+        for timeZone in list(tzDictTR.keys()):
             areasInTimeZone = []
             for area in self._areaList:
                 areaLabel = area[1]   #(editArea, areaLabel)
@@ -360,15 +360,15 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # Get Definition variables
         self._definition = argDict["forecastDef"]
-        for key in self._definition.keys():
-            exec "self._" + key + "= self._definition[key]"
+        for key in list(self._definition.keys()):
+            exec("self._" + key + "= self._definition[key]")
 
         # Set up product-specific variables
         varDict = argDict["varDict"]
-        for key in varDict.keys():
-            if type(key) is types.TupleType:
+        for key in list(varDict.keys()):
+            if type(key) is tuple:
                 label, variable = key
-                exec "self._" + variable + "= varDict[key]"
+                exec("self._" + variable + "= varDict[key]")
         try:
             if self._tropicalStorm == "YES":
                 self._tropicalStorm = 1
@@ -435,7 +435,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 tzDir[areaLabel] = tzs[0][0]   #use the 1 time zone
             else:
                 tzid = tzs[0][1]  #1st one, get the effective id
-                for x in xrange(1, len(tzs)):
+                for x in range(1, len(tzs)):
                     if tzs[x][1] != tzid:
                         LogStream.logProblem(\
                           "WARNING: Multiple Effective Time Zones in segment." + 
@@ -469,7 +469,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # the overall time range
         earliest = None
         latest = None
-        for key in tzDictTR.keys():
+        for key in list(tzDictTR.keys()):
             d = tzDictTR[key]
             if earliest is None:
                 earliest = d['top_3hr'][0][0].startTime()
@@ -486,7 +486,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         #sample the entire period.  Periods is from getPeriods(), returns
         #modified version.
         thisHour = int(self._currentTime / 3600) * 3600  #truncated to hh:00
-        for x in xrange(len(periods)):
+        for x in range(len(periods)):
             tr, label = periods[x]
             startT = tr.startTime().unixTime()
             endT = tr.endTime().unixTime()
@@ -710,7 +710,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         else:
             if self._productType == "PFM":
                 if len(areaStrings) != 4 and len(areaStrings) != 3:
-                    raise SyntaxError, """
+                    raise SyntaxError("""
 PFM requires defaultEditArea format of (editAreaName, 
 ugcLine\\narea description line\\nll.llN lll.llW\\nElev
 editAreaName is the name of the edit area for sampling
@@ -718,12 +718,12 @@ ugcLine is the ugc code representing the area, and is used for timezone info
 area description line describes the area
 ll.llN lll.llW is the latitude and longitude for the area
 Elev is a string representing the station elevation, e.g., 423.
-Found description: """ + areaLabel
+Found description: """ + areaLabel)
 
                 latlon = areaStrings[2]
                 if not self._latlonCheck(latlon):
-                    raise SyntaxError, "PFM lat/lon format must be " +\
-                      "exactly ll.llN lll.llW  found:" + latlon
+                    raise SyntaxError("PFM lat/lon format must be " +\
+                      "exactly ll.llN lll.llW  found:" + latlon)
 
             ugcCode = areaStrings[0]
             s = ugcCode + "-" + self._ddhhmmTimeExpire + "-\n"
@@ -931,7 +931,7 @@ Found description: """ + areaLabel)
         # determine zulu alignment for bottom section, gather all of the
         # possible zulu hours (can't be more than 2 due to 12h intervals)
         zuluHours = []
-        for x in xrange(0, 2):
+        for x in range(0, 2):
             period, label = timePeriods['bottom_12hr'][x]
             zuluHours.append(period.endTime().hour)
         
@@ -953,7 +953,7 @@ Found description: """ + areaLabel)
 
         # now determine the bottom 12hr periods and their spacing
         runningTotal = 0
-        for x in xrange(len(timePeriods['bottom_6hr_snap'])):
+        for x in range(len(timePeriods['bottom_6hr_snap'])):
             period, label = timePeriods['bottom_6hr_snap'][x]
             space6 = colSpacing6hr[x]
             runningTotal += space6
@@ -1141,7 +1141,7 @@ Found description: """ + areaLabel)
         val = self.getStats(statDict, argList[0])
         if val is None:
             return "MM"
-        return `int(round(val))`
+        return repr(int(round(val)))
 
     def _rhValue(self, statDict, timeRange, argList):
         # return a string for the rh, such as "85"
@@ -1165,7 +1165,7 @@ Found description: """ + areaLabel)
         Vd = 6.11 * pow(10,(Tdc * 7.5 / (Tdc + 237.3)))
         RH = (Vd / Vt) * 100.0
 
-        return `int(round(RH))`
+        return repr(int(round(RH)))
 
     def _popValue(self, statDict, timeRange, argList):
         # return a string for the pop, such as "80"
@@ -1180,7 +1180,7 @@ Found description: """ + areaLabel)
         if popMax5 == 5:
             return "5"
         popMax10=int(self.round(val,"Nearest",10))
-        return `int(popMax10)`
+        return repr(int(popMax10))
 
     def _qpfValue(self, statDict, timeRange, argList):
         # Return a string for the QPF, such as 0, 0.05, or 0.25-0.49
@@ -1220,15 +1220,15 @@ Found description: """ + areaLabel)
         minV, maxV, sumV = val
         if maxV - minV > self._snowRangeThreshold and \
           self._productType == "AFM":
-            minString = `int(round(minV))`
-            maxString = `int(round(maxV))`
+            minString = repr(int(round(minV)))
+            maxString = repr(int(round(maxV)))
             return minString+"-"+maxString
         elif sumV < 0.1:
             return "00-00"
         elif sumV < 0.5:
             return "T"
         else:
-            return `int(round(sumV))`
+            return repr(int(round(sumV)))
 
     def _mxmnValue(self, statDict, timeRange, argList):
         # Return a string for the max or min temperatures.
@@ -1247,18 +1247,18 @@ Found description: """ + areaLabel)
             return "MM"
 
         # did we get a tuple, or just a single value?
-        if type(val) is types.TupleType:
+        if type(val) is tuple:
             minV, maxV, aveV = val
             if maxV - minV > self._tempRangeThreshold and \
               self._productType == "AFM":
-                minString = string.rjust(`int(round(minV))`, self._top3hrWidth)
-                aveString = string.rjust(`int(round(aveV))`, self._top3hrWidth)
-                maxString = string.rjust(`int(round(maxV))`, self._top3hrWidth)
+                minString = string.rjust(repr(int(round(minV))), self._top3hrWidth)
+                aveString = string.rjust(repr(int(round(aveV))), self._top3hrWidth)
+                maxString = string.rjust(repr(int(round(maxV))), self._top3hrWidth)
                 return minString+aveString+maxString
             else:
-                return `int(round(aveV))`
+                return repr(int(round(aveV)))
         else:
-            return `int(round(val))`
+            return repr(int(round(val)))
 
 
     def _windChillValue(self, statDict, timeRange, argList):
@@ -1275,7 +1275,7 @@ Found description: """ + areaLabel)
 
         if chill < temp and chill < self._windChillLimit and \
            (temp - chill) > self._windChillDifference:
-            return `int(round(chill))`
+            return repr(int(round(chill)))
         else:
             return ""
 
@@ -1293,7 +1293,7 @@ Found description: """ + areaLabel)
 
         if heat >= self._heatIndexLimit and \
            (heat - temp) >= self._heatIndexDifference:
-            return `int(round(heat))`
+            return repr(int(round(heat)))
         else:
             return ""
 
@@ -1309,7 +1309,7 @@ Found description: """ + areaLabel)
             return ""
         minV, maxV = chill
         if minV < self._windChillLimit:
-            return `int(round(minV))`
+            return repr(int(round(minV)))
         else:
             return ""
 
@@ -1325,7 +1325,7 @@ Found description: """ + areaLabel)
 
         minV, maxV = heat
         if maxV >= self._heatIndexLimit:
-            return `int(round(maxV))`
+            return repr(int(round(maxV)))
         return ""
 
 
@@ -1353,7 +1353,7 @@ Found description: """ + areaLabel)
         if self._tropicalStorm and fcstTime > 24*3600 and speed >= 74:
             return 'HG'
 
-        return `int(speed)`
+        return repr(int(speed))
 
 
     def _windValue(self, statDict, timeRange, argList):
@@ -1379,7 +1379,7 @@ Found description: """ + areaLabel)
             return self.convertDirection(dir)
         else:
             speed = round(mag) * 1.15   # convert to MPH
-            return `int(speed)`
+            return repr(int(speed))
 
     def _windCharValue(self, statDict, timeRange, argList):
         # Returns wind character (speed characteristic), such as "WY"
@@ -1442,13 +1442,13 @@ Found description: """ + areaLabel)
             # Wx
             wxValues =  self._getWxValues(statDict["Wx"])
             for wxVal, covCode in wxValues:
-                if wxDict.has_key(wxVal):
+                if wxVal in wxDict:
                     wxDict[wxVal].append((period, covCode))
                 else:
                     wxDict[wxVal] = [(period, covCode)]
 
         # Create a row for each weather value in the dictionary
-        sortedKeys = wxDict.keys()
+        sortedKeys = list(wxDict.keys())
         sortedKeys.sort()
         for wxVal in sortedKeys:
             if wxVal == "":
@@ -1457,9 +1457,9 @@ Found description: """ + areaLabel)
             values = wxDict[wxVal]
 
             # Add a column for each period
-            for x in xrange(len(periods)):
+            for x in range(len(periods)):
                 period, label = periods[x]
-                if type(colWidth) is types.ListType:
+                if type(colWidth) is list:
                     width = colWidth[x]
                 else:
                     width = colWidth
@@ -1476,7 +1476,7 @@ Found description: """ + areaLabel)
         if subkeyList is None:
             return ""
         wxValues = []
-        for x in xrange(len(subkeyList)):
+        for x in range(len(subkeyList)):
             wxKey = subkeyList[x]
             wxValue = ""
             wxCov = ""
@@ -1583,14 +1583,14 @@ Found description: """ + areaLabel)
 
             # now map the codes
             if self._productType == "AFM":
-                if afmCodes.has_key(wxType) and \
-                  afmCodes[wxType].has_key(coverage):
+                if wxType in afmCodes and \
+                  coverage in afmCodes[wxType]:
                     wxCov = afmCodes[wxType][coverage]
                 else:
                     wxCov = "?"
             elif self._productType == "PFM":
-                if pfmCodes.has_key(wxType) and \
-                  pfmCodes[wxType].has_key(coverage):
+                if wxType in pfmCodes and \
+                  coverage in pfmCodes[wxType]:
                     wxCov = pfmCodes[wxType][coverage]
                 else:
                     wxCov = "?"
@@ -1623,22 +1623,22 @@ Found description: """ + areaLabel)
             # Hazards - create the row data
             wwaValues =  self._getWWAValues(hazRecords)
             for wwaVal, sigfCode in wwaValues:
-                if wwaDict.has_key(wwaVal):
+                if wwaVal in wwaDict:
                     wwaDict[wwaVal].append((period, sigfCode))
                 else:
                     wwaDict[wwaVal] = [(period, sigfCode)]
 
         # Create a row for each hazard value in the dictionary
-        sortedKeys = wwaDict.keys()
+        sortedKeys = list(wwaDict.keys())
         sortedKeys.sort()
         for wwaVal in sortedKeys:
             fcst = self.addRowLabel(fcst, wwaVal, self._rowLabelWidth)
             values = wwaDict[wwaVal]
 
             # Add a column for each period
-            for x in xrange(len(periods)):
+            for x in range(len(periods)):
                 period, label = periods[x]
-                if type(colWidth) is types.ListType:
+                if type(colWidth) is list:
                     width = colWidth[x]
                 else:
                     width = colWidth
@@ -1678,9 +1678,9 @@ Found description: """ + areaLabel)
             phen = rec['phen']
             sig = rec['sig']
             phensig = rec['phen'] + '.' + rec['sig']
-            if codes.has_key(phen):
+            if phen in codes:
                 wwaValues.append((codes[phen], sig))
-            elif codes.has_key(phensig):
+            elif phensig in codes:
                 wwaValues.append((codes[phensig], sig))
 
         return wwaValues
@@ -1713,8 +1713,8 @@ Found description: """ + areaLabel)
             return fcst
 
         fcst = self.addRowLabel(fcst, "Obvis", self._rowLabelWidth)
-        for x in xrange(len(obvisValues)):
-            if type(colWidth) is types.ListType:
+        for x in range(len(obvisValues)):
+            if type(colWidth) is list:
                 width = colWidth[x]
             else:
                 width = colWidth
@@ -1727,7 +1727,7 @@ Found description: """ + areaLabel)
         if subkeyList is None:
             return ""
         wxValues = []
-        for x in xrange(len(subkeyList)):
+        for x in range(len(subkeyList)):
             wxKey = subkeyList[x]
             wxInten = wxKey.intensity()
             wxCov = wxKey.coverage()
@@ -1767,7 +1767,7 @@ Found description: """ + areaLabel)
 
         # determine the column widths
         colWidths = []
-        if type(colWidth) is types.ListType:
+        if type(colWidth) is list:
             colWidths = colWidth
         else:
             for p in periods:
@@ -1779,9 +1779,9 @@ Found description: """ + areaLabel)
             zuluLabels.append(self._hour24zuluLabel(period))
 
         # zulu string
-        zulu = "UTC " + `intervalHours` + "hrly "
+        zulu = "UTC " + repr(intervalHours) + "hrly "
         zulu = string.ljust(zulu, startPoint)
-        for x in xrange(len(zuluLabels)):
+        for x in range(len(zuluLabels)):
             zulu = self.addColValue(zulu, zuluLabels[x], colWidths[x])
 
         # set the time zone
@@ -1792,12 +1792,12 @@ Found description: """ + areaLabel)
         # date and LT string (beginning)
         dateS = string.ljust('Date', startPoint)
         ltZone = time.strftime("%Z",time.localtime(self._currentTime))
-        lt = string.ljust(ltZone, 4) + `intervalHours` + "hrly "
+        lt = string.ljust(ltZone, 4) + repr(intervalHours) + "hrly "
         lt = string.ljust(lt, startPoint)
 
         # remainder of Date and LT strings
         dayOfMonthProcessed = None
-        for x in xrange(len(periods)):
+        for x in range(len(periods)):
             timePeriod, label = periods[x]
             hour = int(label)
             
@@ -1810,7 +1810,7 @@ Found description: """ + areaLabel)
 
             # calculate amount of room to write data
             colAvail = 0
-            for y in xrange(x+1,len(periods)):
+            for y in range(x+1,len(periods)):
                 colAvail = colAvail + colWidths[y]
 
             # handle the Date string
@@ -1840,7 +1840,7 @@ Found description: """ + areaLabel)
                     else:
                         continue  #not enough remaining room
                 else:
-                    raise Exception, "Expected 3 or 6 intervalHours"
+                    raise Exception("Expected 3 or 6 intervalHours")
 
                 index = 0
                 nfill = prevLTlen - len(dateS) -1 + colWidths[x] - 1

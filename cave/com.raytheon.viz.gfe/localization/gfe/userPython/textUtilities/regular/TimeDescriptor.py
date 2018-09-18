@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -51,7 +51,7 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
     def getCurrentTime(self, argDict=None, format="%I%M %p %Z %a %b %d %Y",
                         shiftToLocal=1, upperCase=0, stripLeading=1):
         # Return a text string of the current time in the given format
-        if argDict is not None and argDict.has_key("creationTime"):
+        if argDict is not None and "creationTime" in argDict:
             ctime = argDict['creationTime']
         else:
             ctime = time.time()
@@ -565,11 +565,11 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
         # look for the best match entry, start with the startTime match
         bestIndexes = []
         bestTime = 9999
-        for i in xrange(len(table)):
+        for i in range(len(table)):
             diff = self.hourDiff(startHour, table[i][0])
             if diff < bestTime:
                 bestTime = diff
-        for i in xrange(len(table)):
+        for i in range(len(table)):
             diff = self.hourDiff(startHour, table[i][0])
             if diff == bestTime:
                bestIndexes.append(table[i])
@@ -581,7 +581,7 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
         # now find the best match for the ending time, from the ones earlier
         bestTime = 9999
         returnValue = ''
-        for i in xrange(len(bestIndexes)):
+        for i in range(len(bestIndexes)):
             diff = self.hourDiff(endHour, bestIndexes[i][1])
             if diff < bestTime:
                 returnValue = bestIndexes[i][2]
@@ -635,7 +635,7 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
     def periodLabel(self, timeRange):
         # Return the label for the given time range
         start = timeRange.startTime()
-        hourStr = `start.hour`+"Z/"+`start.day`
+        hourStr = repr(start.hour)+"Z/"+repr(start.day)
         return hourStr
 
     def localTimeRangeLabel(self, timeRange):
@@ -662,11 +662,11 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
         localTime = time.localtime(time.time())
         zoneName = time.strftime("%Z",localTime)
         monthDict = self.monthDict()
-        str =  monthDict[start.month] + " " + `start.day` + ", " + `start.year`
+        str =  monthDict[start.month] + " " + repr(start.day) + ", " + repr(start.year)
         hour1, ampm1 = self.hourAmPm(start.hour)
         hour2, ampm2 = self.hourAmPm(start.hour+1)
-        return str + " " + `hour1` + ampm1 + " " + zoneName + " - " + \
-            `hour2` + ampm2 + " " + zoneName
+        return str + " " + repr(hour1) + ampm1 + " " + zoneName + " - " + \
+            repr(hour2) + ampm2 + " " + zoneName
 
     def localTRLabel(self, timeRange):
         # Return label in form
@@ -679,8 +679,8 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
         hour1, ampm1 = self.hourAmPm(start.hour)
         hour2, ampm2 = self.hourAmPm(end.hour)
         monthDict1 = self.monthDict1()
-        str1 =  `hour1` + ampm1 + " " + zoneName + " " + monthDict1[start.month] + " " + `start.day`
-        str2 =  `hour2` + ampm2 + " " + zoneName + " " + monthDict1[end.month] + " " + `end.day`
+        str1 =  repr(hour1) + ampm1 + " " + zoneName + " " + monthDict1[start.month] + " " + repr(start.day)
+        str2 =  repr(hour2) + ampm2 + " " + zoneName + " " + monthDict1[end.month] + " " + repr(end.day)
         return str1 + " TO " + str2
 
     def localPeriodLabel(self, timeRange):
@@ -695,7 +695,7 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
         zoneName = time.strftime("%Z",localTime)
 
         # Create label
-        hourStr = `start.hour`+ " " + zoneName + "/"+`start.day`
+        hourStr = repr(start.hour)+ " " + zoneName + "/"+repr(start.day)
         return hourStr
 
     def localTimeLabel(self, timeRange):
@@ -716,7 +716,7 @@ class TimeDescriptor(TimeRangeUtils.TimeRangeUtils, Interfaces.Interfaces):
         start = absTime + shift
         hour = start.hour
         hour, ampm = self.hourAmPm(hour)
-        label = `hour` + ampm
+        label = repr(hour) + ampm
         return string.rjust(label,length)
 
     def strToGMT(self, timeStr):

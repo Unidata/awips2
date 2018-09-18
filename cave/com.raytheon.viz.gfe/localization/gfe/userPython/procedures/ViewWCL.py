@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -42,7 +42,7 @@ import os
 import SmartScript, re, time
 import AbsTime
 import TimeRange 
-import Tkinter
+import tkinter
 import HazardUtils
 from numpy import *
             
@@ -58,22 +58,22 @@ class Procedure (SmartScript.SmartScript):
         self.__inventoryDict = self.getWCLInventoryDict()
 
         # first check to see if there's any data we can plot
-        if len(self.__inventoryDict.keys()) == 0:  # no entries in the dict
+        if len(list(self.__inventoryDict.keys())) == 0:  # no entries in the dict
             self.statusBarMsg("There are no current WCLs to view.", "S")
             self.cancel()
             return
 
         # make the frames
-        self.__master = Tkinter.Tk()
+        self.__master = tkinter.Tk()
         self.__master.title('ViewWCL')
-        self.__topFrame = Tkinter.Frame(self.__master)
+        self.__topFrame = tkinter.Frame(self.__master)
         
-        self.__topFrame.pack(side=Tkinter.TOP, expand=Tkinter.YES,
-                             anchor=Tkinter.N, fill=Tkinter.BOTH)
+        self.__topFrame.pack(side=tkinter.TOP, expand=tkinter.YES,
+                             anchor=tkinter.N, fill=tkinter.BOTH)
 
-        self.__listFrame = Tkinter.Frame(self.__topFrame, borderwidth=3,
-                                         relief=Tkinter.GROOVE)
-        self.__buttonFrame = Tkinter.Frame(self.__master)
+        self.__listFrame = tkinter.Frame(self.__topFrame, borderwidth=3,
+                                         relief=tkinter.GROOVE)
+        self.__buttonFrame = tkinter.Frame(self.__master)
 
 
         self.makeInventoryButtons(self.__inventoryDict)
@@ -83,7 +83,7 @@ class Procedure (SmartScript.SmartScript):
         self.makeRunDismissButton()
         self.makeCancelButton()
         
-        self.__buttonFrame.pack(side=Tkinter.TOP)
+        self.__buttonFrame.pack(side=tkinter.TOP)
 
     ##
     # Get the directory in which decoded WCLs are stored from GFE localization.
@@ -128,7 +128,7 @@ class Procedure (SmartScript.SmartScript):
                             file.close()
                     if text is not None:
                         dataDict = {}
-                        exec text in dataDict
+                        exec(text, dataDict)
                         dataDict.setdefault("issueTime", 0)
                         dataDict.setdefault("expTime", 0)
                         issueTime = dataDict["issueTime"]
@@ -142,10 +142,10 @@ class Procedure (SmartScript.SmartScript):
     # Make a button for each entry in the inventory
     def makeInventoryButtons(self, invDict):
 
-        labelStr = Tkinter.StringVar()
+        labelStr = tkinter.StringVar()
         labelStr.set("Name        Issuance Time")
-        label = Tkinter.Label(self.__listFrame, textvariable=labelStr)
-        label.pack(side=Tkinter.TOP, fill=Tkinter.X, expand=Tkinter.NO, padx=10,
+        label = tkinter.Label(self.__listFrame, textvariable=labelStr)
+        label.pack(side=tkinter.TOP, fill=tkinter.X, expand=tkinter.NO, padx=10,
                    pady=10)
         
         invList = []
@@ -154,22 +154,22 @@ class Procedure (SmartScript.SmartScript):
         invList.sort()
         invList.reverse()
         firstName = invList[0][1]
-        self.prodSelected = Tkinter.StringVar()
+        self.prodSelected = tkinter.StringVar()
         for issueTime, name in invList:
             timeStr = time.strftime("%a %d %b %H%MZ", time.gmtime(issueTime))
             buttonStr = name + "   " + timeStr
 
-            button = Tkinter.Radiobutton(self.__listFrame, highlightthickness = 0,
+            button = tkinter.Radiobutton(self.__listFrame, highlightthickness = 0,
                                          text=buttonStr, value=name,
                                          variable=self.prodSelected,
                                          command=self.WCLSelected)
             if name == firstName:
                 button.select()
                 
-            button.pack(side=Tkinter.TOP, anchor=Tkinter.W)
+            button.pack(side=tkinter.TOP, anchor=tkinter.W)
 
-        self.__listFrame.pack(side=Tkinter.TOP, expand=Tkinter.NO,
-                              fill=Tkinter.Y, anchor=Tkinter.N)
+        self.__listFrame.pack(side=tkinter.TOP, expand=tkinter.NO,
+                              fill=tkinter.Y, anchor=tkinter.N)
         return
         
     # called when a selection is made (does nothing)
@@ -185,23 +185,23 @@ class Procedure (SmartScript.SmartScript):
 
     def makeRunButton(self):
         # create the Run button
-        Tkinter.Button(self.__buttonFrame, text="Run",
-          width=10, command=self.runCommand, state=Tkinter.NORMAL).pack(\
-          side=Tkinter.LEFT, pady=5, padx=10)
+        tkinter.Button(self.__buttonFrame, text="Run",
+          width=10, command=self.runCommand, state=tkinter.NORMAL).pack(\
+          side=tkinter.LEFT, pady=5, padx=10)
 
     ### Makes the Run/Dismiss buttom
     def makeRunDismissButton(self):
         # create the Combine button
-        Tkinter.Button(self.__buttonFrame, text="Run/Dismiss",
+        tkinter.Button(self.__buttonFrame, text="Run/Dismiss",
           width=10, command=self.runDismissCommand,
-          state=Tkinter.NORMAL).pack(side=Tkinter.LEFT, pady=5, padx=10)
+          state=tkinter.NORMAL).pack(side=tkinter.LEFT, pady=5, padx=10)
     
     ### Makes the Cancel buttom
     def makeCancelButton(self):
         # create the Combine button
-        Tkinter.Button(self.__buttonFrame, text="Cancel",
-          width=10, command=self.cancelCommand, state=Tkinter.NORMAL).pack(\
-          side=Tkinter.LEFT, pady=5, padx=10)
+        tkinter.Button(self.__buttonFrame, text="Cancel",
+          width=10, command=self.cancelCommand, state=tkinter.NORMAL).pack(\
+          side=tkinter.LEFT, pady=5, padx=10)
 
     ### called when the Run button is selected
     def runCommand(self):
@@ -260,15 +260,15 @@ class Procedure (SmartScript.SmartScript):
         # Remove unwanted data
         cleanTable = []
         for each in activeTable:
-            if not each.has_key('pil'):
+            if 'pil' not in each:
                 continue
             if not each['pil'] == 'WCN':
                 continue
-            if not each.has_key('endTime'):
+            if 'endTime' not in each:
                 continue
             if each['endTime'] <= currentTime:
                 continue
-            if not each.has_key('act'):
+            if 'act' not in each:
                 continue
             
             if each['act'] not in ['CAN', 'EXP']:

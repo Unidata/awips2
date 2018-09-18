@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -55,7 +55,7 @@ class DBSSWE:
         return result
 
     def __getitem__(self, key):
-        for t, g in map(lambda x, y: (x, y), self.keys(),
+        for t, g in map(lambda x, y: (x, y), list(self.keys()),
                         self._parm.getGridInventory()):
             if t == key:                
                 #return g.pyData()
@@ -76,8 +76,7 @@ class DBSSDB:
         self._dbid = DatabaseID.DatabaseID(javaDbId)
 
     def keys(self):
-        return map(lambda x : str(x.getCompositeName()),
-                   self._pmgr.getAvailableParms(self._dbid.toJavaObj()))
+        return [str(x.getCompositeName()) for x in self._pmgr.getAvailableParms(self._dbid.toJavaObj())]
 
     def __getitem__(self, key):
         #pid = AFPS.ParmID_string(key + ":" + str(self._dbid))
@@ -98,7 +97,7 @@ class DBSSClient:
         availDbs = []
         for i in range(dbs.size()):
             availDbs.append(dbs.get(i))
-        return map(lambda x : str(x), availDbs)
+        return [str(x) for x in availDbs]
 
     def __getitem__(self, key):
         return DBSSDB(self._pmgr, key)

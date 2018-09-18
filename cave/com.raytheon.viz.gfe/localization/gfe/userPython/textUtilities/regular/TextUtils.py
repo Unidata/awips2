@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-#
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 #
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -112,7 +112,7 @@ class  TextUtils:
         for dir in dirList:
             if numDir >= dir[1] and numDir < dir[2]:
                 return dir[0]
-        print "WARNING -- illegal direction for conversion: ", numDir
+        print("WARNING -- illegal direction for conversion: ", numDir)
         return None
 
     def dirTo16PtText(self, numDir):
@@ -121,11 +121,11 @@ class  TextUtils:
         for dir in dirList:
             if numDir >= dir[1] and numDir < dir[2]:
                 return dir[0]
-        print "WARNING -- illegal direction for conversion: ", numDir
+        print("WARNING -- illegal direction for conversion: ", numDir)
         return None
 
     def vector_dir(self, dir):
-        if not type(dir)== types.StringType:
+        if not type(dir)== bytes:
             dir = self.dirToText(dir)
         dir = string.replace(dir, "N", "north")
         dir = string.replace(dir, "S", "south")
@@ -213,7 +213,7 @@ class  TextUtils:
         #
         dictionary = getattr(self, dictName)(tree, node)
         #print dictionary
-        if dictionary.has_key(key):
+        if key in dictionary:
             entry = dictionary[key]
             #print type(entry), entry
             if execMethods and type(entry) is types.MethodType:
@@ -221,16 +221,16 @@ class  TextUtils:
             # For some reason, if a method is assigned within
             # the Local class, it appears as a tuple instead of a
             # method
-            if execMethods and type(entry) is types.TupleType:
+            if execMethods and type(entry) is tuple:
                 try:
                     return entry[0](tree, node, key, value)
                 except:
                     # In case it's really a tuple
                     return entry
-            elif type(entry) is types.DictType:
+            elif type(entry) is dict:
                 # Check for nlValue dictionary
-                for key in entry.keys():
-                    if key == "default" or type(key) is types.TupleType:
+                for key in list(entry.keys()):
+                    if key == "default" or type(key) is tuple:
                         return entry
                 # Otherwise, look for value in dictionary
                 try:
@@ -244,7 +244,7 @@ class  TextUtils:
             else:
                 return entry
         else:
-            if "otherwise" in dictionary.keys():
+            if "otherwise" in list(dictionary.keys()):
                 return dictionary["otherwise"]
         return ""
 
@@ -274,7 +274,7 @@ class  TextUtils:
         # Return a string for the floating point value
         # truncated to the resolution given by roundVal
         if roundVal > 1.0:
-            return `int(value)`
+            return repr(int(value))
         else:
             # Determine how many decimal points
             #  e.g. if roundVal is .01, dec will be 2
@@ -283,7 +283,7 @@ class  TextUtils:
             while val < 1:
                 val = val * 10
                 dec = dec + 1
-            dec = `dec`
+            dec = repr(dec)
 
         format = "%10."+dec+"f"
         value = format %value
@@ -303,9 +303,9 @@ class  TextUtils:
         # counterclockwise, no change, or clockwise, respectively.
         # Note differences of 180 degrees can return -1 or 1.
         dirList2 = self.dirList2()
-        if type(dir1) is types.StringType:
+        if type(dir1) is bytes:
             dir1 = dirList2[dir1]
-        if type(dir2) is types.StringType:
+        if type(dir2) is bytes:
             dir2 = dirList2[dir2]
         diff = dir2 - dir1
         absDiff = abs(diff)
@@ -321,9 +321,9 @@ class  TextUtils:
         # 180 are normalized so that this function always return values
         # between 0 and 180.
         dirList2 = self.dirList2()
-        if type(dir1) is types.StringType:
+        if type(dir1) is bytes:
             dir1 = dirList2[dir1]
-        if type(dir2) is types.StringType:
+        if type(dir2) is bytes:
             dir2 = dirList2[dir2]
         diff = dir2 - dir1
         absDiff = abs(diff)
@@ -336,7 +336,7 @@ class  TextUtils:
         # Returns 1 if dir is between dir1 and dir2, 0 otherwise
         # Note if dir1 - dir2 == 180 this function always returns 1
         dirList2 = self.dirList2()
-        if type(dir) is types.StringType:
+        if type(dir) is bytes:
             dir = dirList2[dir]
         totalDiff = self.direction_difference(dir1, dir2)
         diff1 = self.direction_difference(dir, dir1)
@@ -353,10 +353,10 @@ class  TextUtils:
         #tkMessageBox.showwarning("Warning", errorMsg)
 
     def round(self, val, mode, increment):
-        if type(increment) is types.StringType:
+        if type(increment) is bytes:
             return float(val)
         if not (mode == "RoundUp" or mode == "RoundDown" or mode == "Nearest"):
-            print mode, "is an invalid mode."
+            print(mode, "is an invalid mode.")
             return float(val)
         # convert to float
         value = float(val)
@@ -415,7 +415,7 @@ class  TextUtils:
     def progressMessage(self, fraction, percent, message):
         percent = int(fraction * percent)
         self.__percentCompleted = int(self.__percentCompleted + percent)
-        print "Progress: " + `self.__percentCompleted` + "% " + message
+        print("Progress: " + repr(self.__percentCompleted) + "% " + message)
 
     def getParmID(self, parmNameAndLevel, databaseID):
         index = string.find(parmNameAndLevel, "_")
@@ -433,18 +433,18 @@ class  TextUtils:
         # Apply a non-linear value to the given value
         # nlValue might be a dictionary to be applied to value
         # OR it could be a simple constant
-        if type(nlValue) is types.DictType:
+        if type(nlValue) is dict:
             # Dictionary lookup
             result = None
-            if nlValue.has_key('default'):
+            if 'default' in nlValue:
                 result = nlValue['default']
-            dictkeys = nlValue.keys()
+            dictkeys = list(nlValue.keys())
             for key in dictkeys:
                 if((lookupValue >= key[0]) and (lookupValue < key[1])):
                     return nlValue[key]
             if result is None:
                 msgString = """ILLEGAL NON-LINEAR THRESHOLD dictionary.
-                No dictionary entry for value: """ + `lookupValue` + """
+                No dictionary entry for value: """ + repr(lookupValue) + """
                 Make sure your non-linear threshold dictionaries do not
                 have "gaps" in the ranges. For example, your dictionary
                 should look like this:
@@ -479,7 +479,7 @@ class  TextUtils:
                             }
                         return dict
                     """
-                raise ValueError, msgString
+                raise ValueError(msgString)
             return result
         elif type(nlValue) is types.MethodType:
             return nlValue(lookupValue)
@@ -614,7 +614,7 @@ class  TextUtils:
             mag = self.getValue(mag, method)
             return (mag, dir)
 
-        if isinstance(stats, types.TupleType):
+        if isinstance(stats, tuple):
             if method == "Max":
                 return stats[1]
             elif method == "Min":
@@ -761,7 +761,7 @@ class  TextUtils:
         if type(self._debug) == type({}):
 
             #  If this method has a method specific flag - get it
-            if self._debug.has_key(name):
+            if name in self._debug:
                 flag = self._debug[name]
             else:
                 flag = 0            #  not specified - don't display
@@ -773,7 +773,7 @@ class  TextUtils:
             return                  #  bail out now
 
         #  Track number of times this method has been displayed
-        if self._debugDict.has_key(name):
+        if name in self._debugDict:
             count = self._debugDict[name] + 1
         else:
             count = 1
@@ -788,13 +788,13 @@ class  TextUtils:
                 self._debugDict[name] = count
 
                 #  Print the traceback message
-                print "DEBUG: %s in %s at line %d" % (name, file, lineno)
-                print "DEBUG: Class = %s %d\n\n" % (self.__class__, count)
+                print("DEBUG: %s in %s at line %d" % (name, file, lineno))
+                print("DEBUG: Class = %s %d\n\n" % (self.__class__, count))
                 #print "Super classes:",self.__class__.__bases__
 
             #  If there is a message, print that too
             if msg != "":
-                print '\t%s' % (msg)
+                print('\t%s' % (msg))
 
     class RangeInfo:
         def __init__(self,rangeThreshold_nlValue, rangeBias_nlValue,

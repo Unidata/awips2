@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -45,7 +45,7 @@ class ModuleAccessor:
     def module(self, moduleName, showError=1):
         # Return the module with the given name
         try:
-            if sys.modules.has_key(moduleName):
+            if moduleName in sys.modules:
                 #del sys.modules[moduleName] # this is bad for the automated tests code replacement
                 return sys.modules[moduleName]
             module = __import__(moduleName)
@@ -63,7 +63,7 @@ class ModuleAccessor:
             return None
         variables = []
         for variableName in variableList:
-            if variableName in module.__dict__.keys():
+            if variableName in list(module.__dict__.keys()):
                 variables.append(module.__dict__[variableName])
             else:
                 variables.append(None)
@@ -74,7 +74,7 @@ class ModuleAccessor:
         module = self.module(moduleName, showError)
         if module is None:
             return None
-        if variableName in module.__dict__.keys():
+        if variableName in list(module.__dict__.keys()):
             return module.__dict__[variableName]
         else:
            return None
@@ -92,8 +92,8 @@ class ModuleAccessor:
 
     def getClassDefinition(self, module, className):
         # Check for the given class in the module
-        if className in module.__dict__.keys() and \
-           type(module.__dict__[className]) is types.ClassType:
+        if className in list(module.__dict__.keys()) and \
+           type(module.__dict__[className]) is type:
             return module.__dict__[className]
         else:
             return None
@@ -138,7 +138,7 @@ class ModuleAccessor:
         # for the given module
         functionDict = {}
         for functionName in functionNames:
-            if functionName in module.__dict__.keys():
+            if functionName in list(module.__dict__.keys()):
                 result = module.__dict__[functionName]
             else:
                 result = None
@@ -150,15 +150,15 @@ class ModuleAccessor:
         if method is None:
             return None
         elif hasattr(method, 'im_func'):   # It is a user defined method
-            co = method.im_func.func_code
+            co = method.__func__.__code__
         elif hasattr(method, 'func_code'): # It is a user defined function
-            co = method.func_code
+            co = method.__code__
         else:                              # Don't know what it is
             return None
 
         # Set up variables and values for arguments in args
         argValueList = argCallback(co.co_varnames[:co.co_argcount], [])
-        if type(argValueList) is not types.ListType:
+        if type(argValueList) is not list:
             error = argValueList
             return error
 

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -130,14 +130,14 @@ class ConfigurableIssuance(TimeRangeUtils.TimeRangeUtils):
                  period1Label, todayFlag)
     
     def convertIssuanceHour(self, issuanceHour, currentHour, currentMinutes):
-        if type(issuanceHour) == types.StringType:
+        if type(issuanceHour) == bytes:
             if currentMinutes > self.issuanceHour_minutesPastHour():
                 currentHour = currentHour + 1
                 # Don't cross to the next day
                 if currentHour == 24:
                     currentHour = 23
-            issuanceHour = string.replace(issuanceHour, "issuanceHour", `currentHour`)
-            exec "resultHour = " + issuanceHour
+            issuanceHour = string.replace(issuanceHour, "issuanceHour", repr(currentHour))
+            exec("resultHour = " + issuanceHour)
             return resultHour            
         else:
             return issuanceHour

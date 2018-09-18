@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -39,9 +39,9 @@ from com.raytheon.uf.common.dataplugin.gfe.db.objects import ParmID
 class Analysis:
    def __init__(self, histoSampler):
       self._histoSampler = histoSampler
-      if type(histoSampler) is types.DictionaryType:
+      if type(histoSampler) is dict:
          try:
-            sampler = histoSampler[histoSampler.keys()[0]]
+            sampler = histoSampler[list(histoSampler.keys())[0]]
          except IndexError:
             sampler = None
       else:
@@ -73,7 +73,7 @@ class Analysis:
              parmNameAndLevel, method, args = analysis
           dbID = self.__parmID.getDbId()
           parmID = self.getParmID(parmNameAndLevel, dbID)
-          if type(self._histoSampler) is types.DictionaryType:
+          if type(self._histoSampler) is dict:
              sampler = self._histoSampler[parmNameAndLevel]
           if sampler is not None:             
              parmHisto = sampler.getParmHisto(parmID, referenceID, timeRange.toJavaObj())
@@ -83,15 +83,15 @@ class Analysis:
           else:
              if args is not None:
                 stats = method(parmHisto, timeRange, component, args)
-                if len(args) > 0 and type(args[0]) is types.IntType:
-                   statName = statName + "_" + `args[0]`
+                if len(args) > 0 and type(args[0]) is int:
+                   statName = statName + "_" + repr(args[0])
              else:
                 stats = method(parmHisto, timeRange, component)
-          if parmNameAndLevel not in statDict.keys():
+          if parmNameAndLevel not in list(statDict.keys()):
              statDict[parmNameAndLevel] = stats
           statDict[statName] = stats
 
        return statDict
 
 if __name__ == '__main__':
-    print "Cannot run stand-alone"
+    print("Cannot run stand-alone")

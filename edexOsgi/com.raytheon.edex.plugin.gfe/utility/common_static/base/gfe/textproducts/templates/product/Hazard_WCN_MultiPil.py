@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -108,7 +108,7 @@ class TextProduct(GenericHazards.TextProduct):
         else:
             watchPhrase = " for Watches "
             allWatchList.sort()
-            for x in xrange(len(allWatchList)):
+            for x in range(len(allWatchList)):
                 watchPhrase = watchPhrase + str(allWatchList[x])
                 if x != len(allWatchList) - 1:
                     watchPhrase = watchPhrase + "/"
@@ -176,7 +176,7 @@ class TextProduct(GenericHazards.TextProduct):
         for h in listOfHazards:
             if len(h['hdln']) == 0:
                 phensig = h['phen'] + '.' + h['sig']
-                if VTECTable.VTECTable.has_key(phensig):
+                if phensig in VTECTable.VTECTable:
                     h['hdln'] = VTECTable.VTECTable[phensig]['hdln']
 
         #
@@ -399,8 +399,8 @@ class TextProduct(GenericHazards.TextProduct):
             marine = "The new watch includes the following adjacent coastal waters"
 
         else:
-            raise Exception, "Illegal phraseType in WCN formatter. " +\
-              "Expected NEW, CANCEL, EXPIRE, or REPLACE.  Got " + phraseType
+            raise Exception("Illegal phraseType in WCN formatter. " +\
+              "Expected NEW, CANCEL, EXPIRE, or REPLACE.  Got " + phraseType)
 
 
         # Add the list of counties
@@ -478,7 +478,7 @@ class TextProduct(GenericHazards.TextProduct):
         # Make a list of (state, partOfStateAndState, county) tuples
         countyList = []
         for areaName in areaList:
-            if areaDict.has_key(areaName):
+            if areaName in areaDict:
                 entry = areaDict[areaName]
             else:
                 entry = {}
@@ -488,25 +488,25 @@ class TextProduct(GenericHazards.TextProduct):
             if mode == "COUNTY":
                 if len(areaName) == 6 and areaName[2] != "C":  #not ssCnnn
                     continue   #not a county fips
-                if entry.has_key("independentCity") and \
+                if "independentCity" in entry and \
                   entry["independentCity"] == 1:
                     continue   #independent city, when in county mode
             elif mode == "CITY":
                 if len(areaName) == 6 and areaName[2] != "C":  #not ssCnnn
                     continue   #not a county/city fips
-                if not entry.has_key("independentCity") or \
+                if "independentCity" not in entry or \
                   entry["independentCity"] == 0:
                     continue   #not independent city, when in city mode
             elif mode == "ZONE":
                 if len(areaName) == 6 and areaName[2] != "Z":  #not ssZnnn
                     continue   #not a zone code
             else:
-                raise Exception, "Illegal mode specified " + mode
+                raise Exception("Illegal mode specified " + mode)
 
-            if entry.has_key("ugcName") and len(entry['ugcName']):
+            if "ugcName" in entry and len(entry['ugcName']):
                 # Get fullStateName
                 state = areaName[0:2]
-                if entry.has_key("fullStateName") and \
+                if "fullStateName" in entry and \
                   len(entry['fullStateName']):
                     state = entry["fullStateName"]
                 else:
@@ -519,7 +519,7 @@ class TextProduct(GenericHazards.TextProduct):
                 if mode == "ZONE":   #marine
                     partOfState = ""
                 else:
-                    if entry.has_key("partOfState") and \
+                    if "partOfState" in entry and \
                       len(entry['partOfState']):
                         partOfState = entry["partOfState"] + ' ' + state
                     else:
@@ -591,8 +591,8 @@ class TextProduct(GenericHazards.TextProduct):
             return self._byPartTextFromCountyTuple(countyTuple, lineLength,
               colWidth, mainFormatSingular, mainFormatPlural)
         else:
-            raise Exception, "Illegal mode in makeTextFromCountyTuple(): " +\
-              `mode`
+            raise Exception("Illegal mode in makeTextFromCountyTuple(): " +\
+              repr(mode))
 
     def _byStateTextFromCountyTuple(self, countyTuple, lineLength,
       colWidth, mainFormatSingular, mainFormatPlural, subFormat):

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -567,8 +567,8 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
         index = 1
         for skyValue, dayNight in [(skyTime1, dayNight1), (skyTime2, dayNight2)]:
             skyPhrase, valueIndex = self.sky_value(tree, phrase, skyValue, dayNight, 1)
-            exec "words"+`index`+"=skyPhrase"
-            exec "index"+`index`+"=valueIndex"
+            exec("words"+repr(index)+"=skyPhrase")
+            exec("index"+repr(index)+"=valueIndex")
             index = index+1
             
         period1Phrase = self.timePeriod_descriptor(tree, phrase, period1)
@@ -678,7 +678,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
         if pop >= 100:
             popWords = "near 100"
         else:
-            popWords = `pop`
+            popWords = repr(pop)
         return popWords
             
     def getPopType(self, tree, node, pop, wxWords, attrDict):
@@ -691,7 +691,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
             #  Otherwise, describe the weather type
             #     e.g. chance of rain, chance of snow
             wxTypes = []
-            if attrDict.has_key("reportedRankList"):
+            if "reportedRankList" in attrDict:
                 rankList = attrDict["reportedRankList"]
                 for subkey, rank in rankList:
                     wxTypes.append(subkey.wxType())
@@ -924,7 +924,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
             
         # Handle actual range values
         if abs(maxVal-minVal) > self.tempDiff_threshold(tree, node):
-            return `minVal` + " to " + `maxVal`
+            return repr(minVal) + " to " + repr(maxVal)
         
         # set up for "lower," "mid," or "upper" wording
         # Modulus (%) gets tricky below zero so have to take
@@ -967,8 +967,8 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
             return "in the " + digitMinPhrase + " to " + digitMaxPhrase        
 
     def constructTempException(self, phrase, minVal, maxVal):
-       phrase = phrase.replace("%min", `minVal`)
-       phrase = phrase.replace("%max", `maxVal`)
+       phrase = phrase.replace("%min", repr(minVal))
+       phrase = phrase.replace("%max", repr(maxVal))
        zeroPhraseMin = self.getZeroPhrase(minVal)
        zeroPhraseMax = self.getZeroPhrase(maxVal)
        phrase = phrase.replace("%zeroPhraseMin", zeroPhraseMin)
@@ -990,10 +990,10 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
         elif decade == -10:
             return "teens below zero"
         else:
-            return `decade` + "s"
+            return repr(decade) + "s"
         
     def getDigitStr(self, value, boundaries):
-        for key in boundaries.keys():
+        for key in list(boundaries.keys()):
             lower, upper = boundaries[key]
             if value >= lower and value <= upper:
                 return key        
@@ -1094,7 +1094,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
             if decadeMax <= 10:
                 decadeMax = self.getZeroPhrase(decadeMax)
             else:
-                decadeMax = `decadeMax`
+                decadeMax = repr(decadeMax)
             return around + decadeMax
 
         # Report the range
@@ -1109,10 +1109,10 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
             if min <= 10: 
                 min = self.getZeroPhrase(min) 
             else: 
-                min = `min` 
+                min = repr(min) 
             return around + min
         elif min > 0 and max > 0:
-            return `min` + connector + `max`
+            return repr(min) + connector + repr(max)
         elif min <= 0 and max > 0:
             minval = self.getZeroPhrase(min)
             maxval = self.getZeroPhrase(max, 1)
@@ -1130,9 +1130,9 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
         if val == 0:
             return "zero"
         if val < 0:
-            phrase = `abs(val)` + " below"
+            phrase = repr(abs(val)) + " below"
         else:
-            phrase = `val` + " above"
+            phrase = repr(val) + " above"
         if addZero == 1:
             phrase = phrase + " zero"
         return phrase
@@ -1182,7 +1182,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
                 descriptor = parent.get("descriptor")
                 descriptor = descriptor.replace("s ", " ")
                 parent.set("descriptor", descriptor)
-            return `int(temp)`
+            return repr(int(temp))
 
         # Temperatures below 10 
         # Build and return special phrases
@@ -1219,7 +1219,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
                 elif decade <= 0 or decade >= 100:
                     phrase = self.getExtTemp(decade, decade+10)
                 else:
-                    phrase = "in the " + `decade` + "s"
+                    phrase = "in the " + repr(decade) + "s"
             elif digit >= 8 and digit <=9:
                 phrase = self.getExtTemp(decade+5, decade+15)
         else:  # Assume range of 5
@@ -1231,17 +1231,17 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
                 elif decade <= 0 or decade >= 100:
                     phrase = self.getExtTemp(decade, decade+5)
                 else:
-                    phrase = "in the " + `decade` + "s"
+                    phrase = "in the " + repr(decade) + "s"
             elif digit >= 8 and digit <=9:
                 phrase = self.getExtTemp(decade+5, decade+10)
 
         return phrase
 
     def getExtTemp(self, val1, val2):
-        v1 = `val1`
+        v1 = repr(val1)
         if val1 < 0:
             v1 = v1 + " below"
-        v2 = `val2`
+        v2 = repr(val2)
         if val2 < 0:
             v2 = v2 + " below"
         return v1 + " to " + v2
@@ -1970,12 +1970,12 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
         # Create worded phrase based on type of range
         if min == 0:
             upTo = self.addSpace(self.phrase_descriptor(tree, node, "up to", "SnowAmt"))
-            snowPhrase = upTo + `max`
+            snowPhrase = upTo + repr(max)
         elif min == max:
             around = self.addSpace(self.phrase_descriptor(tree, node, "around", "SnowAmt"))
-            snowPhrase = around + `max`
+            snowPhrase = around + repr(max)
         else:
-            snowPhrase = "of " + `min` + " to " + `max`
+            snowPhrase = "of " + repr(min) + " to " + repr(max)
         snowPhrase = snowPhrase + " " + units
         
         return self.setWords(node, snowPhrase)
@@ -1989,7 +1989,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
             ]
         desc = ""
         wxTypes = []
-        if attrDict.has_key("reportedRankList"):
+        if "reportedRankList" in attrDict:
             rankList = attrDict["reportedRankList"]
             for subkey, rank in rankList:
                 # DR_18506
@@ -2120,13 +2120,13 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
                 if finalMinSum == 0:
                     upTo = self.addSpace(self.phrase_descriptor(tree, node,
                                                  "up to", "SnowAmt"))
-                    totalSnowPhrase = upTo + `finalMaxSum`
+                    totalSnowPhrase = upTo + repr(finalMaxSum)
                 elif finalMinSum == finalMaxSum:
                     around = self.addSpace(self.phrase_descriptor(tree, node,
                                                    "around", "SnowAmt"))
-                    totalSnowPhrase = around + `finalMaxSum`
+                    totalSnowPhrase = around + repr(finalMaxSum)
                 else:
-                    totalSnowPhrase = `finalMinSum` + " to " + `finalMaxSum`
+                    totalSnowPhrase = repr(finalMinSum) + " to " + repr(finalMaxSum)
                 totalSnow = totalSnowPhrase + " " + units
             else:
                 return self.setWords(node, "")
@@ -2208,14 +2208,14 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
             
         if min%1 == 0:
             min = int(min)
-            minStr = `min`
+            minStr = repr(min)
         else:
-            minStr = `int(min+0.5)`
+            minStr = repr(int(min+0.5))
         if max%1 == 0:
             max = int(max)
-            maxStr = `max`
+            maxStr = repr(max)
         else:
-            maxStr = `int(max+0.5)`
+            maxStr = repr(int(max+0.5))
 
         #print "min, max", min, max, node.getTimeRange(), node.getAreaLabel(), "storm total accumulation"
             
@@ -2393,7 +2393,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
 
         if snowLevel < max:        
             units = self.units_descriptor(tree, node, "units", "ft")
-            words = `int(snowLevel)` + " " + units
+            words = repr(int(snowLevel)) + " " + units
         return self.setWords(node, words)
     
     ### IceAccum
@@ -2458,7 +2458,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
         elif min >= 1.3 and min < 1.8:
             minStr = "one and a half"
         elif min >= 1.8:
-            minStr = `int(min+0.5)`
+            minStr = repr(int(min+0.5))
         if max < 0.2:
             maxStr = "less than one quarter"
         elif max >= 0.2 and max < 0.4:
@@ -2472,9 +2472,9 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
         elif max >= 1.3 and max < 1.8:
             maxStr = "one and a half"
         elif max >= 1.8:
-            maxStr = `int(max+0.5)`
+            maxStr = repr(int(max+0.5))
             if min >= 0.9 and min < 1.3:
-                minStr = `int(min+0.5)`
+                minStr = repr(int(min+0.5))
 
         #print "min, max", min, max, node.getTimeRange(), node.getAreaLabel()
             
@@ -2683,7 +2683,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
         # Threshold for reporting RH in extended narrative. If MinRH grid is
         # lower than this threshold, an RH phrase will be formatted.
         # To turn off phrase completely, set to -1.
-        if self.__dict__.has_key("_rhPhraseThreshold"):
+        if "_rhPhraseThreshold" in self.__dict__:
             # Use Definition setting if defined
             return self._rhPhraseThreshold
         else:
@@ -2722,7 +2722,7 @@ class ScalarPhrases(PhraseBuilder.PhraseBuilder):
                 if minRH == None or rh < minRH:
                     minRH = rh
         if minRH is not None and minRH <= self.rh_threshold(tree, node):
-           words = "minimum RH " + `int(minRH)` + " percent"
+           words = "minimum RH " + repr(int(minRH)) + " percent"
         return self.setWords(node, words)
     
     # MultipleElementTable calls

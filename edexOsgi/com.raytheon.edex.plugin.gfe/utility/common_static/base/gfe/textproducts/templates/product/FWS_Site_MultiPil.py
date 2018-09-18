@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -49,15 +49,15 @@ FWF_siteOverrides = "FWF_<site>_Overrides"
 FWF_regionOverrides = "FWF_<region>_Overrides"
 
 # Import the local site's Product Definition specifications
-exec "import "+siteDefinition
+exec("import "+siteDefinition)
 
 # Import the local site's Overrides
-exec "import "+siteOverrides
-exec "import "+FWF_siteOverrides
+exec("import "+siteOverrides)
+exec("import "+FWF_siteOverrides)
 
 # Import Regional Overrides 
-exec "import "+regionOverrides
-exec "import "+FWF_regionOverrides
+exec("import "+regionOverrides)
+exec("import "+FWF_regionOverrides)
 
 # Patches
 import Patch_Overrides
@@ -72,10 +72,10 @@ FWF_regionOverrides_object=sys.modules[FWF_regionOverrides].__dict__[FWF_regionO
 FWF_siteOverrides_object=sys.modules[FWF_siteOverrides].__dict__[FWF_siteOverrides]
 
 # Get the region and site definitions into a known variable name
-exec "localDefinition = " + siteDefinition + ".Definition"
-exec "regionDefinition = " + regionOverrides + ".Definition"
-exec "FWF_regionDefinition = " + FWF_regionOverrides + ".Definition"
-exec "FWS_Definition = FWS_Overrides.Definition"
+exec("localDefinition = " + siteDefinition + ".Definition")
+exec("regionDefinition = " + regionOverrides + ".Definition")
+exec("FWF_regionDefinition = " + FWF_regionOverrides + ".Definition")
+exec("FWS_Definition = FWS_Overrides.Definition")
 
 class TextProduct(
                   siteOverrides_object,
@@ -89,42 +89,42 @@ class TextProduct(
     Definition = copy.deepcopy(FWF.TextProduct.Definition)
 
     # Get FWF Regional Definition settings
-    for key in FWF_regionDefinition.keys():
+    for key in list(FWF_regionDefinition.keys()):
         Definition[key] = FWF_regionDefinition[key]
 
     # Get FWS Definition settings
-    for key in FWS_Definition.keys():
+    for key in list(FWS_Definition.keys()):
         Definition[key] = FWS_Definition[key]
 
     # Get Regional Definition settings
-    for key in regionDefinition.keys():
+    for key in list(regionDefinition.keys()):
         Definition[key] = regionDefinition[key]
 
     # Get the Site Definition Settings
-    for key in localDefinition.keys():
+    for key in list(localDefinition.keys()):
         Definition[key] = localDefinition[key]
 
     # Get the VariableList if overridden in FWF Region
     try:
-        exec "VariableList = "+FWF_regionOverrides+".VariableList"
+        exec("VariableList = "+FWF_regionOverrides+".VariableList")
     except:
         pass
 
     # Get the VariableList if overridden in FWF Region
     try:
-        exec "VariableList = "+FWS_Overrides+".VariableList"
+        exec("VariableList = "+FWS_Overrides+".VariableList")
     except:
         pass
 
     # Get the VariableList if overridden in Region
     try:
-        exec "VariableList = "+regionOverrides+".VariableList"
+        exec("VariableList = "+regionOverrides+".VariableList")
     except:
         pass
         
     # Get the VariableList if overridden in Site
     try:
-        exec "VariableList = "+siteDefinition+".VariableList"
+        exec("VariableList = "+siteDefinition+".VariableList")
     except:
         pass
 

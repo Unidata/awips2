@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -302,7 +302,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         # we're formatting hazards type products like WSW, NPW.
         argDict = tree.get("argDict")
         # look for segmentAreas in the argDict and override editAreas
-        if argDict.has_key("segmentAreas"):
+        if "segmentAreas" in argDict:
             editAreas = argDict['segmentAreas']  # override editAreas
             
         words = self.getHazardString(tree, node, editAreas)
@@ -319,7 +319,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
         hazardList = []
         for h in allowedHazardList:
-            if type(h) is types.TupleType:
+            if type(h) is tuple:
                 hazardList.append(h[0])
             else:
                 hazardList.append(h)
@@ -333,7 +333,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         allowedHazardList = self.allowedHazards()
 
         for h in allowedHazardList:
-            if type(h) is types.TupleType:
+            if type(h) is tuple:
                 if h[0] == hazard:
                     return h[1]
         return ["NEW", "EXA", "EXB", "EXT", "UPG", "CAN", "CON", "EXP"]
@@ -341,8 +341,8 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
     # Returns the words to be used in the headline for 'act' field in the
     # specified hazard.
     def actionControlWord(self, hazard, issuanceTime):
-        if not hazard.has_key('act'):
-            print "Error!  No field act in hazard record."
+        if 'act' not in hazard:
+            print("Error!  No field act in hazard record.")
             return "<noaction>"
             
         actionCode = hazard['act']
@@ -363,7 +363,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         elif actionCode == "UPG":
             return "no longer in effect"
         else:
-            print actionCode, "not recognized in actionControlWord."
+            print(actionCode, "not recognized in actionControlWord.")
             return "<actionControlWord>"
 
     #
@@ -375,10 +375,10 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         for h in allowedHazardList:
             if h[0] == hazard:
                 if len(h) == 3:
-                   if type(h[2]) is types.StringType:
+                   if type(h[2]) is bytes:
                        return h[2]
                 elif len(h) == 4:
-                   if type(h[3]) is types.StringType:
+                   if type(h[3]) is bytes:
                        return h[3]
 
         return None
@@ -707,7 +707,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
             if hourStr == "12 PM":
                hourStr = "noon"
             s = endPrefix + ' ' + hourStr + ' ' + hourTZstr + ' '
-            for x in xrange(1, len(etext)):
+            for x in range(1, len(etext)):
                 hourStr, hourTZstr, othDescription = etext[x]
                 #special cases NOON
                 if hourStr == "12 PM":
@@ -765,14 +765,14 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         # mult time zones, same day for start/end times
         if sdescription == edescription:
             s = startPrefix + ' ' + shourStr + ' ' + shourTZstr + ' '
-            for x in xrange(1, len(stext)):
+            for x in range(1, len(stext)):
                 hourStr, hourTZstr, description = stext[x]
                 #special cases NOON
                 if hourStr == "12 PM":
                    hourStr = "noon"
                 s = s + "/" + hourStr + ' ' + hourTZstr + "/ "
             s = s + endPrefix + ' ' + ehourStr + ' ' + ehourTZstr + ' '
-            for x in xrange(1, len(etext)):
+            for x in range(1, len(etext)):
                 hourStr, hourTZstr, description = etext[x]
                 #special cases NOON
                 if hourStr == "12 PM":
@@ -784,7 +784,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         # mult time zones, different day for start/end times
         else:
             s = startPrefix + ' ' + shourStr + ' ' + shourTZstr + ' '
-            for x in xrange(1, len(stext)):
+            for x in range(1, len(stext)):
                 hourStr, hourTZstr, description = stext[x]
                 #special cases NOON
                 if hourStr == "12 PM":
@@ -792,7 +792,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
                 s = s + "/" + hourStr + ' ' + hourTZstr + "/ "
             s = s + sdescription + ' ' + endPrefix + ' ' + ehourStr + \
               ' ' + ehourTZstr + ' '
-            for x in xrange(1, len(etext)):
+            for x in range(1, len(etext)):
                 hourStr, hourTZstr, description = etext[x]
                 #special cases NOON
                 if hourStr == "12 PM":
@@ -813,7 +813,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         if hourStr == "12 PM":
            hourStr = "noon"
         s = startPrefix + ' ' + hourStr + ' ' + hourTZstr + ' ' 
-        for x in xrange(1, len(stext)):
+        for x in range(1, len(stext)):
             hourStr, hourTZstr, description = stext[x]
             #special cases NOON
             if hourStr == "12 PM":
@@ -865,7 +865,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         if hourStr == "12 PM":
            hourStr = "noon"
         s = startPrefix + ' ' + hourStr + ' ' + hourTZstr + ' ' 
-        for x in xrange(1, len(stext)):
+        for x in range(1, len(stext)):
             hourStr, hourTZstr, description = stext[x]
             #special cases NOON
             if hourStr == "12 PM":
@@ -926,7 +926,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         if hourStr == "12 PM":
            hourStr = "noon"
         s = s + endPrefix + ' ' + hourStr + ' ' + hourTZstr + ' ' 
-        for x in xrange(1, len(etext)):
+        for x in range(1, len(etext)):
             hourStr, hourTZstr, description = etext[x]
             #special cases NOON
             if hourStr == "12 PM":
@@ -1209,14 +1209,14 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
 
         # check to see if we have any areas outside our time zone
         for areaName in areaList:
-            if areaName in areaDict.keys():
+            if areaName in list(areaDict.keys()):
                 entry = areaDict[areaName]
-                if not entry.has_key("ugcTimeZone"): #add your site id
+                if "ugcTimeZone" not in entry: #add your site id
                     if thisTimeZone not in zoneList:
                         zoneList.append(thisTimeZone)
                     continue  # skip it
                 timeZoneList = entry["ugcTimeZone"]
-                if type(timeZoneList) == types.StringType:  # a single value
+                if type(timeZoneList) == bytes:  # a single value
                     timeZoneList = [timeZoneList]   # make it into a list
                 for timeZone in timeZoneList:
                     if timeZone not in zoneList:
@@ -1596,7 +1596,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         if number >= 0 and number < 7:
             return days[number]
         else:
-            return "?" + `number` + "?"
+            return "?" + repr(number) + "?"
 
 
     # Returns the headline phrase based on the specified hazard.
@@ -1605,7 +1605,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
     def makeStandardPhrase(self, hazard, issuanceTime):
 
         # hdln field present?
-        if not hazard.has_key('hdln'):
+        if 'hdln' not in hazard:
             return ""
 
         # make sure the hazard is still in effect or within EXP critiera
@@ -1776,8 +1776,8 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
             # if the action is not in the actionCodeList, skip it
             if hazard['sig'] != "":   # it's not locally defined
                 if not hazard['act'] in actionCodeList:
-                    print "...Ignoring action code:", hazard['act'], \
-                      hazard['hdln']
+                    print("...Ignoring action code:", hazard['act'], \
+                      hazard['hdln'])
                     hList.remove(hazard)
                     continue
 
@@ -1833,7 +1833,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         #
                                                                                 
         for eachHazard in rawATable:
-            if byIdDict.has_key(eachHazard['id']):
+            if eachHazard['id'] in byIdDict:
                 byIdDict[eachHazard['id']].append(\
                  (eachHazard['phen'], eachHazard['sig'], eachHazard['seg'],
                  eachHazard['act'], eachHazard['startTime'], eachHazard['endTime'],
@@ -1848,8 +1848,8 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         # Go through the sorted dictionary, organize into combos
         #
                                                                                 
-        idsList = byIdDict.keys()
-        unsortedHazards = byIdDict.values()
+        idsList = list(byIdDict.keys())
+        unsortedHazards = list(byIdDict.values())
         sortedHazards = []
         for eachHazard in unsortedHazards:
             if not self.__sortedContains(eachHazard, sortedHazards):
@@ -2044,7 +2044,7 @@ class DiscretePhrases(PhraseBuilder.PhraseBuilder):
         if argDict.get('testMode', 0):
             lines = str.split('\n')
             str = "...THIS MESSAGE IS FOR TEST PURPOSES ONLY...\n"
-            for x in xrange(len(lines)-1):   #-1 for trailing new line
+            for x in range(len(lines)-1):   #-1 for trailing new line
                 line = lines[x]
 
                 #beginning of line

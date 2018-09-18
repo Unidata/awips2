@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -45,14 +45,16 @@ class BaseTool(UnitConvertor.UnitConvertor):
         UnitConvertor.UnitConvertor.__init__(self)        
         
         
-    def interpolateValues(self, height, (h1, v1), (h2, v2)):
+    def interpolateValues(self, height, xxx_todo_changeme, xxx_todo_changeme1):
         # Interpolate between the height and values
 
         # Determine height ratio
+        (h1, v1) = xxx_todo_changeme
+        (h2, v2) = xxx_todo_changeme1
         heightRatio = (height - h1)/ (h2 - h1)
 
         # Check for vector or scalar values
-        if type(v1) == types.TupleType and type(v2) == types.TupleType:
+        if type(v1) == tuple and type(v2) == tuple:
             heightRatio2 = (h2 - height) / (h2 - h1)
             s1, d1 = v1
             s2, d2 = v2
@@ -72,9 +74,11 @@ class BaseTool(UnitConvertor.UnitConvertor):
         b = ymin - m * xmin
         return m * we + b
 
-    def extrapolate(self, height, (h1, v1),(h2, v2)):
+    def extrapolate(self, height, xxx_todo_changeme2, xxx_todo_changeme3):
         # Extrapolate from the height and values
-        if type(v1) == types.TupleType:
+        (h1, v1) = xxx_todo_changeme2
+        (h2, v2) = xxx_todo_changeme3
+        if type(v1) == tuple:
             # Vector -- Work with mag only
             mag1,dir1 = v1
             mag2,dir2 = v2
@@ -85,18 +89,22 @@ class BaseTool(UnitConvertor.UnitConvertor):
             slope = (v2-v1)/(h2-h1)
             return v1 + slope * (h1-height)
 
-    def interpolateScalarValues(self, height, (h1, v1), (h2, v2)):
+    def interpolateScalarValues(self, height, xxx_todo_changeme4, xxx_todo_changeme5):
         # Interpolate between the height and values
 
         # Determine height ratio
+        (h1, v1) = xxx_todo_changeme4
+        (h2, v2) = xxx_todo_changeme5
         heightRatio = (height - h1)/ (h2 - h1)
         diffV = v2 - v1
         return v1 + heightRatio * diffV
 
-    def interpolateVectorValues(self, height, (h1, v1), (h2, v2)):
+    def interpolateVectorValues(self, height, xxx_todo_changeme6, xxx_todo_changeme7):
         # Interpolate between the height and values
 
         # Determine height ratio
+        (h1, v1) = xxx_todo_changeme6
+        (h2, v2) = xxx_todo_changeme7
         heightRatio = (height - h1)/ (h2 - h1)
 
         heightRatio2 = (h2 - height) / (h2 - h1)
@@ -138,13 +146,13 @@ class BaseTool(UnitConvertor.UnitConvertor):
                 "Level1, Level2: "+level1+", "+level2)
         if l1 > l2:
             levelInc = -levelInc
-        for i in xrange(l1, l2, levelInc):
+        for i in range(l1, l2, levelInc):
             levels.append(levelKind + str(i))
         return levels
     
     def round(self, val, mode, increment):
         if not (mode == "RoundUp" or mode == "RoundDown" or mode == "Nearest"):
-            raise TypeError("mode is invalid: " + `mode`)
+            raise TypeError("mode is invalid: " + repr(mode))
         # convert to float
         value = float(val)
         # check for the case where no work is needed.

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -267,13 +267,13 @@ class TextProduct(GenericHazards.TextProduct):
         #determine how many states, and how many areas within each state
         stateDict = {}   #key is state, value is count of portions of state
         for state, partOfState, names in areas:
-            if stateDict.has_key(state):
+            if state in stateDict:
                 stateDict[state] = stateDict[state] + 1
             else:
                 stateDict[state] = 1
    
         # if single state, include all directional terms
-        if len(stateDict.keys()) < 2:
+        if len(list(stateDict.keys())) < 2:
             return areas   #unchanged
 
         # multiple states - multiple direction terms in a state
@@ -363,7 +363,7 @@ class TextProduct(GenericHazards.TextProduct):
         areaPhrase += ", including the following " + incPhrase + ", "
 
         #list of the specific areas
-        for i in xrange(len(areaGroups)):
+        for i in range(len(areaGroups)):
             state, partOfState, names = areaGroups[i]
             if state == "The District of Columbia":
                 areaPhrase += state

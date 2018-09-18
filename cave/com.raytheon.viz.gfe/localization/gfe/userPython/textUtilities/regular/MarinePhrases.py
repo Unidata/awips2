@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -250,7 +250,7 @@ class MarinePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRela
         if int(min) == 1 and int(max) == 1:
             units = waveUnit
         words = waveStr + " " + units
-        if "Period" in statDict.keys():
+        if "Period" in list(statDict.keys()):
             period = self.getStats(statDict, "Period")
             if period is not None:
                 avg = self.getValue(period, "Average")
@@ -261,7 +261,7 @@ class MarinePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRela
                     periodUnits = periodUnit
                 periodDescriptor = self.phrase_descriptor(
                     tree, node, "dominant period", elementName)
-                words = words + " " + periodDescriptor + " " + `avg` + " " + periodUnits
+                words = words + " " + periodDescriptor + " " + repr(avg) + " " + periodUnits
         return self.setWords(node, words)
 
     def waveHeight_phrase(self):
@@ -490,7 +490,7 @@ class MarinePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRela
         unit = self.units_descriptor(tree, node, "unit", outUnits)
         if period == 1:
             units = unit
-        return " at " + `period` + " " + units
+        return " at " + repr(period) + " " + units
 
     def period_phrase(self):
         return {
@@ -516,7 +516,7 @@ class MarinePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRela
         unit = self.units_descriptor(tree, node, "unit", outUnits)
         if periodValue == 1:
             units = unit
-        return self.setWords(node, `periodValue` + " " + units)
+        return self.setWords(node, repr(periodValue) + " " + units)
     
     def marine_abbreviateText(self, fcst):
         #add a space at the beginning to create a word boundary on the first word 

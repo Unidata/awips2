@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -233,18 +233,18 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Determine whether AM or PM product type
 
         varDict = argDict["varDict"]
-        for key in varDict.keys():
-            if type(key) is types.TupleType:
+        for key in list(varDict.keys()):
+            if type(key) is tuple:
                 label, variable = key
-                exec "self._" + variable + "= varDict[key]"
+                exec("self._" + variable + "= varDict[key]")
 
         # Make argDict accessible
         self.__argDict = argDict
         
         # Get Definition variables
         self._definition = argDict["forecastDef"]
-        for key in self._definition.keys():
-            exec "self._" + key + "= self._definition[key]"
+        for key in list(self._definition.keys()):
+            exec("self._" + key + "= self._definition[key]")
         
         # row alignments
         self._rowLabelWidth = 3
@@ -430,7 +430,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 offset = 0
                 popRowLabelWidth = self._rowLabelWidth
 
-            for x in xrange(len(self._popPeriods)):
+            for x in range(len(self._popPeriods)):
                 if x%2 == offset:
                     wid = 3
                     justifyMode = 'r'
@@ -516,7 +516,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             popString = "MM"
         else:
             popMax10=int(self.round(val,"Nearest",10))
-            popString = `popMax10`
+            popString = repr(popMax10)
             if popString == "0":
                 popString = "00"  #requires a leading zero
        
@@ -567,12 +567,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if maxval == None:
             maxString = "MM"
         else:
-            maxString = `int(round(maxval))`
+            maxString = repr(int(round(maxval)))
         minval = self.getStats(statDict, "MinT")
         if minval == None:
             minString = "MM"
         else:
-            minString = `int(round(minval))`
+            minString = repr(int(round(minval)))
 
         # special case, AM and 1st period, only 1 number (MaxT) goes here
         if timeRange == self._tempPeriods[0][0] and self._productIssuance == "Morning":
@@ -639,7 +639,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         dayNumString = string.ljust(" ", startPoint)
         dateString = string.ljust(" ", startPoint)
 
-        for index in xrange(len(periods)):
+        for index in range(len(periods)):
             fcstString = fcstString + string.ljust("FCST", colWidth)
             dayNumString = dayNumString + string.ljust(
                 self._periodNumString(index, periods[index][0]), colWidth)

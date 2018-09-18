@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -299,7 +299,7 @@ class TextProduct(AreaFcst.TextProduct):
 
                          
     def Period_1(self):
-        exec "value = self.Period_1_version" + `self._Period_1_version` + "()"
+        exec("value = self.Period_1_version" + repr(self._Period_1_version) + "()")
         return value
        
     def Period_1_version1(self):
@@ -387,7 +387,7 @@ class TextProduct(AreaFcst.TextProduct):
         return [self.LocalEffect([leArea5, leArea6], 0, ", except ")]
 
     def _tempLocalEffects_list(self):
-        exec "value = self._tempLocalEffects_list" + `self._tempLE_list` + "()"
+        exec("value = self._tempLocalEffects_list" + repr(self._tempLE_list) + "()")
         return value
 
     def _tempLocalEffects_list1(self):
@@ -396,7 +396,7 @@ class TextProduct(AreaFcst.TextProduct):
         return [self.LocalEffect([leArea1, leArea2], 8, ", except ")]
     
     def _windLocalEffects_list(self):
-        exec "value = self._windLocalEffects_list" + `self._windLE_list` + "()"
+        exec("value = self._windLocalEffects_list" + repr(self._windLE_list) + "()")
         return value
         
     def _windLocalEffects_list1(self):
@@ -541,9 +541,9 @@ class TextProduct(AreaFcst.TextProduct):
         totalSnow2 = self.getTotalSnow(tree, node, leArea2Label)
         if totalSnow1 is None or totalSnow2 is None:
             return 0
-        if type(totalSnow1) is types.TupleType:
+        if type(totalSnow1) is tuple:
             min,totalSnow1 = totalSnow1
-        if type(totalSnow2) is types.TupleType:
+        if type(totalSnow2) is tuple:
             min,totalSnow2 = totalSnow2
         if abs(totalSnow1 - totalSnow2) > 3:
             return 1
@@ -736,7 +736,7 @@ class TextProduct(AreaFcst.TextProduct):
         }
 
     def _tempLocalEffects_method(self, tree, node):
-        exec "value = self._tempLocalEffects_method" + `self._tempLE_method` + "(tree, node)"
+        exec("value = self._tempLocalEffects_method" + repr(self._tempLE_method) + "(tree, node)")
         return value
 
     def _tempLocalEffects_method1(self, tree, node):

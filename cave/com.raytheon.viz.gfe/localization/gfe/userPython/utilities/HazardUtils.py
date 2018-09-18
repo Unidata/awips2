@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -303,7 +303,7 @@ class HazardUtils(SmartScript.SmartScript):
             key = wename[3:]  #eliminate "haz"
             if len(key) >= 3:
                 vkey = key[0:2] + '.' + key[2]
-                if VTECTable.VTECTable.has_key(vkey):
+                if vkey in VTECTable.VTECTable:
                     seg = key[3:]
                     if len(seg):
                         return vkey + ':' + seg
@@ -312,7 +312,7 @@ class HazardUtils(SmartScript.SmartScript):
                 # local key, look for segment via digits
                 else:
                     lkey = key
-                    for i in xrange(len(key)):
+                    for i in range(len(key)):
                         if key[i:].isdigit():
                             lkey = key[0:i] + ":" + key[i:]
                             break
@@ -321,7 +321,7 @@ class HazardUtils(SmartScript.SmartScript):
                 # TODO: or should I fail?
                 return key
         else:
-            raise Exception, "Illegal wename: " + wename
+            raise Exception("Illegal wename: " + wename)
                     
     ##
     # Gets the unique list of keys over the specified mask
@@ -573,7 +573,7 @@ class HazardUtils(SmartScript.SmartScript):
         gridData = None
         try:
             gridData = hazardParm.startParmEdit(startTimes)
-        except RuntimeError, runtimeErr:
+        except RuntimeError as runtimeErr:
             if runtimeErr.message is None:
                 raise
             if runtimeErr.message.startswith("com.raytheon.viz.gfe.GFEOperationFailedException:"):
@@ -624,7 +624,7 @@ class HazardUtils(SmartScript.SmartScript):
             index = string.find(k, ':')
             if index != -1:
                 k = k[0:index]   #eliminate the colon and segment #
-            if not VTECTable.VTECTable.has_key(k):
+            if k not in VTECTable.VTECTable:
                 desc = k
             else:
                 # get the description
@@ -809,7 +809,7 @@ class HazardUtils(SmartScript.SmartScript):
         try:
             # startParmEdit() refreshes the grids and sets up the times that endParmEdit() will lock.
             gridData = hazParm.startParmEdit(startTimes)
-        except RuntimeError, runtimeErr:
+        except RuntimeError as runtimeErr:
             if runtimeErr.message is None:
                 raise
             if runtimeErr.message.startswith("com.raytheon.viz.gfe.GFEOperationFailedException:"):
@@ -1101,7 +1101,7 @@ class HazardUtils(SmartScript.SmartScript):
             return fvtecTable
 
         else:
-            raise Exception, "Unknown GFE operating mode: " + rawGfeMode
+            raise Exception("Unknown GFE operating mode: " + rawGfeMode)
 
     ##
     # A Python access to the looseLocks() method of the Hazards parm.

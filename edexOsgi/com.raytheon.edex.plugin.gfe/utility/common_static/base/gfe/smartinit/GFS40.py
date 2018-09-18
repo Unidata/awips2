@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -83,7 +83,7 @@ class GFS40Forecaster(Forecaster):
         tmb = self.newGrid(-1)
         tms = self.newGrid(-1)
         # go up the column to figure out the surface pressure
-        for i in xrange(1, gh_c.shape[0]):
+        for i in range(1, gh_c.shape[0]):
             higher = greater(gh_c[i], topo)  # identify points > topo
             # interpolate the pressure at topo height
             val = self.linear(gh_c[i], gh_c[i - 1],
@@ -109,7 +109,7 @@ class GFS40Forecaster(Forecaster):
         # define the pres. of each of the boundary layers
         st = self.newGrid(-1)
         # Calculate the lapse rate in units of pressure
-        for i in xrange(1, len(pres)):
+        for i in range(1, len(pres)):
             val = self.linear(pres[i], pres[i - 1], temps[i], temps[i - 1], p)
             gm = greater(pres[i - 1], p)
             lm = less_equal(pres[i], p)
@@ -250,7 +250,7 @@ class GFS40Forecaster(Forecaster):
 
         # Make a model level pressure cube
         pmb = ones_like(gh_c)
-        for i in xrange(gh_c.shape[0]):
+        for i in range(gh_c.shape[0]):
             pmb[i] = self.pres[i]
 
 
@@ -277,7 +277,7 @@ class GFS40Forecaster(Forecaster):
 
         #  See which boundary layer levels have pressures > lowest "signficant"
         #  model level pressure
-        for bl_i in xrange(BL_sigma.shape[0]):
+        for bl_i in range(BL_sigma.shape[0]):
 
             #  Make a mask to identify which points from the boundary
             #  layer level have greater pressure than lowest "significant"
@@ -311,10 +311,10 @@ class GFS40Forecaster(Forecaster):
 
 
         #  Insert boundary layer RH into RH cube where appropriate
-        for lvl in xrange(1, len(self.levels())):
+        for lvl in range(1, len(self.levels())):
 
             #  Look at each boundary layer level
-            for bl_i in xrange(BL_sigma.shape[0]):
+            for bl_i in range(BL_sigma.shape[0]):
 
                 #  Make a mask to identify which points from the boundary
                 #  layer level fall between the surrounding "significant"
@@ -396,7 +396,7 @@ class GFS40Forecaster(Forecaster):
         f /= 100.0
 
         sky = f[0]
-        for i in xrange(1, f.shape[0]):
+        for i in range(1, f.shape[0]):
             sky = sky + f[i] - sky * f[i]
 
         grid = sky * 100.0
@@ -438,7 +438,7 @@ class GFS40Forecaster(Forecaster):
         # Only use the levels that are >= freezind (plus one level)
         # This is a performance and memory optimization
         clipindex = 2
-        for i in xrange(t_c.shape[0] - 1, -1, -1):
+        for i in range(t_c.shape[0] - 1, -1, -1):
             if maximum.reduce(maximum.reduce(t_c[i])) >= 273.15:
                 clipindex = i + 1
                 break
@@ -451,7 +451,7 @@ class GFS40Forecaster(Forecaster):
         #  make pressure cube
         #
         pmb = ones_like(gh_c)
-        for i in xrange(gh_c.shape[0]):
+        for i in range(gh_c.shape[0]):
            pmb[i] = self.pres[i]
         pmb = clip(pmb, 1, 1050)
         #
@@ -479,7 +479,7 @@ class GFS40Forecaster(Forecaster):
         #
         #  find the zero level
         #
-        for i in xrange(1, gh_c.shape[0]):
+        for i in range(1, gh_c.shape[0]):
            try:
               val = gh_c[i - 1] + (gh_c[i] - gh_c[i - 1]) / (wetb[i] - wetb[i - 1])\
                  * (-wetb[i - 1])
@@ -530,7 +530,7 @@ class GFS40Forecaster(Forecaster):
         pvv_c = pvv_c[4:, :, :]
 
 
-        print "Got", len(t_c), "t grids and", len(rh_c), "rh grids"
+        print("Got", len(t_c), "t grids and", len(rh_c), "rh grids")
 
         # Some thresholds used throughout the tool
         dryRH = 75.0  # dry atm below this value
@@ -692,7 +692,7 @@ class GFS40Forecaster(Forecaster):
         pvv_c = pvv_c[4:, :, :]
 
 
-        print "Got", len(t_c), "t grids and", len(rh_c), "rh grids"
+        print("Got", len(t_c), "t grids and", len(rh_c), "rh grids")
 
         # Some thresholds used throughout the tool
         dryRH = 75.0  # dry atm below this value
@@ -852,7 +852,7 @@ class GFS40Forecaster(Forecaster):
     def calcMixHgt(self, T, topo, t_c, gh_c):
         mask = greater_equal(gh_c, topo) # points where height > topo
         pt = []
-        for i in xrange(len(self.pres)):   # for each pres. level
+        for i in range(len(self.pres)):   # for each pres. level
             p = self.newGrid(self.pres[i]) # get the pres. value in mb
             tmp = self.ptemp(t_c[i], p)    # calculate the pot. temp
             pt = pt + [tmp]                # add to the list
@@ -865,7 +865,7 @@ class GFS40Forecaster(Forecaster):
         # for each pres. level, calculate a running avg. of pot temp.
         # As soon as the next point deviates from the running avg by
         # more than 3 deg. C, interpolate to get the mixing height.
-        for i in xrange(1, avg.shape[0]):
+        for i in range(1, avg.shape[0]):
             runavg = avg[i] / (count[i] + .0001) # calc. running avg
             diffpt = pt[i] - runavg  # calc. difference
             # calc. the interpolated mixing height
@@ -902,7 +902,7 @@ class GFS40Forecaster(Forecaster):
         fadir = self.newGrid(-1)
         # start at the bottom and store the first point we find that's
         # above the topo + 3000 feet level.
-        for i in xrange(wind_c[0].shape[0]):
+        for i in range(wind_c[0].shape[0]):
             m = logical_and(equal(famag, -1), mask[i])
             famag[m] = wm[i][m]
             
@@ -963,7 +963,7 @@ class GFS40Forecaster(Forecaster):
         a3 = self.empty()
         aindex = self.empty()
         # Go through the levels to identify each case type 0-3
-        for i in xrange(1, gh_c.shape[0] - 1):
+        for i in range(1, gh_c.shape[0] - 1):
             # get the sfc pres. and temp.
             pbot = where(greater(gh_c[i - 1], topo), pres[i - 1], p_SFC)
             tbot = where(greater(gh_c[i - 1], topo), t_c[i - 1], T)
@@ -1041,7 +1041,7 @@ class GFS40Forecaster(Forecaster):
 #         wx = where(logical_and(not_equal(wx, 0), convecMask), wx + 6, wx)
 
         # Thunder
-        for i in xrange(len(key)):
+        for i in range(len(key)):
             tcov = string.split(key[i], ":")[0]
             if tcov == "Chc" or tcov == "<NoCov>":
                 tcov = "Sct"

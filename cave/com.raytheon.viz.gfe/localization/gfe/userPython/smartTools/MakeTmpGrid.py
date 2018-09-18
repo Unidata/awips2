@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -100,7 +100,7 @@ class Tool (SmartScript.SmartScript):
             self.createGrid(self._model, name, "WEATHER", variableElement, GridTimeRange,
                 descriptiveName = name)
         else:
-            self.noData("This tool does not support element enumeration=" +`pType`+"!")
+            self.noData("This tool does not support element enumeration=" +repr(pType)+"!")
 
         # Return the new value
         return None
@@ -112,9 +112,9 @@ class Tool (SmartScript.SmartScript):
         self._calledfrom = "User"
         
         if varDict != None:
-            if varDict.has_key("Model"):
+            if "Model" in varDict:
                 self._model = varDict["Model"]
-            if varDict.has_key("gridName"):
+            if "gridName" in varDict:
                 self._gridName = varDict["gridName"]
             self._calledfrom = "Proc"
         

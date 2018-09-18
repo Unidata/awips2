@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -121,7 +121,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
             else:
                 max = roundAvg + 5
             units = self.units_descriptor(tree, node, "units", "%")            
-            words = words +  " (" + `min` + "-" + `max` + units + ")"
+            words = words +  " (" + repr(min) + "-" + repr(max) + units + ")"
         return words
        
     # Trends
@@ -198,7 +198,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
             introWords = self.addSpace(introWords)
             if units != "%":
                 units = " " + units
-            words =  introWords + `diff` + units + " " + descriptor
+            words =  introWords + repr(diff) + units + " " + descriptor
         else:
             words =  ""
         #print "returning", words, diff
@@ -280,9 +280,9 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
             connector = self.value_connector(tree, node, elementName, elementName)
             min, max = self.getValue(stats, "MinMax")
             if min == max:
-                words = `int(min)`
+                words = repr(int(min))
             else:
-                words = `int(min)` + connector + `int(max)`
+                words = repr(int(min)) + connector + repr(int(max))
         outUnits = self.element_outUnits(tree, node, elementName, elementName)
         units = self.units_descriptor(tree, node,"units", outUnits)
         words = words + units
@@ -318,7 +318,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         if int(cwr) < threshold:
             return self.setWords(node, "null")
         else:
-            words =  `int(cwr)` + " percent"
+            words =  repr(int(cwr)) + " percent"
         return self.setWords(node, words)
             
     ### VentRate or smoke dispersal phrase
@@ -350,11 +350,11 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         vrCat2 = self.smokeDispersal_valueStr(vr2)
         # Single Value input
         if  vr1 == vr2:
-            words =  vrCat1 + " (" + `vr1` + " knot-ft)"
+            words =  vrCat1 + " (" + repr(vr1) + " knot-ft)"
         # Range
         else:
-            words =  vrCat1 + " to " + vrCat2 + " (" + `vr1` + "-" + \
-                   `vr2` + " knot-ft)"
+            words =  vrCat1 + " to " + vrCat2 + " (" + repr(vr1) + "-" + \
+                   repr(vr2) + " knot-ft)"
         return self.setWords(node, words)
    
     #  SMOKE DISPERSAL CATEGORIES
@@ -588,14 +588,14 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
 
         # Single Value input
         if  haines1 == haines2:
-                words = `haines1` + "   " + words1
+                words = repr(haines1) + "   " + words1
         # Range
         else:
             if words1 == words2:
                 words = words1
             else:
                 words = words1 + " to " + words2
-            words =  `haines1` + " to " + `haines2` + " OR " + words
+            words =  repr(haines1) + " to " + repr(haines2) + " OR " + words
         return self.setWords(node, words)
 
     ### Humidity
@@ -759,7 +759,7 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         if self._lightningPhrases:
             words = self.lal_value(tree, node, lal)
         else:            
-            words = `int(lal)`
+            words = repr(int(lal))
         return self.setWords(node, words)
 
     def lal_value(self, tree, node, lal):
@@ -869,10 +869,10 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         
         # Single Value input
         if  mix1 == mix2:
-                words =  `mix1` + " " + outUnits + " AGL"
+                words =  repr(mix1) + " " + outUnits + " AGL"
         # Range
         else:
-            words =  `mix1`+ "-" + `mix2` + " " + outUnits + " AGL"
+            words =  repr(mix1)+ "-" + repr(mix2) + " " + outUnits + " AGL"
         return self.setWords(node, words)
 
     ###---------------------------------------------------------
@@ -918,11 +918,11 @@ class FirePhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRelate
         if mix1 == 0 and mix2 == 0:
             words = "none"
         elif mix1 == mix2:
-            words =  `mix1` + " " + outUnits + " asl"
+            words =  repr(mix1) + " " + outUnits + " asl"
         # Makes phrases such as "0-800 ft asl" be simply "800 ft asl"
         elif mix1 == 0 and mix2 > 0:
-            words = `mix2` + " " + outUnits + " asl"
+            words = repr(mix2) + " " + outUnits + " asl"
         # Range
         else:
-            words =  `mix1`+ "-" + `mix2` + " " + outUnits + " asl"        
+            words =  repr(mix1)+ "-" + repr(mix2) + " " + outUnits + " asl"        
         return self.setWords(node, words)

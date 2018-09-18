@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -55,16 +55,16 @@ class VarDictGroker:
             product = None
                 
         if processVariableList is not None:
-            print "processVariableList is not None"
-            co = processVariableList.im_func.func_code
+            print("processVariableList is not None")
+            co = processVariableList.__func__.__code__
             if co.co_argcount > 2:
                 argValues = [self._definition, self._dataMgr]
             else:
                 argValues = [self._definition]
 
-            import Tkinter,sys
+            import tkinter,sys
             sys.argv = ["FormatterRunner"]
-            root=Tkinter.Tk()
+            root=tkinter.Tk()
             root.title("FormatterRunner")
             root.withdraw()
 
@@ -78,7 +78,7 @@ class VarDictGroker:
         else:
 
             # Get _issuanceList entries for the User Dialog
-            print "TextProduct()"
+            print("TextProduct()")
             try: # Try to instantiate the smart text product
                 product = self._module.TextProduct()
                 product._definition = product.Definition
@@ -107,7 +107,7 @@ class VarDictGroker:
 
             if varList is not None and len(varList):
                 # Display User Dialog
-                print "ProcessVariableList.ProcessVariableList"
+                print("ProcessVariableList.ProcessVariableList")
                 processVarList = ProcessVariableList.ProcessVariableList(
                                                                          self._name, varList, varDict={}, dataMgr=self._dataMgr)                
                 self._selectionStatus = processVarList.status()
@@ -133,7 +133,7 @@ class VarDictGroker:
             return None
         entries = []
         for entry in entryList:
-            if type(entry) is types.TupleType:
+            if type(entry) is tuple:
                 entry = entry[0]
             entries.append(entry)
         result = (entryName, default, entryType, entries)
@@ -167,7 +167,7 @@ class VarDictGroker:
             dfEditAreas = definition.setdefault("defaultEditAreas", [])
             editAreaList = []
             for name, label in dfEditAreas:
-                if type(name) == types.TupleType:
+                if type(name) == tuple:
                     # use label instead of lat/lon values
                     editAreaList.append(label)
                 else:

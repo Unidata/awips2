@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -23,7 +23,7 @@
 # of the file will completely replace a lower priority version of the file.
 ##
 
-import Tkinter
+import tkinter
 #
 ##
 # We have a system in which "short" Python scripts are invoked from a GUI
@@ -32,12 +32,12 @@ import Tkinter
 # class for these dialogs because it assumes that a Tk root window is present,
 # which is typically not the case for these embedded scripts. 
 #
-class AppDialog(Tkinter.Tk):
+class AppDialog(tkinter.Tk):
     "A top-level dialog with its own Tcl interpreter."
     
     def __init__(self, **kw):
         "Constructor."
-        Tkinter.Tk.__init__(self, **kw)
+        tkinter.Tk.__init__(self, **kw)
         body = self.body(self)
         body.focus_set()
         self.buttonbox()
@@ -56,19 +56,19 @@ the dialog is destroyed. By default, it does nothing."""
 Return the widget that should have initial focus.
 This method should be overridden, and is called
 by the __init__ method."""        
-        frame = Tkinter.Frame(master)
-        label = Tkinter.Label(frame, text="Body")
+        frame = tkinter.Frame(master)
+        label = tkinter.Label(frame, text="Body")
         label.pack()
-        frame.pack(side=Tkinter.TOP)
+        frame.pack(side=tkinter.TOP)
         return frame
     
     def buttonbox(self):
-        box = Tkinter.Frame(self)
-        okButton = Tkinter.Button(box, text="Ok", command=self.ok)
-        okButton.pack(side=Tkinter.LEFT, pady=5, padx=10)
-        cancelButton = Tkinter.Button(box, text="Cancel", command=self.cancel)
-        cancelButton.pack(side=Tkinter.LEFT, pady=5, padx=10)
-        box.pack(side=Tkinter.BOTTOM)
+        box = tkinter.Frame(self)
+        okButton = tkinter.Button(box, text="Ok", command=self.ok)
+        okButton.pack(side=tkinter.LEFT, pady=5, padx=10)
+        cancelButton = tkinter.Button(box, text="Cancel", command=self.cancel)
+        cancelButton.pack(side=tkinter.LEFT, pady=5, padx=10)
+        box.pack(side=tkinter.BOTTOM)
     
     def cancel(self, event=None):
         """Process the Cancel button.

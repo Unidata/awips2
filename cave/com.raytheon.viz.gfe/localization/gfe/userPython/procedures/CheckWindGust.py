@@ -45,9 +45,9 @@
 # of the file will completely replace a lower priority version of the file.
 ##
 
-# The MenuItems list defines the GFE menu item(s) under which the
-# Procedure is to appear.
-# Possible items are: Populate, Edit, Consistency, Verify
+# The MenuItems list defines the GFE menu item(s) under which the
+# Procedure is to appear.
+# Possible items are: Populate, Edit, Consistency, Verify
 MenuItems = ["Consistency"]
 
 VariableList = [("Check or Force:" , "Check Only", "radio",
@@ -94,7 +94,7 @@ class Procedure (SmartScript.SmartScript):
         lt = parm.getLockTable()
         jlok = lt.lockedByOther()
         lbo = []
-        for i in xrange(jlok.size()):
+        for i in range(jlok.size()):
             tr = jlok.get(i)
             tr = TimeRange.TimeRange(tr)
             lbo.append( tr )
@@ -138,7 +138,7 @@ class Procedure (SmartScript.SmartScript):
         else:
             topo = self.getGridShape()
             siteMask = ones(topo, bool8)
-            print siteID, "edit area not found.  Using entire GFE domain."
+            print(siteID, "edit area not found.  Using entire GFE domain.")
 
         errorsFound = "no"  #  To keep track of any errors found for
                             #  status bar message at the end.

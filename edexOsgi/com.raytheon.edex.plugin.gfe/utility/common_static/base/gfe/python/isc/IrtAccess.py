@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -51,7 +51,7 @@
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element, SubElement
 import socket
-import urllib, urllib2, time, os, copy, string
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, time, os, copy, string
 import LogStream
 import JUtil
 import iscUtil
@@ -119,7 +119,7 @@ class IrtAccess():
             self.__timeToReRegister = None
 
         # shorten parmsWanted list, i.e., don't need the "_SFC".
-        for x in xrange(len(parmsWanted)):
+        for x in range(len(parmsWanted)):
             idx = parmsWanted[x].find("_SFC")
             if idx != -1:
                 parmsWanted[x] = parmsWanted[x][0:idx]
@@ -179,7 +179,7 @@ class IrtAccess():
             self.logProblem("status tag missing in XML for unregister")
             return False
         status = None
-        for attr, value in element.items():
+        for attr, value in list(element.items()):
             if attr == 'ok':
                 status = value
                 break
@@ -229,7 +229,7 @@ class IrtAccess():
             self.logProblem("status tag missing in XML for register")
             return False
         ok = None
-        for attr, value in element.items():
+        for attr, value in list(element.items()):
             if attr == 'ok':
                 ok = value
                 break
@@ -283,7 +283,7 @@ class IrtAccess():
             fp = open(statusFile, 'rb')
             ncf = fp.read()
             ncf = ncf.strip().upper()
-        except IOError, e:
+        except IOError as e:
             pass
             #self.logProblem("Can't read NCF status file: ", statusFile,
             #  "assuming ANCF...")
@@ -306,7 +306,7 @@ class IrtAccess():
             irtid, url = irtAddress
             acturl = url + "/" + function
 
-        data = urllib.urlencode(attributes)
+        data = urllib.parse.urlencode(attributes)
         while True:
             try:
                 prevtimeout = socket.setdefaulttimeout(60.0)
@@ -314,21 +314,21 @@ class IrtAccess():
                 if irtAddress is None:
                     irtid, url = self.__baseURL()
                     acturl = url + "/" + function
-                fd = urllib2.urlopen(acturl, data)
+                fd = urllib.request.urlopen(acturl, data)
                 xml = fd.read()
                 fd.close()
                 socket.setdefaulttimeout(prevtimeout)
                 break
-            except urllib2.URLError, e:
+            except urllib.error.URLError as e:
                 problem = "URLError"
                 problem1 = e
-            except urllib2.HTTPError, e:
+            except urllib.error.HTTPError as e:
                 problem = "HTTPError"
                 problem1 = e
-            except IOError, e:
+            except IOError as e:
                 problem = "IOError"
                 problem1 = e
-            except Exception, e:
+            except Exception as e:
                 problem = "Exception"
                 problem1 = e
 
@@ -358,22 +358,22 @@ class IrtAccess():
     # list convert to comma-deliminated string
     def __listConvert(self, a):
         s = ""
-        for x in xrange(len(a)):
+        for x in range(len(a)):
             if len(s):
-                s += "," + `a[x]`
+                s += "," + repr(a[x])
             else:
-                s += `a[x]`
+                s += repr(a[x])
         return s
 
     # domain (x,y),(xe,ye) convert to comma-deliminated string
     def __nestedTupleConvert(self, a):
         s = ''
-        for x in xrange(len(a)):
-            for y in xrange(len(a[x])):
+        for x in range(len(a)):
+            for y in range(len(a[x])):
                 if len(s):
-                    s += "," + `a[x][y]`
+                    s += "," + repr(a[x][y])
                 else:
-                    s += `a[x][y]`
+                    s += repr(a[x][y])
         return s
 
     #----------------------------------------------------------------------
@@ -397,16 +397,16 @@ class IrtAccess():
         siteE.text = serverInfo.get('site', "?")
 
         #optional components "location" "area" "welist"
-        if serverInfo.has_key('domain') and serverInfo['domain'] is not None:
+        if 'domain' in serverInfo and serverInfo['domain'] is not None:
             d = serverInfo['domain']
             locationE = SubElement(addressE, 'location', proj=d['proj'],
               origx=str(d['origx']), origy=str(d['origy']),
               extx=str(d['extx']), exty=str(d['exty']))
-        if serverInfo.has_key('area') and serverInfo['area'] is not None:
+        if 'area' in serverInfo and serverInfo['area'] is not None:
             d = serverInfo['area']
             areaE = SubElement(addressE, 'area', xdim=str(d['xdim']),
               ydim=str(d['ydim']))
-        if serverInfo.has_key('parms') and serverInfo['parms'] is not None:
+        if 'parms' in serverInfo and serverInfo['parms'] is not None:
             parms = serverInfo['parms']
             self.addWelistXML(addressE, parms)
 
@@ -470,12 +470,12 @@ class IrtAccess():
                        parms.append(parmE.text)
             elif attrE.tag == "location":
                 domain = {}
-                for key, value in attrE.items():
+                for key, value in list(attrE.items()):
                     domain[key] = value
                 dict['domain'] = domain
             elif attrE.tag == "area":
                 size = {}
-                for key, value in attrE.items():
+                for key, value in list(attrE.items()):
                     size[key] = value
                 dict['area'] = size
         dict['parms'] = parms

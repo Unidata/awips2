@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -202,10 +202,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _getVariables(self, argDict):
         # Determine Forecaster Number and issuance time
         varDict = argDict["varDict"]
-        for key in varDict.keys():
-            if type(key) is types.TupleType:
+        for key in list(varDict.keys()):
+            if type(key) is tuple:
                 label, variable = key
-                exec "self._" + variable + "= varDict[key]"
+                exec("self._" + variable + "= varDict[key]")
         self._forecasterNumber = self._getForecasterNumber(self._forecasterNumber)
 
         # Make argDict accessible
@@ -213,8 +213,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
         # Get Definition variables
         self._definition = argDict["forecastDef"]
-        for key in self._definition.keys():
-            exec "self._" + key + "= self._definition[key]"
+        for key in list(self._definition.keys()):
+            exec("self._" + key + "= self._definition[key]")
 
     def _determineTimeRanges(self, argDict):
         # Determine time ranges for product
@@ -324,7 +324,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         ########################
 
         # wx codes
-        for index in xrange(0, 2):
+        for index in range(0, 2):
             timeRange, label = self._codePeriods[index]
             fcst = fcst + self._getCCFCode(self._analysisListCode(),
                 editArea, timeRange)
@@ -332,7 +332,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # max/min temp codes
         separators = ["/", " ", "/", " ", " "]
-        for index in xrange(0, 5):
+        for index in range(0, 5):
             timeRange, label = self._tempPeriods[index]
             fcst = fcst + self._getMinOrMax(self._analysisListTemp(),
                 editArea, timeRange) + separators[index]
@@ -341,7 +341,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         fcst = fcst + self._forecasterNumber
 
         # Pop fields
-        for index in xrange(0, 3):
+        for index in range(0, 3):
             timeRange, label = self._popPeriods[index]
             fcst = fcst + self._getPoP(self._analysisListPoP(), editArea,
                               timeRange)
@@ -360,7 +360,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # wx codes
         startIndex = 2
-        for index in xrange(startIndex, len(self._codePeriods)):
+        for index in range(startIndex, len(self._codePeriods)):
             timeRange, label = self._codePeriods[index]
             fcst = fcst + self._getCCFCode(self._analysisListCode(),
                 editArea, timeRange)
@@ -369,14 +369,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # max/min temp codes
         startIndex = 5
         separators = ["/", " ", "/", " ", "/", " ", "/", " ", " "]
-        for index in xrange(startIndex, len(self._tempPeriods)):
+        for index in range(startIndex, len(self._tempPeriods)):
             timeRange, label = self._tempPeriods[index]
             fcst = fcst + self._getMinOrMax(self._analysisListTemp(),
                 editArea, timeRange) + separators[index-startIndex]
 
         # Pop fields
         startIndex = 3
-        for index in xrange(startIndex, len(self._popPeriods)):
+        for index in range(startIndex, len(self._popPeriods)):
             timeRange, label = self._popPeriods[index]
             fcst = fcst + self._getPoP(self._analysisListPoP(), editArea,
                               timeRange)
@@ -444,7 +444,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         value = int(round(value))
         if value < 0:
             value = abs(value) + 900
-        valStr = `value`
+        valStr = repr(value)
         while len(valStr) < 3:
             valStr = "0" + valStr
         return valStr
@@ -486,9 +486,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             if forecasterNumber > 99 or forecasterNumber < 0:
                 return "99"
             elif forecasterNumber < 10:
-                return "0" + `forecasterNumber`
+                return "0" + repr(forecasterNumber)
             else:
-                return `forecasterNumber`
+                return repr(forecasterNumber)
         except:
             return "99"
 
@@ -509,8 +509,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             else:
                 minV, maxV, sumV = stats
                 minAdj, maxAdj = self._adjustSnowAmounts(minV, maxV, sumV)
-                minString = string.rjust(`int(round(minAdj))`, 2)
-                maxString = string.rjust(`int(round(maxAdj))`, 2)
+                minString = string.rjust(repr(int(round(minAdj))), 2)
+                maxString = string.rjust(repr(int(round(maxAdj))), 2)
                 if minString[0] == " ":    # fill in leading zero
                     minString = "0" + minString[1:]
                 if maxString[0] == " ":    # fill in leading zero

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -103,7 +103,7 @@ class Procedure (SmartScript.SmartScript):
         lt = parm.getLockTable()
         jlok = lt.lockedByOther();
         lbo = []
-        for i in xrange(jlok.size()):
+        for i in range(jlok.size()):
             tr = jlok.get(i)
             tr = TimeRange.TimeRange(tr)
             lbo.append( tr )
@@ -222,12 +222,12 @@ class Procedure (SmartScript.SmartScript):
         else:
             topo = self.getGridShape()
             siteMask = ones(topo, bool8)
-            print siteID, "edit area not found.  Using entire GFE domain."
+            print(siteID, "edit area not found.  Using entire GFE domain.")
 
         # Ensure that MinT <= MaxT first
         minMaxList = self.combineInventoryLists(minTRList, maxTRList)
         foundProblem = False
-        for i in xrange(0, len(minMaxList) - 1):
+        for i in range(0, len(minMaxList) - 1):
             if minMaxList[i+1] in minTRList:   # previous max modifies min
                 maxTR = minMaxList[i]
                 minTR = minMaxList[i+1]

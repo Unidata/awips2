@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -178,7 +178,7 @@ class Procedure (SmartScript.SmartScript):
                          variableList, varDict, parent = None)
         status = processVarList.status()
         if status.lower() != "ok":
-            print "status:",  status
+            print("status:",  status)
             LogStream.logDebug("HazardRecovery: cancel")
             return         
         LogStream.logDebug("HazardRecovery: OK")
@@ -200,7 +200,7 @@ class Procedure (SmartScript.SmartScript):
             # return
 
         
-        keys = activeTable.keys()
+        keys = list(activeTable.keys())
         allzones = self.editAreaList()
         for key, start, end, action in keys:
             timeRange = self._hazUtils._makeTimeRange(start, end)

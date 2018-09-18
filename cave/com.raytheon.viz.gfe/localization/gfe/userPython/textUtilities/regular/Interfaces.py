@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -83,8 +83,8 @@ class Interfaces(TextUtils.TextUtils):
         else:
             sampler = HistoSampler(ifpClient.getJavaClient(), samplerRequests)        
         if sampler.isValid() != 1:
-            print "Cannot Sample: Check for invalid Weather Elements, ",\
-              "Invalid Areas", str(samplerRequests)
+            print("Cannot Sample: Check for invalid Weather Elements, ",\
+              "Invalid Areas", str(samplerRequests))
             return None
         #print "sampler ", sampler
         return sampler
@@ -128,7 +128,7 @@ class Interfaces(TextUtils.TextUtils):
             # return any temporal resolution for
             # vectorAvg
             if string.find(entry, "__") >= 0:
-                for key in statDict.keys():
+                for key in list(statDict.keys()):
                     if string.find(key, entry) >= 0:
                         stats = statDict[key]                         
         #if stats is None:
@@ -161,7 +161,7 @@ class Interfaces(TextUtils.TextUtils):
         # Set up area -- It must be a ReferenceID
         if area is not None:
             argDict["editAreas"] = [(area, areaLabel)] 
-            if "areaList" in argDict.keys():
+            if "areaList" in list(argDict.keys()):
                 #area = self.getEditArea(area, argDict)
                 argDict["areaList"][0] = (area, areaLabel)
 

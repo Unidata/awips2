@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -34,12 +34,12 @@
 # of the file will completely replace a lower priority version of the file.
 ##
 
-import Tkinter, tkSimpleDialog
+import tkinter, tkinter.simpledialog
 
-class Dialog(tkSimpleDialog.Dialog):
+class Dialog(tkinter.simpledialog.Dialog):
     def __init__(self, parent, title = None, wait=1, xoffset=50, yoffset=50,
                  **kw):
-        Tkinter.Toplevel.__init__(self, parent, **kw)
+        tkinter.Toplevel.__init__(self, parent, **kw)
         self.transient(parent)
 
         if title:
@@ -54,9 +54,9 @@ class Dialog(tkSimpleDialog.Dialog):
             self.geometry("+0+0")
 
         self.result = None
-        body = Tkinter.Frame(self)
+        body = tkinter.Frame(self)
         self.initial_focus = self.body(body)
-        body.pack(expand=Tkinter.YES, fill=Tkinter.BOTH)
+        body.pack(expand=tkinter.YES, fill=tkinter.BOTH)
         self.buttonbox()
         if wait:
             self.grab_set()

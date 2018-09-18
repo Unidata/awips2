@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -304,8 +304,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def _processVariableList(self, definition):
         # Get Definition variables
-        for key in definition.keys():
-            exec "self._" + key + "= definition[key]"
+        for key in list(definition.keys()):
+            exec("self._" + key + "= definition[key]")
 
         # Create the list of optional topic dividers to appear in GUI
         self._options = []
@@ -347,10 +347,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _getVariables(self, argDict):
         # Make variable assignments
         varDict = argDict["varDict"]
-        for key in varDict.keys():
-            if type(key) is types.TupleType:
+        for key in list(varDict.keys()):
+            if type(key) is tuple:
                 label, variable = key
-                exec "self._" + variable + "= varDict[key]"
+                exec("self._" + variable + "= varDict[key]")
         self._longTermFcstrNumber = self._getForecasterNumber(self._longTermFcstrNumber)
         self._shortTermFcstrNumber = self._getForecasterNumber(self._shortTermFcstrNumber)
         self._aviationFcstrNumber = self._getForecasterNumber(self._aviationFcstrNumber)
@@ -360,8 +360,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # Get Definition variables
         self._definition = argDict["forecastDef"]
-        for key in self._definition.keys():
-            exec "self._" + key + "= self._definition[key]"
+        for key in list(self._definition.keys()):
+            exec("self._" + key + "= self._definition[key]")
 
         # Set up information for Hazards product
         # TODO uncomment following line?
@@ -511,11 +511,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         start_index = 0
         end_index = len(prevAFD)
         if end_index == 0:
-            print "WARNING -- Previous AFD has zero length."
+            print("WARNING -- Previous AFD has zero length.")
 
         # Place newlines back at the end of each element in list prevAFD:
         # ADDED 12/7/04 bc
-        for index in xrange(start_index, end_index): 
+        for index in range(start_index, end_index): 
             prevAFD[index] = prevAFD[index] + "\n" 
 
         # Make a copy of prevAFD to modify
@@ -525,7 +525,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # effectively strip off the MND header.  Will also handle headlines
         # too!
         body_start_index = start_index
-        for index in xrange(start_index, end_index):
+        for index in range(start_index, end_index):
             if oldAFD[index][:1] == ".":    # first dot
                 body_start_index = index
                 break
@@ -534,7 +534,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Once found, then set end_index to the index in AFDlist.  This will
         # strip off everything below the W/W/A block including this block:
         body_end_index = end_index
-        for index in xrange(body_start_index, end_index):
+        for index in range(body_start_index, end_index):
             if re.match(WWABlockString, oldAFD[index]) != None:
                 body_end_index = index
                 break
@@ -543,7 +543,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # is present and reset end_index.
         prelim_divider = self._getTopicDivider("Prelim")
         if prelim_divider:
-            for index in xrange(body_start_index, body_end_index):
+            for index in range(body_start_index, body_end_index):
                 if re.match(prelim_divider, oldAFD[index]) != None:
                     body_end_index = index
                     break
@@ -551,7 +551,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Suggested by Rob R. @ CTP and from ER supplement to 10-503...
         # Strip out the ampersands and the leading dot on the
         # topic divider and place in newAFD.
-        for index in xrange(body_start_index, body_end_index):
+        for index in range(body_start_index, body_end_index):
             if (oldAFD[index][:1] == "."):
                 newAFD.append(oldAFD[index][1:])
             elif (oldAFD[index][:2] == "&&"):
@@ -564,7 +564,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # _PrevDisc_Divider string:
             issuance_dateTime = ""
             # Loop through the list to find the issuance time string.
-            for index in xrange(start_index, end_index-1):
+            for index in range(start_index, end_index-1):
                 if prevAFD[index][:8] == "National":   # next line has date time stamp
                     issuance_dateTime = str(prevAFD[index+1])
                     break
@@ -578,7 +578,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Now test for multiple newlines.  If this isn't a newline, write to fcst.
         # If it is a newline, test the next one down.  If it's also a newline,
         # write the first newline and skip to the next line.
-        for index in xrange(0, len(newAFD)-1):
+        for index in range(0, len(newAFD)-1):
             if newAFD[index] != "\n":
                 fcst = fcst + newAFD[index]
             else:
@@ -600,7 +600,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Convert (lat, lon, dim) entries to editAreas
         self._areaList = []
         for editArea, areaLabel in self._pointEditAreas:
-            if type(editArea) is types.TupleType:
+            if type(editArea) is tuple:
                 lat, lon, dim = editArea
                 editArea = self.createLatLonArea(lat, lon, dim)
             self._areaList.append((editArea, areaLabel))                        
@@ -668,14 +668,14 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _makeFirstGuess(self, fcst, editArea, areaLabel, argDict):
         # Produce temp forecast substring:
         separators = [" ", " ", " ", " / ",]
-        for index in xrange(0, 4):
+        for index in range(0, 4):
             timeRange, label = self._tempPeriods[index]
             fcst = fcst + self._getMinOrMax(self._analysisListTemp(),
                 editArea, timeRange) + separators[index]
 
         # Produce PoP forecast substring
         separators = [" ", " ", " ", " "]
-        for index in xrange(0, 4):
+        for index in range(0, 4):
             timeRange, label = self._popPeriods[index]
             fcst = fcst + self._getPoP(self._analysisListPoP(), editArea,
                               timeRange) + separators[index]
@@ -721,10 +721,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         fireWxPhenSig = [("FW","W"), ("FW","A")]
         fireWxZones = []
         otherZones = []
-        if type(combo) is types.StringType:
+        if type(combo) is bytes:
             try:
                 m = __import__(combo)                
-                for map in m.EASourceMap.keys():
+                for map in list(m.EASourceMap.keys()):
                     if map.find("FireWx") != -1:
                         fireWxZones = m.EASourceMap[map]
                     else:
@@ -750,16 +750,16 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ids = h['id']
             for id in ids:
                 stateid = id[0:2]
-                if sd.has_key(stateid):
+                if stateid in sd:
                     locs = sd[stateid]
                     locs.append(id)
                     sd[stateid] = locs
                 else:
                     sd[stateid] = [id]
             #add the record to the appropriate "state" in stateDict
-            for state in sd.keys():
+            for state in list(sd.keys()):
                 hcopy = copy.deepcopy(h)
-                if stateDict.has_key(state):
+                if state in stateDict:
                     recs = stateDict[state]
                     hcopy['id'] = sd[state]
                     recs.append(hcopy)
@@ -775,7 +775,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         #
 
         for eachState in self._state_IDs:
-            if stateDict.has_key(eachState):
+            if eachState in stateDict:
                 stateHazardList = stateDict[eachState]
             else:
                 stateHazardList = []
@@ -783,7 +783,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # add the state identifier (only if multiple states)
             if len(self._state_IDs) > 1:
                 #marine zone
-                if eachState in marine.keys():     
+                if eachState in list(marine.keys()):     
                     fcst = fcst + marine[eachState] + "..."
                 else:
                     fcst = fcst + eachState + "..."
@@ -795,7 +795,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 continue
 
             # If hazards are found, then build the hazard phrases
-            for i in xrange(len(stateHazardList)):
+            for i in range(len(stateHazardList)):
                 eachHazard  = stateHazardList[i]
 
                 # special check code for firewx
@@ -986,7 +986,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if value is None:
             return "MMM"   #for missing
         value = int(round(value))
-        valStr = string.rjust(`value`, 3)
+        valStr = string.rjust(repr(value), 3)
         return valStr
 
 ####################################################################
@@ -1001,7 +1001,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if pop is None:
             return "MMM"
         value = int(self.round(pop,"Nearest",10))
-        valStr = string.rjust(`value`, 3)
+        valStr = string.rjust(repr(value), 3)
         return valStr
 
 ####################################################################
@@ -1014,11 +1014,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             result = "" # set result to null
             num = int(numberString) # convert numberString to integer
             if num > 99 or num < 0: # if outside [0,99] assign 99 string
-                result = `99`
+                result = repr(99)
             elif num < 10: # if less than 10 pad leading 0:
-                result = string.zfill(`num`, 2)
+                result = string.zfill(repr(num), 2)
             else: # convert back to string
-                result = `num`
+                result = repr(num)
             return result
         except:
             return numberString

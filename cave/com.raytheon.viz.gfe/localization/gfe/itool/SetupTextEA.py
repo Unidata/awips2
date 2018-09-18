@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -75,7 +75,7 @@ class setupTextEA:
           "west_one_third", "east_two_thirds","west_two_thirds",
           "east_one_quarter", "west_one_quarter", "east_three_quarters",
           "west_three_quarters","Superior"]
-        for x in xrange(len(requiredEA)):
+        for x in range(len(requiredEA)):
             refData = refMgr.loadRefSet(ReferenceID(zoneList[x]))
             ea = ReferenceData(refData)
             ea.setId(ReferenceID(requiredEA[x]))
@@ -117,8 +117,8 @@ class setupTextEA:
         topoAve = topoAve / count
         aboveGrid = wholeGrid * 0
         belowGrid = wholeGrid * 0
-        for x in xrange(topogrid.shape[1]):
-            for y in xrange(topogrid.shape[0]):
+        for x in range(topogrid.shape[1]):
+            for y in range(topogrid.shape[0]):
                 if wholeGrid[y,x] == 1:
                     if topogrid[y,x] > topoAve:
                         aboveGrid[y,x] = 1
@@ -130,17 +130,17 @@ class setupTextEA:
         count = 0
         area1 = wholeGrid * 0
         area2 = wholeGrid * 0
-        for x in xrange(topogrid.shape[1]):
+        for x in range(topogrid.shape[1]):
             if count < desiredCount:
-                for y in xrange(topogrid.shape[0]): 
+                for y in range(topogrid.shape[0]): 
                     if wholeGrid[y,x] == 0 and topogrid[y,x] < topoAve:
                         area1[y,x] = 1
                         belowGrid[y,x] = 1
                         count = count + 1
         count = 0
-        for x in xrange(topogrid.shape[1]):
+        for x in range(topogrid.shape[1]):
             if count < desiredCount:
-                for y in xrange(topogrid.shape[0]): 
+                for y in range(topogrid.shape[0]): 
                     if wholeGrid[y,x] == 0 and topogrid[y,x] < topoAve and \
                       area1[y,x] == 0:
                         area2[y,x] = 1
@@ -176,7 +176,7 @@ class setupTextEA:
             wholeGrid = refMgr.loadRefSet(ReferenceID(baseArea)).getGrid().getNDArray()
             minx, maxx, miny, maxy = self.__extremaOfSetBits(wholeGrid)
             cNumber = 0 
-            print minx, maxx, miny, maxy, wholeGrid.shape
+            print(minx, maxx, miny, maxy, wholeGrid.shape)
             for x in range(minx, maxx):
                 for y in range(miny, maxy): 
                     if wholeGrid[y,x] == 1:
@@ -209,14 +209,14 @@ class setupTextEA:
                 if minx == -1:
                     continue
                 ok = 1
-                print minx, maxx, miny, maxy, wholeGrid.shape
+                print(minx, maxx, miny, maxy, wholeGrid.shape)
                 for x in range(minx, maxx):
                     if ok:
                         for y in range(miny, maxy):
                             if wholeGrid[y,x] == 1:
                                 ptGrid = numpy.logical_and(wholeGrid, 0)
                                 ptGrid[y,x] = 1
-                                name = "isc" + `count`
+                                name = "isc" + repr(count)
                                 self.__saveEA(name, ptGrid.astype('int8'))
                                 requiredEA.append(name)
                                 LogStream.logEvent("Saved ", name, 
@@ -298,18 +298,18 @@ class setupTextEA:
         # sanity checks, make sure all required switches are specified
         if self.__host is None or self.__port is None:
             self.__usage()
-            raise SyntaxWarning, "Error: Missing host or port"
+            raise SyntaxWarning("Error: Missing host or port")
 
 
     def __usage(self):
-        print """
+        print("""
 Usage: setupTextEA -h hostname -p rpcPortNumber [-u user]
 
     -h host where the ifpServer is running
     -p rpc port number for the ifpServer.
     -u userid, defaults to GFETEST
 
-"""
+""")
 
 
 def main():
@@ -318,7 +318,7 @@ def main():
     try:
         obj = setupTextEA()
         obj.process()
-    except Exception, e:
+    except Exception as e:
         LogStream.logProblem(LogStream.exc())
         sys.exit(1)
 

@@ -1,20 +1,20 @@
 #!/usr/bin/env python
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-#
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+#
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 #
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-#
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -175,7 +175,7 @@ headlineEnders = ['AFTERNOON', 'CANCELLED', 'EFFECT', 'EXPIRED',
                   'SATURDAY', 'SUNDAY', 'THURSDAY', 'TODAY', 'TONIGHT',
                   'TUESDAY', 'WEDNESDAY', 'IS FOR TEST PURPOSES ONLY']
 
-endWords = '(' + '|'.join(map(lambda x: '(' + x + ')', headlineEnders)) + ')'
+endWords = '(' + '|'.join(['(' + x + ')' for x in headlineEnders]) + ')'
 local = r'(?P<local>(.|\n)*?)'
 headline = r'(?P<pre>^\.\.\.((.|\n)*\s' + endWords + r')+)' + local \
            + r'(?P<post>(TEST)?\.\.\.\n)'
@@ -213,7 +213,7 @@ class ProductParser:
             rval = {}
 
         #print 'dumpmatch m = ', m.groupdict()
-        for k in m.groupdict().keys():
+        for k in list(m.groupdict().keys()):
             if m.start(k) != -1 and m.start(k) != m.end(k):
                 if k == 'headlines':
                     self.processHeadline(rval, m)
@@ -294,7 +294,7 @@ class ProductParser:
     def parseFromJava(self, text):
         self._str = text
         self._ci = None
-        lines = map(lambda x: len(x), text.splitlines(1))
+        lines = [len(x) for x in text.splitlines(1)]
         count = 0
         lc = []
         for l in lines:

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -336,7 +336,7 @@ class WxPhrases(PhraseBuilder.PhraseBuilder):
         #  For each combined Wx statistic
         for (curKey, curRank, curTR, curCombined_flag) in combinedStats:
             #  If the dictionary does not have this time range currently
-            if curTR not in finalStatDict.keys():
+            if curTR not in list(finalStatDict.keys()):
                 #  Add this tuple to the dictionary
                 finalStatDict[curTR] = [(curKey, curRank)]
                 finalKeys.append(curTR)
@@ -580,9 +580,9 @@ class WxPhrases(PhraseBuilder.PhraseBuilder):
         statDict = node.getStatDict()
         rankList = self.getStats(statDict, "Wx")
         if self._debug:
-            print "\n SubKeys in weather_words", rankList
-            print "   TimeRange", node.getTimeRange(), node.getAreaLabel()
-            print "   Phrase name", node.getAncestor("name")
+            print("\n SubKeys in weather_words", rankList)
+            print("   TimeRange", node.getTimeRange(), node.getAreaLabel())
+            print("   Phrase name", node.getAncestor("name"))
         if rankList is None or len(rankList) == 0:
             return self.setWords(node, "")
 
@@ -603,7 +603,7 @@ class WxPhrases(PhraseBuilder.PhraseBuilder):
         if words == "":
             words = "null"
         if self._debug:
-            print "   Setting words", words
+            print("   Setting words", words)
             
         # To replace multiple "and's" with ellipses
         words = self.useCommas(tree, node, words)
@@ -959,10 +959,10 @@ class WxPhrases(PhraseBuilder.PhraseBuilder):
         statList = self.getSubStats(node, "Wx")
         length = len(statList)
         if self.__dict__.get('_leDebug', 0):
-            print "\n\nseparateNonPrecip disabled", node, length, \
-                      node.getAncestor("disabledSubkeys")
-            print "   timerange", node.getTimeRange()
-            print "   statList", statList
+            print("\n\nseparateNonPrecip disabled", node, length, \
+                      node.getAncestor("disabledSubkeys"))
+            print("   timerange", node.getTimeRange())
+            print("   statList", statList)
             #print "   doneList", node.doneList
         if length >= self.separateNonPrecip_threshold(tree, node):
             precip = []
@@ -976,7 +976,7 @@ class WxPhrases(PhraseBuilder.PhraseBuilder):
                         precip.append(subkey)                        
                     else:
                         nonPrecip.append(subkey)
-            if self.__dict__.get('_leDebug', 0): print "precip, nonPrecip", precip, nonPrecip
+            if self.__dict__.get('_leDebug', 0): print("precip, nonPrecip", precip, nonPrecip)
             if len(precip) >= 1 and len(nonPrecip) >= 1:
                 self.splitWxPhrase(tree, node, precip, nonPrecip, [self.separateNonPrecip])
         return self.DONE()
@@ -1024,28 +1024,28 @@ class WxPhrases(PhraseBuilder.PhraseBuilder):
         length = len(statList)
         subkeyDict = {}
         if self.__dict__.get('leDebug', 0):
-            print "\n\nConsolidating disabled", node.getAncestor("disabledSubkeys")
-            print "   timerange", node.getTimeRange()
-            print "   statList", statList
+            print("\n\nConsolidating disabled", node.getAncestor("disabledSubkeys"))
+            print("   timerange", node.getTimeRange())
+            print("   statList", statList)
             #print "   doneList", node.doneList
         if length > 1:
             # Count occurrences of each weather key
             for subkeys in statList:
                 for subkey in subkeys:
-                    if subkey not in subkeyDict.keys():
+                    if subkey not in list(subkeyDict.keys()):
                         subkeyDict[subkey] = 1
                     else:
                         subkeyDict[subkey] += 1
             # Find subkeys to disable in first phrase and second phrase, respectively
             list1 = []
             list2 = []
-            for subkey in subkeyDict.keys():
+            for subkey in list(subkeyDict.keys()):
                 count = subkeyDict[subkey]
                 if count >= length:
                     list2.append(subkey)
                 else:
                     list1.append(subkey)
-            if self.__dict__.get('_leDebug', 0): print "list1, list2", list1, list2
+            if self.__dict__.get('_leDebug', 0): print("list1, list2", list1, list2)
             if len(list1) > 0 and len(list2) > 0:
                 self.splitWxPhrase(
                     tree, node, list1, list2,
@@ -1092,7 +1092,7 @@ class WxPhrases(PhraseBuilder.PhraseBuilder):
             #print "count", count
             # Create a new node in it's place with a new
             # resolution set
-            exec "newPhraseDef = self." + node.getAncestor('name')
+            exec("newPhraseDef = self." + node.getAncestor('name'))
             newPhrase = tree.addPhraseDef(node, newPhraseDef)
             newPhrase.set("disabledSubkeys", node.get("disabledSubkeys"))
             curResolution = node.get("resolution")
@@ -1385,7 +1385,7 @@ class WxPhrases(PhraseBuilder.PhraseBuilder):
         if rankList == []:
             return rankList, 0
         entry = rankList[0]
-        if type(entry) is not types.TupleType:
+        if type(entry) is not tuple:
             newList = []
             for subkey in rankList:
                 newList.append((subkey,0))
@@ -1749,7 +1749,7 @@ class WxPhrases(PhraseBuilder.PhraseBuilder):
                 # Get the Element range of values corresponding to the
                 # high key coverage.
                 coverage = highKey.coverage()
-                exec "elementRange = self.coverage"+element+"_value(coverage)"
+                exec("elementRange = self.coverage"+element+"_value(coverage)")
                 if type(elementRange) is types.MethodType:
                     covLowVal, covHighVal = elementRange(tree, node, highKey)
                 else:

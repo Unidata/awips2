@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -204,12 +204,12 @@ class Procedure (SmartScript.SmartScript):
         (activeEvents, cancelEvents) = self.getWatches()
 
         # remove any cancelled watches from the grids, but for all times
-        for phen,sig,etn in cancelEvents.keys():  
+        for phen,sig,etn in list(cancelEvents.keys()):  
             self.removeHazardByZone(phen, sig, cancelEvents[(phen,sig,etn)])
 
         # remove any active events from the grid, to handle any slight grid
         # time differences from previous runs
-        for phen,sig,etn in activeEvents.keys():
+        for phen,sig,etn in list(activeEvents.keys()):
             self.removeHazardByZone(phen, sig, activeEvents[(phen,sig,etn)])
 
         #have to fake the start/ending times since tropical events
@@ -219,7 +219,7 @@ class Procedure (SmartScript.SmartScript):
 
         # add active events 
         timeRange = self._hazUtils._makeTimeRange(startT, endT)
-        for phen, sig, etn in activeEvents.keys():
+        for phen, sig, etn in list(activeEvents.keys()):
             key = phen + '.' + sig + ':' + str(etn)
             zones = activeEvents[(phen, sig, etn)]
             zoneMask = self._hazUtils._makeMask(zones)
@@ -228,5 +228,5 @@ class Procedure (SmartScript.SmartScript):
               self._hazUtils._printTime(endT), key, zones)
 
         LogStream.logVerbose("PlotTPCEvents completed normally.", "(" + 
-                             str(len(activeEvents.keys())) + " events)")
+                             str(len(list(activeEvents.keys()))) + " events)")
         return

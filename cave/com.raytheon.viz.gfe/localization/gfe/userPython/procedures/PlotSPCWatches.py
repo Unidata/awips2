@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -175,7 +175,7 @@ class Procedure (SmartScript.SmartScript):
         # in the same zone.  Also trim down the start time
         zoneDict = self._convertToZoneDict(watchTable)
 
-        zones = zoneDict.keys()
+        zones = list(zoneDict.keys())
     
         for zone in zones:
             watch = self._removeSupersededWatches(zoneDict[zone])
@@ -216,7 +216,7 @@ class Procedure (SmartScript.SmartScript):
         #returns a dictionary organized by zone for each hazard
         hazardsByZone = {}
         for h in watchTable:
-            if hazardsByZone.has_key(h['id']):
+            if h['id'] in hazardsByZone:
                 hazardsByZone[h['id']].append(h)
             else:
                 hazardsByZone[h['id']] = [h]
@@ -253,7 +253,7 @@ class Procedure (SmartScript.SmartScript):
 
         # find the higher watch etn for this year
         watch = zoneRecords[0]   #final choice
-        for index in xrange(1, len(zoneRecords)):
+        for index in range(1, len(zoneRecords)):
             recYear = time.gmtime(zoneRecords[index]['issueTime'])[0]
             watchYear = time.gmtime(watch['issueTime'])[0]  
             if recYear > watchYear or (recYear == watchYear and \
@@ -302,7 +302,7 @@ class Procedure (SmartScript.SmartScript):
         # to grids
         # We write to the hazards grid in batches. The batches are based on a
         # set of zones all having the same phen-sig, ETN, and valid time. 
-        watchTable = watchTable.values()
+        watchTable = list(watchTable.values())
         def sortkey(x):
             key = x['phen'] + x['sig'] + str(x['etn']) + \
                   str(self._hazUtils._makeTimeRange(x['startTime'], x['endTime'])) + \

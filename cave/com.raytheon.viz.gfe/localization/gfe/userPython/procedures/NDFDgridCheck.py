@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -350,7 +350,7 @@ class Procedure (SmartScript.SmartScript):
         #
         if Season == "None":
             if month < EndWinter + 1 or month > StartWinter - 1:
-                print month, StartWinter, EndSummer
+                print(month, StartWinter, EndSummer)
                 if month < StartSummer or month > EndSummer:
                     Season = "Winter"
         #
@@ -370,13 +370,13 @@ class Procedure (SmartScript.SmartScript):
         #  Otherwise not winter and not summer - seasons disjoint
         #  - Season left as "None".
         #
-        print Season
+        print(Season)
 
         
         ## print "Day: ", Day 
         ## print "month: ", month
 
-        print varDict["Which element group(s)?"]
+        print(varDict["Which element group(s)?"])
 
         elementGroups = varDict["Which element group(s)?"]
 
@@ -410,12 +410,12 @@ class Procedure (SmartScript.SmartScript):
                         element_list = self.public_elements_dict_MidShift_None()
                     endInterval3 = 60  #  end of 3 hourly requirement (see below)
 
-                print "element_list = ", element_list
-                for x in xrange(len(element_list)):
+                print("element_list = ", element_list)
+                for x in range(len(element_list)):
                 # loop through elements
                     element, StartTime, Interval, FinalTime = element_list[x]
                     Grid = StartTime
-                    print x, element_list[x], Grid, FinalTime
+                    print(x, element_list[x], Grid, FinalTime)
                     while (Grid <= FinalTime):
 
                         ## End of 3 hourly requirement:
@@ -447,7 +447,7 @@ class Procedure (SmartScript.SmartScript):
                 else:
                     element_list = self.fwx_elements_dict_MidShift()
 
-                for x in xrange(len(element_list)):
+                for x in range(len(element_list)):
                 # loop through elements
                     element, StartTime, Interval, FinalTime = element_list[x]
                     Grid = StartTime

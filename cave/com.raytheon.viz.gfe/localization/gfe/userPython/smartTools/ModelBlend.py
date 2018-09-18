@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -127,7 +127,7 @@ ScreenList = ["SCALAR","VECTOR"]
 #
 #
 from numpy import *
-import Tkinter
+import tkinter
 import AppDialog
 import SmartScript
 
@@ -153,24 +153,24 @@ class ToolDialog(AppDialog.AppDialog):
         self.title(title)
         
     def buttonbox(self):
-        buttonFrame = Tkinter.Frame(self)
+        buttonFrame = tkinter.Frame(self)
         # create the buttons associated with this dialog
-        Tkinter.Button(buttonFrame, text="Run",
-            command=self.__runCB, width=10, state=Tkinter.NORMAL).pack(\
-            side=Tkinter.LEFT, pady=5, padx=10)
-        Tkinter.Button(buttonFrame, text="Run/Dismiss",
-            command=self.__okCB, width=12, state=Tkinter.NORMAL).pack(\
-            side=Tkinter.LEFT, pady=5, padx=10)
-        Tkinter.Button(buttonFrame, text="Cancel", width=10,
+        tkinter.Button(buttonFrame, text="Run",
+            command=self.__runCB, width=10, state=tkinter.NORMAL).pack(\
+            side=tkinter.LEFT, pady=5, padx=10)
+        tkinter.Button(buttonFrame, text="Run/Dismiss",
+            command=self.__okCB, width=12, state=tkinter.NORMAL).pack(\
+            side=tkinter.LEFT, pady=5, padx=10)
+        tkinter.Button(buttonFrame, text="Cancel", width=10,
             command=self.cancelCB).pack(\
-            side=Tkinter.LEFT, pady=5, padx=10)
-        buttonFrame.pack(side=Tkinter.BOTTOM)
+            side=tkinter.LEFT, pady=5, padx=10)
+        buttonFrame.pack(side=tkinter.BOTTOM)
 
     def body(self, master):
-        bodyFrame = Tkinter.Frame(master)
+        bodyFrame = tkinter.Frame(master)
         self.buildWeightSliders(bodyFrame)
         self.buildEdgeControl(bodyFrame)
-        bodyFrame.pack(side=Tkinter.TOP)
+        bodyFrame.pack(side=tkinter.TOP)
         return bodyFrame
 
     ##
@@ -227,7 +227,7 @@ class ToolDialog(AppDialog.AppDialog):
         pass
 
     def buildWeightSliders(self, master):
-        hull = Tkinter.Frame(master)
+        hull = tkinter.Frame(master)
         lastColumn = len(self.labels)/MAX_IN_COLUMN
         row = 0
         column = 0
@@ -238,10 +238,10 @@ class ToolDialog(AppDialog.AppDialog):
             origin = 0
         for labelText in self.labels:
             if fc is None:
-                fc = Tkinter.Frame(hull)
+                fc = tkinter.Frame(hull)
             # Create Tk variables for the weight and percent
-            weightVar = Tkinter.IntVar(master)
-            pctVar = Tkinter.StringVar(master)
+            weightVar = tkinter.IntVar(master)
+            pctVar = tkinter.StringVar(master)
             # Store references for other routines
             self.__weightVars.append(weightVar)
             self.__percents.append(pctVar)
@@ -249,65 +249,65 @@ class ToolDialog(AppDialog.AppDialog):
             weightVar.set(0)
             pctVar.set("%4d%%"%0)
             # Create labels and sliders
-            lbl = Tkinter.Label(fc, text=labelText)
-            slider = Tkinter.Scale(fc,orient=Tkinter.HORIZONTAL,
+            lbl = tkinter.Label(fc, text=labelText)
+            slider = tkinter.Scale(fc,orient=tkinter.HORIZONTAL,
                                    from_=origin,to=10,resolution=1,
                                    command=self.setPercents,
                                    variable=weightVar,length=150)
-            lab2=Tkinter.Label(fc,textvariable=pctVar,width=5)
+            lab2=tkinter.Label(fc,textvariable=pctVar,width=5)
             # Grid the items left-to-right in the current row
-            lbl.grid(row=row, column=0, sticky=Tkinter.SE)
-            slider.grid(row=row, column=1, sticky=Tkinter.SE)
-            lab2.grid(row=row,column=2,sticky=Tkinter.SE)
+            lbl.grid(row=row, column=0, sticky=tkinter.SE)
+            slider.grid(row=row, column=1, sticky=tkinter.SE)
+            lab2.grid(row=row,column=2,sticky=tkinter.SE)
             if column < lastColumn:
-                f2=Tkinter.Frame(fc,bg="black",width=1)
-                f2.grid(row=row,column=3,sticky=Tkinter.NS)
+                f2=tkinter.Frame(fc,bg="black",width=1)
+                f2.grid(row=row,column=3,sticky=tkinter.NS)
             row+=1
             if row >= MAX_IN_COLUMN:
-                fc.grid(row=0, column=column, sticky=Tkinter.N)
+                fc.grid(row=0, column=column, sticky=tkinter.N)
                 row=0
                 column+=1
                 fc = None
         if fc is not None:
-            fc.grid(row=0, column=column, sticky=Tkinter.N)
+            fc.grid(row=0, column=column, sticky=tkinter.N)
         # Revise the weight of the forecast item
         self.__weightVars[0].set(1)
         self.setPercents(1)
-        hull.grid(row=0,column=0, sticky=Tkinter.S)
+        hull.grid(row=0,column=0, sticky=tkinter.S)
     
     def buildEdgeControl(self, master):
-        edgeFrame=Tkinter.Frame(master,relief=Tkinter.GROOVE,borderwidth=2)
-        edgestyleFrame=Tkinter.Frame(edgeFrame)
-        edgewidthFrame=Tkinter.Frame(edgeFrame)
+        edgeFrame=tkinter.Frame(master,relief=tkinter.GROOVE,borderwidth=2)
+        edgestyleFrame=tkinter.Frame(edgeFrame)
+        edgewidthFrame=tkinter.Frame(edgeFrame)
         # Create the edge style radio buttons
-        self.edgestyleString=Tkinter.StringVar(master)
+        self.edgestyleString=tkinter.StringVar(master)
         for edgestyle in edgestyles:
-           a=Tkinter.Radiobutton(edgestyleFrame,text=edgestyle,
+           a=tkinter.Radiobutton(edgestyleFrame,text=edgestyle,
                                variable=self.edgestyleString,value=edgestyle)
            if edgestyle == edgestyleDefault:
               a.invoke()
-           a.pack(side=Tkinter.TOP,anchor=Tkinter.W)
-        edgestyleFrame.pack(side=Tkinter.LEFT,anchor=Tkinter.W)
+           a.pack(side=tkinter.TOP,anchor=tkinter.W)
+        edgestyleFrame.pack(side=tkinter.LEFT,anchor=tkinter.W)
         # Create the edge width slider
-        self.edgeWidthVar=Tkinter.IntVar(master)
+        self.edgeWidthVar=tkinter.IntVar(master)
         self.edgeWidthVar.set(5)
-        a=Tkinter.Scale(edgewidthFrame,from_=1,to=30,variable=self.edgeWidthVar,
-                      showvalue=1,label="Edge Width:",orient=Tkinter.HORIZONTAL)
-        a.pack(side=Tkinter.TOP,anchor=Tkinter.N,fill=Tkinter.X)
-        edgewidthFrame.pack(side=Tkinter.RIGHT,anchor=Tkinter.W,fill=Tkinter.X,expand=1)
+        a=tkinter.Scale(edgewidthFrame,from_=1,to=30,variable=self.edgeWidthVar,
+                      showvalue=1,label="Edge Width:",orient=tkinter.HORIZONTAL)
+        a.pack(side=tkinter.TOP,anchor=tkinter.N,fill=tkinter.X)
+        edgewidthFrame.pack(side=tkinter.RIGHT,anchor=tkinter.W,fill=tkinter.X,expand=1)
         
         # Add the edge control below the weight sliders
-        edgeFrame.grid(row=self.numrows,column=0,columnspan=self.numcolumns,sticky=Tkinter.EW)
+        edgeFrame.grid(row=self.numrows,column=0,columnspan=self.numcolumns,sticky=tkinter.EW)
 
 #========================================================================
 class TestDialog(object):
     "A dummy object used to test the back end."
     
     def __init__(self, title="Tk", callbackMethod=None, labels=None, **kwargs):
-        print "TestDialog constructor:"
-        print "Title=", title
-        print "labels=", labels
-        print "kwargs=", kwargs
+        print("TestDialog constructor:")
+        print("Title=", title)
+        print("labels=", labels)
+        print("kwargs=", kwargs)
         self.__callbackMethod = callbackMethod
         self.edgestyle = "Taper"
         self.edgeWidth = ""

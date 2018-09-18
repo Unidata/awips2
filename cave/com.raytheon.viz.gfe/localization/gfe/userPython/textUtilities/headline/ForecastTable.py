@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -157,10 +157,10 @@ class ForecastTable(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         self.__loopMethod = self.__ut.set(fcstDef,"loopMethod")
         self.__endMethod = self.__ut.set(fcstDef,"endMethod")
-        if type(self.__loopMethod) == types.StringType:
-            exec "self.__loopMethod = self."+self.__loopMethod
-        if type(self.__endMethod) == types.StringType:
-            exec "self.__endMethod = self."+self.__endMethod
+        if type(self.__loopMethod) == bytes:
+            exec("self.__loopMethod = self."+self.__loopMethod)
+        if type(self.__endMethod) == bytes:
+            exec("self.__endMethod = self."+self.__endMethod)
 
         colJust = self.__ut.set(fcstDef,"columnJustification",
                                        "Center")
@@ -255,7 +255,7 @@ class ForecastTable(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             row = self.__createRow(entries, colLengths)
             # Hook for gathering statistics or modifying row
             if not self.__loopMethod is None:
-                args = self.__loopMethod.func_code.co_varnames
+                args = self.__loopMethod.__code__.co_varnames
                 if args[0] == "self":
                     rowText = self.__loopMethod(
                         self, row, rowLabel, rowEntries, self.__userDict, argDict)
@@ -269,7 +269,7 @@ class ForecastTable(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
         # Call User's end method
         if not self.__endMethod is None:
-            args = self.__endMethod.func_code.co_varnames
+            args = self.__endMethod.__code__.co_varnames
             if args[0] == "self":
                 table  = self.__endMethod(self, table, self.__userDict, argDict)
             else:
@@ -341,8 +341,8 @@ class ForecastTable(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         columnVar = self.__ut.set(fcstDef, "columnVariable", "element")
         periodLabelMethod = self.__ut.set(fcstDef,"periodLabelMethod",
                                       self.periodLabel)
-        if type(periodLabelMethod) == types.StringType:
-            exec "periodLabelMethod = self."+periodLabelMethod
+        if type(periodLabelMethod) == bytes:
+            exec("periodLabelMethod = self."+periodLabelMethod)
         periodLabelFormat = self.__ut.set(fcstDef,"periodLabelFormat",
                                       None)
         weTuples = self.__ut.set(fcstDef,"elementList")
@@ -460,9 +460,9 @@ class ForecastTable(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         constVal = tableVars.constVal()
         # Set up variables: period, area, element
-        exec tableVars.setPeriod()
-        exec tableVars.setArea()
-        exec tableVars.setElement()
+        exec(tableVars.setPeriod())
+        exec(tableVars.setArea())
+        exec(tableVars.setElement())
 
         # Analyze the entry given the area, element, and period
         analysisList = [(element.name(), element.analysis())]
@@ -478,12 +478,12 @@ class ForecastTable(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         #print "element", element.name(), value
         # If format method is in quotes, assume a method within this
         # inheritance hierarchy.
-        if type(format) == types.StringType:
-            exec "format = self."+format
+        if type(format) == bytes:
+            exec("format = self."+format)
             entry = format(element, value)
         else:
             # Check for first argument "self"
-            args = format.func_code.co_varnames
+            args = format.__code__.co_varnames
             if args[0] == "self":
                 entry = format(self, element, value)
             else:
@@ -492,7 +492,7 @@ class ForecastTable(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
     def __doHtml(self, argDict, table):
         # Generate HTML if required
-        if argDict.has_key("template") and not argDict["template"] is None:
+        if "template" in argDict and not argDict["template"] is None:
             template = argDict["template"]
             htmlFile = argDict["htmlFile"]
             htmlTable = "<pre>" + table + "</pre>"
@@ -520,8 +520,8 @@ class ForecastTable(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return None
         newList = []
         for name,label,analysis,format,dataType,roundVal,conversion in list:
-            if type(conversion) == types.StringType:
-                exec "conversion = self."+conversion
+            if type(conversion) == bytes:
+                exec("conversion = self."+conversion)
             newList.append(WeEntry(name,label,analysis,format,dataType,
                                    roundVal, conversion))
         return newList        

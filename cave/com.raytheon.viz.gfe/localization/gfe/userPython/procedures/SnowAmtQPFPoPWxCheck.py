@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -237,13 +237,13 @@ class Procedure (SmartScript.SmartScript):
         import types
         message = ''
         badValues = False
-        if not type(inconGridColor) is types.StringType:
+        if not type(inconGridColor) is bytes:
             message = '%sThe "inconGridColor" variable is not defined as a string value. Please contact your IFPS focal point to fix this problem.\n' % message
             badValues = True
-        if not type(tempGridColor) is types.StringType:
+        if not type(tempGridColor) is bytes:
             message = '%sThe "tempGridColor" variable is not defined as a string value. Please contact your IFPS focal point to fix this problem.\n' % message
             badValues = True
-        if not type(cwaEditArea) is types.StringType:
+        if not type(cwaEditArea) is bytes:
             message = '%sThe "cwaEditArea" variable is not defined as a string value. Please contact your IFPS focal point to fix this problem.\n' % message
             badValues = True
         if badValues:
@@ -545,7 +545,7 @@ The SnowAmt/Wx Check skipped the time range.''' % gridTR
                 self.highlightGrids(
                     'Fcst', 'Wx', 'SFC', gridTR, inconGridColor)
             # createGrid is from SmartScript
-            for index in xrange(len(wxInfoList)):
+            for index in range(len(wxInfoList)):
                 # Create temporary grids for each Wx grid. Limit the start and
                 # end times of the temporary grids so that they don't extend
                 # beyond the start and end times of the corresponding SnowAmt
@@ -879,7 +879,7 @@ The QPF/Wx Check skipped the time range.''' % gridTR
                 self.highlightGrids(
                     'Fcst', 'Wx', 'SFC', gridTR, inconGridColor)
             # createGrid is from SmartScript
-            for index in xrange(len(wxInfoList)):
+            for index in range(len(wxInfoList)):
                 # Create temporary grids for each Wx grid. Limit the time
                 # range of the temporary grid so that it doesn't start any
                 # earlier or any later than the corresponding QPF grid.

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -122,8 +122,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
         # Set up any other product-specific variables from the Definition
         self._definition = argDict["forecastDef"]
-        for key in self._definition.keys():
-            exec "self._" + key + "= self._definition[key]"
+        for key in list(self._definition.keys()):
+            exec("self._" + key + "= self._definition[key]")
 
         self._currentRegion = None
 
@@ -207,8 +207,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         numElements = len(self._elementList)
         index = 0
         for element in self._elementList:
-            exec "fcst = fcst + self._get" + element + \
-                 "Values(statList, argDict)"
+            exec("fcst = fcst + self._get" + element + \
+                 "Values(statList, argDict)")
             if index < numElements-1:
                 fcst = fcst + "  /"
             index += 1

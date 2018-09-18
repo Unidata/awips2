@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -212,8 +212,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         
         # Get Definition variables
         self._definition = argDict["forecastDef"]
-        for key in self._definition.keys():
-            exec "self._" + key + "= self._definition[key]"
+        for key in list(self._definition.keys()):
+            exec("self._" + key + "= self._definition[key]")
 
         self._issueTime = self.getCurrentTime(argDict, "%H%M%S", upperCase=1)
         self._WIMSTime = self._getWIMSTime(argDict['creationTime'])
@@ -221,10 +221,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # Get variables from VariableList
         varDict = argDict["varDict"]
-        for key in varDict.keys():
-            if type(key) is types.TupleType:
+        for key in list(varDict.keys()):
+            if type(key) is tuple:
                 label, variable = key
-                exec "self._" + variable + "= varDict[key]"             
+                exec("self._" + variable + "= varDict[key]")             
 
         # Calculate current times
         self._ddhhmmTime = self.getCurrentTime(
@@ -490,17 +490,17 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                     priorMag_mph = priorMag_mph * self._windAdjustmentFactor
                 diff = int(mag_mph - priorMag_mph)
             if diff >= 0:
-                magStr =  "+"+`diff`
+                magStr =  "+"+repr(diff)
             else:
-                magStr =  `diff`
+                magStr =  repr(diff)
             dir = None
         # By Value
         else:
             mag_mph = int(mag_mph)
             if mag_mph < 10:
-                magStr =  "0" +`mag_mph`
+                magStr =  "0" +repr(mag_mph)
             else:
-                magStr =  `mag_mph`
+                magStr =  repr(mag_mph)
                 
         # Handle direction
         dirStr = ""
@@ -512,7 +512,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             elif self._textDirection == 1:
                 dirStr = self.dirTo16PtText(dir) + ","
             else:
-                dirStr = `int(dir)` + ","
+                dirStr = repr(int(dir)) + ","
         return dirStr + magStr
             
     def _getWxDur(self, rangeName):
@@ -538,7 +538,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 # Try to get data from trendElement
                 trendValue = self._getValue(trendElement, rangeName, stats)
                 if trendValue is not None:
-                    return `int(trendValue)`                
+                    return repr(int(trendValue))                
             if priorRangeName is not None:
                 # Get data from prior day's data
                 priorValue = self._getValue(element, priorRangeName, stats)
@@ -546,10 +546,10 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                     priorValue = int(priorValue)
                     diff = value - priorValue
                     if diff >= 0:
-                        return "+"+`diff`
+                        return "+"+repr(diff)
                     else:
-                        return `diff`
-        return `value`
+                        return repr(diff)
+        return repr(value)
 
     def _getValue(self, element, rangeName, stats="avg"): 
         # Return a scalar value 

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -61,7 +61,7 @@ class TableBuilder(TextUtils.TextUtils):
             stats = statDict[we.name]
             #print stats
             for value, start in stats:
-                hourStr = `start.hour`+"Z/"+`start.day`
+                hourStr = repr(start.hour)+"Z/"+repr(start.day)
                 hours.append(hourStr)
                 if len(hourStr) > maxLen:
                     maxLen = len(hourStr)
@@ -97,7 +97,7 @@ class TableBuilder(TextUtils.TextUtils):
         #   (statDict, timeRange, argList)
         # and must return a text string value (i.e. numerical values
         # must be converted to text strings before being returned).
-        if type(colWidth) is types.ListType:
+        if type(colWidth) is list:
             fixedColWidth = colWidth[0]
         else:
             fixedColWidth = colWidth
@@ -116,14 +116,14 @@ class TableBuilder(TextUtils.TextUtils):
             values.append(value)
             index = index + 1
         row = string.ljust(rowLabel, rowLabelWidth)
-        for x in xrange(len(values)):
+        for x in range(len(values)):
             if x == 0:
                 width = firstValWidth
-            elif type(colWidth) is types.ListType:
+            elif type(colWidth) is list:
                 width = colWidth[x]
             else:
                 width = fixedColWidth
-            if type(justify) is types.ListType:
+            if type(justify) is list:
                 curJustify = justify[x]
             else:
                 curJustify = justify
@@ -272,7 +272,7 @@ class TableBuilder(TextUtils.TextUtils):
                 sign = "+"
             else:
                 sign = ""                    
-            return value + " (" + sign + `rawDiff` + ")"
+            return value + " (" + sign + repr(rawDiff) + ")"
 
 ####################################################################
 #  Weather Codes
@@ -604,7 +604,7 @@ class TableBuilder(TextUtils.TextUtils):
             return "    "
         else:
             # Convert to integer string
-            return string.rjust(`int(value)`,4)
+            return string.rjust(repr(int(value)),4)
 
     def getVectorVal(self, value):
         # Return  text representation of vector value
@@ -617,8 +617,8 @@ class TableBuilder(TextUtils.TextUtils):
         else:
             mag = value[0]
             dir = value[1]
-            magStr = string.rjust(`int(mag)`,3)
-            if type(dir) is not types.StringType:
+            magStr = string.rjust(repr(int(mag)),3)
+            if type(dir) is not bytes:
                 dir = self.dirToText(dir)
             dirStr = string.rjust(dir,2)
             return dirStr + magStr
@@ -687,7 +687,7 @@ class TableBuilder(TextUtils.TextUtils):
             value, prevCoverage = self.weather_value(
                 None, None, subkey, prevCoverage, nextSubkey)
             percentage = int(self.round(percentage,"Nearest", 1)) 
-            words = words + value + " (" + `percentage` + "%) " 
+            words = words + value + " (" + repr(percentage) + "%) " 
             #prevSubkey = subkey 
 
             # if last one, do not add conjunction
@@ -743,7 +743,7 @@ class TableBuilder(TextUtils.TextUtils):
             str = subkey.split(":")[0]
             discreteWords = DiscreteKey.discreteDefinition(siteId).keyDesc(
                 "Hazards" + "_SFC", str)
-            words = words + discreteWords + " (" + `percentage` + "%) " 
+            words = words + discreteWords + " (" + repr(percentage) + "%) " 
 
             # if last one, do not add conjunction
             if index == length - 1: break
@@ -836,7 +836,7 @@ class TableBuilder(TextUtils.TextUtils):
             total = total + value
         total = self.round(total, "Nearest", 1)
         #print "wxDur", total, timeRange
-        return `int(total)`
+        return repr(int(total))
 
     # Special interface to Multiple Element Table
     def makeMultipleElementTable(self, areaLabel, timeRange, argDict,
@@ -845,11 +845,11 @@ class TableBuilder(TextUtils.TextUtils):
         #   For each city
         #     Generate a MultipleElementTable
         comboList = self.getCurrentAreaNames(argDict)
-        exec "import " + self._cityDictionary
-        exec "cityDict = " + self._cityDictionary + ".CityDictionary"
+        exec("import " + self._cityDictionary)
+        exec("cityDict = " + self._cityDictionary + ".CityDictionary")
         table = ""
 
-        if type(argDict) is not types.DictType:
+        if type(argDict) is not dict:
             # "argDict" is really "tree"
             argDict = argDict.get("argDict")
         argDict["elementList"] = self._elementList

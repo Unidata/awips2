@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -130,21 +130,21 @@ class Node:
         else:
             return default
     def printNode(self, node, indentStr=""):
-        print "Node", node
-        print indentStr + "  Methods"
+        print("Node", node)
+        print(indentStr + "  Methods")
         for method in node.methodList:
             if method in node.doneList:
                 done = "DONE"
             else:
                 done = ""
-            print indentStr + "    ", method.__name__, done
-        print indentStr + "  Attributes"
+            print(indentStr + "    ", method.__name__, done)
+        print(indentStr + "  Attributes")
         dict = node.__dict__
         for key in dict:
             if key == "methodList" or key == "doneList":
                 continue
-            print indentStr + "    ", key, dict[key]
-        print indentStr + "  Children ", len(node.childList)
+            print(indentStr + "    ", key, dict[key])
+        print(indentStr + "  Children ", len(node.childList))
         for child in node.childList:
             self.printNode(child, indentStr + "    ")
     def copy(self):
@@ -222,7 +222,7 @@ class Node:
             statDict =  self.statDict
             disabledElements = self.getAncestor("disabledElements")
             if disabledElements is not None:
-                for key in statDict.keys():
+                for key in list(statDict.keys()):
                     for element in self.parent.disabledElements:
                         if key == element:
                             statDict[element] = None
@@ -232,7 +232,7 @@ class Node:
                 disabledWxTypes = []
                 for disabledSubkey in disabledSubkeys:
                     disabledWxTypes.append(disabledSubkey.wxType())
-                for key in statDict.keys():
+                for key in list(statDict.keys()):
                     if key == "Wx":
                         subkeys = statDict[key]
                         newList = []
@@ -240,7 +240,7 @@ class Node:
                             # Need to handle both "dominantWx" and
                             # "rankedWx" analysis
                             appendVal = subkey
-                            if type(subkey) is types.TupleType:
+                            if type(subkey) is tuple:
                                 subkey, rank = subkey
                             if subkey not in disabledSubkeys \
                                 and subkey.wxType() not in disabledWxTypes:
@@ -298,7 +298,7 @@ class Narrative(Node, TextRules.TextRules):
         TextRules.TextRules.__init__(self)
 
     def printTree(self):
-        print "\n\nNarrative Tree\n"
+        print("\n\nNarrative Tree\n")
         self.printNode(self, "")
     def getTopoHisto(self, areaLabel):
         editArea = self.library.findEditArea(None, areaLabel)
@@ -324,7 +324,7 @@ class Narrative(Node, TextRules.TextRules):
         # copy attributes from original node
         for attr in copyAttrs:
             newVal = node.get(attr)
-            if type(newVal) is types.ListType:
+            if type(newVal) is list:
                 newList = []
                 for item in newVal:
                     newList.append(item)
@@ -380,14 +380,14 @@ class StatisticsDictionary(TextRules.TextRules):
         for keyName in keyOrder:
             execStr = execStr + "["+keyName+"]"
             if index == lastIndex:
-                exec execStr + "= value"
+                exec(execStr + "= value")
             else:
                 # Make sure there is at least an empty dictionary
                 # for this keyName
                 try:
-                    exec "result = " + execStr
+                    exec("result = " + execStr)
                 except:
-                    exec execStr + "= {}"
+                    exec(execStr + "= {}")
             index = index + 1
     def get(self, element, timeRange, areaLabel=None, statLabel="", mergeMethod="List",
             intersectWith=None):
@@ -415,11 +415,11 @@ class StatisticsDictionary(TextRules.TextRules):
             matchFound = 0
             #if element == "Wx":
             #    print "\n\nstatLabel", statLabel, dict.keys()
-            for subRange in dict.keys():
+            for subRange in list(dict.keys()):
                 statDict = dict[subRange]
                 #if element == "Wx":
                 #    print "statDict keys", statDict.keys()
-                if statLabel in statDict.keys():
+                if statLabel in list(statDict.keys()):
                     if subRange.overlaps(timeRange):
                         # If subRange covers the timeRange, treat as exact match
                         subValue = statDict[statLabel]
@@ -474,24 +474,24 @@ class StatisticsDictionary(TextRules.TextRules):
 
     def printDictionary(self, element=None):
         if element is None:
-            print "\n\nStatistics Dictionary\n"
+            print("\n\nStatistics Dictionary\n")
             self.printDict(self.dictionary, "")
         else:
             try:
-                print "\n\nStatistics Dictionary for "+element+"\n"
+                print("\n\nStatistics Dictionary for "+element+"\n")
                 self.printDict(self.dictionary[element], "")
             except:
                 pass
     def printDict(self, dictionary, indentStr):
-        for key in dictionary.keys():
+        for key in list(dictionary.keys()):
             value = dictionary[key]
-            if type(key) is types.StringType and key  == "":
+            if type(key) is bytes and key  == "":
                 key = "EmptyString"
-            print indentStr, key
-            if type(value) is types.DictionaryType:
+            print(indentStr, key)
+            if type(value) is dict:
                 self.printDict(value, indentStr + "   ")
             else:
-                print indentStr, indentStr, value
+                print(indentStr, indentStr, value)
 
 
 class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
@@ -538,7 +538,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         self.__areaCache = {}
         areaList = []
         for editArea, areaLabel in self.__areaList:
-            if type(editArea) is types.StringType:
+            if type(editArea) is bytes:
                 #print "Get Edit Area FN: getting edit area 1", editArea
                 editArea = self.getEditArea(editArea, argDict)
             self.__areaCache[areaLabel] = editArea
@@ -566,7 +566,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         else:
             self.progressMessage(.3, 80, "Sampling Data -- please wait...")                        
             self.__sampler = HistoSampler(argDict["ifpClient"].getJavaClient(), self.__samplerRequests)
-        print "Time to Sample Data", time.time()-time1
+        print("Time to Sample Data", time.time()-time1)
         #if error is not None:
         #    return error
         #print "Sampler", self.__sampler
@@ -577,7 +577,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         time1 = time.time()
         self.progressMessage(.6, 80, "Analyzing Data -- please wait...")
         error = self.__createStatisticsDictionary(argDict)
-        print "Time to Get Statistics", time.time()-time1
+        print("Time to Get Statistics", time.time()-time1)
         #error = self.__createStatisticsDictionary0(argDict)
         if error is not None:
             return error
@@ -599,7 +599,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         self.__createNarrativeTree(argDict)
         if editArea is None:
             editArea, areaLabel = argDict["editArea"]
-            if type(editArea) is types.StringType:
+            if type(editArea) is bytes:
                 editArea = self.getEditArea(editArea, argDict)
         # Otherwise, set argDict
         else:
@@ -619,11 +619,11 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         time1 = time.time()
         passes = 0
         while changesMade:
-            if self.__trace: print "\n####### Pass %d #####\n" % (passes + 1)
+            if self.__trace: print("\n####### Pass %d #####\n" % (passes + 1))
 
             # Tree traversal
             changesMade = self.traverseTree(self.__narrativeTree)
-            if self.__trace: print "\n\nCHANGES IN PASS", changesMade
+            if self.__trace: print("\n\nCHANGES IN PASS", changesMade)
             #changesMade = 1
             passes = passes + 1
             self.__narrativeTree.passes = passes
@@ -648,14 +648,14 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                (changesMade == 0 and self.__narrativeTree.get('words') is None):
                 if not self.__narrativeTree.lastChance:
                     # Do last chance pass
-                    print "\nDoing Last Chance Pass"
+                    print("\nDoing Last Chance Pass")
                     self.__narrativeTree.lastChance = 1
                     changesMade = 1
                 else:
                     # We already did a lastChance pass
                     if not self.__narrativeTree.fixedIt:
                         # Fix it, re-set passes and continue
-                        print "\nDoing Fix it Pass"
+                        print("\nDoing Fix it Pass")
                         changesMade = 1
                         self.__narrativeTree.passes = 0
                         self.__narrativeTree.fixedIt = 1
@@ -667,7 +667,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                         # Stop execution: no more error recovery to attempt
                         changesMade = 0
                        
-        print "Time for phrase generation for ", areaLabel, ":", time.time()-time1, "Passes", passes
+        print("Time for phrase generation for ", areaLabel, ":", time.time()-time1, "Passes", passes)
         words =  self.__narrativeTree.get("words")
         if self.__narrativeTree.fixedIt:
             self.__problemPhrases = []
@@ -682,8 +682,8 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Top Down traversal
 
         if self.__trace:
-            print "Traversing node:", node.get("name"), node.getAreaLabel(), node.getTimeRange()
-            print "       ", node, node.parent
+            print("Traversing node:", node.get("name"), node.getAreaLabel(), node.getTimeRange())
+            print("       ", node, node.parent)
 
         # Execute methods at this level
         methodList = node.methodList
@@ -698,18 +698,18 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
                 # Trace output    
                 if self.__infiniteTrace:
-                    print "Traversing node:", node.get("name"), node.getAreaLabel(), \
-                          node.getTimeRange()
-                    print "   Method:", method.__name__
-                    print "   Done", done
-                    print "   Node", node
+                    print("Traversing node:", node.get("name"), node.getAreaLabel(), \
+                          node.getTimeRange())
+                    print("   Method:", method.__name__)
+                    print("   Done", done)
+                    print("   Node", node)
                 if self.__trace:
                     if done:
                         doneStr = "DONE"
                     else:
                         doneStr = ""
-                    print "Method", method.__name__, doneStr, time.time()-time1,
-                    print "      Words", node.get("words")                    
+                    print("Method", method.__name__, doneStr, time.time()-time1, end=' ')
+                    print("      Words", node.get("words"))                    
 
         # Execute methods of children
         # If ANY child is changed, we are not done
@@ -721,7 +721,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # See if we made any changes at this level OR at a child's level
         changesMade = childrenChanged | node.changeFlag
-        if self.__trace: print 'Changes made:', changesMade
+        if self.__trace: print('Changes made:', changesMade)
         # Re-set changeFlag
         node.changeFlag = 0
         return changesMade
@@ -738,7 +738,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         self.__compList = self.__breakOutTimeRange(
             argDict, timeRange, narrativeDef, self.__currentLocalTime, self.__shift)
         # If error message, return error string
-        if type(self.__compList) is types.StringType:
+        if type(self.__compList) is bytes:
             return self.__compList
 
         #print "Time to make compList", time.time() - time1
@@ -854,7 +854,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 # Start_hours and end_hours are relative to midnight local time
                 # of the product creation date.
                 subType, period = period
-                if type(period) == types.TupleType and len(period) == 2:
+                if type(period) == tuple and len(period) == 2:
                     startHour, endHour = period
                     compRange = TimeRange.TimeRange(midnight + startHour*3600,
                                                midnight + endHour*3600)
@@ -887,7 +887,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             if found == 0:
                 s = "\nProblem finding or importing Text Product " + \
                   "Definition: " + subType + "\n"
-                raise Exception, s
+                raise Exception(s)
             forecastDef = argDict["forecastDef"]
 
             # Append to component list
@@ -933,20 +933,20 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 #print "   Appending", intersectLabel
                 intersectAreas.append(intersectArea)
             else:
-                print "   Empty Intersection, skipping", intersectName
+                print("   Empty Intersection, skipping", intersectName)
         return intersectAreas
 
     def __addToRequests(self, argDict, timeRange, componentName,
                         sampleList, samplerRequests, statisticsDict):
         innerList = ArrayList(len(sampleList))
         for element, methodArgs, editArea, areaLabel in sampleList:
-            if element not in statisticsDict.keys():
+            if element not in list(statisticsDict.keys()):
                 statisticsDict[element] = {}
             areaDict = statisticsDict[element]
-            if areaLabel not in areaDict.keys():
+            if areaLabel not in list(areaDict.keys()):
                 areaDict[areaLabel] = {}
             trDict = areaDict[areaLabel]
-            if timeRange not in trDict.keys():
+            if timeRange not in list(trDict.keys()):
                 trDict[timeRange] = ([], componentName, {})
             parmID = self.__parmID(element)
             innerList.add(SamplerRequest(parmID, editArea, timeRange.toJavaObj()))            
@@ -958,7 +958,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def findEditArea(self, editArea, areaLabel):
         # Return given editArea or cached editArea for the given label
         # Add to cache if necessary
-        if areaLabel in self.__areaCache.keys():
+        if areaLabel in list(self.__areaCache.keys()):
             return self.__areaCache[areaLabel]
         else:
             if type(editArea) is str or str(editArea).find('Id') == -1:
@@ -968,7 +968,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return editArea
 
     def __parmID(self, element):
-        if element in self.__elementCache.keys():
+        if element in list(self.__elementCache.keys()):
             return self.__elementCache[element]
         else:
             parmID = self.getParmID(element, self.__databaseID)
@@ -981,7 +981,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Set up skeleton tree and node to be used when looking up user-configurable thresholds.
         tree, node = self.getSkeleton(self.__timeRange, None)
 
-        for element in self.__statisticsDict.keys():
+        for element in list(self.__statisticsDict.keys()):
             parmID = self.__parmID(element)
             # Get conversion information
             dataType = self.getDataType(element)
@@ -1000,13 +1000,13 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             #rangeInfo = productSelf.getRangeInfo(tree, node, element)
             #
             areaDict = self.__statisticsDict[element]
-            for areaLabel in areaDict.keys():
+            for areaLabel in list(areaDict.keys()):
                 tree.areaLabel = areaLabel
                 node.areaLabel = areaLabel
                 editArea = self.findEditArea(None, areaLabel)
                 tree.editArea = editArea
                 trDict = areaDict[areaLabel]
-                keys = trDict.keys()
+                keys = list(trDict.keys())
                 for timeRange in keys:
                     node.timeRange = timeRange
                     methodArgsList, componentName, statDict = trDict[timeRange]
@@ -1028,11 +1028,11 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                         index = index +1
 
         # Another pass to remove the methodArgsList, componentName from trDict
-        for element in self.__statisticsDict.keys():
+        for element in list(self.__statisticsDict.keys()):
             areaDict = self.__statisticsDict[element]
-            for areaLabel in areaDict.keys():
+            for areaLabel in list(areaDict.keys()):
                 trDict = areaDict[areaLabel]
-                for timeRange in trDict.keys():
+                for timeRange in list(trDict.keys()):
                     methodArgsList, componentName, statDict = trDict[timeRange]
                     trDict[timeRange] = statDict
 
@@ -1101,7 +1101,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             else:
                 if dataType == self.VECTOR():
                     stats, dir = stats
-                if type(stats) is types.TupleType:
+                if type(stats) is tuple:
                     min, max = stats
                     increment_nlValue = productSelf.increment_nlValue(
                         tree, node, elementName, elementName)
@@ -1148,7 +1148,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             statLabels = [statLabel]
         #if element == "Hazards":
         #    print "Storing Hazards", stats
-        if type(stats) is types.ListType:
+        if type(stats) is list:
             # Expand statsByRange to individual time range entries
             # Skip special cases of hourlyTemp, discrete_percentages,
             # and list of wx or discrete subkeys
@@ -1156,11 +1156,11 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 value, tr = stats[0]
             except:
                 tr = 0
-            if type(tr) is types.IntType or type(tr) is types.FloatType:
+            if type(tr) is int or type(tr) is float:
                 pass
             else:
                 for value, tr in stats:
-                    if tr not in trDict.keys():
+                    if tr not in list(trDict.keys()):
                         trDict[tr] = ([], "", {})
                     methodArgsList, componentName, statDict = trDict[tr]
                     for statLabel in statLabels:
@@ -1207,7 +1207,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         parmID = self.__parmID(element)
         try:
             gridParmInfo = self.__ifpClient.getGridParmInfo(parmID)
-        except RuntimeError, e:
+        except RuntimeError as e:
             # AWIPS-I doesn't throw an error here best I can tell and
             # most of the time when we hit this except it will be because
             # a grid parm was requested that the server doesn't know about.
@@ -1254,7 +1254,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # a list of LocalEffect objects or as a method
         args = None
         localEffectsList = None
-        if type(phraseDef) is types.TupleType:
+        if type(phraseDef) is tuple:
             if len(phraseDef) == 2:
                 phraseDef, object1 = phraseDef
                 objects = [object1]
@@ -1333,7 +1333,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "Trouble-shooting Narrative Products".
 
         """
-        return "\n" + `passes` + " PASSES. " + msg
+        return "\n" + repr(passes) + " PASSES. " + msg
     
     def getProblemPhrases(self,
                           attrList=["name", "words", "methodList", "doneList"],
@@ -1359,7 +1359,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         probStr += "\n   " + attr
         if methodList is not None:
             for method in methodList:
-                probStr += "\n    " + method.func_name
+                probStr += "\n    " + method.__name__
         return probStr
 
     def errorTraverse(self, node, attrList=["name", "words"], ancestorList=["name"],
@@ -1373,18 +1373,18 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         #print "  Ancestor attributes"
         #for ancAttr in ancestorList:
         #    print "    ", ancAttr, node.getAncestor(ancAttr)
-        print node, node.get('name'), node.get('words')
+        print(node, node.get('name'), node.get('words'))
         childList = node.get('childList')
         if childList is None or childList == []:
-            print "LEAF NODE"
+            print("LEAF NODE")
             if node.get('words') is None:
-                print "WITHOUT WORDS!!", node.getAncestor('name')
+                print("WITHOUT WORDS!!", node.getAncestor('name'))
                 errorWords = "|* Please enter " + node.getAncestor('name') + \
                              " and refer to log files for more explanation *|"
                 node.set('words', errorWords)
                 self.__problemPhrases.append(node)
         else:
-            print "  Children"
+            print("  Children")
             for child in node.get('childList'):
                 self.errorTraverse(child, attrList=attrList)
 
@@ -1582,7 +1582,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
     def isStatsByRange(self, dataType, value, checkTupleLists=1):
         if dataType == self.VECTOR() or dataType == self.SCALAR():
-            if type(value) is types.ListType:
+            if type(value) is list:
                 if checkTupleLists:
                     # Look for special cases like hourlyTemp which
                     # does not return statsByRange, but is list of
@@ -1590,8 +1590,8 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                     try:
                         firstValue = value[0]
                         subRange = firstValue[1]
-                        if type(subRange) is types.IntType or \
-                           type(subRange) is types.FloatType:
+                        if type(subRange) is int or \
+                           type(subRange) is float:
                             return 0
                     except:
                         pass
@@ -1607,7 +1607,7 @@ class ForecastNarrative(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             #    discretePercentages: list of (key, percentage) tuples: return 0
             #    discreteTimeRangesByKey: list of (key, timerange) tuples: return 1
             #print "\ngot here", value
-            if type(value) is types.ListType and len(value) > 0:
+            if type(value) is list and len(value) > 0:
                 try:
                     stats, tr = value[0]                    
                     if isinstance(tr, TimeRange.TimeRange):                                            

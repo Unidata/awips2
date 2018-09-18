@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -203,11 +203,11 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
         statList = self.getSubStats(node, "Wx")
         length = len(statList)
         if self.__dict__.get("_leDebug", 0):
-            print "\n\nSPW separateNonPrecip", node.get('name'), node.getAreaLabel()
-            print "   node", node
-            print "   disabled", node.getAncestor("disabledSubkeys")
-            print "   timerange", node.getTimeRange()
-            print "   statList", statList
+            print("\n\nSPW separateNonPrecip", node.get('name'), node.getAreaLabel())
+            print("   node", node)
+            print("   disabled", node.getAncestor("disabledSubkeys"))
+            print("   timerange", node.getTimeRange())
+            print("   statList", statList)
             #print "   doneList", node.doneList
             #print "   disabled", node.get('disabledSubkeys')
         if length > 0:
@@ -222,7 +222,7 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
                         precip.append(subkey)                        
                     else:
                         nonPrecip.append(subkey)
-            if self.__dict__.get("_leDebug", 0): print "precip, nonPrecip", precip, nonPrecip
+            if self.__dict__.get("_leDebug", 0): print("precip, nonPrecip", precip, nonPrecip)
             if len(precip) >= 0 and len(nonPrecip) >= 1:
                 # Save this information so we can remove this new phrase later if
                 # we do not end up doing a combined sky, pop, weather phrase.
@@ -245,37 +245,37 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
         length = len(statList)
         subkeyDict = {}
         if self.__dict__.get("_leDebug", 0):
-            print "\nSPW Consolidating ", node.get('name'), node.getAreaLabel()
-            print "   node", node
-            print "   disabled", node.getAncestor("disabledSubkeys")
-            print "   timerange", node.getTimeRange()
-            print "   statList", statList
+            print("\nSPW Consolidating ", node.get('name'), node.getAreaLabel())
+            print("   node", node)
+            print("   disabled", node.getAncestor("disabledSubkeys"))
+            print("   timerange", node.getTimeRange())
+            print("   statList", statList)
             #print "   doneList", node.doneList
         if length > 1:
             # Count occurrences of each weather key
             for rankList in statList:
                 subkeys = self.getSubkeys(rankList)
                 for subkey in subkeys:
-                    if subkey not in subkeyDict.keys():
+                    if subkey not in list(subkeyDict.keys()):
                         subkeyDict[subkey] = 1
                     else:
                         subkeyDict[subkey] += 1
             if self.__dict__.get("_leDebug", 0): 
-                print "subkeyDict", subkeyDict
+                print("subkeyDict", subkeyDict)
                 
             # Find subkeys to disable in first phrase and second phrase,
             # respectively
             list1 = []
             list2 = []
-            for subkey in subkeyDict.keys():
+            for subkey in list(subkeyDict.keys()):
                 count = subkeyDict[subkey]
                 if count >= length:
                     list2.append(subkey)
                 else:
                     list1.append(subkey)
             if self.__dict__.get("_leDebug", 0): 
-                print "list1", list1
-                print "list2", list2
+                print("list1", list1)
+                print("list2", list2)
                 
             if len(list1) > 0 and len(list2) > 0:
                 newPhrase = self.splitWxPhrase(
@@ -317,7 +317,7 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
         # Check criteria to see if we can produce a combined phrase
         # Enhanced by Dave Zaff
 
-        if self.__dict__.get("_leDebug", 0): print "\nCheckSPW", node.getTimeRange(), node.getAreaLabel()
+        if self.__dict__.get("_leDebug", 0): print("\nCheckSPW", node.getTimeRange(), node.getAreaLabel())
 
         # Determine non-empty weather subPhrases
         wxSubPhrases = self.getNonEmptyWxSubPhrases(tree, node)
@@ -328,11 +328,11 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
         # PoP
         includePoP = self.checkIncludePoP(tree, node)
         if self.__dict__.get("_leDebug", 0):
-            print "\nBefore removing independent phrases:"
+            print("\nBefore removing independent phrases:")
             self.printCompPhrases(tree, node)
-            print
-            print "includePoP", includePoP
-            print "If -1, clean-up. If 1, remove area and compArea popMax"
+            print()
+            print("includePoP", includePoP)
+            print("If -1, clean-up. If 1, remove area and compArea popMax")
         if includePoP == -1:
             #print "cleaning up"
             return self.skyPopWx_cleanUp(tree, node)
@@ -352,8 +352,8 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
         # Sky
         includeSky = self.checkIncludeSky(tree, node, wxSubPhrases)
         if self.__dict__.get("_leDebug", 0):
-            print "includeSky", includeSky
-            print "If 1, remove sky_phrase for area"
+            print("includeSky", includeSky)
+            print("If 1, remove sky_phrase for area")
         if includeSky:
             self.removeComponentPhrases(tree, node, "sky_phrase",
                                         areaLabels=[node.getAreaLabel()])
@@ -371,8 +371,8 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
                 node.getComponent().getAreaLabel()
                 ])
         if self.__dict__.get("_leDebug", 0):
-            print "Removed weather phrases", node.getAreaLabel()
-            print "\nAfter removing independent phrases:"
+            print("Removed weather phrases", node.getAreaLabel())
+            print("\nAfter removing independent phrases:")
             self.printCompPhrases(tree, node)
         return self.DONE()
 
@@ -387,7 +387,7 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
         component = node.getComponent()
         progeny = component.getProgeny()
         wxExceptions = []
-        if self.__dict__.get("_leDebug", 0): print "\nGetting exceptions for", nodeStats
+        if self.__dict__.get("_leDebug", 0): print("\nGetting exceptions for", nodeStats)
         for child in progeny:
             if child.getAreaLabel() == node.getAreaLabel():
                 continue
@@ -395,11 +395,11 @@ class CombinedPhrases(ScalarPhrases.ScalarPhrases, VectorRelatedPhrases.VectorRe
             if name == phraseName:
                 # Check the stats
                 wxStats = self.getWxStats(tree, child)
-                if self.__dict__.get("_leDebug", 0): print "\nChecking", wxStats
+                if self.__dict__.get("_leDebug", 0): print("\nChecking", wxStats)
                 for subkey, rank in wxStats:
                     if subkey in nodeKeys or subkey.wxType() == "<NoWx>":
                         continue
-                    if self.__dict__.get("_leDebug", 0): print "Appending"
+                    if self.__dict__.get("_leDebug", 0): print("Appending")
                     wxExceptions.append(child)
         return wxExceptions
 

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -221,7 +221,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
         units = self.units_descriptor(tree, node, "units", outUnits)
         windDifference = self.nlValue(self.gust_wind_difference_nlValue(tree, node), maxWind)
         if gusts - maxWind > windDifference:
-            gustPhrase = " with gusts to around " + `int(gusts)` + " " + units
+            gustPhrase = " with gusts to around " + repr(int(gusts)) + " " + units
         return gustPhrase
      
     def simple_vector_phrase(self, tree, node, elementInfo, checkRepeating=1):
@@ -319,15 +319,15 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
         if maxMag == minMag: #or minMag == 0:
             around = self.addSpace(
                 self.phrase_descriptor(tree, node, "around", elementName))
-            words =  around + `int(maxMag)` + " " + units    
+            words =  around + repr(int(maxMag)) + " " + units    
         else:    
             if int(minMag) < threshold:
                 upTo = self.addSpace(
                     self.phrase_descriptor(tree, node, "up to", elementName))
-                words = upTo + `int(maxMag)` + " " + units
+                words = upTo + repr(int(maxMag)) + " " + units
             else:
                 valueConnector = self.value_connector(tree, node, elementName, elementName)
-                words =  `int(minMag)` + valueConnector + `int(maxMag)` + " " + units
+                words =  repr(int(minMag)) + valueConnector + repr(int(maxMag)) + " " + units
 
         # This is an additional hook for customizing the magnitude wording
         words = self.vector_mag_hook(tree, node, minMag, maxMag, units, elementName, words)
@@ -355,7 +355,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
                     self.phrase_descriptor(tree, node, windWords, elementName))
                 if descriptor == prevSpecial:
                     descriptor = ""
-                words = descriptor  + `int(maxMag)` + " " + units 
+                words = descriptor  + repr(int(maxMag)) + " " + units 
                 specialDescriptor = 1
                 break
 
@@ -363,15 +363,15 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
             if maxMag > 25:
                 descriptor = self.addSpace(
                     self.phrase_descriptor(tree, node, "up to", elementName))
-                words = descriptor + `int(maxMag)` + " " + units 
+                words = descriptor + repr(int(maxMag)) + " " + units 
             else:
                 if minMag == maxMag or minMag == 0:
                     around = self.addSpace(
                         self.phrase_descriptor(tree, node, "around", elementName))
-                    words = around + `int(maxMag)` + " " + units
+                    words = around + repr(int(maxMag)) + " " + units
                 else:
                     valueConnector = self.value_connector(tree, node, elementName, elementName)
-                    words =  `int(minMag)` + valueConnector + `int(maxMag)` + " " + units
+                    words =  repr(int(minMag)) + valueConnector + repr(int(maxMag)) + " " + units
         else:
             # If special marine descriptor is included in the resulting
             # words for the first subPhrase, turn off the phrase descriptor
@@ -499,7 +499,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
             return self.setWords(node, "null")
         outUnits = self.element_outUnits(tree, node, "WindGust", "WindGust")
         units = self.units_descriptor(tree, node, "units", outUnits)
-        words =  `int(gustValue)` + " " + units        
+        words =  repr(int(gustValue)) + " " + units        
         return self.setWords(node, words)
 
 
@@ -623,7 +623,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
             return self.setWords(component, "") 
 
         self.debug_print("maxMag from includeOnlyPhrases_list: %s " % (maxMagList), 1)
-        print "maxMagList from includeOnlyPhrases_list: ", maxMagList
+        print("maxMagList from includeOnlyPhrases_list: ", maxMagList)
 
         maxMag = 0.0
         for mag in maxMagList:
@@ -634,7 +634,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
         if productType == "ZFP":
             maxMag = maxMag*0.868976242
         self.debug_print("maxMag in includeOnlyPhrases_list: %s " % (maxMag), 1)
-        print "maxMag in includeOnlyPhrases_list: ", maxMag
+        print("maxMag in includeOnlyPhrases_list: ", maxMag)
 
         if maxMag is None:
             maxMag = 0.0
@@ -723,7 +723,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
         component = node.getComponent()
         compIndex = node.getComponent().getIndex()
         compPeriod = int(compIndex + self.firstComponentPeriod(tree, node))
-        print "COMPONENT IN pws_words", compPeriod
+        print("COMPONENT IN pws_words", compPeriod)
         componentName = node.getComponentName()
         
         if self._pil.find("ZFP") == 0:
@@ -733,7 +733,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
             
         #  COMMENT: If this is one of the first 5 periods of the ZFP, or this is the CWF
         if not productType == "ZFP" or compPeriod <= 5:
-            print "I AM IN: ", node.getTimeRange()
+            print("I AM IN: ", node.getTimeRange())
             #!!! Wait for wind phrase to complete
             #    We're assuming that all the wind phrases have completed (including
             #    local effect phrases) if one has.
@@ -771,7 +771,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
         #  logic can be carried out through the extended (day 5) periods.
         #
         else:
-            print "I AM IN: ", node.getTimeRange()
+            print("I AM IN: ", node.getTimeRange())
             windStats = tree.stats.get(
                 "Wind", node.getTimeRange(), node.getAreaLabel(),
                 statLabel="vectorModeratedMinMax", mergeMethod="Max")
@@ -813,7 +813,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
         #print "WORDS1", words
         words = ""
         areaLabel = tree.getAreaLabel()
-        print "\nBegin period***********", node.getTimeRange()
+        print("\nBegin period***********", node.getTimeRange())
         self.debug_print("\nNode time range -> %s" %
                          (repr(node.getTimeRange())), 1)
         self.debug_print("Parent time range -> %s" %
@@ -832,10 +832,10 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
         self.debug_print("warningpws34 = %s" % (pws34), 1)
         self.debug_print("Headline stats for warning -> %s" %
                          (repr(headlines)), 1)
-        print "maxMag = ", maxMag
-        print "warningpws64 = ", pws64
-        print "warningpws34 = ", pws34
-        print "Headline stats for warning ", headlines
+        print("maxMag = ", maxMag)
+        print("warningpws64 = ", pws64)
+        print("warningpws34 = ", pws34)
+        print("Headline stats for warning ", headlines)
 
         if headlines is not None:
             # Sort the headlines by startTime
@@ -914,7 +914,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
         words = ""
         #  If this is one of the first 4 periods of the forecast
         if compPeriod <= 4:
-            exec "descMethod = self.getPeriod_%d_Desc" % (compPeriod)
+            exec("descMethod = self.getPeriod_%d_Desc" % (compPeriod))
         #  Otherwise, If this is one of the fifth to ninth forecast periods
         elif 5 <= compPeriod <= 9:
             descMethod = self.getPeriod_5_9_Desc
@@ -958,7 +958,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
                 if key in headlineKeys:
                     found = True
                     break
-            exec "self._"+varName+"= found"
+            exec("self._"+varName+"= found")
 
 
 ##     def tropicalBooleanConditions(self, headlineKeys):
@@ -1129,7 +1129,7 @@ class VectorRelatedPhrases(PhraseBuilder.PhraseBuilder):
             self.debug_print("ifelse3!!!  %s" % (maxMag))
 
         else:
-            print "check..........   ", "check"
+            print("check..........   ", "check")
             if maxMag >= 64.0:
                 desc = "posHR"
             elif maxMag >= 34.0:

@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -209,7 +209,7 @@ import SmartScript
 # Hack to make Tkinter work:
 import sys
 sys.argv = [''] 
-import Tkinter
+import tkinter
 import threading
 ## For available commands, see SmartScript
 
@@ -256,13 +256,13 @@ class Tool (SmartScript.SmartScript):
                 if ((type[x] == "R") or (type[x] == "S") or (type[x] == "ZR") or (type[x] == "IP")):
                     if ((alt_probcov[x] == "None") or (alt_probcov[x] == "Iso") or (alt_probcov[x] == "Sct") \
                         or (alt_probcov[x] == "Num") or (alt_probcov[x] == "Patchy") or (alt_probcov[x] == "Areas")): 
-                        print type[x], alt_probcov[x]
+                        print(type[x], alt_probcov[x])
                         self.errorNotice('Invalid Wx Type', "Areal coverage qualifiers other than 'Wide' may not be used with a "\
                         "precip type of R, S, ZR, or IP.\nPlease re-run the tool using different qualifiers.") 
                         return Wx
                 if ((type[x] == "L") or (type[x] == "ZL")):
                     if ((alt_probcov[x] == "None") or (alt_probcov[x] == "Iso") or (alt_probcov[x] == "Sct") or (alt_probcov[x] == "Num")):
-                        print type[x], alt_probcov[x]
+                        print(type[x], alt_probcov[x])
                         self.errorNotice('Invalid Wx Type', "Areal coverage qualifiers other than 'Patchy', 'Areas', or 'Wide' may not be used with "\
                         "a precip type of L or ZL.\nPlease re-run the tool using different qualifiers.") 
                         return Wx
@@ -271,7 +271,7 @@ class Tool (SmartScript.SmartScript):
         for x in range(len(alt_probcov)):
             # Add check in case Fog is selected with no alternate qualifier
             if (type[x] == "F") and (alt_probcov[x] == "None"):
-                    print type[x]
+                    print(type[x])
                     self.errorNotice('Invalid Wx Type', "You must use a qualifier of 'Patchy', 'Areas', or 'Wide' with F (Fog).\n"\
                     "Please re-run the tool using an allowed qualifier.")
                     return Wx
@@ -281,13 +281,13 @@ class Tool (SmartScript.SmartScript):
             if (alt_probcov[x] != "None") and (type[x] != "None"):
                 if ((type[x] == "R") or (type[x] == "S") or (type[x] == "ZR") or (type[x] == "IP") or (type[x] == "L") or (type[x] == "ZL")) and \
                    ((alt_probcov[x] == "Iso") or (alt_probcov[x] == "Sct") or (alt_probcov[x] == "Num")):
-                    print type[x]
+                    print(type[x])
                     self.errorNotice('Invalid Wx Type', "The 'Iso', 'Sct', or 'Num' qualifiers may not be used with a precip type of "\
                     "R, S, ZR, IP, L, or ZL.\nPlease re-run the tool using a different qualifier.")
                     return Wx
                 if ((type[x] != "L") and (type[x] != "ZL") and (type[x] != "F")) and \
                    ((alt_probcov[x] == "Patchy") or (alt_probcov[x] == "Areas")):
-                    print type[x]
+                    print(type[x])
                     self.errorNotice('Invalid Wx Type', "'Patchy' or 'Areas' qualifiers may not be used with a precip type of RW, SW, R, S, ZR, or IP.\n"\
                     "Please re-run the tool using a different qualifier.")
                     return Wx
@@ -295,7 +295,7 @@ class Tool (SmartScript.SmartScript):
                 # or "Wide'.
                 if (type[x] == "F") and \
                     ((alt_probcov[x] != "Patchy") and (alt_probcov[x] != "Areas") and (alt_probcov[x] != "Wide")):
-                    print type[x]
+                    print(type[x])
                     self.errorNotice('Invalid Wx Type', "Qualifiers other than 'Patchy', 'Areas', or 'Wide' may not be used with F (Fog).\n"\
                     "Please re-run the tool using an allowed qualifier.")
                     return Wx
@@ -386,7 +386,7 @@ class Tool (SmartScript.SmartScript):
             wxValues[less(PoP, 24.5)] = self.getByteValue("Iso", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
             wxValues[less(PoP, SChc_min_PoP_threshold)] = self.getByteValue("", type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov)
 
-        print "keys = ", keys  
+        print("keys = ", keys)  
         return (wxValues, keys)
 
     def getByteValue(self, prevail_cov, type, intensity, thunder, attstring, keys, alt_probcov, alt_catpop_probcov, alt_thunder_probcov):
@@ -441,7 +441,7 @@ class Tool (SmartScript.SmartScript):
                 else:
                     uglyString = type0cov + ":" + type[0] + ":" + intensity[0] + ":<NoVis>:<NoAttr>"
 
-                print uglyString
+                print(uglyString)
         if type[1] != "None" and type[2] == "None":
             if prevail_cov == "":
                 uglyString = ""
@@ -457,7 +457,7 @@ class Tool (SmartScript.SmartScript):
                 else:
                     uglyString = type0cov + ":" + type[0] + ":" + intensity[0] + ":<NoVis>:<NoAttr>^" \
                                 + type1cov + ":" + type[1] + ":" + intensity[1] + ":<NoVis>:<NoAttr>"
-                print uglyString
+                print(uglyString)
         if type[1] == "None" and type[2] != "None":
             if prevail_cov == "":
                 uglyString = ""
@@ -473,7 +473,7 @@ class Tool (SmartScript.SmartScript):
                 else:
                     uglyString = type0cov + ":" + type[0] + ":" + intensity[0] + ":<NoVis>:<NoAttr>^" \
                                 + type2cov + ":" + type[2] + ":" + intensity[2] + ":<NoVis>:<NoAttr>"
-                print uglyString
+                print(uglyString)
         if type[1] != "None" and type[2] != "None":
             if prevail_cov == "":
                 uglyString = ""
@@ -492,7 +492,7 @@ class Tool (SmartScript.SmartScript):
                     uglyString = type0cov + ":" + type[0] + ":" + intensity[0] + ":<NoVis>:<NoAttr>^" \
                                 + type1cov + ":" + type[1] + ":" + intensity[1] + ":<NoVis>:<NoAttr>^" \
                                 + type2cov + ":" + type[2] + ":" + intensity[2] + ":<NoVis>:<NoAttr>"
-                print uglyString
+                print(uglyString)
 
         if "" == uglyString:
             uglyString = "<NoCov>:<NoWx>:<NoInten>:<NoVis>:<NoAttr>"

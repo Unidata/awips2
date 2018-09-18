@@ -1,19 +1,19 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
+# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
+# 
+# U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
 # 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
+# Contractor Name:        Raytheon Company
+# Contractor Address:     6825 Pine Street, Suite 340
+#                         Mail Stop B8
+#                         Omaha, NE 68106
+#                         402.291.0100
+# 
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
@@ -174,7 +174,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         attrDict = {}
         #print "\nFind Words", firstElementName
         if areaLabel is not None:
-            if type(areaLabel) is not types.ListType:
+            if type(areaLabel) is not list:
                 areaLabel = [areaLabel]
         for child in leaves:
             firstElement = child.getAncestor("firstElement")
@@ -229,13 +229,13 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
     def addToDictionary(self, dictionary, key, value):
         # Add the given value to the dictionary where the key
         # entry is a list of values
-        if dictionary.has_key(key):
-            if type(value) is types.ListType:
+        if key in dictionary:
+            if type(value) is list:
                 dictionary[key] += value
             else:
                 dictionary[key].append(value)
         else:
-            if type(value) is types.ListType:
+            if type(value) is list:
                 dictionary[key] = value
             else:
                 dictionary[key] = [value]
@@ -428,16 +428,16 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         min1=int(min)
         max1=int(max)
         if min1 == max1:
-            return `min1`
+            return repr(min1)
         else:
             maxRange = self.maximum_range_nlValue(tree, node, element, element)
             maxRange = self.nlValue(maxRange, max1)
             if (maxRange == 0):
-                return `max1`
+                return repr(max1)
             if abs(min1-max1) > maxRange:
                 min1 = max1 - maxRange
             connector = self.value_connector(tree, node, element, element)
-            return  `min1` + connector + `max1`
+            return  repr(min1) + connector + repr(max1)
 
     def makeSentence(self, tree, node):
         "Make a sentence from the words at the node level"
@@ -525,7 +525,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             words = self.adjustWords(tree, phrase, words)
             #print phrase.get('name'), phrase.getAreaLabel()
             #print "     ", words
-            if type(includeOnlyPhrases) is types.ListType and len(includeOnlyPhrases) > 0 and \
+            if type(includeOnlyPhrases) is list and len(includeOnlyPhrases) > 0 and \
                phrase.get('name') not in includeOnlyPhrases:            
                # Do not include this phrase
                continue
@@ -612,7 +612,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             if words == "":
                 words = " "
             words = self.labelIndent(words, label)
-            print phrase, words
+            print(phrase, words)
             fcst = fcst + words
         # Add label
         curLocalTime, shift = self.determineTimeShift()
@@ -635,7 +635,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
                     tree, component, lePhraseNameGroups, phrase)
                 le_groups.setdefault(lePhraseNameGroup, []).append(phrase)
 
-        for name, nodes in le_groups.iteritems():
+        for name, nodes in le_groups.items():
             #print name, nodes
 
             # put the nodes under the pseudo-component and do the
@@ -681,7 +681,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
                     tree, component, lePhraseNameGroups, phrase)
                 le_groups.setdefault(lePhraseNameGroup, []).append(phrase)
 
-        for name, nodes in le_groups.iteritems():
+        for name, nodes in le_groups.items():
             #print name, nodes
 
             # put the nodes under the pseudo-component and do the
@@ -856,7 +856,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             return self.DONE()
 
         if self.__dict__.get("_leDebug", 0):
-            print "\nConsolidateSubPhrases", tree.get('passes')
+            print("\nConsolidateSubPhrases", tree.get('passes'))
 
         # Create subPhraseDict =
         #    {(words, tr, lePhraseNameGroup):
@@ -871,11 +871,11 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             if words == "":
                 continue
             if self.__dict__.get("_leDebug", 0):
-                print subPhrase.getAncestor("name")#, subPhrase.parent
-                print "   ", subPhrase.getAreaLabel(), tr, words
-                print "       local effect", subPhrase.getAncestor('localEffect')
+                print(subPhrase.getAncestor("name"))#, subPhrase.parent
+                print("   ", subPhrase.getAreaLabel(), tr, words)
+                print("       local effect", subPhrase.getAncestor('localEffect'))
             self.addToDictionary(subPhraseDict, (words,tr,lePhraseNameGroup), subPhrase)
-        if self.__dict__.get('_leDebug', 0): print "subPhraseDict", subPhraseDict
+        if self.__dict__.get('_leDebug', 0): print("subPhraseDict", subPhraseDict)
 
         # Check for duplicate subPhrases and consolidate them into one.
         #  Case 1: If the duplicates are all for the same areaLabel,
@@ -890,8 +890,8 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         #      duplicate subPhrases.
         compArea = component.getAreaLabel()
         if self.__dict__.get('_leDebug',0):
-            print "\nDetermine Case for each set of duplicate phrases. compArea", compArea
-        for key in subPhraseDict.keys():
+            print("\nDetermine Case for each set of duplicate phrases. compArea", compArea)
+        for key in list(subPhraseDict.keys()):
             words, tr, lePhraseNameGroup = key
             subPhrases = subPhraseDict[key]
             if len(subPhrases) <= 1:
@@ -902,13 +902,13 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             areaLabels, leAreas = self.gatherDupAreaLabels(
                 tree, component, compArea, subPhrases)
             if self.__dict__.get('_leDebug',0):
-                print "\n", words
-                print "    ", tr, len(subPhrases)
-                print "areaLabels, leAreas", areaLabels, leAreas
+                print("\n", words)
+                print("    ", tr, len(subPhrases))
+                print("areaLabels, leAreas", areaLabels, leAreas)
             # Determine the consolidated areaLabel
             if len(areaLabels) == 1:
                 # Case 1
-                if self.__dict__.get('_leDebug',0): print "CASE 1"
+                if self.__dict__.get('_leDebug',0): print("CASE 1")
                 # Remove all but the first subPhrase
                 for subPhrase in subPhrases[1:]:
                     subPhrase.set('words', "")
@@ -922,7 +922,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
                     tree, component, compArea, leAreas, areaLabels)
                 if allAreasCovered:
                     # Case 2: Consolidate
-                    if self.__dict__.get('_leDebug',0): print "CASE 2"
+                    if self.__dict__.get('_leDebug',0): print("CASE 2")
                     parent = subPhrases[0].parent
                     newNode = tree.copyPhrase(
                         parent, areaLabel=compArea,
@@ -937,7 +937,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
                 else:
                     # Case 3: Throw out any compArea subPhrase and
                     # leave local effect ones alone for now
-                    if self.__dict__.get('_leDebug',0): print "CASE 3"
+                    if self.__dict__.get('_leDebug',0): print("CASE 3")
                     for subPhrase in subPhrases:
                         if subPhrase.getAreaLabel() == compArea:
                             subPhrase.set("words", "")
@@ -1046,20 +1046,20 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         #         AND there are NO mandatory conjunctives:
         #             Replace conjunctive phrases with an embedded phrase.
         #
-        if self.__dict__.get('_leDebug',0): print "\nConvert to embedded"
+        if self.__dict__.get('_leDebug',0): print("\nConvert to embedded")
         lePhraseNameGroups = self.lePhraseNameGroups(tree, component)
         lePhraseDict = self.createLePhraseDict(tree, component, lePhraseNameGroups)
-        if self.__dict__.get('_leDebug',0): print "\nlePhraseDict", lePhraseDict
+        if self.__dict__.get('_leDebug',0): print("\nlePhraseDict", lePhraseDict)
 
         repeatThreshold = self.repeatingEmbedded_localEffect_threshold(
             tree, component)
         qualifiersDict = self.createQualifiersDict(
             tree, component, lePhraseDict, repeatThreshold)
-        if self.__dict__.get('_leDebug',0): print "\nqualifiersDict", qualifiersDict
+        if self.__dict__.get('_leDebug',0): print("\nqualifiersDict", qualifiersDict)
 
         self.createEmbeddedPhrases(
             tree, component, lePhraseDict, qualifiersDict, repeatThreshold)
-        if self.__dict__.get('_leDebug',0):print "\nlePhraseDict", lePhraseDict
+        if self.__dict__.get('_leDebug',0):print("\nlePhraseDict", lePhraseDict)
 
         self.insertEmbeddedPhrases(
             tree, component, lePhraseDict, lePhraseNameGroups)
@@ -1074,10 +1074,10 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         lePhraseDict = {}
         for phrase in component.get("childList"):
             if self.__dict__.get('_leDebug',0):
-                print "phrase", phrase.get('name'), phrase.get('words')
-                print "      ", phrase.getAreaLabel()
-                print "      ", phrase.get('conjunctiveQualifier')
-                print "      ", phrase.get('embeddedQualifier')
+                print("phrase", phrase.get('name'), phrase.get('words'))
+                print("      ", phrase.getAreaLabel())
+                print("      ", phrase.get('conjunctiveQualifier'))
+                print("      ", phrase.get('embeddedQualifier'))
             localEffect = phrase.get('localEffect')
             if localEffect is None:
                 continue
@@ -1085,7 +1085,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
                 tree, component, lePhraseNameGroups, phrase)
             qualifier = phrase.get('embeddedQualifier')
             # Add the entry to the dictionary
-            if lePhraseDict.has_key(lePhraseNameGroup):
+            if lePhraseNameGroup in lePhraseDict:
                 entry = lePhraseDict[lePhraseNameGroup]
                 if qualifier not in entry["qualifiers"]:
                     entry["qualifiers"].append(qualifier)
@@ -1107,7 +1107,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         #          If so, flag it as such and increase count for it's qualifier set.
         #
         qualifiersDict = {}
-        for lePhraseNameGroup in lePhraseDict.keys():
+        for lePhraseNameGroup in list(lePhraseDict.keys()):
             embedded = 1
             nameDict = lePhraseDict[lePhraseNameGroup]
             phrases = nameDict["phrases"]
@@ -1137,13 +1137,13 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
                     break
                 # Keep track of count for each area
                 areaLabel = phrase.getAreaLabel()
-                if areaCountDict.has_key(areaLabel):
+                if areaLabel in areaCountDict:
                     areaCountDict[areaLabel] += 1
                 else:
                     areaCountDict[areaLabel] = 1
                 if areaCountDict[areaLabel] > repeatThreshold:
                     if self.__dict__.get('_leDebug',0):
-                        print "areaCount exceeded", areaLabel, areaCountDict[areaLabel]
+                        print("areaCount exceeded", areaLabel, areaCountDict[areaLabel])
                     embedded = 0
                     break
             if embedded:
@@ -1155,7 +1155,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
                 qualifiers = self.removeDups(qualifiers)
                 tQualifiers = tuple(qualifiers)
                 nameDict["qualifiers"] = tQualifiers
-                if qualifiersDict.has_key(tQualifiers):
+                if tQualifiers in qualifiersDict:
                     qualifiersDict[tQualifiers] += 1
                 else:
                     qualifiersDict[tQualifiers] = 1
@@ -1193,9 +1193,9 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         # doneList keeps track of those lePhraseNameGroups for which we've already
         # inserted the embedded phrase
         doneList = []
-        if self.__dict__.get('_leDebug',0):print "\nStep"
+        if self.__dict__.get('_leDebug',0):print("\nStep")
         for phrase in component.get("childList"):
-            if self.__dict__.get('_leDebug',0):print "phrase", phrase.get('words')
+            if self.__dict__.get('_leDebug',0):print("phrase", phrase.get('words'))
             localEffect = phrase.get('localEffect')
             if localEffect is None:
                 newPhraseList.append(phrase)
@@ -1204,7 +1204,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             lePhraseNameGroup, firstName = self.getLePhraseNameGroup(
                 tree, component, lePhraseNameGroups, phrase)
             if self.__dict__.get('_leDebug',0):
-                print "   lePhraseNameGroup", lePhraseNameGroup
+                print("   lePhraseNameGroup", lePhraseNameGroup)
             nameDict = lePhraseDict[lePhraseNameGroup]
             if not nameDict["embedded"]:
                 newPhraseList.append(phrase)
@@ -2528,8 +2528,8 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         combine_flag = 1
         for element in elements:
             #print "trying to combine", element
-            exec "combine_flag = combine_flag and self.similar"+element+\
-                 "(tree, component1, component2)"
+            exec("combine_flag = combine_flag and self.similar"+element+\
+                 "(tree, component1, component2)")
             #print "result", combine_flag
 
         if combine_flag:
@@ -2823,8 +2823,8 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             for element in elementList:
                 #print "comparing", tr1, tr2
                 #print "    ", element
-                exec "flag = self.similar"+element+\
-                 "Logic(tree, comp1, comp2, tr1, al1, tr2, al2)"
+                exec("flag = self.similar"+element+\
+                 "Logic(tree, comp1, comp2, tr1, al1, tr2, al2)")
                 #print "flag", flag
                 if not flag:
                     #print "returning 0"
@@ -2881,7 +2881,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             return None
         newList = []
         for stat in stats:
-            if type(stat) is types.TupleType:
+            if type(stat) is tuple:
                 subkey, rank = stat
             else:
                 subkey = stat
@@ -2999,7 +2999,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         # Check weather key differences
         similarResult = self.checkWeatherSimilarity(
             tree, phrase, stats1, stats2, subPhrase1, subPhrase2)
-        if type(similarResult) is types.ListType:
+        if type(similarResult) is list:
             return 1, similarResult
         elif similarResult == 1:
             return 1, stats1
@@ -3880,11 +3880,11 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
         if childList is None or len(childList) < 1:
             return self.DONE()
         if self.__dict__.get('_leDebug',0):
-            print "\nChecking local effects for", node.get('name'), node.getAreaLabel()
-            print " node", node
-            print " parent", node.parent
-            print " disabled", node.get('disabledSubkeys'), node.getAncestor('disabledSubkeys')
-            print "\ncomp phrases before:"
+            print("\nChecking local effects for", node.get('name'), node.getAreaLabel())
+            print(" node", node)
+            print(" parent", node.parent)
+            print(" disabled", node.get('disabledSubkeys'), node.getAncestor('disabledSubkeys'))
+            print("\ncomp phrases before:")
             self.printCompPhrases(tree, node)
 
         for localEffect in localEffectsList:
@@ -3921,15 +3921,15 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
                 for newNode in nodeList:
                     newNode.set("includeSky", includeSky)
                     if self.__dict__.get('_leDebug',0):
-                        print "newNode", newNode.get("name"), newNode.get("areaLabel")
-                        print "    includeSky", includeSky, newNode
+                        print("newNode", newNode.get("name"), newNode.get("areaLabel"))
+                        print("    includeSky", includeSky, newNode)
                 node.replace(nodeList)
 
 
         if flag: # There is a local effect
             self.localEffect_hook(tree, node)
         if self.__dict__.get('_leDebug',0):
-            print "\ncomp phrases after:", self.printCompPhrases(tree, node)
+            print("\ncomp phrases after:", self.printCompPhrases(tree, node))
         return self.DONE()
 
     def checkLocalEffect(self, tree, node, localEffect):
@@ -4044,16 +4044,16 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             area1Stats = self.applyDisabled(tree, node, area1Stats)
             area2Stats = self.applyDisabled(tree, node, area2Stats)
             if self.__dict__.get("_leDebug", 0):
-                print "\nCheckThreshold", element, timeRange
-                print leArea1Label, area1Stats
-                print leArea2Label, area2Stats
+                print("\nCheckThreshold", element, timeRange)
+                print(leArea1Label, area1Stats)
+                print(leArea2Label, area2Stats)
             if area1Stats is None or area2Stats is None:
                 return 0
             flag = self.checkLocalEffectDifference(
                 tree, node, dataType, triggerMethod, area1Stats, area2Stats,
                 leArea1Label, leArea2Label)
             if self.__dict__.get("_leDebug", 0):
-                print "returning", flag
+                print("returning", flag)
         return flag
 
     def applyDisabled(self, tree, node, stats):
@@ -4094,7 +4094,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
             area1Stats, dir = area1Stats
             area2Stats, dir = area2Stats
 
-        if type(area1Stats) is types.TupleType:
+        if type(area1Stats) is tuple:
             min1, max1 = area1Stats
             min2, max2 = area2Stats
             diff1 = self.absDiff(min1, min2)
@@ -4209,7 +4209,7 @@ class PhraseBuilder(ConfigVariables.ConfigVariables,
 
     def printCompPhrases(self, tree, node):
         comp = node.getComponent()
-        print "Component phrases for", node
+        print("Component phrases for", node)
         for phrase in comp.get('childList'):
-            print phrase.get('name'), phrase.getAreaLabel(), phrase
-            print "            ", phrase.get('words')
+            print(phrase.get('name'), phrase.getAreaLabel(), phrase)
+            print("            ", phrase.get('words'))
