@@ -34,7 +34,6 @@ pages:
     - D2D Perspective: cave/d2d-perspective.md
     - Maps, Views, Projections: cave/maps-views-projections.md
     - Bundles and Procedures: cave/bundles-and-procedures.md
-    - Import/Export: cave/import-export.md
     - Localization Perspective: cave/localization-perspective.md
     - NCP Perspective: cave/ncp-perspective.md
     - NSHARP: cave/nsharp.md
@@ -46,9 +45,11 @@ pages:
     - Radar Tools: cave/d2d-radar-tools.md
     - Editing Menus: cave/d2d-edit-menus.md
     - Change Localization: cave/cave-localization.md
+    - Import/Export: cave/import-export.md
 - EDEX User Manual:
-    - Distributed EDEX: edex/distributed-computing.md
     - EDEX Start and Stop: install/start-edex.md
+    - EDEX Settings: edex/settings.md
+    - Distributed EDEX: edex/distributed-computing.md
     - LDM Feeds: edex/ldm.md
     - Data Distribution Files: edex/data-distribution-files.md
     - Ingest a New Grid: edex/new-grid.md
@@ -56,6 +57,12 @@ pages:
     - Monitor Users: edex/edex-users.md
     - Data Plugins: edex/data-plugins.md
     - Archive Case Studies: edex/case-studies.md
+#- Hazard Services:
+#    - CAVE Display: cave/hazard-services-display.md
+#    - Hazard Creation: cave/hazard-services-create.md
+#    - Hazard Alerts: cave/hazard-services-alert.md
+#    - Hazard Settings: cave/hazard-services-settings.md
+#    - Examples: cave/hazard-services-example.md
 - Supported Data Types:
     - Gridded Model Display: cave/d2d-grids.md
     - Surface Obs: cave/d2d-pointdata-surface-obs.md
