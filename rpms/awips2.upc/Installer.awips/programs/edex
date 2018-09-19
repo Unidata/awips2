@@ -32,6 +32,7 @@
 #                               remove pg_hba.conf edits                #
 # 01/2018 M.James/Unidata       Added qpid-stat wrapper as edex qpid    #
 # 08/2018 M.James/Unidata       Registry logging                        #
+# 09/2018 M.James/Unidata       Cleanup setup/editing                   #
 #-----------------------------------------------------------------------#
 . /etc/profile.d/awips2.sh
 # directories definitions
@@ -55,8 +56,10 @@ YMD=`date '+%Y%m%d'`
 
 args=("$@")
 
-# functions
-edex_status() { # report back edex server on/off status
+#
+# Report back edex server on/off status
+#
+edex_status() {
    echo ''
    echo '[edex status]'
 
@@ -134,6 +137,9 @@ edex_status() { # report back edex server on/off status
    echo ''
 }
 
+#
+# Tail an EDEX log file
+#
 tail_log() {
    if [ -e $LOG_FILE ]; then
       echo ' :: Viewing '${LOG_FILE}'. Press CTRL+C to exit'
@@ -146,7 +152,10 @@ tail_log() {
    fi
 }
 
-edex_log() { # display todays log, default to ingest
+#
+# Display todays log, default to ingest
+#
+edex_log() {
    echo '[edex] EDEX Log Viewer'
    echo ''
    # LDM log
@@ -219,7 +228,10 @@ edex_log() { # display todays log, default to ingest
    fi
 }
 
+#
+# Update placeholder "external.fqdn" with $HOSTNAME
 # See /awips2/edex/bin/setup.env
+#
 edit_setup() {
    if grep -q external.fqdn "$EDEX_ENV_FILE"; then
       echo '[edex] EDEX IP and Hostname Setup'
@@ -231,48 +243,45 @@ edit_setup() {
    fi
 }
 
-edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
+#
+# Initial EDEX setup, run as "edex setup", to set init run levels and hostname definitions
+# This is executed after both awips2 and awips2-ldm RPMs are installed/updatedi
+#
+edex_setup() {
    echo ''
-   # run services on system startup
    if [ -f "/etc/init.d/edex_postgres" ]; then
       chkconfig edex_postgres --add
       chkconfig edex_postgres on --level 35
    fi
-   
    if [ -f "/etc/init.d/httpd-pypies" ]; then
       chkconfig httpd-pypies --add
       chkconfig httpd-pypies on --level 35
    fi
-
    chkconfig qpidd --add
    chkconfig qpidd on --level 35
-
    chkconfig edex_camel --add
    chkconfig edex_camel on --level 35
 
    # check files exist
-   continue=true
-   if [[ ! -f ${EDEX_ENV_FILE} ]]; then
+   if [ ! -f ${EDEX_ENV_FILE} ]; then
       echo '[Error] ** '${EDEX_ENV_FILE}' not found.'
-      continue=false
-   fi
-   if ! $continue; then
       echo 'Exiting'
       exit;
    fi
-   continue=false
 
    # ldm regutil
-   if [ -d "/awips2/ldm" ]; then
-      #echo '[edit] ldm regutil...'
+   if [ -d "/awips2/ldm/etc" ]; then
       su - awips -c 'regutil -s '$HOSTNAME' /hostname'
    fi
    edit_setup
 }
 
-edex_start() { # start all edex services
+#
+# Start all EDEX services
+#
+edex_start() {
    edex_cleanup
-   edex_setup
+   edit_setup
    for dir in /awips2/tmp /awips2/data_store ; do
       if [ ! -d $dir ]; then
          mkdir -p $dir
@@ -301,8 +310,10 @@ edex_start() { # start all edex services
       su -c "service edex_ldm start"
    fi
 }
-
-edex_stop() { # stop all edex services
+#
+# Stop all EDEX services
+#
+edex_stop() {
    if [ "${args[1]}" != 'dev' ]; then
       su -c "service edex_camel stop"
       su -c "service edex_ldm stop"
@@ -317,6 +328,9 @@ edex_stop() { # stop all edex services
    edex_status;
 }
 
+#
+# Restart all EDEX Services
+#
 edex_restart() {
    su -c "service edex_camel restart"
    edex_status;
@@ -331,6 +345,9 @@ edex_password() {
    fi
 }
 
+#
+# Check and reset EDEX purgejobs
+# 
 edex_purge() {
    if [ "${args[1]}" == 'reset' ]; then
       edex_purge_reset
@@ -347,12 +364,24 @@ edex_purge() {
 edex_purge_reset() {
         su - awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
 }
+
+#
+# Show Qpid data ingest queues
+#
 edex_qpid() {
 	/awips2/python/bin/qpid-stat -q -S msgIn
 }
+
+#
+# Qpid cleanup
+#
 edex_cleanup() {
 	rm -rf /awips2/qpid/edexMessageStore/edex/
 }
+
+#
+# Print User Info
+#
 edex_users(){
         if [ "${args[1]}" != '' ]; then
                 YMD=${args[1]}
@@ -364,19 +393,24 @@ edex_users(){
         echo ""
 }
 
-edex_options() { # print out options for this programs
+#
+# Echo available options
+#
+edex_options() {
    echo ''
    echo '     edex (status|start|stop|setup|log|purge|qpid|users)'
    echo ''
 }
-
 edex_invalid() {
    echo ''
    echo "     Invalid option: '"${args[0]}"' not understood"
    edex_options
 }
 
-check_input() { # check input against accepted options
+#
+# Check input against accepted options
+#
+check_input() {
    found=false
    for i in "${options[@]}"
    do
@@ -399,7 +433,7 @@ check_input() { # check input against accepted options
    fi
 }
 
-# check input - first/only program run
+#
+# Check input: it all starts here.
 #
 check_input
-exit;

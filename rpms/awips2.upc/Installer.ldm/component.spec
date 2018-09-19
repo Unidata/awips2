@@ -272,6 +272,9 @@ if [ -d /tmp/ldm/ ]; then
    cp -rp /tmp/ldm/ldmd.* /awips2/ldm/etc/
 fi
 
+# Set hostname in registry.xml
+/usr/bin/edex setup
+
 %preun
 %postun
 /sbin/ldconfig > /dev/null 2>&1
