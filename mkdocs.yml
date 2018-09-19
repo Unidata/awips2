@@ -57,12 +57,12 @@ pages:
     - Monitor Users: edex/edex-users.md
     - Data Plugins: edex/data-plugins.md
     - Archive Case Studies: edex/case-studies.md
-- Hazard Services:
-    - CAVE Display: cave/hazard-services-display.md
-    - Hazard Creation: cave/hazard-services-create.md
-    - Hazard Alerts: cave/hazard-services-alert.md
-    - Hazard Settings: cave/hazard-services-settings.md
-    - Examples: cave/hazard-services-example.md
+#- Hazard Services:
+#    - CAVE Display: cave/hazard-services-display.md
+#    - Hazard Creation: cave/hazard-services-create.md
+#    - Hazard Alerts: cave/hazard-services-alert.md
+#    - Hazard Settings: cave/hazard-services-settings.md
+#    - Examples: cave/hazard-services-example.md
 - Supported Data Types:
     - Gridded Model Display: cave/d2d-grids.md
     - Surface Obs: cave/d2d-pointdata-surface-obs.md
