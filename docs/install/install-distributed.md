@@ -99,11 +99,11 @@ In the [Azure portal](https://portal.azure.com):
 
 13. Finally, install the EDEX server 
 
-	`wget https://www.unidata.ucar.edu/software/awips2/install.sh`
+	`wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh`
 
-	`chmod 755 ./install.sh`
+	`chmod 755 ./awips_install.sh`
 
-	`sudo ./install.sh --edex`
+	`sudo ./awips_install.sh --edex`
 
 ---
 
