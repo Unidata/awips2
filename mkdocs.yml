@@ -83,7 +83,6 @@ pages:
     - Surface Obs Plot with MetPy: python/surface-obs-plot-metpy.md
 - Development:
     - AWIPS Development Environment (ADE): dev/awips-development-environment.md
-    - Building NSHARP for macOS: dev/build-nsharp-macos.md
 - Appendix:
     - AWIPS Grid Parameters: appendix/appendix-grid-parameters.md
     - Acronyms and Abbreviations: appendix/appendix-acronyms.md
