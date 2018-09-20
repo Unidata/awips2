@@ -232,19 +232,6 @@
     Download and Install CAVE
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#windows-specific-instructions" title="Windows-Specific Instructions" class="md-nav__link">
-    Windows-Specific Instructions
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1110,19 +1097,6 @@
     Download and Install CAVE
   </a>
   
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#windows-specific-instructions" title="Windows-Specific Instructions" class="md-nav__link">
-    Windows-Specific Instructions
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1244,86 +1218,14 @@
 <p><a href="https://www.unidata.ucar.edu/software/awips2/">Unidata AWIPS</a> is a modified and extended version of AWIPS (originally developed by NWS and Raytheon) for non-operational use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.</p>
 <p>AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an <a href="#ldm">LDM</a> client requesting data from the <a href="https://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. Various raw data and product files (grib, BUFR, text, gini, McIDAS, NetCDF, more) are  decoded and stored as HDF5 and Postgres metadata by <a href="./install/install-edex">EDEX</a>, which then serves these data and products to  clients over http. </p>
 <p>Unidata supports two visualization frameworks for rendering data: <a href="./install/install-cave">CAVE</a>, and the Python Data Access Framework (<a href="http://python-awips.readthedocs.io">python-awips</a>).</p>
+<p><img alt="CAVE" src="https://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png" /></p>
 <hr />
-<h2 id="download-and-install-cave">Download and Install CAVE<a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h2>
-<blockquote>
-<p><a href="https://www.unidata.ucar.edu/blogs/news/category/AWIPS">Release 18.1.1-1, September 19, 2018</a></p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th align="center"></th>
-<th align="left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center"><h1><i class="fa fa-linux"></i> Linux  </h1></td>
-<td align="left"><h4><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh --cave <i class="fa fa-download"></i></a>  </h4>       <p>For CentOS/Red Hat 6 and 7. Installs to /awips2/cave and writes files to ~/caveData.</p> <tt><code>chmod 755 install.sh<br>sudo ./install.sh --cave</code></tt><p>Run CAVE from the Linux Desktop menu Applications &gt; Internet &gt; AWIPS CAVE, or from the command line as simply <code>cave</code>.</p> <p><img src="images/cave_linux_menu.png" style="width:300px;"></p><div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>OpenGL 2.0 capable device</li><li>4GB RAM</li><li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a></li><li>approx. 2GB disk space for data caching (~/caveData)</li></ul></div><p>You can reset CAVE at any time by removing the <strong>~/caveData</strong> directory (on macOS <strong>~/Library/caveData</strong>) and reconnecting to an EDEX server. </p></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th align="center"></th>
-<th align="left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center"><h1><i class="fa fa-apple"></i> macOS       </h1></td>
-<td align="left"><h4>    Download and install both<br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave-18.1.1-1.dmg">awips-cave-18.1.1-1.dmg <i class="fa fa-download"></i></a><br><a href="https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg">awips-python.pkg <i class="fa fa-download"></i></a></h4> <p><strong>Supported Graphics Devices for macOS</strong><li>Intel HD Graphics</li><li>Intel Iris</li><li>NVIDIA GeForce</li></p><p><strong>Unsupported Graphics Devices for macOS</strong><li>AMD Radeon R9</li><li>AMD Radeon Pro</li><li>AMD FirePro D300</li></p> <p>Writes and syncs files to ~/Library/caveData.</p> <p><strong>awips-python.pkg</strong> is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, jep must be installed in some way (it is assumed in /Library/Python/2.7/site-packages/jep/)</p></td>
-</tr>
-</tbody>
-</table>
-<table>
-<thead>
-<tr>
-<th align="center"></th>
-<th align="left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center"><h1><i class="fa fa-windows"></i> Windows </h1></td>
-<td align="left"><h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave-18.1.1-1.msi">awips-cave-18.1.1-1.msi <i class="fa fa-download"></i></a></h4><p>Writes files to <strong>~/caveData</strong> (in your user home directory)</p> <p>Requires <b>Python 3</b>, <b>Numpy</b>, and <b>Jep</b> be installed</p> <p>Requires <strong>PYTHONHOME</strong> be defined</p></td>
-</tr>
-</tbody>
-</table>
-<h3 id="windows-specific-instructions">Windows-Specific Instructions<a class="headerlink" href="#windows-specific-instructions" title="Permanent link"></a></h3>
-<div class="admonition note">
-<h4>1) Download and install <strong><a href="https://conda.io/miniconda.html">Miniconda Python 3.7 for Windows</a></strong><a class="headerlink" href="#1-download-and-install-miniconda-python-37-for-windows" title="Permanent link"></a></h4><ul><li>Allow Miniconda3 to set <strong>PATH</strong> and other environment variables.</li><li><p>Ensure that <strong>PYTHONHOME</strong> is set to the Miniconda3 location.</p><p><img alt="" src="../../images/windows_envvars.png" /></p><p>If <strong>PYTHONHOME</strong> is not set, the <strong>gridslice</strong> Python module will not be installed or available.</p></li></ul><h4>2) Install dependent Python packages</h4><ul><li><code>pip install numpy==1.15.1 jep==3.8.2</code></li></ul><h4>3) Run <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave-18.1.1-1.msi">awips-cave-18.1.1-1.msi <i class="fa fa-download"></i></a><a class="headerlink" href="#3-run-awips-cave-1811-1amd64msi" title="Permanent link"></a></h4>
-</div>
-
-<blockquote>
-<p><a href="./install/install-cave">Read full CAVE install instructions</a></p>
-</blockquote>
+<h2 id="download-and-install-cave"><a href="./install/install-cave">Download and Install CAVE</a><a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h2>
 <hr />
-<h2 id="download-and-install-edex">Download and Install EDEX<a class="headerlink" href="#download-and-install-edex" title="Permanent link"></a></h2>
-<blockquote>
-<p><a href="https://www.unidata.ucar.edu/blogs/news/category/AWIPS">Release 18.1.1-1, September 19, 2018</a></p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th align="center"></th>
-<th align="left"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center"><h1><i class="fa fa-linux"></i> Linux  </h1></td>
-<td align="left"><h4><a href="https://www.unidata.ucar.edu/software/awips2/install.sh">install.sh --edex <i class="fa fa-download"></i></a>  </h4>       <p>Installs to /awips2/ directories.</p> <tt><code>chmod 755 install.sh<br>sudo ./install.sh --edex</code></tt><p>Start and Stop:</p><p><tt>edex start<br>edex stop</tt></p><div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>16+ CPU cores (each CPU core is one more decoder which can run in parallel)</li><li>24GB RAM</li><li>700GB+ disk space</li></td>
-</tr>
-</tbody>
-</table>
-<blockquote>
-<p><a href="./install/install-edex">Read full EDEX install instructions</a></p>
-</blockquote>
+<h2 id="download-and-install-edex"><a href="./install/install-edex">Download and Install EDEX</a><a class="headerlink" href="#download-and-install-edex" title="Permanent link"></a></h2>
 <hr />
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link"></a></h2>
-<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_16.2.2/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file. </p>
+<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_18.1.1/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file. </p>
 <hr />
 <h2 id="awips-data-in-the-cloud">AWIPS Data in the Cloud<a class="headerlink" href="#awips-data-in-the-cloud" title="Permanent link"></a></h2>
 <p>Unidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>
@@ -1357,7 +1259,6 @@
 <ul>
 <li><a href="./install/install-cave">Read More: How to Install CAVE</a></li>
 </ul>
-<p><img alt="CAVE" src="https://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png" /></p>
 <h3 id="ldm">LDM<a class="headerlink" href="#ldm" title="Permanent link"></a></h3>
 <p><a href="https://www.unidata.ucar.edu/software/ldm/">https://www.unidata.ucar.edu/software/ldm/</a></p>
 <p>The <strong>LDM</strong> (Local Data Manager), developed and supported by Unidata, is a suite of client and server programs designed for data distribution, and is the fundamental component comprising the Unidata Internet Data Distribution (IDD) system. In AWIPS, the LDM provides data feeds for grids, surface observations, upper-air profiles, satellite and radar imagery and various other meteorological datasets.   The LDM writes data directly to file and alerts EDEX via Qpid when a file is available for processing.  The LDM is started and stopped with the commands <code>edex start</code> and <code>edex stop</code>, which runs the commands <code>service edex_ldm start</code> and <code>service edex_ldm stop</code></p>
