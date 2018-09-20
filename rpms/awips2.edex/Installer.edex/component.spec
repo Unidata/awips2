@@ -124,6 +124,8 @@ fi
 %pre
 
 %post
+# Set hostname in registry.xml
+/usr/bin/edex setup
 
 echo "#generated on $(date)" > /etc/init.d/edexServiceList
 echo "export SERVICES=('ingest' 'ingestGrib' 'request')" >> /etc/init.d/edexServiceList

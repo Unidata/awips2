@@ -239,7 +239,9 @@ edit_setup() {
       echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
       echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
       # registry/data delivery fqdn
-      sed -i 's/external.fqdn/'$HOSTNAME'/g' /awips2/edex/conf/resources/*.properties
+      if [[ -d /awips2/edex/conf/resources/ ]]; then
+          sed -i 's/external.fqdn/'$HOSTNAME'/g' /awips2/edex/conf/resources/*
+      fi
    fi
 }
 
