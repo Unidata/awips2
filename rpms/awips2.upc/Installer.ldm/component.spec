@@ -23,7 +23,7 @@ AutoReq: no
 Requires: awips2
 Requires: awips2-qpid-lib
 Requires: awips2-python
-Requires: pax, gcc, libtool
+Requires: pax, gcc, libtool, make
 Requires: libxml2-devel, libpng-devel, boost-program-options
 Provides: awips2-ldm
 BuildRequires: awips2-python
