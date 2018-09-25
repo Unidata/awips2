@@ -116,12 +116,15 @@ edex_status() {
       edex_request_pid=`ps aux | grep edex.run.mode=request | awk '{ print $2 }'`
       echo ' EDEXrequest :: running :: pid '$edex_request_pid''
    fi
-   edex_reg_ps=`ps aux | grep edex.run.mode=centralRegistry | awk '{ print $15 }'`
-   if [ -z $edex_reg_ps ]; then
-      echo ' EDEXregistry :: not running'   
-   else
-      edex_reg_pid=`ps aux | grep edex.run.mode=centralRegistry | awk '{ print $2 }'`
-      echo ' EDEXregistry :: running :: pid '$edex_reg_pid''
+
+   if [ -f "/awips2/edex/conf/resources/com.raytheon.uf.edex.datadelivery.harvester.properties" ]; then
+      edex_reg_ps=`ps aux | grep edex.run.mode=centralRegistry | awk '{ print $15 }'`
+      if [ -z $edex_reg_ps ]; then
+         echo ' EDEXregistry:: not running'
+      else
+         edex_reg_pid=`ps aux | grep edex.run.mode=centralRegistry | awk '{ print $2 }'`
+         echo ' EDEXregistry:: running :: pid '$edex_reg_pid''
+      fi
    fi
 
    if [ -d "/awips2/ldm" ]; then
