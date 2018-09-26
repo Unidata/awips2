@@ -243,11 +243,10 @@ edit_setup() {
       echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
    fi
    # registry/data delivery fqdn
-   if [ -d "/awips2/edex/conf/resources/" ]; then
-      for ffile in /awips2/edex/conf/resources/*.properties; do
-         sed -i 's/external.fqdn/'$(hostname -i)'/g' $ffile
-      done
-   fi
+   shopt -s nullglob
+   for f in /awips2/edex/conf/resources/*.properties; do
+      sed -i 's/external.fqdn/'$(hostname -i)'/g' $f
+   done
 }
 
 #
