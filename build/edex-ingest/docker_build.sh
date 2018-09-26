@@ -1,15 +1,25 @@
 #!/bin/bash -v
+rebuild=false
+
+# current directory
 dir="$( cd "$(dirname "$0")" ; pwd -P )"
 pushd $dir
+
+# source AWIPS build env vars
 . ../buildEnvironment.sh
 
-existing=$(sudo docker images |grep edex-ingest | grep $1 | awk '{ print $3 }')
-if [ ! -z "$existing" ]; then
-   sudo docker rmi $existing
+# remove existing image (optional)
+if $rebuild; then
+   img=$(sudo docker images | grep edex-ingest | awk '{ print $3 }')
+   if [ ! -z "$img" ]; then
+      echo "removing edex-ingest:latest"
+      sudo docker rmi $img
+   fi
 fi
+
+# build image
 pushd /awips2/repo/awips2-builds/build/edex-ingest
 sudo docker build -t unidata/edex-ingest -f Dockerfile.edex .
-dockerID=$(sudo docker images | grep edex-ingest | grep latest | awk '{print $3}' | head -1 )
-sudo docker tag $dockerID unidata/edex-ingest:${AWIPSII_VERSION}
-sudo docker rmi unidata/edex-ingest:latest
+
+# push to dockerhub
 sudo docker push unidata/edex-ingest

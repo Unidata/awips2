@@ -32,6 +32,7 @@ All of these command should be run as **root**
 >    	wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh
 >    	chmod 755 awips_install.sh
 >    	sudo ./awips_install.sh --edex
+>	/usr/bin/edex setup
 > 	
 >
 >
@@ -127,7 +128,6 @@ All of these command should be run as **root**
 
 ### 5. Start EDEX
 >
->       edex setup
 >       edex start
 >
 >To manually start, stop, and restart:

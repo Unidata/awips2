@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -v
 #-----------------------------------------------------------------------#
 # Options                                                               #
 #                                                                       #
@@ -232,19 +232,21 @@ edex_log() {
 }
 
 #
-# Update placeholder "external.fqdn" with $HOSTNAME
+# Update placeholder "external.fqdn" with $(hostname -i)
 # See /awips2/edex/bin/setup.env
 #
 edit_setup() {
    if grep -q external.fqdn "$EDEX_ENV_FILE"; then
       echo '[edex] EDEX IP and Hostname Setup'
-      sed -i.setup_$YMD 's/external.fqdn/'$HOSTNAME'/g' $EDEX_ENV_FILE
-      echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
+      sed -i.setup_$YMD 's/external.fqdn/'$(hostname -i)'/g' $EDEX_ENV_FILE
+      echo '[edit] '$(hostname -i)' added to '$EDEX_ENV_FILE
       echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
-      # registry/data delivery fqdn
-      if [[ -d /awips2/edex/conf/resources/ ]]; then
-          sed -i 's/external.fqdn/'$HOSTNAME'/g' /awips2/edex/conf/resources/*
-      fi
+   fi
+   # registry/data delivery fqdn
+   if [ -d "/awips2/edex/conf/resources/" ]; then
+      for ffile in /awips2/edex/conf/resources/*.properties; do
+         sed -i 's/external.fqdn/'$(hostname -i)'/g' $ffile
+      done
    fi
 }
 
