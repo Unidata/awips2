@@ -50,6 +50,7 @@ pages:
     - EDEX Start and Stop: install/start-edex.md
     - EDEX Settings: edex/settings.md
     - Distributed EDEX: edex/distributed-computing.md
+    - Docker EDEX: edex/edex-ingest-docker-container.md
     - LDM Feeds: edex/ldm.md
     - Data Distribution Files: edex/data-distribution-files.md
     - Ingest a New Grid: edex/new-grid.md
