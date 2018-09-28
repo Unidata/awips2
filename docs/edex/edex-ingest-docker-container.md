@@ -1,10 +1,10 @@
-Project home: [https://github.com/mjames-upc/edex-docker](https://github.com/mjames-upc/edex-docker)
+Project home: [https://github.com/Unidata/edex-docker](https://github.com/Unidata/edex-docker)
 
 ---
 
 EDEX can be run inside a docker container, which allows you to process data into an AWIPS system without requiring a full CentOS installation and configuration.
 
-The [EDEX Docker Image](https://github.com/mjames-upc/edex-docker) is built on CentOS 7 and contains the latest Unidata AWIPS release.  
+The [EDEX Docker Image](https://github.com/Unidata/edex-docker) is built on CentOS 7 and contains the latest Unidata AWIPS release.  
 
 This container is an *ingest-only* install, meaning there is *no database or request server*.  This example requires a Database/Request server be configured for you to access remotely.  See the [Distributed EDEX](https://unidata.github.io/awips2/edex/distributed-computing/) document for more. 
 
