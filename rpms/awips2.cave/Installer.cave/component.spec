@@ -115,6 +115,10 @@ fi
 %build
 
 %install
+
+rm -rf %{_baseline_workspace}/build/cave/tmp
+rm -rf %{_baseline_workspace}/build/cave/p2
+
 mkdir -p ${RPM_BUILD_ROOT}/awips2
 if [ $? -ne 0 ]; then
    exit 1

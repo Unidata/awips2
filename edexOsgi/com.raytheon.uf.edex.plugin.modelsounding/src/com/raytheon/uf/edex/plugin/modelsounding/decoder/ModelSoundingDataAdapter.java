@@ -68,6 +68,7 @@ import com.raytheon.uf.edex.plugin.modelsounding.common.SoundingModels;
  * Sep 16, 2014  3628     mapeters    Replaced static imports.
  * Jul 12, 2016  5744     mapeters    SoundingStations constructor no longer takes
  *                                    path parameter
+ * Sep 05, 2018           mjames@ucar Remove modelBufr filter.
 
  * 
  * </pre>
@@ -81,41 +82,9 @@ public class ModelSoundingDataAdapter {
 
     private static final Object LOCK = new Object();
 
-    public static final String SPI_FILE = "basemaps" + IPathManager.SEPARATOR
-            + "modelBufr.spi";
-
     public static final String MODEL_STATION_LIST = "modelBufrStationList.txt";
 
     private static SoundingStations stationsList = new SoundingStations();
-
-    private static SPIContainer SPI_DATA = populateSPIData();
-
-    public static void updateSPIData() {
-        SPIContainer spi = populateSPIData();
-        synchronized (LOCK) {
-            if ((spi != null) && (spi.isLoaded())) {
-                SPI_DATA = spi;
-            }
-        }
-    }
-
-    public static void updateStationList() {
-        SoundingStations ss = new SoundingStations();
-        synchronized (LOCK) {
-            stationsList = ss;
-        }
-    }
-
-    public static void update() {
-        SoundingStations ss = new SoundingStations();
-        SPIContainer spi = populateSPIData();
-        synchronized (LOCK) {
-            stationsList = ss;
-            if ((spi != null) && (spi.isLoaded())) {
-                SPI_DATA = spi;
-            }
-        }
-    }
 
     /**
      * Get the temporal and model information.
@@ -249,41 +218,35 @@ public class ModelSoundingDataAdapter {
             String stationId = stationsList.mapId(String.format("%010d",
                     wmoStaNum));
             // Now determine if the station Id is in this localization list.
-            SPIEntry s = SPI_DATA.getEntryById(stationId);
-            if (s != null) {
-                if (stationId != null) {
-                    location.setStationId(stationId);
-                    obsData.setSiteId(String.format("%06d", wmoStaNum));
-                }
-                if (model.equals(SoundingModels.MODEL_ETA)) {
-                    index++;
-                }
-                Double lat = null;
-                dp = dataList.get(index++);
-                int d = dp.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 5, 2)) {
-                    lat = (Double) dp.getValue();
-                }
-                Double lon = null;
-                dp = dataList.get(index++);
-                d = dp.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 6, 2)) {
-                    lon = (Double) dp.getValue();
-                }
-                location.assignLocation(lat.floatValue(), lon.floatValue());
-                dp = dataList.get(index);
-                d = dp.getReferencingDescriptor().getDescriptor();
-                if (d == BUFRDescriptor.createDescriptor(0, 10, 194)) {
-                    stationHeight = (dp.getValue() != null) ? ((Double) dp
-                            .getValue()).intValue() : null;
-                    location.setElevation(stationHeight);
-                }
-                obsData.setLocation(location);
-
-                obsData.setPointDataView(view);
-            } else {
-                obsData = null;
+            if (stationId != null) {
+                location.setStationId(stationId);
+                obsData.setSiteId(String.format("%06d", wmoStaNum));
             }
+            if (model.equals(SoundingModels.MODEL_ETA)) {
+                index++;
+            }
+            Double lat = null;
+            dp = dataList.get(index++);
+            int d = dp.getReferencingDescriptor().getDescriptor();
+            if (d == BUFRDescriptor.createDescriptor(0, 5, 2)) {
+                lat = (Double) dp.getValue();
+            }
+            Double lon = null;
+            dp = dataList.get(index++);
+            d = dp.getReferencingDescriptor().getDescriptor();
+            if (d == BUFRDescriptor.createDescriptor(0, 6, 2)) {
+                lon = (Double) dp.getValue();
+            }
+            location.assignLocation(lat.floatValue(), lon.floatValue());
+            dp = dataList.get(index);
+            d = dp.getReferencingDescriptor().getDescriptor();
+            if (d == BUFRDescriptor.createDescriptor(0, 10, 194)) {
+                stationHeight = (dp.getValue() != null) ? ((Double) dp
+                        .getValue()).intValue() : null;
+                location.setElevation(stationHeight);
+            }
+            obsData.setLocation(location);
+            obsData.setPointDataView(view);
         }
 
         return obsData;
@@ -516,31 +479,6 @@ public class ModelSoundingDataAdapter {
             }
         }
         return retValue;
-    }
-
-    private static SPIContainer populateSPIData() {
-        SPIContainer container = null;
-
-        PathManager pathMgr = (PathManager) PathManagerFactory.getPathManager();
-
-        LocalizationContext ctx = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.SITE);
-        String site = ctx.getContextName();
-
-        logger.info("Loading " + SPI_FILE + " for site [" + site + "]");
-
-        File srcFile = pathMgr.getFile(ctx, SPI_FILE);
-
-        container = new SPIContainer(srcFile);
-        if (container.isLoaded()) {
-            logger.info("Loading " + SPI_FILE + " for site [" + site
-                    + "] Successful");
-        } else {
-            logger.error("Loading " + SPI_FILE + " for site [" + site
-                    + "] failed");
-        }
-
-        return container;
     }
 
 }

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
+<polarStereoGridCoverage>
+    <name>528528</name>
+    <description>grid over the contiguous United States - 8X Resolution
+        (10 km) (Used by the Radar mosaics) (Lambert Conformal)</description>
+    <la1>39.144</la1>
+    <lo1>-123.724</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>528</nx>
+    <ny>528</ny>
+    <dx>2.711</dx>
+    <dy>2.865</dy>
+    <spacingUnit>km</spacingUnit>
+    <minorAxis>6367470.0</minorAxis>
+    <majorAxis>6367470.0</majorAxis>
+    <lad>60</lad>
+    <lov>-105.0</lov>
+</polarStereoGridCoverage>

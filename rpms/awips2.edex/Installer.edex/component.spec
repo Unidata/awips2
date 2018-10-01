@@ -15,11 +15,8 @@ Packager: %{_build_site}
 provides: awips2-edex
 provides: awips2-base-component
 provides: awips2-base
-requires: awips2-python
-requires: awips2-java
-requires: awips2-psql
-requires: awips2-yajsw
-requires:  awips2-qpid-java-broker
+Requires: net-tools
+Requires: awips2-java, awips2-python, awips2-psql, awips2-yajsw, awips2-qpid-java-broker
 Obsoletes: awips2-edex-grib < 16.1.6
 Obsoletes: awips2-edex-configuration
 
@@ -124,7 +121,6 @@ fi
 %pre
 
 %post
-
 echo "#generated on $(date)" > /etc/init.d/edexServiceList
 echo "export SERVICES=('ingest' 'ingestGrib' 'request')" >> /etc/init.d/edexServiceList
 

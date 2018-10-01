@@ -18,40 +18,68 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuContributionFile>
-	<substitute key="GFSmodel" value="GFS229" />
-	<substitute key="NAM12model" value="NAM12" />
-	<substitute key="NAM40model" value="NAM40" />
-	<substitute key="ARWmodel1" value="HiResW-ARW-East" />
-	<substitute key="ARWmodel2" value="HiResW-ARW-West" />
-	<substitute key="MMMmodel1" value="HiResW-NMM-East" />
-	<substitute key="MMMmodel2" value="HiResW-NMM-West" />
-	<substitute key="RAP13model" value="RAP13" />
-	<substitute key="RAPmodel" value="RAP40" />
-	<substitute key="SREFmodel" value="SREF40" />
-	
-    <include installTo="menu:volume?after=VolumeBundles" 
-             fileName="menus/volume/baseFamilies.xml">
+    <substitute key="DGEXmodel" value="DGEX" />
+    <substitute key="GFSmodel" value="GFS229" />
+    <substitute key="NAM12model" value="NAM12" />
+    <substitute key="NAM40model" value="NAM40" />
+    <substitute key="ARWmodel1" value="HiResW-ARW-East" />
+    <substitute key="ARWmodel2" value="HiResW-ARW-West" />
+    <substitute key="MMMmodel1" value="HiResW-NMM-East" />
+    <substitute key="MMMmodel2" value="HiResW-NMM-West" />
+    <substitute key="RAP13model" value="RAP13" />
+    <substitute key="RAPmodel" value="RAP40" />
+    <substitute key="SREFmodel" value="SREF212" />
+<!--     <substitute key="HRRRmodel" value="HRRR-CR" />
+    <substitute key="GEMNHmodel" value="Canadian-NH" />
+    <substitute key="GEMRegmodel" value="Canadian-Reg" />
+    <substitute key="ARXLAPSmodel" value="ARXLAPS" />
+    <substitute key="HRRRmodel" value="HRRR-CR" />
+    <substitute key="NAMNestmodel" value="CR-NAMNest" /> -->
+<!-- #
+# Configuration area for bundles that call radar mosaics. Replace the radar1-12 variables below
+# with radars that build your mosaic. 
+# -->
+<!--     <substitute key="radar1" value="karx" />
+        <substitute key="radar2" value="kmpx"/>
+        <substitute key="radar3" value="kdlh"/>
+        <substitute key="radar4" value="kgrb"/>
+        <substitute key="radar5" value="kmkx"/>
+        <substitute key="radar6" value="kabr"/>
+        <substitute key="radar7" value="kfsd"/>
+        <substitute key="radar8" value="kdvn"/>
+        <substitute key="radar9" value="kdmx"/>
+        <substitute key="radar10" value="kabr"/>
+           <substitute key="radar11" value="koax"/>
+        <substitute key="radar12" value="kmvx"/> -->
+<!-- #
+# Configure the color map/table for the mosaic radar reflectivity
+# -->
+<!--     <substitute key="localReflectivityColorMap" value="Radar/Ref/ARX-Radar-Mosaic-clear"/> -->
+<!-- # end config section         -->
+    <include installTo="menu:volume?after=VolumeBundles" fileName="menus/volume/baseFamilies.xml">
     </include>
-
-   <include subMenu="4-PanelFamilies" installTo="menu:volume" 
-             fileName="menus/volume/baseFourPanelFamilies.xml">
+    <include subMenu="4-PanelFamilies" installTo="menu:volume" fileName="menus/volume/baseFourPanelFamilies.xml">
     </include>
+ <!--    <include subMenu="Aviation: Model Family" installTo="menu:volume" 
+             fileName="menus/volume/aviationFamily.xml">
+    </include> -->
     
-    <include subMenu="Convect Families" installTo="menu:volume" 
-             fileName="menus/volume/ConvectModelFamilies.xml">
+<!--     Have placed the architecture for Comparisons, but they are not live, could not test them. db -->
+<!--     <include subMenu="Comparison Families" installTo="menu:volume" 
+             fileName="menus/volume/baseComparisonFamilies.xml">
+    </include>  -->
+    <include subMenu="Convect Families" installTo="menu:volume" fileName="menus/volume/ConvectModelFamilies.xml">
     </include>
- 
-    <include subMenu="Surface Families" installTo="menu:volume" 
-             fileName="menus/volume/baseSurfaceFamilies.xml">
+    <include subMenu="Surface Families" installTo="menu:volume" fileName="menus/volume/baseSurfaceFamilies.xml">
     </include>
-     <include subMenu="Winter Families" installTo="menu:volume" 
-             fileName="menus/volume/WinterModelFamilies.xml">
+    <include subMenu="Winter Families" installTo="menu:volume" fileName="menus/volume/WinterModelFamilies.xml">
     </include>
-
-    <include subMenu="Standard Env Package" installTo="menu:volume" 
-             fileName="menus/volume/baseStdEnvPackage.xml">
+    <include subMenu="Standard Env Package" installTo="menu:volume" fileName="menus/volume/baseStdEnvPackage.xml">
     </include>
-    
-
 </menuContributionFile>

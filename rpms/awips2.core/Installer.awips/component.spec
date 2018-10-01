@@ -46,9 +46,6 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 
-%post
-/usr/bin/edex setup
-
 %clean
 rm -rf ${RPM_BUILD_ROOT}
 

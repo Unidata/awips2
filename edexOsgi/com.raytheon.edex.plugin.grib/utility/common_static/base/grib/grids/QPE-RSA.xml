@@ -37,5 +37,6 @@
     <spacingUnit>km</spacingUnit>
     <minorAxis>6356775.0</minorAxis>
     <majorAxis>6378160.0</majorAxis>
+    <lad>60</lad>
     <lov>-105.0</lov>
 </polarStereoGridCoverage>

@@ -88,8 +88,6 @@
          <packagereq type="default">awips2-edex-cots</packagereq>
          <packagereq type="default">awips2-edex-dataplugins</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
-         <packagereq type="default">awips2-edex-datadelivery</packagereq>
-         <packagereq type="default">awips2-edex-ogc</packagereq>
          <packagereq type="default">awips2-java</packagereq>
          <packagereq type="default">awips2-ldm</packagereq>
          <packagereq type="default">awips2-python</packagereq>
@@ -260,8 +258,6 @@
          <packagereq type="default">awips2-edex-gfe</packagereq>
          <packagereq type="default">awips2-edex-ncep</packagereq>
          <packagereq type="default">awips2-edex-shapefiles</packagereq>
-         <packagereq type="default">awips2-edex-datadelivery</packagereq>
-         <packagereq type="default">awips2-edex-ogc</packagereq>
          <packagereq type="default">awips2-httpd-pypies</packagereq>
          <packagereq type="default">awips2-httpd-pypies-tools</packagereq>
          <packagereq type="default">awips2-java</packagereq>
