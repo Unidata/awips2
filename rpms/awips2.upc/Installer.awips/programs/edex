@@ -33,6 +33,7 @@
 # 01/2018 M.James/Unidata       Added qpid-stat wrapper as edex qpid    #
 # 08/2018 M.James/Unidata       Registry logging                        #
 # 09/2018 M.James/Unidata       Cleanup setup/editing                   #
+# 10/2018 M.James/Unidata       Check for edex_ldm on LDM start/stop    #
 #-----------------------------------------------------------------------#
 . /etc/profile.d/awips2.sh
 # directories definitions
@@ -65,11 +66,11 @@ edex_status() {
 
    if [ -d "${DATA_PATH}" ]; then
       # CHECK POSTGRES
-      postgres_prc=`ps aux | grep postgresql | grep -v grep | grep -v java |awk '{ print $11 }'`
+      postgres_prc=`ps aux | grep postgresql | grep -v grep | grep -v java |awk '{ print $11 }' | head -1`
       if [ -z $postgres_prc ]; then
          echo ' postgres    :: not running'
       else
-         postgresPid=`ps aux | grep postgresql\/bin\/postmaster | grep -v grep | awk '{ print $2 }'`
+         postgresPid=`ps aux | grep postgresql\/bin\/postmaster | grep -v grep | awk '{ print $2 }' | head -1`
          echo ' postgres    :: running :: pid '$postgresPid''
       fi
    fi
@@ -282,6 +283,17 @@ edex_setup() {
    edit_setup
 }
 
+ldm_start() {
+    if [ -f /etc/init.d/edex_ldm ]; then
+      su -c "service edex_ldm start"
+   fi
+}
+ldm_stop() {
+    if [ -f /etc/init.d/edex_ldm ]; then
+      su -c "service edex_ldm stop"
+   fi
+}
+
 #
 # Start all EDEX services
 #
@@ -307,22 +319,23 @@ edex_start() {
    elif [ "${args[1]}" == 'ingest' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
-      su -c "service edex_ldm start"
+      ldm_start
    elif [ "${args[1]}" == 'database' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'request' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
    elif [ "${args[1]}" != 'dev' ]; then
       su -c "service edex_camel start"
-      su -c "service edex_ldm start"
+      ldm_start
    fi
 }
+
 #
 # Stop all EDEX services
 #
 edex_stop() {
    if [ "${args[1]}" != 'dev' ]; then
       su -c "service edex_camel stop"
-      su -c "service edex_ldm stop"
+      ldm_stop
    fi
    su -c "service qpidd stop"
    if [ -f "/etc/init.d/httpd-pypies" ]; then
