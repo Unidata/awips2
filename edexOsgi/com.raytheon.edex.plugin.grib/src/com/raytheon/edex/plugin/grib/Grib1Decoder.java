@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -80,6 +81,7 @@ import ucar.nc2.grib.grib1.Grib1Record;
 import ucar.nc2.grib.grib1.Grib1RecordScanner;
 import ucar.nc2.grib.grib1.Grib1SectionGridDefinition;
 import ucar.nc2.grib.grib1.Grib1SectionProductDefinition;
+import ucar.nc2.grib.grib1.tables.Grib1ParamTableReader;
 import ucar.nc2.grib.grib1.tables.Grib1ParamTables;
 import ucar.nc2.time.CalendarDate;
 import ucar.nc2.time.CalendarPeriod.Field;
@@ -113,6 +115,11 @@ import ucar.unidata.io.RandomAccessFile;
  * Sep 11, 2017  6406     bsteffen  Upgrade ucar
  * Aug 02, 2018  7397     mapeters  Fix parameter table lookups so standard
  *                                  ucar lookups are used
+ * Aug 08, 2018  7397     mapeters  Disable default parameter table, provide
+ *                                  default param name for unknown params
+ *                                  (like older ucar version)
+ * Aug 23, 2018  7397     mapeters  Fix forecast times for intervals
+ * Sep 11, 2018  7450     tjensen   Limit decoding to a single grib record
  *
  *
  * </pre>
@@ -143,6 +150,16 @@ public class Grib1Decoder {
     /** Missing value string */
     private static final String MISSING = "Missing";
 
+    private static final String UNKNOWN_UNIT = "Unknown";
+
+    /** Format for unknown param, takes paramNumber int and tableName string */
+    private static final String UNKNOWN_PARAM_FORMAT = "UnknownParameter_%d_table_%s";
+
+    /**
+     * Format for unknown table, takes ints: centerid, subcenterid, tableVersion
+     */
+    private static final String UNKNOWN_TABLE_FORMAT = "Unknown-%d.%d.%d";
+
     /** Set of Time range types for accumulations and averages */
     private static final Set<Integer> AVG_ACCUM_LIST = new HashSet<>();
 
@@ -168,6 +185,15 @@ public class Grib1Decoder {
                     "Error reading user parameter tables for ucar grib decoder",
                     e);
         }
+        /*
+         * The default table is not useful, as it doesn't specify the "name"
+         * field for any of its parameters, which causes decoding to fail. Also,
+         * falling back to it may incorrectly map some parameters. So we clear
+         * its parameters so that we just get a null param when failing to find
+         * it instead of an invalid default param.
+         */
+        Grib1ParamTables.getDefaultTable()
+                .setParameters(Collections.emptyMap());
         paramTables = new Grib1ParamTables();
     }
 
@@ -188,7 +214,11 @@ public class Grib1Decoder {
             Grib1RecordScanner g1i = new Grib1RecordScanner(raf);
 
             List<GridRecord> gribRecords = new ArrayList<>();
-            while (g1i.hasNext()) {
+            /*
+             * Limit decoding to a single record, as a decode message should be
+             * processed for each individual record.
+             */
+            if (g1i.hasNext()) {
                 Grib1Record grib1rec = g1i.next();
                 if (grib1rec == null) {
                     /*
@@ -291,9 +321,12 @@ public class Grib1Decoder {
                 parameterAbbreviation = param.getName();
                 parameterUnit = param.getUnit();
             } else {
-                parameterAbbreviation = MISSING;
-                parameterName = MISSING;
-                parameterUnit = MISSING;
+                String unknownParam = formatUnknownParamName(centerid,
+                        subcenterid, pds.getTableVersion(),
+                        pds.getParameterNumber());
+                parameterAbbreviation = unknownParam;
+                parameterName = unknownParam;
+                parameterUnit = UNKNOWN_UNIT;
             }
         } else {
             parameterName = parameter.getName();
@@ -398,9 +431,14 @@ public class Grib1Decoder {
         }
         int p1 = convertToSeconds(pds.getTimeValue1(), pds.getTimeUnit());
         int p2 = convertToSeconds(pds.getTimeValue2(), pds.getTimeUnit());
-        int forecastTime = convertToSeconds(
-                new Grib1ParamTime(null, pds).getForecastTime(),
-                pds.getTimeUnit());
+        Grib1ParamTime paramTime = new Grib1ParamTime(null, pds);
+        /*
+         * getForecastTime() is only valid for non-interval times, otherwise
+         * forecastTime is the end of the [start,end] interval
+         */
+        int forecastTime = paramTime.isInterval() ? paramTime.getInterval()[1]
+                : paramTime.getForecastTime();
+        forecastTime = convertToSeconds(forecastTime, pds.getTimeUnit());
 
         DataTime dataTime = constructDataTime(refTime, forecastTime,
                 getTimeInformation(refTime, pds.getTimeRangeIndicator(), p1,
@@ -579,6 +617,24 @@ public class Grib1Decoder {
                 genProcess, gridCoverage, filePath);
 
         return retVal;
+    }
+
+    private static String formatUnknownParamName(int centerid, int subcenterid,
+            int tableVersion, int paramNumber) {
+        Grib1ParamTableReader table = paramTables.getParameterTable(centerid,
+                subcenterid, tableVersion);
+        String tableName;
+        if (table.getPath()
+                .equals(Grib1ParamTables.getDefaultTable().getPath())) {
+            // Failed to find in a valid table, format name for unknown table
+            tableName = String.format(UNKNOWN_TABLE_FORMAT, centerid,
+                    subcenterid, tableVersion);
+        } else {
+            tableName = table.getName();
+        }
+        String unknownParam = String.format(UNKNOWN_PARAM_FORMAT, paramNumber,
+                tableName);
+        return unknownParam;
     }
 
     /**
@@ -1331,8 +1387,7 @@ public class Grib1Decoder {
         if ((scaleFactor1 == 0) || (value1 == 0)) {
             levelOneValue = value1;
         } else {
-            levelOneValue = new Double(
-                    (float) (value1 * Math.pow(10, scaleFactor1 * -1)));
+            levelOneValue = (float) (value1 * Math.pow(10, scaleFactor1 * -1));
         }
 
         levelTwoValue = levelOneValue;

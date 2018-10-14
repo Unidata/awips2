@@ -106,6 +106,7 @@
 #    04/03/2018        DR20656     arivera        Missing comma: "Dune Erosion Probability" in optionalParmsDict['marine']
 #    05/09/2018        DR20715     arivera        Missing comma: groups['marineSites'] after 'AVAK'
 #    06/18/2018          16729     ryu            Remove tpHPC element from RFCQPF model and the smart init for the model.
+#    09/04/2018          20874     wkwock         Haines and Fosberg are 6 hours accumulative.
 #
 ####################################################################################################
 
@@ -2893,7 +2894,8 @@ modelDict['NamDNG'] = {
 modelDict['NationalBlend'] = {
             'D2DAccumulativeElements': ["pop12hr", "pop", "pop6hr", "tp", "ppi1hr", "ppi6hr",
                                         "tp1hr", "tp6hr", "thp3hr", "thp6hr",
-                                        "totsn1hr", "totsn6hr", "ficeac1hr", "ficeac6hr"],
+                                        "totsn1hr", "totsn6hr", "ficeac1hr", "ficeac6hr",
+                                        "TstmPrb12", "Haines", "FosBerg"],
             'D2DMODELS': 'NationalBlend',
             'DB': ('NationalBlend', 'GRID', '', NO,  NO, 7, 0),
             'INITMODULES': 'NationalBlend',
@@ -2903,11 +2905,10 @@ modelDict['NationalBlend'] = {
                      ([SnowLevel,MaxTwAloft,ProbIcePresent, ProbRefreezeSleet,SnowRatio],TC1),
                      ([PositiveEnergyAloft, NegativeEnergyLowLevel],TC1),
                      ([MixHgt, TransWind, LLWS, VentRate, LLWSHgt, Radar,
-                       SigWaveHgt, Weather, Haines, FosBerg,
-                       SnowAmt01, IceAccum01, TstmPrb1],TC1),
+                       SigWaveHgt, Weather, SnowAmt01, IceAccum01, TstmPrb1],TC1),
                      ([TstmPrb3, DryTstmPrb],TC3NG),
                      ([TstmPrb6, QPF, PoP6, PPI06, SnowAmt, IceAccum,
-                       QPF10Prcntl, QPF50Prcntl, QPF90Prcntl],TC6NG),
+                       QPF10Prcntl, QPF50Prcntl, QPF90Prcntl, Haines, FosBerg],TC6NG),
                      ([MaxT], MaxTTC), ([MinT], MinTTC),
                      ([MaxRH], MaxRHTC), ([MinRH], MinRHTC),([PoP, TstmPrb12],TC12NG),
                      ],
