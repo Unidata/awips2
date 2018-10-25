@@ -74,7 +74,6 @@ pages:
     - Map Overlays: cave/d2d-map-resources.md
 - Python API:
     - Overview: python/python-awips-data-access.md
-    - Maps Database: python/maps-database.md
     - AWIPS Grids and Cartopy: python/awips-grids-and-cartopy.md
     - Satellite Imagery: python/satellite-imagery.md
     - NEXRAD Level 3 Radar: python/nexrad-level-3-radar.md
@@ -86,6 +85,7 @@ pages:
     - AWIPS Development Environment (ADE): dev/awips-development-environment.md
 - Appendix:
     - AWIPS Grid Parameters: appendix/appendix-grid-parameters.md
+    - Maps Database: python/maps-database.md
     - Acronyms and Abbreviations: appendix/appendix-acronyms.md
     - COTS and FOSS: appendix/appendix-cots.md
     - WSR-88D Product Table: appendix/appendix-wsr88d.md

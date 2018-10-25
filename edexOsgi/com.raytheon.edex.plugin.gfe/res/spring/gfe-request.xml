@@ -87,9 +87,6 @@
     <bean id="getLatestDbIdHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestModelDbIdHandler"/>
     <bean id="getTopoDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetTopoDataHandler"/>
     <bean id="rsyncGridsToCWFHandler" class="com.raytheon.edex.plugin.gfe.server.handler.RsyncGridsToCWFHandler"/>
-    <bean id="ClearGfeOrphanedLocks" class="com.raytheon.edex.plugin.gfe.server.lock.ClearGfeOrphanedLocks">
-        <property name="provider" ref="brokerRestProvider" />
-    </bean>
 
     <!-- ISC Send Beans -->
 
@@ -150,71 +147,7 @@
         <endpoint id="gfeLogPurgeCron" uri="clusteredquartz://gfe/purgeGfeLogs/?cron=${purge.gfe.logs.cron}"/>
         <endpoint id="gfeProductIscPurgeCron" uri="clusteredquartz://gfe/purgeGfeProductsIsc/?cron=${purge.gfe.products.isc.cron}"/>
         <endpoint id="gfeProductAtblPurgeCron" uri="clusteredquartz://gfe/purgeGfeProductsAtbl/?cron=${purge.gfe.products.atbl.cron}"/>
-        <endpoint id="gfeClearOrphanedLocksCron" uri="clusteredquartz://gfe/clearGfeOrhpanedLocks/?cron=${clear.gfe.orphaned.locks.cron}"/>
         <endpoint id="iscDataRecEndpoint" uri="jms-durable:queue:gfeIscDataReceive?concurrentConsumers=${iscDataRec.threads}"/>
-
-        <route id="purgeGfeLogs">
-            <from uri="gfeLogPurgeCron"/>
-            <to uri="jms-generic:queue:purgeGfeLogWork"/>
-        </route>
-        <route id="purgeGfeLogWork">
-            <from uri="jms-generic:queue:purgeGfeLogWork"/>
-            <doTry>
-                <bean ref="logPurger" method="purge"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to
-                        uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="purgeGfeProductsIsc">
-            <from uri="gfeProductIscPurgeCron"/>
-            <to uri="jms-generic:queue:purgeGfeProductIscWork"/>
-        </route>
-        <route id="purgeGfeProductIscWork">
-            <from uri="jms-generic:queue:purgeGfeProductIscWork"/>
-            <doTry>
-                <bean ref="productIscPurger" method="purge"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to 
-                        uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="purgeGfeProductsAtbl">
-            <from uri="gfeProductAtblPurgeCron"/>
-            <to uri="jms-generic:queue:purgeGfeProductAtblWork"/>
-        </route>
-        <route id="purgeGfeProductAtblWork">
-            <from uri="jms-generic:queue:purgeGfeProductAtblWork"/>
-            <doTry>
-                <bean ref="productAtblPurger" method="purge"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to 
-                        uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="clearGfeOrphanedLocks">
-            <from uri="gfeClearOrphanedLocksCron"/>
-            <to uri="jms-generic:queue:clearOrphanedLocksWork"/>
-        </route>
-        <route id="clearOrphanedLocksWork">
-            <from uri="jms-generic:queue:clearOrphanedLocksWork"/>
-            <doTry>
-                <bean ref="ClearGfeOrphanedLocks" method="clearLocksCron"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:svcBackup?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
 
         <!-- ISC Data Receive route -->
         <route id="iscReceiveRoute">

@@ -89,6 +89,8 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * ------------ ---------- ----------- --------------------------
  * Aug 24, 2009 2258       mpduff      Initial creation.
  * Mar 14, 2017 18417      snaples     Updated loadData to handle trace precip color mapping properly.
+ * Sep 04, 2018 20694      mporricelli Updated loadData and updateXmrg to properly
+ *                                     display trace precip.
  * </pre>
  * 
  * @author mpduff
@@ -367,12 +369,21 @@ public class XmrgResource extends
                     }
                 }
                 sampleData = new ArrayList<Float>(data.length);
-
                 for (short s : data) {
-                    float f = (float) Math.floor(cvt.convert(s));
-                    buf.put(f);
-                    // mm/100 to inch
-                    sampleData.add(s * 0.03937f / 100);
+                    // Map <0 and 0 to the first two color segments of the color scale, respectively
+                    if (s < 0) {
+                        buf.put(0.0f);
+                        sampleData.add(0.0f);
+                    } else if (s == 0) {
+                        buf.put(1.0f);
+                        sampleData.add(0.0f);
+                    } else {
+                        // Map values >0 to appropriate color bar segment
+                        float f = (float) Math.floor(cvt.convert(s));
+                        buf.put(f);
+                        // mm/100 to inch
+                        sampleData.add(s * 0.03937f / 100);
+                    }
                 }
                 buf.rewind();
 
@@ -408,15 +419,13 @@ public class XmrgResource extends
                     buf = FloatBuffer.allocate(data.length);
                     sampleData = new ArrayList<Float>(data.length);
                     for (short s : data) {
+                        // Map <0 and 0 to the first two color segments of the color scale, respectively
                         if (s < 0) {
                             buf.put(0.0f);
                             sampleData.add(0.0f);
-                        } else if (s > 0 && s < 25) {
-                            short ns = 10;
-                            float f = (short) cvt.convert(ns);
-                            buf.put(f);
-                            // mm/100 to inch
-                            sampleData.add(s * 0.03937f / 100);
+                        } else if (s == 0) {
+                            buf.put(1.0f);
+                            sampleData.add(0.0f);
                         } else {
                             float f = (float) Math.floor(cvt.convert(s));
                             buf.put(f);
@@ -621,9 +630,22 @@ public class XmrgResource extends
                 data = xmrg.getData();
             }
             buf = FloatBuffer.allocate(data.length);
+            sampleData = new ArrayList<Float>(data.length);
             for (short s : data) {
-                float f = (float) Math.floor(cvt.convert(s));
-                buf.put(f);
+                // Map <0 and 0 to the first two color segments of the color scale, respectively
+                if (s < 0) {
+                    buf.put(0.0f);
+                    sampleData.add(0.0f);
+                } else if (s == 0){
+                    buf.put(1.0f);
+                    sampleData.add(0.0f);
+                } else {
+                    // Map values >0 to appropriate color bar segment
+                    float f = (float) Math.floor(cvt.convert(s));
+                    buf.put(f);
+                 // mm/100 to inch
+                    sampleData.add(s * 0.03937f / 100);
+                }
             }
             buf.rewind();
             Rectangle extent = xmrg.getHrapExtent();

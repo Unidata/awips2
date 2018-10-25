@@ -60,7 +60,7 @@
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.dataplugins.feature" />
-		</antcall>
+		</antcall> <!--
 		<antcall target="build">
 			<param name="feature"
 				value="com.raytheon.uf.edex.ogc.feature" />
@@ -88,7 +88,7 @@
 		<antcall target="build">
 			<param name="feature"
 				value="edu.ucar.unidata.uf.edex.unidata.feature" />
-		</antcall>
+		</antcall> -->
 	</target>
 
     <target name="main" depends="clean, init, main-build" />

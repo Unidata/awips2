@@ -322,6 +322,6 @@ public class WarningGeometryFactory extends AbstractGeometryDatabaseFactory {
     @Override
     protected String assembleGetIdentifierValues(IDataRequest request,
             String identifierKey) {
-        return assembleGetColumnValues(request.getDatatype(), identifierKey);
+        return assembleGetColumnValues(request, request.getDatatype(), identifierKey);
     }
 }
