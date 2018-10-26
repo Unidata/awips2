@@ -35,8 +35,6 @@ import org.opengis.referencing.operation.TransformException;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.geospatial.MapUtil;
@@ -314,13 +312,8 @@ public class D2DGridResource extends GridResource<GridResourceData>
             }
         }
         LegendParameters legendParams = new LegendParameters();
-        DatasetInfo info = DatasetInfoLookup.getInstance()
-                .getInfo(record.getDatasetId());
-        if (info == null) {
-            legendParams.model = record.getDatasetId();
-        } else {
-            legendParams.model = info.getTitle();
-        }
+        
+        legendParams.model = record.getDatasetId();
         legendParams.level = record.getLevel();
         legendParams.parameter = record.getParameter().getName();
         legendParams.ensembleId = record.getEnsembleId();

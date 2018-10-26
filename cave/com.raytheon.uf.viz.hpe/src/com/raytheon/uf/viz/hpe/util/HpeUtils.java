@@ -20,8 +20,6 @@
 package com.raytheon.uf.viz.hpe.util;
 
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 
 /**
  * HPE Utilities
@@ -42,9 +40,6 @@ import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
  */
 
 public class HpeUtils {
-    private static final String HPE = "HPE";
-
-    private static final String BIAS_HPE = "BiasHPE";
 
     /**
      * Determine if this title represents an HPE model.
@@ -55,19 +50,9 @@ public class HpeUtils {
      * 
      */
     public static boolean isHpe(GridRecord gridRecord) {
-        String title = null;
         if (gridRecord != null) {
-            DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(
-                    gridRecord.getDatasetId());
-            if (info != null) {
-                title = info.getTitle();
-            }
+        	return gridRecord.getDatasetId().contains("HPE");
         }
-
-        if (title == null) {
-            return false;
-        }
-
-        return HPE.equals(title) || BIAS_HPE.equals(title);
+        return false;
     }
 }

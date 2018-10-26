@@ -33,8 +33,6 @@ import java.util.Set;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.CommonGridInventory;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.GridInventoryUpdater;
 import com.raytheon.uf.common.dataplugin.grid.derivparam.cache.CoverageUtils;
@@ -212,7 +210,6 @@ public class VizGridInventory extends CommonGridInventory
     protected DataTree createBaseTree() throws DataCubeException {
         DataTree newTree = super.createBaseTree();
         initGatherModels(newTree);
-        initAliasModels(newTree);
         GridExtensionManager.addToBaseTree(newTree, derParLibrary);
         return newTree;
     }
@@ -237,74 +234,6 @@ public class VizGridInventory extends CommonGridInventory
             rval.addAll(times);
         }
         return rval;
-    }
-
-    /**
-     * Prepare an alias map, from a modelName to all modelNames that it
-     * includes, from highest res to lowest res
-     * 
-     * @param newGridTree
-     */
-    private void initAliasModels(DataTree newGridTree) {
-        sourceAliases.clear();
-        DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
-        for (String modelName : newGridTree.getSources()) {
-            DatasetInfo info = lookup.getInfo(modelName);
-            if (info != null && info.getAlias() != null) {
-                SourceNode source = newGridTree.getSourceNode(modelName);
-                SourceNode dest = newGridTree.getSourceNode(info.getAlias());
-                if (source != null && dest != null) {
-                    List<String> aliases = sourceAliases.get(dest.getValue());
-                    if (aliases == null) {
-                        aliases = new ArrayList<>();
-                        aliases.add(dest.getValue());
-                        sourceAliases.put(dest.getValue(), aliases);
-                    }
-                    aliases.add(source.getValue());
-                }
-            }
-        }
-        for (Entry<String, List<String>> aliases : sourceAliases.entrySet()) {
-            Collections.sort(aliases.getValue(), new Comparator<String>() {
-
-                @Override
-                public int compare(String model1, String model2) {
-                    try {
-                        // attempt to figure out which model is the highest
-                        // resolution.
-                        Collection<GridCoverage> coverages1 = CoverageUtils
-                                .getInstance().getCoverages(model1);
-                        Collection<GridCoverage> coverages2 = CoverageUtils
-                                .getInstance().getCoverages(model2);
-                        if (coverages1.isEmpty()) {
-                            return 1;
-                        } else if (coverages2.isEmpty()) {
-                            return -1;
-                        }
-                        double total1 = 0;
-                        double total2 = 0;
-                        for (GridCoverage coverage : coverages1) {
-                            total1 += coverage.getDx();
-                            total1 += coverage.getDy();
-                        }
-                        for (GridCoverage coverage : coverages2) {
-                            total2 += coverage.getDx();
-                            total2 += coverage.getDy();
-                        }
-                        Double res1 = total1 / coverages1.size();
-                        Double res2 = total2 / coverages2.size();
-                        return res1.compareTo(res2);
-                    } catch (DataCubeException e) {
-                        statusHandler.handle(Priority.PROBLEM,
-                                "Unable to create model aliases, problems with "
-                                        + model1 + " and " + model2,
-                                e);
-                        return 0;
-                    }
-                }
-
-            });
-        }
     }
 
     public Set<Level> getAvailableLevels(Map<String, RequestConstraint> query) {

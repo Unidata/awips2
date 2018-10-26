@@ -21,8 +21,6 @@ package com.raytheon.uf.common.dataplugin.grid.derivparam.data;
 
 import javax.measure.unit.SI;
 
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.grid.util.StaticGridData;
 import com.raytheon.uf.common.dataplugin.grid.util.StaticGridDataType;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
@@ -77,17 +75,6 @@ public class StaticGridRequestableData extends AbstractRequestableData {
 
         if (StaticGridDataType._dt.equals(dataType)) {
             int dTinSeconds = 0;
-            DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(source);
-
-            if (info != null) {
-                dTinSeconds = info.getDt();
-
-                // dT <= 24 is in hours, need to convert to seconds
-                if (Math.abs(dTinSeconds) <= 24) {
-                    dTinSeconds *= 3600;
-                }
-            }
-
             return new Float(dTinSeconds);
         } else {
             if (this.space instanceof GridCoverage) {

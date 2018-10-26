@@ -40,8 +40,6 @@ import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
@@ -404,8 +402,6 @@ public class VbSourceList {
             }
         }
 
-        DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
-        DatasetInfo info;
         // Set containing sources to not be added to lists
         Set<VbSource> removes = new HashSet<>();
         Iterator<VbSource> itr = allSources.iterator();
@@ -415,9 +411,7 @@ public class VbSourceList {
             VbSource source = itr.next();
             // Set display names for sources
             if (source.getName() == null) {
-                info = lookup.getInfo(source.getKey());
-                source.setName(
-                        info != null ? info.getTitle() : source.getKey());
+                source.setName(source.getKey());
             }
             if (source.getRemove()) {
                 // Add sources with remove tags to removal set and remove them.

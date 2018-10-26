@@ -26,8 +26,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
@@ -69,16 +67,9 @@ public class GridProductBrowserDataFormatter {
             String[] parameters) {
         List<ProductBrowserLabel> labels = new ArrayList<ProductBrowserLabel>();
         if (GridInventory.MODEL_NAME_QUERY.equals(param)) {
-            DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
             for (int i = 0; i < parameters.length; i++) {
-                DatasetInfo info = lookup.getInfo(parameters[i]);
-                if (info == null) {
-                    labels.add(new ProductBrowserLabel(parameters[i],
-                            parameters[i]));
-                } else {
-                    labels.add(new ProductBrowserLabel(info.getTitle() + " ("
-                            + parameters[i] + ")", parameters[i]));
-                }
+                labels.add(new ProductBrowserLabel(parameters[i],
+                        parameters[i]));
             }
             Collections.sort(labels);
             return labels;
