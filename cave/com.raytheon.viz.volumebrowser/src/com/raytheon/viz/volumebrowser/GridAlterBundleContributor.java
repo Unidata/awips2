@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.menus.vb.VbSource;
 import com.raytheon.uf.common.menus.vb.VbSourceList;
@@ -103,18 +102,14 @@ public class GridAlterBundleContributor extends AlterBundleContributorAdapter {
         if (selectedString != null) {
             reqMap.put(GridConstants.DATASET_ID, new RequestConstraint(
                     selectedString));
-            DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
 
             // next, need to modify for other displays (not plan view)
             if (data instanceof VarHeightResourceData) {
-                ((VarHeightResourceData) data).setSource(lookup.getInfo(
-                        selectedString).getTitle());
+                ((VarHeightResourceData) data).setSource(selectedString);
             } else if (data instanceof TimeSeriesResourceData) {
-                ((TimeSeriesResourceData) data).setSource(lookup.getInfo(
-                        selectedString).getTitle());
+                ((TimeSeriesResourceData) data).setSource(selectedString);
             } else if (data instanceof CrossSectionResourceData) {
-                ((CrossSectionResourceData) data).setSource(lookup.getInfo(
-                        selectedString).getTitle());
+                ((CrossSectionResourceData) data).setSource(selectedString);
             }
         }
     }

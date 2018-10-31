@@ -26,8 +26,6 @@ import java.util.List;
 import com.raytheon.uf.common.inventory.tree.DataTree;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridInfoRecord;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.grid.request.GetGridTreeRequest;
 import com.raytheon.uf.common.serialization.comm.IRequestHandler;
 import com.raytheon.uf.edex.database.dao.CoreDao;
@@ -80,7 +78,7 @@ public class GridTreeHandler implements IRequestHandler<GetGridTreeRequest> {
                     ArrayList<Object> gridFields = new ArrayList<Object>(
                             Arrays.asList((Object[]) gridField));
                     String model = gridFields.get(0).toString();
-                    gridTree.addBranch(model, getDt(model), gridFields.get(1)
+                    gridTree.addBranch(model, gridFields.get(1)
                             .toString(), gridFields.get(2).toString(),
                             gridFields.get(3).toString(), gridFields.get(4)
                                     .toString());
@@ -88,20 +86,6 @@ public class GridTreeHandler implements IRequestHandler<GetGridTreeRequest> {
             }
         }
         return gridTree;
-    }
-
-    private int getDt(String modelName) {
-        DatasetInfo info = DatasetInfoLookup.getInstance().getInfo(modelName);
-        if (info != null && info.getDt() != null) {
-            int dTinSeconds = info.getDt();
-
-            // dT <= 24 is in hours, need to convert to seconds
-            if (Math.abs(dTinSeconds) <= 24) {
-                dTinSeconds *= 3600;
-            }
-            return dTinSeconds;
-        }
-        return -1;
     }
 
 }

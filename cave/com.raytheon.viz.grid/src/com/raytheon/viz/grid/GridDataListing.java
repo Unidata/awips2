@@ -33,8 +33,6 @@ import com.raytheon.uf.common.datalisting.DataListing;
 import com.raytheon.uf.common.datalisting.impl.DefaultDataListing;
 import com.raytheon.uf.common.dataplugin.grid.GridConstants;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfo;
-import com.raytheon.uf.common.dataplugin.grid.dataset.DatasetInfoLookup;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.LevelFactory;
 import com.raytheon.uf.common.dataplugin.level.MasterLevel;
@@ -96,14 +94,8 @@ public class GridDataListing extends DefaultDataListing {
     protected Map<String, String> getFormattedValues(String key, Collection<String> values) {
         if (GridConstants.DATASET_ID.equals(key)) {
             Map<String, String> formatted = new LinkedHashMap<>();
-            DatasetInfoLookup lookup = DatasetInfoLookup.getInstance();
             for (String value : values) {
-                DatasetInfo info = lookup.getInfo(value);
-                if (info == null) {
-                    formatted.put(value, value);
-                } else {
-                    formatted.put(value, info.getTitle() + " (" + value + ")");
-                }
+                formatted.put(value, value);
             }
             return sortByValue(formatted);
         } else if (GridInventory.PARAMETER_QUERY.equals(key)) {

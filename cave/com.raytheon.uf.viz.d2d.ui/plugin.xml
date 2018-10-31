@@ -588,23 +588,20 @@
                   </reference>
                </visibleWhen>
             </command>
+            
             <command
-                  commandId="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                  commandId="gov.noaa.nws.ncep.viz.actions.dataManager"
                   icon="icons/terminal.png"
-                  id="gov.noaa.nws.ncep.viz.actions.resourceManager"
+                  id="gov.noaa.nws.ncep.viz.actions.dataManager"
                   label="GEMPAK"
                   mode="FORCE_TEXT"
                   style="push"
-                  tooltip="GEMPAK Grid Viewer">
+                  tooltip="GEMPAK Data">
                <visibleWhen>
                   <reference
                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
                   </reference>
                </visibleWhen>
-               <parameter
-                     name="mode"
-                     value="CREATE_RBD">
-               </parameter>
             </command>
 			<command
                   commandId="com.raytheon.uf.viz.productbrowser.productBrowser"

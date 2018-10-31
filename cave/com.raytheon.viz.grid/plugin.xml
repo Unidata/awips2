@@ -71,13 +71,4 @@
            </menu>
         </menuContribution>
      </extension>
-   <extension
-         point="com.raytheon.uf.viz.localization.perspective.localizationpath">
-      <path
-            application="EDEX"
-            localizationType="COMMON_STATIC"
-            name="Parameter"
-            value="parameter"
-            recursive="true" />
-   </extension>
 </plugin>
