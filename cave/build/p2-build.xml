@@ -314,9 +314,6 @@
         		<param name="feature" value="com.raytheon.uf.viz.scan.feature" />
         	</antcall>
         	<antcall target="p2.build.repo">
-        		<param name="feature" value="com.raytheon.uf.viz.server.edex.feature" />
-        	</antcall>
-        	<antcall target="p2.build.repo">
         		<param name="feature" value="com.raytheon.uf.viz.vtec.feature" />
         	</antcall>
         	<antcall target="p2.build.repo">
