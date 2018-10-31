@@ -958,21 +958,6 @@
 	      </classContext>
 	</extension>
     <extension
-          point="com.raytheon.uf.viz.localization.perspective.localizationpath">
-       <path
-             application="Hydro Apps"
-             localizationType="COMMON_STATIC"
-             name="Hydro"
-             value="hydro">
-       </path>
-       <path
-             application="Hydro Apps"
-             localizationType="COMMON_STATIC"
-             name="SHEF"
-             value="shef">
-       </path>
-    </extension>
-    <extension
           point="com.raytheon.uf.viz.core.component">
        <component
              class="com.raytheon.viz.hydro.timeseries.TimeSeriesconfigComponent"
