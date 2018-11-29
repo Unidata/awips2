@@ -10,12 +10,6 @@
             sortID="4">
       </contextualMenu>
       <contextualMenu
-            actionClass="com.raytheon.uf.viz.damagepath.ExportToLdadAction"
-            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
-            name="Export to LDAD"
-            sortID="5">
-      </contextualMenu>
-      <contextualMenu
             actionClass="com.raytheon.uf.viz.damagepath.ExportDamagePathAction"
             capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
             name="Export to File"
