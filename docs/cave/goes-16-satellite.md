@@ -72,10 +72,10 @@ To display multi-channel composites requires CAVE for Linux or Windows.
 Decoded GOES-R satellite images are stored in `/awips2/edex/data/hdf5/satellite/` under sector subdirectories:
 
     drwxr-xr-x 18 awips fxalpha PRREGI
-    drwxr-xr-x 18 awips fxalpha TCONUS
-    drwxr-xr-x 18 awips fxalpha TFD
-    drwxr-xr-x 18 awips fxalpha TMESO-1
-    drwxr-xr-x 18 awips fxalpha TMESO-2
+    drwxr-xr-x 18 awips fxalpha ECONUS
+    drwxr-xr-x 18 awips fxalpha EFD
+    drwxr-xr-x 18 awips fxalpha EMESO-1
+    drwxr-xr-x 18 awips fxalpha EMESO-2
 
 
 
