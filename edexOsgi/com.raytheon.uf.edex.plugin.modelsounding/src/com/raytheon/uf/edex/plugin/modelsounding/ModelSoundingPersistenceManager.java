@@ -140,10 +140,6 @@ public class ModelSoundingPersistenceManager implements IContextStateProcessor {
                             EDEXUtil.getMessageProducer().sendSync(
                                     "modelSoundingPersistIndexAlert", pdos);
                             timer.stop();
-                            logger.info("Stored container: "
-                                    + container.getKey() + ", size: "
-                                    + container.size() + ", in "
-                                    + timer.getElapsedTime() + "ms");
                         } catch (EdexException e) {
                             logger.error("Failed to persist " + pdos.length
                                     + " PluginDataObject(s) for key: "
