@@ -405,7 +405,7 @@ edex_users(){
         if [ "${args[1]}" != '' ]; then
                 YMD=${args[1]}
         fi
-        userList=$(cat ${LOG_PATH}/edex-request-thriftSrv-${YMD}.log |grep ":CAVE:"|cut -d "[" -f 3| cut -d ":" -f 1|grep -v pluginName|sort | uniq)
+        userList=$(cat ${LOG_PATH}/edex-request-thriftSrv-${YMD}.log |grep ":CAVE:"|cut -d "[" -f 3| cut -d ":" -f 1|grep -v pluginName| grep -v ThriftSrvRequestLogger |sort | uniq)
         echo ""
         echo " -- EDEX Users ${YMD} --"
         echo "$userList"
