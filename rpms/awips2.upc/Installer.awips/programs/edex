@@ -23,17 +23,19 @@
 #                                                                       #
 #-----------------------------------------------------------------------#
 # ChangeLog                                                             #
-# 07/2011 M.James/Unidata	Created					#
-# 10/2015 M.James/Unidata	Log files fixed; purge check added	#
-# 11/2015 M.James/Unidata	Added CAVE user count as "edex users"	#
-# 10/2016 M.James/Unidata	No longer need to edit ldmd.conf	#
-# 06/2017 M.James/Unidata       Restart					#
-# 09/2017 M.James/Unidata       Rudimentary remote db password control, #
-#                               remove pg_hba.conf edits                #
-# 01/2018 M.James/Unidata       Added qpid-stat wrapper as edex qpid    #
-# 08/2018 M.James/Unidata       Registry logging                        #
-# 09/2018 M.James/Unidata       Cleanup setup/editing                   #
-# 10/2018 M.James/Unidata       Check for edex_ldm on LDM start/stop    #
+# 07/2011  mjames  Created                                              #
+# 10/2015  mjames  Tailing log files ; purge check added                #
+# 11/2015  mjames  Display ser count as "edex users"                    #
+# 10/2016  mjames  No longer editing ldmd.conf                          #
+# 06/2017  mjames  Added restart command                                #
+# 09/2017  mjames  Rudimentary remote db password control               #
+#                  remove pg_hba.conf edits                             #
+# 01/2018  mjames  Added qpid-stat wrapper as edex qpid                 #
+# 08/2018  mjames  Registry logging                                     #
+# 09/2018  mjames  Cleanup setup/editing                                #
+# 10/2018  mjames  Check for edex_ldm on LDM start/stop                 #
+# 12/2018  mjames  Find a log file to tail if running modes other       #
+#                  than ingest                                          #
 #-----------------------------------------------------------------------#
 . /etc/profile.d/awips2.sh
 # directories definitions
@@ -222,7 +224,12 @@ edex_log() {
       exit;
    fi   
    if [ -z ${args[1]} ]; then
-      echo ' :: No log specified - Defaulting to ingest log'
+      if [ -f ${LOG_PATH}/edex-ingest-${YMD}.log ]; then
+         LOG_FILE=${LOG_PATH}/edex-ingest-${YMD}.log
+      else
+         LOG_FILE=$(ls -tr $LOG_PATH/edex-ingest*${YMD}.log | grep -Ev 'wrapper|performance|hibernate|start' | tail -1)
+      fi
+      echo ' :: No log specified, but I found '$LOG_FILE
       tail_log
       exit;
    else
@@ -233,20 +240,20 @@ edex_log() {
 }
 
 #
-# Update placeholder "external.fqdn" with $(hostname -i)
+# Update placeholder "external.fqdn" with $(hostname)
 # See /awips2/edex/bin/setup.env
 #
 edit_setup() {
    if grep -q external.fqdn "$EDEX_ENV_FILE"; then
       echo '[edex] EDEX IP and Hostname Setup'
-      sed -i.setup_$YMD 's/external.fqdn/'$(hostname -i)'/g' $EDEX_ENV_FILE
-      echo '[edit] '$(hostname -i)' added to '$EDEX_ENV_FILE
+      sed -i.setup_$YMD 's/external.fqdn/'$(hostname)'/g' $EDEX_ENV_FILE
+      echo '[edit] '$(hostname)' added to '$EDEX_ENV_FILE
       echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
    fi
    # registry/data delivery fqdn
    shopt -s nullglob
    for f in /awips2/edex/conf/resources/*.properties; do
-      sed -i 's/external.fqdn/'$(hostname -i)'/g' $f
+      sed -i 's/external.fqdn/'$(hostname)'/g' $f
    done
 }
 
@@ -388,14 +395,14 @@ edex_purge_reset() {
 # Show Qpid data ingest queues
 #
 edex_qpid() {
-	/awips2/python/bin/qpid-stat -q -S msgIn
+        /awips2/python/bin/qpid-stat -q -S msgIn
 }
 
 #
 # Qpid cleanup
 #
 edex_cleanup() {
-	rm -rf /awips2/qpid/edexMessageStore/edex/
+       rm -rf /awips2/qpid/edexMessageStore/edex/
 }
 
 #
