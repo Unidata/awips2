@@ -247,6 +247,9 @@ public abstract class AbstractWWAResource extends
                                     }
                                     sb.append(text);
                                 }
+                                sb.append("\n\n");
+                                sb.append(record.getOverviewText());
+                                sb.append(record.getSegText());
                                 return sb.toString();
                             }
                         }
@@ -257,7 +260,7 @@ public abstract class AbstractWWAResource extends
             }
 
         }
-        return "NO DATA";
+        return null;
     }
 
     protected void disposeEntry(final WarningEntry entry) {
@@ -369,8 +372,11 @@ public abstract class AbstractWWAResource extends
                     initShape(target, entry.record);
                     entry.project = false;
                 }
-
-                RGB displaycolor = RGBColors.getRGBColor(getColor(record));
+                
+                RGB displaycolor = color;
+                if ( ! record.getPil().equals("SPS")) {
+                	displaycolor = RGBColors.getRGBColor(getPhensigColor(record.getPhensig()));
+                }
 
                 if (entry != null && entry.wireframeShape != null) {
                     LineStyle lineStyle = LineStyle.SOLID;
@@ -596,26 +602,26 @@ public abstract class AbstractWWAResource extends
         addRecord(sort(pdos));
     }
 
-    protected String getColor(AbstractWarningRecord record){
-        String phensig = record.getPhensig();
+    protected String getPhensigColor(String phensig){
         WarningLookups lookup = new WarningLookups();
         return lookup.getPhensig(phensig).color;
     }
 
+    protected String getPhensigName(String phensig){
+        WarningLookups lookup = new WarningLookups();
+        return lookup.getPhensig(phensig).name;
+    }
+
     protected String[] getText(AbstractWarningRecord record, double mapWidth) {
-        String vid = record.getPhensig();
-        String phen = record.getPhen();
-        String[] textToPrint = new String[] { "", "", "", "" };
+    	
+        String[] textToPrint = new String[] { "", "" };
 
-        textToPrint[0] = record.getProductClass();
-        if ((vid != null && phen != null)
-                && (vid.equals("TO.A") || vid.equals("SV.A")
-                        || phen.equals("FL") || phen.equals("FA"))) {
-            textToPrint[0] += "." + vid;
+        if ( ! record.getPil().equals("SPS")) {
+            textToPrint[0] = getPhensigName(record.getPhensig());
+        } else {
+        	textToPrint[0] = "Special Weather Statement";
         }
-        textToPrint[0] += "." + record.getEtn();
-        textToPrint[1] = record.getPil();
-
+        
         String startFormatString = DEFAULT_FORMAT;
         String endFormatString = DEFAULT_FORMAT;
         if (mapWidth == 0) {
@@ -627,14 +633,14 @@ public abstract class AbstractWWAResource extends
         }
 
         DateFormat startFormat = new SimpleDateFormat(startFormatString);
-        startFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
-        textToPrint[2] = "Valid "
-                + startFormat.format(record.getStartTime().getTime());
-
         DateFormat endFormat = new SimpleDateFormat(endFormatString);
+
+        startFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
         endFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
-        textToPrint[3] = "Thru "
-                + endFormat.format(record.getEndTime().getTime());
+        
+        textToPrint[1] = startFormat.format(record.getStartTime().getTime()) 
+                + "-" + endFormat.format(record.getEndTime().getTime());;
+               
 
         return textToPrint;
     }

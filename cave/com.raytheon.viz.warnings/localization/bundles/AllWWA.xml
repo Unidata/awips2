@@ -1,3 +1,4 @@
+
 <bundle>
 	<displayList>
 		<displays xsi:type="d2DMapRenderableDisplay"
@@ -6,9 +7,8 @@
 				<resource>
                     <loadProperties loadWithoutData="true">
                         <capabilities>
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="4" />
-                            <capability xsi:type="colorableCapability" colorAsString="#CC99FF" />
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="4" />
+                            <capability xsi:type="colorableCapability" colorAsString="#ffffff" />
                         </capabilities>
                     </loadProperties>
 					<properties isSystemResource="false" isBlinking="false"
@@ -16,18 +16,9 @@
 						isVisible="true" />
 					<resourceData xsi:type="wwaResourceData" 						
 						isUpdatingOnMetadataOnly="false"
-						retrieveData="false"
-						isRequeryNecessaryOnTimeMatch="true" name="EWW Warnings">
-						<metadataMap>							
-							<mapping key="act">
-								<constraint constraintValue="NEW,CON,CAN,EXP" constraintType="IN" />
-							</mapping>
-							<mapping key="pil">
-								<constraint constraintValue="EWW,EWS,SVS" constraintType="IN" />
-							</mapping>
-							<mapping key="phensig">
-								<constraint constraintValue="EW.W" constraintType="EQUALS" />
-							</mapping>
+						retrieveData="true"
+						isRequeryNecessaryOnTimeMatch="true" name="All Advisories and Warnings">
+						<metadataMap>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />
 							</mapping>
