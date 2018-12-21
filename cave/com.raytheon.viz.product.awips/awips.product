@@ -122,6 +122,7 @@
       <feature id="com.raytheon.uf.viz.ncep.npp.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.perspective.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.skewt.feature"/>
+      <feature id="com.raytheon.uf.viz.server.edex.feature"/>
       <feature id="com.raytheon.uf.viz.dat.feature"/>
       <feature id="com.raytheon.uf.viz.datadelivery.feature"/>
       <feature id="edu.wisc.ssec.cimss.viz.convectprob.feature"/>

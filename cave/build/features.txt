@@ -48,6 +48,7 @@ com.raytheon.uf.viz.d2d.skewt.feature
 gov.noaa.gsd.viz.ensemble.feature
 gov.noaa.nws.mdl.viz.awipsref.feature
 gov.noaa.nws.obs.viz.geodata.feature
+com.raytheon.uf.viz.server.edex.feature
 com.raytheon.uf.viz.dat.feature
 com.raytheon.uf.viz.datadelivery.feature
 edu.wisc.ssec.cimss.viz.convectprob.feature

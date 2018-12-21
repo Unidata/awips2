@@ -112,6 +112,7 @@
       <feature id="com.raytheon.uf.viz.acarssounding.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.npp.sounding.feature" version="1.0.0.qualifier"/>
       <feature id="com.raytheon.uf.viz.d2d.gfe.feature" version="1.0.0.qualifier"/>
+      <feature id="com.raytheon.uf.viz.server.edex.feature" version="1.0.0.qualifier"/>
    </features>
 
    <configurations>

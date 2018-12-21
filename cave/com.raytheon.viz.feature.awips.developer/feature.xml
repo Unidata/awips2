@@ -238,6 +238,10 @@
          version="0.0.0"/>
 
    <includes
+         id="com.raytheon.uf.viz.server.edex.feature"
+         version="0.0.0"/>
+
+   <includes
          id="gov.noaa.nws.ocp.uf.viz.gisdatastore.feature"
          version="0.0.0"/>
 
