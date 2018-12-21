@@ -36,6 +36,8 @@ import javax.measure.unit.SI;
  * Feb 3,  2015  16993     snaples     fixed color scale data conversion issue.
  * Mar 2,  2015  15660     snaples     Fixed problem with color scale using wrong values. Causing grids to be all zeros.
  * Oct 03, 2017  6407      bkowal      Cleanup. Updated to extend {@link AbstractPrismDataReader}.
+ * Sep 27, 2018  7482      smanoj      Fix the issue with data conversion
+ * 
  * </pre>
  * 
  * @author snaples
@@ -46,7 +48,9 @@ public class MeanMonthlyPrecip extends AbstractPrismDataReader {
     private final String VERSION = "111511";
 
     private static Isoh isoh;
-
+    
+    private static final float convFactor = 25.4f;
+    
     public MeanMonthlyPrecip() {
         super(NonSI.INCH, SI.MILLIMETER);
     }
@@ -114,5 +118,10 @@ public class MeanMonthlyPrecip extends AbstractPrismDataReader {
     protected float handleNegativeValue(UnitConverter dataToImage,
             short value) {
         return 0;
+    }
+    
+    @Override
+    protected float getconvFactor(){
+        return convFactor;
     }
 }

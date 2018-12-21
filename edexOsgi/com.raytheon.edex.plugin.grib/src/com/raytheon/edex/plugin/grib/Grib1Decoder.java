@@ -21,14 +21,12 @@
 package com.raytheon.edex.plugin.grib;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
@@ -87,6 +85,7 @@ import ucar.nc2.time.CalendarDate;
 import ucar.nc2.time.CalendarPeriod.Field;
 import ucar.unidata.geoloc.Earth;
 import ucar.unidata.geoloc.EarthEllipsoid;
+import ucar.unidata.io.InMemoryRandomAccessFile;
 import ucar.unidata.io.RandomAccessFile;
 
 /**
@@ -120,6 +119,8 @@ import ucar.unidata.io.RandomAccessFile;
  *                                  (like older ucar version)
  * Aug 23, 2018  7397     mapeters  Fix forecast times for intervals
  * Sep 11, 2018  7450     tjensen   Limit decoding to a single grib record
+ * Sep 25, 2018  7450     mapeters  Fix extraction of the record to decode from
+ *                                  the grib file
  *
  *
  * </pre>
@@ -208,42 +209,50 @@ public class Grib1Decoder {
      */
     public GridRecord[] decode(GribDecodeMessage message) throws GribException {
         String fileName = message.getFileName();
-        try (RandomAccessFile raf = new RandomAccessFile(fileName, "r")) {
-            raf.order(RandomAccessFile.BIG_ENDIAN);
-            raf.seek(message.getStartPosition());
-            Grib1RecordScanner g1i = new Grib1RecordScanner(raf);
 
-            List<GridRecord> gribRecords = new ArrayList<>();
+        try (RandomAccessFile fileRaf = new RandomAccessFile(fileName, "r")) {
             /*
-             * Limit decoding to a single record, as a decode message should be
-             * processed for each individual record.
+             * We want to limit decoding to a single record, as a decode message
+             * should be generated for each individual record. The
+             * Grib1RecordScanner doesn't support this very well, as its
+             * constructor seeks back to the start of the random access file, as
+             * does the first call of its hasNext(). So, we extract the
+             * individual record's bytes from the file and wrap them in an
+             * InMemoryRandomAccessFile, so that the start of the "file" is the
+             * start of the record, which makes seeking back to the start of it
+             * okay.
              */
-            if (g1i.hasNext()) {
-                Grib1Record grib1rec = g1i.next();
-                if (grib1rec == null) {
-                    /*
-                     * If the file is truncated or otherwise corrupt such that
-                     * the end section of the grib file is not found then the
-                     * scanner returns null despite the fact that hasNext()
-                     * returned true.
-                     */
-                    if (gribRecords.isEmpty()) {
-                        throw new GribException("Invalid grib1 message.");
-                    } else {
+            fileRaf.order(RandomAccessFile.BIG_ENDIAN);
+            fileRaf.seek(message.getStartPosition());
+            byte[] recordBytes = new byte[(int) message.getMessageLength()];
+            fileRaf.read(recordBytes);
+            try (RandomAccessFile recordRaf = new InMemoryRandomAccessFile(
+                    fileName, recordBytes)) {
+                recordRaf.order(RandomAccessFile.BIG_ENDIAN);
+                Grib1RecordScanner g1i = new Grib1RecordScanner(recordRaf);
+
+                if (g1i.hasNext()) {
+                    Grib1Record grib1rec = g1i.next();
+                    if (grib1rec == null) {
                         /*
-                         * If some records were decoded, just log so they can be
-                         * processed normally.
+                         * If the file is truncated or otherwise corrupt such
+                         * that the end section of the grib file is not found
+                         * then the scanner returns null despite the fact that
+                         * hasNext() returned true.
                          */
-                        statusHandler
-                                .error("Invalid grib1 message in " + fileName);
+                        throw new GribException("Invalid grib1 message in "
+                                + fileName + " at position "
+                                + message.getStartPosition());
+                    }
+                    GridRecord gribRecord = decodeRecord(grib1rec, recordRaf,
+                            fileName);
+                    if (gribRecord != null) {
+                        return new GridRecord[] { gribRecord };
                     }
                 }
-                GridRecord rec = decodeRecord(grib1rec, raf, fileName);
-                if (rec != null) {
-                    gribRecords.add(rec);
-                }
+
+                return new GridRecord[0];
             }
-            return gribRecords.toArray(new GridRecord[] {});
         } catch (IOException e) {
             throw new GribException(
                     "IO failure decoding grib1 file: [" + fileName + "]", e);

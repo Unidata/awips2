@@ -39,7 +39,8 @@ import com.raytheon.viz.mpe.core.MPEDataManager;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 29, 2017 6407       bkowal      Initial creation
- *
+ * Sep 26, 2018 7482       smanoj      Fix the issue with data conversion
+ * 
  * </pre>
  *
  * @author bkowal
@@ -123,8 +124,8 @@ public abstract class AbstractPrismDataReader {
                             + " does not contain sufficient data. Expected data length = "
                             + (MaxX * MaxY) + "; actual data length = "
                             + xmrgFile.getData().length + ".");
-        }
-
+        } 
+             
         final short[] data = xmrgFile.getData();
         int index = 0;
         for (int i = MaxY - 1; i >= 0; i--) {
@@ -137,7 +138,8 @@ public abstract class AbstractPrismDataReader {
                 } else {
                     f = (float) dataToImage.convert(s);
                 }
-                float aa = (float) (Math.floor((f * 10)));
+                
+                float aa = (float) (Math.floor((f * getconvFactor())));
                 int bb = (int) aa;
                 destination[monthIndex][i][j] = bb;
             }
@@ -145,7 +147,11 @@ public abstract class AbstractPrismDataReader {
 
         return null;
     }
-
+    
+    protected abstract float getconvFactor();
+    	
     protected abstract float handleNegativeValue(
             final UnitConverter dataToImage, final short value);
+    
+    
 }

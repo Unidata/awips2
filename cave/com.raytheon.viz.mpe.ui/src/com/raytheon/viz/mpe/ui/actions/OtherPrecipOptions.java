@@ -44,8 +44,6 @@ import com.raytheon.viz.mpe.util.MakeMat;
 import com.raytheon.viz.mpe.util.MakeRsel;
 import com.raytheon.viz.mpe.util.QCStations;
 import com.raytheon.viz.mpe.util.QCTStations;
-import com.raytheon.viz.mpe.util.ReadFreezingStationList;
-import com.raytheon.viz.mpe.util.ReadTemperatureStationList;
 import com.raytheon.viz.mpe.util.RenderPcp;
 import com.raytheon.viz.mpe.util.RenderT;
 import com.raytheon.viz.mpe.util.RenderT6;
@@ -67,6 +65,7 @@ import com.raytheon.viz.mpe.util.WriteQPFGrids;
  *                                     been retrieved.
  * Dec 15, 2017 6547       bkowal      Remove unnecessary adjustment now that the larger underlying problem
  *                                     has been resolved.  
+ * Oct 3, 2018  7496       smanoj      Fix temperature and freezing station size error.
  * 
  * </pre>
  * 
@@ -684,9 +683,7 @@ public class OtherPrecipOptions {
 
         } else if (clientdata == 2) {
             int m;
-            int num_zstations;
-            ReadFreezingStationList rfl = new ReadFreezingStationList();
-            num_zstations = rfl.getNumZstations();
+            int num_zstations = DailyQcUtils.freezing_stations.size();
             RenderZ rz = new RenderZ();
 
             /* render Grids and MAZ for four 6hr precipitation */
@@ -823,8 +820,7 @@ public class OtherPrecipOptions {
 
             // logMessage ("Gridding temperature and building MATs");
 
-            ReadTemperatureStationList rt = new ReadTemperatureStationList();
-            int num_tstations = rt.getNumTstations();
+            int num_tstations = DailyQcUtils.temperature_stations.size();
             BadTValues bt = new BadTValues();
             bt.update_bad_tvalues(DailyQcUtils.pcpn_day);
 

@@ -34,6 +34,7 @@ import javax.measure.unit.NonSI;
  * Apr 16, 2012            mgamazaychik DR9602 - changed how max and min 
  *                         temperature data are read from PRISM
  * Oct 03, 2017 6407       bkowal       Cleanup. Updated to extend {@link AbstractPrismDataReader}.
+ * Sep 27, 2018  7482      smanoj       Fix the issue with data conversion
  * 
  * </pre>
  * 
@@ -43,7 +44,9 @@ import javax.measure.unit.NonSI;
 public class MeanMonthlyTemp extends AbstractPrismDataReader {
 
     private static MaxMin maxmin;
-
+    
+    private static final float convFactor = 10.0f;
+    
     public MeanMonthlyTemp() {
         super(NonSI.FAHRENHEIT, NonSI.FAHRENHEIT.divide(10));
     }
@@ -125,5 +128,10 @@ public class MeanMonthlyTemp extends AbstractPrismDataReader {
         } else {
             return (float) dataToImage.convert(value);
         }
+    }
+    
+    @Override
+    protected float getconvFactor(){
+        return convFactor;
     }
 }

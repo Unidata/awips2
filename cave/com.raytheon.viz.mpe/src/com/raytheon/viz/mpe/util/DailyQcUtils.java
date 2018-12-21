@@ -88,7 +88,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     after closing and reopening DQC.
  * Dec 15, 2017 6547       bkowal      Remove unnecessary adjustment now that the larger underlying problem
  *                                     has been resolved.
- * Jan 24, 2018 6547       bkowal      Adjust station quality function index order.                                                                       
+ * Jan 24, 2018 6547       bkowal      Adjust station quality function index order. 
+ * Sep 26, 2018 7482       smanoj      Fix the issue with Month in the filenames                                                                      
  *
  * </pre>
  *
@@ -1831,7 +1832,7 @@ public class DailyQcUtils {
                     dbuf = String.format("%s%s_%04d%02d%02d", zgrid_file,
                             ztimefile[dqcTimeStringIndex][k],
                             otime.get(Calendar.YEAR),
-                            otime.get(Calendar.MONTH + 1),
+                            otime.get(Calendar.MONTH) + 1,
                             otime.get(Calendar.DAY_OF_MONTH));
 
                     num = 100 + (m * 4) + kk;
@@ -1882,7 +1883,7 @@ public class DailyQcUtils {
                     dbuf = String.format("%s%s_%04d%02d%02d", tgrid_file,
                             ttimefile[dqcTimeStringIndex][k],
                             otime.get(Calendar.YEAR),
-                            otime.get(Calendar.MONTH + 1),
+                            otime.get(Calendar.MONTH) + 1,
                             otime.get(Calendar.DAY_OF_MONTH));
 
                     if (k < 4) {
