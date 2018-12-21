@@ -195,7 +195,7 @@ public class GribTableLookup {
 
     /**
      * Initializes predefined tables. The predefined tables are stored as flat
-     * files in the utility directy to be access by the localization service
+     * files in the utility directory to be accessed by the localization service
      * <p>
      * The localization service reads in all files and populates the cached
      * tables accordingly
@@ -209,13 +209,7 @@ public class GribTableLookup {
                         LocalizationLevel.BASE), "/grib/tables")
                 .getPath();
 
-        String sitePath = pm
-                .getFile(pm.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.SITE), "/grib/tables")
-                .getPath();
-
         initTablesFromPath(commonPath);
-        initTablesFromPath(sitePath);
 
     }
 
@@ -427,14 +421,14 @@ public class GribTableLookup {
 
         private final int centerid;
 
-        private final int subcenteris;
+        private final int subcenterid;
 
         private final int hashcode;
 
-        public TableMapKey(int centerid, int subcenteris) {
+        public TableMapKey(int centerid, int subcenterid) {
             this.centerid = centerid;
-            this.subcenteris = subcenteris;
-            this.hashcode = 31 * (31 + centerid) + subcenteris;
+            this.subcenterid = subcenterid;
+            this.hashcode = 31 * (31 + centerid) + subcenterid;
         }
 
         @Override
@@ -457,7 +451,7 @@ public class GribTableLookup {
             if (centerid != other.centerid) {
                 return false;
             }
-            if (subcenteris != other.subcenteris) {
+            if (subcenterid != other.subcenterid) {
                 return false;
             }
             return true;
