@@ -21,13 +21,17 @@ if [ $rpmname = "buildCAVE" ]; then
   for dn in `cat build/repos| grep -v static| grep -v nativelib |grep -v awips2-rpm`
   do
     echo $dn
-    if [ -d /awips2/repo/$dn ]; then		dirs+=" -v /awips2/repo/${dn}:/awips2/repo/${dn} ";fi
+    if [ -d /awips2/repo/$dn ]; then
+      dirs+=" -v /awips2/repo/${dn}:/awips2/repo/${dn} "
+    fi
   done
 else
   for dn in `cat build/repos`
   do
     echo $dn
-    if [ -d /awips2/repo/$dn ]; then		dirs+=" -v /awips2/repo/${dn}:/awips2/repo/${dn} ";fi
+    if [ -d /awips2/repo/$dn ]; then
+       dirs+=" -v /awips2/repo/${dn}:/awips2/repo/${dn} "
+    fi
   done
 fi
 

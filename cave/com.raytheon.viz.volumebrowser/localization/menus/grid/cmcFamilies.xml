@@ -51,10 +51,6 @@
 			    menuText="Lightning Threat" id="" useReferenceTime="true">
 		</contribute>
 		
-		<contribute xsi:type="bundleItem" file="bundles/grid/CMC35km.xml"
-			    menuText=" Helicity (35 km)" id="" useReferenceTime="true">
-		</contribute>
-		
 		<contribute xsi:type="bundleItem" file="bundles/grid/ModelFamilyD.xml"
 			    menuText="Precip Type / Moisture Transport" id="" useReferenceTime="true">
 		</contribute>

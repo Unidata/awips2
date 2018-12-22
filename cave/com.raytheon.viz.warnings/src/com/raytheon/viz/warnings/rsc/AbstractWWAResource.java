@@ -20,6 +20,7 @@ import com.raytheon.uf.common.dataplugin.warning.AbstractWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.EmergencyType;
 import com.raytheon.uf.common.dataplugin.warning.PracticeWarningRecord;
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
+import com.raytheon.uf.common.dataplugin.warning.util.WarningLookups;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.geospatial.ReferencedCoordinate;
@@ -32,6 +33,7 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
+import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
 import com.raytheon.uf.viz.core.IGraphicsTarget.LineStyle;
 import com.raytheon.uf.viz.core.IGraphicsTarget.VerticalAlignment;
@@ -91,6 +93,7 @@ import com.vividsolutions.jts.geom.prep.PreparedGeometryFactory;
  * Oct 16, 2015   4971     bsteffen    Do not reverse order of text.
  * Nov 05, 2015   5070     randerso    Adjust font sizes for dpi scaling
  * Aug 22, 2016   5842     dgilling    Remove dependency on viz.texteditor plugin.
+ * Dec 19, 2018   ----     mjames@ucar Added phensig color table lookup.
  *
  * </pre>
  *
@@ -244,6 +247,9 @@ public abstract class AbstractWWAResource extends
                                     }
                                     sb.append(text);
                                 }
+                                sb.append("\n\n");
+                                sb.append(record.getOverviewText());
+                                sb.append(record.getSegText());
                                 return sb.toString();
                             }
                         }
@@ -254,7 +260,7 @@ public abstract class AbstractWWAResource extends
             }
 
         }
-        return "NO DATA";
+        return null;
     }
 
     protected void disposeEntry(final WarningEntry entry) {
@@ -366,6 +372,11 @@ public abstract class AbstractWWAResource extends
                     initShape(target, entry.record);
                     entry.project = false;
                 }
+                
+                RGB displaycolor = color;
+                if ( ! record.getPil().equals("SPS")) {
+                	displaycolor = RGBColors.getRGBColor(getPhensigColor(record.getPhensig()));
+                }
 
                 if (entry != null && entry.wireframeShape != null) {
                     LineStyle lineStyle = LineStyle.SOLID;
@@ -383,7 +394,7 @@ public abstract class AbstractWWAResource extends
 
                     target.drawWireframeShape(
                             entry.wireframeShape,
-                            getCapability(ColorableCapability.class).getColor(),
+                            displaycolor,
                             outlineWidth, lineStyle);
                 } else if (entry != null && entry.shadedShape != null) {
                     target.drawShadedShape(entry.shadedShape, 1);
@@ -406,6 +417,7 @@ public abstract class AbstractWWAResource extends
                     double mapWidth = descriptor.getMapWidth()
                             * paintProps.getZoomLevel() / 1000;
                     String[] textToPrint = getText(record, mapWidth);
+
                     if (warningsFont == null) {
                         warningsFont = target.initializeFont(target
                                 .getDefaultFont().getFontName(), 9,
@@ -414,8 +426,7 @@ public abstract class AbstractWWAResource extends
                                 12);
                     }
 
-                    DrawableString params = new DrawableString(textToPrint,
-                            color);
+                    DrawableString params = new DrawableString(textToPrint, displaycolor);
                     params.font = warningsFont;
                     params.setCoordinates(d[0], d[1]);
                     params.horizontalAlignment = HorizontalAlignment.RIGHT;
@@ -428,7 +439,7 @@ public abstract class AbstractWWAResource extends
                         // moves over text to add EMER in a different font
                         textToPrint[1] = String.format("%1$-23" + "s",
                                 textToPrint[1]);
-                        params.setText(textToPrint, color);
+                        params.setText(textToPrint, displaycolor);
 
                         DrawableString emergencyString = new DrawableString(
                                 params);
@@ -436,7 +447,7 @@ public abstract class AbstractWWAResource extends
                                 d[1] + (paintProps.getZoomLevel()) * 90);
                         emergencyString.font = emergencyFont;
                         emergencyString.setText(new String[] { "", "",
-                                " " + EmergencyType.EMER, "" }, color);
+                                " " + EmergencyType.EMER, "" }, displaycolor);
                         target.drawStrings(emergencyString);
                     }
 
@@ -591,20 +602,26 @@ public abstract class AbstractWWAResource extends
         addRecord(sort(pdos));
     }
 
+    protected String getPhensigColor(String phensig){
+        WarningLookups lookup = new WarningLookups();
+        return lookup.getPhensig(phensig).color;
+    }
+
+    protected String getPhensigName(String phensig){
+        WarningLookups lookup = new WarningLookups();
+        return lookup.getPhensig(phensig).name;
+    }
+
     protected String[] getText(AbstractWarningRecord record, double mapWidth) {
-        String vid = record.getPhensig();
-        String phen = record.getPhen();
-        String[] textToPrint = new String[] { "", "", "", "" };
+    	
+        String[] textToPrint = new String[] { "", "" };
 
-        textToPrint[0] = record.getProductClass();
-        if ((vid != null && phen != null)
-                && (vid.equals("TO.A") || vid.equals("SV.A")
-                        || phen.equals("FL") || phen.equals("FA"))) {
-            textToPrint[0] += "." + vid;
+        if ( ! record.getPil().equals("SPS")) {
+            textToPrint[0] = getPhensigName(record.getPhensig());
+        } else {
+        	textToPrint[0] = "Special Weather Statement";
         }
-        textToPrint[0] += "." + record.getEtn();
-        textToPrint[1] = record.getPil();
-
+        
         String startFormatString = DEFAULT_FORMAT;
         String endFormatString = DEFAULT_FORMAT;
         if (mapWidth == 0) {
@@ -616,14 +633,14 @@ public abstract class AbstractWWAResource extends
         }
 
         DateFormat startFormat = new SimpleDateFormat(startFormatString);
-        startFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
-        textToPrint[2] = "Valid "
-                + startFormat.format(record.getStartTime().getTime());
-
         DateFormat endFormat = new SimpleDateFormat(endFormatString);
+
+        startFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
         endFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
-        textToPrint[3] = "Thru "
-                + endFormat.format(record.getEndTime().getTime());
+        
+        textToPrint[1] = startFormat.format(record.getStartTime().getTime()) 
+                + "-" + endFormat.format(record.getEndTime().getTime());;
+               
 
         return textToPrint;
     }

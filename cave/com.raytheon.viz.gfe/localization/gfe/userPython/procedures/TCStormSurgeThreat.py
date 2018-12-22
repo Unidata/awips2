@@ -54,6 +54,7 @@
 # the TPCSurgeProb and PETSS dbs.
 # 03/20/2018 Check in Pablo's fix.
 # 4/3/2018 - Additional fixes needed to enable Manual options to work out to 102 hours.
+# 9/18/2018 - Make ISC default and have 8-hour InundationMax grid created when running
 #  ----------------------------------------------------------------------------
 
 ##
@@ -84,9 +85,9 @@ VariableList = [("DEFAULT: Typical. Should only be changed in coordination with 
                            "Higher (40% Exceedance; for well-behaved systems within 6 hours of the event)",
                            "Highest (50% Exceedance; for well-behaved systems at time of the event)"]),
                 ("Grid Smoothing?", "Yes", "radio", ["Yes","No"]),
-                ("Make grids from \nPHISH, PETSS, ISC, or Manually?", "PHISH", "radio", ["PHISH", "PETSS", "ISC", "Manually Replace", "Manually Add", "UpdateInunMax (Edit Inundation Timing Grids)"]),
+                ("Make grids from \nPHISH, PETSS, ISC, or Manually?", "ISC", "radio", ["PHISH", "PETSS", "ISC", "Manually Replace", "Manually Add", "UpdateInunMax (Edit Inundation Timing Grids)"]),
                 ("Manual Inundation settings: Time ranges below relative to advisory model cycle", "", "label"),
-                ("Inundation Height:", 1.0, "scale", [0.0, 3.0], 0.1),
+                ("Inundation Height:", 1.1, "scale", [0.0, 3.0], 0.1),
                 ("Start Hour for Inundation Timing", 0, "scale", [0.0, 96.0], 6.0),
                 ("End Hour for Inundation Timing", 6, "scale", [0.0, 102.0], 6.0),
                 ]
@@ -728,8 +729,8 @@ class Procedure (TropicalUtility.TropicalUtility):
                        "SurgeHtPlusTideNAVD","SurgeHtPlusTideMHHW"]
 
         # make a new timeRange that will be used to create new grids
-        timeRange = self.makeNewTimeRange(6)
-        
+        timeRange = self.makeNewTimeRange(8)
+
         # Remove old guidance grids and replace them with the new grids          
         # Delete the old grids first
         cTime = int(self._gmtime().unixTime()/ 3600) * 3600
@@ -789,4 +790,4 @@ class Procedure (TropicalUtility.TropicalUtility):
         LogStream.logEvent("Finished TCStormSurgeThreat in %f.4 ms" % ((t1-t0) * 1000))
 
         return
-
+    

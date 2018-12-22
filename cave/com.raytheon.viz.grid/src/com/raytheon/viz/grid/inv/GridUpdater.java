@@ -25,8 +25,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -64,6 +64,7 @@ import com.raytheon.viz.grid.GridExtensionManager;
  * Mar 03, 2016  5439     bsteffen  Allow grid derived parameters from edex
  * Aug 15, 2017  6332     bsteffen  Move radar specific logic to extension
  * Aug 23, 2017  6125     bsteffen  Split common updating code to GridInventoryUpdater.
+ * Nov 30, 2018  7673     bsteffen  Prevent full queue from blocking.
  * 
  * </pre>
  * 
@@ -121,8 +122,7 @@ public class GridUpdater extends GridInventoryUpdater {
 
     private final Map<GridMapKey, Set<UpdateValue>> updateMap = new HashMap<>();
 
-    private final BlockingQueue<String> uriUpdateQueue = new ArrayBlockingQueue<>(
-            512);
+    private final BlockingQueue<String> uriUpdateQueue = new LinkedBlockingQueue<>();
 
     private final Job sendDerivedAlerts = new Job(
             "Sending Derived Grid Alerts") {

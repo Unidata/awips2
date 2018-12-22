@@ -1,4 +1,3 @@
-
 <bundle>
 	<displayList>
 		<displays xsi:type="d2DMapRenderableDisplay"
@@ -17,14 +16,14 @@
 						isVisible="true" />
 					<resourceData xsi:type="wwaResourceData" 						
 						isUpdatingOnMetadataOnly="false"
-						retrieveData="true"
-						isRequeryNecessaryOnTimeMatch="true" name="Warnings">
+						retrieveData="false"
+						isRequeryNecessaryOnTimeMatch="true" name="Flood Watches, Warnings, Advisories">
 						<metadataMap>							
 							<mapping key="act">
-								<constraint constraintValue="NEW,CON,CAN,EXP" constraintType="IN" />
+								<constraint constraintValue="NEW,CON,CAN,EXT,EXP" constraintType="IN" />
 							</mapping>
 							<mapping key="phensig">
-								<constraint constraintValue="TO.W,SV.W,FF.W,FL.Y,FA.W,FA.Y,EW.W" constraintType="IN" />
+								<constraint constraintValue="FA.A,FL.A,FF.A,LS.A,CF.A,CF.W,CF.Y,CF.S,FA.W,FA.Y,FF.S,FF.W,FL.W,HY.S,FL.S,FL.Y,LS.S,LS.W,LS.Y" constraintType="IN" />
 							</mapping>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />

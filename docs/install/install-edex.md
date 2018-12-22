@@ -1,7 +1,7 @@
 
 ## Download and Install EDEX
 
-> [Release 18.1.1-1, September 20, 2018](https://www.unidata.ucar.edu/blogs/news/category/AWIPS)
+> [Release 18.1.1-4, December 26, 2018](https://www.unidata.ucar.edu/blogs/news/category/AWIPS)
 
 |                                          |   |
 |:----------------------------------------:|:--|

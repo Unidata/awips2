@@ -7,8 +7,7 @@
 				<resource>
                     <loadProperties loadWithoutData="true">
                         <capabilities>
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true"
-                                outlineWidth="4" />
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="4" />
                             <capability xsi:type="colorableCapability" colorAsString="#ffffff" />
                         </capabilities>
                     </loadProperties>
@@ -18,14 +17,8 @@
 					<resourceData xsi:type="wwaResourceData" 						
 						isUpdatingOnMetadataOnly="false"
 						retrieveData="true"
-						isRequeryNecessaryOnTimeMatch="true" name="Warnings">
-						<metadataMap>							
-							<mapping key="act">
-								<constraint constraintValue="NEW,CON,CAN,EXP" constraintType="IN" />
-							</mapping>
-							<mapping key="phensig">
-								<constraint constraintValue="TO.W,SV.W,FF.W,FL.Y,FA.W,FA.Y,EW.W" constraintType="IN" />
-							</mapping>
+						isRequeryNecessaryOnTimeMatch="true" name="All Advisories and Warnings">
+						<metadataMap>
 							<mapping key="pluginName">
 								<constraint constraintValue="warning" constraintType="EQUALS" />
 							</mapping>

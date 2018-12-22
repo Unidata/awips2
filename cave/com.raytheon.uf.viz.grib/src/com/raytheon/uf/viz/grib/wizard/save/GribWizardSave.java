@@ -61,7 +61,9 @@ public abstract class GribWizardSave {
 
         GridModel model = data.getOrCreateModel();
         String centerName = GribTableLookup.getInstance()
-                .getTableValue(-1, -1, "0", model.getCenter()).toString();
+        		.getTableValue(model.getCenter(), Integer.parseInt(model.getSubCenter()),
+        				"0", model.getCenter()).toString();
+        
         if (centerName == null || centerName.isEmpty()) {
             centerName = "UNK";
         } else {
