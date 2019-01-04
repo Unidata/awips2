@@ -34,7 +34,6 @@ pages:
     - D2D Perspective: cave/d2d-perspective.md
     - Maps, Views, Projections: cave/maps-views-projections.md
     - Bundles and Procedures: cave/bundles-and-procedures.md
-    - Import/Export: cave/import-export.md
     - Localization Perspective: cave/localization-perspective.md
     - NCP Perspective: cave/ncp-perspective.md
     - NSHARP: cave/nsharp.md
@@ -46,9 +45,12 @@ pages:
     - Radar Tools: cave/d2d-radar-tools.md
     - Editing Menus: cave/d2d-edit-menus.md
     - Change Localization: cave/cave-localization.md
+    - Import/Export: cave/import-export.md
 - EDEX User Manual:
-    - Distributed EDEX: edex/distributed-computing.md
     - EDEX Start and Stop: install/start-edex.md
+    - EDEX Settings: edex/settings.md
+    - Distributed EDEX: edex/distributed-computing.md
+    - Docker EDEX: edex/edex-ingest-docker-container.md
     - LDM Feeds: edex/ldm.md
     - Data Distribution Files: edex/data-distribution-files.md
     - Ingest a New Grid: edex/new-grid.md
@@ -56,6 +58,12 @@ pages:
     - Monitor Users: edex/edex-users.md
     - Data Plugins: edex/data-plugins.md
     - Archive Case Studies: edex/case-studies.md
+#- Hazard Services:
+#    - CAVE Display: cave/hazard-services-display.md
+#    - Hazard Creation: cave/hazard-services-create.md
+#    - Hazard Alerts: cave/hazard-services-alert.md
+#    - Hazard Settings: cave/hazard-services-settings.md
+#    - Examples: cave/hazard-services-example.md
 - Supported Data Types:
     - Gridded Model Display: cave/d2d-grids.md
     - Surface Obs: cave/d2d-pointdata-surface-obs.md
@@ -66,7 +74,6 @@ pages:
     - Map Overlays: cave/d2d-map-resources.md
 - Python API:
     - Overview: python/python-awips-data-access.md
-    - Maps Database: python/maps-database.md
     - AWIPS Grids and Cartopy: python/awips-grids-and-cartopy.md
     - Satellite Imagery: python/satellite-imagery.md
     - NEXRAD Level 3 Radar: python/nexrad-level-3-radar.md
@@ -76,9 +83,9 @@ pages:
     - Surface Obs Plot with MetPy: python/surface-obs-plot-metpy.md
 - Development:
     - AWIPS Development Environment (ADE): dev/awips-development-environment.md
-    - Building NSHARP for macOS: dev/build-nsharp-macos.md
 - Appendix:
     - AWIPS Grid Parameters: appendix/appendix-grid-parameters.md
+    - Maps Database: python/maps-database.md
     - Acronyms and Abbreviations: appendix/appendix-acronyms.md
     - COTS and FOSS: appendix/appendix-cots.md
     - WSR-88D Product Table: appendix/appendix-wsr88d.md

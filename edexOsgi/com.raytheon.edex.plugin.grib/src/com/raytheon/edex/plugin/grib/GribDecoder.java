@@ -26,12 +26,8 @@ import org.apache.camel.Processor;
 
 import com.raytheon.edex.plugin.grib.exception.GribException;
 import com.raytheon.uf.common.dataplugin.grid.GridRecord;
-import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.PerformanceStatus;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.time.util.ITimer;
-import com.raytheon.uf.common.time.util.TimeUtil;
 
 /**
  * Generic decoder for decoding grib files
@@ -56,9 +52,6 @@ import com.raytheon.uf.common.time.util.TimeUtil;
  */
 public class GribDecoder implements Processor {
 
-    private final IPerformanceStatusHandler perfLog = PerformanceStatus
-            .getHandler("");
-
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GribDecoder.class);
 
@@ -74,9 +67,7 @@ public class GribDecoder implements Processor {
         exchange.getIn().setHeader("dataType", "grib" + gribEdition);
         //statusHandler.info("Decoding file: " + inMessage.getFileName());
 
-        ITimer timer = TimeUtil.getTimer();
         GridRecord[] records = null;
-        timer.start();
         try {
             switch (gribEdition) {
             case 1:
@@ -116,9 +107,6 @@ public class GribDecoder implements Processor {
                 record.setDataURI(null);
             }
         }
-        timer.stop();
-        perfLog.logDuration("Grib" + gribEdition + ": Time to Decode",
-                timer.getElapsedTime());
         exchange.getIn().setBody(records);
 
     }

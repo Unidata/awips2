@@ -1,0 +1,31 @@
+
+<bundle>
+	<displayList>
+		<displays xsi:type="d2DMapRenderableDisplay"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<descriptor xsi:type="mapDescriptor">
+				<resource>
+                    <loadProperties loadWithoutData="true">
+                        <capabilities>
+                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="4" />
+                            <capability xsi:type="colorableCapability" colorAsString="#ffffff" />
+                        </capabilities>
+                    </loadProperties>
+					<properties isSystemResource="false" isBlinking="false"
+						isMapLayer="false" isHoverOn="false" 
+						isVisible="true" />
+					<resourceData xsi:type="wwaResourceData" 						
+						isUpdatingOnMetadataOnly="false"
+						retrieveData="true"
+						isRequeryNecessaryOnTimeMatch="true" name="All Advisories and Warnings">
+						<metadataMap>
+							<mapping key="pluginName">
+								<constraint constraintValue="warning" constraintType="EQUALS" />
+							</mapping>
+						</metadataMap>
+					</resourceData>
+				</resource>
+			</descriptor>
+		</displays>
+	</displayList>
+</bundle>

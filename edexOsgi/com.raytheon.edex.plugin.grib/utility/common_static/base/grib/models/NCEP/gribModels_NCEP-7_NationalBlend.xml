@@ -56,22 +56,6 @@
     </model>
 
     <!-- 
-        ThP6hr is not really blended, it is simply a repackaged version of the
-        GFS Gridded MOS so the grib file still indicates GFS.
-    -->
-    <model>
-        <name>NationalBlend</name>
-        <center>7</center>
-        <subcenter>14</subcenter>
-        <grids>
-            <id>NBMv3</id>
-        </grids>
-        <process>
-            <id>96</id>
-        </process>
-    </model>
-
-    <!-- 
         DThP3hr is repackaged from SPC.
     -->
     <model>

@@ -574,9 +574,6 @@ public class McidasSatelliteDecoder {
 
     private String getAreaName(int ssn, int areaNumber) {
         String value = McidasSatelliteLookups.getInstance().getAreaName(ssn);
-    	theHandler.info("Looking up ssn=" + ssn + " for areaNumber=" + areaNumber);
-    	theHandler.info("return value=" + value);
-
     	return value != null ? value : String.format("AREA%04d", areaNumber);
     }
 

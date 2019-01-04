@@ -10,12 +10,6 @@
             sortID="4">
       </contextualMenu>
       <contextualMenu
-            actionClass="com.raytheon.uf.viz.damagepath.ExportToLdadAction"
-            capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
-            name="Export to LDAD"
-            sortID="5">
-      </contextualMenu>
-      <contextualMenu
             actionClass="com.raytheon.uf.viz.damagepath.ExportDamagePathAction"
             capabilityClass="com.raytheon.uf.viz.damagepath.DamagePathLayer"
             name="Export to File"
@@ -29,15 +23,4 @@
       </contextualMenu>
    </extension>
    
-   <extension
-         point="com.raytheon.uf.viz.localization.perspective.localizationpath">
-      <path
-            application="D2D"
-            extensionFilter=".xml"
-            localizationType="COMMON_STATIC"
-            name="Damage Path"
-            recursive="false"
-            value="damagepath">
-      </path>
-   </extension>
 </plugin>

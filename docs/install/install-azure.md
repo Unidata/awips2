@@ -67,11 +67,11 @@ and after install
 
 # Linux Download
 
-For 64-bit RHEL/CentOS 6 and 7, download and run the script [install.sh --edex](https://www.unidata.ucar.edu/software/awips2/install.sh):
+For 64-bit RHEL/CentOS 6 and 7, download and run the script [awips_install.sh --edex](https://www.unidata.ucar.edu/software/awips2/awips_install.sh):
 
-    wget https://www.unidata.ucar.edu/software/awips2/install.sh
-    chmod 755 ./install.sh
-    sudo ./install.sh --edex
+    wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh
+    chmod 755 ./awips_install.sh
+    sudo ./awips_install.sh --edex
 
 This will install to `/awips2/edex`, `/awips2/database/data` and other directories.
 
@@ -83,7 +83,7 @@ This will install to `/awips2/edex`, `/awips2/database/data` and other directori
     
 - Security Limits - **/etc/security/limits.conf**
  
-    Qpid is known to crash on systems without a high security limit for user processes and files. The file `/etc/security/limits.conf` defines the number of each for the awips user (This is automatically configured by the `install.sh --edex` script).
+    Qpid is known to crash on systems without a high security limit for user processes and files. The file `/etc/security/limits.conf` defines the number of each for the awips user (This is automatically configured by the `awips_install.sh --edex` script).
     
         awips soft nproc 65536
         awips soft nofile 65536
@@ -97,7 +97,7 @@ LDM config
     ::1         localhost localhost.localdomain localhost6 localhost6.localdomain6 edex-cloud.westus.cloudapp.azure.com
 
 
-# What does `install.sh --edex` do?
+# What does `awips_install.sh --edex` do?
 
 1. Downloads [https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo](https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo) to `/etc/yum.repos.d/awips2.repo`
 2. Runs `yum clean all`

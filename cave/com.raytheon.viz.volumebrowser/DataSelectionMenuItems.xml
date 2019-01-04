@@ -19,27 +19,30 @@
         further_licensing_information.
     -->
 <Product-Selection-MenuItems>
-    <Source-Grid>ENPwave</Source-Grid>
-    <Source-Grid>GFS40</Source-Grid>
-    <Source-Grid>GFS90</Source-Grid>
-    <Source-Grid>GFSensemble</Source-Grid>
-    <Source-Grid>GFSGuide</Source-Grid>
-    <Source-Grid>GriddedMOS</Source-Grid>
+    <Source-Grid>CMC</Source-Grid>
+    <Source-Grid>ESTOFS</Source-Grid>
+    <Source-Grid>ETSS</Source-Grid>
+    <Source-Grid>GFS</Source-Grid>
+    <Source-Grid>GFS20</Source-Grid>
     <Source-Grid>GWW</Source-Grid>
+    <Source-Grid>MOSGuide</Source-Grid>
+    <Source-Grid>HRRR</Source-Grid>
     <Source-Grid>HPCGuide</Source-Grid>
-    <Source-Grid>LAMP</Source-Grid>
-    <Source-Grid>MSAS</Source-Grid>
+    <Source-Grid>LAMP2p5</Source-Grid>
     <Source-Grid>NAM12</Source-Grid>
     <Source-Grid>NAM40</Source-Grid>
-    <Source-Grid>NAM80</Source-Grid>
-    <Source-Grid>NAMWX</Source-Grid>
-    <Source-Grid>NICIE</Source-Grid>
-    <Source-Grid>TPC-HurWind</Source-Grid>
+    <Source-Grid>NAVGEM</Source-Grid>
+    <Source-Grid>NationalBlend</Source-Grid>
+    <Source-Grid>PROB3HR</Source-Grid>
+    <Source-Grid>NOHRSC-SNOW</Source-Grid>
+    <Source-Grid>HPCqpf</Source-Grid>
+    <Source-Grid>HPCqpfNDFD</Source-Grid>
+    <Source-Grid>fnmocWave</Source-Grid>
+    <Source-Grid>SeaIce</Source-Grid>
+    <Source-Grid>SPCGuide</Source-Grid>
+    <Source-Grid>RTMA</Source-Grid>
     <Source-Grid>TPCWindProb</Source-Grid>
-    <Source-Grid>TPCWindProb_Prelim</Source-Grid>
-    <Source-Grid>WNAwave</Source-Grid>
-    <Source-Grid>RTG_SST-Analysis</Source-Grid>
-    <Source-Other>DMD</Source-Other>
+    <Source-Grid>URMA25</Source-Grid>
     <Source-Other>GFSBufr</Source-Other>
     <Source-Other>GoesBufr</Source-Other>
     <Source-Other>MDCRS</Source-Other>

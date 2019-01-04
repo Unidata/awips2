@@ -10,10 +10,6 @@ javaUtilities/* rpms pythonPackages
 ../awips2-foss/lib/*
 ../awips2-rpm/foss
 ../awips2-rpm/installers
-../awips2-nws/common/* 
-../awips2-nws/viz/* 
-../awips2-nws/features/*
-../awips2-nws/edex/* 
 ../awips2-hazards/edex/*
 ../awips2-hazards/common/*
 ../awips2-hazards/viz/*
@@ -29,10 +25,6 @@ javaUtilities/* rpms pythonPackages
 ../awips2-cimss/edex/*
 ../awips2-cimss/features/*
 ../awips2-cimss/common/*
-../awips2-collaboration/viz/*
-../awips2-collaboration/features/*
-../awips2-collaboration/common/*
-../awips2-collaboration/foss/*
 ../awips2-data-delivery/common/*
 ../awips2-data-delivery/edex/*
 ../awips2-data-delivery/features/*

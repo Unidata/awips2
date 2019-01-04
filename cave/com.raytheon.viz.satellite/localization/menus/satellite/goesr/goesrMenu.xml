@@ -96,22 +96,22 @@
 	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Conus" 
 	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="WCONUS" />
-	        <substitute key="entity" value="GOES%" />
+	        <substitute key="entity" value="GOES-17" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Full Disk" 
 	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="WFD" />
-	        <substitute key="entity" value="GOES%" />
+	        <substitute key="entity" value="GOES-17" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Mesoscale 1" 
 	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="WMESO-1" />
-	        <substitute key="entity" value="GOES%" />
+	        <substitute key="entity" value="GOES-17" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Mesoscale 2" 
 	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="WMESO-2" />
-	        <substitute key="entity" value="GOES%" />
+	        <substitute key="entity" value="GOES-17" />
 	    </contribute>
 
 </menuTemplate>

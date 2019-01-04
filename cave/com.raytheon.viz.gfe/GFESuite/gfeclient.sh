@@ -74,7 +74,7 @@ then
 else
         echo "Display not set, creating offscreen x on port $$"
         extendLibraryPath "-noX"
-        Xvfb :$$ -screen 0 1280x1024x24 -nolisten tcp &
+        Xvfb :$$ -screen 0 1280x1024x30 -nolisten tcp &
         xvfb=$!
         export DISPLAY=":$$.0"
         #don't use shader when no display set 

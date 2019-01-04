@@ -49,6 +49,7 @@ import com.raytheon.viz.grid.xml.ParameterMapping;
  * Mar 22, 2010  4473     rjpeter   Initial creation
  * Nov 07, 2361  2361     njensen   Use JAXBManager for XML
  * Aug 15, 2017  6332     bsteffen  Move to viz.grid.radar plugin
+ * Oct 31, 2018           mjames    Remove site and user-level files
  * 
  * </pre>
  * 
@@ -75,26 +76,10 @@ public class RadarProductCodeMapping {
                         LocalizationLevel.BASE),
                 "/parameterMapping/radar/RadarProductCodes.xml");
 
-        File siteFile = pm.getFile(
-                pm.getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.SITE),
-                "/parameterMapping/radar/RadarProductCodes.xml");
-
-        File userFile = pm.getFile(
-                pm.getContext(LocalizationType.CAVE_STATIC,
-                        LocalizationLevel.USER),
-                "/parameterMapping/radar/RadarProductCodes.xml");
-
         try {
             JAXBManager jaxb = new JAXBManager(ParameterList.class);
             loadParameters(baseFile, jaxb);
 
-            if (siteFile.exists()) {
-                loadParameters(siteFile, jaxb);
-            }
-            if (userFile.exists()) {
-                loadParameters(userFile, jaxb);
-            }
         } catch (Exception e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error occurred loading radar product code to grid parameter mappings",

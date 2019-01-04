@@ -23,15 +23,19 @@
 #                                                                       #
 #-----------------------------------------------------------------------#
 # ChangeLog                                                             #
-# 07/2011 M.James/Unidata	Created					#
-# 10/2015 M.James/Unidata	Log files fixed; purge check added	#
-# 11/2015 M.James/Unidata	Added CAVE user count as "edex users"	#
-# 10/2016 M.James/Unidata	No longer need to edit ldmd.conf	#
-# 06/2017 M.James/Unidata       Restart					#
-# 09/2017 M.James/Unidata       Rudimentary remote db password control, #
-#                               remove pg_hba.conf edits                #
-# 01/2018 M.James/Unidata       Added qpid-stat wrapper as edex qpid    #
-# 08/2018 M.James/Unidata       Registry logging                        #
+# 07/2011  mjames  Created                                              #
+# 10/2015  mjames  Tailing log files ; purge check added                #
+# 11/2015  mjames  Display ser count as "edex users"                    #
+# 10/2016  mjames  No longer editing ldmd.conf                          #
+# 06/2017  mjames  Added restart command                                #
+# 09/2017  mjames  Rudimentary remote db password control               #
+#                  remove pg_hba.conf edits                             #
+# 01/2018  mjames  Added qpid-stat wrapper as edex qpid                 #
+# 08/2018  mjames  Registry logging                                     #
+# 09/2018  mjames  Cleanup setup/editing                                #
+# 10/2018  mjames  Check for edex_ldm on LDM start/stop                 #
+# 12/2018  mjames  Find a log file to tail if running modes other       #
+#                  than ingest                                          #
 #-----------------------------------------------------------------------#
 . /etc/profile.d/awips2.sh
 # directories definitions
@@ -50,26 +54,25 @@ IP=`/sbin/ifconfig $usedev | grep -v "inet6" | grep "inet" | awk '{ print $2 }' 
 
 # truncate
 IP_CIDR="${IP%.*}"
-editFiles=($EDEX_ENV_FILE)
-boolFiles=(true)
-editFuncs=(edit_setup)
 
 YMD=`date '+%Y%m%d'`
 
 args=("$@")
 
-# functions
-edex_status() { # report back edex server on/off status
+#
+# Report back edex server on/off status
+#
+edex_status() {
    echo ''
    echo '[edex status]'
 
    if [ -d "${DATA_PATH}" ]; then
       # CHECK POSTGRES
-      postgres_prc=`ps aux | grep postgresql | grep -v grep | grep -v java |awk '{ print $11 }'`
+      postgres_prc=`ps aux | grep postgresql | grep -v grep | grep -v java |awk '{ print $11 }' | head -1`
       if [ -z $postgres_prc ]; then
          echo ' postgres    :: not running'
       else
-         postgresPid=`ps aux | grep postgresql\/bin\/postmaster | grep -v grep | awk '{ print $2 }'`
+         postgresPid=`ps aux | grep postgresql\/bin\/postmaster | grep -v grep | awk '{ print $2 }' | head -1`
          echo ' postgres    :: running :: pid '$postgresPid''
       fi
    fi
@@ -116,12 +119,15 @@ edex_status() { # report back edex server on/off status
       edex_request_pid=`ps aux | grep edex.run.mode=request | awk '{ print $2 }'`
       echo ' EDEXrequest :: running :: pid '$edex_request_pid''
    fi
-   edex_reg_ps=`ps aux | grep edex.run.mode=centralRegistry | awk '{ print $15 }'`
-   if [ -z $edex_reg_ps ]; then
-      echo ' EDEXregistry :: not running'   
-   else
-      edex_reg_pid=`ps aux | grep edex.run.mode=centralRegistry | awk '{ print $2 }'`
-      echo ' EDEXregistry :: running :: pid '$edex_reg_pid''
+
+   if [ -f "/awips2/edex/conf/resources/com.raytheon.uf.edex.datadelivery.harvester.properties" ]; then
+      edex_reg_ps=`ps aux | grep edex.run.mode=centralRegistry | awk '{ print $15 }'`
+      if [ -z $edex_reg_ps ]; then
+         echo ' EDEXregistry:: not running'
+      else
+         edex_reg_pid=`ps aux | grep edex.run.mode=centralRegistry | awk '{ print $2 }'`
+         echo ' EDEXregistry:: running :: pid '$edex_reg_pid''
+      fi
    fi
 
    if [ -d "/awips2/ldm" ]; then
@@ -137,6 +143,9 @@ edex_status() { # report back edex server on/off status
    echo ''
 }
 
+#
+# Tail an EDEX log file
+#
 tail_log() {
    if [ -e $LOG_FILE ]; then
       echo ' :: Viewing '${LOG_FILE}'. Press CTRL+C to exit'
@@ -149,7 +158,10 @@ tail_log() {
    fi
 }
 
-edex_log() { # display todays log, default to ingest
+#
+# Display todays log, default to ingest
+#
+edex_log() {
    echo '[edex] EDEX Log Viewer'
    echo ''
    # LDM log
@@ -212,7 +224,12 @@ edex_log() { # display todays log, default to ingest
       exit;
    fi   
    if [ -z ${args[1]} ]; then
-      echo ' :: No log specified - Defaulting to ingest log'
+      if [ -f ${LOG_PATH}/edex-ingest-${YMD}.log ]; then
+         LOG_FILE=${LOG_PATH}/edex-ingest-${YMD}.log
+      else
+         LOG_FILE=$(ls -tr $LOG_PATH/edex-ingest*${YMD}.log | grep -Ev 'wrapper|performance|hibernate|start' | tail -1)
+      fi
+      echo ' :: No log specified, but I found '$LOG_FILE
       tail_log
       exit;
    else
@@ -222,87 +239,74 @@ edex_log() { # display todays log, default to ingest
    fi
 }
 
+#
+# Update placeholder "external.fqdn" with $(hostname)
 # See /awips2/edex/bin/setup.env
+#
 edit_setup() {
-   sed -i.setup_$YMD 's/external.fqdn/'$HOSTNAME'/g' $EDEX_ENV_FILE
-   echo '[edit] '$HOSTNAME' added to '$EDEX_ENV_FILE
-   echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
+   if grep -q external.fqdn "$EDEX_ENV_FILE"; then
+      echo '[edex] EDEX IP and Hostname Setup'
+      sed -i.setup_$YMD 's/external.fqdn/'$(hostname)'/g' $EDEX_ENV_FILE
+      echo '[edit] '$(hostname)' added to '$EDEX_ENV_FILE
+      echo '       File backed up to '$EDEX_ENV_FILE'.setup_'$YMD
+   fi
    # registry/data delivery fqdn
-   sed -i 's/external.fqdn/'$HOSTNAME'/g' /awips2/edex/conf/resources/*.properties
-}
-
-edex_edits() {
-   for index in ${!editFiles[*]}; do
-      if ${boolFiles[$index]}; then
-         ${editFuncs[$index]}
-      fi
+   shopt -s nullglob
+   for f in /awips2/edex/conf/resources/*.properties; do
+      sed -i 's/external.fqdn/'$(hostname)'/g' $f
    done
-   echo '[done]'
-   exit;
 }
 
-edex_ipexit() { # abandon ip editing, post msg to guide manual edits
-   for index in ${!editFiles[*]}; do
-                if ${boolFiles[$index]}; then
-                        editCom+='\t'${editFiles[$index]}'\n'
-                fi
-        done
-   echo -e '[edex] Exiting EDEX IP Setup'
-   echo -e ''
-   echo -e ' You may need to MANUALLY EDIT the following files'
-   echo -e '\n'$editCom
-   echo -e ' for EDEX to work properly. \n'
-}
-
-edex_setup() { # setup IP subnet and domains for EDEX, prompt user for confirm
+#
+# Initial EDEX setup, run as "edex setup", to set init run levels and hostname definitions
+# This is executed after both awips2 and awips2-ldm RPMs are installed/updatedi
+#
+edex_setup() {
    echo ''
-   # run services on system startup
    if [ -f "/etc/init.d/edex_postgres" ]; then
       chkconfig edex_postgres --add
       chkconfig edex_postgres on --level 35
    fi
-   
    if [ -f "/etc/init.d/httpd-pypies" ]; then
       chkconfig httpd-pypies --add
       chkconfig httpd-pypies on --level 35
    fi
-
    chkconfig qpidd --add
    chkconfig qpidd on --level 35
-
    chkconfig edex_camel --add
    chkconfig edex_camel on --level 35
 
-   echo '[edex] EDEX IP and Hostname Setup'
    # check files exist
-   continue=true
-   for index in ${!editFiles[*]}; do
-      if [[ ! -f ${editFiles[$index]} ]]; then
-         echo '[Error] ** '${editFiles[$index]}' not found.'
-         continue=false
-      fi
-   done
-   if ! $continue; then
+   if [ ! -f ${EDEX_ENV_FILE} ]; then
+      echo '[Error] ** '${EDEX_ENV_FILE}' not found.'
       echo 'Exiting'
       exit;
    fi
-   continue=false
 
    # ldm regutil
-   if [ -d "/awips2/ldm" ]; then
-      #echo '[edit] ldm regutil...'
+   if [ -d "/awips2/ldm/etc" ]; then
       su - awips -c 'regutil -s '$HOSTNAME' /hostname'
    fi
-   echo ''
-   edex_edits
-   if [ $continue=true ]; then
-      echo ' EDEX correctly configured'
-   fi
-   echo ''
+   edit_setup
 }
 
-edex_start() { # start all edex services
+ldm_start() {
+    if [ -f /etc/init.d/edex_ldm ]; then
+      su -c "service edex_ldm start"
+   fi
+}
+ldm_stop() {
+    if [ -f /etc/init.d/edex_ldm ]; then
+      su -c "service edex_ldm stop"
+   fi
+}
+
+#
+# Start all EDEX services
+#
+edex_start() {
    edex_cleanup
+   edit_setup
    for dir in /awips2/tmp /awips2/data_store ; do
       if [ ! -d $dir ]; then
          mkdir -p $dir
@@ -322,20 +326,23 @@ edex_start() { # start all edex services
    elif [ "${args[1]}" == 'ingest' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'ingest' 'ingestGrib' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
-      su -c "service edex_ldm start"
+      ldm_start
    elif [ "${args[1]}" == 'database' ]; then
       printf "#!/bin/bash\nexport SERVICES=( 'request' )\n" > /etc/init.d/edexServiceList
       su -c "service edex_camel start"
    elif [ "${args[1]}" != 'dev' ]; then
       su -c "service edex_camel start"
-      su -c "service edex_ldm start"
+      ldm_start
    fi
 }
 
-edex_stop() { # stop all edex services
+#
+# Stop all EDEX services
+#
+edex_stop() {
    if [ "${args[1]}" != 'dev' ]; then
       su -c "service edex_camel stop"
-      su -c "service edex_ldm stop"
+      ldm_stop
    fi
    su -c "service qpidd stop"
    if [ -f "/etc/init.d/httpd-pypies" ]; then
@@ -347,6 +354,9 @@ edex_stop() { # stop all edex services
    edex_status;
 }
 
+#
+# Restart all EDEX Services
+#
 edex_restart() {
    su -c "service edex_camel restart"
    edex_status;
@@ -361,6 +371,9 @@ edex_password() {
    fi
 }
 
+#
+# Check and reset EDEX purgejobs
+# 
 edex_purge() {
    if [ "${args[1]}" == 'reset' ]; then
       edex_purge_reset
@@ -377,36 +390,53 @@ edex_purge() {
 edex_purge_reset() {
         su - awips -c 'psql metadata -c "update purgejobs set failedcount = 0;"' >& /dev/null
 }
+
+#
+# Show Qpid data ingest queues
+#
 edex_qpid() {
-	/awips2/python/bin/qpid-stat -q -S msgIn
+        /awips2/python/bin/qpid-stat -q -S msgIn
 }
+
+#
+# Qpid cleanup
+#
 edex_cleanup() {
-	rm -rf /awips2/qpid/edexMessageStore/edex/
+       rm -rf /awips2/qpid/edexMessageStore/edex/
 }
+
+#
+# Print User Info
+#
 edex_users(){
         if [ "${args[1]}" != '' ]; then
                 YMD=${args[1]}
         fi
-        userList=$(cat ${LOG_PATH}/edex-request-thriftSrv-${YMD}.log |grep ":CAVE:"|cut -d "[" -f 3| cut -d ":" -f 1|grep -v pluginName|sort | uniq)
+        userList=$(cat ${LOG_PATH}/edex-request-thriftSrv-${YMD}.log |grep ":CAVE:"|cut -d "[" -f 3| cut -d ":" -f 1|grep -v pluginName| grep -v ThriftSrvRequestLogger |sort | uniq)
         echo ""
         echo " -- EDEX Users ${YMD} --"
         echo "$userList"
         echo ""
 }
 
-edex_options() { # print out options for this programs
+#
+# Echo available options
+#
+edex_options() {
    echo ''
    echo '     edex (status|start|stop|setup|log|purge|qpid|users)'
    echo ''
 }
-
 edex_invalid() {
    echo ''
    echo "     Invalid option: '"${args[0]}"' not understood"
    edex_options
 }
 
-check_input() { # check input against accepted options
+#
+# Check input against accepted options
+#
+check_input() {
    found=false
    for i in "${options[@]}"
    do
@@ -429,7 +459,7 @@ check_input() { # check input against accepted options
    fi
 }
 
-# check input - first/only program run
+#
+# Check input: it all starts here.
 #
 check_input
-exit;

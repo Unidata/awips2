@@ -31,64 +31,53 @@
 	<target name="main-build" depends="clean, init">
 
 		<!--
-
-		For the Unidata build, most edex features have been combined
-		into com.raytheon.uf.edex.dataplugins.feature
-
+		    For the Unidata build, most edex features have been combined into com.raytheon.uf.edex.dataplugins.feature
 		-->
 
+		<!-- required -->
         	<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.common.base.feature" />
+			<param name="feature" value="com.raytheon.uf.common.base.feature" />
 		</antcall>
 		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.base.feature" />
+			<param name="feature" value="com.raytheon.uf.edex.base.feature" />
 		</antcall>
 		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.cots.feature" />
+			<param name="feature" value="com.raytheon.uf.edex.cots.feature" />
 		</antcall>
 		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.common.core.feature" />
+			<param name="feature" value="com.raytheon.uf.edex.common.core.feature" />
 		</antcall>
 		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.core.feature" />
+			<param name="feature" value="com.raytheon.uf.edex.core.feature" />
 		</antcall>
 		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.dataplugins.feature" />
+			<param name="feature" value="com.raytheon.uf.edex.dataplugins.feature" />
+		</antcall>
+		<!-- optional builds -->
+	<!--
+		<antcall target="build">
+			<param name="feature" value="com.raytheon.uf.edex.ogc.feature" />
 		</antcall>
 		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.ogc.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.datadelivery.feature" />
+			<param name="feature" value="com.raytheon.uf.edex.datadelivery.feature" />
 		</antcall>
                 <antcall target="build">
-                        <param name="feature"
-                                value="com.raytheon.uf.edex.dat.feature" />
+                        <param name="feature" value="com.raytheon.uf.edex.dat.feature" />
                 </antcall>
 		<antcall target="build">
-			<param name="feature"
-				value="gov.noaa.nws.ncep.uf.edex.swpc.feature" />
+			<param name="feature" value="gov.noaa.nws.ncep.uf.edex.swpc.feature" />
 		</antcall>
 		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.gfe.feature" />
+			<param name="feature" value="com.raytheon.uf.edex.gfe.feature" />
 		</antcall>
 		<antcall target="build">
-			<param name="feature"
-				value="com.raytheon.uf.edex.hazards.feature" />
+			<param name="feature" value="com.raytheon.uf.edex.hazards.feature" />
 		</antcall>
+	-->
 		<antcall target="build">
-			<param name="feature"
-				value="edu.ucar.unidata.uf.edex.unidata.feature" />
+			<param name="feature" value="edu.ucar.unidata.uf.edex.upc.feature" />
 		</antcall>
+		<!-- end optional builds -->
 	</target>
 
     <target name="main" depends="clean, init, main-build" />

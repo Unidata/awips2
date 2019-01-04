@@ -1,25 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
     <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
-
-    <!--
         This is an incremental override file, indicating that the files at
         different localization levels will be combined. Since all the files in
         the directory are read, for most custom additions a unique file should
@@ -75,7 +55,6 @@
     <alias base="mrfNH">mrf201</alias>
     <alias base="GFS95">gfs95</alias>
     <alias base="AVN211">avn211</alias>
-    <alias base="NAM40">NAM40</alias>
     <alias base="NAM20">NAM20</alias>
     <alias base="NAM40">eta212</alias>
     <alias base="AVN203">avn203</alias>
@@ -107,7 +86,7 @@
     <alias base="WNAWAVE238">wnaWave238</alias>
     <alias base="AK-NAM45">AK-NAM45</alias>
     <alias base="AK-NAM22">AK-NAM22</alias>
-    <alias base="NAM12">NAM12</alias>
+    <alias base="NAM12">eta218</alias>
     <alias base="AK-NAM11">eta242</alias>
     <alias base="ENPWAVE253">enpWave253</alias>
     <alias base="HurWind226">TPCtcm226</alias>
@@ -122,7 +101,7 @@
     <alias base="GFS254">gfs254</alias>
     <alias base="GFS161">gfs161</alias>
     <alias base="GFS199">gfs161</alias>
-    <alias base="RAP13">RAP13</alias>
+    <alias base="RAP13">ruc130</alias>
     <alias base="RTMA25">rtmaNDFD</alias>
     <alias base="URMA25">urmaNDFD</alias>
     <alias base="namdng25">NamDNG</alias>

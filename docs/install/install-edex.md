@@ -1,11 +1,11 @@
 
 ## Download and Install EDEX
 
-[Latest Release 17.1.1-6 (June 13, 2018)](https://www.unidata.ucar.edu/blogs/news/category/AWIPS)
+> [Release 18.1.1-4, December 26, 2018](https://www.unidata.ucar.edu/blogs/news/category/AWIPS)
 
 |                                          |   |
 |:----------------------------------------:|:--|
-| <h1><i class="fa fa-linux"></i> Linux  </h1> | <h4>[install.sh --edex <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)  </h4>       <p>Installs to /awips2/ directories.</p> <tt><code>chmod 755 install.sh<br>sudo ./install.sh --edex</code></tt><p>Start and Stop:</p><p><tt>edex start<br>edex stop</tt></p><div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>16+ CPU cores (each CPU core is one more decoder which can run in parallel)</li><li>24GB RAM</li><li>700GB+ disk space</li><li>A **Solid State Drive (SSD)** is highly recommended</li></ul></div> <p>An **SSD** should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.</p><p>**64-bit CentOS/RHEL 6 and 7** are the only supported operating systems for EDEX. You may have luck with Fedora Core 12 to 14 and Scientific Linux.</p><p>EDEX is not supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.</p>|
+| <h1><i class="fa fa-linux"></i> Linux  </h1> | <h4>[aiwps_install.sh --edex <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)  </h4>       <p>Installs to /awips2/ directories.</p> <tt><code>chmod 755 awips_install.sh<br>sudo ./awips_install.sh --edex</code></tt><p>Start and Stop:</p><p><tt>edex start<br>edex stop</tt></p><div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>16+ CPU cores (each CPU core is one more decoder which can run in parallel)</li><li>24GB RAM</li><li>700GB+ disk space</li><li>A **Solid State Drive (SSD)** is highly recommended</li></ul></div> <p>An **SSD** should be mounted either to `/awips2` (to contain the entire EDEX system) or to `/awips2/edex/data/hdf5` (to contain the large files in the decoded data store). EDEX can scale to any system by adjusting the incoming LDM data feeds or adjusting the resources (CPU threads) allocated to each data type.</p><p>**64-bit CentOS/RHEL 6 and 7** are the only supported operating systems for EDEX. You may have luck with Fedora Core 12 to 14 and Scientific Linux.</p><p>EDEX is not supported on Debian, Ubuntu, SUSE, Solaris, OS X, or Windows.</p> |
 
 > ### [Read More: Distributed EDEX, Installing Across Multiple Machines](/edex/distributed-computing/)
 
@@ -27,15 +27,16 @@ All of these command should be run as **root**
 
 ### 2. Install EDEX
 >
->Download and run [install.sh --edex <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/install.sh)
+>Download and run [sudo ./awips_install.sh --edex <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)
 > 
->    	wget https://www.unidata.ucar.edu/software/awips2/install.sh
->    	chmod 755 install.sh
->    	sudo ./install.sh --edex
+>    	wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh
+>    	chmod 755 awips_install.sh
+>    	sudo ./awips_install.sh --edex
+>	/usr/bin/edex setup
 > 	
 >
 >
->!!! note "**install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
+>!!! note "**awips_install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
 >
 >       1. Saves the appropriate Yum repo file to `/etc/yum.repos.d/awips2.repo`
 >       2. Increases process and file limits for the the *awips* account in `/etc/security/limits.conf`
@@ -87,6 +88,8 @@ All of these command should be run as **root**
 >
 >- **To open ports to specific IP addresses**
 >    
+>   In this example, the IP range `128.117.140.0/24` will match all 128.117.140.* addresses, while `128.117.156.0/24` will match 128.117.156.*.
+>    
 >   		vi /etc/sysconfig/iptables
 >       
 >   		*filter
@@ -108,8 +111,6 @@ All of these command should be run as **root**
 >   		#-A EDEX -m state --state NEW -p tcp --dport 9588 -j ACCEPT # for registry/dd
 >   		-A EDEX -j REJECT
 >   		COMMIT
->    
-> In this example, the IP range `128.117.140.0/24` will match all 128.117.140.* addresses, while `128.117.156.0/24` will match 128.117.156.*.
 > 
 >**Restart iptables**
 >
@@ -127,7 +128,6 @@ All of these command should be run as **root**
 
 ### 5. Start EDEX
 >
->       edex setup
 >       edex start
 >
 >To manually start, stop, and restart:
@@ -156,7 +156,7 @@ All of these command should be run as **root**
 
 ### /etc/security/limits.conf
 
-**/etc/security/limits.conf** defines the number of user processes and files (this step is automatically performed by `install.sh --edex`). Without these definitions, Qpid is known to crash during periods of high ingest.
+**/etc/security/limits.conf** defines the number of user processes and files (this step is automatically performed by `./awips_install.sh --edex`). Without these definitions, Qpid is known to crash during periods of high ingest.
     
     awips soft nproc 65536
     awips soft nofile 65536

@@ -559,7 +559,8 @@
                id="applications">
             <command
                   commandId="com.raytheon.viz.warngen.gui.WarngenAction"
-                  label="Warngen">
+                  label="Warngen"
+                  mode="FORCE_TEXT">
                <visibleWhen>
                   <and>
                      <reference
@@ -581,6 +582,21 @@
                   mode="FORCE_TEXT"
                   style="push"
                   tooltip="Nsharp">
+               <visibleWhen>
+                  <reference
+                        definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
+                  </reference>
+               </visibleWhen>
+            </command>
+            
+            <command
+                  commandId="gov.noaa.nws.ncep.viz.actions.dataManager"
+                  icon="icons/terminal.png"
+                  id="gov.noaa.nws.ncep.viz.actions.dataManager"
+                  label="GEMPAK"
+                  mode="FORCE_TEXT"
+                  style="push"
+                  tooltip="GEMPAK Data">
                <visibleWhen>
                   <reference
                         definitionId="com.raytheon.uf.viz.d2d.ui.inD2DActionSet">
