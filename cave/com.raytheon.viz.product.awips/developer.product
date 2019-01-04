@@ -16,7 +16,7 @@
    <launcherArgs>
       <programArgs>-data @user.home/caveData -user @user.home/caveData -clean -consoleLog
       </programArgs>
-      <vmArgs>-Xmx4536M
+      <vmArgs>-Xmx8536M
 -XX:+UseG1GC
 -Dosgi.instance.area.readOnly=true
 -Dorg.eclipse.update.reconcile=false
@@ -24,11 +24,11 @@
 -Dqpid.dest_syntax=BURL
 -Dlogback.configurationFile=logback-viz-core-developer.xml
 -Dlogback.statusListenerClass=com.raytheon.uf.common.logback.UFLogbackInternalStatusListener
--Dthrift.stream.maxsize=200
+-Dthrift.stream.maxsize=400
 -Dviz.memory.warn.threshold=10M
 -Dorg.eclipse.swt.internal.gtk.cairoGraphics=false
+-Djava.library.path=&quot;C:\Miniconda\Lib\site-packages\jep\&quot;
 -Dhttps.certificate.check=false
--Djava.library.path=C:\Users\mjames\Miniconda2\Lib\site-packages\jep
 -XX:MaxDirectMemorySize=1G
 -XX:+UnlockExperimentalVMOptions
 -XX:G1HeapRegionSize=4M
@@ -38,7 +38,7 @@
 -XX:G1OldCSetRegionThresholdPercent=25
 -XX:G1HeapWastePercent=5
 -DvizVersion=18.1.1
--DbuildSystem=RHEL/Eclipse
+-DbuildSystem=Windows10
 -XX:SoftRefLRUPolicyMSPerMB=1000
       </vmArgs>
       <vmArgsWin>-Dfile.encoding=UTF-8
