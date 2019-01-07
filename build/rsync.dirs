@@ -17,6 +17,7 @@ javaUtilities/* rpms pythonPackages
 ../awips2-ncep/viz/* 
 ../awips2-ncep/features/* 
 ../awips2-ncep/edex/* 
+../awips2-nws/edex/* 
 ../awips2-goesr/edexOsgi/* 
 ../awips2-goesr/cave/* 
 ../awips2-unidata/*
