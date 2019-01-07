@@ -395,7 +395,11 @@ edex_purge_reset() {
 # Show Qpid data ingest queues
 #
 edex_qpid() {
-        /awips2/python/bin/qpid-stat -q -S msgIn
+        if [[ ${USER} = "root" ]]; then
+                su - awips -c "qpid-stat -q -S msgIn"
+        else
+                /awips2/python/bin/qpid-stat -q -S msgIn
+        fi
 }
 
 #
