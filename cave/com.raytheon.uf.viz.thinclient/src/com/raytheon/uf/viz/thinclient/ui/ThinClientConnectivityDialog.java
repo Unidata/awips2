@@ -19,34 +19,11 @@
  **/
 package com.raytheon.uf.viz.thinclient.ui;
 
-import java.io.IOException;
-
-import org.eclipse.jface.preference.IPersistentPreferenceStore;
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Group;
-import org.eclipse.swt.widgets.Label;
-
-import com.raytheon.uf.common.localization.msgs.GetServersResponse;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.viz.core.comm.ConnectivityManager;
-import com.raytheon.uf.viz.core.comm.ConnectivityManager.ConnectivityResult;
-import com.raytheon.uf.viz.core.comm.IConnectivityCallback;
-import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.localization.ConnectivityPreferenceDialog;
-import com.raytheon.uf.viz.core.localization.LocalizationConstants;
-import com.raytheon.uf.viz.core.localization.LocalizationManager;
-import com.raytheon.uf.viz.core.localization.ServerRemembrance;
 import com.raytheon.uf.viz.thinclient.Activator;
-import com.raytheon.uf.viz.thinclient.ThinClientUriUtil;
 import com.raytheon.uf.viz.thinclient.preferences.ThinClientPreferenceConstants;
 
 /**
@@ -93,7 +70,7 @@ public class ThinClientConnectivityDialog extends ConnectivityPreferenceDialog {
     private String proxyAddress;
 
     public ThinClientConnectivityDialog(boolean checkAlertViz) {
-        super(checkAlertViz, "Unidata AWIPS");
+        super(checkAlertViz);
         IPreferenceStore store = Activator.getDefault().getPreferenceStore();
         dataRefreshMethod = store
                 .getString(ThinClientPreferenceConstants.P_DATA_REFRESH_METHOD);

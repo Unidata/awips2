@@ -99,27 +99,4 @@
             sortID="116">
       </contextualMenu>
    </extension>
-    <extension
-          point="com.raytheon.uf.viz.localization.perspective.localizationpath">
-       <path
-             application="D2D"
-             localizationType="common_static"
-             name="FFMP"
-             recursive="true"
-             value="ffmp">
-       </path>
-       <path
-             application="D2D"
-             localizationType="common_static"
-             name="Monitoring"
-             recursive="true"
-             value="monitoring">
-       </path>
-       <path
-             application="D2D"
-             localizationType="cave_static"
-             name="FFMP GUI CONFIG"
-             value="ffmp/guiConfig">
-       </path>
-    </extension>
 </plugin>

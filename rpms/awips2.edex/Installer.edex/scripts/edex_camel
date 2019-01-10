@@ -52,9 +52,6 @@ export TODAY=`/bin/date +%Y%m%d`
 # Use rpm to find the paths that we need.
 export JAVA_INSTALL="/awips2/java"
 export PYTHON_INSTALL="/awips2/python"
-# if the EDEX_INSTALL export line is updated. Updates to:
-# com.raytheon.wes2bridge.manager/src/com/raytheon/wes2bridge/manager/Wes2BridgeManager.java
-# may be required.
 export EDEX_INSTALL="/awips2/edex"
 export PSQL_INSTALL="/awips2/psql"
 
@@ -64,17 +61,11 @@ export PATH=${JAVA_INSTALL}/bin:${PYTHON_INSTALL}/bin:/usr/local/sbin:/usr/local
 export LD_LIBRARY_PATH=${JAVA_INSTALL}/lib:${PYTHON_INSTALL}/lib
 export LD_PRELOAD=${PYTHON_INSTALL}/lib/libpython2.7.so 
 export AMQP_SPEC=""
-# if the DATA_ARCHIVE_ROOT export line is updated. Updates to:
-# com.raytheon.wes2bridge.manager/src/com/raytheon/wes2bridge/manager/Wes2BridgeManager.java
-# may be required.
-export DATA_ARCHIVE_ROOT=/tmp/sbn
+export DATA_ARCHIVE_ROOT=/awips2/data_store
 
 # what to do to get pids of an EDEX instance
 # $1 == instance token
 getCamelAndWrapperPids() {
-   # if the _camel_pid line is updated. Updates to:
-   # com.raytheon.wes2bridge.manager/src/com/raytheon/wes2bridge/manager/Wes2BridgeManager.java
-   # may be required.
    _camel_pid=`pgrep -f  -u $EDEXUSER "java -Dedex.run.mode=${1} "`
    if [ "$_camel_pid" != "" ]; then
       # occasionally will get more than one running, grab parent for first one only

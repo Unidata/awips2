@@ -39,5 +39,4 @@
     <regex>TI[CGT]... ....</regex>
     <regex>rad/NEXRCOMP</regex>
     <regex>.*.gini.*</regex>
-    <regex>.*.gini</regex>
 </requestPatterns>
