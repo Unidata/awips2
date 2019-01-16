@@ -18,7 +18,6 @@
 
     <target name="main" depends="init, setup">
         <property name="esb.directory" value="${repo.dir}/edexOsgi/deploy.edex.awips2/esb" />
-        <property name="site-package.directory" value="${python.root.directory}/lib/${python.version.dir}/site-packages" />
 
         <!-- deploy esb {optionally: data, web} -->
         <ant antfile="${repo.dir}/edexOsgi/deploy.edex.awips2/deploy/deploy-esb.xml" />
