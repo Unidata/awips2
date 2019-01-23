@@ -4,6 +4,14 @@
         <contribute xsi:type="separator" id="AviationProductsStart" visible="false" />
         <contribute xsi:type="separator" id="VolcanicAshStart" visible="false" />
         <contribute xsi:type="titleItem" titleText="------ Significant Weather ------" />
+	<contribute xsi:type="bundleItem" file="bundles/BufrSigWx.xml"
+        	menuText="Medium Level" id="SigWxMedium">
+        	<substitute key="wxLayer" value="SWM" />
+    	</contribute>
+    	<contribute xsi:type="bundleItem" file="bundles/BufrSigWx.xml"
+        	menuText="High Level" id="SigWxHigh">
+        	<substitute key="wxLayer" value="SWH" />
+    	</contribute>
         <contribute xsi:type="separator" id="SignificantWeatherEnd" />
     </contribute>
     <contribute xsi:type="separator" id="AviationMenuEnd" />
