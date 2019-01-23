@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DerivedParameter unit="m/s" name="SCWind" abbreviation="SCWind">
+    <Method name="Vector">
+        <Field abbreviation="SCESTUWIND" unit="m/s" />
+        <Field abbreviation="SCESTVWIND" unit="m/s" />
+    </Method>
+</DerivedParameter>

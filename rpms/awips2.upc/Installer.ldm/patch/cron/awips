@@ -4,3 +4,5 @@
 # nex2gini for daa and dta (lower case)
 #0,5,10,15,17,20,25,30,35,40,45,50,55 * * * * /awips2/ldm/bin/gini daa >& /dev/null 2>&1
 #0,5,10,15,17,20,25,30,35,40,45,50,55 * * * * /awips2/ldm/bin/gini dta >& /dev/null 2>&1
+# ascat grib2
+#10 * * * * /awips2/ldm/bin/ascat_grib.sh >& /dev/null 2>&1
