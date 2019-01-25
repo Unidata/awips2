@@ -1,31 +1,112 @@
-
-<bundle>
-	<displayList>
-		<displays xsi:type="d2DMapRenderableDisplay"
-			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<descriptor xsi:type="mapDescriptor">
-				<resource>
-                    <loadProperties loadWithoutData="true">
-                        <capabilities>
-                            <capability xsi:type="outlineCapability" lineStyle="SOLID" outlineOn="true" outlineWidth="4" />
-                            <capability xsi:type="colorableCapability" colorAsString="#ffffff" />
-                        </capabilities>
-                    </loadProperties>
-					<properties isSystemResource="false" isBlinking="false"
-						isMapLayer="false" isHoverOn="false" 
-						isVisible="true" />
-					<resourceData xsi:type="wwaResourceData" 						
-						isUpdatingOnMetadataOnly="false"
-						retrieveData="true"
-						isRequeryNecessaryOnTimeMatch="true" name="All Advisories and Warnings">
-						<metadataMap>
-							<mapping key="pluginName">
-								<constraint constraintValue="warning" constraintType="EQUALS" />
-							</mapping>
-						</metadataMap>
-					</resourceData>
-				</resource>
-			</descriptor>
-		</displays>
-	</displayList>
-</bundle>
+        <bundle>
+            <displayList>
+		    <displays xsi:type="d2DMapRenderableDisplay" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <descriptor xsi:type="mapDescriptor">
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="true"/>
+                                <capabilities>
+                                    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                                    <capability xsi:type="colorableCapability" colorAsString="white"/>
+                                    <capability xsi:type="outlineCapability" outlineWidth="4" outlineOn="true" lineStyle="SOLID"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="wwaResourceData" name="Flood Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
+                                <metadataMap>
+                                    <mapping key="phensig">
+                                        <constraint constraintType="IN" constraintValue="FA.A,FL.A,FF.A,LS.A,CF.A,CF.W,CF.Y,CF.S,FA.W,FA.Y,FF.S,FF.W,FL.W,HY.S,FL.S,FL.Y,LS.S,LS.W,LS.Y"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="warning"/>
+                                    </mapping>
+                                    <mapping key="act">
+                                        <constraint constraintType="IN" constraintValue="NEW,CON,CAN,EXT,EXP"/>
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="white"/>
+                                    <capability xsi:type="outlineCapability" outlineWidth="4" outlineOn="true" lineStyle="SOLID"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="wwaResourceData" name="Wind Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
+                                <metadataMap>
+                                    <mapping key="phensig">
+                                        <constraint constraintType="IN" constraintValue="BW.Y,EW.W,HF.A,HF.W,HW.A,HW.W,LW.Y,SI.Y,WC.A,WC.W,WC.Y,WI.Y,DS.W,DU.Y,SM.Y"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="warning"/>
+                                    </mapping>
+                                    <mapping key="act">
+                                        <constraint constraintType="IN" constraintValue="NEW,CON,CAN,EXP"/>
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                                <capabilities>
+                                    <capability xsi:type="magnificationCapability" magnification="1.0"/>
+                                    <capability xsi:type="colorableCapability" colorAsString="white"/>
+                                    <capability xsi:type="outlineCapability" outlineWidth="4" outlineOn="true" lineStyle="SOLID"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="wwaResourceData" name="Marine Watches, Warnings, Advisories" hideSampling="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="false">
+                                <metadataMap>
+                                    <mapping key="phensig">
+                                        <constraint constraintType="IN" constraintValue="MA.W,CF.A,CF.W,CF.Y,CF.S,LS.A,LS.S,LS.W,LS.Y,LW.Y,MA.A,MA.S,MA.W,MF.Y,MH.W,MH.Y,MS.Y,RB.Y,RP.S,SC.Y,SE.A,SE.W,SI.Y,SS.A,SS.W,SU.W,SU.Y,SW.Y,TS.A,TS.W,TS.Y,TY.A,TY.W"/>
+                                    </mapping>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="warning"/>
+                                    </mapping>
+                                    <mapping key="act">
+                                        <constraint constraintType="IN" constraintValue="NEW,CON,CAN,EXP"/>
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
+                        <resource>
+                            <loadProperties loadWithoutData="true">
+                                <resourceType>PLAN_VIEW</resourceType>
+                                <perspectiveProperty xsi:type="d2dLoadProperties" loadMode="VALID_TIME_SEQ" timeMatchBasis="false"/>
+                                <capabilities>
+                                    <capability xsi:type="colorableCapability" colorAsString="white"/>
+                                    <capability xsi:type="outlineCapability" outlineWidth="4" outlineOn="true" lineStyle="SOLID"/>
+                                </capabilities>
+                            </loadProperties>
+                            <properties isVisible="true" isMapLayer="false" isBlinking="false" isSystemResource="false" renderingOrderId="UNKNOWN">
+                                <pdProps minDisplayWidth="0" maxDisplayWidth="100000000"/>
+                            </properties>
+                            <resourceData xsi:type="cwaspsResourceData" name="Sig Wx Advisories (SPS)" hideSampling="true" isRequeryNecessaryOnTimeMatch="false" isUpdatingOnMetadataOnly="false" retrieveData="true">
+                                <metadataMap>
+                                    <mapping key="pluginName">
+                                        <constraint constraintType="EQUALS" constraintValue="warning"/>
+                                    </mapping>
+                                    <mapping key="pil">
+                                        <constraint constraintType="IN" constraintValue="SPS"/>
+                                    </mapping>
+                                </metadataMap>
+                            </resourceData>
+                        </resource>
+                        <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
+                    </descriptor>
+                </displays>
+            </displayList>
+        </bundle>
