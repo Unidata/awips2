@@ -287,8 +287,8 @@ damcrest_res_dir        : $(whfs_config_dir)/damcrest
 
 #===================== SHEFDECODE Application Tokens ================================
 
-shefdecode_userid  : oper                     # controlling UNIX user
-shefdecode_host    : dx1f                     # controlling UNIX system.
+shefdecode_userid  : awips                    # controlling UNIX user
+shefdecode_host    : localhost                # controlling UNIX system.
 shefdecode_dir     : $(apps_dir)/shefdecode   # main directory location
 shefdecode_bin     : $(shefdecode_dir)/bin    # executable programs location
 shefdecode_input   : $(shefdecode_dir)/input  # SHEF parameter file location
@@ -403,13 +403,13 @@ sws_home_dir           : $(whfs_bin_dir)/pa   # SWS dir
 # The Gage Precip Processor tokens
 # -----------------------------------------------------------------
 
-gage_pp_userid     : oper                     # controlling UNIX user
-gage_pp_host       : dx                       # controlling UNIX system
+gage_pp_userid     : awips                    # controlling UNIX user
+gage_pp_host       : localhost                # controlling UNIX system
 gage_pp_data       : $(pproc_local_data)/gpp_input  # input data files location 
 gage_pp_log        : $(pproc_log)/gage_pp     # daily log files location
 gage_pp_sleep	   : 10	  # sleep duration in seconds in between queries
 gage_pp_enable         : ON      # gpp enabled; shef uses to determine post
-shef_post_precip       : OFF     # post to Precip/CurPrecip tables
+shef_post_precip       : ON      # post to Precip/CurPrecip tables
 build_hourly_enable    : ON      # Enable the build_hourly application
 
 # ----------------------------------------------------------------
@@ -628,7 +628,6 @@ ens_files          :   $(ens_dir)/files/$(ofs_level)
 ens_scripts        :   $(ens_dir)/scripts
 
 # ens_pre tokens
-##FXA_HOME           :   /px1data #taken out by kwz.2/11/04
 enspre_griddb      :   $(FXA_DATA)/Grid/SBN/netCDF/CONUS211/CPCoutlook
 ens_log_dir        :   $(ens_output)/$(ofs_level)
 ens_msglog_level   :   5
@@ -1589,17 +1588,6 @@ shape_data_dir          :  $(apps_dir)/ffmpShapeData # Directory holding shape
                                                      # files acting as data files
 
 
-#================== send_rfc Apps_defaults Tokens -  3/08/2001 =================
-send_rfc_dir            : $(apps_dir)/rfc/send_rfc
-send_rfc_input_dir      : $(send_rfc_dir)/data/send
-send_rfc_id             : WWW
-send_hardcopy_nnn       : PRI-WRK-EDI-SNO-ADM-RVF
-send_rfc_hardcopy       : $(send_rfc_dir)/data/sbnprods
-send_rfc_hpc            : 0  
-send_rfc_host           : ds-www
-send_rfc_alternate      : 0
-# ================== end of send_rfc tokens ====================================
-
 #================== verify Apps_defaults Tokens -  08/03/2001 ==================
 # defaults for program verify
 vsys_output             : $(vsys_dir)/output       #location of output files
@@ -1819,7 +1807,7 @@ sshp_ingest_xml_dir       : $(local_data_sshp_dir)/ingest_xml
 sshp_incoming_dir         : $(local_data_sshp_dir)/incoming
 sshp_outgoing_dir         : $(local_data_sshp_dir)/outgoing
 sshp_log_dir              : $(whfs_log_dir)/sshp
-sshp_java_process_host    : px1f
+sshp_java_process_host    : localhost
 sshp_invoke_map_preprocess: ON
 sshp_map_qpe_to_use	  : MIXED    # choices are: MIXED, LOCAL_BEST_ONLY, RFC_ONLY
 sshp_fcst_ts         	  : FZ       # SSHP type-source code for generated forecasts

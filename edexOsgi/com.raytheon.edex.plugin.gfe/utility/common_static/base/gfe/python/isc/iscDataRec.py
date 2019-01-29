@@ -124,7 +124,7 @@ def execIscDataRec(MSGID, SUBJECT, FILES):
                 logException("Malformed XML received")
                 return
 
-        #no XML destination information. Default to dx4f,px3 98000000, 98000001
+        #no XML destination information. Default to localhost 98000000
         else:
             # create a xml element tree to replace the missing one.  This will
             # occur when OB8.2 sites send ISC data to OB8.3 sites, and also when
@@ -133,17 +133,17 @@ def execIscDataRec(MSGID, SUBJECT, FILES):
             # This will cause log errors until everyone is on OB8.3.
             iscE = Element('isc')
             destinationsE = SubElement(iscE, 'destinations')
-            for x in xrange(98000000, 98000002):
-                for shost in ['dx4f', 'px3f']:
-                    addressE = SubElement(destinationsE, 'address')
-                    serverE = SubElement(addressE, 'server')
-                    serverE.text = shost
-                    portE = SubElement(addressE, 'port')
-                    portE.text = str(x)
-                    protocolE = SubElement(addressE, 'protocol')
-                    protocolE.text = "20070723"  #match this from IFPProtocol.C
-                    mhsE = SubElement(addressE, 'mhsid')
-                    mhsE.text = siteConfig.GFESUITE_MHSID
+	    x = 98000000
+            shost = 'localhost'
+            addressE = SubElement(destinationsE, 'address')
+            serverE = SubElement(addressE, 'server')
+            serverE.text = shost
+            portE = SubElement(addressE, 'port')
+            portE.text = str(x)
+            protocolE = SubElement(addressE, 'protocol')
+            protocolE.text = "20070723"  #match this from IFPProtocol.C
+            mhsE = SubElement(addressE, 'mhsid')
+            mhsE.text = siteConfig.GFESUITE_MHSID
 
         irt = IrtAccess.IrtAccess("")
 

@@ -5,10 +5,10 @@
 # Shell Used: BASH shell
 # Original Author(s): Joseph.Maloney@noaa.gov
 # File Creation Date: 01/27/2009
-# Date Last Modified: 07/23/2018 - For unidata_18.1.1
+# Date Last Modified: 09/23/2016 - For 17.1.1
 #
 # Contributors:
-# Joe Maloney (MFL), Pablo Santos (MFL), Michael James (UCAR)
+# Joe Maloney (MFL), Pablo Santos (MFL)
 # ----------------------------------------------------------- 
 # ------------- Program Description and Details ------------- 
 # ----------------------------------------------------------- 
@@ -25,10 +25,6 @@
 #
 # Directory program runs from: /awips2/GFESuite/hti/bin
 #
-# Needed configuration on ls2/3:  /awips2/GFESuite/data/hti needs to exist.  The
-#                                 script will create this directory if
-#                                 it is missing.
-#
 # History:
 # 20 OCT 2014 - jcm - created from make_ghls.sh, broke out of webapps
 #                     package.  Renamed make_hti.sh.
@@ -40,38 +36,17 @@
 #                     code instead of just looking at the timestamps
 #                     of the KML files themselves.
 # 22 SEP 2016 - jcm - clean out $PRODUCTdir every time you run
-# 23 JUL 2018 - mj  - Remove all LDAD ssh/rsync
+# 29 JAN 2019 - mj@ucar  - Clean up: no ssh, rsync
 #
 ########################################################################
-#  CHECK TO SEE IF SITE ID WAS PASSED AS ARGUMENT
-#  IF NOT THEN EXIT FROM THE SCRIPT
-########################################################################
-if [ $# -lt 1 ] ;then
-   echo Invalid number of arguments.
-   echo Script stopped.
-   echo ./rsyncGridsToCWF.sh wfo
-   exit
-else
-   SITE=$(echo ${1} | tr '[a-z]' '[A-Z]')
-   site=$(echo ${1} | tr '[A-Z]' '[a-z]')
-fi
+SITE=$(grep AW_SITE_IDENTIFIER /awips2/edex/setup.env | head -1 | cut -d = -f 2 )
+site=$(echo $SITE | tr '[:upper:]' '[:lower:]' )
 
-########################################################################
-#  CONFIGURATION SECTION BELOW
-########################################################################
 GFESUITE_HOME="/awips2/GFESuite"
 HTI_HOME="${GFESUITE_HOME}/hti"
-
-if [ ! -f ${HTI_HOME}/etc/sitevars.${site} ]; then
-   cp ${HTI_HOME}/etc/sitevars.ccc ${HTI_HOME}/etc/sitevars.${site}
-fi
-
-# SITES CAN CUSTOMIZE THE SITEVARS AS NEEDED
-. ${HTI_HOME}/etc/sitevars.${site}
-
-########################################################################
-#  BEGIN MAIN SCRIPT
-########################################################################
+AWIPS_USER="awips"
+AWIPS_GRP="fxalpha"
+. ${HTI_HOME}/etc/sitevars.ccc
 
 # set current data and log file name
 currdate=$(date -u +%Y%m%d)
@@ -81,12 +56,12 @@ export LOG_FILE="${HTI_HOME}/logs/${currdate}/make_hti.log"
 if [ ! -d  ${HTI_HOME}/logs ] ;then
    mkdir -p ${HTI_HOME}/logs
    chmod 777 ${HTI_HOME}/logs
-   chown awips:fxalpha ${HTI_HOME}/logs
+   chown ${AWIPS_USER}:${AWIPS_GRP} ${HTI_HOME}/logs
 fi
 if [ ! -d  ${HTI_HOME}/logs/${currdate} ] ;then
    mkdir -p ${HTI_HOME}/logs/${currdate}
    chmod 777 ${HTI_HOME}/logs/${currdate}
-   chown awips:fxalpha ${HTI_HOME}/logs/${currdate}
+   chown ${AWIPS_USER}:${AWIPS_GRP} ${HTI_HOME}/logs/${currdate}
 fi
 
 # Log file header
@@ -105,10 +80,10 @@ if [ ! -d ${PRODUCTdir} ]; then
    echo " **** Changing permissions of ${PRODUCTdir} directory..." >> $LOG_FILE
    chmod 777 $PRODUCTdir
    echo " **** Changing ownership of ${PRODUCTdir} directory..." >> $LOG_FILE
-   chown awips:fxalpha $PRODUCTdir
+   chown ${AWIPS_USER}:${AWIPS_GRP} $PRODUCTdir
 else
    echo "  ${PRODUCTdir} exists." >> $LOG_FILE
-   # clean old png and kml.txt files from $PRODUCTdir and on LDAD
+   # clean old png and kml.txt files from $PRODUCTdir
    echo "Removing old png and kml.txt files from ${PRODUCTdir}." >> $LOG_FILE
    rm -f ${PRODUCTdir}/*png ${PRODUCTdir}/*kml.txt
 fi
@@ -121,9 +96,8 @@ PARMS="WindThreat FloodingRainThreat StormSurgeThreat TornadoThreat"
 echo "Starting ifpIMAGE loop." >> $LOG_FILE
 for PARM in $PARMS
 do
-     # run ifpIMAGE
      echo "Creating ${PARM} image..." >> $LOG_FILE
-     unset DISPLAY; ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${PARM} -o ${PRODUCTdir}
+     ${GFEBINdir}/ifpIMAGE -site ${SITE} -c ${PARM} -o ${PRODUCTdir}
      convert ${PRODUCTdir}/${SITE}${PARM}.png -resize 104x148 ${PRODUCTdir}/${SITE}${PARM}_sm.png
 done
     
@@ -131,7 +105,7 @@ rm -f ${PRODUCTdir}/*.info
     
 # Generate KML automatically via runProcedure
 echo "Running KML procedure." >> $LOG_FILE
-unset DISPLAY; ${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactGraphics_KML -c gfeConfig
+${GFEBINdir}/runProcedure -site ${SITE} -n TCImpactGraphics_KML -c gfeConfig
 
 # Create legends for KML
 ${HTI_HOME}/bin/kml_legend.sh
@@ -181,7 +155,7 @@ then
        echo "  Changing permissions on ${PRODUCTdir}/archive..." >> $LOG_FILE
        chmod 777 ${PRODUCTdir}/archive
        echo "  Changing ownership on ${PRODUCTdir}/archive..." >> $LOG_FILE
-       chown awips:fxalpha ${PRODUCTdir}/archive
+       chown ${AWIPS_USER}:${AWIPS_GRP} ${PRODUCTdir}/archive
     else
        echo "  ${PRODUCTdir}/archive directory exists!" >> $LOG_FILE
     fi
