@@ -36,12 +36,6 @@
         <substitute key="TP" value="TP"/>
         <substitute key="frameCount" value="17"/>
     </contribute> -->
-    <contribute xsi:type="bundleItem" file="bundles/volume/DefaultFourPanel.xml"
-        menuText="DGEX" id="dgex4panel" useReferenceTime="true">
-        <substitute key="modelName" value="${DGEXmodel}" />
-        <substitute key="TP" value="TP6hr" />
-        <substitute key="frameCount" value="18" />
-    </contribute>
     <contribute xsi:type="bundleItem" file="bundles/volume/ECMWFHiResFourPanel.xml"
         menuText="ECMWF-HiRes" id="ecmwf4panel" useReferenceTime="true">
         <substitute key="frameCount" value="41" />

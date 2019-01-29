@@ -26,7 +26,7 @@
     -->
 <polarStereoGridCoverage>
     <name>186</name>
-    <description>12 km PSG limited domain Alaska grid (used by DGEX)</description>
+    <description>12 km PSG limited domain Alaska grid</description>
     <la1>44.196</la1>
     <lo1>174.759</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>

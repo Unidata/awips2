@@ -24,7 +24,6 @@
         of the file. 
     -->
 <menuContributionFile>
-    <substitute key="DGEXmodel" value="DGEX" />
     <substitute key="GFSmodel" value="GFS229" />
     <substitute key="NAM12model" value="NAM12" />
     <substitute key="NAM40model" value="NAM40" />

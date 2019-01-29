@@ -25,12 +25,6 @@
     -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     <contribute xsi:type="titleItem" titleText="------ Families ------" id="FamiliesLine" />
-    <contribute xsi:type="bundleItem" file="bundles/volume/DefaultFamily.xml" menuText="DGEX"
-        id="dgex" useReferenceTime="true">
-        <substitute key="modelName" value="${DGEXmodel}" />
-        <substitute key="TP" value="TP" />
-        <substitute key="frameCount" value="18" />
-    </contribute>
     <contribute xsi:type="bundleItem" file="bundles/volume/ECMWFHiRes.xml" menuText="ECMWF-HiRes"
         id="ecmwfHiRes" useReferenceTime="true">
         <substitute key="TP" value="TP" />
