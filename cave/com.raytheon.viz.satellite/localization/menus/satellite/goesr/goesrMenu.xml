@@ -50,29 +50,29 @@
 	    <contribute xsi:type="titleItem" titleText="------ GOES East Sectors ------"
 		id="goesEast" />
 	
-	    <contribute xsi:type="subinclude" subMenu="GOES East - CONUS"
+	    <contribute xsi:type="subinclude" subMenu="GOES 16 - CONUS"
 	        fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="ECONUS" />
 	        <substitute key="entity" value="GOES-16" />
 	    </contribute>
 	    
-	    <contribute xsi:type="subinclude" subMenu="GOES East - Full Disk"
+	    <contribute xsi:type="subinclude" subMenu="GOES 16 - Full Disk"
 	        fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="EFD" />
 	        <substitute key="entity" value="GOES-16" />
 	    </contribute>
 	    	
-	    <contribute xsi:type="subinclude" subMenu="GOES East - Mesoscale Sector 1"
+	    <contribute xsi:type="subinclude" subMenu="GOES 16 - Mesoscale Sector 1"
 	        fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="EMESO-1" />
 	        <substitute key="entity" value="GOES-16" />
 	    </contribute>
-	    <contribute xsi:type="subinclude" subMenu="GOES East - Mesoscale Sector 2"
+	    <contribute xsi:type="subinclude" subMenu="GOES 16 - Mesoscale Sector 2"
 	        fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="EMESO-2" />
 	        <substitute key="entity" value="GOES-16" />
 	    </contribute>
-	    <contribute xsi:type="subinclude" subMenu="GOES East - Puerto Rico"
+	    <contribute xsi:type="subinclude" subMenu="GOES 16 - Puerto Rico"
 	        fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="PRREGI" />
 	        <substitute key="entity" value="GOES-16" />

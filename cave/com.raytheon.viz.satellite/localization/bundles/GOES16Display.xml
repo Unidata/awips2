@@ -189,7 +189,7 @@
                 <looping>true</looping>
             </loopProperties>
         </bundle>
-        <bundle view="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView1" name="Map">
+        <bundle view="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView1" name="Map1">
             <displayList>
                 <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="GOES East Full Disk" mapCenter="-74.99446983380687 -0.005530172017519119 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <descriptor xsi:type="mapDescriptor">
@@ -377,7 +377,7 @@
                 <looping>true</looping>
             </loopProperties>
         </bundle>
-        <bundle view="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView2" name="Map">
+        <bundle view="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView2" name="Map2">
             <displayList>
                 <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="GOES East Full Disk" mapCenter="-76.73695913967683 37.98124190405122 0.0" zoomLevel="0.09105171263217926" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <descriptor xsi:type="mapDescriptor">
@@ -574,7 +574,7 @@
   AXIS["Easting", EAST], 
   AXIS["Northing", NORTH]]</CRS>
                         </gridGeometry>
-                        <numberOfFrames>20</numberOfFrames>
+                        <numberOfFrames>1</numberOfFrames>
                         <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
                     </descriptor>
                 </displays>
@@ -588,7 +588,7 @@
                 <looping>true</looping>
             </loopProperties>
         </bundle>
-        <bundle view="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView3" name="Map">
+        <bundle view="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView3" name="Map3">
             <displayList>
                 <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="GOES East Full Disk" mapCenter="-92.36032641155978 43.53074917415532 0.0" zoomLevel="0.08882645517587662" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <descriptor xsi:type="mapDescriptor">
@@ -785,7 +785,7 @@
   AXIS["Easting", EAST], 
   AXIS["Northing", NORTH]]</CRS>
                         </gridGeometry>
-                        <numberOfFrames>20</numberOfFrames>
+                        <numberOfFrames>1</numberOfFrames>
                         <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
                     </descriptor>
                 </displays>
@@ -799,7 +799,7 @@
                 <looping>true</looping>
             </loopProperties>
         </bundle>
-        <bundle view="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView4" name="Map">
+        <bundle view="com.raytheon.uf.viz.d2d.ui.map.SideView:sideView4" name="Map4">
             <displayList>
                 <displays xsi:type="d2DMapRenderableDisplay" magnification="1.0" density="1.0" scale="Regional - Puerto Rico" mapCenter="-67.77441991829491 17.8883584723283 0.0" zoomLevel="1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
                     <descriptor xsi:type="mapDescriptor">

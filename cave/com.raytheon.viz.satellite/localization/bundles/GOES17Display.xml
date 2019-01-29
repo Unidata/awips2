@@ -363,6 +363,7 @@
   AXIS["Easting", EAST], 
   AXIS["Northing", NORTH]]</CRS>
                         </gridGeometry>
+                        <numberOfFrames>1</numberOfFrames>
                         <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
                     </descriptor>
                 </displays>
@@ -551,6 +552,7 @@
   AXIS["Easting", EAST], 
   AXIS["Northing", NORTH]]</CRS>
                         </gridGeometry>
+                        <numberOfFrames>1</numberOfFrames>
                         <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
                     </descriptor>
                 </displays>
@@ -998,6 +1000,7 @@
   AXIS["Easting", EAST], 
   AXIS["Northing", NORTH]]</CRS>
                         </gridGeometry>
+                        <numberOfFrames>1</numberOfFrames>
                         <timeMatcher xsi:type="d2DTimeMatcher" forecastFilter="0" deltaFilter="0" loadMode="VALID_TIME_SEQ"/>
                     </descriptor>
                 </displays>
