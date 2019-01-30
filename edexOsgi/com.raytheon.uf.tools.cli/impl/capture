@@ -1,6 +1,6 @@
 #!/bin/bash
 # base path to save capture data to, will create subdirectory for each workstation
-basePath="/data/fxa/cave"
+basePath="/awips2/fxa/cave"
 
 edexGrepString="edex.run.mode="
 
@@ -15,9 +15,6 @@ JSTACK_ITERATIONS="15"
 RUN_JMAP="Y"
 RUN_QPID_STAT="Y"
 MOVE_ALL_HS_ERR_PID="Y"
-# For remote top you must have ssh keys setup to allow automatic login, otherwise password prompt will get sent to log file and script will never exit
-GRAB_REMOTE_TOP="Y"
-GRAB_REMOTE_VMSTAT="Y"
 GRAB_CAVE_AND_ALERTVIZ_LOGS="Y"
 GRAB_SCREENSHOT="Y"
 GRAB_CURRENT_QUERIES="Y"
@@ -71,12 +68,6 @@ usage() {
    echo
    echo -e "-screen {y/n}\t\tdefault [$GRAB_SCREENSHOT]"
    echo "  Screen print the current workstation (local user must be running capture)"
-   echo
-   echo -e "-t {y/n}\t\tdefault [$GRAB_REMOTE_TOP]"
-   echo "  Captures top information from servers, auto login must be enabled"
-   echo
-   echo -e "-v {y/n}\t\tdefault [$GRAB_REMOTE_VMSTAT]"
-   echo "  Captures vmstat information from servers, auto login must be enabled"
    echo
    echo -e "-V {y/n}\t\tdefault [$RUN_VERSIONS]"
    echo "  Grab version information"
@@ -422,8 +413,6 @@ while [ ! -z "$1" ]; do
       -Q) GRAB_CURRENT_QUERIES="$1"; shift 1;;
       -s) RUN_JSTACK="$1"; shift 1;;
       -screen) GRAB_SCREENSHOT="$1"; shift 1;;
-      -t) GRAB_REMOTE_TOP="$1"; shift 1;;
-      -v) GRAB_REMOTE_VMSTAT="$1"; shift 1;;
       -V) RUN_VERSIONS="$1"; shift 1;;
       -z) TGZ_OUTPUT="$1"; shift 1;;
       -quick) RUN_JMAP="N"; JSTACK_ITERATIONS=5;;
@@ -437,8 +426,6 @@ checkYes RUN_JMAP $RUN_JMAP
 checkYes RUN_QPID_STAT $RUN_QPID_STAT
 checkYes FORCE $FORCE
 checkYes MOVE_ALL_HS_ERR_PID $MOVE_ALL_HS_ERR_PID
-checkYes GRAB_REMOTE_TOP $GRAB_REMOTE_TOP
-checkYes GRAB_REMOTE_VMSTAT $GRAB_REMOTE_VMSTAT
 checkYes GRAB_CURRENT_QUERIES $GRAB_CURRENT_QUERIES
 checkYes GRAB_CAVE_AND_ALERTVIZ_LOGS $GRAB_CAVE_AND_ALERTVIZ_LOGS
 checkYes EDEX_MODE $EDEX_MODE
@@ -463,8 +450,6 @@ if [ "$EDEX_MODE" == "y" ]; then
    reason="n"
    GRAB_CAVE_AND_ALERTVIZ_LOGS="n"
    MOVE_ALL_HS_ERR_PID="n"
-   GRAB_REMOTE_TOP="n"
-   GRAB_REMOTE_VMSTAT="n"
    GRAB_XORG_LOG="n"
 fi
 
