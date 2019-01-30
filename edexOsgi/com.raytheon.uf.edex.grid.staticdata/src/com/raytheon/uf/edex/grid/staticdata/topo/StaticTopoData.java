@@ -185,7 +185,7 @@ public class StaticTopoData {
             try {
                 if (!topoFileExists()) {
                     // TODO: This will fail in a clustered server environment
-                    // since static topo isn't installed to dx3/4
+                    // since static topo isn't installed across machines
                     // UPDATE: this doesn't even work in a standalone
                     // environment now because it can't find the gzipped source
                     // files since FILE_PREFIX was changed
