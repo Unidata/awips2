@@ -1,23 +1,3 @@
-##
-# This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-#
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
-# This software product contains export-restricted data whose
-# export/transfer/disclosure is restricted by U.S. law. Dissemination
-# to non-U.S. persons whether in the United States or abroad requires
-# an export license or other authorization.
-#
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-#
-# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-# further licensing information.
-##
-
 #
 # Utility module of isc functions
 #
@@ -40,12 +20,6 @@
 #    07/31/2017      6342          randerso       Use ReferenceMgr to load/save/delete edit areas
 #
 #
-
-##
-# This is a base file that is not intended to be overridden.
-##
-
-
 
 import string, IrtAccess, JUtil, logging
 import xml, pickle, tempfile, os, socket
@@ -102,53 +76,9 @@ def swapCoord(coord):
     return coord
 
 def serverBoxText(server):
-    #returns text based on the server dictionary that should be placed
-    #into the dialog
-    hostport = None
-    if server['host'][0:3] in ['dx4', 'px3'] and server['port'] in \
-      ['98000000', '98000001']:
-        if server['port'] == "98000000":
-            hostport = server['host'] + "-primary"
-        elif server['port'] == "98000001":
-            hostport = server['host'] + "-svcbu"
-
-    if hostport is None:
-        hostport = server['host'] + "/" + server['port']
-
+    hostport = server['host'] + "/" + server['port']
     return server['site'] + "->  " + hostport + "@" + \
       server['mhsid'].lower()
-
-def sortServers(a, b):
-# sort function for the list of servers.  Sorts in priority order for
-# most likely to have the data.  Order is:
-# dx4 or px3 98000000 site==mhsid
-# dx4 or px3 98000001 site==mhsid
-# dx4 or px3 98000000 site!=mhsid
-# dx4 or px3 98000001 site!=mhsid
-# all others in random order.
-    sameSiteA = (a['mhsid'] == a['site'])
-    sameSiteB = (b['mhsid'] == b['site'])
-    if sameSiteA and not sameSiteB:
-        return -1
-    elif not sameSiteA and sameSiteB:
-        return 1
-    #both are same sites, check for host next
-    else:
-        regHostA = (a['host'][0:3] in ['dx4', 'px3'])
-        regHostB = (b['host'][0:3] in ['dx4', 'px3'])
-        if regHostA and not regHostB:
-            return -1
-        elif not regHostA and regHostB:
-            return 1
-        # same host, but not preferred host
-        else:
-            regPortA = (a['port'] == "98000000")
-            regPortB = (b['port'] == "98000000")
-            if regPortA and not regPortB:
-                return -1
-            elif not regPortA and regPortB:
-                return 1
-            return 1   #must be non-standard, put at end of list
 
 def createDomainDict(xml):
         irt = IrtAccess.IrtAccess("")
@@ -191,7 +121,6 @@ def createDomainDict(xml):
                     guiText = serverBoxText(info)
                     serverDictT2S[guiText] = info
                     serverDictS2T[str(info)] = guiText
-                    list.sort(sortServers)
                     domains[site] = list
 
             elif domainE.tag == "welist":

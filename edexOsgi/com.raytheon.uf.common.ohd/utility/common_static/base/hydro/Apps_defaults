@@ -228,8 +228,6 @@ alarm_report_mode      : NEAREST
 #  Executable directory tokens.
 sys_java_dir       : /awips2/java               # Location of Java COTS software
 hydro_publicbin    : $(apps_dir)/public/bin 
-sqlcmd_bin_dir     : /usr/local/sqlcmd/bin      # location of sqlcmd executable on both HP and
-                                                #   Linux beginning in OB3
 
 #################################################################################
 #  Default Display Maps - comma separated list of maps with no spaces

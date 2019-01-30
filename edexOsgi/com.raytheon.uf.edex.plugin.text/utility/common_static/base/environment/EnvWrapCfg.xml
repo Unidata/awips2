@@ -46,10 +46,4 @@
   <environment name='FXA_DATA'>
     <path>/awips2/edex/data/fxa</path>
   </environment>
-  <environment name='LDAD_EXTERNAL_PUBLIC'>
-    <path>/data/ldad/public</path>
-  </environment>
-  <environment name='LDAD_EXTERNAL_HOME'>
-    <path>/ldad</path>
-  </environment>
 </environmentWrapCfg>

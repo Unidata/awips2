@@ -215,18 +215,6 @@ def putVTECActiveTable(dataFile, xmlPacket):
     except:
         logProblem("Error executing ingestAT: ", traceback.format_exc())
 
-def sendWfoMessage(siteID, msgFile):
-    with open(msgFile, 'r') as fp:
-        message = fp.read()
-
-    logEvent("Message received from site: %s\n%s" % (siteID, message))
-
-    # send to AlertViz
-    from awips import NotificationMessage
-    msg = NotificationMessage.NotificationMessage(port='9581', message=message,
-           category='GFE', priority='SIGNIFICANT', source='GFE')
-    msg.send()
-    
 
 def putTCVFiles(siteID, tarFile):
     from . import LocalizationSupport

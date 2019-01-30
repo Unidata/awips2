@@ -433,20 +433,10 @@ class TropicalUtility(GridManipulation.GridManipulation):
                 final_message += "MergeProposedSS procedure now, and finish "
                 final_message += "preparing the grids for the WFO TCV."
 
-            #  If we are in test mode, just display the command which
-            #  would be executed
-            if testMode:
-                msg = "Test message to WFO {}: '{}'".format(wfo, final_message)
-                LogStream.logDebug(msg)
+            msg = "Test message to WFO {}: '{}'".format(wfo, final_message)
+            LogStream.logDebug(msg)
 
-                result = ""          #  Simulate a successful transfer
-
-            #  Otherwise, actually send this message
-            else:
-                msg = "Live message to WFO {}: '{}'".format(wfo, final_message)
-                LogStream.logDebug(msg)
-
-                result = self.sendWFOMessage(wfo, final_message)
+            result = ""          #  Simulate a successful transfer
 
             #  Keep track of which offices successfully got the message
             results.append(SendMessageResult(result == "", wfo, result))
@@ -736,21 +726,9 @@ class TropicalUtility(GridManipulation.GridManipulation):
         if testMode is None:
             testMode = self._testMode
 
-#         #  Get the status of each WFO's communications
-#         wfoStatus = self.getWfoStatus()
-
         #  See which WFOs we need to notify
         (bothWfos, windWfos, surgeWfos) = self.getWfosAttention(field, 
                                                                 anyChanges)
-
-        #  Send a message to each office
-#         message = "%s grids containing tropical, wind and storm surge hazards"%\
-#                   (field)
-#         self.sendMessageToWfos(bothWfos, message, self._testMode)
-
-#         message = "%s grids containing tropical, wind hazards" % (field)
-#         self.sendMessageToWfos(windWfos, message, self._testMode)
-
         message = "%s grids containing tropical, storm surge hazards" % (field)
         self.sendMessageToWfos(surgeWfos, message, testMode)
 
