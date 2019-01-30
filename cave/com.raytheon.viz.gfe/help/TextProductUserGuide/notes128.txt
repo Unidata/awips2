@@ -1,1 +1,0 @@
-Headlines are generated from the Hazards Discrete-type grid.  They will appear automatically in the narrative products.

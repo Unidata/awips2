@@ -1,2 +1,0 @@
-The "createTimeRange" method takes a "startHour", "endHour" and mode to create a time range object relative to the current day.
-

@@ -1,2 +1,0 @@
-We have already mentioned the  "fillNulls" method as part of the Narrative Strategy for Handling Null Values. 
-

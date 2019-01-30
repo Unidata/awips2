@@ -1,2 +1,0 @@
-Now let's examine the issuance time reported in the area header of the product.
-

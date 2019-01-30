@@ -1,2 +1,0 @@
-Now we will focus on the rows of table which list values for weather elements over a series of time periods.
-

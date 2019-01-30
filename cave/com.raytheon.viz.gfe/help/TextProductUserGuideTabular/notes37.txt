@@ -1,2 +1,0 @@
-These exercises will help you become familiar with  the SmartElementTable. You will see how it uses the helper methods and learn how to extend it to provide additional functionality.
-
