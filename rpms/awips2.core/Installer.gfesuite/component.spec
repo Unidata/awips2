@@ -21,6 +21,7 @@ AutoReq: no
 Provides: awips2-gfesuite
 Requires: awips2-python-numpy
 Requires: awips2-java
+Requires: awips2-cave
 Requires: xorg-x11-server-Xvfb
 
 BuildRequires: awips2-ant
@@ -90,7 +91,6 @@ mkdir -p ${RPM_BUILD_ROOT}/awips2/GFESuite/rsyncGridsToCWF/log
 if [ $? -ne 0 ]; then
    exit 1
 fi
-
 
 %post
 SETUP_ENV="/awips2/GFESuite/bin/setup.env"

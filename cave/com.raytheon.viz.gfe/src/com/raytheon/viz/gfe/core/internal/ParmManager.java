@@ -20,6 +20,7 @@
 
 package com.raytheon.viz.gfe.core.internal;
 
+import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import org.eclipse.core.runtime.ListenerList;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
+import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -164,6 +166,8 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  *                                  APIs.
  * Mar 16, 2017  6092     randerso  Made decodeDbString public for use in runProcedure.py
  * Jan 08, 2018  19900    ryu       Fix CAVE crash when starting GFE for non-activated site.
+ * Feb 01, 2019  ----     mjames    Use only BASE level for now/dev.
+ * Feb 04, 2019  ----     mjames    Force sync of python files required by GFE perspective.
  *
  * </pre>
  *
@@ -2908,25 +2912,50 @@ public class ParmManager implements IParmManager, IMessageClient {
     private List<VCModule> initVirtualCalcParmDefinitions() {
         // retrieve the inventory from the ifpServer
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext[] contexts = new LocalizationContext[] {
-                pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.BASE),
-                pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.SITE),
-                pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                        LocalizationLevel.USER) };
 
         Map<String, LocalizationFile> modMap = new HashMap<>();
-        for (LocalizationContext context : contexts) {
-            LocalizationFile[] files = pathMgr.listFiles(context,
-                    FileUtil.join("gfe", "vcmodule"), new String[] { "py" },
+        
+        LocalizationContext context = pathMgr.getContext(
+        		LocalizationType.COMMON_STATIC,
+                LocalizationLevel.BASE);
+                	
+    	// vcmodule files
+        LocalizationFile[] files = pathMgr.listFiles(context,
+                "gfe/vcmodule", new String[] { "py" },
+                false, true);
+        for (LocalizationFile lf : files) {
+            String modName = LocalizationUtil.extractName(lf.getPath())
+                    .replace(".py", "");
+            modMap.put(modName, lf);
+        }
+        
+        String[] syncPaths = {
+        		"python",
+        		"python/time",
+        		"python/dataaccess",
+        		"gfe/vcmodule",
+        		"gfe/vcmodule/utility",
+        		"gfe/python",
+        		"gfe/textproducts/templates/product",
+        		"gfe/textproducts/templates",
+        		"gfe/textproducts",
+        		"vtec"
+        		};
+        
+        for (String path : syncPaths){
+        	LocalizationFile[] baseGfeFiles = pathMgr.listFiles(context,
+        			path, new String[] {"py" },
                     false, true);
-            for (LocalizationFile lf : files) {
-                String modName = LocalizationUtil.extractName(lf.getPath())
-                        .replace(".py", "");
-                modMap.put(modName, lf);
+            for (LocalizationFile lf : baseGfeFiles) {
+                try {
+    				File pyFile = lf.getFile(true);
+    			} catch (LocalizationException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
             }
         }
+        
 
         List<VCModule> definitions = new ArrayList<>(modMap.size());
         for (Entry<String, LocalizationFile> entry : modMap.entrySet()) {
@@ -2934,7 +2963,8 @@ public class ParmManager implements IParmManager, IMessageClient {
             LocalizationFile modFile = entry.getValue();
             try {
                 // gets the module from the ifpServer
-                modFile.getFile(true);
+            	
+                modFile.openInputStream();
 
                 // create the VCModule
                 statusHandler.debug("Loading VCModule: " + modFile);

@@ -42,7 +42,6 @@ import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
-import com.raytheon.uf.common.localization.region.RegionLookup;
 import com.raytheon.uf.common.protectedfiles.ProtectedFileLookup;
 import com.raytheon.uf.common.serialization.SerializationException;
 import com.raytheon.uf.common.serialization.SingleTypeJAXBManager;
@@ -433,8 +432,6 @@ public class ReferenceMgr {
     private LocalizationContext[] getSiteSearchContexts() {
         String siteId = dbGridLocation.getSiteId();
 
-        String regionName = RegionLookup.getWfoRegion(siteId);
-
         IPathManager pm = PathManagerFactory.getPathManager();
         LocalizationContext[] searchContexts = pm
                 .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
@@ -444,16 +441,8 @@ public class ReferenceMgr {
         // Set context names on appropriate localization levels
         for (LocalizationContext ctx : searchContexts) {
             LocalizationLevel level = ctx.getLocalizationLevel();
-            if (((level.equals(LocalizationLevel.SITE))
-                    || (level.equals(LocalizationLevel.CONFIGURED)))) {
+            if (((level.equals(LocalizationLevel.SITE)) || (level.equals(LocalizationLevel.CONFIGURED)))) {
                 ctx.setContextName(siteId);
-            } else if (level.equals(LocalizationLevel.REGION)) {
-                if (regionName == null) {
-                    // Don't include REGION context if no regionName
-                    continue;
-                } else {
-                    ctx.setContextName(regionName);
-                }
             }
 
             fixedContexts.add(ctx);
