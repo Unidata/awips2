@@ -75,11 +75,9 @@ To see all purge rule directories (base, site, region, configured):
 
     find /awips2/edex/data/utility -name purge
     
-    /awips2/edex/data/utility/edex_static/region/CR/purge
     /awips2/edex/data/utility/edex_static/base/purge
     /awips2/edex/data/utility/edex_static/configured/OAX/purge
     /awips2/edex/data/utility/edex_static/site/OAX/purge
-    /awips2/edex/data/utility/common_static/region/CR/purge
     /awips2/edex/data/utility/common_static/base/purge
     /awips2/edex/data/utility/common_static/configured/OAX/purge
     /awips2/edex/data/utility/common_static/site/AFC/purge

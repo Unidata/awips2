@@ -1,16 +1,13 @@
 
 ## Localization Levels
 
-AWIPS uses a hierarchical system known as *Localization* to configure many aspects of EDEX and CAVE, such as available menu items, color maps, and derived parameters.  This system allows a user to override existing configurations and customize CAVE.  For example, a *User-level* localization file will supercede any similar file in a lower level (such as *Workstation* or *Site*).
+AWIPS uses a hierarchical system known as *Localization* to configure many aspects of EDEX and CAVE, such as available menu items, color maps, and derived parameters.  This system allows a user to override existing configurations and customize CAVE.  For example, a *User-level* localization file will supercede any similar file in a lower level (such as *Site*).
 
-!!! note "There are six *levels of localization*, starting with the default **BASE**"
+!!! note "There are three *levels of localization*, starting with the default **BASE**"
 
 	* **BASE** - default
-		* **Region** - a region may have many sites (generally unused)
-			* **Site** - a site may have many desks (required)
-				* **Desk** - a desk may have many workstations
-					* **Workstation** - a workstation may have many users
-						* **User** - highest level of localization, overrides all others
+		* **Site** - 3-letter WFO ID (required) overrides base
+			* **User** - user-level localization overrides site and base
 
 ---
 
@@ -18,8 +15,7 @@ AWIPS uses a hierarchical system known as *Localization* to configure many aspec
 
 The Localization Perspective acts as file editor for the XML, Python, and text files which customize the look and feel of CAVE.  
 
-
-Users may copy and add files to available directories at the *Workstation* and *User* levels.
+Users may copy and add files to available directories at their own *User* localization version.
 
 Examples of things that can be accessed through the perspective include (this list is not all-inclusive):
 
@@ -55,7 +51,7 @@ Selecting a file such as **index.xml** will show a sub-menu with a default local
 
 ## Add new Predefined Area to NCP
 
-In the Localization Perspective, navigate to ‘**NCEP - Predefined Area Menus**’, double-click ‘**AreaMenus.xml**’, and then right-click ‘**BASE**’ and select ‘**Copy To - User**’.  You can also copy to **Desk** or **Workstation** localization.
+In the Localization Perspective, navigate to ‘**NCEP - Predefined Area Menus**’, double-click ‘**AreaMenus.xml**’, and then right-click ‘**BASE**’ and select ‘**Copy To - User**’.
 
 ![image alt text](../images/image_4.png)
 
