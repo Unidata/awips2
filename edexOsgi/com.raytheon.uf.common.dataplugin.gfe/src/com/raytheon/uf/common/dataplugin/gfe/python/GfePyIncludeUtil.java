@@ -353,7 +353,6 @@ public class GfePyIncludeUtil extends PythonIncludePathUtil {
     }
 
     public static String getVCModUtilsIncludePath() {
-        return getPath(PATH_MANAGER.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.BASE), VCMOD_UTILS);
+        return buildIncludePath(LocalizationType.COMMON_STATIC, VCMOD_UTILS, true);
     }
 }

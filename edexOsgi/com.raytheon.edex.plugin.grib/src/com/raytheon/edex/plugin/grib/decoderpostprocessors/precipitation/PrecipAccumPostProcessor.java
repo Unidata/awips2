@@ -438,8 +438,8 @@ public class PrecipAccumPostProcessor extends DecoderPostProcessor {
 
         IPathManager pathMgr = PathManagerFactory.getPathManager();
         LocalizationLevel[] levels = new LocalizationLevel[] {
-                LocalizationLevel.BASE, LocalizationLevel.REGION,
-                LocalizationLevel.CONFIGURED, LocalizationLevel.SITE };
+                LocalizationLevel.BASE, LocalizationLevel.CONFIGURED, 
+                LocalizationLevel.SITE };
 
         Map<LocalizationLevel, ? extends ILocalizationFile> files = pathMgr
                 .getTieredLocalizationFile(LocalizationType.COMMON_STATIC,
