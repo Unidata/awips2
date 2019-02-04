@@ -262,7 +262,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
     /** "OK" button text */
     private static final String OK_BTN_LABEL = "Create Text";
 
-    /** "Restart" button text */
+    /** "" button text */
     private static final String RS_BTN_LABEL = "Restart";
 
     /** "Cancel" button text */
@@ -495,16 +495,6 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
                 bulletListSelected();
             }
         });
-
-        instructionsLabel = new Label(mainComposite, SWT.BOLD);
-        instructionsLabel.setText("Instructions:");
-
-        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        gd.heightHint = INSTRUCTIONS_HEIGHT_IN_LINES;
-        instructionsBox = new Text(mainComposite, SWT.BORDER | SWT.READ_ONLY
-                | SWT.MULTI);
-        instructionsBox.setText("");
-        instructionsBox.setLayoutData(gd);
 
         startTimeTimer();
     }
@@ -789,6 +779,14 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
         });
         createTrackGroup(backupTrackEditComp);
         createEditGroup(backupTrackEditComp);
+        
+        gd = new GridData(SWT.FILL, SWT.FILL, true, true);
+        gd.heightHint = 40;
+        instructionsBox = new Text(mainComposite, SWT.NONE | SWT.READ_ONLY
+                | SWT.MULTI);
+        instructionsBox.setText("");
+        instructionsBox.setLayoutData(gd);
+        //instructionsBox.setSize(SWT.DEFAULT, SWT.DEFAULT);
 
     }
 
@@ -952,7 +950,7 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
                         && !warngenLayer.getStormTrackState().isNonstationary()) {
                     str += INSTRUCTION_DRAG_STORM + "\n";
                 } else if (warngenLayer.getStormTrackState().trackVisible) {
-                    str += "Adjust Centroid in any Frame" + "\n";
+                    str += "Adjust Centroid in any Frame | ";
                 }
                 str += "Adjust box around Warning Area";
             }
@@ -961,9 +959,9 @@ IWarningsArrivedListener, ISimulatedTimeChangeListener {
             str = presetInstruct;
         }
         instructionsBox.setText(str);
-        Point p1 = instructionsBox.getSize();
-        Point p2 = instructionsBox.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-        instructionsBox.setSize(new Point(p1.x, p2.y));
+        //Point p1 = instructionsBox.getSize();
+        //Point p2 = instructionsBox.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+        //instructionsBox.setSize(new Point(p1.x, p2.y));
     }
 
     /**
