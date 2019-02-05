@@ -1,1 +1,0 @@
-So in this case, with a temporalCoverage_percentage of 20, only grids B,C, and D will be included in the analysis.

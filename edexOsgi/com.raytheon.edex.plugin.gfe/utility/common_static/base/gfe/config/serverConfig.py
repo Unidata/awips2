@@ -1,22 +1,4 @@
 ##
-# This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-#
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
-# This software product contains export-restricted data whose
-# export/transfer/disclosure is restricted by U.S. law. Dissemination
-# to non-U.S. persons whether in the United States or abroad requires
-# an export license or other authorization.
-#
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-#
-# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-# further licensing information.
-##
 # serverConfig -- base GFE server configuration file
 #
 # NOTE: THIS FILE SHOULD NOT BE USER-MODIFIED.  INSTEAD REFER TO THE
@@ -120,8 +102,6 @@
 # section of the GFE Online Help for more information.
 ##
 
-
-
 #----------------------------------------------------------------------------
 # USEFUL DEFINES
 #----------------------------------------------------------------------------
@@ -134,7 +114,6 @@ import LogStream
 from collections import defaultdict
 BASELINE = getattr(siteConfig, 'BASELINE', 0)
 
-#D scfp=open('/localapps/logs/scdebug.log','w')
 class dbConfig(object):
     """Class to create GFE databases from modelDict"""
     def __init__(self,modelDict):
@@ -2378,8 +2357,8 @@ else:
 #---------------------------------------------------------------------------
 # base urls for the ISC Routing Table
 ISC_ROUTING_TABLE_ADDRESS = {
-    "ANCF" : "http://svcbu-ancf.er.awips.noaa.gov:8080/irt",
-    "BNCF" : "http://svcbu-bncf.er.awips.noaa.gov:8080/irt"
+    "ANCF" : "http://localhost:8081/irt",
+    "BNCF" : "http://localhost:8081/irt"
     }
 
 
@@ -2818,21 +2797,6 @@ modelDict['LAPS'] = {
                      ],
             }
 
-modelDict['MOSGuide'] = {
-            'D2DAccumulativeElements': ['pop12hr', 'pop6hr', 'thp12hr', 'thp3hr',
-                                       'thp6hr', 'tcc', 'tp6hr', 'tp12hr', 'wgs'],
-            'D2DMODELS': 'MOSGuide',
-            'DB': ('MOSGuide', 'GRID', '', NO,  NO, 2, 0),
-            'INITMODULES': 'MOSGuide',
-            'Parms': [([MaxT], MaxTTC),
-                     ([MinT], MinTTC),
-                     ([RH, Td, Temp, Wind], TC1),
-                     ([PoP, PoP12, QPF, QPF12, TstmPrb12], TC12NG),
-                     ([TstmPrb3], TC3NG),
-                     ([PoP6, QPF6, Sky, TstmPrb6, WindGust], TC6NG),
-                     ],
-            }
-
 modelDict['MSAS'] = {
             'D2DAccumulativeElements': ['tp', 'cp'],
             'D2DDBVERSIONS': 6,
@@ -3204,7 +3168,6 @@ if SID in groups['ALASKA_SITES']:
     updateModelDict(modelDict,'GFS20','D2DMODELS', 'AK-GFS22')
     updateModelDict(modelDict,'HIRESWarw','D2DMODELS', 'HiResW-ARW-AK')
     updateModelDict(modelDict,'HIRESWnmm','D2DMODELS', 'HiResW-NMM-AK')
-    updateModelDict(modelDict,'MOSGuide','D2DMODELS', 'MOSGuide-AK')
     updateModelDict(modelDict,'NAM12','D2DMODELS', 'AK-NAM11')
     updateModelDict(modelDict,'NamDNG','D2DMODELS', 'AK-NamDNG3')
     updateModelDict(modelDict,'NationalBlend','D2DMODELS', 'NationalBlendAK')
@@ -3219,7 +3182,7 @@ if SID in groups['ALASKA_SITES']:
     updateModelDict(modelDict,'PETSS','D2DMODELS', 'P-ETSS-AK')
     # Model databases for Alaska
     includeOnly = ['AKwave4', 'AKwave10', 'BaseTerrain', 'CRMTopo', 'ECMWFHiRes', 'ESTOFS', 
-                   'ETSS',  'GFS20',  'GWW', 'HIRESWarw', 'HIRESWnmm', 'MOSGuide', 'NAM12', 
+                   'ETSS',  'GFS20',  'GWW', 'HIRESWarw', 'HIRESWnmm', 'NAM12', 
                    'NamDNG', 'NationalBlend', 'NED', 'NewTerrain', 'RTMA', 'RTOFS-Alaska', 
                    'RTOFS-Arctic', 'RTOFS-Bering', 'RTOFS-GulfAlaska', 'SAT', 'SREF', 'URMA',
                    'nwpsCG1AER', 'nwpsCG1AFG', 'nwpsCG1AJK', 'nwpsCG1ALU', 'nwpsTrkngCG0AER', 
@@ -3248,11 +3211,10 @@ elif SID == "HFO":
     updateModelDict(modelDict,'ECMWFHiRes','D2DMODELS', 'ECMWF-HiRes')
     updateModelDict(modelDict,'RTOFS-Honolulu','D2DMODELS', 'RTOFS-Honolulu')
     updateModelDict(modelDict,'ESTOFS','D2DMODELS', 'estofsHI')
-    updateModelDict(modelDict,'MOSGuide','D2DMODELS', 'MOSGuide-HI')
     updateModelDict(modelDict,'NationalBlend','D2DMODELS', 'NationalBlendHI')
     # Model databases for HFO
     includeOnly = ['ECMWFHiRes', 'ESTOFS', 'GFS75', 'WaveWatch', 'GlobalWave',
-                   'HIRESWarw', 'HIRESWnmm', 'MOSGuide', 'NamDNG', 'NationalBlend',
+                   'HIRESWarw', 'HIRESWnmm', 'NamDNG', 'NationalBlend',
                    'RTMA', 'RTOFS-Honolulu', 'SPC', 'TPCProb', 'TPCProbPrelim', 'nwpsCG1GUM',
                    'nwpsCG1HFO', 'nwpsTrkngCG0GUM', 'nwpsTrkngCG0HFO',
                   ]

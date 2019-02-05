@@ -1,3 +1,0 @@
-If you haven't already, you will need to activate the ZFP_Local file to work with in these exercises.
-
-

@@ -24,7 +24,6 @@
         <property name="excludes">
             <list>
                 <value>com.raytheon.uf.common.dataplugin.text</value>
-                <value>com.raytheon.uf.common.dataplugin.text.subscription</value>
                 <value>com.raytheon.uf.common.dataplugin.shef</value>
                 <value>com.raytheon.edex.plugin.shef</value>
                 <value>com.raytheon.uf.common.bmh</value>

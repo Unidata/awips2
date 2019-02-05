@@ -20,7 +20,6 @@ import HighSeas_AT2
 import string, time, re, os, types, copy
 import TextRules, SampleAnalysis
 import ForecastNarrative
-import UserInfo
 
 #**********************************************************************
 # MAKE NO CHANGES HERE

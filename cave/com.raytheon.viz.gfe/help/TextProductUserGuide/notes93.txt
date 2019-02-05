@@ -1,3 +1,0 @@
-The SampleAnalysis Reference found at:
-Sample Analysis Reference section in the Text Product Reference Guide
-lists all the analysis methods and describes their result.

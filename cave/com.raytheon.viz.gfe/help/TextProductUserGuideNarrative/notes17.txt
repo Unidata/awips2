@@ -1,2 +1,0 @@
-Each node has a list of methods to execute.
-

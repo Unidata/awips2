@@ -1,2 +1,0 @@
-Here the threshold criteria for generating a Local Effect is given as a method.
-

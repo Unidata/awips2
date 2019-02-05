@@ -1,23 +1,3 @@
-##
-# This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
-# This software product contains export-restricted data whose
-# export/transfer/disclosure is restricted by U.S. law. Dissemination
-# to non-U.S. persons whether in the United States or abroad requires
-# an export license or other authorization.
-# 
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-# 
-# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-# further licensing information.
-##
-
 #
 # Port of sendAT code from AWIPS1
 #
@@ -201,13 +181,13 @@ def execute_send_at(myServerHost, myServerPort, myServerProtocol,
         else:
             servers = []
             for mhss in mhsSites:
-                for port in xrange(98000000, 98000002):
-                    for site in sites:
-                        for host in ['dx4f','px3']:
-                            destServer = {'mhsid': mhss, 'host': host,
-                              'port': port, 'protocol': "20070723", 
-                              'site': site}
-                            destServers.append(destServer)
+		port = 98000000
+                for site in sites:
+                    for host in ['localhost']:
+                        destServer = {'mhsid': mhss, 'host': host,
+                          'port': port, 'protocol': "20070723", 
+                          'site': site}
+                        destServers.append(destServer)
 
         irt.addDestinationXML(iscOut, destServers)   #add the dest server xml
 

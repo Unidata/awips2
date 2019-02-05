@@ -76,7 +76,6 @@
     <bean id="lockChangeHandler" class="com.raytheon.edex.plugin.gfe.server.handler.LockChangeHandler"/>
     <bean id="saveGfeGridHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SaveGfeGridHandler"/>
     <bean id="sendIscGridHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SendIscGridHandler"/>
-    <bean id="sendWFOMessageHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SendWFOMessageHandler"/>
     <bean id="singletonDbIdsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetSingletonDbIdsRequestHandler"/>
     <bean id="siteTimeZoneHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetSiteTimeZoneInfoRequestHandler"/>
     <bean id="smartInitHandler" class="com.raytheon.edex.plugin.gfe.server.handler.SmartInitRequestHandler"/>
@@ -86,7 +85,6 @@
     <bean id="getLatestDbInsertTimeHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestDbTimeHandler"/>
     <bean id="getLatestDbIdHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestModelDbIdHandler"/>
     <bean id="getTopoDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetTopoDataHandler"/>
-    <bean id="rsyncGridsToCWFHandler" class="com.raytheon.edex.plugin.gfe.server.handler.RsyncGridsToCWFHandler"/>
 
     <!-- ISC Send Beans -->
 

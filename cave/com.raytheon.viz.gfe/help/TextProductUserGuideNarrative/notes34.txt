@@ -1,2 +1,0 @@
-This processing approach requires that methods coordinate with each other and communicate using the data stored in the narrative tree.
-

@@ -256,7 +256,7 @@ ifpAG -i inputFile -h hostname -r rpcPortNumber [-u username]
                       metavar="inputFile")
     parser.add_argument("-h", action="store", dest="hostname",
                       help="""Host name upon which the EDEX server is running. 
-                              Please specify the host name of the dx3 or dx4 server.""", 
+                              Please specify the host name of the server.""", 
                       required=True, metavar="hostname")
     parser.add_argument("-r", action="store", type=int, dest="portNumber", 
                       help="the port that ifpServer is serving",

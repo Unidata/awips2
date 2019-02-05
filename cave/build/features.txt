@@ -7,7 +7,6 @@ com.raytheon.uf.viz.dataplugins.feature
 com.raytheon.viz.feature.awips
 com.raytheon.uf.viz.application.feature
 com.raytheon.uf.viz.base.feature
-com.raytheon.uf.viz.gisdatastore.feature
 com.raytheon.viz.dataaccess.feature
 com.raytheon.uf.viz.localization.perspective.feature
 com.raytheon.uf.viz.core.feature
@@ -17,6 +16,7 @@ com.raytheon.uf.viz.aviation.advisory.feature
 com.raytheon.uf.viz.d2d.core.feature
 com.raytheon.uf.viz.kml.export.feature
 com.raytheon.viz.radar.feature
+com.raytheon.viz.gfe.feature
 com.raytheon.uf.viz.grid.feature
 com.raytheon.uf.viz.displays.feature
 com.raytheon.uf.viz.d2d.damagepath.feature

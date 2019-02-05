@@ -128,9 +128,7 @@ def execIscDataRec(MSGID, SUBJECT, FILES):
         else:
             # create a xml element tree to replace the missing one.  This will
             # occur when OB8.2 sites send ISC data to OB8.3 sites, and also when
-            # active table exchanges occur.  We default to 98000000 and 98000001
-            # on dx4 since that is where the primary and svcbu servers are located.
-            # This will cause log errors until everyone is on OB8.3.
+            # active table exchanges occur.  We default to 98000000.
             iscE = Element('isc')
             destinationsE = SubElement(iscE, 'destinations')
 	    x = 98000000
@@ -215,8 +213,6 @@ def execIscDataRec(MSGID, SUBJECT, FILES):
                     IrtServer.serviceISCRequest(dataFile)
                 elif SUBJECT == 'PUT_TCV_FILES':
                     IrtServer.putTCVFiles(srcServer.get('site'), dataFile)
-                elif SUBJECT == 'SEND_WFO_MESSAGE':
-                    IrtServer.sendWfoMessage(srcServer.get('site'), dataFile)
                 else:
                     logProblem("unknown subject: ", SUBJECT)
                     continue

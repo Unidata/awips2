@@ -1,23 +1,3 @@
-# #
-# This software was developed and / or modified by Raytheon Company,
-# pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-#
-# U.S. EXPORT CONTROLLED TECHNICAL DATA
-# This software product contains export-restricted data whose
-# export/transfer/disclosure is restricted by U.S. law. Dissemination
-# to non-U.S. persons whether in the United States or abroad requires
-# an export license or other authorization.
-#
-# Contractor Name:        Raytheon Company
-# Contractor Address:     6825 Pine Street, Suite 340
-#                         Mail Stop B8
-#                         Omaha, NE 68106
-#                         402.291.0100
-#
-# See the AWIPS II Master Rights File ("Master Rights File.pdf") for
-# further licensing information.
-# #
-
 #
 # The pure python module override solution. Merges multiple python modules retrieved
 # from localization.
@@ -31,10 +11,7 @@
 #    03/12/13                      bkowal         Initial Creation.
 #    02/17/14        2712          bkowal         Provide a default value for localization site.
 #    03/19/14        2929          bkowal         'REGION' is now recognized as a valid localization level.
-#
-#
-#
-
+#    02/04/19                      mjames@ucar    Removed REGION. 
 #
 # TODO: Update to use the HTTP Rest Service to retrieve localization files instead
 # of thrift.
@@ -53,7 +30,7 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.localization import Localiz
 from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import LocalizationStreamGetRequest
 
 BUFFER_SIZE = 512 * 1024
-availableLevels = ['BASE', 'REGION', 'CONFIGURED', 'SITE', 'USER']
+availableLevels = ['BASE', 'CONFIGURED', 'SITE', 'USER']
 
 def importModule(name, localizationHost, localizationPort, localizedSite=None, localizationUser=None, 
                  loctype='COMMON_STATIC', level=None):

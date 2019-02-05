@@ -1674,12 +1674,6 @@ Png_legendFormat_LT_end = "%b %d %I:%M %p %Z"       # ifpIMAGE only
 # Product Generation Scripts appear under the product generation menu
 # on the GFE.
 Scripts = [
-    "Send Grids to NDFD..:" +
-    "sendGridsToNDFD.sh {site} &",
-
-    "Send Point and Click Grids to Consolidated Web Farm..:" +
-    "/awips2/GFESuite/bin/rsyncGridsToCWF_client.sh {site} &",
-    
     "Png Images...:" +
     "ifpIMAGE " +\
     "-h {host} -c {entry:ConfigFile:imageTest1} -o {prddir}/IMAGE",

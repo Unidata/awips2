@@ -2749,34 +2749,3 @@ class SmartScript(BaseTool.BaseTool):
         status = transmitter.transmitProduct(practice)
         return status
 
-    def sendWFOMessage(self, wfos, message):
-        '''
-        Sends a message to a list of wfos
-        
-        Args:
-            wfos: string or list, set or tuple of strings containing the destination wfo(s)
-            
-            message: string containing the message to be sent
-
-        Returns:
-            string: empty if successful or error message
-        
-        Raises:
-            TypeError: if wfos is not a string, list, tuple or set
-        '''
-        
-        if not wfos:
-            # called with empty wfo list, nothing to do
-            return ""
-        
-        javaWfos = ArrayList()
-        if type(wfos) in [list, tuple, set]:
-            for wfo in wfos:
-                javaWfos.add(wfo)
-        elif type(wfos) is str:
-            javaWfos.add(wfos)
-        else:
-            raise TypeError("Invalid type received for wfos: " + type(wfos))
-            
-        response = self.__dataMgr.getClient().sendWFOMessage(javaWfos, message)
-        return response.message()

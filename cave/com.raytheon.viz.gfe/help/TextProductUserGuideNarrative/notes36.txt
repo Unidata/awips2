@@ -1,1 +1,0 @@
-Finally, the "assembleChildWords" method can gather the phrase results to form a component. 

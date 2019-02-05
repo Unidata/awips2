@@ -1,2 +1,0 @@
-...with the associated Local Effect list method.
-

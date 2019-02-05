@@ -84,7 +84,6 @@
       <feature id="com.raytheon.viz.feature.awips"/>
       <feature id="com.raytheon.uf.viz.application.feature"/>
       <feature id="com.raytheon.uf.viz.base.feature"/>
-      <feature id="com.raytheon.uf.viz.gisdatastore.feature"/>
       <feature id="com.raytheon.viz.dataaccess.feature"/>
       <feature id="com.raytheon.uf.viz.localization.perspective.feature"/>
       <feature id="com.raytheon.uf.viz.core.feature"/>
@@ -95,7 +94,6 @@
       <feature id="com.raytheon.viz.radar.feature"/>
       <feature id="com.raytheon.uf.viz.grid.feature"/>
       <feature id="com.raytheon.uf.viz.displays.feature"/>
-      <feature id="com.raytheon.uf.viz.d2d.damagepath.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.xy.feature"/>
       <feature id="com.raytheon.viz.volumebrowser.feature"/>
       <feature id="com.raytheon.uf.viz.core.maps.feature"/>
@@ -105,7 +103,9 @@
       <feature id="com.raytheon.uf.viz.vtec.feature"/>
       <feature id="com.raytheon.viz.text.feature"/>
       <feature id="com.raytheon.viz.warngen.feature"/>
+      <feature id="com.raytheon.viz.gfe.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.ui.awips.feature"/>
+      <feature id="com.raytheon.uf.viz.d2d.gfe.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.dataplugins.feature"/>
       <feature id="com.raytheon.uf.viz.alertview.feature"/>
       <feature id="com.raytheon.viz.satellite.feature"/>
@@ -117,6 +117,8 @@
       <feature id="com.raytheon.uf.viz.ncep.npp.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.perspective.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.skewt.feature"/>
+      <feature id="edu.wisc.ssec.cimss.viz.convectprob.feature"/>
+      <feature id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"/>
       <feature id="com.raytheon.uf.viz.satellite.goesr.feature"/>
    </features>
 

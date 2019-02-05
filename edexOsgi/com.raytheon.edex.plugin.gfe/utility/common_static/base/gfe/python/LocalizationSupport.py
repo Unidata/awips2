@@ -48,10 +48,8 @@ CAVE_CONFIG = LocalizationType.CAVE_CONFIG
 COMMON_STATIC = LocalizationType.COMMON_STATIC
 
 BASE = LocalizationLevel.BASE
-REGION = LocalizationLevel.REGION
 CONFIGURED = LocalizationLevel.CONFIGURED
 SITE = LocalizationLevel.SITE
-WORKSTATION = LocalizationLevel.WORKSTATION
 USER = LocalizationLevel.USER
 
 def getLocalizationFile(loctype, loclevel, contextname, filename):

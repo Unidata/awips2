@@ -1,0 +1,7 @@
+[awips2repo]
+name=AWIPS II Repository
+baseurl=http://www.unidata.ucar.edu/repos/yum/el6-dev/
+enabled=1
+protect=0
+gpgcheck=0
+proxy=_none_

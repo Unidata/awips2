@@ -73,8 +73,8 @@ public class GridType
      * <p>
      * You are getting this "catch-all" property because of the following reason: 
      * The field name "AxisLabels" is used by two different parts of a schema. See: 
-     * line 28 of file:/common/bphillip/DataDelivery_FILES/standards/schemas/gml/grids.xsd
-     * line 46 of file:/common/bphillip/DataDelivery_FILES/standards/schemas/gml/geometryBasic0d1d.xsd
+     * line 28 of DataDelivery_FILES/standards/schemas/gml/grids.xsd
+     * line 46 of DataDelivery_FILES/standards/schemas/gml/geometryBasic0d1d.xsd
      * <p>
      * To get rid of this property, apply a property customization to one 
      * of both of the following declarations to change their names: 

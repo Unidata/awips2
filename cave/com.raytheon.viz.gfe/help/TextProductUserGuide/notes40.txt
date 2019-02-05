@@ -1,2 +1,0 @@
-Recall the inheritance hierarchy in which each product has a Standard Text Product file.
-

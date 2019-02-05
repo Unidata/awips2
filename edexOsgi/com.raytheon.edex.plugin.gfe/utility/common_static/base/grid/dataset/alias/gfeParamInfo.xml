@@ -6,7 +6,6 @@
         be added to the directory instead of overriding a specific file.
     -->
 <aliasList caseSensitive="true" namespace="gfeParamInfo">
-    <alias base="MOSGuide-HI">mosGuideNDFD</alias>
     <alias base="AK-GFS22">gfs20km</alias>
     <alias base="GFS20">gfs20km</alias>
     <alias base="GFS20-PAC">gfs20km</alias>
@@ -84,9 +83,6 @@
     <alias base="AVN225">avn225</alias>
     <alias base="AKWAVE239">akWave239</alias>
     <alias base="WNAWAVE238">wnaWave238</alias>
-    <alias base="AK-NAM45">AK-NAM45</alias>
-    <alias base="AK-NAM22">AK-NAM22</alias>
-    <alias base="NAM12">eta218</alias>
     <alias base="AK-NAM11">eta242</alias>
     <alias base="ENPWAVE253">enpWave253</alias>
     <alias base="HurWind226">TPCtcm226</alias>
@@ -165,8 +161,6 @@
     <alias base="TPCWindProb">tpcWind231</alias>
     <alias base="TPCWindProb_Prelim">tpcWind231</alias>
     <alias base="OPCWave182">opcWave182</alias>
-    <alias base="MOSGuide">mosGuideNDFD</alias>
-    <alias base="MOSGuide-AK">mosGuideNDFD_AK</alias>
     <alias base="GFSLAMPGrid">lampNDFD</alias>
     <alias base="TPCSurgeProb">TPCSurgeProb</alias>
     <alias base="TPCSurgeProb197">TPCSurgeProb</alias>

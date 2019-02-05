@@ -1,2 +1,0 @@
-Finally, we have a sub-phrase representing information about a weather element during one sub-period over one edit area.
-

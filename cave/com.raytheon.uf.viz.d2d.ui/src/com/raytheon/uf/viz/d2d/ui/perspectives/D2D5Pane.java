@@ -66,7 +66,7 @@ public class D2D5Pane implements IPerspectiveFactory {
     private static final String BASE_VIEW_ID_PREFIX = SideView.ID
             + UiUtil.SECONDARY_ID_SEPARATOR + "sideView";
 
-    private static final float FIVE_PANE_WIDTH = 0.1f;
+    private static final float FIVE_PANE_WIDTH = 0.2f;
 
     private static final float ZERO_PANE_WIDTH = 0.0f;
 
@@ -94,8 +94,8 @@ public class D2D5Pane implements IPerspectiveFactory {
             }
         }
 
-        int numViews = ChangeD2DLayoutAction.getViewCount() > 0 ? 0
-                : 4;
+        int numViews = ChangeD2DLayoutAction.getViewCount() > 0 ? 4
+                : 0;
 
         String lastAdded = null;
 

@@ -57,8 +57,12 @@ case $1 in
 'restart')
 	su ${LDM_USER} -lc "ldmadmin restart"
 	;;
+
+'clean')
+	su ${LDM_USER} -lc "ldmadmin clean"
+	;;
 *)
-	echo "usage: $0 {start|stop|restart}"
+	echo "usage: $0 {start|stop|restart|clean}"
 	RETVAL=1
 	;;
 
