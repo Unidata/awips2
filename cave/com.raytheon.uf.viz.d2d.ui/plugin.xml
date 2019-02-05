@@ -1540,20 +1540,20 @@
       <command
             id="com.raytheon.viz.ui.openAWIPSProcedure"
             categoryId="com.raytheon.uf.viz.d2d.ui"
-            description="Open an existing bundle"
-            name="Open Bundle">
+            description="Load an existing display"
+            name="Load Display">
       </command>
       <command
             id="com.raytheon.viz.ui.saveAWIPSProcedure"
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Save current display to bundle"
-            name="Save Bundle">
+            name="Save Display">
       </command>
       <command
             id="com.raytheon.viz.ui.deleteAWIPSBundle"
             categoryId="com.raytheon.uf.viz.d2d.ui"
             description="Delete a bundle"
-            name="Delete Bundle">
+            name="Manage Bundles">
       </command>
       <command
             id="com.raytheon.viz.ui.deleteAWIPSProcedure"
