@@ -26,7 +26,7 @@
     -->
 <lambertConformalGridCoverage>
     <name>185</name>
-    <description>12 km LCC limited domain CONUS grid (used by DGEX)</description>
+    <description>12 km LCC limited domain CONUS grid</description>
     <la1>19.943</la1>
     <lo1>-125.093</lo1>
     <firstGridPointCorner>LowerLeft</firstGridPointCorner>

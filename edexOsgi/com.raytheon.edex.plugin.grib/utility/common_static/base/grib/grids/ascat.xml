@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This is an absolute override file, indicating that a higher priority
+        version of the file will completely replace a lower priority version
+        of the file.
+    -->
+<latLonGridCoverage>
+    <name>ascat</name>
+    <description>Global (longitude/latitude grid)</description>
+    <la1>-67</la1>
+    <lo1>316.25</lo1>
+    <firstGridPointCorner>LowerLeft</firstGridPointCorner>
+    <nx>347</nx>
+    <ny>537</ny>
+    <dx>0.249277</dx>
+    <dy>0.25</dy>
+    <spacingUnit>degree</spacingUnit>
+</latLonGridCoverage>
