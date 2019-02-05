@@ -93,28 +93,32 @@
                    id="import"
                    label="Import">
              </menu>
+             <menu
+                   id="export"
+                   label="Export">
+             </menu>
              <separator
                    name="saveSeparator"
                    visible="true">
              </separator>
 			 <command
                    commandId="com.raytheon.viz.ui.loadSerialized"
-                   label="Open Bundle"
+                   label="Load Display"
                    style="push">
              </command>
              <command
 				   commandId="com.raytheon.viz.ui.saveProcedure"
-				   label="Save Bundle"
+				   label="Save Display"
 				   style="push">
              </command>
              <command
 				   commandId="com.raytheon.viz.ui.saveBundle"
-				   label="Save Bundle Locally"
+				   label="Save Display Locally"
 				   style="push">
              </command>
 			 <command
                    commandId="com.raytheon.viz.ui.deleteAWIPSBundle"
-                   label="Delete Bundle"
+                   label="Manage Bundles"
                    style="push">
              </command>
              <separator
