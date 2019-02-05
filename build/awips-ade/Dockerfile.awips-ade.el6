@@ -5,9 +5,10 @@ MAINTAINER Michael James <mjames@ucar.edu>
 
 USER root
 
+COPY el6-dev.repo /etc/yum.repos.d/awips2.repo
+
 RUN groupadd fxalpha && useradd -G fxalpha awips
 
-RUN wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/el6-dev.repo?20180627
 RUN yum -y clean all
 RUN yum groupinstall awips2-ade -y
 
