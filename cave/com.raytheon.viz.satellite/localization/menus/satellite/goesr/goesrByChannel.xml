@@ -67,33 +67,6 @@
     
     <contribute xsi:type="separator" id="id"/>
     
-    <contribute xsi:type="titleItem" titleText="------ RGB Composites ------" id="goesrRGBComposites"/>
-    
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBComposite.xml" 
-               menuText="Icing(1.61,0.87,0.64)" id="goesr-icing">
-        <substitute key="productName" value="Icing" />
-		<substitute key="redElement" value="CH-05-1.61um" />
-		<substitute key="greenElement" value="CH-03-0.87um" />
-		<substitute key="blueElement" value="CH-02-0.64um" />
-		<substitute key="entity" value="GOES%" />
-    </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBComposite.xml" 
-                menuText="Daytime Composite #1(0.64,1.61,11.20)" id="goesr-daytime1">
-		<substitute key="productName" value="Daytime Composite #1" />
-		<substitute key="redElement" value="CH-02-0.64um" />
-		<substitute key="greenElement" value="CH-05-1.61um" />
-		<substitute key="blueElement" value="CH-14-11.20um" />
-		<substitute key="entity" value="GOES%" />
-    </contribute>
-    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBComposite.xml" 
-                menuText="Daytime Composite #5(0.64,0.87,0.64)" id="goesr-daytime5">
-        <substitute key="productName" value="Daytime Composite #5" />
-		<substitute key="redElement" value="CH-02-0.64um" />
-		<substitute key="greenElement" value="CH-03-0.87um" />
-		<substitute key="blueElement" value="CH-02-0.64um" />
-		<substitute key="entity" value="GOES%" />
-    </contribute>
-    
     <contribute xsi:type="subinclude" subMenu="Derived Products" fileName="menus/satellite/goesr/goesrLevel2.xml"/>
 		
     <contribute xsi:type="subinclude" subMenu="Channel Differences" fileName="menus/satellite/goesr/goesrLocallyDerived.xml">
