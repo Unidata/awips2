@@ -5,7 +5,7 @@ AWIPS contains two methods for saving and loading data resources: **Bundles** ar
 
 ### **File &gt; Open Bundle**
 
-Load a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users (and other localization-levels such as *workstation*).
+Load a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users.
 
 Each selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE)
 

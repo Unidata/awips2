@@ -71,7 +71,7 @@ Data purge events are logged to the file `edex-ingest-purge-<yyyymmdd>.log`, whe
 
 ## All Purge Rules
 
-To see all purge rule directories (base, site, region, configured):
+To see all purge rule directories (base, site, configured):
 
     find /awips2/edex/data/utility -name purge
     
