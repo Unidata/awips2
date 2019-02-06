@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svnlook history</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svnlook.html#svn.ref.svnlook.c" title="svnlook Subcommands" />
+    <link rel="prev" href="svn.ref.svnlook.c.help.html" title="svnlook help" />
+    <link rel="next" href="svn.ref.svnlook.c.info.html" title="svnlook info" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svnlook history</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svnlook.c.help.html">Prev</a> </td>
+          <th width="60%" align="center">svnlook Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svnlook.c.info.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svnlook history">
+      <a id="svn.ref.svnlook.c.history"></a>
+      <div class="titlepage"></div>
+      <a id="idp44070720" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svnlook history — Print information about the history of a path in
+            the repository (or the root directory if no path is
+            supplied).</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp44073952"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svnlook history REPOS_PATH [PATH_IN_REPOS]</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp44075600"></a>
+        <h2>Description</h2>
+        <p>Print information about the history of a path in
+            the repository (or the root directory if no path is
+            supplied).</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp44076928"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--limit (-l) NUM
+--revision (-r) REV
+--show-ids
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp44078832"></a>
+        <h2>Examples</h2>
+        <p>This shows the history output for the path
+            <code class="filename">/branches/bookstore</code> as of revision 13 in our
+            sample repository:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnlook history -r 13 /var/svn/repos /branches/bookstore --show-ids
+REVISION   PATH &lt;ID&gt;
+--------   ---------
+      13   /branches/bookstore &lt;1.1.r13/390&gt;
+      12   /branches/bookstore &lt;1.1.r12/413&gt;
+      11   /branches/bookstore &lt;1.1.r11/0&gt;
+       9   /trunk &lt;1.0.r9/551&gt;
+       8   /trunk &lt;1.0.r8/131357096&gt;
+       7   /trunk &lt;1.0.r7/294&gt;
+       6   /trunk &lt;1.0.r6/353&gt;
+       5   /trunk &lt;1.0.r5/349&gt;
+       4   /trunk &lt;1.0.r4/332&gt;
+       3   /trunk &lt;1.0.r3/335&gt;
+       2   /trunk &lt;1.0.r2/295&gt;
+       1   /trunk &lt;1.0.r1/532&gt;
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svnlook.c.help.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svnlook.html#svn.ref.svnlook.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svnlook.c.info.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svnlook help </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svnlook info</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

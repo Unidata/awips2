@@ -1,0 +1,363 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Revision Specifiers</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.advanced.html" title="Chapter 3. Advanced Topics" />
+    <link rel="prev" href="svn.advanced.html" title="Chapter 3. Advanced Topics" />
+    <link rel="next" href="svn.advanced.pegrevs.html" title="Peg and Operative Revisions" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Revision Specifiers</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.advanced.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 3. Advanced Topics</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.advanced.pegrevs.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Revision Specifiers">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.tour.revs.specifiers"></a>Revision Specifiers</h2>
+          </div>
+        </div>
+      </div>
+      <p>As we described in <a class="xref" href="svn.basic.in-action.html#svn.basic.in-action.revs" title="Revisions">the section called “Revisions”</a>, revision numbers in Subversion are pretty
+      straightforward—integers that keep getting larger as you
+      commit more changes to your versioned data.  Still, it doesn't
+      take long before you can no longer remember exactly what
+      happened in each and every revision.  Fortunately, the typical
+      Subversion workflow doesn't often demand that you supply
+      arbitrary revisions to the Subversion operations you perform.
+      For operations that <span class="emphasis"><em>do</em></span> require a revision
+      specifier, you generally supply a revision number that you saw
+      in a commit email, in the output of some other Subversion
+      operation, or in some other context that would give meaning to
+      that particular number.</p>
+      <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Note">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Note]" src="images/note.png" />
+            </td>
+            <th align="left">Note</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>Referring to revision numbers with
+        an <span class="quote">“<span class="quote"><code class="literal">r</code></span>”</span> prefix
+        (<code class="literal">r314</code>, for example) is an established
+        practice in Subversion communities, and is both supported and
+        encouraged by many Subversion-related tools.  In most places
+        where you would specify a bare revision number on the command
+        line, you may also use
+        the <code class="literal">r</code><em class="replaceable"><code>NNN</code></em>
+        syntax.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>But occasionally, you need to pinpoint a moment in time for
+      which you don't already have a revision number memorized or
+      handy.  So besides the integer revision numbers,
+      <span class="command"><strong>svn</strong></span> allows as input some additional forms of
+      revision specifiers: <em class="firstterm">revision keywords</em>
+      and revision dates.</p>
+      <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Note">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Note]" src="images/note.png" />
+            </td>
+            <th align="left">Note</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>The various forms of Subversion revision specifiers can be
+        mixed and matched when used to specify revision ranges.  For
+        example, you can use <code class="option">-r
+        <em class="replaceable"><code>REV1</code></em>:<em class="replaceable"><code>REV2</code></em></code>
+        where <em class="replaceable"><code>REV1</code></em> is a revision keyword
+        and <em class="replaceable"><code>REV2</code></em> is a revision number, or
+        where <em class="replaceable"><code>REV1</code></em> is a date and
+        <em class="replaceable"><code>REV2</code></em> is a revision keyword, and so
+        on.  The individual revision specifiers are independently
+        evaluated, so you can put whatever you want on the opposite
+        sides of that colon.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <div class="sect2" title="Revision Keywords">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.tour.revs.keywords"></a>Revision Keywords</h3>
+            </div>
+          </div>
+        </div>
+        <a id="idp33928160" class="indexterm"></a>
+        <p>The Subversion client understands a number of revision
+        keywords.  These keywords can be used instead of integer
+        arguments to the <code class="option">--revision</code>
+        (<code class="option">-r</code>) option, and are resolved into specific
+        revision numbers by Subversion:</p>
+        <div class="variablelist">
+          <dl>
+            <dt>
+              <span class="term">
+                <code class="literal">HEAD</code>
+              </span>
+            </dt>
+            <dd>
+              <a id="idp33932752" class="indexterm"></a>
+              <a id="idp33933824" class="indexterm"></a>
+              <p>The latest (or <span class="quote">“<span class="quote">youngest</span>”</span>) revision in
+              the repository.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="literal">BASE</code>
+              </span>
+            </dt>
+            <dd>
+              <a id="idp33938208" class="indexterm"></a>
+              <a id="idp33939280" class="indexterm"></a>
+              <p>The revision number of an item in a working copy.
+              If the item has been locally modified, this refers to
+              the way the item appears without those local
+              modifications.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="literal">COMMITTED</code>
+              </span>
+            </dt>
+            <dd>
+              <a id="idp33943376" class="indexterm"></a>
+              <a id="idp33944448" class="indexterm"></a>
+              <p>The most recent revision prior to, or equal to,
+              <code class="literal">BASE</code>, in which an item changed.</p>
+            </dd>
+            <dt>
+              <span class="term">
+                <code class="literal">PREV</code>
+              </span>
+            </dt>
+            <dd>
+              <a id="idp33949056" class="indexterm"></a>
+              <a id="idp33950128" class="indexterm"></a>
+              <p>The revision immediately <span class="emphasis"><em>before</em></span>
+              the last revision in which an item changed.
+              Technically, this boils down to
+              <code class="literal">COMMITTED</code>-1.</p>
+            </dd>
+          </dl>
+        </div>
+        <p>As can be derived from their descriptions, the
+        <code class="literal">PREV</code>, <code class="literal">BASE</code>, and
+        <code class="literal">COMMITTED</code> revision keywords are used only
+        when referring to a working copy path—they don't apply
+        to repository URLs.  <code class="literal">HEAD</code>, on the other
+        hand, can be used in conjunction with both of these path
+        types.</p>
+        <p>Here are some examples of revision keywords in
+        action:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn diff -r PREV:COMMITTED foo.c
+# shows the last change committed to foo.c
+
+$ svn log -r HEAD
+# shows log message for the latest repository commit
+
+$ svn diff -r HEAD
+# compares your working copy (with all of its local changes) to the
+# latest version of that tree in the repository
+
+$ svn diff -r BASE:HEAD foo.c
+# compares the unmodified version of foo.c with the latest version of
+# foo.c in the repository
+
+$ svn log -r BASE:HEAD
+# shows all commit logs for the current versioned directory since you
+# last updated
+
+$ svn update -r PREV foo.c
+# rewinds the last change on foo.c, decreasing foo.c's working revision
+
+$ svn diff -r BASE:14 foo.c
+# compares the unmodified version of foo.c with the way foo.c looked
+# in revision 14
+</pre>
+        </div>
+      </div>
+      <div class="sect2" title="Revision Dates">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.tour.revs.dates"></a>Revision Dates</h3>
+            </div>
+          </div>
+        </div>
+        <a id="idp33961536" class="indexterm"></a>
+        <p>Revision numbers reveal nothing about the world outside
+        the version control system, but sometimes you need to
+        correlate a moment in real time with a moment in version
+        history.  To facilitate this, the <code class="option">--revision</code>
+        (<code class="option">-r</code>) option can also accept as input date
+        specifiers wrapped in curly braces (<code class="literal">{</code> and
+        <code class="literal">}</code>).  Subversion accepts the standard
+        ISO-8601 date and time formats, plus a few others.  Here are
+        some examples.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn checkout -r {2006-02-17}
+$ svn checkout -r {15:30}
+$ svn checkout -r {15:30:00.200000}
+$ svn checkout -r {"2006-02-17 15:30"}
+$ svn checkout -r {"2006-02-17 15:30 +0230"}
+$ svn checkout -r {2006-02-17T15:30}
+$ svn checkout -r {2006-02-17T15:30Z}
+$ svn checkout -r {2006-02-17T15:30-04:00}
+$ svn checkout -r {20060217T1530}
+$ svn checkout -r {20060217T1530Z}
+$ svn checkout -r {20060217T1530-0500}
+…
+</pre>
+        </div>
+        <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Note">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Note]" src="images/note.png" />
+              </td>
+              <th align="left">Note</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>Keep in mind that most shells will require you to, at a
+          minimum, quote or otherwise escape any spaces that are
+          included as part of revision date specifiers.  Certain
+          shells may also take issue with the unescaped use of curly
+          brances, too.  Consult your shell's documentation for the
+          requirements specific to your environment.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p>When you specify a date, Subversion resolves that date to
+        the most recent revision of the repository as of that date,
+        and then continues to operate against that resolved revision
+        number:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn log -r {2006-11-28}
+------------------------------------------------------------------------
+r12 | ira | 2006-11-27 12:31:51 -0600 (Mon, 27 Nov 2006) | 6 lines
+…
+</pre>
+        </div>
+        <div class="sidebar" title="Is Subversion a Day Early?">
+          <p class="title">
+            <b>Is Subversion a Day Early?</b>
+          </p>
+          <p>If you specify a single date as a revision without
+          specifying a time of day (for example
+          <code class="literal">2006-11-27</code>), you may think that Subversion
+          should give you the last revision that took place on the
+          27th of November.  Instead, you'll get back a revision from
+          the 26th, or even earlier.  Remember that Subversion will
+          find the <span class="emphasis"><em>most recent revision of the
+          repository</em></span> as of the date you give.  If you give
+          a date without a timestamp, such as
+          <code class="literal">2006-11-27</code>, Subversion assumes a time of
+          00:00:00, so looking for the most recent revision won't
+          return anything on the 27th.</p>
+          <p>If you want to include the 27th in your search, you can
+          either specify the 27th with the time (<code class="literal">{"2006-11-27
+          23:59"}</code>), or just specify the next day
+          (<code class="literal">{2006-11-28}</code>).</p>
+        </div>
+        <p>You can also use a range of dates.  Subversion will find
+        all revisions between both dates, inclusive:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn log -r {2006-11-20}:{2006-11-29}
+…
+</pre>
+        </div>
+        <div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Warning">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Warning]" src="images/warning.png" />
+              </td>
+              <th align="left">Warning</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>Since the timestamp of a revision is stored as an
+          unversioned, modifiable property of the revision (see <a class="xref" href="svn.advanced.props.html" title="Properties">the section called “Properties”</a>), revision timestamps can be
+          changed to represent complete falsifications of true
+          chronology, or even removed altogether.  Subversion's
+          ability to correctly convert revision dates into real
+          revision numbers depends on revision datestamps maintaining
+          a sequential ordering—the younger the revision, the
+          younger its timestamp.  If this ordering isn't maintained,
+          you will likely find that trying to use dates to specify
+          revision ranges in your repository doesn't always return the
+          data you might have expected.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.advanced.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.advanced.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.advanced.pegrevs.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Chapter 3. Advanced Topics </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Peg and Operative Revisions</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

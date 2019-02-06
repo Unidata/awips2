@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svnlook tree</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svnlook.html#svn.ref.svnlook.c" title="svnlook Subcommands" />
+    <link rel="prev" href="svn.ref.svnlook.c.proplist.html" title="svnlook proplist" />
+    <link rel="next" href="svn.ref.svnlook.c.uuid.html" title="svnlook uuid" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svnlook tree</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svnlook.c.proplist.html">Prev</a> </td>
+          <th width="60%" align="center">svnlook Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svnlook.c.uuid.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svnlook tree">
+      <a id="svn.ref.svnlook.c.tree"></a>
+      <div class="titlepage"></div>
+      <a id="idp44150416" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svnlook tree — Print the tree.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp44153504"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svnlook tree REPOS_PATH [PATH_IN_REPOS]</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp44155136"></a>
+        <h2>Description</h2>
+        <p>Print the tree, starting at
+            <em class="replaceable"><code>PATH_IN_REPOS</code></em> (if supplied; at
+            the root of the tree otherwise), optionally showing node
+            revision IDs.</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp44156928"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--full-paths
+--non-recursive (-N)
+--revision (-r) REV
+--show-ids
+--transaction (-t) TXN
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Example">
+        <a id="idp44158880"></a>
+        <h2>Example</h2>
+        <p>This shows the tree output (with nodeIDs) for revision
+            13 in our sample repository:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svnlook tree -r 13 /var/svn/repos --show-ids
+/ &lt;0.0.r13/811&gt;
+ trunk/ &lt;1.0.r9/551&gt;
+  button.c &lt;2.0.r9/238&gt;
+  Makefile &lt;3.0.r7/41&gt;
+  integer.c &lt;4.0.r6/98&gt;
+ branches/ &lt;5.0.r13/593&gt;
+  bookstore/ &lt;1.1.r13/390&gt;
+   button.c &lt;2.1.r12/85&gt;
+   Makefile &lt;3.0.r7/41&gt;
+   integer.c &lt;4.1.r13/109&gt;
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svnlook.c.proplist.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svnlook.html#svn.ref.svnlook.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svnlook.c.uuid.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svnlook proplist </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svnlook uuid</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

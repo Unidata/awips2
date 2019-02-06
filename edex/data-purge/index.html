@@ -802,18 +802,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
-      Maps Database
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../python/awips-grids-and-cartopy/" title="AWIPS Grids and Cartopy" class="md-nav__link">
       AWIPS Grids and Cartopy
     </a>
@@ -960,6 +948,18 @@
   <li class="md-nav__item">
     <a href="../../appendix/appendix-grid-parameters/" title="AWIPS Grid Parameters" class="md-nav__link">
       AWIPS Grid Parameters
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
+      Maps Database
     </a>
   </li>
 
@@ -1145,14 +1145,12 @@ INFO  2012-03-27 00:31:23,155 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDE
 INFO  2012-03-27 00:31:23,155 [DefaultQuartzScheduler_Worker-3] PurgeLogger: EDEX - PURGE LOGS::---------END LOG PURGE-----------
 </code></pre>
 <h2 id="all-purge-rules">All Purge Rules<a class="headerlink" href="#all-purge-rules" title="Permanent link"></a></h2>
-<p>To see all purge rule directories (base, site, region, configured):</p>
+<p>To see all purge rule directories (base, site, configured):</p>
 <pre><code>find /awips2/edex/data/utility -name purge
 
-/awips2/edex/data/utility/edex_static/region/CR/purge
 /awips2/edex/data/utility/edex_static/base/purge
 /awips2/edex/data/utility/edex_static/configured/OAX/purge
 /awips2/edex/data/utility/edex_static/site/OAX/purge
-/awips2/edex/data/utility/common_static/region/CR/purge
 /awips2/edex/data/utility/common_static/base/purge
 /awips2/edex/data/utility/common_static/configured/OAX/purge
 /awips2/edex/data/utility/common_static/site/AFC/purge

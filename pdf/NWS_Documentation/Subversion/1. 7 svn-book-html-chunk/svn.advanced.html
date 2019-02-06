@@ -1,0 +1,461 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Using External Differencing and Merge Tools</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.customization.html" title="Chapter 7. Customizing Your Subversion Experience" />
+    <link rel="prev" href="svn.advanced.externaleditors.html" title="Using External Editors" />
+    <link rel="next" href="svn.customization.summary.html" title="Summary" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Using External Differencing and Merge Tools</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.advanced.externaleditors.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 7. Customizing Your Subversion Experience</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.customization.summary.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Using External Differencing and Merge Tools">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.advanced.externaldifftools"></a>Using External Differencing and Merge Tools</h2>
+          </div>
+        </div>
+      </div>
+      <p>The interface between Subversion and external two- and three-way
+      differencing tools harkens back to a time when Subversion's only
+      contextual differencing capabilities were built around
+      invocations of the GNU diffutils toolchain, specifically the
+      <span class="command"><strong>diff</strong></span> and <span class="command"><strong>diff3</strong></span> utilities.
+      To get the kind of behavior Subversion needed, it called these
+      utilities with more than a handful of options and parameters,
+      most of which were quite specific to the utilities.  Some time
+      later, Subversion grew its own internal differencing library,
+      and as a failover mechanism, the <code class="option">--diff-cmd</code> and
+      <code class="option">--diff3-cmd</code> options were added to the
+      Subversion command-line client so that users could more easily
+      indicate that they preferred to use the GNU diff and diff3
+      utilities instead of the newfangled internal diff library.  If
+      those options were used, Subversion would simply ignore the
+      internal diff library, and fall back to running those external
+      programs, lengthy argument lists and all.  And that's where
+      things remain today.</p>
+      <p>It didn't take long for folks to realize that having such
+      easy configuration mechanisms for specifying that Subversion
+      should use the external GNU diff and diff3 utilities located at
+      a particular place on the system could be applied toward the use
+      of other differencing tools, too.  After all, Subversion didn't
+      actually verify that the things it was being told to run were
+      members of the GNU diffutils toolchain.  But the only
+      configurable aspect of using those external tools is their
+      location on the system—not the option set, parameter
+      order, and so on.  Subversion continues to throw all those GNU utility
+      options at your external diff tool regardless of whether
+      that program can understand those options.  And that's where
+      things get unintuitive for most users.</p>
+      <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Note">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Note]" src="images/note.png" />
+            </td>
+            <th align="left">Note</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>The decision on when to fire off a contextual two- or three-way
+        diff as part of a larger Subversion operation is made entirely
+        by Subversion and is affected by, among other things, whether
+        the files being operated on are human-readable as
+        determined by their <code class="literal">svn:mime-type</code> property.
+        This means, for example, that even if you had the niftiest
+        Microsoft Word-aware differencing or merging tool in the
+        universe, it would never be invoked by Subversion as long as
+        your versioned Word documents had a configured MIME type that
+        denoted that they were not human-readable (such as
+        <code class="literal">application/msword</code>).  For more about MIME
+        type settings, see <a class="xref" href="svn.advanced.props.file-portability.html#svn.advanced.props.special.mime-type" title="File Content Type">the section called “File Content Type”</a></p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>Much later, Subversion 1.5 introduced interactive resolution
+      of conflicts (described in
+      <a class="xref" href="svn.tour.cycle.html#svn.tour.cycle.resolve" title="Resolve Any Conflicts">the section called “Resolve Any Conflicts”</a>).  One of the options
+      that this feature provides to users is the ability to
+      interactively launch a third-party merge tool.  If this action
+      is taken, Subversion will check to see if the user has specified
+      such a tool for use in this way.  Subversion will first check
+      the <code class="literal">SVN_MERGE</code> environment variable for the
+      name of an external merge tool.  If that variable is not set, it
+      will look for the same information in the value of
+      the <code class="literal">merge-tool-cmd</code> runtime configuration
+      option.  Upon finding a configured external merge tool, it will
+      invoke that tool.</p>
+      <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+        <table border="0" summary="Note">
+          <tr>
+            <td rowspan="2" align="center" valign="top" width="25">
+              <img alt="[Note]" src="images/note.png" />
+            </td>
+            <th align="left">Note</th>
+          </tr>
+          <tr>
+            <td align="left" valign="top">
+              <p>While the general purposes of the three-way differencing
+        and merge tools are roughly the same (finding a way to make
+        separate-but-overlapping file changes live in harmony),
+        Subversion exercises each of these options at different times
+        and for different reasons.  The internal three-way
+        differencing engine and its optional external replacement are
+        used when interaction with the user
+        is <span class="emphasis"><em>not</em></span> expected.  In fact, significant
+        delay introduced by such a tool can actually result in the
+        failure of some time-sensitive Subversion operations.  It's
+        the external merge tool that is intended to be invoked
+        interactively.</p>
+            </td>
+          </tr>
+        </table>
+      </div>
+      <p>Now, while the interface between Subversion and an external
+      merge tool is significantly less convoluted than that between
+      Subversion and the diff and diff3 tools, the likelihood of
+      finding such a tool whose calling conventions exactly match what
+      Subversion expects is still quite low.  The key to using
+      external differencing and merge tools with Subversion is to use
+      wrapper scripts, which convert the input from Subversion into
+      something that your specific differencing tool can understand,
+      and then convert the output of your tool back into a format that
+      Subversion expects.  The following sections cover the specifics
+      of those expectations.</p>
+      <div class="sect2" title="External diff">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.externaldifftools.diff"></a>External diff</h3>
+            </div>
+          </div>
+        </div>
+        <p>Subversion calls external diff programs with parameters
+        suitable for the GNU diff utility, and expects only that the
+        external program will return with a successful error code per
+        the GNU diff definition thereof.  For most alternative diff
+        programs, only the sixth and seventh arguments—the paths
+        of the files that represent the left and right sides of the
+        diff, respectively—are of interest.  Note that
+        Subversion runs the diff program once per modified file
+        covered by the Subversion operation, so if your program runs
+        in an asynchronous fashion (or is <span class="quote">“<span class="quote">backgrounded</span>”</span>),
+        you might have several instances of it all running
+        simultaneously.  Finally, Subversion expects that your program
+        return an error code of 1 if your program detected
+        differences, or 0 if it did not—any other error code is
+        considered a fatal error.<sup>[<a id="idp41331040" href="#ftn.idp41331040" class="footnote">54</a>]</sup></p>
+        <p><a class="xref" href="svn.advanced.externaldifftools.html#svn.advanced.externaldifftools.diff.ex-1" title="Example 7.2. diffwrap.py">Example 7.2, “diffwrap.py”</a>
+        and <a class="xref" href="svn.advanced.externaldifftools.html#svn.advanced.externaldifftools.diff.ex-2" title="Example 7.3. diffwrap.bat">Example 7.3, “diffwrap.bat”</a>
+        are templates for external diff tool wrappers in the Python
+        and Windows batch scripting languages, respectively.</p>
+        <div class="example">
+          <a id="svn.advanced.externaldifftools.diff.ex-1"></a>
+          <p class="title">
+            <b>Example 7.2. diffwrap.py</b>
+          </p>
+          <div class="example-contents">
+            <pre class="programlisting">
+#!/usr/bin/env python
+import sys
+import os
+
+# Configure your favorite diff program here.
+DIFF = "/usr/local/bin/my-diff-tool"
+
+# Subversion provides the paths we need as the last two parameters.
+LEFT  = sys.argv[-2]
+RIGHT = sys.argv[-1]
+
+# Call the diff command (change the following line to make sense for
+# your diff program).
+cmd = [DIFF, '--left', LEFT, '--right', RIGHT]
+os.execv(cmd[0], cmd)
+
+# Return an errorcode of 0 if no differences were detected, 1 if some were.
+# Any other errorcode will be treated as fatal.
+</pre>
+          </div>
+        </div>
+        <br class="example-break" />
+        <div class="example">
+          <a id="svn.advanced.externaldifftools.diff.ex-2"></a>
+          <p class="title">
+            <b>Example 7.3. diffwrap.bat</b>
+          </p>
+          <div class="example-contents">
+            <pre class="programlisting">
+@ECHO OFF
+
+REM Configure your favorite diff program here.
+SET DIFF="C:\Program Files\Funky Stuff\My Diff Tool.exe"
+
+REM Subversion provides the paths we need as the last two parameters.
+REM These are parameters 6 and 7 (unless you use svn diff -x, in
+REM which case, all bets are off).
+SET LEFT=%6
+SET RIGHT=%7
+
+REM Call the diff command (change the following line to make sense for
+REM your diff program).
+%DIFF% --left %LEFT% --right %RIGHT%
+
+REM Return an errorcode of 0 if no differences were detected, 1 if some were.
+REM Any other errorcode will be treated as fatal.
+</pre>
+          </div>
+        </div>
+        <br class="example-break" />
+      </div>
+      <div class="sect2" title="External diff3">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.externaldifftools.diff3"></a>External diff3</h3>
+            </div>
+          </div>
+        </div>
+        <p>Subversion invokes three-way differencing programs to
+        perform non-interactive merges.  When configured to use an
+        external three-way differencing program, it executes that
+        program with parameters suitable for the GNU diff3 utility,
+        expecting that the external program will return with a
+        successful error code and that the full file contents that
+        result from the completed merge operation are printed on the
+        standard output stream (so that Subversion can redirect them
+        into the appropriate version-controlled file).  For most
+        alternative merge programs, only the ninth, tenth, and
+        eleventh arguments, the paths of the files which represent
+        the <span class="quote">“<span class="quote">mine</span>”</span>, <span class="quote">“<span class="quote">older</span>”</span>,
+        and <span class="quote">“<span class="quote">yours</span>”</span> inputs, respectively, are of
+        interest.  Note that because Subversion depends on the output
+        of your merge program, your wrapper script must not exit
+        before that output has been delivered to Subversion.  When it
+        finally does exit, it should return an error code of 0 if the
+        merge was successful, or 1 if unresolved conflicts remain in
+        the output—any other error code is considered a fatal
+        error.</p>
+        <p><a class="xref" href="svn.advanced.externaldifftools.html#svn.advanced.externaldifftools.diff3.ex-1" title="Example 7.4. diff3wrap.py">Example 7.4, “diff3wrap.py”</a> 
+        and <a class="xref" href="svn.advanced.externaldifftools.html#svn.advanced.externaldifftools.diff3.ex-2" title="Example 7.5. diff3wrap.bat">Example 7.5, “diff3wrap.bat”</a> are
+        templates for external three-way differencing tool wrappers in
+        the Python and Windows batch scripting languages,
+        respectively.</p>
+        <div class="example">
+          <a id="svn.advanced.externaldifftools.diff3.ex-1"></a>
+          <p class="title">
+            <b>Example 7.4. diff3wrap.py</b>
+          </p>
+          <div class="example-contents">
+            <pre class="programlisting">
+#!/usr/bin/env python
+import sys
+import os
+
+# Configure your favorite three-way diff program here.
+DIFF3 = "/usr/local/bin/my-diff3-tool"
+
+# Subversion provides the paths we need as the last three parameters.
+MINE  = sys.argv[-3]
+OLDER = sys.argv[-2]
+YOURS = sys.argv[-1]
+
+# Call the three-way diff command (change the following line to make
+# sense for your three-way diff program).
+cmd = [DIFF3, '--older', OLDER, '--mine', MINE, '--yours', YOURS]
+os.execv(cmd[0], cmd)
+
+# After performing the merge, this script needs to print the contents
+# of the merged file to stdout.  Do that in whatever way you see fit.
+# Return an errorcode of 0 on successful merge, 1 if unresolved conflicts
+# remain in the result.  Any other errorcode will be treated as fatal.
+</pre>
+          </div>
+        </div>
+        <br class="example-break" />
+        <div class="example">
+          <a id="svn.advanced.externaldifftools.diff3.ex-2"></a>
+          <p class="title">
+            <b>Example 7.5. diff3wrap.bat</b>
+          </p>
+          <div class="example-contents">
+            <pre class="programlisting">
+@ECHO OFF
+
+REM Configure your favorite three-way diff program here.
+SET DIFF3="C:\Program Files\Funky Stuff\My Diff3 Tool.exe"
+
+REM Subversion provides the paths we need as the last three parameters.
+REM These are parameters 9, 10, and 11.  But we have access to only
+REM nine parameters at a time, so we shift our nine-parameter window
+REM twice to let us get to what we need.
+SHIFT
+SHIFT
+SET MINE=%7
+SET OLDER=%8
+SET YOURS=%9
+
+REM Call the three-way diff command (change the following line to make
+REM sense for your three-way diff program).
+%DIFF3% --older %OLDER% --mine %MINE% --yours %YOURS%
+
+REM After performing the merge, this script needs to print the contents
+REM of the merged file to stdout.  Do that in whatever way you see fit.
+REM Return an errorcode of 0 on successful merge, 1 if unresolved conflicts
+REM remain in the result.  Any other errorcode will be treated as fatal.
+</pre>
+          </div>
+        </div>
+        <br class="example-break" />
+      </div>
+      <div class="sect2" title="External merge">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.advanced.externaldifftools.merge"></a>External merge</h3>
+            </div>
+          </div>
+        </div>
+        <p>Subversion optionally invokes an external merge tool as
+        part of its support for interactive conflict resolution.  It
+        provides as arguments to the merge tool the following: the
+        path of the unmodified base file, the path of
+        the <span class="quote">“<span class="quote">theirs</span>”</span> file (which contains upstream
+        changes), the path of the <span class="quote">“<span class="quote">mine</span>”</span> file (which
+        contains local modifications), the path of the file into which
+        the final resolved contents should be stored by the merge
+        tool, and the working copy path of the conflicted file
+        (relative to the original target of the merge operation).  The
+        merge tool is expected to return an error code of 0 to
+        indicate success, or 1 to indicate failure.</p>
+        <p><a class="xref" href="svn.advanced.externaldifftools.html#svn.advanced.externaldifftools.merge.ex-1" title="Example 7.6. mergewrap.py">Example 7.6, “mergewrap.py”</a> 
+        and <a class="xref" href="svn.advanced.externaldifftools.html#svn.advanced.externaldifftools.merge.ex-2" title="Example 7.7. mergewrap.bat">Example 7.7, “mergewrap.bat”</a> are
+        templates for external merge tool wrappers in the Python
+        and Windows batch scripting languages, respectively.</p>
+        <div class="example">
+          <a id="svn.advanced.externaldifftools.merge.ex-1"></a>
+          <p class="title">
+            <b>Example 7.6. mergewrap.py</b>
+          </p>
+          <div class="example-contents">
+            <pre class="programlisting">
+#!/usr/bin/env python
+import sys
+import os
+
+# Configure your favorite merge program here.
+MERGE = "/usr/local/bin/my-merge-tool"
+
+# Get the paths provided by Subversion.
+BASE   = sys.argv[1]
+THEIRS = sys.argv[2]
+MINE   = sys.argv[3]
+MERGED = sys.argv[4]
+WCPATH = sys.argv[5]
+
+# Call the merge command (change the following line to make sense for
+# your merge program).
+cmd = [DIFF3, '--base', BASE, '--mine', MINE, '--theirs', THEIRS,
+              '--outfile', MERGED]
+os.execv(cmd[0], cmd)
+
+# Return an errorcode of 0 if the conflict was resolved; 1 otherwise.
+# Any other errorcode will be treated as fatal.
+</pre>
+          </div>
+        </div>
+        <br class="example-break" />
+        <div class="example">
+          <a id="svn.advanced.externaldifftools.merge.ex-2"></a>
+          <p class="title">
+            <b>Example 7.7. mergewrap.bat</b>
+          </p>
+          <div class="example-contents">
+            <pre class="programlisting">
+@ECHO OFF
+
+REM Configure your favorite merge program here.
+SET DIFF3="C:\Program Files\Funky Stuff\My Merge Tool.exe"
+
+REM Get the paths provided by Subversion.
+SET BASE=%1
+SET THEIRS=%2
+SET MINE=%3
+SET MERGED=%4
+SET WCPATH=%5
+
+REM Call the merge command (change the following line to make sense for
+REM your merge program).
+%DIFF3% --base %BASE% --mine %MINE% --theirs %THEIRS% --outfile %MERGED%
+
+REM Return an errorcode of 0 if the conflict was resolved; 1 otherwise.
+REM Any other errorcode will be treated as fatal.
+</pre>
+          </div>
+        </div>
+        <br class="example-break" />
+      </div>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp41331040" href="#idp41331040" class="para">54</a>] </sup>The GNU diff manual
+        page puts it this way: <span class="quote">“<span class="quote">An exit status of 0 means no
+        differences were found, 1 means some differences were found,
+        and 2 means trouble.</span>”</span></p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.advanced.externaleditors.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.customization.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.customization.summary.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Using External Editors </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Summary</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

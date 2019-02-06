@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svn relocate</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svn.html#svn.ref.svn.c" title="svn Subcommands" />
+    <link rel="prev" href="svn.ref.svn.c.propset.html" title="svn propset" />
+    <link rel="next" href="svn.ref.svn.c.resolve.html" title="svn resolve" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svn relocate</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svn.c.propset.html">Prev</a> </td>
+          <th width="60%" align="center">svn Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svn.c.resolve.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svn relocate">
+      <a id="svn.ref.svn.c.relocate"></a>
+      <div class="titlepage"></div>
+      <a id="idp43223488" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svn relocate — Relocate the working copy to point to a
+            different repository root URL.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp43226608"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svn relocate FROM-PREFIX TO-PREFIX [PATH...]</code>
+        </p>
+        <p>
+          <code class="literal">svn relocate TO-URL [PATH]</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp43229040"></a>
+        <h2>Description</h2>
+        <p>Sometimes an administrator might change the location
+            (or apparent location, from the client's perspective) of a
+            repository.  The content of the repository doesn't change,
+            but the repository's root URL does.  The hostname may
+            change because the repository is now being served from a
+            different computer.  Or, perhaps the URL scheme changes
+            because the repository is now being served via SSL
+            (using <code class="literal">https://</code>) instead of over plain
+            HTTP.  There are many different reasons for these types of
+            repository relocations.  But ideally, a <span class="quote">“<span class="quote">change of
+            address</span>”</span> for a repository shouldn't suddently cause
+            all the working copies which point to that repository to
+            become forever unusable.  And fortunately, that's not the
+            case.  Rather than force users to check out a new working
+            copy when a repository is relocated, Subversion provides
+            the <span class="command"><strong>svn relocate</strong></span> command, which 
+            <span class="quote">“<span class="quote">rewrites</span>”</span> the working copy's administrative
+            metadata to refer to the new repository location.</p>
+        <p>The first <span class="command"><strong>svn relocate</strong></span> syntax
+            allows you to update one or more working copies by what
+            essentially amounts to a find-and-replace within the
+            repository root URLs recorded in those working copies.
+            Subversion will replace the initial substring
+            <em class="replaceable"><code>FROM-PREFIX</code></em> with the
+            string <em class="replaceable"><code>TO-PREFIX</code></em> in those URLs.
+            These initial URL substrings can be as long or as short as
+            is necessary to differentiate between them.  Obviously, to
+            use this syntax form, you need to know both the current
+            root URL of the repository to which the working copy is
+            pointing, and the new URL of that repository.
+            (You can use <span class="command"><strong>svn info</strong></span> to determine
+            the former.)</p>
+        <p>The second syntax does not require that you know the
+            current repository root URL with which the working copy is
+            associated at all—only the new repository URL
+            (<em class="replaceable"><code>TO-URL</code></em>) to which it should be
+            pointing.  In this syntax form, only one working copy may
+            be relocated at a time.</p>
+        <div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Warning">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Warning]" src="images/warning.png" />
+              </td>
+              <th align="left">Warning</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>Users often get confused about the difference
+              between <span class="command"><strong>svn switch</strong></span> and <span class="command"><strong>svn
+              relocate</strong></span>.  Here's the rule of thumb:</p>
+                <div class="itemizedlist">
+                  <ul class="itemizedlist" type="disc">
+                    <li class="listitem">
+                      <p>If the working copy needs to reflect a new
+                  directory <span class="emphasis"><em>within</em></span> the
+                  repository, use <span class="command"><strong>svn
+                  switch</strong></span>.</p>
+                    </li>
+                    <li class="listitem">
+                      <p>If the working copy still reflects the
+                  same repository directory, but the location of the
+                  repository itself has changed, use <span class="command"><strong>svn
+                  relocate</strong></span>.</p>
+                    </li>
+                  </ul>
+                </div>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp43244560"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--ignore-externals
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp43246432"></a>
+        <h2>Examples</h2>
+        <p>Let's start with a working copy that reflects a local
+            repository URL:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn info | grep URL:
+URL: file:///var/svn/repos/trunk
+$
+</pre>
+        </div>
+        <p>One day the administrator decides to rename the
+            on-disk repository directory.  We missed the memo, so we
+            see an error the next time we try to update our working
+            copy.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn up
+Updating '.':
+svn: E180001: Unable to connect to a repository at URL 'file:///var/svn/repos/trunk'
+</pre>
+        </div>
+        <p>After cornering the administrator over by the vending
+            machines, we learn about the repository being moved and
+            are told the new URL.  Rather than checkout a new working
+            copy, though, we simply ask Subversion to rewrite the
+            working copy metadata to point to the new repository
+            location.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn relocate file:///var/svn/new-repos/trunk
+$
+</pre>
+        </div>
+        <p>Subversion doesn't tell us much about what it did, but
+            hey—error-free operation is really all we need,
+            right?  Our working copy is functional for online
+            operations again.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn up
+Updating '.':
+A    lib/new.c
+M    src/code.h
+M    src/headers.h
+…
+</pre>
+        </div>
+        <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Note">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Note]" src="images/note.png" />
+              </td>
+              <th align="left">Note</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>Once again, this type of relocation
+              affects <span class="emphasis"><em>working copy metadata only</em></span>.
+              It will not change your versioned or unversioned file
+              contents, perform any version control operations (such
+              as commits or updates), and so on.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p>A few months later, we're told that the company is
+            moving development to separate machines and that we'll be
+            using HTTP to access the repository.  So we relocate our
+            working copy again.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn relocate http://svn.company.com/repos/trunk
+$
+</pre>
+        </div>
+        <p>Now, each time we perform a relocation of this sort,
+            Subversion contacts the repository—at its new URL,
+            of course—to verify a few things.</p>
+        <p>First, it wants to compare the UUID of the repository
+            against what is stored in the working copy.  If these UUIDs
+            don't match, the working copy relocation is disallowed.
+            Maybe this isn't the same repository (just in a new
+            location) after all?</p>
+        <p>Secondly, Subversion wants to ensure that the updated
+            working copy metadata jives with respect to the directory
+            location <span class="emphasis"><em>inside</em></span> the repository.
+            Subversion won't let you accidentally relocate a working
+            copy of a branch in your repository to the URL of a
+            different branch in the same repository.  (That's
+            what <span class="command"><strong>svn switch</strong></span>, described in
+            <a class="xref" href="svn.ref.svn.c.switch.html" title="svn switch">svn switch, </a>, is for.)</p>
+        <p>Also, Subversion will not allow you to relocate a
+            subtree of the working copy.  If you're going to relocate
+            the working copy at all, you must relocate the whole
+            thing.  This is to protect the integrity of the working
+            copy metadata and behavior as a whole.  (And really, you'd
+            be hard pressed to come up with a compelling reason to
+            relocate only a piece of your working copy anyway.)</p>
+        <p>Let's look at one final relocation opportunity.  After
+            using HTTP access for some time, the company moves to
+            SSL-only access.  Now, the only change to the repository
+            URL is that the scheme goes from
+            being <code class="literal">http://</code> to
+            being <code class="literal">https://</code>.  There are two
+            different ways that we could make our working copy reflect
+            ths change.  The first is to do exactly as we've done
+            before and relocate to the new repository URL.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn relocate http://svn.company.com/repos/trunk
+$
+</pre>
+        </div>
+        <p>But we have another option here, too.  We could simply
+            ask Subversion to swap out the changed prefixes of the
+            URL.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn relocate http https
+$
+</pre>
+        </div>
+        <p>Either approach leaves us a working copy whose
+            metadata has been updated to point to the right repository
+            location.</p>
+        <p>By default, <span class="command"><strong>svn relocate</strong></span> will
+            traverse any external working copies nested within your
+            working copy and attempt relocation of those working
+            copies, too.  Use the <code class="option">--ignore-externals</code>
+            option to disable this behavior.</p>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svn.c.propset.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svn.html#svn.ref.svn.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svn.c.resolve.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svn propset </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svn resolve</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

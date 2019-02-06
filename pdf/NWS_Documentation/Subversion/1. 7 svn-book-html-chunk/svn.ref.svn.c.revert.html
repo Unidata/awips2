@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svn revert</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svn.html#svn.ref.svn.c" title="svn Subcommands" />
+    <link rel="prev" href="svn.ref.svn.c.resolved.html" title="svn resolved" />
+    <link rel="next" href="svn.ref.svn.c.status.html" title="svn status" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svn revert</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svn.c.resolved.html">Prev</a> </td>
+          <th width="60%" align="center">svn Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svn.c.status.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svn revert">
+      <a id="svn.ref.svn.c.revert"></a>
+      <div class="titlepage"></div>
+      <a id="idp43328816" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svn revert — Undo all local edits.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp43331872"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svn revert PATH...</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp43333488"></a>
+        <h2>Description</h2>
+        <p>Reverts any local changes to a file or directory and
+            resolves any conflicted states.  <span class="command"><strong>svn
+            revert</strong></span> will revert not only the contents of an
+            item in your working copy, but also any property
+            changes.  Finally, you can use it to undo any scheduling
+            operations that you may have performed (e.g., files scheduled
+            for addition or deletion can be
+            <span class="quote">“<span class="quote">unscheduled</span>”</span>).</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp43336208"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--changelist ARG
+--depth ARG
+--quiet (-q)
+--recursive (-R)
+--targets FILENAME
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp43338144"></a>
+        <h2>Examples</h2>
+        <p>Discard changes to a file:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn revert foo.c
+Reverted foo.c
+</pre>
+        </div>
+        <p>If you want to revert a whole directory of files,
+            use the <code class="option">--depth=infinity</code> option:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn revert --depth=infinity .
+Reverted newdir/afile
+Reverted foo.c
+Reverted bar.txt
+</pre>
+        </div>
+        <p>Lastly, you can undo any scheduling
+            operations:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn add mistake.txt whoops
+A         mistake.txt
+A         whoops
+A         whoops/oopsie.c
+
+$ svn revert mistake.txt whoops
+Reverted mistake.txt
+Reverted whoops
+
+$ svn status
+?       mistake.txt
+?       whoops
+</pre>
+        </div>
+        <div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Warning">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Warning]" src="images/warning.png" />
+              </td>
+              <th align="left">Warning</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p><span class="command"><strong>svn revert</strong></span> is inherently
+              dangerous, since its entire purpose is to throw away
+              data—namely, your uncommitted changes.  Once
+              you've reverted, Subversion provides <span class="emphasis"><em>no
+              way</em></span> to get back those uncommitted
+              changes.</p>
+                <p>If you provide no targets to <span class="command"><strong>svn
+              revert</strong></span>, it will do nothing—to protect
+              you from accidentally losing changes in your working
+              copy, <span class="command"><strong>svn revert</strong></span> requires you to
+              provide at least one target.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svn.c.resolved.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svn.html#svn.ref.svn.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svn.c.status.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svn resolved </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svn status</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

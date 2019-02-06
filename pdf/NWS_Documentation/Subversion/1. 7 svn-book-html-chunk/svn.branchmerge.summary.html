@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Common Branching Patterns</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.branchmerge.html" title="Chapter 4. Branching and Merging" />
+    <link rel="prev" href="svn.branchmerge.maint.html" title="Branch Maintenance" />
+    <link rel="next" href="svn.advanced.vendorbr.html" title="Vendor Branches" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Common Branching Patterns</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.branchmerge.maint.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 4. Branching and Merging</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.advanced.vendorbr.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Common Branching Patterns">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.branchmerge.commonpatterns"></a>Common Branching Patterns</h2>
+          </div>
+        </div>
+      </div>
+      <p>There are many different uses for branching and <span class="command"><strong>svn
+        merge</strong></span>, and this section describes the most
+        common.</p>
+      <p>Version control is most often used for software
+      development, so here's a quick peek at two of the most common
+      branching/merging patterns used by teams of programmers.  If
+      you're not using Subversion for software development, feel
+      free to skip this section.  If you're a software developer
+      using version control for the first time, pay close attention,
+      as these patterns are often considered best practices by
+      experienced folk.  These processes aren't specific to
+      Subversion; they're applicable to any version control system.
+      Still, it may help to see them described in Subversion
+      terms.</p>
+      <div class="sect2" title="Release Branches">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchmerge.commonpatterns.release"></a>Release Branches</h3>
+            </div>
+          </div>
+        </div>
+        <p>Most software has a typical life cycle: code, test,
+        release, repeat.  There are two problems with this process.
+        First, developers need to keep writing new features while
+        quality assurance teams take time to test supposedly stable
+        versions of the software.  New work cannot halt while the
+        software is tested.  Second, the team almost always needs to
+        support older, released versions of software; if a bug is
+        discovered in the latest code, it most likely exists in
+        released versions as well, and customers will want to get
+        that bug fix without having to wait for a major new
+        release.</p>
+        <p>Here's where version control can help.  The typical
+        procedure looks like this:</p>
+        <div class="orderedlist">
+          <ol class="orderedlist" type="1">
+            <li class="listitem">
+              <p><span class="emphasis"><em>Developers commit all new work to the
+            trunk.</em></span>  Day-to-day changes are committed to
+            <code class="filename">/trunk</code>: new features, bug fixes, and
+            so on.</p>
+            </li>
+            <li class="listitem">
+              <p><span class="emphasis"><em>The trunk is copied to a
+            <span class="quote">“<span class="quote">release</span>”</span> branch.</em></span>  When the team
+            thinks the software is ready for release (say, a 1.0
+            release), <code class="filename">/trunk</code> might be copied to
+            <code class="filename">/branches/1.0</code>.</p>
+            </li>
+            <li class="listitem">
+              <p><span class="emphasis"><em>Teams continue to work in
+            parallel.</em></span>  One team begins rigorous testing of
+            the release branch, while another team continues new work
+            (say, for version 2.0) on <code class="filename">/trunk</code>.  If
+            bugs are discovered in either location, fixes are ported
+            back and forth as necessary.  At some point, however, even
+            that process stops.  The branch is <span class="quote">“<span class="quote">frozen</span>”</span>
+            for final testing right before a release.</p>
+            </li>
+            <li class="listitem">
+              <p><span class="emphasis"><em>The branch is tagged and
+            released.</em></span>  When testing is complete,
+            <code class="filename">/branches/1.0</code> is copied to
+            <code class="filename">/tags/1.0.0</code> as a reference
+            snapshot.  The tag is packaged and released to
+            customers.</p>
+            </li>
+            <li class="listitem">
+              <p><span class="emphasis"><em>The branch is maintained over
+            time.</em></span>  While work continues
+            on <code class="filename">/trunk</code> for version 2.0, bug fixes
+            continue to be ported from <code class="filename">/trunk</code> to
+            <code class="filename">/branches/1.0</code>.  When enough
+            bug fixes have accumulated, management may decide to do a
+            1.0.1 release: <code class="filename">/branches/1.0</code> is
+            copied to <code class="filename">/tags/1.0.1</code>, and the tag
+            is packaged and released.</p>
+            </li>
+          </ol>
+        </div>
+        <p>This entire process repeats as the software matures:
+        when the 2.0 work is complete, a new 2.0 release branch is
+        created, tested, tagged, and eventually released.  After
+        some years, the repository ends up with a number of release
+        branches in <span class="quote">“<span class="quote">maintenance</span>”</span> mode, and a number
+        of tags representing final shipped versions.</p>
+      </div>
+      <div class="sect2" title="Feature Branches">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchmerge.commonpatterns.feature"></a>Feature Branches</h3>
+            </div>
+          </div>
+        </div>
+        <p>A <em class="firstterm">feature branch</em> is the sort of
+        branch that's been the dominant example in this chapter (the
+        one you've been working on while Sally continues to work on
+        <code class="filename">/trunk</code>).  It's a temporary branch created
+        to work on a complex change without interfering with the
+        stability of <code class="filename">/trunk</code>.  Unlike release
+        branches (which may need to be supported forever), feature
+        branches are born, used for a while, merged back to the trunk,
+        and then ultimately deleted.  They have a finite span of
+        usefulness.</p>
+        <p>Again, project policies vary widely concerning exactly
+        when it's appropriate to create a feature branch.  Some
+        projects never use feature branches at all: commits to
+        <code class="filename">/trunk</code> are a free-for-all.  The
+        advantage to this system is that it's simple—nobody
+        needs to learn about branching or merging.  The disadvantage
+        is that the trunk code is often unstable or unusable.  Other
+        projects use branches to an extreme: no change is
+        <span class="emphasis"><em>ever</em></span> committed to the trunk directly.
+        Even the most trivial changes are created on a short-lived
+        branch, carefully reviewed, and merged to the trunk.  Then
+        the branch is deleted.  This system guarantees an
+        exceptionally stable and usable trunk at all times, but at
+        the cost of tremendous process overhead.</p>
+        <p>Most projects take a middle-of-the-road approach.  They
+        commonly insist that <code class="filename">/trunk</code> compile and
+        pass regression tests at all times.  A feature branch is
+        required only when a change requires a large number of
+        destabilizing commits.  A good rule of thumb is to ask this
+        question: if the developer worked for days in isolation and
+        then committed the large change all at once (so that
+        <code class="filename">/trunk</code> were never destabilized), would it
+        be too large a change to review?  If the answer to that
+        question is <span class="quote">“<span class="quote">yes,</span>”</span> the change should be
+        developed on a feature branch.  As the developer commits
+        incremental changes to the branch, they can be easily reviewed
+        by peers.</p>
+        <p>Finally, there's the issue of how to best keep a feature
+        branch in <span class="quote">“<span class="quote">sync</span>”</span> with the trunk as work
+        progresses.  As we mentioned earlier, there's a great risk to
+        working on a branch for weeks or months; trunk changes may
+        continue to pour in, to the point where the two lines of
+        development differ so greatly that it may become a nightmare
+        trying to merge the branch back to the trunk.</p>
+        <p>This situation is best avoided by regularly merging trunk
+        changes to the branch.  Make up a policy: once a week, merge
+        the last week's worth of trunk changes to the branch.</p>
+        <p>At some point, you'll be ready to merge the
+        <span class="quote">“<span class="quote">synchronized</span>”</span> feature branch back to the trunk.
+        To do this, begin by doing a final merge of the latest trunk
+        changes to the branch.  When that's done, the latest versions
+        of branch and trunk will be absolutely identical except for
+        your branch changes.  You would then merge back with
+        the <code class="option">--reintegrate</code> option:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ cd trunk-working-copy
+
+$ svn update
+Updating '.':
+At revision 1910.
+
+$ svn merge --reintegrate ^/calc/branches/mybranch
+--- Merging differences between repository URLs into '.':
+U    real.c
+U    integer.c
+A    newdirectory
+A    newdirectory/newfile
+ U   .
+…
+</pre>
+        </div>
+        <p>Another way of thinking about this pattern is that your
+        weekly sync of trunk to branch is analogous to running
+        <span class="command"><strong>svn update</strong></span> in a working copy, while the
+        final merge step is analogous to running <span class="command"><strong>svn
+        commit</strong></span> from a working copy.  After all, what else
+        <span class="emphasis"><em>is</em></span> a working copy but a very shallow
+        private branch?  It's a branch that's capable of
+        storing only one change at a time.</p>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.branchmerge.maint.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.branchmerge.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.advanced.vendorbr.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Branch Maintenance </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Vendor Branches</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

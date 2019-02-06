@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Directory Versions</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.forcvs.html" title="Appendix B. Subversion for CVS Users" />
+    <link rel="prev" href="svn.forcvs.revnums.html" title="Revision Numbers Are Different Now" />
+    <link rel="next" href="svn.forcvs.disconnected.html" title="More Disconnected Operations" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Directory Versions</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.forcvs.revnums.html">Prev</a> </td>
+          <th width="60%" align="center">Appendix B. Subversion for CVS Users</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.forcvs.disconnected.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Directory Versions">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.forcvs.directories"></a>Directory Versions</h2>
+          </div>
+        </div>
+      </div>
+      <p>Subversion tracks tree structures, not just file contents.
+      It's one of the biggest reasons Subversion was written to
+      replace CVS.</p>
+      <p>Here's what this means to you, as a former CVS user:</p>
+      <div class="itemizedlist">
+        <ul class="itemizedlist" type="disc">
+          <li class="listitem">
+            <p>The <span class="command"><strong>svn add</strong></span> and <span class="command"><strong>svn
+          delete</strong></span> commands work on directories now, just as
+          they work on files.  So do <span class="command"><strong>svn copy</strong></span> and
+          <span class="command"><strong>svn move</strong></span>.  However, these commands do
+          <span class="emphasis"><em>not</em></span> cause any kind of immediate change
+          in the repository.  Instead, the working items are simply
+          <span class="quote">“<span class="quote">scheduled</span>”</span> for addition or deletion.  No
+          repository changes happen until you run <strong class="userinput"><code>svn
+          commit</code></strong>.</p>
+          </li>
+          <li class="listitem">
+            <p>Directories aren't dumb containers anymore; they have
+          revision numbers like files.  (Or more properly, it's
+          correct to talk about <span class="quote">“<span class="quote">directory
+          <code class="filename">foo/</code> in revision 5.</span>”</span>)</p>
+          </li>
+        </ul>
+      </div>
+      <p>Let's talk more about that last point.  Directory versioning
+      is a hard problem; because we want to allow mixed-revision
+      working copies, there are some limitations on how far we can
+      abuse this model.</p>
+      <p>From a theoretical point of view, we define <span class="quote">“<span class="quote">revision
+      5 of directory <code class="filename">foo</code></span>”</span> to mean a
+      specific collection of directory entries and properties.  Now
+      suppose we start adding and removing files from
+      <code class="filename">foo</code>, and then commit.  It would be a lie
+      to say that we still have revision 5 of
+      <code class="filename">foo</code>.  However, if we bumped
+      <code class="filename">foo</code>'s revision number after the commit,
+      that would be a lie too; there may be other changes to
+      <code class="filename">foo</code> we haven't yet received, because we
+      haven't updated yet.</p>
+      <p>Subversion deals with this problem by quietly tracking
+      committed adds and deletes in the <code class="filename">.svn</code>
+      area.  When you eventually run <strong class="userinput"><code>svn update</code></strong>,
+      all accounts are settled with the repository, and the
+      directory's new revision number is set correctly.
+      <span class="emphasis"><em>Therefore, only after an update is it truly safe to
+      say that you have a <span class="quote">“<span class="quote">perfect</span>”</span> revision of a
+      directory.</em></span> Most of the time, your working copy will
+      contain <span class="quote">“<span class="quote">imperfect</span>”</span> directory revisions.</p>
+      <p>Similarly, a problem arises if you attempt to commit
+      property changes on a directory.  Normally, the commit would
+      bump the working directory's local revision number.  But again,
+      that would be a lie, as there may be adds or deletes that
+      the directory doesn't yet have, because no update has happened.
+      <span class="emphasis"><em>Therefore, you are not allowed to commit
+      property changes on a directory unless the directory is
+      up to date.</em></span></p>
+      <p>For more discussion about the limitations of directory
+      versioning, see <a class="xref" href="svn.basic.in-action.html#svn.basic.in-action.mixedrevs" title="Mixed-revision working copies">the section called “Mixed-revision working copies”</a>.</p>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.forcvs.revnums.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.forcvs.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.forcvs.disconnected.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Revision Numbers Are Different Now </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> More Disconnected Operations</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

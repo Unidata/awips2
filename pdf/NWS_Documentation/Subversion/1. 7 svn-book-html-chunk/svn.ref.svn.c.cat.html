@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>svn cat</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.ref.svn.html#svn.ref.svn.c" title="svn Subcommands" />
+    <link rel="prev" href="svn.ref.svn.c.blame.html" title="svn blame" />
+    <link rel="next" href="svn.ref.svn.c.changelist.html" title="svn changelist" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">svn cat</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.ref.svn.c.blame.html">Prev</a> </td>
+          <th width="60%" align="center">svn Subcommands</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.ref.svn.c.changelist.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="refentry" title="svn cat">
+      <a id="svn.ref.svn.c.cat"></a>
+      <div class="titlepage"></div>
+      <a id="idp42557984" class="indexterm"></a>
+      <div class="refnamediv">
+        <h2>Name</h2>
+        <p>svn cat — Output the contents of the specified files or
+            URLs.</p>
+      </div>
+      <div class="refsect1" title="Synopsis">
+        <a id="idp42561104"></a>
+        <h2>Synopsis</h2>
+        <p>
+          <code class="literal">svn cat TARGET[@REV]...</code>
+        </p>
+      </div>
+      <div class="refsect1" title="Description">
+        <a id="idp42562720"></a>
+        <h2>Description</h2>
+        <p>Output the contents of the specified files or URLs.
+            For listing the contents of directories, see <span class="command"><strong>svn
+            list</strong></span> later in this chapter.</p>
+      </div>
+      <div class="refsect1" title="Options">
+        <a id="idp42564752"></a>
+        <h2>Options</h2>
+        <div class="informalexample">
+          <pre class="screen">
+--revision (-r) REV
+</pre>
+        </div>
+      </div>
+      <div class="refsect1" title="Examples">
+        <a id="idp42566624"></a>
+        <h2>Examples</h2>
+        <p>If you want to view <code class="filename">readme.txt</code> in
+            your repository without checking it out:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn cat http://svn.red-bean.com/repos/test/readme.txt
+This is a README file.
+You should read this.
+$
+</pre>
+        </div>
+        <div class="tip" title="Tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Tip">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Tip]" src="images/tip.png" />
+              </td>
+              <th align="left">Tip</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>If your working copy is out of date (or you have
+              local modifications) and you want to see the
+              <code class="literal">HEAD</code> revision of a file in your
+              working copy, <span class="command"><strong>svn cat -r HEAD <em class="replaceable"><code>FILENAME</code></em></strong></span> will
+              automatically fetch the <code class="literal">HEAD</code> revision
+              of the specified path:</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <div class="informalexample">
+          <pre class="screen">
+$ cat foo.c
+This file is in my local working copy 
+and has changes that I've made.
+$ svn cat -r HEAD foo.c
+Latest revision fresh from the repository!
+$
+</pre>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.ref.svn.c.blame.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.ref.svn.html#svn.ref.svn.c">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.ref.svn.c.changelist.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">svn blame </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> svn changelist</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

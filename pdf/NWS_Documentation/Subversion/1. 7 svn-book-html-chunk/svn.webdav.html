@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Appendix C. WebDAV and Autoversioning</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="prev" href="svn.forcvs.convert.html" title="Converting a Repository from CVS to Subversion" />
+    <link rel="next" href="svn.webdav.basic.html" title="What Is WebDAV?" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Appendix C. WebDAV and Autoversioning</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.forcvs.convert.html">Prev</a> </td>
+          <th width="60%" align="center"> </th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.webdav.basic.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="appendix" title="Appendix C. WebDAV and Autoversioning">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title"><a id="svn.webdav"></a>Appendix C. WebDAV and Autoversioning</h2>
+          </div>
+        </div>
+      </div>
+      <div class="toc">
+        <p>
+          <b>Table of Contents</b>
+        </p>
+        <dl>
+          <dt>
+            <span class="sect1">
+              <a href="svn.webdav.basic.html">What Is WebDAV?</a>
+            </span>
+          </dt>
+          <dt>
+            <span class="sect1">
+              <a href="svn.webdav.autoversioning.html">Autoversioning</a>
+            </span>
+          </dt>
+          <dt>
+            <span class="sect1">
+              <a href="svn.webdav.clients.html">Client Interoperability</a>
+            </span>
+          </dt>
+          <dd>
+            <dl>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.webdav.clients.html#svn.webdav.clients.standalone">Standalone WebDAV Applications</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.webdav.clients.html#svn.webdav.clients.standalone.windows">Microsoft Office, Dreamweaver, Photoshop</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.webdav.clients.html#svn.webdav.clients.standalone.free">cadaver, DAV Explorer</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.webdav.clients.html#svn.webdav.clients.file-explorer-extensions">File-Explorer WebDAV Extensions</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.webdav.clients.html#svn.webdav.clients.file-explorer-extensions.windows">Microsoft Web Folders</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.webdav.clients.html#svn.webdav.clients.file-explorer-extensions.linux-de">Nautilus, Konqueror</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
+              <dt>
+                <span class="sect2">
+                  <a href="svn.webdav.clients.html#svn.webdav.clients.fs-impl">WebDAV Filesystem Implementation</a>
+                </span>
+              </dt>
+              <dd>
+                <dl>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.webdav.clients.html#svn.webdav.clients.fs-impl.windows">WebDrive, NetDrive</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.webdav.clients.html#svn.webdav.clients.fs-impl.macosx">Mac OS X</a>
+                    </span>
+                  </dt>
+                  <dt>
+                    <span class="sect3">
+                      <a href="svn.webdav.clients.html#svn.webdav.clients.fs-impl.linux">Linux davfs2</a>
+                    </span>
+                  </dt>
+                </dl>
+              </dd>
+            </dl>
+          </dd>
+        </dl>
+      </div>
+      <p>WebDAV is an extension to HTTP, and it is growing more and more
+    popular as a standard for file sharing.  Today's operating systems
+    are becoming extremely web-aware, and many now have built-in
+    support for mounting <span class="quote">“<span class="quote">shares</span>”</span> exported by WebDAV
+    servers.</p>
+      <p>If you use Apache as your Subversion network server, to
+    some extent you are also running a WebDAV server.  This appendix
+    gives some background on the nature of this protocol, how
+    Subversion uses it, and how well Subversion interoperates with
+    other software that is WebDAV-aware.</p>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.forcvs.convert.html">Prev</a> </td>
+          <td width="20%" align="center"> </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.webdav.basic.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Converting a Repository from CVS to Subversion </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> What Is WebDAV?</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,910 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Basic Merging</title>
+    <link rel="stylesheet" href="styles.css" type="text/css" />
+    <meta name="generator" content="DocBook XSL Stylesheets V1.75.2" />
+    <style type="text/css">
+body { background-image: url('images/draft.png');
+       background-repeat: no-repeat;
+       background-position: top left;
+       /* The following properties make the watermark "fixed" on the page. */
+       /* I think that's just a bit too distracting for the reader... */
+       /* background-attachment: fixed; */
+       /* background-position: center center; */
+     }</style>
+    <link rel="home" href="index.html" title="Version Control with Subversion [DRAFT]" />
+    <link rel="up" href="svn.branchmerge.html" title="Chapter 4. Branching and Merging" />
+    <link rel="prev" href="svn.branchmerge.using.html" title="Using Branches" />
+    <link rel="next" href="svn.branchmerge.advanced.html" title="Advanced Merging" />
+  </head>
+  <body>
+    <div class="navheader">
+      <table width="100%" summary="Navigation header">
+        <tr>
+          <th colspan="3" align="center">Basic Merging</th>
+        </tr>
+        <tr>
+          <td width="20%" align="left"><a accesskey="p" href="svn.branchmerge.using.html">Prev</a> </td>
+          <th width="60%" align="center">Chapter 4. Branching and Merging</th>
+          <td width="20%" align="right"> <a accesskey="n" href="svn.branchmerge.advanced.html">Next</a></td>
+        </tr>
+      </table>
+      <hr />
+    </div>
+    <div class="sect1" title="Basic Merging">
+      <div class="titlepage">
+        <div>
+          <div>
+            <h2 class="title" style="clear: both"><a id="svn.branchmerge.basicmerging"></a>Basic Merging</h2>
+          </div>
+        </div>
+      </div>
+      <p>Now you and Sally are working on parallel branches of the
+      project: you're working on a private branch, and Sally is
+      working on the trunk, or main line of development.</p>
+      <p>For projects that have a large number of contributors, it's
+      common for most people to have working copies of the trunk.
+      Whenever someone needs to make a long-running change that is
+      likely to disrupt the trunk, a standard procedure is to create a
+      private branch and commit changes there until all the work is
+      complete.</p>
+      <p>So, the good news is that you and Sally aren't interfering
+      with each other.  The bad news is that it's very easy to drift
+      <span class="emphasis"><em>too</em></span> far apart.  Remember that one of the
+      problems with the <span class="quote">“<span class="quote">crawl in a hole</span>”</span> strategy is
+      that by the time you're finished with your branch, it may be
+      near-impossible to merge your changes back into the trunk
+      without a huge number of conflicts.</p>
+      <p>Instead, you and Sally might continue to share changes as
+      you work.  It's up to you to decide which changes are worth
+      sharing; Subversion gives you the ability to selectively
+      <span class="quote">“<span class="quote">copy</span>”</span> changes between branches.  And when you're
+      completely finished with your branch, your entire set of branch
+      changes can be copied back into the trunk.  In Subversion
+      terminology, the general act of replicating changes from one
+      branch to another is called <em class="firstterm">merging</em>, and
+      it is performed using various invocations of the <span class="command"><strong>svn
+      merge</strong></span> command.</p>
+      <p>In the examples that follow, we're assuming that both your
+      Subversion client and server are running Subversion 1.5 (or
+      later).  If either client or server is older than version 1.5,
+      things are more complicated: the system won't track changes
+      automatically, and you'll have to use painful manual methods to
+      achieve similar results.  That is, you'll always need to use the
+      detailed merge syntax to specify specific ranges of revisions to
+      replicate (see
+      <a class="xref" href="svn.branchmerge.advanced.html#svn.branchmerge.advanced.advancedsyntax" title="Merge Syntax: Full Disclosure">the section called “Merge Syntax:  Full Disclosure”</a> later
+      in this chapter), and take special care to keep track of what's
+      already been merged and what hasn't.  For this reason,
+      we <span class="emphasis"><em>strongly</em></span> recommend that you make sure your
+      client and server are at least at version 1.5.</p>
+      <div class="sect2" title="Changesets">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchmerge.changesets"></a>Changesets</h3>
+            </div>
+          </div>
+        </div>
+        <p>Before we proceed further, we should warn you that there's
+        going to be a lot of discussion of <span class="quote">“<span class="quote">changes</span>”</span> in
+        the pages ahead.  A lot of people experienced with version
+        control systems use the terms <span class="quote">“<span class="quote">change</span>”</span>
+        and <span class="quote">“<span class="quote">changeset</span>”</span> interchangeably, and we should
+        clarify what Subversion understands as
+        a <em class="firstterm">changeset</em>.</p>
+        <p>Everyone seems to have a slightly different definition
+        of changeset, or at least a different
+        expectation of what it means for a version control system to
+        have one.  For our purposes, let's say that a changeset is just
+        a collection of changes with a unique name.  The changes might
+        include textual edits to file contents, modifications to tree
+        structure, or tweaks to metadata.  In more common speak, a
+        changeset is just a patch with a name you can refer to.</p>
+        <p>In Subversion, a global revision
+        number <em class="replaceable"><code>N</code></em> names a tree in the
+        repository: it's the way the repository looked after the
+        <em class="replaceable"><code>N</code></em>th commit.  It's also the name of
+        an implicit changeset: if you compare
+        tree <em class="replaceable"><code>N</code></em> with
+        tree <em class="replaceable"><code>N</code></em>-1, you can derive the exact
+        patch that was committed.  For this reason, it's easy to think
+        of revision <em class="replaceable"><code>N</code></em> as not just a tree,
+        but a changeset as well.  If you use an issue tracker to
+        manage bugs, you can use the revision numbers to refer to
+        particular patches that fix bugs—for example,
+        <span class="quote">“<span class="quote">this issue was fixed by r9238.</span>”</span> Somebody
+        can then run <strong class="userinput"><code>svn log -r 9238</code></strong> to read about
+        the exact changeset that fixed the bug, and run
+        <strong class="userinput"><code>svn diff -c 9238</code></strong> to see the patch itself.
+        And (as you'll see shortly)
+        Subversion's <span class="command"><strong>svn merge</strong></span> command is able to use
+        revision numbers.  You can merge specific changesets from one
+        branch to another by naming them in the merge
+        arguments: passing <strong class="userinput"><code>-c 9238</code></strong>
+        to <span class="command"><strong>svn merge</strong></span> would merge changeset r9238
+        into your working copy.</p>
+      </div>
+      <div class="sect2" title="Keeping a Branch in Sync">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchemerge.basicmerging.stayinsync"></a>Keeping a Branch in Sync</h3>
+            </div>
+          </div>
+        </div>
+        <p>Continuing with our running example, let's suppose that a
+        week has passed since you started working on your private
+        branch.  Your new feature isn't finished yet, but at the same
+        time you know that other people on your team have continued to
+        make important changes in the
+        project's <code class="filename">/trunk</code>.  It's in your best
+        interest to replicate those changes to your own branch, just
+        to make sure they mesh well with your changes.</p>
+        <div class="tip" title="Tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Tip">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Tip]" src="images/tip.png" />
+              </td>
+              <th align="left">Tip</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>Frequently keeping your branch in sync with the main
+          development line helps prevent <span class="quote">“<span class="quote">surprise</span>”</span>
+          conflicts when the time comes for you to fold your changes
+          back into the trunk.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p>Subversion is aware of the history of your branch and
+        knows when it divided away from the trunk.  To replicate the
+        latest, greatest trunk changes to your branch, first make sure
+        your working copy of the branch
+        is <span class="quote">“<span class="quote">clean</span>”</span>—that it has no local
+        modifications reported by <span class="command"><strong>svn status</strong></span>.  Then
+        simply run:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ pwd
+/home/user/my-calc-branch
+
+$ svn merge ^/calc/trunk
+--- Merging r345 through r356 into '.':
+U    button.c
+U    integer.c
+$
+</pre>
+        </div>
+        <p>This basic syntax—<strong class="userinput"><code>svn merge
+        <em class="replaceable"><code>URL</code></em></code></strong>—tells
+        Subversion to merge all recent changes from the URL to the
+        current working directory (which is typically the root of your
+        working copy).  Also notice that we're using the caret
+        (<code class="literal">^</code>) syntax<sup>[<a id="idp36019920" href="#ftn.idp36019920" class="footnote">24</a>]</sup> to avoid having to
+        type out the entire <code class="filename">/trunk</code> URL.</p>
+        <p>After running the prior example, your branch working copy
+        now contains new local modifications, and these edits are
+        duplications of all of the changes that have happened on the
+        trunk since you first created your branch:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn status
+ M      .
+M       button.c
+M       integer.c
+$
+</pre>
+        </div>
+        <p>At this point, the wise thing to do is look at the changes
+        carefully with <span class="command"><strong>svn diff</strong></span>, and then build and
+        test your branch.  Notice that the current working directory
+        (<span class="quote">“<span class="quote"><code class="filename">.</code></span>”</span>) has also been
+        modified; the <span class="command"><strong>svn diff</strong></span> will show that
+        its <code class="literal">svn:mergeinfo</code> property has been either
+        created or modified.  This is important merge-related metadata
+        that you should <span class="emphasis"><em>not</em></span> touch, since it will
+        be needed by future <span class="command"><strong>svn merge</strong></span> commands.
+        (We'll learn more about this metadata later in the
+        chapter.)</p>
+        <p>After performing the merge, you might also need to resolve
+        some conflicts (just as you do with <span class="command"><strong>svn
+        update</strong></span>) or possibly make some small edits to get
+        things working properly.  (Remember, just because there are
+        no <span class="emphasis"><em>syntactic</em></span> conflicts doesn't mean there
+        aren't any <span class="emphasis"><em>semantic</em></span> conflicts!)  If you
+        encounter serious problems, you can always abort the local
+        changes by running <strong class="userinput"><code>svn revert . -R</code></strong> (which
+        will undo all local modifications) and start a
+        long <span class="quote">“<span class="quote">what's going on?</span>”</span> discussion with your
+        collaborators.  If things look good, however, you can
+        submit these changes into the repository:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn commit -m "Merged latest trunk changes to my-calc-branch."
+Sending        .
+Sending        button.c
+Sending        integer.c
+Transmitting file data ..
+Committed revision 357.
+$
+</pre>
+        </div>
+        <p>At this point, your private branch is now <span class="quote">“<span class="quote">in
+          sync</span>”</span> with the trunk, so you can rest easier knowing
+          that as you continue to work in isolation, you're not
+          drifting too far away from what everyone else is
+          doing.</p>
+        <div class="sidebar" title="Why Not Use Patches Instead?">
+          <p class="title">
+            <b>Why Not Use Patches Instead?</b>
+          </p>
+          <p>A question may be on your mind, especially if you're a
+          Unix user: why bother to use <span class="command"><strong>svn merge</strong></span> at
+          all?  Why not simply use the operating system's
+          <span class="command"><strong>patch</strong></span> command to accomplish the same job?
+          For example:</p>
+          <div class="informalexample">
+            <pre class="screen">
+$ cd my-calc-branch
+$ svn diff -r 341:HEAD ^/calc/trunk &gt; patchfile
+$ patch -p0  &lt; patchfile
+Patching file integer.c using Plan A...
+Hunk #1 succeeded at 147.
+Hunk #2 succeeded at 164.
+Hunk #3 succeeded at 241.
+Hunk #4 succeeded at 249.
+done
+$
+</pre>
+          </div>
+          <p>In this particular example, there really isn't much
+          difference.  But <span class="command"><strong>svn merge</strong></span> has special
+          abilities that surpass the <span class="command"><strong>patch</strong></span> program.
+          The file format used by <span class="command"><strong>patch</strong></span> is quite
+          limited; it's able to tweak file contents only.  There's no
+          way to represent changes to <span class="emphasis"><em>trees</em></span>, such
+          as the addition, removal, or renaming of files and
+          directories.  Nor can the <span class="command"><strong>patch</strong></span> program
+          notice changes to properties.  If Sally's change had,
+          say, added a new directory, the output of <span class="command"><strong>svn
+          diff</strong></span> wouldn't have mentioned it at
+          all.  <span class="command"><strong>svn diff</strong></span> outputs only the limited
+          patch format, so there are some ideas it simply can't
+          express.</p>
+          <p>The <span class="command"><strong>svn merge</strong></span> command, however, can
+          express changes in tree structure and properties by directly
+          applying them to your working copy.  Even more important,
+          this command records the changes that have been duplicated
+          to your branch so that Subversion is aware of exactly which
+          changes exist in each location (see
+          <a class="xref" href="svn.branchmerge.basicmerging.html#svn.branchmerge.basicmerging.mergeinfo" title="Mergeinfo and Previews">the section called “Mergeinfo and Previews”</a>).
+          This is a critical feature that makes branch management
+          usable; without it, users would have to manually keep notes
+          on which sets of changes have or haven't been merged
+          yet.</p>
+        </div>
+        <p>Suppose that another week has passed.  You've committed
+        more changes to your branch, and your comrades have continued
+        to improve the trunk as well.  Once again, you'd like to
+        replicate the latest trunk changes to your branch and bring
+        yourself in sync.  Just run the same merge command
+        again!</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn merge ^/calc/trunk
+--- Merging r357 through r380 into '.':
+U    integer.c
+U    Makefile
+A    README
+$
+</pre>
+        </div>
+        <p>Subversion knows which trunk changes you've already
+        replicated to your branch, so it carefully replicates only
+        those changes you don't yet have.  Once again, you'll have to
+        build, test, and <span class="command"><strong>svn commit</strong></span> the local
+        modifications to your branch.</p>
+      </div>
+      <div class="sect2" title="Reintegrating a Branch">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchemerge.basicmerging.reintegrate"></a>Reintegrating a Branch</h3>
+            </div>
+          </div>
+        </div>
+        <p>What happens when you finally finish your work, though?
+        Your new feature is done, and you're ready to merge your
+        branch changes back to the trunk (so your team can enjoy the
+        bounty of your labor).  The process is simple.  First, bring
+        your branch in sync with the trunk again, just as you've been
+        doing all along:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn merge ^/calc/trunk
+--- Merging r381 through r385 into '.':
+U    button.c
+U    README
+
+$ # build, test, ...
+
+$ svn commit -m "Final merge of trunk changes to my-calc-branch."
+Sending        .
+Sending        button.c
+Sending        README
+Transmitting file data ..
+Committed revision 390.
+</pre>
+        </div>
+        <p>Now, you use <span class="command"><strong>svn merge</strong></span> with the
+        <code class="option">--reintegrate</code> option to replicate your
+        branch changes back into the trunk.  You'll need a working
+        copy of <code class="filename">/trunk</code>.  You can do this by
+        either doing an <span class="command"><strong>svn checkout</strong></span>, dredging up
+        an old trunk working copy from somewhere on your disk, or
+        using <span class="command"><strong>svn switch</strong></span>
+        (see <a class="xref" href="svn.branchmerge.switchwc.html" title="Traversing Branches">the section called “Traversing Branches”</a>).
+        Your trunk working copy cannot have any local edits or be at
+        mixed-revisions
+        (see <a class="xref" href="svn.basic.in-action.html#svn.basic.in-action.mixedrevs" title="Mixed-revision working copies">the section called “Mixed-revision working copies”</a>).  While
+        these are typically best practices for merging, they are
+        <span class="emphasis"><em>required</em></span> when using the
+        <code class="option">--reintegrate</code> option.</p>
+        <p>Once you have a clean working copy of the trunk, you're
+        ready to merge your branch back into it:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ pwd
+/home/user/calc-trunk
+
+$ svn update  # (make sure the working copy is up to date)
+Updating '.':
+At revision 390.
+
+$ svn merge --reintegrate ^/calc/branches/my-calc-branch
+--- Merging differences between repository URLs into '.':
+U    button.c
+U    integer.c
+U    Makefile
+ U   .
+
+$ # build, test, verify, ...
+
+$ svn commit -m "Merge my-calc-branch back into trunk!"
+Sending        .
+Sending        button.c
+Sending        integer.c
+Sending        Makefile
+Transmitting file data ..
+Committed revision 391.
+</pre>
+        </div>
+        <p>Congratulations, your branch has now been remerged back
+        into the main line of development.  Notice our use of
+        the <code class="option">--reintegrate</code> option this time around.
+        The option is critical for reintegrating changes from a branch
+        back into its original line of development—don't forget
+        it!  It's needed because this sort of <span class="quote">“<span class="quote">merge
+        back</span>”</span> is a different sort of work than what you've been
+        doing up until now.  Previously, we had been
+        asking <span class="command"><strong>svn merge</strong></span> to grab the <span class="quote">“<span class="quote">next
+        set</span>”</span> of changes from one line of development (the
+        trunk) and duplicate them to another (your branch).  This is
+        fairly straightforward, and each time Subversion knows how to
+        pick up where it left off.  In our prior examples, you can see
+        that first it merges the ranges 345:356 from trunk to branch;
+        later on, it continues by merging the next contiguously
+        available range, 356:380.  When doing the final sync, it
+        merges the range 380:385.</p>
+        <p>When merging your branch back to the trunk, however, the
+        underlying mathematics is quite different.  Your feature
+        branch is now a mishmash of both duplicated trunk changes and
+        private branch changes, so there's no simple contiguous range
+        of revisions to copy over.  By specifying
+        the <code class="option">--reintegrate</code> option, you're asking
+        Subversion to carefully replicate <span class="emphasis"><em>only</em></span>
+        those changes unique to your branch.  (And in fact, it does
+        this by comparing the latest trunk tree with the latest branch
+        tree:  the resulting difference is exactly your branch
+        changes!)</p>
+        <p>Keep in mind that the <code class="option">--reintegrate</code>
+        option is quite specialized in contrast to the more general
+        nature of most Subversion subcommand options.  It supports the
+        use case described above, but has little applicability outside
+        of that.  Because of this narrow focus, in addition to
+        requiring an up-to-date working copy with no mixed-revisions,
+        it will not function in combination with most of the other
+        <span class="command"><strong>svn merge</strong></span> options. You'll get an error if you
+        use any non-global options but these: <code class="option">--accept</code>,
+        <code class="option">--dry-run</code>, <code class="option">--diff3-cmd</code>,
+        <code class="option">--extensions</code>, or <code class="option">--quiet</code>.
+        </p>
+        <p>Now that your private branch is merged to trunk, you may
+        wish to remove it from the repository:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn delete ^/calc/branches/my-calc-branch \
+      -m "Remove my-calc-branch, reintegrated with trunk in r391."
+Committed revision 392.
+</pre>
+        </div>
+        <p>But wait!  Isn't the history of that branch valuable?
+        What if somebody wants to audit the evolution of your feature
+        someday and look at all of your branch changes?  No need to
+        worry.  Remember that even though your branch is no longer
+        visible in the <code class="filename">/branches</code> directory, its
+        existence is still an immutable part of the repository's
+        history.  A simple <span class="command"><strong>svn log</strong></span> command on
+        the <code class="filename">/branches</code> URL will show the entire
+        history of your branch.  Your branch can even be resurrected
+        at some point, should you desire (see
+        <a class="xref" href="svn.branchmerge.basicmerging.html#svn.branchmerge.basicmerging.resurrect" title="Resurrecting Deleted Items">the section called “Resurrecting Deleted Items”</a>).</p>
+        <p>Once a <code class="option">--reintegrate</code> merge is done from
+        branch to trunk, the branch is no longer usable for further
+        work.  It's not able to correctly absorb new trunk changes,
+        nor can it be properly reintegrated to trunk again.  For this
+        reason, if you want to keep working on your feature branch, we
+        recommend destroying it and then re-creating it from the
+        trunk:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn delete http://svn.example.com/repos/calc/branches/my-calc-branch \
+      -m "Remove my-calc-branch, reintegrated with trunk in r391."
+Committed revision 392.
+
+$ svn copy http://svn.example.com/repos/calc/trunk \
+           http://svn.example.com/repos/calc/branches/my-calc-branch
+      -m "Recreate my-calc-branch from trunk@HEAD."
+Committed revision 393.
+</pre>
+        </div>
+        <p>There is another way of making the branch usable again
+        after reintegration, without deleting the branch. See
+        <a class="xref" href="svn.branchmerge.advanced.html#svn.branchmerge.advanced.reintegratetwice" title="Keeping a Reintegrated Branch Alive">the section called “Keeping a Reintegrated Branch Alive”</a>.</p>
+      </div>
+      <div class="sect2" title="Mergeinfo and Previews">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchmerge.basicmerging.mergeinfo"></a>Mergeinfo and Previews</h3>
+            </div>
+          </div>
+        </div>
+        <p>The basic mechanism Subversion uses to track
+        changesets—that is, which changes have been merged to
+        which branches—is by recording data in versioned
+        properties.  Specifically, merge data is tracked in
+        the <code class="literal">svn:mergeinfo</code> property attached to
+        files and directories.  (If you're not familiar with
+        Subversion properties, see <a class="xref" href="svn.advanced.props.html" title="Properties">the section called “Properties”</a>.)</p>
+        <p>You can examine the property, just like any other:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ cd my-calc-branch
+$ svn propget svn:mergeinfo .
+/trunk:341-390
+$
+</pre>
+        </div>
+        <div class="warning" title="Warning" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Warning">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Warning]" src="images/warning.png" />
+              </td>
+              <th align="left">Warning</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>While is possible to
+          modify <code class="literal">svn:mergeinfo</code> just as you might
+          any other versioned property, we strongly discourage doing
+          so unless you <span class="emphasis"><em>really</em></span> know what you're
+          doing.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p>The <code class="literal">svn:mergeinfo</code> property is
+        automatically maintained by Subversion whenever you
+        run <span class="command"><strong>svn merge</strong></span>.  Its value indicates which
+        changes made to a given path have been replicated into the
+        directory in question.  In our previous example, the path
+        which is the source of the merged changes is
+        <code class="filename">/trunk</code> and the directory which has
+        received the changes is
+        <code class="filename">/branches/my-calc-branch</code>.</p>
+        <p>Subversion also provides a subcommand, <span class="command"><strong>svn
+        mergeinfo</strong></span>, which can be helpful in seeing not only
+        which changesets a directory has absorbed, but also which
+        changesets it's still eligible to receive.  This gives a sort
+        of preview of which changes a subsequent <span class="command"><strong>svn
+        merge</strong></span> operation would replicate to your
+        branch.</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ cd my-calc-branch
+
+# Which changes have already been merged from trunk to branch?
+$ svn mergeinfo ^/calc/trunk
+r341
+r342
+r343
+…
+r388
+r389
+r390
+
+# Which changes are still eligible to merge from trunk to branch?
+$ svn mergeinfo ^/calc/trunk --show-revs eligible
+r391
+r392
+r393
+r394
+r395
+$
+</pre>
+        </div>
+        <p>The <span class="command"><strong>svn mergeinfo</strong></span> command requires
+        a <span class="quote">“<span class="quote">source</span>”</span> URL (where the changes would be coming
+        from), and takes an optional <span class="quote">“<span class="quote">target</span>”</span> URL (where
+        the changes would be merged to).  If no target URL is given,
+        it assumes that the current working directory is the
+        target.  In the prior example, because we're querying our
+        branch working copy, the command assumes we're interested in
+        receiving changes to <code class="filename">/branches/mybranch</code>
+        from the specified trunk URL.</p>
+        <p>Another way to get a more precise preview of a merge
+        operation is to use the <code class="option">--dry-run</code>
+        option:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn merge ^/calc/trunk --dry-run
+U    integer.c
+
+$ svn status
+#  nothing printed, working copy is still unchanged.
+</pre>
+        </div>
+        <p>The <code class="option">--dry-run</code> option doesn't actually
+        apply any local changes to the working copy.  It shows only
+        status codes that <span class="emphasis"><em>would</em></span> be printed in a
+        real merge.  It's useful for getting a <span class="quote">“<span class="quote">high-level</span>”</span>
+        preview of the potential merge, for those times
+        when running <span class="command"><strong>svn diff</strong></span> gives too much
+        detail.</p>
+        <div class="tip" title="Tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Tip">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Tip]" src="images/tip.png" />
+              </td>
+              <th align="left">Tip</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>After performing a merge operation, but before
+          committing the results of the merge, you can
+          use <strong class="userinput"><code>svn diff
+          --depth=empty <em class="replaceable"><code>/path/to/merge/target</code></em></code></strong>
+          to see only the changes to the immediate target of your
+          merge.  If your merge target was a directory, only property
+          differences will be displayed.  This is a handy way to see
+          the changes to the
+          <code class="literal">svn:mergeinfo</code> property recorded by the
+          merge operation, which will remind you about what you've
+          just merged.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+        <p>Of course, the best way to preview a merge operation is to
+        just do it!  Remember, running <span class="command"><strong>svn merge</strong></span>
+        isn't an inherently risky thing (unless you've made local
+        modifications to your working copy—but we've already
+        stressed that you shouldn't be merging into such an
+        environment).  If you don't like the results of the merge,
+        simply run <strong class="userinput"><code>svn revert . -R</code></strong> to revert
+        the changes from your working copy and retry the command with
+        different options.  The merge isn't final until you
+        actually <span class="command"><strong>svn commit</strong></span> the results.</p>
+        <div class="tip" title="Tip" style="margin-left: 0.5in; margin-right: 0.5in;">
+          <table border="0" summary="Tip">
+            <tr>
+              <td rowspan="2" align="center" valign="top" width="25">
+                <img alt="[Tip]" src="images/tip.png" />
+              </td>
+              <th align="left">Tip</th>
+            </tr>
+            <tr>
+              <td align="left" valign="top">
+                <p>While it's perfectly fine to experiment with merges by
+          running <span class="command"><strong>svn merge</strong></span> and <span class="command"><strong>svn
+          revert</strong></span> over and over, you may run into some
+          annoying (but easily bypassed) roadblocks.  For example, if
+          the merge operation adds a new file (i.e., schedules it for
+          addition), <span class="command"><strong>svn revert</strong></span> won't actually
+          remove the file; it simply unschedules the addition.  You're
+          left with an unversioned file.  If you then attempt to run
+          the merge again, you may get conflicts due to the
+          unversioned file <span class="quote">“<span class="quote">being in the way.</span>”</span> Solution?
+          After performing a revert, be sure to clean up the working
+          copy and remove unversioned files and directories.  The
+          output of <span class="command"><strong>svn status</strong></span> should be as clean
+          as possible, ideally showing no output.</p>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+      <div class="sect2" title="Undoing Changes">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchmerge.basicmerging.undo"></a>Undoing Changes</h3>
+            </div>
+          </div>
+        </div>
+        <p>An extremely common use for <span class="command"><strong>svn merge</strong></span>
+        is to roll back a change that has already been committed.
+        Suppose you're working away happily on a working copy of
+        <code class="filename">/calc/trunk</code>, and you discover that the
+        change made way back in revision 303, which changed
+        <code class="filename">integer.c</code>, is completely wrong.  It never
+        should have been committed.  You can use <span class="command"><strong>svn
+        merge</strong></span> to <span class="quote">“<span class="quote">undo</span>”</span> the change in your
+        working copy, and then commit the local modification to the
+        repository.  All you need to do is to specify a
+        <span class="emphasis"><em>reverse</em></span> difference.  (You can do this by
+        specifying <code class="option">--revision 303:302</code>, or by an
+        equivalent <code class="option">--change -303</code>.)</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn merge -c -303 ^/calc/trunk
+--- Reverse-merging r303 into 'integer.c':
+U    integer.c
+
+$ svn status
+ M      .
+M       integer.c
+
+$ svn diff
+…
+# verify that the change is removed
+…
+
+$ svn commit -m "Undoing change committed in r303."
+Sending        integer.c
+Transmitting file data .
+Committed revision 350.
+</pre>
+        </div>
+        <p>As we mentioned earlier, one way to think about a
+        repository revision is as a specific changeset.  By using the
+        <code class="option">-r</code> option, you can ask <span class="command"><strong>svn
+        merge</strong></span> to apply a changeset, or a whole range of
+        changesets, to your working copy.  In our case of undoing a
+        change, we're asking <span class="command"><strong>svn merge</strong></span> to apply
+        changeset #303 to our working copy
+        <span class="emphasis"><em>backward</em></span>.</p>
+        <p>Keep in mind that rolling back a change like this is just
+        like any other <span class="command"><strong>svn merge</strong></span> operation, so you
+        should use <span class="command"><strong>svn status</strong></span> and <span class="command"><strong>svn
+        diff</strong></span> to confirm that your work is in the state you
+        want it to be in, and then use <span class="command"><strong>svn commit</strong></span>
+        to send the final version to the repository.  After
+        committing, this particular changeset is no longer reflected
+        in the <code class="literal">HEAD</code> revision.</p>
+        <p>Again, you may be thinking: well, that really didn't undo
+        the commit, did it?  The change still exists in revision 303.
+        If somebody checks out a version of the
+        <code class="filename">calc</code> project between revisions 303 and
+        349, she'll still see the bad change, right?</p>
+        <p>Yes, that's true.  When we talk about
+        <span class="quote">“<span class="quote">removing</span>”</span> a change, we're really talking about
+        removing it from the <code class="literal">HEAD</code> revision.  The
+        original change still exists in the repository's history.  For
+        most situations, this is good enough.  Most people are only
+        interested in tracking the <code class="literal">HEAD</code> of a
+        project anyway.  There are special cases, however, where you
+        really might want to destroy all evidence of the commit.
+        (Perhaps somebody accidentally committed a confidential
+        document.)  This isn't so easy, it turns out, because
+        Subversion was deliberately designed to never lose
+        information.  Revisions are immutable trees that build upon
+        one another.  Removing a revision from history would cause a
+        domino effect, creating chaos in all subsequent revisions and
+        possibly invalidating all working copies.<sup>[<a id="idp36134576" href="#ftn.idp36134576" class="footnote">25</a>]</sup></p>
+      </div>
+      <div class="sect2" title="Resurrecting Deleted Items">
+        <div class="titlepage">
+          <div>
+            <div>
+              <h3 class="title"><a id="svn.branchmerge.basicmerging.resurrect"></a>Resurrecting Deleted Items</h3>
+            </div>
+          </div>
+        </div>
+        <p>The great thing about version control systems is that
+        information is never lost.  Even when you delete a file or
+        directory, it may be gone from the <code class="literal">HEAD</code>
+        revision, but the object still exists in earlier revisions.
+        One of the most common questions new users ask is, <span class="quote">“<span class="quote">How
+        do I get my old file or directory back?</span>”</span></p>
+        <p>The first step is to define
+        exactly <span class="emphasis"><em>which</em></span> item you're
+        trying to resurrect.  Here's a useful metaphor: you can think
+        of every object in the repository as existing in a sort of
+        two-dimensional coordinate system.  The first coordinate is a
+        particular revision tree, and the second coordinate is a path
+        within that tree.  So every version of your file or directory
+        can be defined by a specific coordinate pair.  (Remember the
+        <span class="quote">“<span class="quote">peg revision</span>”</span>
+        syntax—foo.c@224—mentioned back in
+        <a class="xref" href="svn.advanced.pegrevs.html" title="Peg and Operative Revisions">the section called “Peg and Operative Revisions”</a>.) </p>
+        <p>First, you might need to use <span class="command"><strong>svn log</strong></span> to
+        discover the exact coordinate pair you wish to resurrect.  A
+        good strategy is to run <strong class="userinput"><code>svn log --verbose</code></strong>
+        in a directory that used to contain your deleted item.  The
+        <code class="option">--verbose</code> (<code class="option">-v</code>) option shows
+        a list of all changed items in each revision; all you need to
+        do is find the revision in which you deleted the file or
+        directory.  You can do this visually, or by using another tool
+        to examine the log output (via <span class="command"><strong>grep</strong></span>, or
+        perhaps via an incremental search in an editor).</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ cd parent-dir
+$ svn log -v
+…
+------------------------------------------------------------------------
+r808 | joe | 2003-12-26 14:29:40 -0600 (Fri, 26 Dec 2003) | 3 lines
+Changed paths:
+   D /calc/trunk/real.c
+   M /calc/trunk/integer.c
+
+Added fast fourier transform functions to integer.c.
+Removed real.c because code now in double.c.
+…
+</pre>
+        </div>
+        <p>In the example, we're assuming that you're looking for a
+        deleted file <code class="filename">real.c</code>.  By looking through
+        the logs of a parent directory, you've spotted that this file
+        was deleted in revision 808.  Therefore, the last version of
+        the file to exist was in the revision right before that.
+        Conclusion: you want to resurrect the path
+        <code class="filename">/calc/trunk/real.c</code> from revision
+        807.</p>
+        <p>That was the hard part—the research.  Now that you
+        know what you want to restore, you have two different
+        choices.</p>
+        <p>One option is to use <span class="command"><strong>svn merge</strong></span> to apply
+        revision 808 <span class="quote">“<span class="quote">in reverse.</span>”</span> (We already
+        discussed how to undo changes in
+        <a class="xref" href="svn.branchmerge.basicmerging.html#svn.branchmerge.basicmerging.undo" title="Undoing Changes">the section called “Undoing Changes”</a>.)  This
+        would have the effect of re-adding <code class="filename">real.c</code>
+        as a local modification.  The file would be scheduled for
+        addition, and after a commit, the file would again exist
+        in <code class="literal">HEAD</code>.</p>
+        <p>In this particular example, however, this is probably not
+        the best strategy.  Reverse-applying revision 808 would not
+        only schedule <code class="filename">real.c</code> for addition, but
+        the log message indicates that it would also undo certain
+        changes to <code class="filename">integer.c</code>, which you don't
+        want.  Certainly, you could reverse-merge revision 808 and
+        then <span class="command"><strong>svn revert</strong></span> the local modifications to
+        <code class="filename">integer.c</code>, but this technique doesn't
+        scale well.  What if 90 files were changed in revision
+        808?</p>
+        <p>A second, more targeted strategy is not to use
+        <span class="command"><strong>svn merge</strong></span> at all, but rather to use the
+        <span class="command"><strong>svn copy</strong></span> command.  Simply copy the exact
+        revision and path <span class="quote">“<span class="quote">coordinate pair</span>”</span> from the
+        repository to your working copy:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn copy ^/calc/trunk/real.c@807 ./real.c
+
+$ svn status
+A  +    real.c
+
+$ svn commit -m "Resurrected real.c from revision 807, /calc/trunk/real.c."
+Adding         real.c
+Transmitting file data .
+Committed revision 1390.
+</pre>
+        </div>
+        <p>The plus sign in the status output indicates that the item
+        isn't merely scheduled for addition, but scheduled for
+        addition <span class="quote">“<span class="quote">with history.</span>”</span>  Subversion remembers
+        where it was copied from.  In the future, running <span class="command"><strong>svn
+        log</strong></span> on this file will traverse back through the
+        file's resurrection and through all the history it had prior
+        to revision 807.  In other words, this new
+        <code class="filename">real.c</code> isn't really new; it's a direct
+        descendant of the original, deleted file.  This is usually
+        considered a good and useful thing.  If, however, you wanted
+        to resurrect the file <span class="emphasis"><em>without</em></span>
+        maintaining a historical link to the old file, this technique
+        works just as well:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn cat ^/calc/trunk/real.c@807 &gt; ./real.c
+
+$ svn add real.c
+A         real.c
+
+$ svn commit -m "Re-created real.c from revision 807."
+Adding         real.c
+Transmitting file data .
+Committed revision 1390.
+</pre>
+        </div>
+        <p>Although our example shows us resurrecting a file, note
+        that these same techniques work just as well for resurrecting
+        deleted directories.  Also note that a resurrection doesn't
+        have to happen in your working copy—it can happen
+        entirely in the repository:</p>
+        <div class="informalexample">
+          <pre class="screen">
+$ svn copy ^/calc/trunk/real.c@807 ^/calc/trunk/ \
+      -m "Resurrect real.c from revision 807."
+Committed revision 1390.
+
+$ svn update
+Updating '.':
+A    real.c
+Updated to revision 1390.
+</pre>
+        </div>
+      </div>
+      <div class="footnotes">
+        <br />
+        <hr width="100" align="left" />
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp36019920" href="#idp36019920" class="para">24</a>] </sup>This was
+        introduced in svn 1.6.</p>
+        </div>
+        <div class="footnote">
+          <p><sup>[<a id="ftn.idp36134576" href="#idp36134576" class="para">25</a>] </sup>The
+        Subversion project has plans, however, to someday implement a
+        command that would accomplish the task of permanently deleting
+        information.  In the meantime, see
+        <a class="xref" href="svn.reposadmin.maint.html#svn.reposadmin.maint.tk.svndumpfilter" title="svndumpfilter">the section called “svndumpfilter”</a> for a
+        possible workaround.</p>
+        </div>
+      </div>
+    </div>
+    <div class="navfooter">
+      <hr />
+      <table width="100%" summary="Navigation footer">
+        <tr>
+          <td width="40%" align="left"><a accesskey="p" href="svn.branchmerge.using.html">Prev</a> </td>
+          <td width="20%" align="center">
+            <a accesskey="u" href="svn.branchmerge.html">Up</a>
+          </td>
+          <td width="40%" align="right"> <a accesskey="n" href="svn.branchmerge.advanced.html">Next</a></td>
+        </tr>
+        <tr>
+          <td width="40%" align="left" valign="top">Using Branches </td>
+          <td width="20%" align="center">
+            <a accesskey="h" href="index.html">Home</a>
+          </td>
+          <td width="40%" align="right" valign="top"> Advanced Merging</td>
+        </tr>
+      </table>
+    </div>
+    <div xmlns="" id="svn-footer">
+      <hr />
+      <p>You are reading <em>Version Control with Subversion</em> (for Subversion 1.7), by Ben Collins-Sussman, Brian W. Fitzpatrick, and C. Michael Pilato.<br />
+       This work is licensed under the <a href="http://creativecommons.org/licenses/by/2.0/">Creative Commons Attribution License v2.0</a>.<br />
+       To submit comments, corrections, or other contributions to the text, please visit <a href="http://www.svnbook.com/">http://www.svnbook.com/</a>.</p>
+    </div>
+  </body>
+</html>

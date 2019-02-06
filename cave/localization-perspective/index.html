@@ -795,18 +795,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
-      Maps Database
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../python/awips-grids-and-cartopy/" title="AWIPS Grids and Cartopy" class="md-nav__link">
       AWIPS Grids and Cartopy
     </a>
@@ -963,6 +951,18 @@
 
 
   <li class="md-nav__item">
+    <a href="../../python/maps-database/" title="Maps Database" class="md-nav__link">
+      Maps Database
+    </a>
+  </li>
+
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
     <a href="../../appendix/appendix-acronyms/" title="Acronyms and Abbreviations" class="md-nav__link">
       Acronyms and Abbreviations
     </a>
@@ -1076,22 +1076,13 @@
                   <h1>Localization Perspective</h1>
                 
                 <h2 id="localization-levels">Localization Levels<a class="headerlink" href="#localization-levels" title="Permanent link"></a></h2>
-<p>AWIPS uses a hierarchical system known as <em>Localization</em> to configure many aspects of EDEX and CAVE, such as available menu items, color maps, and derived parameters.  This system allows a user to override existing configurations and customize CAVE.  For example, a <em>User-level</em> localization file will supercede any similar file in a lower level (such as <em>Workstation</em> or <em>Site</em>).</p>
+<p>AWIPS uses a hierarchical system known as <em>Localization</em> to configure many aspects of EDEX and CAVE, such as available menu items, color maps, and derived parameters.  This system allows a user to override existing configurations and customize CAVE.  For example, a <em>User-level</em> localization file will supercede any similar file in a lower level (such as <em>Site</em>).</p>
 <div class="admonition note">
-<p class="admonition-title">There are six <em>levels of localization</em>, starting with the default <strong>BASE</strong></p>
+<p class="admonition-title">There are three <em>levels of localization</em>, starting with the default <strong>BASE</strong></p>
 <ul>
 <li><strong>BASE</strong> - default<ul>
-<li><strong>Region</strong> - a region may have many sites (generally unused)<ul>
-<li><strong>Site</strong> - a site may have many desks (required)<ul>
-<li><strong>Desk</strong> - a desk may have many workstations<ul>
-<li><strong>Workstation</strong> - a workstation may have many users<ul>
-<li><strong>User</strong> - highest level of localization, overrides all others</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</li>
+<li><strong>Site</strong> - 3-letter WFO ID (required) overrides base<ul>
+<li><strong>User</strong> - user-level localization overrides site and base</li>
 </ul>
 </li>
 </ul>
@@ -1101,7 +1092,7 @@
 <hr />
 <h2 id="localization-editor">Localization Editor<a class="headerlink" href="#localization-editor" title="Permanent link"></a></h2>
 <p>The Localization Perspective acts as file editor for the XML, Python, and text files which customize the look and feel of CAVE.  </p>
-<p>Users may copy and add files to available directories at the <em>Workstation</em> and <em>User</em> levels.</p>
+<p>Users may copy and add files to available directories at their own <em>User</em> localization version.</p>
 <p>Examples of things that can be accessed through the perspective include (this list is not all-inclusive):</p>
 <ul>
 <li>
@@ -1123,7 +1114,7 @@
 <p><img alt="image alt text" src="../../images/image_1.png" /></p>
 <p>The left panel contains a directory heirarchy of CAVE files for D2D, GFE, and NCP, which can be copied and edited as <em>user</em> localization files.</p>
 <p><img alt="image alt text" src="../../images/image_2.jpg" /></p>
-<p>There may be several versions of each file including <strong>BASE</strong>, <strong>CONFIGURED</strong> (GFE only), <strong>SITE</strong>, <strong>WORKSTATION</strong>, and <strong>USER</strong>.  Each file version is listed separately under the actual file name.</p>
+<p>There may be several versions of each file including <strong>BASE</strong>, <strong>CONFIGURED</strong> (GFE only), <strong>SITE</strong>, and <strong>USER</strong>.  Each file version is listed separately under the actual file name.</p>
 <p>The <strong><em>File Editor</em></strong> view opens the selected configuration file in an appropriate editor.  For example, a Python file is opened in a Python editor, and an XML file is opened in an XML editor.</p>
 <p>--</p>
 <h2 id="customizing-cave-menus">Customizing CAVE Menus<a class="headerlink" href="#customizing-cave-menus" title="Permanent link"></a></h2>
@@ -1131,9 +1122,9 @@
 <p>Selecting a file such as <strong>index.xml</strong> will show a sub-menu with a default localization level (typically <strong>BASE</strong> or <strong>CONFIGURED</strong>). Double-click this tab to open in the file editor (you may need to click <strong>Source</strong> at the bottom of the view to see the raw XML).  Right-click this tab and select <strong>Copy To</strong> &gt; <strong>User (awips)</strong> and you will see the file localization versions update with the new copy. Select this file to edit, and override, the existing version.</p>
 <p>--</p>
 <h2 id="add-new-predefined-area-to-ncp">Add new Predefined Area to NCP<a class="headerlink" href="#add-new-predefined-area-to-ncp" title="Permanent link"></a></h2>
-<p>In the Localization Perspective, navigate to ‘<strong>NCEP - Predefined Area Menus</strong>’, double-click ‘<strong>AreaMenus.xml</strong>’, and then right-click ‘<strong>BASE</strong>’ and select ‘<strong>Copy To - User</strong>’.  You can also copy to <strong>Desk</strong> or <strong>Workstation</strong> localization.</p>
+<p>In the Localization Perspective, navigate to ‘<strong>NCEP - Predefined Area Menus</strong>’, double-click ‘<strong>AreaMenus.xml</strong>’, and then right-click ‘<strong>BASE</strong>’ and select ‘<strong>Copy To - User</strong>’.</p>
 <p><img alt="image alt text" src="../../images/image_4.png" /></p>
-<p>You will see a new ‘<strong>USER (username)</strong>’ or <strong>‘WORKSTATION (name)’ </strong>entry for the file <strong>AreaMenus.xml</strong>.  </p>
+<p>You will see a new ‘<strong>USER (username)</strong>’ entry for the file <strong>AreaMenus.xml</strong>.  </p>
 <p><img alt="image alt text" src="../../images/image_5.png" /> </p>
 <p>Double-click the new file and copy or create a new AreaMenuItem entry, such as a new CONUS Mercator projection called <strong>CONUS_Mercator</strong>:</p>
 <pre><code>&lt;AreaMenuItem subMenuName="" menuName="CONUS (Mercator)"&gt;
