@@ -35,7 +35,7 @@ The left panel contains a directory heirarchy of CAVE files for D2D, GFE, and NC
 
 ![image alt text](../images/image_2.jpg)
 
-There may be several versions of each file including **BASE**, **CONFIGURED** (GFE only), **SITE**, **WORKSTATION**, and **USER**.  Each file version is listed separately under the actual file name.
+There may be several versions of each file including **BASE**, **CONFIGURED** (GFE only), **SITE**, and **USER**.  Each file version is listed separately under the actual file name.
 
 The **_File Editor_** view opens the selected configuration file in an appropriate editor.  For example, a Python file is opened in a Python editor, and an XML file is opened in an XML editor.
 
@@ -55,7 +55,7 @@ In the Localization Perspective, navigate to ‘**NCEP - Predefined Area Menus**
 
 ![image alt text](../images/image_4.png)
 
-You will see a new ‘**USER (username)**’ or **‘WORKSTATION (name)’ **entry for the file **AreaMenus.xml**.  
+You will see a new ‘**USER (username)**’ entry for the file **AreaMenus.xml**.  
 
 ![image alt text](../images/image_5.png) 
 
