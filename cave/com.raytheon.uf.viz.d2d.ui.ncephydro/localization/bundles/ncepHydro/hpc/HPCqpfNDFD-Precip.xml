@@ -31,7 +31,7 @@
 						isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
 						<metadataMap>
 							<mapping key="info.parameter.abbreviation">
-								<constraint constraintValue="${param}" constraintType="IN" />
+								<constraint constraintValue="tpHPCndfd" constraintType="EQUALS" />
 							</mapping>
 							<mapping key="info.datasetId">
 								<constraint constraintValue="HPCqpfNDFD" constraintType="EQUALS" />
@@ -66,7 +66,7 @@
                     <resourceData xsi:type="gridResourceData" sampling="true" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
-                                <constraint constraintType="IN" constraintValue="${param}"/>
+                                <constraint constraintType="EQUALS" constraintValue="tpHPCndfd"/>
                             </mapping>
                             <mapping key="info.datasetId">
                                 <constraint constraintType="EQUALS" constraintValue="HPCqpfNDFD"/>

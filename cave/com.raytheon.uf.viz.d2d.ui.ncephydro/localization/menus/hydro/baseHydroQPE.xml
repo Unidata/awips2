@@ -1,82 +1,66 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<!--  Direct port of tdlSurfaceMenus.txt -->
-	<contribute xsi:type="bundleItem" file="bundles/grib/gribImageBundle.xml"
-		menuText="1hr WFO local MPE" id="1HrMPE">
-		<substitute key="param" value="TP1hr"/>
-		<substitute key="modelName" value="MPE-Local"/>
+
+	
+	<contribute xsi:type="separator" id="separator"/>
+        
+	<contribute xsi:type="titleItem" titleText="---- QPF ----" id="QPFLine"/>
+	
+ 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD-Precip.xml" 
+              menuText="Surface Precipitation QPF" id="HPCQPF6hr">
+    </contribute>
+    
+   	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD6hr.xml" 
+       	menuText="6 Hr Precip" id="oneTo3HPCQPF">
+   	</contribute>
+   	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD120hr.xml" 
+		menuText="5 Day Total Precip" id="oneTo5HPCQPF">
+   	</contribute>
+   	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD168hr.xml" 
+		menuText="7 Day Total Precip" id="7DayHPCQPF">
+   	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD-PPFFG.xml" 
+		menuText="1-3 Day Excessive Rainfall" id="day1to3ExcessiveRainfall">
+		<substitute key="frameCount" value="3" />
+		<substitute key="param" value="PPFFG" />
 	</contribute>
+	
+	<contribute xsi:type="titleItem" titleText="---- Satellite Precip Estimate (AUTOSPE) ----" id="WPCLine"/>
+
+	<contribute xsi:type="bundleItem" file="bundles/hydro/AutoSPE.xml"
+		menuText="1 hr Precipitation Estimate" id="AutoSPE">
+	    <substitute key="model" value="AUTOSPE"/>
+	    <substitute key="parm" value="TP1hr"/>
+	</contribute>
+	
+	<contribute xsi:type="bundleItem" file="bundles/hydro/AutoSPE.xml"
+		menuText="3 hr Precipitation Estimate" id="AutoSPE">
+	    <substitute key="model" value="AUTOSPE"/>
+	    <substitute key="parm" value="TP3hr"/>
+	</contribute>
+	
+	<contribute xsi:type="bundleItem" file="bundles/hydro/AutoSPE.xml"
+		menuText="6 hr Precipitation Estimate" id="AutoSPE">
+	    <substitute key="model" value="AUTOSPE"/>
+	    <substitute key="parm" value="TP6hr"/>
+	</contribute>
+	
+	<contribute xsi:type="separator" id="separator1"/>
+
 	<contribute xsi:type="bundleItem" file="bundles/grib/gribImageBundle.xml"
-		menuText="1hr RFC Local Mosaic" id="1HrRFC">
+		menuText="1 hr RFC Local Mosaic" id="1HrRFC">
 		<substitute key="param" value="TP1hr"/>
 		<substitute key="modelName" value="MPE-Mosaic"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/grib/gribImageBundle.xml"
-		menuText="6hr RFC Local Mosaic" id="6HrRFC">
+		menuText="6 hr RFC Local Mosaic" id="6HrRFC">
 		<substitute key="param" value="TP6hr"/>
 		<substitute key="modelName" value="MPE-Mosaic"/>
 	</contribute>
 	<contribute xsi:type="bundleItem" file="bundles/grib/gribImageBundle.xml"
-		menuText="24hr RFC Local Mosaic" id="24HrRFC">
+		menuText="24 hr RFC Local Mosaic" id="24HrRFC">
 		<substitute key="param" value="TP24hr"/>
 		<substitute key="modelName" value="MPE-Mosaic"/>
 	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/grib/gribImageBundle.xml"
-		menuText="6hr RFC National Mosaic" id="Nat6HrQPE">
-		<substitute key="param" value="TP6hr"/>
-		<substitute key="modelName" value="QPE"/>
-	</contribute>
-	<contribute xsi:type="separator" id="separator1"/>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/AutoSPE.xml"
-		menuText="1hr Auto SPE" id="AutoSPE">
-	    <substitute key="model" value="SPE"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="1hr Manual SPE" id="1ManSPE">
-    	<substitute key="fcsttime" value="3600"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="2hr Manual SPE" id="2ManSPE">
-    	<substitute key="fcsttime" value="7200"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="3hr Manual SPE" id="3ManSPE">
-    	<substitute key="fcsttime" value="10800"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="4hr Manual SPE" id="4ManSPE">
-    	<substitute key="fcsttime" value="14400"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="5hr Manual SPE" id="5ManSPE">
-    	<substitute key="fcsttime" value="18000"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="6hr Manual SPE" id="6ManSPE">
-    	<substitute key="fcsttime" value="21600"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="7hr Manual SPE" id="7ManSPE">
-    	<substitute key="fcsttime" value="25200"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="8hr Manual SPE" id="8ManSPE">
-    	<substitute key="fcsttime" value="28800"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="9hr Manual SPE" id="9ManSPE">
-    	<substitute key="fcsttime" value="32400"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="10hr Manual SPE" id="10ManSPE">
-    	<substitute key="fcsttime" value="36000"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="11hr Manual SPE" id="11ManSPE">
-    	<substitute key="fcsttime" value="39600"/>
-	</contribute>
-	<contribute xsi:type="bundleItem" file="bundles/hydro/ManSPE.xml"
-		menuText="12hr Manual SPE" id="12ManSPE">
-    	<substitute key="fcsttime" value="43200"/>
-	</contribute>
+		
 </menuTemplate>

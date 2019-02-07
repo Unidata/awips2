@@ -3,8 +3,25 @@
 
 	<contribute xsi:type="titleItem" titleText="------ Lightning ------" id="sfcMenuLightning" />
 	
-	<contribute xsi:type="subMenu" menuText="GLM - Geostationary Lightning Mapper" id="udpln">
+	<contribute xsi:type="subMenu" menuText="GLM - Geostationary Lightning Mapper" id="glm">
+	
+		<contribute xsi:type="subMenu" menuText="GLM Combined" id="glmGridPointSubmenu">
+		<contribute xsi:type="subinclude"
+			fileName="menus/glm/lightning/glmCombinedLightningBundleItems.xml">
+		</contribute>
 	</contribute>
+	<contribute xsi:type="subMenu" menuText="GLM" id="glmPointSubMenu">
+		<contribute xsi:type="subinclude"
+			fileName="menus/glm/lightning/glmPointLightningBundleItems.xml">
+		</contribute>
+	</contribute>
+	<contribute xsi:type="subMenu" menuText="GLM Grid" id="glmGridSubmenu">
+		<contribute xsi:type="subinclude"
+			fileName="menus/glm/lightning/glmGridLightningMenuItems.xml">
+		</contribute>
+	</contribute>
+	</contribute>
+	
 	<contribute xsi:type="subMenu" menuText="USPLN - US Precision Lightning Network" id="udpln">
 		
 	    <contribute xsi:type="bundleItem" file="bundles/USPLNSeq60min.xml" 

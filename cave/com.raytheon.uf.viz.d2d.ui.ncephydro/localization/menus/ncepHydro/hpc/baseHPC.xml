@@ -1,13 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-
-    <contribute xsi:type="titleItem" titleText="---- Weather Prediction Center ----" id="WPCLine"/>
-	
- 	<contribute xsi:type="bundleItem" file="bundles/ncepHydro/hpc/HPCqpfNDFD-Precip.xml" 
-              menuText="Surface Precipitation QPF" id="HPCQPF6hr">
-              <substitute key="param" value="tpHPCndfd" />
-    </contribute>
-
-    <contribute xsi:type="subinclude" fileName="menus/ncepHydro/hpc/hpcMenus.xml"/>
-
+	<contribute xsi:type="subMenu" menuText="Precip Products"
+		id="ncepHydro.hpc.precipitation">
+		
+	</contribute>
 </menuTemplate>

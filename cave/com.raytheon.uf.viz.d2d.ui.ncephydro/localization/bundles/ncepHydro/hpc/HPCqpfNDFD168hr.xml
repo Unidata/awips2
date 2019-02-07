@@ -20,7 +20,7 @@
                             <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
                                 <metadataMap>
                                     <mapping key="info.parameter.abbreviation">
-                                        <constraint constraintType="EQUALS" constraintValue="TP6hr"/>
+                                        <constraint constraintType="EQUALS" constraintValue="TP168hr"/>
                                     </mapping>
                                     <mapping key="info.datasetId">
                                         <constraint constraintType="EQUALS" constraintValue="HPCqpfNDFD"/>
@@ -46,7 +46,7 @@
                                         <colorMapParameters colorMapName="Radar/UPC One Hour Precip">
                                             <persisted>
                                             	<colorMapMin>0.20320001</colorMapMin>
-                                                <colorMapMax>431.8</colorMapMax>
+                                                <colorMapMax>4064.0</colorMapMax>
                                             </persisted>
                                         </colorMapParameters>
                                     </capability>
@@ -62,7 +62,7 @@
                             <resourceData xsi:type="gridResourceData" sampling="false" spatial="false" isRequeryNecessaryOnTimeMatch="true" isUpdatingOnMetadataOnly="false" retrieveData="true">
                                 <metadataMap>
                                     <mapping key="info.parameter.abbreviation">
-                                        <constraint constraintType="EQUALS" constraintValue="TP6hr"/>
+                                        <constraint constraintType="EQUALS" constraintValue="TP168hr"/>
                                     </mapping>
                                     <mapping key="info.datasetId">
                                         <constraint constraintType="EQUALS" constraintValue="HPCqpfNDFD"/>
@@ -78,7 +78,7 @@
                             </resourceData>
                         </resource>
             	<timeMatcher xsi:type="d2DTimeMatcher" deltaFilter="0" forecastFilter="0"/>
-                <numberOfFrames>36</numberOfFrames>
+                <numberOfFrames>12</numberOfFrames>
             </descriptor>
         </displays>
     </displayList>

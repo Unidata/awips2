@@ -94,8 +94,8 @@ public class D2D5Pane implements IPerspectiveFactory {
             }
         }
 
-        int numViews = ChangeD2DLayoutAction.getViewCount() > 0 ? 4
-                : 0;
+        int numViews = ChangeD2DLayoutAction.getViewCount() > 0 ? 0
+                : 4;
 
         String lastAdded = null;
 
