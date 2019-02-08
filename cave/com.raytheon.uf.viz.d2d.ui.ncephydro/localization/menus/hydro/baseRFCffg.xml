@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<contribute xsi:type="separator" id="separator1"/>
+    
     <contribute xsi:type="titleItem" titleText="------ RFC Flash Flood Guidance ------" />
+  	
   	<contribute xsi:type="bundleItem" file="bundles/hydro/FFGLmosaic.xml"
 		menuText="1 hour FFG Mosaic" id="1hrFFG">
 		<substitute key="timespan" value="FFG0124hr"/>
@@ -31,4 +35,23 @@
 	    <substitute key="type" value="FFG-"/>
 	    <substitute key="name" value="RFC 24hr FFG Mosaic"/>
 	</contribute>
+	
+	<contribute xsi:type="titleItem" titleText="------RFC Precip Accumulation ------" />
+	
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribMosaicBundle.xml"
+		menuText="1 hr RFC Precip Mosaic" id="1HrRFC">
+		<substitute key="param" value="TP1hr"/>
+		<substitute key="modelName" value="MPE-Mosaic%"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribMosaicBundle.xml"
+		menuText="6 hr RFC Precip Mosaic" id="6HrRFC">
+		<substitute key="param" value="TP6hr"/>
+		<substitute key="modelName" value="MPE-Mosaic%"/>
+	</contribute>
+	<contribute xsi:type="bundleItem" file="bundles/grib/gribMosaicBundle.xml"
+		menuText="24 hr RFC Precip Mosaic" id="24HrRFC">
+		<substitute key="param" value="TP24hr"/>
+		<substitute key="modelName" value="MPE-Mosaic%"/>
+	</contribute>
+
 </menuTemplate>

@@ -66,7 +66,7 @@
         </contribute>
     </contribute>
     
-	<contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="Marine" id="ncepHydro.mpc.marineGuidance">
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="OPC Marine Guidance" id="ncepHydro.mpc.marineGuidance">
         <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Tropical Sfc Analysis" timeQuery="true" id="tropicalSfcAnalysis">
             <substitute value="PYNA98" key="wmo"/>
         </contribute>
@@ -138,4 +138,484 @@
             <substitute value="PJBI88,PJBA88" key="wmo"/>
         </contribute>
     </contribute>
+    
+    
+	<contribute xsi:type="subMenu" menuText="Hurricane" id="ncepHydro.tpc.hurricane">
+
+		<contribute xsi:type="bundleItem" file="bundles/TrackSummaryPlot.xml"
+			menuText="Hurricane Track Summaries" id="hurricaneTrackSummary">
+			<substitute key="productType" value="TCMAT1,TCMAT2,TCMAT3,TCMAT4,TCMAT5,TCMEP1,TCMEP2,TCMEP3,TCMEP4,TCMEP5,TCMCP1,TCMCP2,TCMCP3,TCMCP4,TCMCP5,TCMCP1,TCMCP2,TCMCP3,TCMCP4,TCMCP5,TCMWP1,TCMWP2,TCMWP3,TCMWP4,TCMWP5,TCP" />
+		</contribute>
+		
+		<contribute xsi:type="titleItem" titleText="------ Position Update ------"
+			id="PositionUpdateLine" />
+		<contribute xsi:type="bundleItem" file="bundles/ncepHydro/PositionUpdatePlot.xml"
+			menuText="Atlantic" id="atlanticPositionUpdate">
+			<substitute key="productType" value="TCEAT1,TCEAT2,TCEAT3,TCEAT4,TCEAT5" />
+			<substitute key="legend" value="Atlantic" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/ncepHydro/PositionUpdatePlot.xml"
+			menuText="E Pacific" id="easternPacificPositionUpdate">
+			<substitute key="productType" value="TCEEP1,TCEEP2,TCEEP3,TCEEP4,TCEEP5" />
+			<substitute key="legend" value="E Pacific" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/ncepHydro/PositionUpdatePlot.xml"
+			menuText="C Pacific" id="centralPacificPositionUpdate">
+			<substitute key="productType" value="TCECP1,TCECP2,TCECP3,TCECP4,TCECP5" />
+			<substitute key="legend" value="C Pacific" />
+		</contribute>
+
+		<contribute xsi:type="separator" id="separator"/>
+		
+		<contribute xsi:type="titleItem" titleText="------ Model Guidance ------"
+			id="ModelGuidanceLine" />
+		<contribute xsi:type="bundleItem" file="bundles/ncepHydro/CHGHURGuidancePlot.xml"
+			menuText="CHGHUR guidance" id="CHGHURguidance" useReferenceTime="true">
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/ncepHydro/CHGQLMGuidancePlot.xml"
+			menuText="CHGQLM guidance" id="CHGQLMguidance" useReferenceTime="true">
+		</contribute>
+		
+		<contribute xsi:type="separator" id="separator"/>
+		
+		<contribute xsi:type="titleItem" titleText="------ Hourly Forecasts ------"
+			id="ModelGuidanceLine" />
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="AT1" id="AT1">
+			<substitute key="productType" value="AT1" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="AT2" id="AT2">
+			<substitute key="productType" value="AT2" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="AT3" id="AT3">
+			<substitute key="productType" value="AT3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="AT4" id="AT4">
+			<substitute key="productType" value="AT4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="AT5" id="AT5">
+			<substitute key="productType" value="AT5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="EP1" id="EP1">
+			<substitute key="productType" value="EP1" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="EP2" id="EP2">
+			<substitute key="productType" value="EP2" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="EP3" id="EP3">
+			<substitute key="productType" value="EP3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="EP4" id="EP4">
+			<substitute key="productType" value="EP4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="EP5" id="EP5">
+			<substitute key="productType" value="EP5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="CP1" id="CP1">
+			<substitute key="productType" value="CP1" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="CP2" id="CP2">
+			<substitute key="productType" value="CP2" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="CP3" id="CP3">
+			<substitute key="productType" value="CP3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="CP4" id="CP4">
+			<substitute key="productType" value="CP4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="CP5" id="CP5">
+			<substitute key="productType" value="CP5" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="WP1" id="WP1">
+			<substitute key="productType" value="WP1" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="WP2" id="WP2">
+			<substitute key="productType" value="WP2" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="WP3" id="WP3">
+			<substitute key="productType" value="WP3" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="WP4" id="WP4">
+			<substitute key="productType" value="WP4" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/HourlyForecastPlot.xml"
+			menuText="WP5" id="WP5">
+			<substitute key="productType" value="WP5" />
+		</contribute>
+
+	</contribute>
+	
+		<contribute xsi:type="subMenu" menuText="Snow and Ice ">
+	    	<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 1 Prob 4+&quot; Snow" id="day1Prob4InchesSnow">
+		        <substitute key="wmo" value="PSBB04"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 2 Prob 4+&quot; Snow" id="day2Prob4InchesSnow">
+		        <substitute key="wmo" value="PSBC04"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 3 Prob 4+&quot; Snow" id="day3Prob4InchesSnow">
+		        <substitute key="wmo" value="PSBD04"/>
+		    </contribute>
+	    
+	    	<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 1 Prob 8+&quot; Snow" id="day1Prob8InchesSnow">
+		        <substitute key="wmo" value="PSBB08"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 2 Prob 8+&quot; Snow" id="day2Prob8InchesSnow">
+		        <substitute key="wmo" value="PSBC08"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 3 Prob 8+&quot; Snow" id="day3Prob8InchesSnow">
+		        <substitute key="wmo" value="PSBD08"/>
+		    </contribute>
+	    
+	    	<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 1 Prob 12+&quot; Snow" id="day1Prob12InchesSnow">
+		        <substitute key="wmo" value="PSBB12"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 2 Prob 12+&quot; Snow" id="day2Prob12InchesSnow">
+		        <substitute key="wmo" value="PSBC12"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 3 Prob 12+&quot; Snow" id="day3Prob12InchesSnow">
+		        <substitute key="wmo" value="PSBD12"/>
+		    </contribute>
+		    
+	    	<contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 1 Prob .25+&quot; Ice" id="day1Prob025InchesIce">
+		        <substitute key="wmo" value="PSBB25"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 2 Prob .25+&quot; Ice" id="day2Prob025InchesIce">
+		        <substitute key="wmo" value="PSBC25"/>
+		    </contribute>
+		    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	               menuText="Day 3 Prob .25+&quot; Ice" id="day3Prob025InchesIce">
+		        <substitute key="wmo" value="PSBD25"/>
+		    </contribute>
+		    
+			<contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Snow Cover Plot" timeQuery="true" id="ncepHydro.nco.snowCoverPlot">
+	            <substitute value="PEWA32" key="wmo"/>
+	        </contribute>
+	        
+	        <contribute xsi:type="separator" id="separator2"/>
+	        
+            <contribute xsi:type="titleItem" titleText="------ NOHRSC Snow Images ------" id="ncepHydro.nco.nohrsc.title"/>
+            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" menuText="Snow Cover" timeQuery="true" id="ncepHydro.nco.snowCover">
+                <substitute value="MSTAV" key="param"/>
+                <substitute value="Snow Cover" key="customLegend"/>
+                <substitute value="0.00" key="sampleFormat"/>
+            </contribute>
+            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" menuText="Snow Cover Elev" timeQuery="true" id="ncepHydro.nco.snowCoverElev">
+                <substitute value="sce" key="param"/>
+                <substitute value="Snow Cover by elevation (kft)" key="customLegend"/>
+                <substitute value="0.00" key="sampleFormat"/>
+            </contribute>
+            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" menuText="Snow Water equiv" timeQuery="true" id="ncepHydro.nco.snowWaterEquiv">
+                <substitute value="swe" key="param"/>
+                <substitute value="Snow Water Equivalent (in)" key="customLegend"/>
+                <substitute value="0.00" key="sampleFormat"/>
+            </contribute>
+            <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/ncepHydro/NOHRSC-SNOW.xml" menuText="Snow Water % nrml" timeQuery="true" id="ncepHydro.nco.snowWaterPercent">
+                <substitute value="SWEPN" key="param"/>
+                <substitute value="Snow Water Equivalent % of normal (%)" key="customLegend"/>
+                <substitute value="0.00" key="sampleFormat"/>
+            </contribute>
+	    </contribute>
+	
+	
+<contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="CPC Hazard Charts" id="ncepHydro.cpc.hazardCharts">
+        <contribute xsi:type="titleItem" titleText="------ 3-7 Day Hazards Outlook ------" id="threeTo7DayHazardsOutlook"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="3-7 day Precipitation Fcst" timeQuery="true" id="threeTo7DayPrecipFcst">
+            <substitute value="PEIY97" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="3-7 Temperature/Wind Fcst" timeQuery="true" id="threeTo7DayTempWindFcst">
+            <substitute value="PTIY97" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="3-7 day Soil/Wildfire Fcst" timeQuery="true" id="threeTo7DaySoilWildfireFcst">
+            <substitute value="PYIY97" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="titleItem" titleText="------ 8-14 Day Hazards Outlook ------" id="eightTo14DayHazardOutlook"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="8-14 day Precipitation Fcst" timeQuery="true" id="eightTo14DayPrecipFcst">
+            <substitute value="PEIY96" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="8-14 Temperature/Wind Fcst" timeQuery="true" id="eightTo14DayTempWindFcst">
+            <substitute value="PTIY96" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="8-14 day Soil/Wildfire Fcst" timeQuery="true" id="eightTo14DaySoilWildfireFcst">
+            <substitute value="PYIY96" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="titleItem" titleText="------ 6-10 Day Heat Index Fcst ------" id="sixTo10DayHeatIndexFcstLine"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 85F for 3 days of 5" timeQuery="true" id="gt85For3daysOf5">
+            <substitute value="PTAS90" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 90F for 2 days of 5" timeQuery="true" id="gt90For2daysOf5">
+            <substitute value="PTAS95" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 95F for 1 day of 5" timeQuery="true" id="gt95For1dayOf5">
+            <substitute value="PTAS00" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="6-10 Day Max Heat Index Outlook" timeQuery="true" id="maxHeatIndexOutlook">
+            <substitute value="PTNR98" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="titleItem" titleText="------ 8-14 Day Heat Index Fcst ------" id="eightTo14DayHeatIndexFcstLine"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 85F for 3 days of 7" timeQuery="true" id="gt85For3daysOf7">
+            <substitute value="PTAT90" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 90F for 2 days of 7" timeQuery="true" id="gt90For2daysOf7">
+            <substitute value="PTAT95" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="&gt;= 95F for 1 day of 7" timeQuery="true" id="gt95For1dayOf7">
+            <substitute value="PTAT00" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="8-14 Day Max Heat Index Outlook" timeQuery="true" id="maxHeatIndexOutlook">
+            <substitute value="PTNT98" key="wmo"/>
+        </contribute>
+    </contribute>
+    
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="Precip and Stability" id="ncepHydro.nco.precipStability">
+	    
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	              menuText="1-5 Day Total Precip" id="oneToFiveDayTotalPrecip">
+	        <substitute key="wmo" value="PEIO46"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	              menuText="6-10, 8-14 Day Precip Anom" id="sixToTen8to14DayPrecipAnom">
+	           <substitute key="wmo" value="PEIY47, PETT00"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+	              menuText="30 Day Precip Anom" id="thirtyDayPrecipAnom">
+	        <substitute key="wmo" value="PEIV98"/>
+	    </contribute>
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+				menuText="90 Day Seasonal Precip Outlook" id="ninetyDaySeasonalPrecipOutlook">
+			<substitute key="wmo" value="PEIW01,PEIW02,PEIW03,PEIW04,PEIW05,PEIW06,PEIW07,PEIW08,PEIW09,PEIW10,PEIW11,PEIW12,PEIW13"/>
+		</contribute>			
+	    <contribute xsi:type="bundleItem" file="bundles/Redbook.xml" 
+				menuText="0.5 Mo (15-105 day) 50% POE Precip Outlook" id="fiftyPercentPOEPrecipOutlook2">	    
+				<substitute key="wmo" value="PENV01,PENV02,PENV03,PENV04,PENV05,PENV06,PENV07,PENV08,PENV09,PENV10,PENV11,PENV12,PENV13"/>
+		</contribute>
+		
+		<contribute xsi:type="separator" id="separator2"/>
+    
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Daily Precipitation" timeQuery="true" id="ncepHydro.nco.dailyPrecipitation">
+            <substitute value="PEWA31" key="wmo"/>
+        </contribute>
+
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Radar Summary" timeQuery="true" id="ncepHydro.nco.radarSummary">
+            <substitute value="PAWO82" key="wmo"/>
+            <substitute value="3600" key="posOff"/>
+            <substitute value="-2100" key="virtOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Radar Legends" timeQuery="true" id="ncepHydro.nco.radarLegends">
+            <substitute value="PAWO83" key="wmo"/>
+            <substitute value="3600" key="posOff"/>
+            <substitute value="-2100" key="virtOff"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Precip H20 Plot" timeQuery="true" id="ncepHydro.nco.precipH20Plot">
+            <substitute value="PEWA33" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Precip H20 Analysis" timeQuery="true" id="ncepHydro.nco.precipH20Analysis">
+            <substitute value="PEWA34" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Sfc-500 RH Plot" timeQuery="true" id="ncepHydro.nco.sfc500RHPlot">
+            <substitute value="PRWA51" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Lifted-K Index Plot" timeQuery="true" id="ncepHydro.nco.liftedKIndexPlot">
+            <substitute value="PXWA50" key="wmo"/>
+        </contribute>
+    </contribute>
+    <contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="Temps &amp;&amp; Weather" id="ncepHydro.nco.tempsWeather">
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Observed Max/Min Temps" timeQuery="true" id="ncepHydro.nco.observedMaxMinTemps">
+            <substitute value="PTWA31, PTWA32" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Normal Max/Min Temps" timeQuery="true" id="ncepHydro.nco.normalMaxMinTemps">
+            <substitute value="PTWO33, PTWO34" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="separator" visible="true" id="separator1"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Frzg Lvl Plot" timeQuery="true" id="ncepHydro.nco.frzgLvlPlot">
+            <substitute value="PTWA94" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Frzg Lvl Analysis" timeQuery="true" id="ncepHydro.nco.frzgLvlAnalysis">
+            <substitute value="PTWA93" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Frzg Lvl/Turbulence Fcst" timeQuery="true" id="ncepHydro.nco.frzgLvlTurbulenceFcst">
+            <substitute value="PTIC94, PTIE94" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="separator" visible="true" id="separator2"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Wx Depiction Plot" timeQuery="true" id="ncepHydro.nco.wxDepictionPlot">
+            <substitute value="PGWA31" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Wx Depiction Analysis" timeQuery="true" id="ncepHydro.nco.wxDepictionAnalysis">
+            <substitute value="PGWA32" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Wx Depiction Fcst" timeQuery="true" id="ncepHydro.nco.wxDepictionFcst">
+            <substitute value="PGIC42, PGIE43" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="separator" visible="true" id="separator3"/>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Sfc Geo Wind Plot" timeQuery="true" id="ncepHydro.nco.sfcGeoWindPlot">
+            <substitute value="PYWA31" key="wmo"/>
+        </contribute>
+        <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Sfc Geo Relative Vort" timeQuery="true" id="ncepHydro.nco.sfcGeoRelativeVort">
+            <substitute value="PYWA32" key="wmo"/>
+        </contribute>
+        
+        
+        <contribute xsi:type="separator" id="separator4" />
+        
+        
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Instantaneous Precip" id="instantaneousPrecip">
+			<substitute key="wmo" value="PEIC61, PEIE62, PEIG63, PEII64" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook_customLegend.xml"
+			menuText="Precip Accum - 6 hr" id="precipAccum6hr">
+			<substitute key="wmo"
+				value="PEIB40, PEIC43, PEID44, PEIE40, PEIF40, PEBF98, PEBG98, PEBH98, PEBI88, PEBI98, PEBJ88, PEBJ98, PEBK98" />
+			<substitute key="customLegend" value="Precip Fcst - 6hr accum" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Precip Accum - 24 hr" id="precipAccum24hr">
+			<substitute key="wmo" value="PEIE41, PEII42, PEIK98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Sig River Flood Outlook" id="sigRiverFloodOutlook">
+			<substitute key="wmo" value="PENJ88" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Mesoscale Precip Discussion" id="mesoPrecipDisc">
+			<substitute key="wmo" value="PENA01" />
+		</contribute>
+		
+		<contribute xsi:type="separator" id="separator1" />
+
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="6-10, 8-14 Day Precip Anom" id="sixToTen8to14DayPrecipAnom">
+			<substitute key="wmo" value="PEIY47, PETT00" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="30 Day Precip Anom" id="thirtyDayPrecipAnom">
+			<substitute key="wmo" value="PEIV98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="90 Day Seasonal Precip Outlook" id="ninetyDaySeasonalPrecipOutlook">
+			<substitute key="wmo"
+				value="PEIW01,PEIW02,PEIW03,PEIW04,PEIW05,PEIW06,PEIW07,PEIW08,PEIW09,PEIW10,PEIW11,PEIW12,PEIW13" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="0.5 Mo (15-105 day) 50% POE Precip Outlook" id="fiftyPercentPOEPrecipOutlook2">
+			<substitute key="wmo"
+				value="PENV01,PENV02,PENV03,PENV04,PENV05,PENV06,PENV07,PENV08,PENV09,PENV10,PENV11,PENV12,PENV13" />
+		</contribute>
+		
+		<contribute xsi:type="separator" id="separator4" />
+		
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="1-5 Day Max Temp Anomaly" id="fiveDayMaxTempAnomaly">
+			<substitute key="wmo" value="PTIO52" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="1-5 Day Min Temp Anomaly" id="fiveDayMinTempAnomaly">
+			<substitute key="wmo" value="PTIO53" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Day 3-7 Max/Min/PoP" id="day3To7MaxMinPoP">
+			<substitute key="wmo" value="PYWK43, PYWM44, PYWO45, PYWQ46, PYWS98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Day 3 Heat Index Probabilities" id="day3HeatIndex">
+			<substitute key="wmo" value="PTNK98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Day 4 Heat Index Probabilities" id="day4HeatIndex">
+			<substitute key="wmo" value="PTNM98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Day 5 Heat Index Probabilities" id="day5HeatIndex">
+			<substitute key="wmo" value="PTNO98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Day 6 Heat Index Probabilities" id="day6HeatIndex">
+			<substitute key="wmo" value="PTNQ98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Day 7 Heat Index Probabilities" id="day7HeatIndex">
+			<substitute key="wmo" value="PTNS98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="6-10, 8-14 Day Temp Anomaly" id="TempAnomaly6to108to14">
+			<substitute key="wmo" value="PTTU98, PTIY51" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="30 Day Temp Anomaly" id="thirtyDayTempAnomaly">
+			<substitute key="wmo" value="PTIV98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="90 Day Seasonal Temp Outlook" id="ninetyDaySeasonalTempOutlook">
+			<substitute key="wmo"
+				value="PTIW01,PTIW02,PTIW03,PTIW04,PTIW05,PTIW06,PTIW07,PTIW08,PTIW09,PTIW10,PTIW11,PTIW12,PTIW13" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="0.5 Mo (15-105 day) 50% POE Temp Outlook" id="fiftyPercentPOEPrecipOutlook2">
+			<substitute key="wmo"
+				value="PTNV01,PTNV02,PTNV03,PTNV04,PTNV05,PTNV06,PTNV07,PTNV08,PTNV09,PTNV10,PTNV11,PTNV12,PTNV13" />
+		</contribute>
+
+		<contribute xsi:type="separator" id="separator4" />
+
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="MSL Pressure Analysis" id="MSLPressureAnalysis">
+			<substitute key="wmo" value="PPAA89" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Surface Fronts Analysis" id="surfaceFrontsAnalysis">
+			<substitute key="wmo" value="PYAA98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="12-48 hr Fronts/Press" id="frontsPress12to48">
+			<substitute key="wmo" value="PPIC01, PPIE01, PPIG01, PPII01" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="Day 3-7 Fronts/Press" id="day3to7FrontsPress">
+			<substitute key="wmo" value="PPHK01, PPHM01, PPHO01, PPTG98, PPTR98" />
+		</contribute>
+		<contribute xsi:type="bundleItem" file="bundles/Redbook.xml"
+			menuText="3-Day Sig Winter Low Tracks" id="threeDaySigWinterLowTracks">
+			<substitute key="wmo" value="PSAO72" />
+		</contribute>
+        
+	</contribute>
+	
+	<contribute xsi:type="subMenu" menuText="Sounding-derived plots"
+        id="ncepHydro.nco.soundingDerivedPlots">
+        <contribute xsi:type="separator"
+            id="ncepHydro.nco.soundingDerivedPlots.top" visible="false" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/ncepHydro/soundingPlots.xml" />
+        <contribute xsi:type="separator"
+            id="ncepHydro.nco.soundingDerivedPlots.bottom" visible="false" />		
+    </contribute>
+	
 </menuTemplate>
