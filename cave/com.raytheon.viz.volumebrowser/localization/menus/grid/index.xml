@@ -1,24 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-
--->
 <menuContributionFile>
 	<include installTo="menu:models" 
              fileName="menus/grid/cmcFamilies.xml">
@@ -27,6 +7,15 @@
              <substitute key="frameCount" value="19" />
              <substitute key="TP" value="TP"/>
     </include>
+    
+    <include installTo="menu:models" 
+             fileName="menus/grid/cmcFamilies.xml">
+             <substitute key="modelName" value="ECMWF-HiRes" />
+             <substitute key="menuName" value="ECMWF" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </include>
+	
 	<include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="GFS" />
@@ -112,13 +101,6 @@
              <substitute key="TP" value="TP"/>
     </include>
 	<include installTo="menu:models" 
-             fileName="menus/grid/allFamilies.xml">
-             <substitute key="modelName" value="RAP40" />
-             <substitute key="menuName" value="RAP 40km" />
-             <substitute key="frameCount" value="19" />
-             <substitute key="TP" value="TP"/>
-    </include>
-	<include installTo="menu:models" 
              fileName="menus/grid/mesoFamilies.xml">
              <substitute key="modelName" value="NDFD" />
              <substitute key="menuName" value="NDFD" />
@@ -142,8 +124,17 @@
 	<include installTo="menu:models" 
              fileName="menus/grid/baseComparisonFamilies.xml">
     </include>
+    
+    
+	<include installTo="menu:models" 
+             fileName="menus/grid/rtofs.xml">
+             <substitute key="modelName" value="RTOFS-Now%" />
+             <substitute key="menuName" value="RTOFS" />
+             <substitute key="frameCount" value="50" />
+    </include>
+    
     <include installTo="menu:models" 
-             fileName="menus/grid/ww3.xml">
+             fileName="menus/grid/fnmocWW3.xml">
              <substitute key="modelName" value="FNMOC-WW3" />
              <substitute key="menuName" value="FNMOC WW3" />
              <substitute key="frameCount" value="39" />
