@@ -1,6 +1,6 @@
 FROM unidata/awips-devel:el7
 ENV VERSION 18.1.1
-ENV RELEASE 1
+ENV RELEASE 6
 MAINTAINER Michael James <mjames@ucar.edu>
 
 USER root

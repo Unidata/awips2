@@ -20,4 +20,4 @@ sudo docker build -t unidata/${img} -f Dockerfile.${img}.${os_version} .
 dockerID=$(sudo docker images | grep ${img} | grep latest | awk '{print $3}' | head -1 )
 sudo docker tag $dockerID unidata/${img}:${os_version} 
 sudo docker rmi unidata/${img}:latest
-#sudo docker push unidata/${img}
+sudo docker push unidata/${img}
