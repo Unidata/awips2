@@ -55,7 +55,7 @@ IP=`/sbin/ifconfig $usedev | grep -v "inet6" | grep "inet" | awk '{ print $2 }' 
 # truncate
 IP_CIDR="${IP%.*}"
 
-YMD=`date '+%Y%m%d'`
+YMD=`date '+%Y%m%d' -u`
 
 args=("$@")
 
