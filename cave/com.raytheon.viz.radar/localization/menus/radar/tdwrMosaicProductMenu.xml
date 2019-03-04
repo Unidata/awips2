@@ -1,13 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<!-- # This software was developed and / or modified by Raytheon Company, 
-	# pursuant to Contract DG133W-05-CQ-1067 with the US Government. # # U.S. 
-	EXPORT CONTROLLED TECHNICAL DATA # This software product contains export-restricted 
-	data whose # export/transfer/disclosure is restricted by U.S. law. Dissemination 
-	# to non-U.S. persons whether in the United States or abroad requires # an 
-	export license or other authorization. # # Contractor Name: Raytheon Company 
-	# # See the AWIPS II Master Rights File ("Master Rights File.pdf") ## ##THIS 
-	FILE GENERATED AUTOMATICALLY BY config_common_menus IN THE AWIPS II AUTOMATION 
-	TOOL -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 		<contribute xsi:type="bundleItem" file="bundles/DefaultTDWRRadarMosaic.xml"
 			menuText="0.5 Reflectivity" id="Radar05Reflectivity">
