@@ -50,6 +50,7 @@
     <Source-Other>NAM Bufr</Source-Other>
     <Source-Other>PoesBufr</Source-Other>
     <Source-Other>Profiler</Source-Other>
+    <Source-Other>Streamgauge</Source-Other>
     <Source-Other>Raob</Source-Other>
     <Source-Other>VWP</Source-Other>
     <Field-Basic>Height</Field-Basic>

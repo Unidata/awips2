@@ -94,6 +94,11 @@
       </timeSeriesAdapter>
       <timeSeriesAdapter
             adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
+            class="edu.ucar.unidata.common.dataplugin.usgs.StreamflowRecord"
+            name="Streamgauge Time Series Adapter">
+      </timeSeriesAdapter>
+      <timeSeriesAdapter
+            adapter="com.raytheon.uf.viz.d2d.xy.adapters.timeseries.PointDataTimeSeriesAdapter"
             class="com.raytheon.uf.common.dataplugin.obs.metar.MetarRecord"
             name="Metar Time Series Adapter">
       </timeSeriesAdapter>

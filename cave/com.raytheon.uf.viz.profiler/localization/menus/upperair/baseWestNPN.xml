@@ -5,6 +5,10 @@
 			menuText="ESRL/PSD Profiler Map" id="ProfilerDisplay">
 	</contribute>
 	
+	<contribute xsi:type="bundleItem" file="bundles/streamgauge/availability.xml"
+			menuText="River Gauge Map" id="StreamgaugeDisplay">
+	</contribute>
+	
 	<contribute xsi:type="subMenu" menuText="ESRL/PSD Time-Height" id="profiler">
 	
             <contribute xsi:type="bundleItem" file="bundles/UpperAirProfiler.xml"

@@ -21,6 +21,9 @@
 <vbSourceList>
     <vbSource key="bufrmosLAMP" name="GFSLAMP-Stn" category="Point"
         views="TIMESERIES" />
+    <vbSource key="streamflow" name="Streamgauge" category="Point"
+        subCategory="Column"
+        views="TIMESERIES" />
     <vbSource key="obs" name="Metar" category="Point" views="TIMESERIES" />
     <vbSource key="obsOA" name="MetarOA" category="Point"
         views="PLANVIEW TIMESERIES" />

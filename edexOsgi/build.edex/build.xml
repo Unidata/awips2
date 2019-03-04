@@ -55,6 +55,10 @@
 		</antcall>
 		<!-- optional builds -->
 		<antcall target="build">
+			<param name="feature" value="edu.ucar.unidata.uf.edex.upc.feature" />
+		</antcall>
+	<!--
+		<antcall target="build">
 			<param name="feature" value="com.raytheon.uf.edex.gfe.feature" />
 		</antcall>
 		<antcall target="build">
@@ -63,7 +67,6 @@
 		<antcall target="build">
 			<param name="feature" value="com.raytheon.uf.edex.datadelivery.feature" />
 		</antcall>
-	<!--
                 <antcall target="build">
                         <param name="feature" value="com.raytheon.uf.edex.dat.feature" />
                 </antcall>
@@ -72,9 +75,6 @@
 		</antcall>
 		<antcall target="build">
 			<param name="feature" value="com.raytheon.uf.edex.hazards.feature" />
-		</antcall>
-		<antcall target="build">
-			<param name="feature" value="edu.ucar.unidata.uf.edex.upc.feature" />
 		</antcall>
 	-->
 		<!-- end optional builds -->
