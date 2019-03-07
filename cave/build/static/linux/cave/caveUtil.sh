@@ -46,6 +46,7 @@
 # Aug 09, 2016  ASM#18911 D. Friedman Add minimum purge period of 24 hours.  Use a lock file to prevent
 #                                     simultaneous purges.  Allow override of days to keep.
 # Jan 26,2017   #6092     randerso    return exitCode so it can be propagated back to through the calling processes
+# Apr 17, 2018            M. James    Cleanup for containerization
 ########################
 
 source /awips2/cave/iniLookup.sh
@@ -417,9 +418,7 @@ function deleteOldCaveLogs()
 
     # Purge the old logs.
     local n_days_to_keep=${CAVE_LOG_DAYS_TO_KEEP:-30}
-    echo -e "Cleaning consoleLogs: "
-    echo -e "find $logdir -type f -name "*.log" -mtime +$n_days_to_keep | xargs rm "
-    find "$logdir" -type f -name "*.log" -mtime +"$n_days_to_keep" | xargs rm
+    find "$logdir" -type f -name "*.log" -mtime +"$n_days_to_keep" | xargs -r rm
 
     # Record the last purge time and remove the lock file.
     echo $(date +%s) > "$last_purge_f"
@@ -436,7 +435,7 @@ function deleteOldEclipseConfigurationDirs()
     local save_IFS=$IFS
     IFS=$'\n'
     # Find directories that are owned by the user and  older than one hour
-    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$USER" -mmin +60) )
+    local old_dirs=( $(find "$tmp_dir" -mindepth 1 -maxdepth 1 -type d -user "$(whoami)" -mmin +60) )
     IFS=$save_IFS
     if (( ${#old_dirs[@]} < 1 )); then
         return
@@ -473,7 +472,7 @@ function deleteEclipseConfigurationDir()
 function createEclipseConfigurationDir()
 {
     local d dir id=$(hostname)-$(whoami)
-    for d in "/local/cave-eclipse/" "$HOME/.cave-eclipse/"; do
+    for d in "$HOME/caveData/.cave-eclipse/"; do
         if [[ $d == $HOME/* ]]; then
             mkdir -p "$d" || continue
         fi
@@ -486,7 +485,7 @@ function createEclipseConfigurationDir()
         fi
     done
     echo "Unable to create a unique Eclipse configuration directory.  Will proceed with default." >&2
-    export eclipseConfigurationDir=$HOME/.cave-eclipse
+    export eclipseConfigurationDir=$HOME/caveData/.cave-eclipse
     return 1
 }
 

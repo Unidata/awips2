@@ -31,7 +31,6 @@
 # Aug 03, 2015  #4694     dlovely     Logback will now add user.home to LOGDIR
 # Sep 17, 2015  #4869     bkowal      Read dynamic AlertViz version information at startup.
 # Oct 05, 2015  #4869     bkowal      Fix AlertViz argument ordering
-# Feb 15, 2017  6025      tgurney     Force use of GTK2
 #
 
 user=`/usr/bin/whoami`
@@ -156,7 +155,7 @@ function deleteEclipseConfigurationDir()
 function createEclipseConfigurationDir()
 {
     local d dir id=$(hostname)-$(whoami)
-    for d in "/local/cave-eclipse/" "$HOME/.cave-eclipse/"; do
+    for d in "$HOME/caveData/cave-eclipse/" "$HOME/caveData/.cave-eclipse/"; do
         if [[ $d == $HOME/* ]]; then
             mkdir -p "$d" || continue
         fi
@@ -199,9 +198,6 @@ if [ -f ${dir}/awipsVersion.txt ]; then
    done
    IFS=${prevIFS}
 fi
-
-# Force GTK2
-export SWT_GTK3=0
 
 #run a loop for alertviz
 count=0
