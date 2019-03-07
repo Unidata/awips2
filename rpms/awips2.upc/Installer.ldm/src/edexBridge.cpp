@@ -26,7 +26,7 @@
 #include <sstream>
 #include <memory>
 #include <filel.h>
-#include <ulog.h>
+#include <log/log.h>
 #include <getopt.h>
 #include <signal.h>
 #include <sys/time.h>
@@ -97,10 +97,10 @@ public:
 		string fileHeader;
 
 		try {
-            // limit number of messages sent at one time so we don't miss messages from shared memory if
-            // a message build up occurred due to qpid being down (usual rate is under 100 a second)
+            	// limit number of messages sent at one time so we don't miss messages from shared memory if
+            	// a message build up occurred due to qpid being down (usual rate is under 100 a second)
 			while ((!this->filenameList.empty()) && (messagesProcessed < this->maxMessagesPerSend)) {
-				Message message;
+				 qpid::messaging::Message message;
                                 
 				fileLocation = this->filenameList.front();
 				fileHeader = this->headerList.front();
@@ -121,7 +121,8 @@ public:
 			}
 		} catch (const std::exception& error) {
 			// Error occurred during communication.  Clean up the connection and return the number of messages processed.
-			uerror(error.what());
+			log_add(error.what());
+			log_flush_error();
 			cleanup();
 
 		}
@@ -132,7 +133,8 @@ private:
 
 	void cleanup()
 	{
-		unotice ("Cleaning up");
+		log_add ("Cleaning up");
+		log_flush_info();
 
 		// Destroy resources.
 		if (this->sender != 0)
@@ -144,7 +146,8 @@ private:
 			}
 			catch (const std::exception& error)
 			{
-				uwarn(error.what());
+				log_add(error.what());
+				log_flush_error();
 			}
 		}
 
@@ -157,7 +160,8 @@ private:
 			}
 			catch (const std::exception& error)
 			{
-				uwarn(error.what());
+				log_add(error.what());
+				log_flush_error();
 			}
 		}
 
@@ -170,7 +174,8 @@ private:
 			}
 			catch (const std::exception& error)
 			{
-				uwarn(error.what());
+				log_add(error.what());
+				log_flush_error();
 			}
         }
 		this->isConnected = false;
@@ -217,7 +222,8 @@ private:
 		}
 		catch (const std::exception& error)
 		{
-            uerror(error.what());
+            		log_add(error.what());
+	    		log_flush_error();
 			cleanup();
 		}
 		return this->isConnected;
@@ -230,8 +236,9 @@ static volatile int done = 0;
 static edex_message * messageCursor;
 
 static void cleanup(void) {
-	unotice("Exiting");
-	(void) closeulog();
+	log_add("Exiting");
+        log_flush_info();
+	log_fini();
 }
 
 /*
@@ -259,7 +266,7 @@ static void signal_handler(int sig) {
 		/* TODO? stats */
 		return;
 	case SIGUSR2:
-		rollulogpri();
+		//rollulogpri();
 		return;
 	case SIGALRM:
 		return;
@@ -309,7 +316,7 @@ static void set_sigactions(void) {
 int main(int argc, char* argv[]) {
 
 	char * logfname = 0;
-	int loggingToStdErr = 0;
+	log_init(argv[0]);
 	std::string brokerURI = "127.0.0.1";
 	int port = 5672;
         std::string username = "guest";
@@ -342,19 +349,19 @@ int main(int argc, char* argv[]) {
 
 			}
 		}
-		(void) setulogmask(logmask);
 	}
 
 	if (atexit(cleanup) != 0) {
-		serror("atexit");
-		unotice("Exiting");
+		//serror("atexit");
+		log_add("Exiting");
+		log_flush_info();
+		log_fini();
 		exit(1);
 		/*NOTREACHED*/
 	}
 
-	loggingToStdErr = STDERR_FILENO == openulog(ubasename(argv[0]), (LOG_CONS
-			| LOG_PID), LOG_LDM, logfname);
-	unotice("Starting Up");
+	log_add("Starting Up");
+	log_flush_info();
 
 	set_sigactions();
 
@@ -376,8 +383,10 @@ int main(int argc, char* argv[]) {
 	int semCounter = 0;
 	while ((semid = semget(semkey, 2, 0666)) == -1) {
 		if (semCounter == 5) {
-			uerror(
+			log_add(
 					"Could not attach to the semaphore created by pqact.  Exiting.");
+			log_flush_error();
+			log_fini();
 			exit(0);
 		}
 		semCounter++;
@@ -386,8 +395,10 @@ int main(int argc, char* argv[]) {
 	int sizeOfQueue = semctl(semid, 0, GETVAL);
 	shmid = shmget(key, sizeof(edex_message) * sizeOfQueue, 0666);
 	if (shmid == -1) {
-		uerror(
+		log_add(
 				"Could not attach to the shared memory created by pqact.  Exiting.");
+		log_flush_error();
+		log_fini();
 		exit(0);
 	}
 
@@ -414,7 +425,7 @@ int main(int argc, char* argv[]) {
 
 			// Need to copy in the end of the queue before moving to front
 			if (lastQueueSize > queueSize) {
-				unotice(
+				log_add(
 						"Coming over the top with lastQueueSize of %d on a size of %d",
 						lastQueueSize, sizeOfQueue);
 				endQueueDiff = sizeOfQueue - lastQueueSize;
@@ -434,21 +445,24 @@ int main(int argc, char* argv[]) {
 
 			int messagesSent = 0;
 			if ((messagesSent = producer.send()) == -1) {
-				uerror(
+				log_add(
 						"Could not connect to the remote EDEX instance.  %d messages waiting to be sent.  Will try again in 1 second.",
 						producer.getMessageCount());
+				log_flush_error();
 				sleep(1);
 				continue;
 			}
 			if ((messagesSent != maxMessagesPerSend) && (messagesSent != (queue_diff + endQueueDiff))) {
-				uerror(
+				log_add(
 						"Only %d messages were sent out of an expected %d.  Will store those not sent and try again.",
 						messagesSent, queue_diff);
+				log_flush_error();
 
 			}
-			unotice(
+			log_add(
 					"Sent %d messages (%d at the end of the queue, %d normally).",
 					messagesSent, endQueueDiff, queue_diff);
+			log_flush_info();
 		}
 		sleep(1);
 	}

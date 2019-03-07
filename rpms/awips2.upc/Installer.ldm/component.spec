@@ -1,4 +1,4 @@
-%define _ldm_version 6.13.6
+%define _ldm_version 6.13.7
 %define _ldm_src_tar ldm-%{_ldm_version}.tar.gz
 # ldm-%{_ldm_version}.tar.gz is tarred up ldm-%{_ldm_version}/src dir after
 # ISG makes retrans changes
@@ -74,45 +74,24 @@ _ldm_destination_source=${_ldm_destination}/SOURCES
 _Installer_ldm=%{_baseline_workspace}/rpms/awips2.upc/Installer.ldm
 _ldm_root_dir=/awips2/ldm
 
-_ldm_build_bin=%{_build_root}/awips2/ldm/bin
-_edex_bin=%{_build_root}/awips2/edex/bin
-/bin/mkdir -p ${_ldm_build_bin}
-/bin/mkdir -p ${_edex_bin}
-
-cd  ${_Installer_ldm}/src
-#g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
-#   -I${_ldm_root_dir}/include \
-#   -I${_ldm_root_dir}/src \
-#   -I/awips2/qpid/include \
-#   -L${_ldm_root_dir}/lib \
-#   -L/awips2/qpid/lib \
-#   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: failed to build edexBridge"
-#   exit 1
-#fi
-#/bin/mv edexBridge ${_ldm_build_bin}/edexBridge
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: failed to move edexBridge to ldm bin directory"
-#   exit 1
-#fi
-
 # copy the ldm source to the destination directory.
 /bin/cp ${_Installer_ldm}/src/%{_ldm_src_tar} ${_ldm_destination_source}
 if [ $? -ne 0 ]; then
    exit 1
 fi
-cd %{_baseline_workspace}
+
+/bin/cp ${_Installer_ldm}/src/edexBridge.cpp ${_ldm_destination_source}
 if [ $? -ne 0 ]; then
    exit 1
 fi
 
-#
-if [[ $(uname -r |grep el6) ]];then
-  cp ${_Installer_ldm}/edexBridge.el6 ${_edex_bin}/edexBridge
-elif [[ $(uname -r |grep el7) ]];then
-  cp ${_Installer_ldm}/edexBridge.el7 ${_edex_bin}/edexBridge
-fi
+#_edex_bin=%{_build_root}/awips2/edex/bin
+#/bin/mkdir -p ${_edex_bin}
+#if [[ $(uname -r |grep el6) ]];then
+#  cp ${_Installer_ldm}/edexBridge.el6 ${_edex_bin}/edexBridge
+#elif [[ $(uname -r |grep el7) ]];then
+#  cp ${_Installer_ldm}/edexBridge.el7 ${_edex_bin}/edexBridge
+#fi
 
 # Create patch tar files
 cd ${_Installer_ldm}/patch
@@ -166,8 +145,6 @@ fi
 %post
 _ldm_dir=/awips2/ldm
 _ldm_root_dir=${_ldm_dir}/ldm-%{_ldm_version}
-_myHost=`hostname`
-_myHost=`echo ${_myHost} | cut -f1 -d'-'`
 
 # Remove old ldm dir
 rm -rf ${_ldm_root_dir}
@@ -192,10 +169,9 @@ if [ $? -ne 0 ]; then
    exit 1
 fi
 # Fix libtool incompatibility in source tar ball
-rm -f libtool
-ln -s /usr/bin/libtool libtool
-make LDMHOME=/awips2/ldm > make.log 2>&1
-make install LDMHOME=/awips2/ldm > install.log 2>&1
+#rm -f libtool
+#ln -s /usr/bin/libtool libtool
+make install LDMHOME=/awips2/ldm
 if [ $? -ne 0 ]; then
    echo "FATAL: make install has failed!"
    exit 1
@@ -225,26 +201,22 @@ do
 done
 /bin/chmod a+x ${_ldm_dir}/bin/*
 
-#cd ../edexBridge
-#if [ $? -ne 0 ]; then
-#   exit 1
-#fi
-#g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
-#   -I${_ldm_root_dir}/include \
-#   -I${_ldm_root_dir}/src \
-#   -I/awips2/qpid/include \
-#   -L${_ldm_root_dir}/lib \
-#   -L/awips2/qpid/lib \
-#   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: failed to build edexBridge!"
-#   exit 1
-#fi
-#/bin/mv edexBridge ${_ldm_dir}/bin/edexBridge
-#if [ $? -ne 0 ]; then
-#   echo "FATAL: failed to move edexBridge to ldm bin directory!"
-#   exit 1
-#fi
+g++ edexBridge.cpp -I${_ldm_root_dir}/src/pqact \
+   -I${_ldm_root_dir}/include \
+   -I${_ldm_root_dir}/src \
+   -I/awips2/qpid/include \
+   -L${_ldm_root_dir}/lib \
+   -L/awips2/qpid/lib \
+   -l ldm -l xml2 -l qpidclient -l qpidmessaging -l qpidcommon -l qpidtypes -o edexBridge
+if [ $? -ne 0 ]; then
+   echo "FATAL: failed to build edexBridge!"
+   exit 1
+fi
+/bin/mv edexBridge ${_ldm_dir}/bin/edexBridge
+if [ $? -ne 0 ]; then
+   echo "FATAL: failed to move edexBridge to ldm bin directory!"
+   exit 1
+fi
 cd ..
 
 /sbin/ldconfig > /dev/null 2>&1
@@ -287,6 +259,6 @@ rm -rf ${RPM_BUILD_ROOT}
 /awips2/ldm/SOURCES/*
 %attr(755,root,root) /etc/init.d/edex_ldm
 %attr(600,awips,fxalpha) /var/spool/cron/awips
-%attr(755,awips,fxalpha) /awips2/edex/bin/edexBridge
+#%attr(755,awips,fxalpha) /awips2/edex/bin/edexBridge
 %attr(755,root,root) /etc/ld.so.conf.d/awips2-ldm.conf
 %attr(755,root,root) /etc/logrotate.d/ldm.log
