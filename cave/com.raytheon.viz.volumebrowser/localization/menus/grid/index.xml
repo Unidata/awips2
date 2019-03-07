@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuContributionFile>
     <include installTo="menu:models" 
-             fileName="menus/grid/cmcFamilies.xml">
+             fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="ECMWF-HiRes" />
              <substitute key="menuName" value="ECMWF" />
              <substitute key="frameCount" value="41" />
@@ -14,6 +14,13 @@
              <substitute key="frameCount" value="180" />
              <substitute key="TP" value="TP"/>
     </include>
+	<include installTo="menu:models" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="UKMET-Global" />
+             <substitute key="menuName" value="UKMET" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </include>
     <include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
              <substitute key="modelName" value="NAVGEM" />
@@ -21,15 +28,18 @@
              <substitute key="frameCount" value="63" />
              <substitute key="TP" value="TP3hr"/>
     </include>
+    
+    <include installTo="menu:models" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="COAMPS-Europe" />
+             <substitute key="menuName" value="COAMPS" />
+             <substitute key="frameCount" value="63" />
+             <substitute key="TP" value="TP3hr"/>
+    </include>
 	<include installTo="menu:models" 
              fileName="menus/grid/baseComparisonFamilies.xml">
     </include>
-	<include installTo="menu:models" 
-             fileName="menus/grid/rtofs.xml">
-             <substitute key="modelName" value="RTOFS-Now%" />
-             <substitute key="menuName" value="RTOFS" />
-             <substitute key="frameCount" value="50" />
-    </include>
+    
     <include installTo="menu:models" 
              fileName="menus/grid/fnmocWW3.xml">
              <substitute key="modelName" value="FNMOC-WW3" />
