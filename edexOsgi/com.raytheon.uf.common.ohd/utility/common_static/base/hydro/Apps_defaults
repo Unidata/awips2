@@ -143,7 +143,7 @@
  
 #$=============================================================================
 #$ This section contains the tokens whose values are different between the
-#$ development and the delivery tree.  The value give is the development
+#$ development and the delivery tree.  The value given is the development
 #$ value.  The commented value is the delivery value.  The uncommented value
 #$ is in the development tree.  All of these tokens must be enclosed
 #$ by the AWIPS_MODIFICATION_BLOCK_BEGIN and AWIPS_MODIFICATION_BLOCK_END
@@ -155,7 +155,7 @@ apps_dir           : $(SHARE_DIR)/hydroapps   # Hydrologic applications director
 
 data_archive_root  : /awips2/data_store  # root directory of the data archive
 
-mcp3_icp_iface     :  $(HOME)/mcp3_ntrfc
+#mcp3_icp_iface     :  $(HOME)/mcp3_ntrfc
 #mcp3_icp_iface    :  /tmp/$(LOGNAME)/mcp3_ntrfc
 
 verify_dir         : $(apps_dir)/rfc/verify   #base verify directory

@@ -9,11 +9,6 @@
 #
 # awips2-cave Spec File
 #
-# Note: an upgrade prevention check has been added to the %pre section to ensure that
-# this RPM cannot be upgraded. Upgrading this RPM will completely corrupt all of the CAVE
-# rcp configuration information. So, a completely re-installation of this RPM and subsequently
-# all of CAVE is required whenever an updated version of this RPM is released.
-#
 %define __prelink_undo_cmd %{nil}
 # Turn off the brp-python-bytecompile script
 %global __os_install_post %(echo '%{__os_install_post}' | sed -e 's!/usr/lib[^[:space:]]*/brp-python-bytecompile[[:space:]].*$!!g')
@@ -209,7 +204,6 @@ if [ -d /awips2/cave ]; then
 fi
 
 %postun
-rm -rf /awips2/cave
 
 %pre
 

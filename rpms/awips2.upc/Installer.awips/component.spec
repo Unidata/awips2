@@ -25,7 +25,6 @@ Packager: %{_build_site}
 AutoReq: no
 provides: %{_component_name}
 Requires: wget unzip bc
-Obsoletes: awips2-edex-upc
 
 %description
 %{_component_desc}

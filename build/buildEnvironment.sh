@@ -1,7 +1,7 @@
 #!/bin/bash
 # Version
 export AWIPSII_VERSION="18.1.1"
-export AWIPSII_RELEASE="5"
+export AWIPSII_RELEASE="6"
 # Author
 export AWIPSII_BUILD_VENDOR="UCAR"
 export AWIPSII_BUILD_SITE="Unidata"

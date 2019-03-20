@@ -385,12 +385,6 @@ NGRID	^([LM][ABCDFGH]U...) (KWBN) (..)(..)(..)[^!]*!(grib|grib2)/[^/]*/([^/]*)/#
 	FILE	-edex -close
 	/awips2/data_store/grid/HPCGuide/GRID\8/HPCGuide_GRID\8_\(10)Z_\(11)_\(12)-\1_\2_\3\4\5-(seq).grib2
 #
-# National Convective Weather Detection (NCWD)
-#
-ANY	^ZDIA98 (....) ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})/(F[0-9]{3})
-	FILE	-edex -close
-	/awips2/data_store/grid/NCWD/NCWD_\2_\3_\4_\1-(seq).grib
-#
 # National Operational Hydrologic Remote Sensing Center Snow Analysis (NOHRSC-SNOW)
 #
 HDS	^[YZ][ES]QA88 KMSR ......[^!]*!grib.*/[^/]*/[^/]*/#[^/]*/([0-9]{8})([0-9]{4})/(F[0-9]{3})/([^/]*)

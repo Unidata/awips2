@@ -41,7 +41,6 @@
 # Apr 28, 2016  #5609     bkowal      Specify the location of the java.io.tmpdir as a jvm arg.
 # Nov  3, 2016  19508     Qinglu Lin  Export proper TEXTWS if no matching XT in XT_WORKSTATIONS for LX.
 # Jan 26, 2017  6092      randerso    Add export for PROGRAM_NAME
-# Feb  6, 2017  #6025     tgurney     Force use of GTK2
 # Nov 07, 2017  6516      randerso    Use correct ini file for gfeClient
 # Apr 23, 2018  6351      mapeters    Fix looking up of ini file
 #
@@ -101,28 +100,8 @@ fi
 export apps_dir=${HYDRO_APPS_DIR} 
 
 SWITCHES=($SWITCHES)
-TESTCHECK="$TMCP_HOME/bin/getTestMode"
-if [ -x ${TESTCHECK} ]; then
-    echo "Calling getTestMode()"
-    ${TESTCHECK}
-    status=${?}
-    if [ $status -eq 11 ]; then
-        MODE="TEST"
-        SWITCHES+=(-mode TEST)
-    elif [ $status -eq 12 ];then
-        MODE="PRACTICE"
-        SWITCHES+=(-mode PRACTICE)
-    elif [ $status -eq 15 ];then
-        MODE="OPERATIONAL"
-        SWITCHES+=(-mode OPERATIONAL)
-    else
-        MODE="OPERATIONAL (no response)"
-    fi
-    echo "getTestMode() returned ${MODE}"
-else
-    MODE="UNKNOWN"
-    echo "getTestMode() not found - going to use defaults"
-fi
+MODE="PRACTICE"
+SWITCHES+=(-mode PRACTICE)
 
 VERSION_ARGS=()
 if [ -f ${CAVE_INSTALL}/awipsVersion.txt ]; then
@@ -134,22 +113,15 @@ if [ -f ${CAVE_INSTALL}/awipsVersion.txt ]; then
    IFS=${prevIFS}
 fi
 
-TEXTWS=`hostname | sed -e 's/lx/xt/g'`
-if [[ $XT_WORKSTATIONS != *$TEXTWS* ]]
-then
-   TEXTWS=`hostname`
-fi
+TEXTWS=`hostname`
 export TEXTWS
 
 hostName=`hostname -s`
 
-if [[ -z "$PROGRAM_NAME" ]]
-then
+if [[ -z "$PROGRAM_NAME" ]]; then
     export PROGRAM_NAME="cave"
 fi
-
-if [[ "${PROGRAM_NAME}" == "gfeclient" || "${PROGRAM_NAME}" == "gfeClientServer" ]]
-then
+if [[ "${PROGRAM_NAME}" == "gfeclient" || "${PROGRAM_NAME}" == "gfeClientServer" ]]; then
     export CAVE_INI_ARG="--launcher.ini /awips2/cave/cave.ini"
 else
     lookupINI "$@"
@@ -183,15 +155,6 @@ if [[ -z $IGNORE_NUM_CAVES ]]; then
       memOfLaunchingCave=$(($memOfLaunchingCave / $BYTES_IN_MB))
       _totalRunningMem=$(($_totalRunningMem / $BYTES_IN_MB))
       getPidsOfMyRunningCaves
-      memMsg="$_numPids CAVE applications already running with a combined max memory of ${_totalRunningMem}MB. "
-      memMsg+="The requested application has a max memory requirement of ${memOfLaunchingCave}MB. "
-      memMsg+="Starting may impact system performance and stability.\n\nProceed?"
-      zenity --question --title "Low Available Memory for Application"  --text "$memMsg"
-      cancel="$?"
-
-      if [[ "$cancel" == "1" ]]; then
-         exit
-      fi
    fi
 fi
 
@@ -245,9 +208,6 @@ export LOGFILE_STARTUP_SHUTDOWN="$FULL_LOGDIR/${PROGRAM_NAME}_${pid}_${curTime}_
 createEclipseConfigurationDir
 TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurationDir}"
 
-# Force GTK2
-export SWT_GTK3=0
-
 # At this point fork so that log files can be set up with the process pid and
 # this process can log the exit status of cave.
 (
@@ -256,7 +216,7 @@ export SWT_GTK3=0
     touch ${LOGFILE_STARTUP_SHUTDOWN}
   fi
 
-  # remove "-noredirect" flag from command-line if set so it doesn't confuse any
+  # remove "-noredirect" flag from command-line if set so it does not confuse any
   # commands we call later.
   redirect="true"
   USER_ARGS=()
