@@ -29,6 +29,7 @@
                     </reference>
                 </visibleWhen>
                 <separator name="SURFACE" visible="true" />
+				<separator name="USGS" visible="true" />
 				<separator name="HAZARDS" visible="true" />
 				<separator name="CollectionDissemination" visible="true" />
                 <separator name="USPLNPLACEHOLDER" visible="true" />

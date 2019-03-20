@@ -150,13 +150,11 @@ public class PlotResourceData extends AbstractRequestableResourceData {
          */
         pluginProps.put("radar", new PluginPlotProperties(false));
         pluginProps.put("textPoints", new PluginPlotProperties(false));
-
         /*
          * The good ones, these don't even need to be here because this is the
          * default behavior, but for now they are included so we have a
          * comprehensive list of which plugins use certain behaviors.
          */
-
         pluginProps.put("tcg", new PluginPlotProperties());
         pluginProps.put("svrwx", new PluginPlotProperties());
         pluginProps.put("obs", new PluginPlotProperties());
@@ -165,7 +163,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrua", new PluginPlotProperties());
         pluginProps.put("sfcobs", new PluginPlotProperties());
         pluginProps.put("profiler", new PluginPlotProperties());
-        //pluginProps.put("fssobs", new PluginPlotProperties());
+        pluginProps.put("streamflow", new PluginPlotProperties());
         pluginProps.put("modelsounding", new PluginPlotProperties());
         pluginProps.put("bufrmosAVN", new PluginPlotProperties());
         pluginProps.put("bufrmosETA", new PluginPlotProperties());
@@ -173,12 +171,10 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrmosHPC", new PluginPlotProperties());
         pluginProps.put("bufrmosLAMP", new PluginPlotProperties());
         pluginProps.put("bufrmosMRF", new PluginPlotProperties());
-        //pluginProps.put("qc", new PluginPlotProperties());
         pluginProps.put("bufrascat", new PluginPlotProperties());
         pluginProps.put("bufrhdw", new PluginPlotProperties());
         pluginProps.put("bufrmthdw", new PluginPlotProperties());
         pluginProps.put("bufrssmi", new PluginPlotProperties());
-        //pluginProps.put("airep", new PluginPlotProperties());
         pluginProps.put("acars", new PluginPlotProperties());
         pluginProps.put("lsr", new PluginPlotProperties());
     }

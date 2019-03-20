@@ -322,7 +322,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     @Override
     protected String[] getPlugins() {
         return new String[] { "goessounding", "poessounding", "profiler",
-                "bufrua", "obs", "bufrmosLAMP" };
+                "bufrua", "obs", "bufrmosLAMP", "streamflow" };
         // njensen removed bufrmosAVN, bufrmosETA, bufrmosGFS, bufrmosHPC,
         // bufrmosMRF, bufrmosNGM
         // TODO ideally this list should not be in code, and should contain all

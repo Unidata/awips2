@@ -80,7 +80,7 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
     private static String[] supportedPlugins = { "obs", "modelsounding", 
     		"bufrssmi", "lsr", "sfcobs", "goessounding", "bufrascat", 
     		"poessounding", "bufrua", "bufrmosAVN", "bufrmosETA", "bufrmosGFS",
-    		"bufrmosHPC", "bufrmosLAMP", "bufrmosMRF", "profiler" };
+    		"bufrmosHPC", "bufrmosLAMP", "bufrmosMRF", "profiler", "streamflow" };
 
     protected AbstractPointDataInventory inventory;
 
@@ -132,8 +132,7 @@ public class PointDataCubeAdapter extends DefaultDataCubeAdapter {
         } catch (VizException e) {
             throw new DataCubeException(e);
         }
-        PointMetadataContainer pmc = new PointMetadataContainer(queryParams,
-                Arrays.asList(parameters), this);
+        PointMetadataContainer pmc = new PointMetadataContainer(queryParams, Arrays.asList(parameters), this);
         for (AbstractRequestableNode node : nodes) {
             pmc.prepareRequests(node, AvailabilityContainer.AGNOSTIC_SET);
         }
