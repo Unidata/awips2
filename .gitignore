@@ -5,8 +5,11 @@ test-bin/
 testbin/
 testBin/
 bin-test/
+dist/
+build/logs/
 *.class
 *.pyo
+*.rpm
 *.pyc
 *.o
 *.orig
