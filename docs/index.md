@@ -1,5 +1,7 @@
 # Unidata AWIPS User Manual
 
+[https://www.unidata.ucar.edu/software/awips2](https://www.unidata.ucar.edu/software/awips2)
+
 ---
 
 [ldm]: https://www.unidata.ucar.edu/software/ldm/
@@ -15,13 +17,14 @@
 [spring]: http://www.springsource.org/ 
 [hibernate]: http://www.hibernate.org/ 
 [qpid]: http://qpid.apache.org 
+[idd]: https://www.unidata.ucar.edu/projects/#idd
 
+ 
+ AWIPS (the Advanced Weather Interactive Processing System) is a meteorological decoding, display, and analysis package originally developed by the National Weather Service and Raytheon. UCAR's Unidata Program Center develops and supports a modified non-operational version of AWIPS for use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives), which is released as open source software, free to download and use by anyone.
 
- [Unidata AWIPS](https://www.unidata.ucar.edu/software/awips2/) is a modified and extended version of AWIPS (originally developed by NWS and Raytheon) for non-operational use in research and education by [UCAR member institutions](http://president.ucar.edu/governance/members/universities-representatives).
+AWIPS takes a unified approach to data ingest, most data ingested into the system comes through the [LDM](#ldm) client pulling data feeds from the [Unidata IDD](#idd). Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex), which serves products and data over http. 
 
-AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an [LDM](#ldm) client requesting data from the [Unidata IDD](https://www.unidata.ucar.edu/projects/#idd). Various raw data and product files (grib, BUFR, text, gini, McIDAS, NetCDF, more) are  decoded and stored as HDF5 and Postgres metadata by [EDEX](install/install-edex), which then serves these data and products to  clients over http. 
-
-Unidata supports two visualization frameworks for rendering data: [CAVE](install/install-cave), and the Python Data Access Framework ([python-awips](http://python-awips.readthedocs.io)).
+Unidata supports two data visualization frameworks: [CAVE](install/install-cave) (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and the [python-awips](http://python-awips.readthedocs.io). 
 
 ![CAVE](https://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png)
 
@@ -37,7 +40,7 @@ Unidata supports two visualization frameworks for rendering data: [CAVE](install
 
 ## License
 
-Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the [Master Rights](https://github.com/Unidata/awips2/blob/unidata_18.1.1/rpms/legal/Master_Rights_File.pdf) licensing file. 
+Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the Master Rights licensing file. 
 
 ---
 

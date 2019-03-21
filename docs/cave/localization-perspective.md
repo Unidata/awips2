@@ -6,8 +6,8 @@ AWIPS uses a hierarchical system known as *Localization* to configure many aspec
 !!! note "There are three *levels of localization*, starting with the default **BASE**"
 
 	* **BASE** - default
-		* **Site** - 3-letter WFO ID (required) overrides base
-			* **User** - user-level localization overrides site and base
+		* **SITE** - 3-letter WFO ID (required) overrides base
+			* **USER** - user-level localization overrides site and base
 
 ---
 

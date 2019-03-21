@@ -1,7 +1,13 @@
 
-## EDEX Service Manager
+To start all EDEX services
 
-There are five EDEX service installed into `/etc/init.d/`, four of which run on boot:
+    edex start
+    
+To stop all EDEX services
+
+    edex stop
+
+These command will start and stop five EDEX service files installed into `/etc/init.d/`, four of which are run on boot:
 
     service postgres start
     service httpd-pypies start
@@ -13,6 +19,8 @@ The fifth, `edex_ldm`, does **not run at boot** to prevent filling up disk space
     service edex_ldm start
 
 All of these services are started and stopped by a single program `edex`,
+
+---
 
 ### edex start
 
@@ -27,6 +35,14 @@ All of these services are started and stopped by a single program `edex`,
     Starting AWIPS LDM:The product-queue is OK.
     ...
 
+### edex start base
+
+To start all EDEX services *except* the LDM:
+
+    edex start base
+
+---
+
 ### edex stop
 
     edex stop
@@ -40,6 +56,8 @@ All of these services are started and stopped by a single program `edex`,
     Stopping AWIPS LDM:Stopping the LDM server...
     ...
     
+---
+
 ### edex setup
 
     edex setup
@@ -54,6 +72,8 @@ All of these services are started and stopped by a single program `edex`,
 This command configures and/or confirms that the EDEX hostname and IP address definitions exist (`edex setup` is run by `edex start`).
 
 > If your EDEX server is running but you see the message "Connectivity Error: Unable to validate localization preferences" in CAVE, it may mean that the domain name defined in `/awips2/edex/bin/setup.env` can not be resolved from *outside* the server.  Some machines have different **internally-resolved** and **externally-resolved** domain names (cloud-based especially). The name defined in `setup.env` must be **externally-resolvable**.
+
+---
 
 ### edex log
 
@@ -76,6 +96,33 @@ More edex logs...
     edex log satellite
     edex log text
 
+---
+
+### edex qpid
+
+Shows a list of the the Qpid message queue to monitor data ingest (messages in vs messages out, i.e. decoded):
+
+    [centos@js-156-89 ~]$ edex qpid
+    Queues
+      queue                       dur  excl  msg   msgIn  msgOut  bytes  bytesIn  bytesOut  cons  bind
+      ================================================================================================
+      external.dropbox            Y    Y       11  1.26m  1.26m    621   79.6m    79.6m        5     1
+      Ingest.Radar                Y    Y        4   589k   589k    184   27.1m    27.1m        5     1
+      Ingest.GribDecode           Y    Y        0   370k   370k      0    103m     103m       11     1
+      Ingest.GribSplit            Y    Y        2   361k   361k    201   31.9m    31.9m        5     1
+      Ingest.modelsounding        Y    Y        0   100k   100k      0   6.54m    6.54m        1     1
+      Ingest.Text                 Y    Y        0  97.8k  97.8k      0   5.25m    5.25m        2     1
+      Ingest.GOESR                Y    Y        0  83.4k  83.4k      0   6.92m    6.92m        2     1
+      Ingest.obs                  Y    Y        0  46.2k  46.2k      0   2.40m    2.40m        1     1
+      Grid.PostProcess            Y    Y        0  20.2k  20.2k      0   6.68m    6.68m        1     1
+      Ingest.sfcobs               Y    Y        0  10.5k  10.5k      0    577k     577k        1     1
+      Ingest.goessounding         Y    Y        0  6.68k  6.68k      0    427k     427k        1     1
+      Ingest.Glm                  Y    Y        0  5.61k  5.61k      0    581k     581k        1     1
+      Ingest.aww                  Y    Y        0  3.32k  3.32k      0    182k     182k        1     1
+   
+
+---
+
 ### edex users
 
 To see a list of clients connecting to your EDEX server, use the `edex users [YYYYMMDD]` command, where `YYYYMMDD` is the optional date string.
@@ -87,6 +134,8 @@ To see a list of clients connecting to your EDEX server, use the `edex users [YY
     user@192.168.1.67
     awips@0.0.0.0
     awips@sdsmt.edu
+
+---
 
 ### edex purge
 

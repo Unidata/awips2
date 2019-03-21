@@ -11,8 +11,8 @@ Default projections and areas available in the menu
    * **World Mercator**
    * **World CED**
    * **World Mollweide**
-   * **Geostationary (GOES East Full Disk)**
-   * and **Regional** Mercator projections for **Africa**, **Australia/NZ**, **South America**, **Europe**, **Alaska**, **Hawaii**, **Puerto Rico**, **Japan**, **Pacific Ocean**, and the north and south poles.
+   * **Geostationary (GOES East & West Full Disk)**
+   * **Regional** Mercator projections for **Africa**, **Australia/NZ**, **South America**, **Europe**, **Alaska**, **Hawaii**, **Puerto Rico**, **Japan**, **Pacific Ocean**, and the north and south poles.
 
 There is also a **WFO** submenu which contains a map scale for every NWS localization site. 
 
