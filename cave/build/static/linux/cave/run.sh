@@ -40,6 +40,9 @@
 # Sep 16, 2015  #4869     bkowal      Read dynamic CAVE version information at startup.
 # Apr 28, 2016  #5609     bkowal      Specify the location of the java.io.tmpdir as a jvm arg.
 # Nov  3, 2016  19508     Qinglu Lin  Export proper TEXTWS if no matching XT in XT_WORKSTATIONS for LX.
+# Jan 26, 2017  6092      randerso    Add export for PROGRAM_NAME
+# Nov 07, 2017  6516      randerso    Use correct ini file for gfeClient
+# Apr 23, 2018  6351      mapeters    Fix looking up of ini file
 #
 
 
@@ -115,6 +118,15 @@ export TEXTWS
 
 hostName=`hostname -s`
 
+if [[ -z "$PROGRAM_NAME" ]]; then
+    export PROGRAM_NAME="cave"
+fi
+if [[ "${PROGRAM_NAME}" == "gfeclient" || "${PROGRAM_NAME}" == "gfeClientServer" ]]; then
+    export CAVE_INI_ARG="--launcher.ini /awips2/cave/cave.ini"
+else
+    lookupINI "$@"
+fi
+
 # check number of running caves
 if [[ -z $IGNORE_NUM_CAVES ]]; then
    # get total memory on system in bytes
@@ -125,7 +137,6 @@ if [[ -z $IGNORE_NUM_CAVES ]]; then
    # remove decimal
    printf -v memThreshold "%.0f" "$memThreshold"
    # get launcher.ini argument determined by user arguments
-   lookupINI "$@"
    launcherRegex='--launcher.ini\s(.+\.ini)'
    # default to cave.ini
    targetIni="/awips2/cave/cave.ini"
@@ -176,11 +187,6 @@ else
    echo $altButtonLine >> $HOME/$mineFile
 fi
 
-if [[ -z "$PROGRAM_NAME" ]]
-then
-    PROGRAM_NAME="cave"
-fi
-
 BASE_LOGDIR=caveData/logs/consoleLogs
 # Logback configuration files will append user.home to LOGDIR.
 export LOGDIR=$BASE_LOGDIR/$hostName/
@@ -225,8 +231,6 @@ TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurat
     shift
   done
 
-  lookupINI "${USER_ARGS[@]}"
-
   # Make it easy to determine which process is using the directory
   if [[ -n $eclipseConfigurationDir ]]; then
       echo "$$" > "$eclipseConfigurationDir"/pid
@@ -239,6 +243,8 @@ TMP_VMARGS="--launcher.appendVmargs -vmargs -Djava.io.tmpdir=${eclipseConfigurat
 
   echo "Launching cave application using the following command: " >> ${LOGFILE_STARTUP_SHUTDOWN}
   echo "${CAVE_INSTALL}/cave ${CAVE_INI_ARG} ${SWITCHES[@]} ${USER_ARGS[@]} ${TMP_VMARGS} ${VERSION_ARGS[@]}" >> ${LOGFILE_STARTUP_SHUTDOWN}
+  curTime=`date --rfc-3339=seconds -u`
+  echo "Started at $curTime" >> ${LOGFILE_STARTUP_SHUTDOWN}
 
   if [[ "${redirect}" == "true" ]] ; then
      # send output to /dev/null because the logback CaveConsoleAppender will capture that output 
