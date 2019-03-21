@@ -473,8 +473,8 @@
 
 
   <li class="md-nav__item">
-    <a href="cave/goes-16-satellite/" title="GOES-16 (GOES-R)" class="md-nav__link">
-      GOES-16 (GOES-R)
+    <a href="cave/goes-16-satellite/" title="GOES 16/17" class="md-nav__link">
+      GOES 16/17
     </a>
   </li>
 
@@ -1226,10 +1226,11 @@
                 
                 
                 <h1 id="unidata-awips-user-manual">Unidata AWIPS User Manual<a class="headerlink" href="#unidata-awips-user-manual" title="Permanent link"></a></h1>
+<p><a href="https://www.unidata.ucar.edu/software/awips2">https://www.unidata.ucar.edu/software/awips2</a></p>
 <hr />
-<p><a href="https://www.unidata.ucar.edu/software/awips2/">Unidata AWIPS</a> is a modified and extended version of AWIPS (originally developed by NWS and Raytheon) for non-operational use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.</p>
-<p>AWIPS takes a unified approach to data ingest, and most data types follow a path through the system starting with an <a href="#ldm">LDM</a> client requesting data from the <a href="https://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. Various raw data and product files (grib, BUFR, text, gini, McIDAS, NetCDF, more) are  decoded and stored as HDF5 and Postgres metadata by <a href="./install/install-edex">EDEX</a>, which then serves these data and products to  clients over http. </p>
-<p>Unidata supports two visualization frameworks for rendering data: <a href="./install/install-cave">CAVE</a>, and the Python Data Access Framework (<a href="http://python-awips.readthedocs.io">python-awips</a>).</p>
+<p>AWIPS (the Advanced Weather Interactive Processing System) is a meteorological decoding, display, and analysis package originally developed by the National Weather Service and Raytheon. UCAR's Unidata Program Center develops and supports a modified non-operational version of AWIPS for use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>, which is released as open source software, free to download and use by anyone.</p>
+<p>AWIPS takes a unified approach to data ingest, most data ingested into the system comes through the <a href="#ldm">LDM</a> client pulling data feeds from the <a href="#idd">Unidata IDD</a>. Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 and Postgres metadata by <a href="./install/install-edex">EDEX</a>, which serves products and data over http. </p>
+<p>Unidata supports two data visualization frameworks: <a href="./install/install-cave">CAVE</a> (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and the <a href="http://python-awips.readthedocs.io">python-awips</a>. </p>
 <p><img alt="CAVE" src="https://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png" /></p>
 <hr />
 <h2 id="download-and-install-cave"><a href="./install/install-cave">Download and Install CAVE</a><a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h2>
@@ -1237,7 +1238,7 @@
 <h2 id="download-and-install-edex"><a href="./install/install-edex">Download and Install EDEX</a><a class="headerlink" href="#download-and-install-edex" title="Permanent link"></a></h2>
 <hr />
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link"></a></h2>
-<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the <a href="https://github.com/Unidata/awips2/blob/unidata_18.1.1/rpms/legal/Master_Rights_File.pdf">Master Rights</a> licensing file. </p>
+<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the Master Rights licensing file. </p>
 <hr />
 <h2 id="awips-data-in-the-cloud">AWIPS Data in the Cloud<a class="headerlink" href="#awips-data-in-the-cloud" title="Permanent link"></a></h2>
 <p>Unidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>

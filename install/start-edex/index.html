@@ -344,8 +344,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/goes-16-satellite/" title="GOES-16 (GOES-R)" class="md-nav__link">
-      GOES-16 (GOES-R)
+    <a href="../../cave/goes-16-satellite/" title="GOES 16/17" class="md-nav__link">
+      GOES 16/17
     </a>
   </li>
 
@@ -489,57 +489,58 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#edex-service-manager" title="EDEX Service Manager" class="md-nav__link">
-    EDEX Service Manager
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#edex-start" title="edex start" class="md-nav__link">
     edex start
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
+  <a href="#edex-start-base" title="edex start base" class="md-nav__link">
+    edex start base
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#edex-stop" title="edex stop" class="md-nav__link">
     edex stop
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#edex-setup" title="edex setup" class="md-nav__link">
     edex setup
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#edex-log" title="edex log" class="md-nav__link">
     edex log
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
+  <a href="#edex-qpid" title="edex qpid" class="md-nav__link">
+    edex qpid
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#edex-users" title="edex users" class="md-nav__link">
     edex users
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#edex-purge" title="edex purge" class="md-nav__link">
     edex purge
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1056,57 +1057,58 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#edex-service-manager" title="EDEX Service Manager" class="md-nav__link">
-    EDEX Service Manager
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
   <a href="#edex-start" title="edex start" class="md-nav__link">
     edex start
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
+  <a href="#edex-start-base" title="edex start base" class="md-nav__link">
+    edex start base
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#edex-stop" title="edex stop" class="md-nav__link">
     edex stop
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#edex-setup" title="edex setup" class="md-nav__link">
     edex setup
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#edex-log" title="edex log" class="md-nav__link">
     edex log
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
+  <a href="#edex-qpid" title="edex qpid" class="md-nav__link">
+    edex qpid
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#edex-users" title="edex users" class="md-nav__link">
     edex users
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#edex-purge" title="edex purge" class="md-nav__link">
     edex purge
   </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1129,8 +1131,13 @@
                 
                   <h1>EDEX Start and Stop</h1>
                 
-                <h2 id="edex-service-manager">EDEX Service Manager<a class="headerlink" href="#edex-service-manager" title="Permanent link"></a></h2>
-<p>There are five EDEX service installed into <code>/etc/init.d/</code>, four of which run on boot:</p>
+                <p>To start all EDEX services</p>
+<pre><code>edex start
+</code></pre>
+<p>To stop all EDEX services</p>
+<pre><code>edex stop
+</code></pre>
+<p>These command will start and stop five EDEX service files installed into <code>/etc/init.d/</code>, four of which are run on boot:</p>
 <pre><code>service postgres start
 service httpd-pypies start
 service qpidd start
@@ -1140,6 +1147,7 @@ service edex_camel start
 <pre><code>service edex_ldm start
 </code></pre>
 <p>All of these services are started and stopped by a single program <code>edex</code>,</p>
+<hr />
 <h3 id="edex-start">edex start<a class="headerlink" href="#edex-start" title="Permanent link"></a></h3>
 <pre><code>edex start
 
@@ -1152,6 +1160,11 @@ Starting EDEX Camel (ingestGrib):
 Starting AWIPS LDM:The product-queue is OK.
 ...
 </code></pre>
+<h3 id="edex-start-base">edex start base<a class="headerlink" href="#edex-start-base" title="Permanent link"></a></h3>
+<p>To start all EDEX services <em>except</em> the LDM:</p>
+<pre><code>edex start base
+</code></pre>
+<hr />
 <h3 id="edex-stop">edex stop<a class="headerlink" href="#edex-stop" title="Permanent link"></a></h3>
 <pre><code>edex stop
 
@@ -1164,6 +1177,7 @@ Stopping EDEX PostgreSQL:                                  [  OK  ]
 Stopping AWIPS LDM:Stopping the LDM server...
 ...
 </code></pre>
+<hr />
 <h3 id="edex-setup">edex setup<a class="headerlink" href="#edex-setup" title="Permanent link"></a></h3>
 <pre><code>edex setup
 
@@ -1178,6 +1192,7 @@ Stopping AWIPS LDM:Stopping the LDM server...
 <blockquote>
 <p>If your EDEX server is running but you see the message "Connectivity Error: Unable to validate localization preferences" in CAVE, it may mean that the domain name defined in <code>/awips2/edex/bin/setup.env</code> can not be resolved from <em>outside</em> the server.  Some machines have different <strong>internally-resolved</strong> and <strong>externally-resolved</strong> domain names (cloud-based especially). The name defined in <code>setup.env</code> must be <strong>externally-resolvable</strong>.</p>
 </blockquote>
+<hr />
 <h3 id="edex-log">edex log<a class="headerlink" href="#edex-log" title="Permanent link"></a></h3>
 <pre><code>edex log
 
@@ -1197,6 +1212,28 @@ edex log radar
 edex log satellite
 edex log text
 </code></pre>
+<hr />
+<h3 id="edex-qpid">edex qpid<a class="headerlink" href="#edex-qpid" title="Permanent link"></a></h3>
+<p>Shows a list of the the Qpid message queue to monitor data ingest (messages in vs messages out, i.e. decoded):</p>
+<pre><code>[centos@js-156-89 ~]$ edex qpid
+Queues
+  queue                       dur  excl  msg   msgIn  msgOut  bytes  bytesIn  bytesOut  cons  bind
+  ================================================================================================
+  external.dropbox            Y    Y       11  1.26m  1.26m    621   79.6m    79.6m        5     1
+  Ingest.Radar                Y    Y        4   589k   589k    184   27.1m    27.1m        5     1
+  Ingest.GribDecode           Y    Y        0   370k   370k      0    103m     103m       11     1
+  Ingest.GribSplit            Y    Y        2   361k   361k    201   31.9m    31.9m        5     1
+  Ingest.modelsounding        Y    Y        0   100k   100k      0   6.54m    6.54m        1     1
+  Ingest.Text                 Y    Y        0  97.8k  97.8k      0   5.25m    5.25m        2     1
+  Ingest.GOESR                Y    Y        0  83.4k  83.4k      0   6.92m    6.92m        2     1
+  Ingest.obs                  Y    Y        0  46.2k  46.2k      0   2.40m    2.40m        1     1
+  Grid.PostProcess            Y    Y        0  20.2k  20.2k      0   6.68m    6.68m        1     1
+  Ingest.sfcobs               Y    Y        0  10.5k  10.5k      0    577k     577k        1     1
+  Ingest.goessounding         Y    Y        0  6.68k  6.68k      0    427k     427k        1     1
+  Ingest.Glm                  Y    Y        0  5.61k  5.61k      0    581k     581k        1     1
+  Ingest.aww                  Y    Y        0  3.32k  3.32k      0    182k     182k        1     1
+</code></pre>
+<hr />
 <h3 id="edex-users">edex users<a class="headerlink" href="#edex-users" title="Permanent link"></a></h3>
 <p>To see a list of clients connecting to your EDEX server, use the <code>edex users [YYYYMMDD]</code> command, where <code>YYYYMMDD</code> is the optional date string.</p>
 <pre><code>edex users
@@ -1207,6 +1244,7 @@ user@192.168.1.67
 awips@0.0.0.0
 awips@sdsmt.edu
 </code></pre>
+<hr />
 <h3 id="edex-purge">edex purge<a class="headerlink" href="#edex-purge" title="Permanent link"></a></h3>
 <p>To view any stuck purge jobs in PortgreSQL (a rare but serious problem if your disk fills up).  The solution to this is to run <code>edex purge reset</code>.</p>
                 

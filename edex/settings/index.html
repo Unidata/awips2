@@ -344,8 +344,8 @@
 
 
   <li class="md-nav__item">
-    <a href="../../cave/goes-16-satellite/" title="GOES-16 (GOES-R)" class="md-nav__link">
-      GOES-16 (GOES-R)
+    <a href="../../cave/goes-16-satellite/" title="GOES 16/17" class="md-nav__link">
+      GOES 16/17
     </a>
   </li>
 
@@ -1064,8 +1064,6 @@
                 <h2 id="plugin-configuration">Plugin Configuration<a class="headerlink" href="#plugin-configuration" title="Permanent link"></a></h2>
 <p>The directory <code>/awips2/edex/conf/resources</code> contains configuration text files for specific plugins, which allow for user-defined values which are read by AWIPS plugins on EDEX start:</p>
 <pre><code>com.raytheon.edex.plugin.gfe.properties
-com.raytheon.edex.plugin.grib.properties
-com.raytheon.edex.plugin.radar.properties
 com.raytheon.edex.text.properties
 com.raytheon.uf.edex.archive.cron.properties
 com.raytheon.uf.edex.database.properties
@@ -1075,7 +1073,9 @@ edex-localization-http.properties
 edex-ogc.properties
 edex-requestsrv.properties
 goesr.properties
+grib.properties
 purge.properties
+radar.properties
 warning.properties
 </code></pre>
 <p>Look at <em>purge.properties</em> for example:</p>
@@ -1097,8 +1097,8 @@ purge.orphan.period=24h
 # Number of days older than the earliest known data to delete.
 purge.orphan.buffer=7
 </code></pre>
-<p>In <em>com.raytheon.edex.plugin.grib.properties</em>, <em>com.raytheon.edex.plugin.radar.properties</em>, and <em>com.raytheon.edex.plugin.radar.properties</em> you can adjust the number of decoder threads for each plugin.</p>
-<pre><code>cat com.raytheon.edex.plugin.radar.properties
+<p>In <em>grib.properties</em>, <em>goesr.properties</em>, and <em>radar.properties</em> you can adjust the number of decoder threads for each plugin.</p>
+<pre><code>cat radar.properties
 
 # Number threads for radar products ingested from the SBN
 radar-decode.sbn.threads=5
