@@ -1,6 +1,6 @@
 # DO NOT EDIT LINES BEGINNING WITH '#'
 # LOCAL_RADARS (including terminal) - MUST HAVE THIS LINE
-koax
+krlx
 
 # DIAL_RADARS - MUST HAVE THIS LINE
 
