@@ -1,4 +1,4 @@
-edexOsgi/* cave/* localization/*
+edexOsgi/* cave/* localization
 javaUtilities/* rpms pythonPackages 
 *.pdf
 ../awips2-nativelib/*
