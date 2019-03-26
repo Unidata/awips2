@@ -128,12 +128,6 @@ cp -rv %{_baseline_workspace}/localization/utility/* \
 if [ $? -ne 0 ]; then
    exit 1
 fi
-# Copy the OAX localization files
-cp -rv %{_baseline_workspace}/localization.OAX/utility/* \
-   ${RPM_BUILD_ROOT}/awips2/edex/data/utility
-if [ $? -ne 0 ]; then
-   exit 1
-fi
 # Copy FFMP shapefiles from awips2-static
 mkdir -p ${RPM_BUILD_ROOT}/awips2/edex/data/utility/common_static/site/OAX/shapefiles/FFMP/
 if [ $? -ne 0 ]; then
