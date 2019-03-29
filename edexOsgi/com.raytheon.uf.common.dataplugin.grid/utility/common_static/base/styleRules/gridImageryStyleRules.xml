@@ -38,7 +38,7 @@
             <parameter>MaxWHRRR</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
         </imageStyle>
     </styleRule>
@@ -350,14 +350,14 @@
             </rangeLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <range scale="LINEAR">
-                <minValue>-100</minValue>
-                <maxValue>115</maxValue>
+                <minValue>-60</minValue>
+                <maxValue>50</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>20</increment>
+                <values>-20 -10 0 10 15 20 25 30 35 40 45</values>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -460,14 +460,14 @@
             </rangeLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <range scale="LINEAR">
-                <minValue>-60</minValue>
-                <maxValue>90</maxValue>
+                <minValue>-50</minValue>
+                <maxValue>35</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>20</increment>
+                <increment>10</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -629,14 +629,14 @@
             <parameter>HIdx</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <range scale="LINEAR">
-                <minValue>-60</minValue>
-                <maxValue>125</maxValue>
+                <minValue>-50</minValue>
+                <maxValue>55</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>20</increment>
+                <increment>10</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -861,14 +861,14 @@
             <parameter>WGSea</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <range scale="LINEAR">
                 <minValue>0</minValue>
-                <maxValue>10</maxValue>
+                <maxValue>20</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>1</increment>
+                <increment>2</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -884,7 +884,7 @@
             <parameter>WGS</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
         </imageStyle>
     </styleRule>
@@ -902,7 +902,7 @@
             </rangeLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <range levelScale="LOG">
                 <minValue>0</minValue>
                 <minValue2>0</minValue2>
@@ -935,14 +935,14 @@
             </rangeLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <range scale="LINEAR">
                 <minValue>0</minValue>
-                <maxValue>75</maxValue>
+                <maxValue>150</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>10</increment>
+                <increment>25</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -1199,15 +1199,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
                 <minValue>0.005</minValue>
                 <maxValue>12</maxValue>
             </range>
             <defaultColormap>Radar/UPC One Hour Precip</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.03 0.1 0.3 1 3 10</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -1231,15 +1228,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
                 <minValue>0.005</minValue>
                 <maxValue>12</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.03 0.1 0.3 1 3 10</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -1255,10 +1249,10 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>12</maxValue>
+                <minValue>0.5</minValue>
+                <maxValue>500</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
@@ -1276,7 +1270,7 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG" />
             <defaultColormap>Grid/Gridded Data</defaultColormap>
         </imageStyle>
@@ -1291,14 +1285,14 @@
             <creatingEntity>Laps</creatingEntity>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LINEAR">
                 <minValue>0.0</minValue>
-                <maxValue>3.5</maxValue>
+                <maxValue>500</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>0.5</increment>
+                <increment>50</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -2031,26 +2025,6 @@
         </imageStyle>
     </styleRule>
     <!--
-        * RRV
-        kts | 1.944 | 0 | -128 | 125 | | | 70 | 0 | 20
-    -->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>RRV</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <displayUnits>kts</displayUnits>
-            <range scale="LINEAR">
-                <minValue>-128</minValue>
-                <maxValue>125</maxValue>
-            </range>
-            <defaultColormap>Radar/GSD/8 bit Vel</defaultColormap>
-            <colorbarLabeling>
-                <increment>20</increment>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-    <!--
         * RR, CXR, LLR, radar
         dBZ | 1 | 0 | 0 | 80 | | ,,,p| 80 | 0 | 5
     -->
@@ -2072,41 +2046,6 @@
             <colorbarLabeling>
                 <increment>5</increment>
             </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-    <!--
-        * RRV, radar
-        kts | 1.0 | 0 | -128 | 125 | | ,,,p| 70 | 0 | 20
-    -->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>RRV</parameter>
-            <creatingEntity>radar</creatingEntity>
-        </paramLevelMatches>
-        <imageStyle>
-            <!-- pixelate="true" -->
-            <displayUnits>kts</displayUnits>
-            <range scale="LINEAR">
-                <minValue>-128</minValue>
-                <maxValue>125</maxValue>
-            </range>
-            <defaultColormap>Radar/GSD/8 bit Vel</defaultColormap>
-            <colorbarLabeling>
-                <increment>20</increment>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-    <!--
-        * g2gsh
-        kt | 1.944 | 0.0 | 0 | 1 | | | 29 | -1 | 5
-    -->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>g2gsh</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <displayUnits>kts</displayUnits>
-            <defaultColormap>Grid/Gridded Data</defaultColormap>
         </imageStyle>
     </styleRule>
     <!--
@@ -2200,39 +2139,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>.05</minValue>
-                <maxValue>50</maxValue>
+                <minValue>1</minValue>
+                <maxValue>1000</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.1 0.3 1 3 10 30</values>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-    <!--
-        * SAcc, SSAcc, Surface, Laps
-        in | 39.37 | 0 | 05 | 50 |x|,c| 29 | 6 | 0.1 0.3 1 3 10 30
-    -->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>SAcc</parameter>
-            <parameter>SSAcc</parameter>
-            <singleLevel units="SURFACE" />
-            <creatingEntity>Laps</creatingEntity>
-        </paramLevelMatches>
-        <imageStyle>
-            <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
-            <range scale="LOG">
-                <minValue>.05</minValue>
-                <maxValue>50</maxValue>
-            </range>
-            <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.1 0.3 1 3 10 30</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -2252,15 +2164,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>.05</minValue>
-                <maxValue>50</maxValue>
+                <minValue>1</minValue>
+                <maxValue>1000</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.1 0.3 1 3 10 30</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <styleRule>
@@ -2269,15 +2178,12 @@
             <singleLevel units="SURFACE"></singleLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>.05</minValue>
-                <maxValue>50</maxValue>
+                <minValue>1</minValue>
+                <maxValue>1000</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.1 0.3 1 3 10 30</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -2292,15 +2198,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>5</minValue>
-                <maxValue>50</maxValue>
+                <minValue>1</minValue>
+                <maxValue>1000</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.1 0.3 1 3 10 30</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -2475,15 +2378,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>12</maxValue>
+                <minValue>1</minValue>
+                <maxValue>500</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.03 0.1 0.3 1 3 10</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -2502,10 +2402,10 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>12</maxValue>
+                <minValue>1</minValue>
+                <maxValue>500</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
@@ -2713,14 +2613,14 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- brightness="0.80" -->
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <range scale="LINEAR">
                 <minValue>0</minValue>
-                <maxValue>100</maxValue>
+                <maxValue>200</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>10</increment>
+                <increment>20</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -2734,7 +2634,7 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- brightness="0.80" -->
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <range scale="LINEAR">
                 <minValue>0</minValue>
                 <maxValue>150</maxValue>
@@ -2952,15 +2852,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>12</maxValue>
+                <minValue>1</minValue>
+                <maxValue>500</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.03 0.1 0.3 1 3 10</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -2975,15 +2872,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>12</maxValue>
+                <minValue>1</minValue>
+                <maxValue>500</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.03 0.1 0.3 1 3 10</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -3037,14 +2931,14 @@
             </rangeLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <range scale="LINEAR">
                 <minValue>-40</minValue>
-                <maxValue>115</maxValue>
+                <maxValue>55</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>20</increment>
+                <increment>5</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -3245,15 +3139,12 @@
             <creatingEntity>MPE</creatingEntity>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>12</maxValue>
+                <minValue>1</minValue>
+                <maxValue>500</maxValue>
             </range>
             <defaultColormap>Grid/truncated gridded data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.03 0.1 0.3 1 3 10</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -3373,14 +3264,14 @@
             <singleLevel units="SURFACE" />
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <range scale="LINEAR">
                 <minValue>-40</minValue>
-                <maxValue>115</maxValue>
+                <maxValue>50</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>20</increment>
+                <increment>5</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -3405,15 +3296,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>12</maxValue>
+                <minValue>1</minValue>
+                <maxValue>50</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.03 0.1 0.3 1 3 10</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -3430,7 +3318,7 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG" />
             <defaultColormap>Grid/Gridded Data</defaultColormap>
         </imageStyle>
@@ -3770,17 +3658,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- pixelate="true" filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LINEAR">
-                <minValue>-0.08</minValue>
-                <maxValue>3.05</maxValue>
+                <minValue>-10</minValue>
+                <maxValue>100</maxValue>
             </range>
             <defaultColormap>DHM Water Depth</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.05 0.1 0.25 0.50 0.75 1.0 1.25 1.5 1.75
-                    2.0 2.25 2.5 2.75 3.0
-                </values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -3982,81 +3865,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>12</maxValue>
+                <minValue>1</minValue>
+                <maxValue>500</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.03 0.1 0.3 1 3 10</values>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-    <!--
-        * NBE, RAP13, Layer
-        J/kg | 1 | 0 | -1000 | -1 | |,x | 29 | -1 | 100
-    -->
-    <!-- DISABLED for plane type "EA"
-        <styleRule>
-        <paramLevelMatches>
-        <parameter>NBE</parameter>
-        <creatingEntity>RAP13</creatingEntity>
-        <singleLevel units="EA" />
-        </paramLevelMatches>
-        <imageStyle>
-        <!- - filterLow="true" - ->
-        <displayUnits>J/kg</displayUnits>
-        <defaultColormap>Grid/Gridded Data</defaultColormap>
-        </imageStyle>
-        </styleRule>
-    -->
-    <!--
-        * HPE, BHPE, PR
-        in/hr | .0394 | 0.0 | 0.005 | 16 |x|,c| 72 | 8 | 0.01 0.25 0.5 1 
-        2 4 8 16
-    -->
-    <styleRule>
-        <paramLevelMatches>
-            <creatingEntity>HPE</creatingEntity>
-            <creatingEntity>BHPE</creatingEntity>
-            <parameter>PR</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <!-- filterLow="true" -->
-            <displayUnits label="in/hr">in/h</displayUnits>
-            <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>16</maxValue>
-            </range>
-            <defaultColormap>Radar/OSF/256 Level Reflectivity</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.25 0.5 1 2 4 8 16</values>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-    <!--
-        * HPE, BHPE, SPAcc
-        in | .0394 | 0.0 | 0.005 | 16 |x|,c| 81 | 8 | 0.01 0.25 0.5 1 2 4 
-        8 16
-    -->
-    <styleRule>
-        <paramLevelMatches>
-            <creatingEntity>HPE</creatingEntity>
-            <creatingEntity>BHPE</creatingEntity>
-            <parameter>SPAcc</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
-            <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>16</maxValue>
-            </range>
-            <defaultColormap>Radar/OSF/Storm Total Precip</defaultColormap>
-            <colorbarLabeling>
-                <values>0.01 0.25 0.5 1 2 4 8 16</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -4086,14 +3900,14 @@
             <parameter>BASSW</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <range scale="LINEAR">
                 <minValue>0</minValue>
-                <maxValue>50</maxValue>
+                <maxValue>100</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>4</increment>
+                <increment>10</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -4615,15 +4429,12 @@
         </paramLevelMatches>
         <imageStyle>
             <!-- filterLow="true" -->
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LOG">
-                <minValue>.05</minValue>
-                <maxValue>50</maxValue>
+                <minValue>1</minValue>
+                <maxValue>1000</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>0.001 0.01 0.1 0.3 1 3 10 30</values>
-            </colorbarLabeling>
         </imageStyle>
     </styleRule>
     <!--
@@ -4726,14 +4537,14 @@
             <singleLevel units="SURFACE" />
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range>
                 <minValue>0.0</minValue>
-                <maxValue>16</maxValue>
+                <maxValue>500</maxValue>
             </range>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <colorbarLabeling>
-                <increment>2</increment>
+                <increment>100</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -4778,107 +4589,6 @@
     </styleRule>
     <styleRule>
         <paramLevelMatches>
-            <parameter>swe</parameter>
-            <singleLevel units="SURFACE" />
-        </paramLevelMatches>
-        <imageStyle>
-            <defaultColormap>Grid/truncated warm to cold</defaultColormap>
-            <displayUnits>in</displayUnits>
-            <range scale="LINEAR">
-            </range>
-            <dataMapping>
-                <!--
-                    <entry pixelValue="0" displayValue="-1.463" label=""/>
-                -->
-                <entry pixelValue="16" displayValue="0" />
-                <entry pixelValue="38" displayValue="2" />
-                <entry pixelValue="60" displayValue="4" />
-                <entry pixelValue="82" displayValue="6" />
-                <entry pixelValue="104" displayValue="8" />
-                <entry pixelValue="125" displayValue="10" />
-                <entry pixelValue="140" displayValue="20" />
-                <entry pixelValue="165" displayValue="40" />
-                <entry pixelValue="190" displayValue="60" />
-                <entry pixelValue="215" displayValue="80" />
-                <entry pixelValue="240" displayValue="100" />
-            </dataMapping>
-        </imageStyle>
-    </styleRule>
-
-    <styleRule>
-        <paramLevelMatches>
-            <singleLevel units="SURFACE" />
-            <parameter>tpHPC</parameter>
-            <creatingEntity>HPCqpf</creatingEntity>
-        </paramLevelMatches>
-        <imageStyle>
-            <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <displayUnits>in</displayUnits>
-            <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>12</maxValue>
-            </range>
-            <colorbarLabeling>
-                <values>0.01 0.03 0.1 0.3 1.0 3.0 10.0</values>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>tpHPC</parameter>
-            <creatingEntity>RFCqpf</creatingEntity>
-            <singleLevel units="SURFACE" />
-        </paramLevelMatches>
-        <imageStyle>
-            <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <displayUnits>in</displayUnits>
-            <range scale="LINEAR">
-            </range>
-            <dataMapping>
-                <entry pixelValue="1" displayValue="0.0" />
-                <entry pixelValue="201" displayValue="1.574" />
-                <entry pixelValue="253" displayValue="19.68" />
-            </dataMapping>
-            <colorbarLabeling>
-                <values>0.25 0.5 0.75 1.0 1.25 5 10 15</values>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-
-    <styleRule>
-        <paramLevelMatches>
-            <singleLevel units="SURFACE" />
-            <parameter>TP6hr</parameter>
-            <creatingEntity>RFCqpf</creatingEntity>
-            <creatingEntity>QPF-ACR</creatingEntity>
-            <creatingEntity>QPF-ALR</creatingEntity>
-            <creatingEntity>QPF-FWR</creatingEntity>
-            <creatingEntity>QPF-KRF</creatingEntity>
-            <creatingEntity>QPF-MSR</creatingEntity>
-            <creatingEntity>QPF-ORN</creatingEntity>
-            <creatingEntity>QPF-PTR</creatingEntity>
-            <creatingEntity>QPF-RHA</creatingEntity>
-            <creatingEntity>QPF-RSA</creatingEntity>
-            <creatingEntity>QPF-STR</creatingEntity>
-            <creatingEntity>QPF-TAR</creatingEntity>
-            <creatingEntity>QPF-TIR</creatingEntity>
-        </paramLevelMatches>
-        <imageStyle>
-            <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <displayUnits>in</displayUnits>
-            <range scale="LOG">
-                <minValue>0.005</minValue>
-                <maxValue>12</maxValue>
-            </range>
-            <colorbarLabeling>
-                <values>0.01 0.03 0.1 0.3 1.0 3.0 10.0</values>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-
-    <styleRule>
-        <paramLevelMatches>
             <parameter>PQPF23hr</parameter>
             <parameter>PQPF33hr</parameter>
             <parameter>PQPF43hr</parameter>
@@ -4908,10 +4618,7 @@
                 <maxValue>5</maxValue>
             </range>
             <defaultColormap>Radar/MDL/0-3Hr Radar-Based Categorical</defaultColormap>
-            <displayUnits>in</displayUnits>
-            <colorbarLabeling>
-                <values>0.10 0.50 1.00 2.00</values>
-            </colorbarLabeling>
+            <displayUnits>mm</displayUnits>
         </imageStyle>
     </styleRule>
     <styleRule>
@@ -5049,26 +4756,6 @@
             <defaultColormap>Grid/Vorticity</defaultColormap>
             <colorbarLabeling>
                 <increment>10</increment>
-            </colorbarLabeling>
-        </imageStyle>
-    </styleRule>
-    <!-- </sourceTag>HIRESW -->
-    <!-- <sourceTag>ER-sportsst -->
-    <styleRule>
-        <paramLevelMatches>
-            <creatingEntity>ER-SPORT-SST</creatingEntity>
-            <parameter>T</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <interpolate>false</interpolate>
-            <displayUnits>F</displayUnits>
-            <range scale="LINEAR">
-                <minValue>25</minValue>
-                <maxValue>100</maxValue>
-            </range>
-            <defaultColormap>Grid/Gridded Data</defaultColormap>
-            <colorbarLabeling>
-                <values>32 40 50 60 70 80 90</values>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -5440,112 +5127,6 @@
             </dataMapping>
         </imageStyle>
     </styleRule>
-    <!-- MRMS MESH Products -->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>MESH</parameter>
-            <parameter>MESHTrack30min</parameter>
-            <parameter>MESHTrack60min</parameter>
-            <parameter>MESHTrack120min</parameter>
-            <parameter>MESHTrack240min</parameter>
-            <parameter>MESHTrack360min</parameter>
-            <parameter>MESHTrack1440min</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <interpolate>false</interpolate>
-            <displayUnits>in</displayUnits>
-            <range scale="LINEAR">
-                <minValue>0</minValue>
-                <maxValue>4.0</maxValue>
-            </range>
-            <defaultColormap>mrms/mrmsHail</defaultColormap>
-            <dataMapping>
-                <entry pixelValue="0" operator="&lt;" label="" />
-                <entry pixelValue="0.126" operator="&gt;"
-                    displayValue='0.005' />
-                <entry pixelValue="12.690" operator="&gt;"
-                    displayValue='0.5' />
-                <entry pixelValue="25.381" operator="&gt;"
-                    displayValue='1.0' />
-                <entry pixelValue="38.071" operator="&gt;"
-                    displayValue='1.5' />
-                <entry pixelValue="50.761" operator="&gt;"
-                    displayValue='2.0' />
-                <entry pixelValue="63.452" operator="&gt;"
-                    displayValue='2.5' />
-                <entry pixelValue="76.142" operator="&gt;"
-                    displayValue='3.0' />
-                <entry pixelValue="88.832" operator="&gt;"
-                    displayValue='3.5' />
-                <entry pixelValue="101.523" operator="&gt;"
-                    displayValue='4.0' />
-                <entry pixelValue="228.601" operator="&gt;"
-                    displayValue='9.0' />
-            </dataMapping>
-        </imageStyle>
-    </styleRule>
-    <!-- MRMS Shear & Rotation Tracks Products -->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>MergedAzShear02kmAGL</parameter>
-            <parameter>MergedAzShear36kmAGL</parameter>
-            <parameter>RotationTrackLL30min</parameter>
-            <parameter>RotationTrackLL60min</parameter>
-            <parameter>RotationTrackLL120min</parameter>
-            <parameter>RotationTrackLL240min</parameter>
-            <parameter>RotationTrackLL360min</parameter>
-            <parameter>RotationTrackLL1440min</parameter>
-            <parameter>RotationTrackML30min</parameter>
-            <parameter>RotationTrackML60min</parameter>
-            <parameter>RotationTrackML120min</parameter>
-            <parameter>RotationTrackML240min</parameter>
-            <parameter>RotationTrackML360min</parameter>
-            <parameter>RotationTrackML1440min</parameter>
-        </paramLevelMatches>
-        <imageStyle>
-            <interpolate>false</interpolate>
-            <displayUnits label="s^-1">*1000</displayUnits>
-            <samplePrefs>
-                <formatString>3</formatString>
-            </samplePrefs>
-            <range scale="LINEAR">
-                <minValue>0</minValue>
-                <maxValue>0.025</maxValue>
-            </range>
-            <defaultColormap>mrms/mrmsRotation</defaultColormap>
-            <dataMapping>
-                <entry pixelValue="0" operator="&lt;" label="" />
-                <entry pixelValue="1" operator="&gt;"
-                    displayValue='0.001' />
-                <entry pixelValue="2" operator="&gt;"
-                    displayValue='0.002' />
-                <entry pixelValue="4" operator="&gt;"
-                    displayValue='0.004' />
-                <entry pixelValue="6" operator="&gt;"
-                    displayValue='0.006' />
-                <entry pixelValue="8" operator="&gt;"
-                    displayValue='0.008' />
-                <entry pixelValue="10" operator="&gt;"
-                    displayValue='0.010' />
-                <entry pixelValue="12" operator="&gt;"
-                    displayValue='0.012' />
-                <entry pixelValue="14" operator="&gt;"
-                    displayValue='0.014' />
-                <entry pixelValue="16" operator="&gt;"
-                    displayValue='0.016' />
-                <entry pixelValue="18" operator="&gt;"
-                    displayValue='0.018' />
-                <entry pixelValue="20" operator="&gt;"
-                    displayValue='0.020' />
-                <entry pixelValue="22" operator="&gt;"
-                    displayValue='0.022' />
-                <entry pixelValue="24" operator="&gt;"
-                    displayValue='0.024' />
-                <entry pixelValue="99" operator="&gt;"
-                    displayValue='0.099' />
-            </dataMapping>
-        </imageStyle>
-    </styleRule>
     <!-- MRMS Precipitation Type -->
     <styleRule>
         <paramLevelMatches>
@@ -5743,10 +5324,10 @@
         </paramLevelMatches>
         <imageStyle>
             <interpolate>false</interpolate>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <range scale="LINEAR">
-                <minValue>-0.05</minValue>
-                <maxValue>12.0</maxValue>
+                <minValue>-1</minValue>
+                <maxValue>500</maxValue>
             </range>
             <defaultColormap>mrms/mrmsQPEDP</defaultColormap>
             <dataMapping>
@@ -6126,7 +5707,7 @@
             <parameter>WGS</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
         </imageStyle>
     </styleRule>
     <!-- * geoWM, wSp, wSp_avg, 1050MB > 500MB kts|1.944| 0.0 | 4 | | |..|8000F0FF| 
@@ -6142,7 +5723,7 @@
             </rangeLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
         </imageStyle>
     </styleRule>
 
@@ -6161,7 +5742,7 @@
             </rangeLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
         </imageStyle>
     </styleRule>
 
@@ -6171,7 +5752,7 @@
             <parameter>ageoWM</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
         </imageStyle>
     </styleRule>
     <styleRule>
@@ -6258,13 +5839,13 @@
             <parameter>TOTSN95pct72hr</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits label="in">in</displayUnits>
+            <displayUnits label="mm">mm</displayUnits>
             <range scale="LINEAR">
                 <minValue>0</minValue>
-                <maxValue>49</maxValue>
+                <maxValue>1000</maxValue>
             </range>
             <colorbarLabeling>
-                <increment>2</increment>
+                <increment>50</increment>
             </colorbarLabeling>
             <defaultColormap>Grid/pwpf_snow</defaultColormap>
             <interpolate>false</interpolate>
@@ -6305,13 +5886,13 @@
             <parameter>FRZR95pct72hr</parameter>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits label="in">in</displayUnits>
+            <displayUnits label="mm">mm</displayUnits>
             <range scale="LINEAR">
                 <minValue>0</minValue>
-                <maxValue>11</maxValue>
+                <maxValue>1000</maxValue>
             </range>
             <colorbarLabeling>
-                <increment>1</increment>
+                <increment>100</increment>
             </colorbarLabeling>
             <defaultColormap>Grid/pwpf_frzr</defaultColormap>
             <interpolate>false</interpolate>
@@ -6394,14 +5975,14 @@
             </singleLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <range scale="LINEAR">
                 <minValue>0</minValue>
-                <maxValue>200</maxValue>
+                <maxValue>400</maxValue>
             </range>
             <colorbarLabeling>
-                <increment>20</increment>
+                <increment>50</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>
@@ -6413,14 +5994,14 @@
             </singleLevel>
         </paramLevelMatches>
         <imageStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <defaultColormap>Grid/Gridded Data</defaultColormap>
             <range scale="LINEAR">
                 <minValue>0</minValue>
-                <maxValue>180</maxValue>
+                <maxValue>350</maxValue>
             </range>
             <colorbarLabeling>
-                <increment>20</increment>
+                <increment>50</increment>
             </colorbarLabeling>
         </imageStyle>
     </styleRule>

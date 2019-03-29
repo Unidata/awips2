@@ -2,8 +2,22 @@
 <menuContributionFile>
     <include installTo="menu:models" 
              fileName="menus/grid/allFamilies.xml">
-             <substitute key="modelName" value="ECMWF-HiRes" />
-             <substitute key="menuName" value="ECMWF" />
+             <substitute key="modelName" value="ECMWF_0.125deg" />
+             <substitute key="menuName" value="ECMWF 0.125°" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </include>
+    <include installTo="menu:models" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="ECMWF_0.1deg" />
+             <substitute key="menuName" value="ECMWF 0.1°" />
+             <substitute key="frameCount" value="41" />
+             <substitute key="TP" value="TP"/>
+    </include>
+    <include installTo="menu:models" 
+             fileName="menus/grid/allFamilies.xml">
+             <substitute key="modelName" value="ECMWF_0.2deg" />
+             <substitute key="menuName" value="ECMWF 0.2°" />
              <substitute key="frameCount" value="41" />
              <substitute key="TP" value="TP"/>
     </include>

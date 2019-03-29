@@ -212,7 +212,7 @@
      <creatingEntity>Composite</creatingEntity>
   </paramLevelMatches>
   <imageStyle>
-     <displayUnits>in</displayUnits>
+     <displayUnits>mm</displayUnits>
      <range scale="LINEAR">
        <minValue>0</minValue>
        <maxValue>3.36</maxValue>
@@ -223,7 +223,7 @@
      </samplePrefs>
      <defaultColormap>Sat/Precip Water/Precip Water Default</defaultColormap>
      <colorbarLabeling>
-        <values>0.4 0.8 1.2 1.6 2.0 2.6</values>
+        <values>1 5 10 20 50 100</values>
      </colorbarLabeling>
   </imageStyle>
 </styleRule>
@@ -335,14 +335,14 @@
      <creatingEntity>Miscellaneous</creatingEntity>
   </paramLevelMatches>
   <imageStyle>
-     <displayUnits>in</displayUnits>
+     <displayUnits>mm</displayUnits>
      <range scale="LINEAR">
        <minValue>-7</minValue>
        <maxValue>3</maxValue>
      </range>
      <defaultColormap>Sat/Precip Water/Blended Total Precip Water</defaultColormap>
      <colorbarLabeling>
-        <values>0 1 2 3</values>
+        <values>0 50 100 200</values>
      </colorbarLabeling>
      <!-- dataMapping>
 		<entry pixelValue="0" label="NO DATA" />
@@ -536,63 +536,6 @@
                         <entry displayValue='1.05' pixelValue='240' label='' />
                 </dataMapping>
         </imageStyle>
-</styleRule>
-<styleRule>
-	<paramLevelMatches>
-		<parameter>N1P</parameter>
-		<parameter>DAA</parameter>
-		<parameter>OHA</parameter>
-	</paramLevelMatches>
-	<imageStyle>
-		<displayUnits>in</displayUnits>
-		<samplePrefs>
-		    <!-- Number of decimal places to format the sample string to -->
-			<formatString>4</formatString>
-		</samplePrefs>
-		<defaultColormap>Radar/8-bit STP</defaultColormap>
-        <dataMapping>
-                <entry displayValue='0' pixelValue='0'/>
-                <entry displayValue='.1' pixelValue='20'/>
-                <entry displayValue='.25' pixelValue='50'/>
-                <entry displayValue='.5' pixelValue='100'/>
-                <entry displayValue='1' pixelValue='111'/>
-                <entry displayValue='1.5' pixelValue='122'/>
-                <entry displayValue='2' pixelValue='133'/>
-                <entry displayValue='2.5' pixelValue='144'/>
-                <entry displayValue='3' pixelValue='155'/>
-                <entry displayValue='3.5' pixelValue='166'/>
-                <entry displayValue='4' pixelValue='177'/>
-                <entry displayValue='4.5' pixelValue='188'/>
-                <entry displayValue='5' pixelValue='200' />
-                <entry displayValue='10' pixelValue='239' />
-                <entry displayValue='12' pixelValue='255' />
-        </dataMapping>
-	</imageStyle>
-</styleRule>
-<styleRule>
-	<paramLevelMatches>
-		<parameter>NTP</parameter>
-		<parameter>DTA</parameter>
-	</paramLevelMatches>
-	<imageStyle>
-		<displayUnits>in</displayUnits>
-		<samplePrefs>
-		    <!-- Number of decimal places to format the sample string to -->
-			<formatString>4</formatString>
-		</samplePrefs>
-		<defaultColormap>Radar/8-bit STP</defaultColormap>
-        <dataMapping>
-                <entry displayValue='0' pixelValue='0'/>
-                <entry displayValue='1' pixelValue='33'/>
-                <entry displayValue='2' pixelValue='67'/>
-                <entry displayValue='3' pixelValue='100'/>
-                <entry displayValue='5' pixelValue='129'/>
-	        <entry displayValue='8' pixelValue='171'/>
-                <entry displayValue='10' pixelValue='200' />
-                <entry displayValue='20' pixelValue='239' />
-                <entry displayValue='24' pixelValue='255' label='' />
-        </dataMapping>
-	</imageStyle>
 </styleRule>
 <styleRule>
 	<paramLevelMatches>

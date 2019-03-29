@@ -262,7 +262,7 @@ public class MetarTempResource extends AbstractVizResource<MetarTempResourceData
         ColorMapParameters params = new ColorMapParameters();
 
         try {
-            params.setColorMap(ColorMapLoader.loadColorMap("Grid/Gridded Data"));
+            params.setColorMap(ColorMapLoader.loadColorMap("Matplotlib/Blue White Red"));
         } catch (ColorMapException e) {
             throw new VizException(e);
         }
@@ -270,22 +270,22 @@ public class MetarTempResource extends AbstractVizResource<MetarTempResourceData
         DataMappingPreferences preferences = new DataMappingPreferences();
 
         DataMappingEntry entry = new DataMappingEntry();
-        entry.setDisplayValue(-50.);
+        entry.setDisplayValue(-30.);
         entry.setPixelValue(0.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(-40.);
+        entry.setDisplayValue(-25.);
         entry.setPixelValue(1.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(-30.);
+        entry.setDisplayValue(-20.);
         entry.setPixelValue(2.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(-20.);
+        entry.setDisplayValue(-15.);
         entry.setPixelValue(3.0);
         preferences.addEntry(entry);
 
@@ -295,62 +295,62 @@ public class MetarTempResource extends AbstractVizResource<MetarTempResourceData
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(0.0);
+        entry.setDisplayValue(-5.0);
         entry.setPixelValue(5.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(10.);
+        entry.setDisplayValue(0.);
         entry.setPixelValue(6.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(20.);
+        entry.setDisplayValue(5.);
         entry.setPixelValue(7.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(30.);
+        entry.setDisplayValue(10.);
         entry.setPixelValue(8.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(40.);
+        entry.setDisplayValue(15.);
         entry.setPixelValue(9.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(50.);
+        entry.setDisplayValue(20.);
         entry.setPixelValue(10.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(60.);
+        entry.setDisplayValue(25.);
         entry.setPixelValue(11.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(70.);
+        entry.setDisplayValue(30.);
         entry.setPixelValue(12.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(80.);
+        entry.setDisplayValue(35.);
         entry.setPixelValue(13.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(90.);
+        entry.setDisplayValue(40.);
         entry.setPixelValue(14.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(100.);
+        entry.setDisplayValue(45.);
         entry.setPixelValue(15.0);
         preferences.addEntry(entry);
 
         entry = new DataMappingEntry();
-        entry.setDisplayValue(110.);
+        entry.setDisplayValue(50.);
         entry.setPixelValue(16.0);
         preferences.addEntry(entry);
 
@@ -388,7 +388,7 @@ public class MetarTempResource extends AbstractVizResource<MetarTempResourceData
 
     @Override
     public String getName() {
-    	return "Surface Temps [F]";
+    	return "Surface Temps [C]";
     }
 
     @Override

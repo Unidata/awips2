@@ -93,7 +93,7 @@ public class MetarTempDataContainer {
             super();
             this.timeObs = timeObs;
             this.stationName = stationName;
-            this.tempValue = getFahrenheitTemp(tempValue);
+            this.tempValue = tempValue;
             this.latLon = new Coordinate(longitude, latitude);
         }
 
@@ -330,15 +330,5 @@ public class MetarTempDataContainer {
         }
         return latLonEnvelopes;
     }
-
-    public static Double getFahrenheitTemp(Double val){
-        if (val > -100.) {
-        	return (val * 1.8) + 32.;
-        } else {
-        	return val;
-        }
-    	
-    }
-    
     
 }

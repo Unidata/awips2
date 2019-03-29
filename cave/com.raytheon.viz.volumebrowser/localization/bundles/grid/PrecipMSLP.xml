@@ -19,7 +19,7 @@
                     <resourceData xsi:type="gridResourceData" retrieveData="true" isUpdatingOnMetadataOnly="false" isRequeryNecessaryOnTimeMatch="true">
                         <metadataMap>
                             <mapping key="info.parameter.abbreviation">
-                                <constraint constraintValue="msl-P" constraintType="EQUALS"/>
+                                <constraint constraintValue="PMSL" constraintType="EQUALS"/>
                             </mapping>
                             <mapping key="info.datasetId">
                                 <constraint constraintValue="${modelName}" constraintType="EQUALS"/>
@@ -41,14 +41,6 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
                         <capabilities>
                             <capability xsi:type="imagingCapability" contrast="1.0" brightness="0.8" interpolationState="true" alpha="1.0"/>
-                            <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Radar/OSF/Storm Total Precip">
-                                    <persisted>
-                                        <colorMapMin>0.127</colorMapMin>
-                                        <colorMapMax>304.8</colorMapMax>
-                                    </persisted>
-                                </colorMapParameters>
-                            </capability>
                             <capability xsi:type="colorableCapability" colorAsString="coral"/>
                             <capability xsi:type="densityCapability" density="1.0"/>
                             <capability xsi:type="magnificationCapability" magnification="1.0"/>

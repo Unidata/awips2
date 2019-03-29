@@ -5,11 +5,11 @@
 	                <resource>
 	                    <loadProperties xsi:type="gridLoadProperties" displayType="ARROW" loadWithoutData="false">
 	                    	<capabilities>
-	                            <capability xsi:type="magnificationCapability" magnification="1.0"/>
-	                            <capability xsi:type="densityCapability" density="1.0"/>
-	                            <capability xsi:type="outlineCapability" outlineWidth="2" outlineOn="true" lineStyle="SOLID"/>
-	                            <capability xsi:type="displayTypeCapability" displayType="ARROW"/>
 	                            <capability xsi:type="colorableCapability" colorAsString="white"/>
+                                <capability xsi:type="displayTypeCapability" displayType="BARB"/>
+                                <capability xsi:type="densityCapability" density="1.5"/>
+                                <capability xsi:type="magnificationCapability" magnification="0.8"/>
+                                <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="DEFAULT"/>
 	                        </capabilities>
 	                        <resourceType>PLAN_VIEW</resourceType>
 	                    </loadProperties>
@@ -31,10 +31,10 @@
 	                                <constraint constraintValue="grid" constraintType="EQUALS"/>
 	                            </mapping>
 	                            <mapping key="info.level.masterLevel.name">
-	                                <constraint constraintValue="FHAG" constraintType="EQUALS"/>
+	                                <constraint constraintValue="SFC" constraintType="EQUALS"/>
 	                            </mapping>
 	                            <mapping key="info.level.levelonevalue">
-	                                <constraint constraintValue="10.0" constraintType="EQUALS"/>
+	                                <constraint constraintValue="0.0" constraintType="EQUALS"/>
 	                            </mapping>
 	                        </metadataMap>
 	                        <alertParser xsi:type="dataCubeAlertMessageParser"/>
@@ -83,18 +83,18 @@
                     <loadProperties xsi:type="gridLoadProperties" displayType="IMAGE" loadWithoutData="false">
                         <capabilities>
 							<capability xsi:type="imagingCapability" contrast="1.0" brightness="0.8" interpolationState="true" alpha="1.0"/>
-                            <capability xsi:type="colorableCapability" colorAsString="coral"/>
+                            <capability xsi:type="colorableCapability" colorAsString="white"/>
                             <capability xsi:type="densityCapability" density="1.0"/>
                             <capability xsi:type="magnificationCapability" magnification="1.0"/>
                             <capability xsi:type="outlineCapability" outlineWidth="1" outlineOn="true" lineStyle="SOLID"/>
                             <capability xsi:type="displayTypeCapability" displayType="IMAGE"/>
                             <capability xsi:type="colorMapCapability">
-                                <colorMapParameters colorMapName="Grid/Gridded Data">
-                                            <persisted>
-                                                <colorMapMin>245.05</colorMapMin>
-                                                <colorMapMax>302.62222</colorMapMax>
-                                            </persisted>
-                                        </colorMapParameters>
+                                <colorMapParameters colorMapName="Grid/Temperature F">
+                                    <persisted>
+                                        <colorMapMin>247.9278</colorMapMin>
+                                        <colorMapMax>316.483</colorMapMax>
+                                    </persisted>
+                                </colorMapParameters>
                             </capability>
                         </capabilities>
                         <resourceType>PLAN_VIEW</resourceType>

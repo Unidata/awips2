@@ -7,9 +7,6 @@
 		<contribute xsi:type="bundleItem" file="bundles/grid/Precip.xml"
 			    menuText="Precip Accumulation" id="" useReferenceTime="true">
 		</contribute>
-		<contribute xsi:type="bundleItem" file="bundles/grid/Snow.xml"
-			    menuText="Snow Accumulation" id="" useReferenceTime="true">
-		</contribute>
 		<contribute xsi:type="bundleItem" file="bundles/grid/SurfaceTempWind.xml"
 			    menuText="Sfc Temperature and Wind" id="" useReferenceTime="true">
 		</contribute>

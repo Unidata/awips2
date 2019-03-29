@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-    <!--
-        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
-        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
-        
-        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
-        This_software_product_contains_export-restricted_data_whose
-        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
-        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
-        an_export_license_or_other_authorization.
-        
-        Contractor_Name:________Raytheon_Company
-        Contractor_Address:_____6825_Pine_Street,_Suite_340
-        ________________________Mail_Stop_B8
-        ________________________Omaha,_NE_68106
-        ________________________402.291.0100
-        
-        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
-        further_licensing_information.
-    -->
     <!-- 
         This is an incremental override file, indicating that the files
         at different localization levels will be combined. 
@@ -56,52 +37,6 @@
             <displayUnits>ft</displayUnits>
             <contourLabeling labelSpacing="4" labelFormat="#">
                 <increment>1000</increment>
-            </contourLabeling>
-        </contourStyle>
-    </styleRule>
-
-<!-- HRRR -->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>MaxWHRRR</parameter>
-        </paramLevelMatches>
-        <contourStyle>
-            <displayUnits>kts</displayUnits>
-            <contourLabeling labelSpacing="4">
-                <increment>10</increment>
-            </contourLabeling>
-        </contourStyle>
-    </styleRule>
-    <styleRule>
-        <paramLevelMatches>
-            <creatingEntity>HRRR</creatingEntity>
-            <parameter>CPOFP</parameter>
-        </paramLevelMatches>
-        <contourStyle>
-            <displayUnits>%</displayUnits>
-            <contourLabeling labelSpacing="4">
-                <values>0 10 20 30 40 50 60 70 80 90 100</values>
-            </contourLabeling>
-        </contourStyle>
-    </styleRule>
-
-<!--
-  * GH, GHxSM, zAGL
-  dam | 0.1 | 0.0 | 4 | i4 |   |..|8000F0FF| | 0 | 50
--->
-<!--  geopotential height (GH) rules for HRRR-East -->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>GH</parameter>
-            <parameter>GHxSM</parameter>
-            <parameter>zAGL</parameter>
-            <creatingEntity>HRRR-East</creatingEntity>
-            <creatingEntity>HRRR-West</creatingEntity>
-        </paramLevelMatches>
-        <contourStyle>
-            <displayUnits>ft</displayUnits>
-            <contourLabeling labelSpacing="4" labelFormat="#">
-                <increment>5000</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -385,7 +320,7 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF| | 0 | 5
             </rangeLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <contourLabeling labelSpacing="4">
                 <increment>5</increment>
             </contourLabeling>
@@ -402,7 +337,7 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF| | 0 | 5
             </rangeLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4">
                 <increment>5</increment>
@@ -437,7 +372,7 @@ C  | 1 |-273.15| 4 |    |   |..|8000F0FF| | 0 | 2
             </singleLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <contourLabeling>
                 <increment>5</increment>
             </contourLabeling>
@@ -626,9 +561,9 @@ kts|1.944| 0.0 | 4 |    |   |..|8000F0FF| | 0 | 10
             <parameter>WGS</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling labelSpacing="4">
-                <increment>10</increment>
+                <increment>20</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -646,9 +581,9 @@ kts|1.944| 0.0 | 4 |    |   |..|8000F0FF| | 0 | 10
             </rangeLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling labelSpacing="4">
-                <increment>10</increment>
+                <increment>20</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -668,9 +603,9 @@ kts|1.944| 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
             </rangeLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling labelSpacing="4">
-                <increment>5</increment>
+                <increment>10</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -683,7 +618,7 @@ kts|1.944| 0.0 | 4 |    |   |..|8000F0FF| | 0 | 1
             <parameter>WGSea</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling labelSpacing="4">
                 <increment>1</increment>
             </contourLabeling>
@@ -700,7 +635,7 @@ kts|1.944| 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
             <parameter>AlongA</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling labelSpacing="4">
                 <increment>5</increment>
             </contourLabeling>
@@ -714,7 +649,7 @@ kts|1.944| 0.0 | 4 |    |   |..|8000F0FF| | 0 | 2
             <parameter>ageoWM</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling labelSpacing="4">
                 <increment>2</increment>
             </contourLabeling>
@@ -1090,11 +1025,11 @@ in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
             <parameter>TP6hr</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
                 maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
+                <values>0.5 1 5 10 20 50 100 200 400</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1111,10 +1046,10 @@ in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
             <parameter>TP24hr_avg</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
                 maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
+                <values>0.5 1 5 10 20 50 100 200 400</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1130,11 +1065,11 @@ in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
             <parameter>tpHPCndfd</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
                 maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
+                <values>0.5 1 5 10 20 50 100 200 400</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1161,11 +1096,11 @@ in|39.4|.0| 4 | |f5.2|@.|8000F0FF| |13|\
             <creatingEntity>Laps</creatingEntity>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
                 maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
+                <values>0.5 1 5 10 20 50 100 200 400</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1178,10 +1113,10 @@ in|.0394|.0| 4 | |f4.2|@.|8000F0FF| |9|\
             <parameter>PW</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="0.00"
                 maxLabel=".">
-                <values>0.1 0.25 0.5 0.75 1 1.5 2 2.5 3</values>
+                <values>0.5 1 5 10 20 50 100 200 400</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1195,9 +1130,9 @@ in|39.4|.0| 4 | |f4.2|@.|8000F0FF| |9|\
             <creatingEntity>Laps</creatingEntity>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <contourLabeling minMaxLabelFormat="0.00" maxLabel=".">
-                <values>0.1 0.25 0.5 0.75 1 1.5 2 2.5 3</values>
+                <values>0.5 1 5 10 20 50 100 200 400</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1615,9 +1550,9 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 17 | \
             </singleLevel>
         </paramLevelMatches>
         <contourStyle labelSpacing="4">
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <contourLabeling>
-                <values>0.01 0.1 0.5 1 1.5 2 3 4 6 8 10 12 15 20 30 40 50</values>
+                <values>0.5 1 5 10 20 50 100 200 500 1000</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1630,10 +1565,10 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 17 | \
             </singleLevel>
         </paramLevelMatches>
         <contourStyle labelSpacing="4">
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling>
-                <values>0.01 0.1 0.5 1 1.5 2 3 4 6 8 10 12 15 20 30 40 50</values>
+                <values>0.5 1 5 10 20 50 100 200 500 1000</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1649,10 +1584,10 @@ in | 39.37 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <singleLevel units="SURFACE"></singleLevel>
         </paramLevelMatches>
         <contourStyle labelSpacing="4">
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling>
-                <values>0.1 0.5 1 1.5 2 3 4 6 8 10 12 15 20 30 40 50</values>
+                <values>0.5 1 5 10 20 50 100 200 500 1000</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1672,10 +1607,10 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <singleLevel units="SURFACE"></singleLevel>
         </paramLevelMatches>
         <contourStyle labelSpacing="4">
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling>
-                <values>0.1 0.5 1 1.5 2 3 4 6 8 10 12 15 20 30 40 50</values>
+                <values>0.5 1 5 10 20 50 100 200 500 1000</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1690,10 +1625,10 @@ in | 39.37 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <singleLevel units="SURFACE"></singleLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4">
-                <values>0.1 0.5 1 1.5 2 3 4 6 8 10 12 15 20 30 40 50</values>
+                <values>0.5 1 5 10 20 50 100 200 500 1000</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -1822,52 +1757,6 @@ ubar/s |1000| 0 |   | f6.1 |   | |8000F0FF| | -15 | 0.1
             <displayUnits label="-ubar/s">(Pa/s)*-0.1</displayUnits>
             <contourLabeling labelFormat="0.0" numberOfContours="15">
                 <increment>0.1</increment>
-            </contourLabeling>
-        </contourStyle>
-    </styleRule>
-<!--  * TP_HPC,TP_ACR,TP_ALR,TP_FWR,TP_KRF,TP_MSR,TP_ORN
-in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
-    0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10
--->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>TP_HPC</parameter>
-            <parameter>TP_ACR</parameter>
-            <parameter>TP_ALR</parameter>
-            <parameter>TP_FWR</parameter>
-            <parameter>TP_KRF</parameter>
-            <parameter>TP_MSR</parameter>
-            <parameter>TP_ORN</parameter>
-        </paramLevelMatches>
-        <contourStyle>
-            <displayUnits>in</displayUnits>
-            <displayFlags>NoPlane</displayFlags>
-            <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
-                maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
-            </contourLabeling>
-        </contourStyle>
-    </styleRule>
-<!--  * TP_PTR,TP_RHA,TP_RSA,TP_STR,TP_TAR,TP_TIR,TP_TUA
-in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
-    0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10
--->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>TP_PTR</parameter>
-            <parameter>TP_RHA</parameter>
-            <parameter>TP_RSA</parameter>
-            <parameter>TP_STR</parameter>
-            <parameter>TP_TAR</parameter>
-            <parameter>TP_TIR</parameter>
-            <parameter>TP_TUA</parameter>
-        </paramLevelMatches>
-        <contourStyle>
-            <displayUnits>in</displayUnits>
-            <displayFlags>NoPlane</displayFlags>
-            <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
-                maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -2002,10 +1891,10 @@ kts |1.944| 0.0 | 4 |    |   |..|8000F0FF| |0|5
             <parameter>CorfFM</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4">
-                <increment>5</increment>
+                <increment>10</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -2047,9 +1936,9 @@ kts | 1.944 | 0.0 | 4 |    |   |..|8000F0FF| |0|5
             <parameter>BlkMag</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling labelSpacing="4">
-                <increment>5</increment>
+                <increment>10</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -2061,9 +1950,9 @@ kts | 1.944 | 0.0 | 4 |    |   |..|8000F0FF| |0|10
             <parameter>CumShr</parameter>
         </paramLevelMatches>
         <contourStyle labelSpacing="4">
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling>
-                <increment>10</increment>
+                <increment>20</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -2299,25 +2188,6 @@ dam | 0.1 | 0.0 | 4 | i4 | X |LH|8000F0FF| | 0 | 6
             </contourLabeling>
         </contourStyle>
     </styleRule>
-<!--  * TP, TPrun, ENSEMBLE37
-in|.0394|.0| 4 | |f5.2|@.|8000F0FF|,500 |13|\
-    0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10
--->
-    <styleRule>
-        <paramLevelMatches>
-            <parameter>TP</parameter>
-            <parameter>TPrun</parameter>
-            <creatingEntity>ENSEMBLE37</creatingEntity>
-        </paramLevelMatches>
-        <contourStyle>
-            <displayUnits>in</displayUnits>
-            <displayFlags>NoPlane</displayFlags>
-            <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
-                maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
-            </contourLabeling>
-        </contourStyle>
-    </styleRule>
 <!--  * TP_avg, TPrun_avg
 in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
     0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10
@@ -2328,11 +2198,11 @@ in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
             <parameter>TPrun_avg</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
                 maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
+                <values>0.5 1 5 10 20 50 100 200 400</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -2345,10 +2215,10 @@ in|.0394|.0| 4 | | |@.|8000F0FF| |-15|0.01
             <parameter>TPrun_std</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4">
-                <increment>0.01</increment>
+                <increment>2</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -2391,7 +2261,7 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF|,20000,0.5,,| 0 | 20
             <creatingEntity>ENSEMBLE37</creatingEntity>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <contourLabeling labelSpacing="4">
                 <increment>20</increment>
             </contourLabeling>
@@ -2405,7 +2275,7 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF|,20000,0.5,,| 0 | 20
             <creatingEntity>ENSEMBLE37</creatingEntity>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4">
                 <increment>20</increment>
@@ -2421,7 +2291,7 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF| | 0 | 5
             <singleLevel units="SURFACE"></singleLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <contourLabeling labelSpacing="4">
                 <increment>5</increment>
             </contourLabeling>
@@ -2446,7 +2316,7 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF| | 0 | 5
             </rangeLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4">
                 <increment>5</increment>
@@ -2696,9 +2566,9 @@ in/3hr | 425196.85 | 0.0 | 4 |  |   |..|8000F0FF| | 0 | 0.4
         </paramLevelMatches>
         <contourStyle>
             <displayFlags>NoPlane</displayFlags>
-            <displayUnits label="in/3hr">in/h*3</displayUnits>
+            <displayUnits label="mm/3hr">mm/h*3</displayUnits>
             <contourLabeling labelSpacing="4">
-                <increment>0.4</increment>
+                <increment>10</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -2795,11 +2665,11 @@ in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
             <parameter>SNOL12sprd</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
                 maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
+                <values>0.5 1 5 10 20 50 100 200 500</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -2813,11 +2683,11 @@ in|.0394|.0| 4 | |f4.2|@.|8000F0FF| |9|\
             <parameter>PWsprd</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="0.00"
                 maxLabel=".">
-                <values>0.1 0.25 0.5 0.75 1 1.5 2 2.5 3</values>
+                <values>0.5 1 5 10 20 50 100 200</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -2983,10 +2853,10 @@ in/3hr | 425196.85 | 0.0 | 4 |  |   |..|8000F0FF| | 0 | 0.4
             <parameter>ICEG</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="in/3hr">in/h*3</displayUnits>
+            <displayUnits label="mm/3hr">mm/h*3</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling>
-                <increment>0.4</increment>
+                <increment>10</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -3049,11 +2919,11 @@ in|.0394|.0| 4 | |f5.2|@.|8000F0FF| |13|\
             <parameter>SNOL12sprd</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
                 maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
+                <values>0.5 1 5 10 20 50 100 200 500</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -3067,11 +2937,11 @@ in|.0394|.0| 4 | |f4.2|@.|8000F0FF| |9|\
             <parameter>PWsprd</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="0.00"
                 maxLabel=".">
-                <values>0.1 0.25 0.5 0.75 1 1.5 2 2.5 3</values>
+                <values>0.5 1 5 10 20 50 100 200 500</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -3420,7 +3290,7 @@ F  | 1.8 |-459.67| 4 |    |   |..|8000F0FF|,,,100 | 0 | 5
             <creatingEntity>ECMWF-HiRes</creatingEntity>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
             <smoothingDistance>100</smoothingDistance>
             <contourLabeling labelSpacing="4">
                 <increment>5</increment>
@@ -3445,11 +3315,11 @@ in|39.4|.0| 4 | |f5.2|@.|8000F0FF| |13|\
             <parameter>TPrun</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
                 maxLabel=".">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
+                <values>0.1 1 5 10 25 50 75 100 150 200 250</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -3464,11 +3334,11 @@ in/hr|.0394|.0| 4 | |f5.2|@.|8000F0FF| |7|\
             <parameter>PR</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="in/hr">in/h</displayUnits>
+            <displayUnits label="mm/hr">mm/h</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
                 maxLabel=".">
-                <values>0.25 0.5 1 2 4 8 16</values>
+                <values>5 10 20 50 100 200 400</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -3483,11 +3353,11 @@ in | .0394 |.0| 4 | |f5.2|@.|8000F0FF| |7|\
             <parameter>SPAcc</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4" minMaxLabelFormat="#0.00"
                 maxLabel=".">
-                <values>0.25 0.5 1 2 4 8 16</values>
+                <values>5 10 20 50 100 200 400</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -3844,68 +3714,10 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             </singleLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <displayFlags>NoPlane</displayFlags>
             <contourLabeling labelSpacing="4">
-                <values>0.001 0.01 0.1 0.5 1 2 3 4 6 8 10 15 20 30 40 50</values>
-            </contourLabeling>
-        </contourStyle>
-    </styleRule>
-<!--  * SPCGuide, PTOR
-%  | 1.0 | 0.0 | 4 |    |   |..|8000F0FF| | 0 | 5
--->
-    <styleRule>
-        <paramLevelMatches>
-            <creatingEntity>SPCGuide</creatingEntity>
-            <parameter>PTOR</parameter>
-        </paramLevelMatches>
-        <contourStyle>
-            <displayUnits>%</displayUnits>
-            <contourLabeling labelSpacing="4">
-                <increment>5</increment>
-            </contourLabeling>
-        </contourStyle>
-    </styleRule>
-<!--
-  * RUC, RAP13, RAP40, PR
-  in/hr|141.732|.0| 4 | |f5.2|@.|8000F0FF| |7|0.25 0.5 1 2 4 8 16
--->
-    <styleRule>
-        <paramLevelMatches>
-            <creatingEntity>RUC</creatingEntity>
-            <creatingEntity>RAP13</creatingEntity>
-            <creatingEntity>RAP40</creatingEntity>
-            <parameter>PR</parameter>
-        </paramLevelMatches>
-        <contourStyle>
-            <displayUnits label="in/hr">in/h</displayUnits>
-            <contourLabeling labelSpacing="4" minMaxLabelFormat="0.##">
-                <values>0.25 0.5 1 2 4 8 16</values>
-            </contourLabeling>
-        </contourStyle>
-    </styleRule>
-    <styleRule>
-        <paramLevelMatches>
-            <singleLevel units="SURFACE" />
-            <parameter>TP6hr</parameter>
-            <creatingEntity>RFCqpf</creatingEntity>
-            <creatingEntity>QPF-ACR</creatingEntity>
-            <creatingEntity>QPF-ALR</creatingEntity>
-            <creatingEntity>QPF-FWR</creatingEntity>
-            <creatingEntity>QPF-KRF</creatingEntity>
-            <creatingEntity>QPF-MSR</creatingEntity>
-            <creatingEntity>QPF-ORN</creatingEntity>
-            <creatingEntity>QPF-PTR</creatingEntity>
-            <creatingEntity>QPF-RHA</creatingEntity>
-            <creatingEntity>QPF-RSA</creatingEntity>
-            <creatingEntity>QPF-STR</creatingEntity>
-            <creatingEntity>QPF-TAR</creatingEntity>
-            <creatingEntity>QPF-TIR</creatingEntity>
-        </paramLevelMatches>
-        <contourStyle>
-            <displayUnits>in</displayUnits>
-            <contourLabeling labelSpacing="4" minMaxLabelFormat="000.00">
-                <values>0.01 0.1 0.25 0.5 0.75 1 1.5 2 3 4 6 8 10</values>
+                <values>0.5 1 5 10 20 50 100 200 500 1000</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -4005,7 +3817,7 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <parameter>Gust</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
         </contourStyle>
     </styleRule>
     <styleRule>
@@ -4299,10 +4111,10 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <parameter>dPW3hr</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <contourLabeling createNegativeValues="true"
                 labelFormat="#.##" labelSpacing="4">
-                <values>.2 .4 .6 .8 1.0 1.2</values>
+                <values>0.5 1 5 10 20 50 100 200 500</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -4311,10 +4123,10 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <parameter>dPW1hr</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <contourLabeling createNegativeValues="true"
                 labelFormat="#.##" labelSpacing="4">
-                <values>.1 .2 .4 .6</values>
+                <values>0.5 1 5 10 20 50 100 200</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -4327,9 +4139,9 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <parameter>CumShr</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling labelFormat="#" labelSpacing="4">
-                <increment>5</increment>
+                <increment>10</increment>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -4341,7 +4153,7 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             </singleLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling labelFormat="#" labelSpacing="4">
                 <values>20 25 30 35 40 45 50 55 60 65 70 75 80</values>
             </contourLabeling>
@@ -4355,7 +4167,7 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             </singleLevel>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>kts</displayUnits>
+            <displayUnits>km/hr</displayUnits>
             <contourLabeling labelFormat="#" labelSpacing="4">
                 <values>15 20 25 30 35 40 45 50</values>
             </contourLabeling>
@@ -4529,10 +4341,10 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <parameter>PW2</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <contourLabeling labelSpacing="4" maxLabel="."
                 minMaxLabelFormat="0.00">
-                <values>1.4 1.5 1.6 1.8 2.0 2.2 2.4</values>
+                <values>0.5 1 5 10 20 50 100 200 500</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -4542,9 +4354,9 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <creatingEntity>Laps</creatingEntity>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
             <contourLabeling maxLabel="." minMaxLabelFormat="0.00">
-                <values>1.4 1.5 1.6 1.8 2.0 2.2 2.4</values>
+                <values>0.5 1 5 10 20 50 100 200 500</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -4619,9 +4431,9 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <parameter>TOTSN95pct72hr</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="in">in</displayUnits>
+            <displayUnits label="mm">mm</displayUnits>
             <contourLabeling labelSpacing="4">
-                <values>1 2 4 6 8 10 12 15 18 21 24 27 30 33 36 42 48</values>
+                <values>0.5 1 5 10 20 50 100 200 500 1000</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>
@@ -4657,9 +4469,9 @@ in | .03937 | 0 |  4 |    |   |..|8000F0FF| | 16 | \
             <parameter>FRZR95pct72hr</parameter>
         </paramLevelMatches>
         <contourStyle>
-            <displayUnits label="in">in</displayUnits>
+            <displayUnits label="mm">mm</displayUnits>
             <contourLabeling labelSpacing="4">
-                <values>.01 .1 .25 .5 .75 1 1.5 2 2.5 3 4 5 6 7 8 9 10</values>
+                <values>0.5 1 5 10 20 50 100 200 500 1000</values>
             </contourLabeling>
         </contourStyle>
     </styleRule>

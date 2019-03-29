@@ -87,7 +87,7 @@
             <singleLevel units="MB_AGL" />
         </paramLevelMatches>
         <graphStyle>
-            <displayUnits>F</displayUnits>
+            <displayUnits>C</displayUnits>
         </graphStyle>
     </styleRule>
     <styleRule>
@@ -314,7 +314,7 @@
             <parameter>TP_ECMWF12hr</parameter>
         </paramLevelMatches>
         <graphStyle>
-            <displayUnits>in</displayUnits>
+            <displayUnits>mm</displayUnits>
         </graphStyle>
     </styleRule>
     <styleRule>
