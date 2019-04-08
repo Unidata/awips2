@@ -1,6 +1,6 @@
 ## Download and Install CAVE
 
-> [Release 18.1.1-6, March 21, 2019](https://www.unidata.ucar.edu/blogs/news/category/AWIPS)
+> [Release 18.1.1-7, March 25, 2019](https://www.unidata.ucar.edu/blogs/news/category/AWIPS)
 
 ## Linux 
 |                                          |   |
