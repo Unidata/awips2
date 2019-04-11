@@ -4448,7 +4448,7 @@
                 <minValue>0</minValue>
                 <maxValue>1</maxValue>
             </range>
-            <defaultColormap>Grid/clear_air_turb</defaultColormap>
+            <defaultColormap>Grid/Clear Air Turbelence</defaultColormap>
             <dataMapping>
                 <entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
                 <entry pixelValue="0.17" operator="&gt;"
@@ -4472,7 +4472,7 @@
                 <minValue>0</minValue>
                 <maxValue>1</maxValue>
             </range>
-            <defaultColormap>Grid/clear_air_turb</defaultColormap>
+            <defaultColormap>Grid/Clear Air Turbelence</defaultColormap>
             <dataMapping>
                 <entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
                 <entry pixelValue="0.17" operator="&gt;"
@@ -4500,7 +4500,7 @@
                 <minValue>0</minValue>
                 <maxValue>5</maxValue>
             </range>
-            <defaultColormap>Grid/icing_severity</defaultColormap>
+            <defaultColormap>Grid/Icing Severity</defaultColormap>
             <dataMapping>
                 <entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
                 <entry pixelValue="0.9398" operator="&gt;"
@@ -4526,7 +4526,7 @@
                 <minValue>0</minValue>
                 <maxValue>1</maxValue>
             </range>
-            <defaultColormap>Grid/icing_sld</defaultColormap>
+            <defaultColormap>Grid/Icing SLD</defaultColormap>
             <dataMapping>
                 <entry pixelValue="0.0" operator="&gt;" label="NO DATA" />
                 <entry pixelValue="0.047" operator="&gt;"
@@ -4782,7 +4782,7 @@
             <singleLevel units="SURFACE" />
         </paramLevelMatches>
         <imageStyle>
-            <defaultColormap>Grid/truncated warm to cold</defaultColormap>
+            <defaultColormap>Grid/Warm to Cold Truncated</defaultColormap>
             <displayUnits>in</displayUnits>
             <range scale="LINEAR">
             </range>
@@ -6266,7 +6266,7 @@
             <colorbarLabeling>
                 <increment>2</increment>
             </colorbarLabeling>
-            <defaultColormap>Grid/pwpf_snow</defaultColormap>
+            <defaultColormap>Grid/WPC Probabilistic Snow</defaultColormap>
             <interpolate>false</interpolate>
         </imageStyle>
     </styleRule>
@@ -6313,7 +6313,7 @@
             <colorbarLabeling>
                 <increment>1</increment>
             </colorbarLabeling>
-            <defaultColormap>Grid/pwpf_frzr</defaultColormap>
+            <defaultColormap>Grid/WPC Probabilistic Freezing Rain</defaultColormap>
             <interpolate>false</interpolate>
         </imageStyle>
     </styleRule>
@@ -6382,7 +6382,7 @@
             <colorbarLabeling>
                 <increment>10</increment>
             </colorbarLabeling>
-            <defaultColormap>Grid/pwpf_prob</defaultColormap>
+            <defaultColormap>Grid/WPC Probabilistic Rain</defaultColormap>
             <interpolate>false</interpolate>
         </imageStyle>
     </styleRule>
