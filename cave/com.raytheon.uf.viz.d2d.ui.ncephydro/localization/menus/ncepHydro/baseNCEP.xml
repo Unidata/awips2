@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-		
+
+	
+	
+	<contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="SPC Redbook Products" id="ncepHydro.spc.convectiveOutlooks">
+        
 	<contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="SPC Day 1 Convective Outlook" timeQuery="true" id="day1ConvectiveOutlook">
         <substitute value="PGWE46" key="wmo"/>
         <substitute value="0" key="posOff"/>
@@ -14,8 +18,6 @@
         <substitute value="0" key="posOff"/>
     </contribute>
     
-	<contribute xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="subMenu" menuText="More SPC..." id="ncepHydro.spc.convectiveOutlooks">
-        
         <contribute xsi:type="bundleItem" useReferenceTime="true" file="bundles/Redbook.xml" menuText="Thunderstorm Prob" timeQuery="true" id="thunderstormProb">
             <substitute value="PGWB44" key="wmo"/>
             <substitute value="0" key="posOff"/>

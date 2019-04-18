@@ -1,0 +1,490 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- TOWRdocs Header
+         goesrRGBComposites menu file.
+    -->
+    <!-- TOWRdocs Description
+ 		 Adds Training Team-approved RGB composites for cloud microphysics,
+	     convective clouds, and natural colors.  The red and green keys for cloud
+	     microphysics are defined by channel differences.  These differences are
+         prepared using the derived parameters methods. The channel differences
+         for red and green are executed by the Difference python method in
+	     ../common_static/site/site_name/derivedParameters/definitions files, 
+	     CH15-12.3um-minus-CH14-11.2um.xml, and CH14-11.2um-minus-CH11-8.4um.xml,
+         respectively. The abbreviations assigned in these config files are
+         substituted in the redElement and greenElement keys. These definitions
+         files are created for this repository and are not a included in the baseline
+         definitions.
+
+		 The RGBs defined for cloud convection and natural color are based upon
+	     single channels (no channel differences are used to define red, green
+         or blue).
+
+	     This file sets up the RGB options which appear under each sector under
+	     GOES-R - RGB Composites menu. 
+    -->
+    <!-- TOWRdocs Status
+         Updates the baseline RGB Composites menu file of the same name to add 
+		 additional Training Team-approved RGBs. The redElement and greenElement
+         keys referenced for cloud microphysics are the result of definitions files
+         added for this repository, and which are not in the baseline definitions.
+         3/29/2017 Added back previous AWIPS baseline RGBs, at bottom.
+         
+        7/15/17 L. Byerle added "Distinction" to Day Cloud Phase RGB menu text per SET
+        Renamed Day Land Cloud Convection to Day Cloud Convection per SET. Removed Simple
+        Nighttime Micro and Day Ocean Cloud Convection per SET. Removed "Icing" RGB under
+        old RGBs section as it matches that of Day Land Cloud (per SET mbr).
+
+        11/3/2017 Adds CIMSS Natural Color RGB
+        11/21/2017 Updates to combine current and new gamma corrected GLSL methods for comparison
+                   Removes "Old RGBs" section
+        11/28/2017 Removes Nighttime Micro (simple) RGB from the simple RGBs section
+
+        2/15/2018 Adds in the "Old RGBs" section that has been in Dec/Jan, Feb 2018 RPMs. Note it is labelled as 
+                  "Derived Parameter Method" in the divider, no GLSL comparisons are included for these
+
+        5/8/2018  Use only GLSL RGB method, comment out derived param methods
+        9/8/2018  Sandwich RGB from OPG
+        
+   -->
+    <!-- TOWRdocs POC
+         Lee Byerle  9/8/2018
+    -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+	<!--  			-->
+	<!--  Simple RGBs 	-->
+	<!--  			-->
+
+	<contribute xsi:type="titleItem" titleText="------ Simple ------" id="goesr-simpleRgbs"/>
+
+    <!-- GLSL Day Cloud Phase Distinction. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+            menuText="Day Cloud Phase Distinction (10.35 μm, 0.64 μm, 1.61 μm)" id="goesr-dayCloudPhaseDist">
+        <substitute key="productName" value="Day Cloud Phase Distinction" />
+        <substitute key="redElement" value="CH-13-10.35um" />
+        <substitute key="greenElement" value="CH-02-0.64um" />
+        <substitute key="blueElement" value="CH-05-1.61um" />
+        <substitute key="redLabel" value="10.35 μm" />
+        <substitute key="greenLabel" value="0.64 μm" />
+        <substitute key="blueLabel" value="1.61 μm" />
+        <substitute key="redMin" value="7.52" />
+        <substitute key="redMax" value="-53.53" />
+        <substitute key="redGamma" value="1.0" />
+        <substitute key="redUnit" value="C" />
+        <substitute key="greenMin" value="0.0" />
+        <substitute key="greenMax" value="78.0" />
+        <substitute key="greenGamma" value="1.0" />
+        <substitute key="greenUnit" value="%" />
+        <substitute key="blueMin" value="1.0" />
+        <substitute key="blueMax" value="59.0" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="%" />
+        </contribute>
+
+    <!-- GLSL Fire Temperature. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Fire Temperature (3.90 μm, 2.25 μm, 1.61 μm)" id="goesr-fireTemperature2">
+            <substitute key="productName" value="Fire Temperature" />
+        <substitute key="redElement" value="CH-07-3.90um" />
+        <substitute key="greenElement" value="CH-06-2.25um" />
+        <substitute key="blueElement" value="CH-05-1.61um" />
+        <substitute key="redLabel" value="3.90 μm" />
+        <substitute key="greenLabel" value="2.25 μm" />
+        <substitute key="blueLabel" value="1.61 μm" />
+        <substitute key="redMin" value="0.0" />
+        <substitute key="redMax" value="60.0" />
+        <substitute key="redGamma" value="2.5" />
+        <substitute key="redUnit" value="C" />
+        <substitute key="greenMin" value="0.0" />
+        <substitute key="greenMax" value="100.0" />
+        <substitute key="greenGamma" value="1.0" />
+        <substitute key="greenUnit" value="%" />
+        <substitute key="blueMin" value="0.0" />
+        <substitute key="blueMax" value="75.0" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="%" />
+        </contribute>
+
+    <!-- GLSL Day Land Cloud. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Day Land Cloud (1.61 μm, 0.87 μm, 0.64 μm)" id="goesr-dayLandCloud2">
+            <substitute key="productName" value="Day Land Cloud" />
+        <substitute key="redElement" value="CH-05-1.61um" />
+        <substitute key="greenElement" value="CH-03-0.87um" />
+        <substitute key="blueElement" value="CH-02-0.64um" />
+        <substitute key="redLabel" value="1.61 μm" />
+        <substitute key="greenLabel" value="0.87 μm" />
+        <substitute key="blueLabel" value="0.64 μm" />
+        <substitute key="redMin" value="0.0" />
+        <substitute key="redMax" value="97.5" />
+        <substitute key="redGamma" value="1.0" />
+        <substitute key="redUnit" value="%" />
+        <substitute key="greenMin" value="0.0" />
+        <substitute key="greenMax" value="108.6" />
+        <substitute key="greenGamma" value="1.0" />
+        <substitute key="greenUnit" value="%" />
+        <substitute key="blueMin" value="0.0" />
+        <substitute key="blueMax" value="100.0" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="%" />
+        </contribute>
+
+   <!-- GLSL Day Land Cloud Convection. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Day Cloud Convection (0.64 μm, 0.64 μm, 10.35 μm)" id="goesr-dayLandCloudConvection2">
+        <substitute key="productName" value="Day Land Cloud Convection" />
+        <substitute key="redElement" value="CH-02-0.64um" />
+        <substitute key="greenElement" value="CH-02-0.64um" />
+        <substitute key="blueElement" value="CH-13-10.35um" />
+        <substitute key="redLabel" value="0.64 μm" />
+        <substitute key="greenLabel" value="0.64 μm" />
+        <substitute key="blueLabel" value="10.35 μm" />
+        <substitute key="redMin" value="0.0" />
+        <substitute key="redMax" value="100.0" />
+        <substitute key="redGamma" value="0.59" />
+        <substitute key="redUnit" value="%" />
+        <substitute key="greenMin" value="0.0" />
+        <substitute key="greenMax" value="100.0" />
+        <substitute key="greenGamma" value="0.59" />
+        <substitute key="greenUnit" value="%" />
+        <substitute key="blueMin" value="49.85" />
+        <substitute key="blueMax" value="-70.15" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="C" />
+        </contribute>
+
+    <!-- GLSL Day Land Cloud Fire. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Day Land Cloud Fires (2.25 μm, 0.87 μm, 0.64 μm)" id="goesr-dayLandCloudFire">
+        <substitute key="productName" value="Day Land Cloud Fire" />
+        <substitute key="redElement" value="CH-06-2.25um" />
+        <substitute key="greenElement" value="CH-03-0.87um" />
+        <substitute key="blueElement" value="CH-02-0.64um" />
+        <substitute key="redLabel" value="2.25 μm" />
+        <substitute key="greenLabel" value="0.87 μm" />
+        <substitute key="blueLabel" value="0.64 μm" />
+        <substitute key="redMin" value="0.0" />
+        <substitute key="redMax" value="100.0" />
+        <substitute key="redGamma" value="1.0" />
+        <substitute key="redUnit" value="%" />
+        <substitute key="greenMin" value="0.0" />
+        <substitute key="greenMax" value="100.0" />
+        <substitute key="greenGamma" value="1.0" />
+        <substitute key="greenUnit" value="%" />
+        <substitute key="blueMin" value="0.0" />
+        <substitute key="blueMax" value="100.0" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="%" />
+        </contribute>
+
+        <!-- Sandwich RGB from OPG 09/18 -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipe.xml"
+                        menuText="VIS/IR Sandwich" id="goesr-sandwich">
+                <substitute key="productName" value="Sandwich RGB" />
+                <substitute key="redElement" value="goesrSandwichRed" />
+                <substitute key="greenElement" value="goesrSandwichGreen" />
+                <substitute key="blueElement" value="goesrSandwichBlue" />
+                <substitute key="redLabel" value="Red" />
+                <substitute key="greenLabel" value="Green" />
+                <substitute key="blueLabel" value="Blue" />
+        </contribute>
+
+
+    <!-- GLSL Simple Water Vapor. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Simple Water Vapor (10.35 μm, 6.19 μm, 7.34 μm)" id="goesr-simpleWaterVapor2">
+            <substitute key="productName" value="Simple Water Vapor" />
+        <substitute key="redElement" value="CH-13-10.35um" />
+        <substitute key="greenElement" value="CH-08-6.19um" />
+        <substitute key="blueElement" value="CH-10-7.34um" />
+        <substitute key="redLabel" value="10.35 μm" />
+        <substitute key="greenLabel" value="6.19 μm" />
+        <substitute key="blueLabel" value="7.34 μm" />
+        <substitute key="redMin" value="5.81" />
+        <substitute key="redMax" value="-70.86" />
+        <substitute key="redGamma" value="0.35" />
+        <substitute key="redUnit" value="C" />
+        <substitute key="greenMin" value="-30.48" />
+        <substitute key="greenMax" value="-58.49" />
+        <substitute key="greenGamma" value="0.4" />
+        <substitute key="greenUnit" value="C" />
+        <substitute key="blueMin" value="-12.12" />
+        <substitute key="blueMax" value="-28.03" />
+        <substitute key="blueGamma" value="0.4" />
+        <substitute key="blueUnit" value="C" />
+        </contribute>
+
+
+	<!--  			-->
+	<!--  Advanced RGBs 	-->
+	<!--  			-->
+
+   	<contribute xsi:type="titleItem" titleText="------ Advanced ------" id="goesr-advancedRgbComposites"/>
+
+    <!-- GLSL Air Mass. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Air Mass (6.19-7.34 μm, 9.61-10.35 μm, 6.19 μm)" id="goesr-airMass2">
+            <substitute key="productName" value="Air Mass" />
+        <substitute key="redElement" value="satSplitWaterVaporRGB" />
+        <substitute key="greenElement" value="satSplitOzoneRGB" />
+        <substitute key="blueElement" value="CH-08-6.19um" />
+        <substitute key="redLabel" value="6.19-7.34 μm" />
+        <substitute key="greenLabel" value="9.61-10.35 μm" />
+        <substitute key="blueLabel" value="6.19 μm" />
+        <substitute key="redMin" value="-26.2" />
+        <substitute key="redMax" value="0.6" />
+        <substitute key="redGamma" value="1.0" />
+        <substitute key="redUnit" value="C" />
+        <substitute key="greenMin" value="-43.2" />
+        <substitute key="greenMax" value="6.7" />
+        <substitute key="greenGamma" value="1.0" />
+        <substitute key="greenUnit" value="C" />
+        <substitute key="blueMin" value="-29.25" />
+        <substitute key="blueMax" value="-64.65" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="C" />
+        </contribute>
+
+    <!-- GLSL Ash. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Ash (12.30-10.35 μm, 11.20-8.50 μm, 10.35 μm)" id="goesr-ash2">
+            <substitute key="productName" value="Ash" />
+        <substitute key="redElement" value="satSplitWindowRGB" />
+        <substitute key="greenElement" value="satSplitDustRGB" />
+        <substitute key="blueElement" value="CH-13-10.35um" />
+        <substitute key="redLabel" value="12.30-10.35 μm" />
+        <substitute key="greenLabel" value="11.20-8.50 μm" />
+        <substitute key="blueLabel" value="10.35 μm" />
+        <substitute key="redMin" value="-6.7" />
+        <substitute key="redMax" value="2.6" />
+        <substitute key="redGamma" value="1.0" />
+        <substitute key="redUnit" value="C" />
+        <substitute key="greenMin" value="-6.0" />
+        <substitute key="greenMax" value="6.3" />
+        <substitute key="greenGamma" value="1.0" />
+        <substitute key="greenUnit" value="C" />
+        <substitute key="blueMin" value="-29.55" />
+        <substitute key="blueMax" value="29.25" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="C" />
+        </contribute>
+
+    <!-- GLSL Day Convection. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Day Convection (6.19-7.34 μm, 3.90-10.35 μm, 1.61-0.64 μm)" id="goesr-dayConvection2">
+            <substitute key="productName" value="Day Convection" />
+        <substitute key="redElement" value="satSplitWaterVaporRGB" />
+        <substitute key="greenElement" value="satFogRev" />
+        <substitute key="blueElement" value="satSplitSnowRGB" />
+        <substitute key="redLabel" value="6.19-7.34 μm" />
+        <substitute key="greenLabel" value="3.90-10.35 μm" />
+        <substitute key="blueLabel" value="1.61-0.64 μm" />
+        <substitute key="redMin" value="-35.0" />
+        <substitute key="redMax" value="5.0" />
+        <substitute key="redGamma" value="1.0" />
+        <substitute key="redUnit" value="C" />
+        <substitute key="greenMin" value="-5.0" />
+        <substitute key="greenMax" value="60.0" />
+        <substitute key="greenGamma" value="2.0" />
+        <substitute key="greenUnit" value="C" />
+        <substitute key="blueMin" value="-75.0" />
+        <substitute key="blueMax" value="25.0" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="%" />
+        </contribute>
+
+    <!-- GLSL Day Snow-Fog. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Day Snow-Fog (0.87 μm, 1.61 μm, 3.90-10.35 μm)" id="goesr-daySnowFog2">
+            <substitute key="productName" value="Day Snow-Fog" />
+        <substitute key="redElement" value="CH-03-0.87um" />
+        <substitute key="greenElement" value="CH-05-1.61um" />
+        <substitute key="blueElement" value="satFogRev" />
+        <substitute key="redLabel" value="0.87 μm" />
+        <substitute key="greenLabel" value="1.61 μm" />
+        <substitute key="blueLabel" value="3.90-10.35 μm" />
+        <substitute key="redMin" value="0.0" />
+        <substitute key="redMax" value="100.0" />
+        <substitute key="redGamma" value="0.59" />
+        <substitute key="redUnit" value="%" />
+        <substitute key="greenMin" value="0.0" />
+        <substitute key="greenMax" value="70.0" />
+        <substitute key="greenGamma" value="0.59" />
+        <substitute key="greenUnit" value="%" />
+        <substitute key="blueMin" value="0.0" />
+        <substitute key="blueMax" value="30.0" />
+        <substitute key="blueGamma" value="0.59" />
+        <substitute key="blueUnit" value="C" />
+        </contribute>
+
+    <!-- GLSL Differential Water Vapor. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Differential Water Vapor (7.34-6.19 μm, 7.34 μm, 6.19 μm)" id="goesr-differentialWaterVapor2">
+            <substitute key="productName" value="Differential Water Vapor" />
+        <substitute key="redElement" value="satSplitWaterVaporRevRGB" />
+        <substitute key="greenElement" value="CH-10-7.34um" />
+        <substitute key="blueElement" value="CH-08-6.19um" />
+        <substitute key="redLabel" value="7.34-6.19 μm" />
+        <substitute key="greenLabel" value="7.34 μm" />
+        <substitute key="blueLabel" value="6.19 μm" />
+        <substitute key="redMin" value="30.0" />
+        <substitute key="redMax" value="-3.0" />
+        <substitute key="redGamma" value="0.55" />
+        <substitute key="redUnit" value="C" />
+        <substitute key="greenMin" value="5.0" />
+        <substitute key="greenMax" value="-60.0" />
+        <substitute key="greenGamma" value="0.6" />
+        <substitute key="greenUnit" value="C" />
+        <substitute key="blueMin" value="-29.25" />
+        <substitute key="blueMax" value="-64.65" />
+        <substitute key="blueGamma" value="0.6" />
+        <substitute key="blueUnit" value="C" />
+        </contribute>
+
+    <!-- GLSL Dust. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Dust (12.30-10.35 μm, 11.20-8.50 μm, 10.35 μm)" id="goesr-dust2">
+            <substitute key="productName" value="Dust" />
+        <substitute key="redElement" value="satSplitWindowRGB" />
+        <substitute key="greenElement" value="satSplitDustRGB" />
+        <substitute key="blueElement" value="CH-13-10.35um" />
+        <substitute key="redLabel" value="12.30-10.35 μm" />
+        <substitute key="greenLabel" value="11.20-8.50 μm" />
+        <substitute key="blueLabel" value="10.35 μm" />
+        <substitute key="redMin" value="-6.7" />
+        <substitute key="redMax" value="2.6" />
+        <substitute key="redGamma" value="1.0" />
+        <substitute key="redUnit" value="C" />
+        <substitute key="greenMin" value="-0.5" />
+        <substitute key="greenMax" value="20.0" />
+        <substitute key="greenGamma" value="0.4" />
+        <substitute key="greenUnit" value="C" />
+        <substitute key="blueMin" value="-11.95" />
+        <substitute key="blueMax" value="15.55" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="C" />
+        </contribute>
+
+        <!-- Natural Color from CIMSS -->
+            <!-- <contribute xsi:type="bundleItem" file="bundles/satelliteSinglePanelComposite.xml" -->
+             <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBComposite.xml"
+                        menuText="CIMSS Natural Color" id="CRGB">
+                        <substitute key="productName" value="CIMSS Natural Color" />
+                        <substitute key="redElement" value="Red" />
+                        <substitute key="greenElement" value="Green" />
+                        <substitute key="blueElement" value="Blue" />
+                        <substitute key="redLabel" value="Red" />
+                        <substitute key="greenLabel" value="Green" />
+                        <substitute key="blueLabel" value="Blue" />
+                </contribute>
+
+    <!-- GLSL Nighttime Microphysics Advanced. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="Nighttime Microphysics (12.30-10.35 μm, 10.35-3.90 μm, 10.35 μm)" id="goesr-nighttimeMicrophysicsAdvanced2">
+            <substitute key="productName" value="Nighttime Microphysics (Advanced)" />
+        <substitute key="redElement" value="satSplitWindowRGB" />
+        <substitute key="greenElement" value="satFogRGB" />
+        <substitute key="blueElement" value="CH-13-10.35um" />
+        <substitute key="redLabel" value="12.30-10.35 μm" />
+        <substitute key="greenLabel" value="10.35-3.90 μm" />
+        <substitute key="blueLabel" value="10.35 μm" />
+        <substitute key="redMin" value="-6.7" />
+        <substitute key="redMax" value="2.6" />
+        <substitute key="redGamma" value="1.0" />
+        <substitute key="redUnit" value="C" />
+        <substitute key="greenMin" value="-3.1" />
+        <substitute key="greenMax" value="5.2" />
+        <substitute key="greenGamma" value="1.0" />
+        <substitute key="greenUnit" value="C" />
+        <substitute key="blueMin" value="-29.55" />
+        <substitute key="blueMax" value="19.45" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="C" />
+        </contribute>
+
+    <!-- GLSL SO2. -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipeGLSL.xml" 
+                    menuText="SO2 (6.95-7.34 μm, 10.35-8.50 μm, 10.35 μm)" id="goesr-so22">
+            <substitute key="productName" value="SO2" />
+        <substitute key="redElement" value="satSplitMidWaterVaporRGB" />
+        <substitute key="greenElement" value="satSplitCloudPhaseRGB" />
+        <substitute key="blueElement" value="CH-13-10.35um" />
+        <substitute key="redLabel" value="6.95-7.34 μm" />
+        <substitute key="greenLabel" value="10.35-8.50 μm" />
+        <substitute key="blueLabel" value="10.35 μm" />
+        <substitute key="redMin" value="-4.0" />
+        <substitute key="redMax" value="2.0" />
+        <substitute key="redGamma" value="1.0" />
+        <substitute key="redUnit" value="C" />
+        <substitute key="greenMin" value="-4.0" />
+        <substitute key="greenMax" value="5.0" />
+        <substitute key="greenGamma" value="1.0" />
+        <substitute key="greenUnit" value="C" />
+        <substitute key="blueMin" value="-30.15" />
+        <substitute key="blueMax" value="29.85" />
+        <substitute key="blueGamma" value="1.0" />
+        <substitute key="blueUnit" value="C" />
+        </contribute>
+
+    <!--            -->
+    <!--  Older RGBs previously in baseline     -->
+    <!--            -->
+
+    <contribute xsi:type="titleItem" titleText="------ Old RGBs ------" id="goesr-oldRgbComposites"/>
+
+<!-- 7/15/2017 Remove This RGB, matches the Day Land Cloud RGB above -->
+<!--    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBComposite.xml" 
+                menuText="Icing(1.61,0.87,0.64)" id="goesr-icing">
+        <substitute key="productName" value="Icing" />
+        <substitute key="redElement" value="CH-05-1.61um" />
+        <substitute key="greenElement" value="CH-03-0.87um" />
+        <substitute key="blueElement" value="CH-02-0.64um" />
+    </contribute> -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBComposite.xml" 
+                menuText="Daytime Composite #1(0.64,1.61,11.20)" id="goesr-daytime1">
+        <substitute key="productName" value="Daytime Composite #1" />
+        <substitute key="redElement" value="CH-02-0.64um" />
+        <substitute key="greenElement" value="CH-05-1.61um" />
+        <substitute key="blueElement" value="CH-14-11.20um" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBComposite.xml" 
+                menuText="Daytime Composite #5(0.64,0.87,0.64)" id="goesr-daytime5">
+        <substitute key="productName" value="Daytime Composite #5" />
+        <substitute key="redElement" value="CH-02-0.64um" />
+        <substitute key="greenElement" value="CH-03-0.87um" />
+        <substitute key="blueElement" value="CH-02-0.64um" />
+    </contribute>
+
+    <!-- Day Ocean Cloud Convection. Note this points to goesrRGBRecipe.xml/SPoRT package. -->
+<!-- Removed per SET 7/15/2017, move to deprecated section here -->
+        <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/goesrRGBRecipe.xml" 
+                    menuText="Day Ocean Cloud Convection (0.87 μm, 0.87 μm, 10.35 μm)" id="goesr-dayOceanCloudConvection">
+            <substitute key="productName" value="Day Ocean Cloud Convection" />
+        <substitute key="redElement" value="goesrDayOceanCloudConvectionRed" />
+        <substitute key="greenElement" value="goesrDayOceanCloudConvectionGreen" />
+        <substitute key="blueElement" value="goesrDayOceanCloudConvectionBlue" />
+        <substitute key="redLabel" value="0.87 μm" />
+        <substitute key="greenLabel" value="0.87 μm" />
+        <substitute key="blueLabel" value="10.35 μm" />
+        </contribute>
+
+</menuTemplate>

@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+   <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+    <!-- TOWRdocs Header
+         GOES-R Level2 (Derived Products) xml menu file.
+                      -->
+    <!-- TOWRdocs Description
+         This updated menu file adds the Test/Center Position sectors. It also updates subMenu expressions
+         (e.g. East Full Disk instead of EFD), and re-arranges the order with Full Disk appearing in the
+   drop-down first          
+     -->
+    <!-- TOWRdocs Status
+         Modification of previous baseline menu file of the same name.
+         3/29/2017 add in DMW and Legacy profiles under Derived Products menu. Must install the prior menus
+         to no.where (see profile_index.xml and goesr dmw index.xml under cave static and common
+         static menu dirs respectively
+    4/6/2018 Add GLM grids entries
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle 4/6/2018
+     -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+    <contribute xsi:type="titleItem" titleText="------ Geostationary Lightning Mapper (GLM) Grids ------" />
+    
+    <contribute xsi:type="subinclude" subMenu="GLM East Full Disk" fileName="menus/satellite/goesr/goesrLevel2GLMgrid.xml" >
+      <substitute key="sector" value="EFD" />
+	</contribute>
+	<contribute xsi:type="subinclude" subMenu="GLM East Conus" fileName="menus/satellite/goesr/goesrLevel2GLMgrid.xml" >
+	  <substitute key="sector" value="ECONUS" />
+	</contribute>
+    <contribute xsi:type="subinclude" subMenu="GLM East Conus 5min (1min update)" fileName="menus/glm_window/goesrLevel2GLMgrid_5MIN.xml" >
+      <substitute key="sector" value="ECONUS" />
+    </contribute>
+    <contribute xsi:type="subinclude" subMenu="GLM West Full Disk" fileName="menus/satellite/goesr/goesrLevel2GLMgrid.xml" >
+      <substitute key="sector" value="WFD" /> 
+	</contribute>
+    <contribute xsi:type="subinclude" subMenu="GLM West Conus" fileName="menus/satellite/goesr/goesrLevel2GLMgrid.xml" >
+      <substitute key="sector" value="WCONUS" />
+	</contribute>
+    <contribute xsi:type="subinclude" subMenu="GLM West Conus 5min (1min update)" fileName="menus/glm_window/goesrLevel2GLMgrid_5MIN.xml" >
+      <substitute key="sector" value="WCONUS" />
+    </contribute>
+
+</menuTemplate>
