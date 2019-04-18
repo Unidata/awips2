@@ -5,8 +5,6 @@
 The directory `/awips2/edex/conf/resources` contains configuration text files for specific plugins, which allow for user-defined values which are read by AWIPS plugins on EDEX start:
 
     com.raytheon.edex.plugin.gfe.properties
-    com.raytheon.edex.plugin.grib.properties
-    com.raytheon.edex.plugin.radar.properties
     com.raytheon.edex.text.properties
     com.raytheon.uf.edex.archive.cron.properties
     com.raytheon.uf.edex.database.properties
@@ -16,7 +14,9 @@ The directory `/awips2/edex/conf/resources` contains configuration text files fo
     edex-ogc.properties
     edex-requestsrv.properties
     goesr.properties
+    grib.properties
     purge.properties
+    radar.properties
     warning.properties
     
 Look at *purge.properties* for example:
@@ -39,9 +39,9 @@ Look at *purge.properties* for example:
     # Number of days older than the earliest known data to delete.
     purge.orphan.buffer=7
 
-In *com.raytheon.edex.plugin.grib.properties*, *com.raytheon.edex.plugin.radar.properties*, and *com.raytheon.edex.plugin.radar.properties* you can adjust the number of decoder threads for each plugin.
+In *grib.properties*, *goesr.properties*, and *radar.properties* you can adjust the number of decoder threads for each plugin.
 
-    cat com.raytheon.edex.plugin.radar.properties
+    cat radar.properties
     
     # Number threads for radar products ingested from the SBN
     radar-decode.sbn.threads=5

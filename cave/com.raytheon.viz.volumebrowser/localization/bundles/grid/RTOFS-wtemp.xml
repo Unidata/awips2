@@ -9,7 +9,7 @@
                                 <capabilities>
                                     <capability xsi:type="colorableCapability" colorAsString="white"/>
                                     <capability xsi:type="colorMapCapability">
-                                        <colorMapParameters colorMapName="Grid/midrange enhanced">
+                                        <colorMapParameters colorMapName="Enhanced Midrange">
                                             <persisted>
                                                 <colorMapMin>264.75</colorMapMin>
                                                 <colorMapMax>310.75</colorMapMax>

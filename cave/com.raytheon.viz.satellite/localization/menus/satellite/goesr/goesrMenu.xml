@@ -54,67 +54,92 @@
 	        fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="ECONUS" />
 	        <substitute key="entity" value="GOES-16" />
+	        <substitute key="orbitalSlot" value="GOES-East" />
+	        <substitute key="scene" value="CONUS" />
 	    </contribute>
-	    
 	    <contribute xsi:type="subinclude" subMenu="GOES 16 - Full Disk"
 	        fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="EFD" />
 	        <substitute key="entity" value="GOES-16" />
+	        <substitute key="orbitalSlot" value="GOES-East" />
+	        <substitute key="scene" value="Full Disk" />
 	    </contribute>
-	    	
 	    <contribute xsi:type="subinclude" subMenu="GOES 16 - Mesoscale Sector 1"
 	        fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="EMESO-1" />
 	        <substitute key="entity" value="GOES-16" />
+	        <substitute key="orbitalSlot" value="GOES-East" />
+	        <substitute key="scene" value="Mesocale 1" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="GOES 16 - Mesoscale Sector 2"
 	        fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="EMESO-2" />
 	        <substitute key="entity" value="GOES-16" />
+	        <substitute key="orbitalSlot" value="GOES-East" />
+	        <substitute key="scene" value="Mesocale 2" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="GOES 16 - Puerto Rico"
 	        fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="PRREGI" />
 	        <substitute key="entity" value="GOES-16" />
+	        <substitute key="orbitalSlot" value="GOES-East" />
+	        <substitute key="scene" value="Puerto Rico" />
 	    </contribute>
 
 		<contribute xsi:type="titleItem" titleText="------ GOES West Sectors ------"
 			id="goesWest" />
-    	
-	   
 	    <contribute xsi:type="subinclude" subMenu="GOES 17 - CONUS" 
 	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="WCONUS" />
 	        <substitute key="entity" value="GOES-17" />
+	        <substitute key="orbitalSlot" value="GOES-West" />
+	        <substitute key="scene" value="CONUS" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Full Disk" 
 	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="WFD" />
 	        <substitute key="entity" value="GOES-17" />
+	        <substitute key="orbitalSlot" value="GOES-West" />
+	        <substitute key="scene" value="Full Disk" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Mesoscale 1" 
 	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="WMESO-1" />
 	        <substitute key="entity" value="GOES-17" />
+	        <substitute key="orbitalSlot" value="GOES-West" />
+	        <substitute key="scene" value="Mesocale 1" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Mesoscale 2" 
 	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="WMESO-2" />
 	        <substitute key="entity" value="GOES-17" />
+	        <substitute key="orbitalSlot" value="GOES-West" />
+	        <substitute key="scene" value="Mesocale 2" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Alaska" 
 	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="AKREGI" />
 	        <substitute key="entity" value="GOES-17" />
+	        <substitute key="orbitalSlot" value="GOES-West" />
+	        <substitute key="scene" value="Alaska" />
 	    </contribute>
 	    <contribute xsi:type="subinclude" subMenu="GOES 17 - Hawaii" 
 	    	fileName="menus/satellite/goesr/goesrByChannel.xml">
 	        <substitute key="sector" value="HIREGI" />
 	        <substitute key="entity" value="GOES-17" />
+	        <substitute key="orbitalSlot" value="GOES-West" />
+	        <substitute key="scene" value="Hawaii" />
 	    </contribute>
 	    
+	    <!--  
 	    <contribute xsi:type="separator" id="MySeparatorId"/>
 
+		<contribute xsi:type="subinclude" subMenu="GLM Products" 
+			fileName="menus/satellite/goesr/goesrGLM.xml" />
+			-->
+
+	    <contribute xsi:type="separator" id="MySeparatorId"/>
+	    
 	    <contribute xsi:type="subinclude" subMenu="Geostationary Lightning Mapper (GLM)" 
 	    	fileName="menus/lightning/glmlightningMenuItems.xml">
 	    </contribute>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+   <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
+    <!-- TOWRdocs Header
+         GOES-R index menu file.
+        -->
+    <!-- TOWRdocs Description
+         The previous baseline menu provided the option to have GOES-R products appear as a button in the CAVE near the 
+         top, or for GOES-R menus to be found farther down, within the Satellites menu button.  The active code
+         in the baseline activates the latter.  
+         
+   If choosing to install after the satellite menu ("after=satellite"):  For some WFOs, radar
+   buttons are appearing between the Satellite and GOES-R buttons, and the reason is the baseline has them
+   set to also install just after Satellite.  If this occurs, the index xml file for radar can be changed to
+   install after GOES-R.  Instructions to do this are:
+
+    Go into the Localization view in CAVE. Navigate under the Localization view to:
+
+      -CAVE - menus - Radar - index.xml - CONFIGURED (site_name)
+
+   Copy the file index.xml - CONFIGURED (site_name) to the site level so it can be edited.
+   In that file, do a search and replace on "after=satellite." This will appear in each
+   entry for which there is a radar button in CAVE.  Replace this expression with "after=goesr"
+   in each place it appears.  It is important to keep the case correct (goesr, no hyphen between
+   the s and r).  This instruction assumes that GOES-R appears as a button in the menu at the top,
+   which this configuration file sets.  Restart the CAVE and the radar buttons should appear after
+   the GOES-R button. 
+
+   In the latest implementation below, goesr is included within the d2d satellite menu.  
+    -->
+    <!-- TOWRdocs Status
+         This uncomments a section of code that is included in the baseline menu file, to form a GOES-R menu selection button.
+         which appears under the Satellite button.
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle 12/13/2016
+   -->
+<menuContributionFile>
+  <!-- Default install location is nowhere, only want menu at specific sites. -->
+  <!--  jho <include installTo="menu:no.where" fileName="menus/satellite/goesr/goesrMenu.xml" /> -->
+  <!-- Uncomment this element to include goesr with d2d satellite menu -->
+  <include installTo="menu:satellite?before=GROUP1" fileName="menus/satellite/goesr/goesrMenu.xml" /> 
+  <!-- <include installTo="menu:satellite?before=GROUP5" fileName="menus/satellite/goesr/goesrMenu.xml" />  -->
+  <!-- Uncomment this element to include goesr as top level menu in D2D -->
+  <!-- <include installTo="menu:org.eclipse.ui.main.menu?after=satellite" 
+    fileName="menus/satellite/goesr/goesrMenu.xml">
+    <visibleOnActionSet>com.raytheon.uf.viz.d2d.ui.D2DActionSet</visibleOnActionSet>
+  </include> -->
+</menuContributionFile>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    
+    <contribute xsi:type="bundleItem" file="bundles/LightningSeq.xml" 
+                menuText="${name} Lightning Sequence Plot" id="1MinLightningFlashSeq">
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/LightningPlot.xml" 
+                menuText="${name} 1hr plot" id="1HrLightningFlashPlot">
+                <substitute key="negOffset" value="3600"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/LightningPlot.xml" 
+                menuText="${name} 15min plot" id="15MinLightningFlashPlot">
+                <substitute key="negOffset" value="900"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/LightningPlot.xml" 
+                menuText="${name} 5min plot (1min update)" id="5Min1MinLightningFlashPlot">
+                <substitute key="negOffset" value="60"/>
+                <substitute key="binRepeatCount" value="5"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/LightningPlot.xml" 
+                menuText="${name} 1min plot" id="1MinLightningFlashPlot">
+                <substitute key="negOffset" value="60"/>
+    </contribute>
+</menuTemplate>

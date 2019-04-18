@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!-- TOWRdocs Header
+goesrRGBRecipeGLSL bundle file.
+    -->
+    <!-- TOWRdocs Description
+This bundle supports the generation of "derived" RGB products.
+    -->
+    <!-- TOWRdocs Status
+This bundle supports the generation of "derived" RGB products. It's not included
+in 18.2.x or prior baselines. Contributed by Jordan Gerth of CIMSS.
+      10/31/18 added sector to the groupName so that the sector appears in the legend
+   -->
+    <!-- TOWRdocs POC
+         SET/Lee Byerle 10/31/2018 
+    -->
+<bundle xmlns:ns2="http://www.example.org/productType" xmlns:ns3="group">
+ <displayList>
+  <displays xsi:type="d2DMapRenderableDisplay"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+   <descriptor xsi:type="mapDescriptor">
+    <resource>
+     <loadProperties loadWithoutData="true">
+      <capabilities>
+       <capability xsi:type="colorableCapability"
+        colorAsString="white" />
+      </capabilities>
+     </loadProperties>
+     <resourceData xsi:type="trueColorResourceGroupData">
+      <groupName>${sector} ${productName}</groupName>
+      <channelResource channelName="${redLabel}">
+       <channel>RED</channel>
+       <resourceData xsi:type="satResourceData">
+        <metadataMap>
+         <mapping key="creatingEntity">
+          <constraint constraintValue="${entity}" constraintType="LIKE" />
+         </mapping>
+         <mapping key="physicalElement">
+          <constraint constraintValue="${redElement}" constraintType="EQUALS" />
+         </mapping>
+         <mapping key="sectorID">
+          <constraint constraintValue="${sector}" constraintType="EQUALS" />
+         </mapping>
+         <mapping key="pluginName">
+          <constraint constraintValue="satellite" constraintType="EQUALS" />
+         </mapping>
+        </metadataMap>
+       </resourceData>
+      </channelResource>
+      <channelResource channelName="${greenLabel}">
+       <channel>GREEN</channel>
+       <resourceData xsi:type="satResourceData">
+        <metadataMap>
+         <mapping key="creatingEntity">
+          <constraint constraintValue="${entity}" constraintType="LIKE" />
+         </mapping>
+         <mapping key="physicalElement">
+          <constraint constraintValue="${greenElement}" constraintType="EQUALS" />
+         </mapping>
+         <mapping key="sectorID">
+          <constraint constraintValue="${sector}" constraintType="EQUALS" />
+         </mapping>
+         <mapping key="pluginName">
+          <constraint constraintValue="satellite" constraintType="EQUALS" />
+         </mapping>
+        </metadataMap>
+       </resourceData>
+      </channelResource>
+      <channelResource channelName="${blueLabel}">
+       <channel>BLUE</channel>
+       <resourceData xsi:type="satResourceData">
+        <metadataMap>
+         <mapping key="creatingEntity">
+          <constraint constraintValue="${entity}" constraintType="LIKE" />
+         </mapping>
+         <mapping key="physicalElement">
+          <constraint constraintValue="${blueElement}" constraintType="EQUALS" />
+         </mapping>
+         <mapping key="sectorID">
+          <constraint constraintValue="${sector}" constraintType="EQUALS" />
+         </mapping>
+         <mapping key="pluginName">
+          <constraint constraintValue="satellite" constraintType="EQUALS" />
+         </mapping>
+        </metadataMap>
+       </resourceData>
+      </channelResource>
+      <channelInfo channel="RED">
+           <rangeMin>${redMin}</rangeMin>
+           <rangeMax>${redMax}</rangeMax>
+           <gamma>${redGamma}</gamma>
+           <unit>${redUnit}</unit>
+      </channelInfo>
+      <channelInfo channel="GREEN">
+           <rangeMin>${greenMin}</rangeMin>
+           <rangeMax>${greenMax}</rangeMax>
+           <gamma>${greenGamma}</gamma>
+           <unit>${greenUnit}</unit>
+      </channelInfo>
+      <channelInfo channel="BLUE">
+           <rangeMin>${blueMin}</rangeMin>
+           <rangeMax>${blueMax}</rangeMax>
+           <gamma>${blueGamma}</gamma>
+           <unit>${blueUnit}</unit>
+      </channelInfo>
+     </resourceData>
+    </resource>
+   </descriptor>
+  </displays>
+ </displayList>
+</bundle>

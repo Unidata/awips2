@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
    <!-- TOWRdocs Header
         Himawari Derived Motion Winds (DMW) menu index file.
     -->
@@ -18,12 +22,9 @@
     <!-- TOWRdocs POC
         Matt Comerford
     -->
-
 <menuContributionFile>
 
     <!-- Default install location is the top-level Himawari Menu (If it is turned on) -->
-    <include installTo="menu:himawari"
-        fileName="menus/satellite/himawari/dmw/ahi-dmwMenuByFilter.xml">
+    <include installTo="menu:himawari" fileName="menus/satellite/himawari/dmw/ahi-dmwMenuByFilter.xml">
     </include>
-
 </menuContributionFile>

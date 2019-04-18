@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
     <!-- TOWRdocs Header
         Himawari Derived Motion Winds (DMW) product menu file.
     -->
@@ -16,7 +20,6 @@
     <!-- TOWRdocs POC
         Matt Comerford
     -->
-
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     
     <!-- The menu title item -->
@@ -45,5 +48,4 @@
         <substitute key="plugin" value="dmw" />
         <substitute key="scene" value="Himawari" />
     </contribute>
-
 </menuTemplate>

@@ -2,7 +2,7 @@
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 
 	<contribute xsi:type="subinclude"
-		fileName="menus/lightning/nldnLightningBundleItems.xml">
+		fileName="menus/lightning/glmLightningBundleItems.xml">
 		<substitute key="source" value="GLMfl" />
 		<substitute key="name" value="GLM Flash" />
 	</contribute>
@@ -16,7 +16,7 @@
 	<contribute xsi:type="separator" id="MySeparatorId"/>
 	
 	<contribute xsi:type="subinclude"
-		fileName="menus/lightning/nldnLightningBundleItems.xml">
+		fileName="menus/lightning/glmLightningBundleItems.xml">
 		<substitute key="source" value="GLMev" />
 		<substitute key="name" value="GLM Event" />
 	</contribute>
@@ -31,7 +31,7 @@
 	<contribute xsi:type="separator" id="MySeparatorId"/>
 	
 	<contribute xsi:type="subinclude"
-		fileName="menus/lightning/nldnLightningBundleItems.xml">
+		fileName="menus/lightning/glmLightningBundleItems.xml">
 		<substitute key="source" value="GLMgr" />
 		<substitute key="name" value="GLM Group" />
 	</contribute>

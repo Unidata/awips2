@@ -1,25 +1,39 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+   <!-- TOWRdocs Header
+        GOES-R Derived Motion Winds (DMW) product menu file, that sets up menu entries for GOES-R orbital slots.
+    -->
+    <!-- TOWRdocs Description
+        This file adds a DMW sub-menu item to the GOES-R menu in AWIPS II CAVE.
+        The menu items are organized by orbital slot (GOES-East/West/Test).
+
+            - "subMenu" references the text that will appear in the menu. 
+            - "fileName" references the corresponding config file (in the localization hierarchy) to load 
+                when selecting the menu item.
+            - "substitute" entities create key-value pairs. Referencing each key inside subsequent 
+                files (i.e. "file" and any nested files underneath) will instead replace that entry with
+                the corresponding value (e.g. "&#36;{keyname}" = "value").
+    -->
+    <!-- TOWRdocs Status
+        File is a modified version of the 16.2.2 baseline file ../base/satellite/goesr/dmwMenu.xml.
+    -->
+    <!-- TOWRdocs POC
+        Matt Comerford
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
     
-    <contribute xsi:type="subinclude" subMenu="Full Disk"
-        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
-        <substitute key="orbitalSlot" value="GOES-East"/>
-        <substitute key="scene" value="Full Disk" />
-        <substitute key="plugin" value="dmw" />
+    <!-- The menu title item -->
+    <contribute xsi:type="titleItem" titleText="------ Derived Motion Winds ------" />
+    
+    <!-- GOES-East -->
+    <contribute xsi:type="subinclude" subMenu="GOES-East" fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByScene.xml"
+        id="DMWGoesEast">
+        <substitute key="orbitalSlot" value="GOES-East" />
     </contribute>
 
-    <contribute xsi:type="subinclude" subMenu="CONUS"
-        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
-        <substitute key="orbitalSlot" value="GOES-East"/>
-        <substitute key="scene" value="CONUS" />
-        <substitute key="plugin" value="dmw" />
+    <!-- GOES-West -->
+    <contribute xsi:type="subinclude" subMenu="GOES-West" fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByScene.xml"
+        id="DMWGoesWest">
+        <substitute key="orbitalSlot" value="GOES-West" />
     </contribute>
-
-    <contribute xsi:type="subinclude" subMenu="Mesoscale"
-        fileName="menus/satellite/goesr/dmw/goesr-dmwMenuByFilter.xml" >
-        <substitute key="orbitalSlot" value="GOES-East"/>
-        <substitute key="scene" value="Mesoscale" />
-        <substitute key="plugin" value="dmw" />
-    </contribute>
-   
+    
 </menuTemplate>

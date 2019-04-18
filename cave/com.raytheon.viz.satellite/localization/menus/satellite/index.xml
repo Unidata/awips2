@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <menuContributionFile>
 	<include installTo="menu:satellite?before=GOESR" 
-             fileName="menus/satellite/goesr/goesrMenu.xml">
+        fileName="menus/satellite/goesr/goesrMenu.xml">
     </include>
 	<include installTo="menu:satellite?after=GOESR"
 		fileName="menus/satellite/baseSatellite.xml">

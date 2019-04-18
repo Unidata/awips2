@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <!--
+        This_software_was_developed_and_/_or_modified_by_Raytheon_Company,
+        pursuant_to_Contract_DG133W-05-CQ-1067_with_the_US_Government.
+        
+        U.S._EXPORT_CONTROLLED_TECHNICAL_DATA
+        This_software_product_contains_export-restricted_data_whose
+        export/transfer/disclosure_is_restricted_by_U.S._law._Dissemination
+        to_non-U.S._persons_whether_in_the_United_States_or_abroad_requires
+        an_export_license_or_other_authorization.
+        
+        Contractor_Name:________Raytheon_Company
+        Contractor_Address:_____6825_Pine_Street,_Suite_340
+        ________________________Mail_Stop_B8
+        ________________________Omaha,_NE_68106
+        ________________________402.291.0100
+        
+        See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
+        further_licensing_information.
+    -->
+    <!-- TOWRdocs Header
+         GOES-R Level2 CONUS xml menu file.
+    -->
+    <!-- TOWRdocs Description
+         This file adds Land Surface (Skin) Temperature (LST) as a menu item to the baseline GOES-R Level2
+         CONUS menu file.  The LST configuration files were not included in the recent baseline.
+    -->
+    <!-- TOWRdocs Status
+         Modification of the baseline menu file of the same name to include the LST product as a selectable 
+         item for the CONUS.
+     3/30/2017 removed Sat subdir for colormap value, adds GOES-R.
+     1/22/2018 Add Dust and Smoke Hi/Med/Low confidence displays, points to new bundle that displays
+     each threshold. Separate display for Dust (Hi/Med/Low) and Smoke (Hi/Med/Low). New physical elements
+         DustHigh, DustMed,DustLow,SmokeHigh,SmokeMed,SmokeLow defined in ADP level 2 description file.
+
+         The colormap Dust and Smoke contain a single color (blue and red), respectively, for each of their displays.
+
+         The parameter ADP, defined as a bitset the baseline description with no flag masks, is commented out in this menu file. Aerosol
+         detection smoke and dust are two different menu items whose confidence masks are displayed in a single display, and color.  
+         The confidence (low, medium, high) can be sampled in the display per the style rules.  In addition, recently added masks
+         for zenith angle and sun glint are accounted for in the associated physical elements (e.g. DustLow) that are referenced in the
+         new display.
+     
+     4/6/2018 Adds placeholder to include GLM grid products under the Derived products menu w/other derived products.  In initial 
+     rollout the GLM appears under the main Derived Prods menu, along with DMWs and profiles.
+     11/20/2018 Added fog and low stratus menu for testing
+    -->
+    <!-- TOWRdocs POC
+         Lee Byerle 11/20/2018
+   -->
+<menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<!--1/22/2018 comment out ADP -->
+<!--    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Aerosol Detection" id="goesr-adp">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="ADP"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/ADP"/>
+    </contribute> -->
+
+<!-- 1/22/2018 Dust -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/GOES_Dust_Smoke_Detection_Low_Med_High_bundle.xml" 
+                menuText="Aerosol Detection Dust" id="goesr-dust">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="elementHigh" value="DustHigh"/>
+        <substitute key="elementMed" value="DustMed"/>
+        <substitute key="elementLow" value="DustLow"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/Dust"/>
+        <substitute key="colorvar" value="dodger blue"/>
+    </contribute>
+<!-- 1/22/2018 Smoke -->
+    <contribute xsi:type="bundleItem" file="bundles/satellite/goesr/GOES_Dust_Smoke_Detection_Low_Med_High_bundle.xml" 
+                menuText="Aerosol Detection Smoke" id="goesr-smoke">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="elementHigh" value="SmokeHigh"/>
+        <substitute key="elementMed" value="SmokeMed"/>
+        <substitute key="elementLow" value="SmokeLow"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/Smoke"/>
+        <substitute key="colorvar" value="orange red"/>
+    </contribute>
+
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Aerosol Optical Depth" id="goesr-aod">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="AOD"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/VTRSB"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Clear Sky Mask" id="goesr-csm">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="CSM"/> 
+        <substitute key="colormap" value="GOES-R/GOESR-L2/CSM"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Optical Depth" id="goesr-cod">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="COD"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/VTRSB"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Particle Size" id="goesr-cth">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="CPSD"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/VTRSB"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Top Height" id="goesr-cth">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="CTH"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/VTRSB"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Top Phase" id="goesr-actp">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="ACTP"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/ACTP"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Cloud Top Pressure" id="goesr-ctp">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="CTP"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/VTRSB"/>
+    </contribute>
+    <contribute xsi:type="subinclude" subMenu="Derived Stability Indices" fileName="menus/satellite/goesr/goesrLevel2Stability.xml" />
+    <contribute xsi:type="subinclude" subMenu="Fire/Hot Spot" fileName="menus/satellite/goesr/goesrLevel2Fire.xml" />
+    <!-- 3/22/2018 GLM Grid products -->
+    <!--<contribute xsi:type="subinclude" subMenu="GLM Grids" fileName="menus/satellite/goesr/goesrLevel2GLMgrid.xml" />  -->
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Land Surface Temperature" id="goesr-lst">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="LST"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/VTRSB"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Snow Cover" id="goesr-fsc">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="FSC"/>
+        <substitute key="colormap" value="GOES-R/GOESR-L2/FSC"/>
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/DefaultSatellite.xml" 
+                menuText="Total Precip Water" id="goesr-tpw">
+        <substitute key="entity" value="GOES%" />
+        <substitute key="element" value="TPW"/>
+        <!--<substitute key="colormap" value="Sat/Precip Water/Precip Water - New CIMSS Table"/> -->
+        <!--<substitute key="colormap" value="Sat/GOESR-L2/color-pw8-10"/> -->
+        <substitute key="colormap" value="GOES-R/GOESR-L2/color-pw10-10"/>
+    </contribute>
+</menuTemplate>
