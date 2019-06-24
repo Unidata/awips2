@@ -4,7 +4,7 @@
 Component     |Version|Description
 --------------|:-----:|----------
 Python |2.7.13| Dynamic programming language
-python-awips | 18.1.1 | Python AWIPS Data Access Framework
+python-awips | 18.1.7 | Python AWIPS Data Access Framework
 Cycler|0.10.0|Python library for composable style cycles
 Cython|0.28.3|Superset of the Python programming language, designed to give C-like performance with code that is mostly written in Python
 dateutil|2.7.3|Python extension to the standard datetime module

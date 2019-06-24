@@ -39,7 +39,7 @@ fi
 # Run Docker AWIPS ADE Image
 #
 imgname=unidata/awips-ade
-imgvers=${AWIPSII_VERSION}
+imgvers=18.1.1
 sudo docker run --entrypoint=/bin/bash --privileged -d -ti -e "container=docker" $dirs $imgname:$imgvers-$os_version
 dockerID=$(sudo docker ps | grep awips-ade | awk '{print $1}' | head -1 )
 sudo docker logs $dockerID
