@@ -18,7 +18,7 @@ Packager: %{_build_site}
 
 AutoReq: no
 Provides: awips2-maps-database
-Requires: awips2-database
+Requires: awips2-database, perl
 
 %description
 AWIPS II Maps Database - includes the

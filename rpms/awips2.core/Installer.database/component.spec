@@ -22,7 +22,7 @@ Packager: %{_build_site}
 AutoReq: no
 Provides: awips2-database
 Provides: awips2-static-user
-Requires: libpng, awips2
+Requires: awips2, libpng, perl
 Requires: awips2-postgresql
 Requires: awips2-psql
 Requires: netcdf >= 4.0.0
