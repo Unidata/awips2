@@ -12,7 +12,6 @@ com.raytheon.uf.viz.localization.perspective.feature
 com.raytheon.uf.viz.core.feature
 com.raytheon.viz.warnings.feature
 com.raytheon.uf.viz.ncep.core.feature
-com.raytheon.uf.viz.aviation.advisory.feature
 com.raytheon.uf.viz.d2d.core.feature
 com.raytheon.uf.viz.kml.export.feature
 com.raytheon.viz.radar.feature

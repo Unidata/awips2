@@ -88,7 +88,6 @@
       <feature id="com.raytheon.uf.viz.localization.perspective.feature"/>
       <feature id="com.raytheon.uf.viz.core.feature"/>
       <feature id="com.raytheon.uf.viz.ncep.core.feature"/>
-      <feature id="com.raytheon.uf.viz.aviation.advisory.feature"/>
       <feature id="com.raytheon.uf.viz.d2d.core.feature"/>
       <feature id="com.raytheon.uf.viz.kml.export.feature"/>
       <feature id="com.raytheon.viz.radar.feature"/>
