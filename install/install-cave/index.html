@@ -1140,7 +1140,7 @@
 <tbody>
 <tr>
 <td align="center"><h1><i class="fa fa-windows"></i> </h1></td>
-<td align="left"><h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></h4><p>Writes files to <strong>~/caveData</strong> (in your user home directory)</p> <p>Requires <b>Python 3</b>, <b>Numpy</b>, and <b>Jep</b> be installed</p> <p>Requires <strong>PYTHONHOME</strong> be defined</p> <p>In addition to the application directory, the MSI installer will attempt to copy the <em><a href="https://github.com/mjames-upc/gridslice">gridslice</a></em> shared library to <code>$PYTHONHOME/Dlls</code>.  If the <code>$PYTHONHOME</code> environmental variable is not defined, <em>gridslice</em> will not be installed. You can always rerun the installer after defining <code>$PYTHONHOME</code> and then check that the file <code>gridslice.pyd</code> is installed in <code>$PYTHONHOME/Dlls</code>.</p> <p>CAVE will still run without gridslice, but certain bundles which use derived parameters, such as <a href="../../cave/d2d-grids/#isentopic-analysis-270k-320k">isentropic analyses</a>, will not load. </p></td>
+<td align="left">Method 1: Install Directly on Windows <h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></h4><p>Writes files to <strong>~/caveData</strong> (in your user home directory)</p> <p>Requires <b>Python 3</b>, <b>Numpy</b>, and <b>Jep</b> be installed</p> <p>Requires <strong>PYTHONHOME</strong> be defined</p> <p>In addition to the application directory, the MSI installer will attempt to copy the <em><a href="https://github.com/mjames-upc/gridslice">gridslice</a></em> shared library to <code>$PYTHONHOME/Dlls</code>.  If the <code>$PYTHONHOME</code> environmental variable is not defined, <em>gridslice</em> will not be installed. You can always rerun the installer after defining <code>$PYTHONHOME</code> and then check that the file <code>gridslice.pyd</code> is installed in <code>$PYTHONHOME/Dlls</code>.</p> <p>CAVE will still run without gridslice, but certain bundles which use derived parameters, such as <a href="../../cave/d2d-grids/#isentopic-analysis-270k-320k">isentropic analyses</a>, will not load. </p></td>
 </tr>
 </tbody>
 </table>
@@ -1148,9 +1148,27 @@
 
 <div class="admonition note">
 <h4>1) Download and install <strong><a href="https://conda.io/miniconda.html">Miniconda Python 3.7 for Windows</a></strong><a class="headerlink" href="#1-download-and-install-miniconda-python-37-for-windows" title="Permanent link"></a></h4><ul><li>Allow Miniconda3 to set <strong>PATH</strong> and other environment variables.</li><li><p>Ensure that <strong>PYTHONHOME</strong> is set to the Miniconda3 location.</p><p><img alt="" src="../../images/windows_envvars.png" /></p><p>If <strong>PYTHONHOME</strong> is not set, the <strong>gridslice</strong> Python module will not be installed or available.</p></li></ul><h4>2) Install dependent Python packages</h4><ul><li><code>pip install numpy==1.15.1 jep==3.8.2</code></li></ul><h4>3) Run <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a><a class="headerlink" href="#3-run-awips-cave-1amd64msi" title="Permanent link"></a></h4>
+  <p><b>**NOTE:</b> It has been noted that these instructions may result in the failed installation of jep and/or other required python components.  We are working on a solution to install the python dependencies properly.  If this failure occurs, then numerous products will not render properly.  At this time we offer a second option below for Windows users -- download a pre-packaged Linux VM which contains CAVE.  We're sorry for the inconvenience and appreciate your patience.</p>
 </div>
 
-<hr />
+<table>
+<thead>
+<tr>
+<th align="center"></th>
+<th align="left"></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><h1><i class="fa fa-windows"></i> </h1></td>
+<td align="left">Method 2: Install Linux VM one Windows <h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/unidata_cave.zip">unidata_cave.zip <i class="fa fa-download"></i></a></h4><p>Requires <strong>VMWare Workstation Player</strong> to be installed (free software)</p><p>Once zipped file is downloaded, unzip the folder by right-clicking and selecting "Extract All".  All files will be extracted into their own folder.</p><p>Open VMWare Player and go to Player &gt;&gt; File... &gt;&gt; Open, and then find the folder that was created from extracting the zipped file. There should be one file called "CentOS 7 - Unidata CAVE".  Select that and it'll add a new option available in the right hand side VMWare Menu. Run that new option, if it asks if it's been moved or copied, select copied.</p><p>The user is named awips, the password is awips. The root password is unidataAWIPS.  There should be a CAVE application icon on the desktop that will run CAVE. It should also run from the commandline with the command "cave".</p></td>
+</tr>
+<tr>
+<td align="center">---</td>
+<td align="left"></td>
+</tr>
+</tbody>
+</table>
 <h2 id="awips-data-in-the-cloud">AWIPS Data in the Cloud<a class="headerlink" href="#awips-data-in-the-cloud" title="Permanent link"></a></h2>
 <p>Unidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>
 <p><img alt="EDEX in the cloud" src="../../images/boEbFSf28t.gif" /></p>
