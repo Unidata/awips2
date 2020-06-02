@@ -1,7 +1,6 @@
-# Unidata AWIPS User Manual
+# Unidata AWIPS User Manual, lesserwhirls style!
 
 [https://www.unidata.ucar.edu/software/awips2](https://www.unidata.ucar.edu/software/awips2)
-
 ---
 
 [ldm]: https://www.unidata.ucar.edu/software/ldm/
