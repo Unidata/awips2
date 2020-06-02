@@ -1,9 +1,9 @@
 site_name: Unidata AWIPS User Manual
-site_url: http://unidata.github.io/awips2
+site_url: https://lesserwhirls.github.io/awips2
 site_description: Documentation for all things AWIPS.
-site_author: mjames@ucar.edu
+site_author: sarms@ucar.edu
 theme: unidata
-repo_url: https://github.com/Unidata/awips2
+repo_url: https://github.com/lesserwhirls/awips2
 edit_uri: edit/unidata_18.1.1/docs/
 site_favicon: images/favicon.ico
 remote_name: unidata
