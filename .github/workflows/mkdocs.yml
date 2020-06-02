@@ -1,4 +1,4 @@
-name: mkdocs to github pages
+name: mkdocs to github pages action
 
 on:
   push:
