@@ -3,7 +3,7 @@ name: mkdocs to github pages action
 on:
   push:
     branches:
-      - master
+      - unidata_18.1.1
 
 jobs:
   deploy:
