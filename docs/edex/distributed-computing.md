@@ -94,7 +94,7 @@ The command `edex` will show which services are running, and for a Database/Requ
 
 Since this Database/Request server is not running the main *edexIngest* JVM, we won't see anything from `edex log`, instead watch the Request Server with the command
 
-	edex log reqeust
+	edex log request
 
 !!! warning "Confirm that EDEX Request connects to PostgreSQL!"
     With the above `edex log request`, ensure that the log progresses **past this point**:
