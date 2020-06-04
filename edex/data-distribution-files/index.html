@@ -12,7 +12,7 @@
         <link rel="canonical" href="http://unidata.github.io/awips2/edex/data-distribution-files/">
       
       
-        <meta name="author" content="mjames@ucar.edu">
+        <meta name="author" content="support-awips@unidata.ucar.edu">
       
       
         <link rel="shortcut icon" href="../../images/favicon.ico">
@@ -1191,7 +1191,7 @@ aww.xml           idft.xml           recco.xml
 </ol>
 <p>Raw files are written to <strong>/data_store</strong>, and a message is sent via QPID to the EDEX distribution service from the LDM. When a regular expression match is found in a data distribution file, the raw data file is placed in a queue for the matching plugin to decode and process. The distribution files are used to match file headers as well as filenames, which is how files dropped into EDEX's manual endpoint (<strong>/awips2/data_store/ingest</strong>) are processed.</p>
 <h2 id="editing-an-edex-data-distribution-file">Editing an EDEX Data Distribution File<a class="headerlink" href="#editing-an-edex-data-distribution-file" title="Permanent link"></a></h2>
-<p>Because these files are in the <strong>edex_static/</strong> directory, they have to be manually edited using a text editor. You should not edit the base files; rather, you should copy the base version to your site and then edit the site version. The regular expressions in the distribution files need to correspond with the regular expressions in the LDM <strong><em>pqact.conf</em></strong><strong> </strong>file.</p>
+<p>Because these files are in the <strong>edex_static/*<em> directory, they have to be manually edited using a text editor. You should not edit the base files; rather, you should copy the base version to your site and then edit the site version. The regular expressions in the distribution files need to correspond with the regular expressions in the LDM **<em>pqact.conf</em></em></strong><em> </em>*file.</p>
 <p>If patterns exist in <strong><em>pqact.conf</em></strong> but are not in the distribution files, then raw data files will be written to <strong>/data_store</strong> but will not be ingested and processed by EDEX. Entries for these non-ingested files would be written to the unrecognized files log in <strong>/awips/edex/logs</strong>.</p>
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="surface-obs">Surface Obs<a class="headerlink" href="#surface-obs" title="Permanent link"></a></h3>
@@ -1201,7 +1201,7 @@ aww.xml           idft.xml           recco.xml
 &lt;/requestPatterns&gt;
 </code></pre>
 <h3 id="text-data">Text Data<a class="headerlink" href="#text-data" title="Permanent link"></a></h3>
-<p><strong>/awips2/edex/data/utility/edex_static/base/distribution/text.xml</strong> Processes lots of WM patterns. The second pattern ^S[A-CEG-Z].* matches any header that starts with <strong>S</strong> except for <strong>SD</strong>or <strong>SF</strong>, so it also matches the <strong>SA</strong> and <strong>SP</strong> files that the <strong>obs.xml</strong> plugin matches. This means that METARs are processed by both plugins simultaneously.</p>
+<p><strong>/awips2/edex/data/utility/edex_static/base/distribution/text.xml</strong> Processes lots of WM patterns. The second pattern ^S[A-CEG-Z].<em> matches any header that starts with </em><em>S</em><em> except for </em><em>SD</em><em>or </em><em>SF</em><em>, so it also matches the </em><em>SA</em><em> and </em><em>SP</em><em> files that the </em><em>obs.xml</em>* plugin matches. This means that METARs are processed by both plugins simultaneously.</p>
 <pre><code>&lt;requestPatterns&gt;
   &lt;regex&gt;^[ACFNRUW][A-Z].*&lt;/regex&gt;
   &lt;regex&gt;^S[ACEG-Z].*&lt;/regex&gt;
@@ -1295,7 +1295,7 @@ aww.xml           idft.xml           recco.xml
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2018 Unidata Program Center.
+            Copyright &copy; 2020 Unidata Program Center.
           </div>
         
         powered by

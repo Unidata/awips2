@@ -12,7 +12,7 @@
         <link rel="canonical" href="http://unidata.github.io/awips2/install/install-cave/">
       
       
-        <meta name="author" content="mjames@ucar.edu">
+        <meta name="author" content="support-awips@unidata.ucar.edu">
       
       
         <link rel="shortcut icon" href="../../images/favicon.ico">
@@ -1097,7 +1097,7 @@
                 
                 <h2 id="download-and-install-cave">Download and Install CAVE<a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h2>
 <blockquote>
-<p><a href="https://www.unidata.ucar.edu/blogs/news/category/AWIPS">Release 18.1.1-6, March 21, 2019</a></p>
+<p><a href="https://www.unidata.ucar.edu/blogs/news/category/AWIPS">Release 18.1.1-7, March 25, 2019</a></p>
 </blockquote>
 <h2 id="linux">Linux<a class="headerlink" href="#linux" title="Permanent link"></a></h2>
 <table>
@@ -1140,7 +1140,7 @@
 <tbody>
 <tr>
 <td align="center"><h1><i class="fa fa-windows"></i> </h1></td>
-<td align="left">Method 1: Install Directly on Windows <h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></h4><p>Writes files to <strong>~/caveData</strong> (in your user home directory)</p> <p>Requires <b>Python 3</b>, <b>Numpy</b>, and <b>Jep</b> be installed</p> <p>Requires <strong>PYTHONHOME</strong> be defined</p> <p>In addition to the application directory, the MSI installer will attempt to copy the <em><a href="https://github.com/mjames-upc/gridslice">gridslice</a></em> shared library to <code>$PYTHONHOME/Dlls</code>.  If the <code>$PYTHONHOME</code> environmental variable is not defined, <em>gridslice</em> will not be installed. You can always rerun the installer after defining <code>$PYTHONHOME</code> and then check that the file <code>gridslice.pyd</code> is installed in <code>$PYTHONHOME/Dlls</code>.</p> <p>CAVE will still run without gridslice, but certain bundles which use derived parameters, such as <a href="../../cave/d2d-grids/#isentopic-analysis-270k-320k">isentropic analyses</a>, will not load. </p></td>
+<td align="left"><b>Method 1: Install Directly on Windows</b> <h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi">awips-cave.msi <i class="fa fa-download"></i></a></h4><p>Writes files to <strong>~/caveData</strong> (in your user home directory)</p> <p>Requires <b>Python 3</b>, <b>Numpy</b>, and <b>Jep</b> be installed</p> <p>Requires <strong>PYTHONHOME</strong> be defined</p> <p>In addition to the application directory, the MSI installer will attempt to copy the <em><a href="https://github.com/mjames-upc/gridslice">gridslice</a></em> shared library to <code>$PYTHONHOME/Dlls</code>.  If the <code>$PYTHONHOME</code> environmental variable is not defined, <em>gridslice</em> will not be installed. You can always rerun the installer after defining <code>$PYTHONHOME</code> and then check that the file <code>gridslice.pyd</code> is installed in <code>$PYTHONHOME/Dlls</code>.</p> <p>CAVE will still run without gridslice, but certain bundles which use derived parameters, such as <a href="../../cave/d2d-grids/#isentopic-analysis-270k-320k">isentropic analyses</a>, will not load. </p></td>
 </tr>
 </tbody>
 </table>
@@ -1161,7 +1161,7 @@
 <tbody>
 <tr>
 <td align="center"><h1><i class="fa fa-windows"></i> </h1></td>
-<td align="left">Method 2: Install Linux VM one Windows <h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/unidata_cave.zip">unidata_cave.zip <i class="fa fa-download"></i></a></h4><p>Requires <strong>VMWare Workstation Player</strong> to be installed (free software)</p><p>Once zipped file is downloaded, unzip the folder by right-clicking and selecting "Extract All".  All files will be extracted into their own folder.</p><p>Open VMWare Player and go to Player &gt;&gt; File... &gt;&gt; Open, and then find the folder that was created from extracting the zipped file. There should be one file called "CentOS 7 - Unidata CAVE".  Select that and it'll add a new option available in the right hand side VMWare Menu. Run that new option, if it asks if it's been moved or copied, select copied.</p><p>The user is named awips, the password is awips. The root password is unidataAWIPS.  There should be a CAVE application icon on the desktop that will run CAVE. It should also run from the commandline with the command "cave".</p></td>
+<td align="left"><b>Method 2: Install Linux VM one Windows</b> <h4> <a href="https://www.unidata.ucar.edu/downloads/awips2/unidata_cave.zip">unidata_cave.zip <i class="fa fa-download"></i></a></h4><p>Requires <strong>VMWare Workstation Player</strong> to be installed (free software)</p><p>Once zipped file is downloaded, unzip the folder by right-clicking and selecting "Extract All".  All files will be extracted into their own folder.</p><p>Open VMWare Player and go to Player &gt;&gt; File... &gt;&gt; Open, and then find the folder that was created from extracting the zipped file. There should be one file called "CentOS 7 - Unidata CAVE".  Select that and it'll add a new option available in the right hand side VMWare Menu. Run that new option, if it asks if it's been moved or copied, select copied.</p><p>The user is named awips, the password is awips. The root password is unidataAWIPS.  There should be a CAVE application icon on the desktop that will run CAVE. It should also run from the commandline with the command "cave".</p></td>
 </tr>
 <tr>
 <td align="center">---</td>
@@ -1236,7 +1236,7 @@
       <div class="md-footer-copyright">
         
           <div class="md-footer-copyright__highlight">
-            Copyright &copy; 2018 Unidata Program Center.
+            Copyright &copy; 2020 Unidata Program Center.
           </div>
         
         powered by
