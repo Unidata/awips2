@@ -3,7 +3,7 @@ name: awips-docs
 channels:
   - conda-forge
 dependencies:
-  - python=2.7
+  - python=3.8
   - pip
   - pip:
     - mkdocs==0.17.5
