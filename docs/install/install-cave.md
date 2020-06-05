@@ -2,7 +2,7 @@
 
 > [Release 18.1.1-7, March 25, 2019](https://www.unidata.ucar.edu/blogs/news/category/AWIPS)
 
-## Linux 
+## Linux
 |                                          |   |
 |:----------------------------------------:|:--|
 | <h1><i class="fa fa-linux"></i></h1> | <h4>[awips_install.sh --cave <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)  </h4>       <p>For CentOS/Red Hat 6 and 7. Installs to /awips2/cave and writes files to ~/caveData.</p> <tt><code>chmod 755 awips_install.sh<br>sudo ./awips_install.sh --cave</code></tt><p>Run CAVE from the Linux Desktop menu Applications > Internet > AWIPS CAVE, or from the command line as simply `cave`.</p> <div class="admonition note"><p class="admonition-title">System Requirements</p><ul><li>x86_64 CentOS/RHEL 6 or 7</li><li>OpenGL 2.0 capable device</li><li>4GB RAM</li><li><a href="http://www.nvidia.com/Download/index.aspx?lang=en-us">Latest NVIDIA driver</a></li><li>approx. 2GB disk space for data caching (~/caveData)</li></ul></div><p>You can reset CAVE at any time by removing the **~/caveData** directory (on macOS **~/Library/caveData**) and reconnecting to an EDEX server. </p>  |
@@ -13,7 +13,7 @@
 | <h1><i class="fa fa-apple"></i></h1>|<h4>    Download and install both<br>[awips-cave.dmg <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.dmg)<br>[awips-python.pkg <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-python.pkg)</h4> <p>**Supported Graphics Devices for macOS**<li>Intel HD Graphics</li><li>Intel Iris</li><li>NVIDIA GeForce</li></p><p>**Unsupported Graphics Devices for macOS**<li>AMD Radeon R9</li><li>AMD Radeon Pro</li><li>AMD FirePro D300</li></p> <p>Writes and syncs files to ~/Library/caveData.</p> <p>**awips-python.pkg** is not a prerequisite, and CAVE will still run and display data without it, but to use any derived parameter functions such as wind barbs/arrows and grid parameters on various vertical coordinates, jep must be installed in some way (it is assumed in /Library/Python/2.7/site-packages/jep/)</p>|
 
 
-## Windows 
+## Windows
 |                                          |   |
 |:----------------------------------------:|:--|
 | <h1><i class="fa fa-windows"></i> </h1> |<b>Method 1: Install Directly on Windows</b> <h4> [awips-cave.msi <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/awips-cave.msi)</h4><p>Writes files to **~/caveData** (in your user home directory)</p> <p>Requires <b>Python 3</b>, <b>Numpy</b>, and <b>Jep</b> be installed</p> <p>Requires **PYTHONHOME** be defined</p> <p>In addition to the application directory, the MSI installer will attempt to copy the *[gridslice](https://github.com/mjames-upc/gridslice)* shared library to `$PYTHONHOME/Dlls`.  If the `$PYTHONHOME` environmental variable is not defined, *gridslice* will not be installed. You can always rerun the installer after defining `$PYTHONHOME` and then check that the file `gridslice.pyd` is installed in `$PYTHONHOME/Dlls`.</p> <p>CAVE will still run without gridslice, but certain bundles which use derived parameters, such as [isentropic analyses](../cave/d2d-grids/#isentopic-analysis-270k-320k), will not load. </p> |
@@ -32,7 +32,7 @@
 |                                          |   |
 |:----------------------------------------:|:--|
 | <h1><i class="fa fa-windows"></i> </h1> | <b>Method 2: Install Linux VM one Windows</b> <h4> [unidata_cave.zip <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/downloads/awips2/unidata_cave.zip)</h4><p>Requires **VMWare Workstation Player** to be installed (free software)</p><p>Once zipped file is downloaded, unzip the folder by right-clicking and selecting "Extract All".  All files will be extracted into their own folder.</p><p>Open VMWare Player and go to Player >> File... >> Open, and then find the folder that was created from extracting the zipped file. There should be one file called "CentOS 7 - Unidata CAVE".  Select that and it'll add a new option available in the right hand side VMWare Menu. Run that new option, if it asks if it's been moved or copied, select copied.</p><p>The user is named awips, the password is awips. The root password is unidataAWIPS.  There should be a CAVE application icon on the desktop that will run CAVE. It should also run from the commandline with the command "cave".</p> |
----
+
 
 ## AWIPS Data in the Cloud
 
@@ -51,4 +51,3 @@ You can reset CAVE by removing the **caveData** directory and reconnecting to an
 * Linux: `/home/<user>/caveData`
 * macOS: `/Users/<user>/Library/caveData`
 * Windows: `C:\Users\<user>\caveData`
-
