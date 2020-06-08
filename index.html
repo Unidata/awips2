@@ -320,8 +320,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pypies-httpd-pypies" title="PyPIES (httpd-pypies)" class="md-nav__link">
-    PyPIES (httpd-pypies)
+  <a href="#pypies" title="PyPIES" class="md-nav__link">
+    PyPIES
   </a>
   
 </li>
@@ -1197,8 +1197,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#pypies-httpd-pypies" title="PyPIES (httpd-pypies)" class="md-nav__link">
-    PyPIES (httpd-pypies)
+  <a href="#pypies" title="PyPIES" class="md-nav__link">
+    PyPIES
   </a>
   
 </li>
@@ -1228,9 +1228,9 @@
                 <h1 id="unidata-awips-user-manual">Unidata AWIPS User Manual<a class="headerlink" href="#unidata-awips-user-manual" title="Permanent link"></a></h1>
 <p><a href="https://www.unidata.ucar.edu/software/awips2">https://www.unidata.ucar.edu/software/awips2</a></p>
 <hr />
-<p>AWIPS (the Advanced Weather Interactive Processing System) is a meteorological decoding, display, and analysis package originally developed by the National Weather Service and Raytheon. UCAR's Unidata Program Center develops and supports a modified non-operational version of AWIPS for use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>, which is released as open source software, free to download and use by anyone.</p>
-<p>AWIPS takes a unified approach to data ingest, most data ingested into the system comes through the <a href="#ldm">LDM</a> client pulling data feeds from the <a href="#idd">Unidata IDD</a>. Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 and Postgres metadata by <a href="./install/install-edex">EDEX</a>, which serves products and data over http. </p>
-<p>Unidata supports two data visualization frameworks: <a href="./install/install-cave">CAVE</a> (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and the <a href="http://python-awips.readthedocs.io">python-awips</a>. </p>
+<p>The Advanced Weather Interactive Processing System (AWIPS) is a meteorological software package.  It is used for decoding, displaying, and analyzing data, and was originally developed for the National Weather Service (NWS) by Raytheon. There is a division here at UCAR called the Unidata Program Center (UCP) which develops and supports a modified non-operational version of AWIPS for use in research and education by <a href="http://president.ucar.edu/governance/members/universities-representatives">UCAR member institutions</a>.  This is released as open source software, free to download and use by anyone.</p>
+<p>AWIPS takes a unified approach to data ingest, where most data ingested into the system comes through the <a href="#ldm">LDM</a> client pulling data feeds from the <a href="https://www.unidata.ucar.edu/projects/#idd">Unidata IDD</a>. Various raw data and product files (netCDF, grib, BUFR, ASCII text, gini, AREA) are decoded and stored as HDF5 files and Postgres metadata by <a href="./install/install-edex">EDEX</a>, which serves products and data over http.</p>
+<p>Unidata supports two data visualization frameworks: <a href="./install/install-cave">CAVE</a> (an Eclipse-built Java application which runs on Linux, Mac, and Windows), and the <a href="http://python-awips.readthedocs.io">python-awips</a>.</p>
 <p><img alt="CAVE" src="https://www.unidata.ucar.edu/software/awips2/images/Unidata_AWIPS2_CAVE.png" /></p>
 <hr />
 <h2 id="download-and-install-cave"><a href="./install/install-cave">Download and Install CAVE</a><a class="headerlink" href="#download-and-install-cave" title="Permanent link"></a></h2>
@@ -1238,14 +1238,14 @@
 <h2 id="download-and-install-edex"><a href="./install/install-edex">Download and Install EDEX</a><a class="headerlink" href="#download-and-install-edex" title="Permanent link"></a></h2>
 <hr />
 <h2 id="license">License<a class="headerlink" href="#license" title="Permanent link"></a></h2>
-<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the Master Rights licensing file. </p>
+<p>Unidata AWIPS source code and binaries (RPMs) are considered to be in the public domain, meaning there are no restrictions on any download, modification, or distribution in any form (original or modified).  Unidata AWIPS contains no proprietery content and is therefore not subject to export controls as stated in the Master Rights licensing file.</p>
 <hr />
 <h2 id="awips-data-in-the-cloud">AWIPS Data in the Cloud<a class="headerlink" href="#awips-data-in-the-cloud" title="Permanent link"></a></h2>
-<p>Unidata and XSEDE Jetstream have partnered to offer a EDEX data server in the cloud, open to the Unidata university community.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>
+<p>Unidata and XSEDE Jetstream have partnered to offer an EDEX data server in the cloud, open to the community.  Select the server in the Connectivity Preferences dialog, or enter <strong><code>edex-cloud.unidata.ucar.edu</code></strong> (without <em>http://</em> before, or <em>:9581/services</em> after).</p>
 <p><img alt="EDEX in the cloud" src="./images/boEbFSf28t.gif" /></p>
 <hr />
 <h2 id="distributed-computing">Distributed Computing<a class="headerlink" href="#distributed-computing" title="Permanent link"></a></h2>
-<p>AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data.  While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS can consist of a dozen servers or more, because the AWIPS source code was hard-coded with the NWS network configuration, the early Unidata releases were stripped of operation-specific configurations and plugins, and released specifically for standalone installation. This made sense given that a single EDEX instance with a Solid State Drive could handle most of the entire NOAAport data volume.  However, with GOES-R(16) coming online, and more gridded forecast models being created at finer temporal and spatial resolutions, there was now a need to distribute EDEX data decoding in order to handle this firehose of data.</p>
+<p>AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data.  Because AWIPS was originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS can consist of a dozen servers or more, Unidata modified the package to be more applicable in the University setting.  Because the AWIPS source code was hard-coded with the NWS network configuration, the early Unidata releases were stripped of operation-specific configurations and plugins, and released specifically for standalone installation. This made sense given that a single EDEX instance with a Solid State Drive (SSD) could handle most of the entire NOAAport data volume.  However, with GOES-R(16) now online, and more gridded forecast models being created at finer temporal and spatial resolutions, there was a need to distribute EDEX data decoding in order to handle this firehose of data.</p>
 <ul>
 <li>Read More: <a href="./edex/distributed-computing">Distributed EDEX</a></li>
 </ul>
@@ -1285,10 +1285,10 @@
 <p><strong>PostgreSQL</strong>, known simply as Postgres, is a relational database management system (DBMS) which handles the storage and retrieval of metadata, database tables and some decoded data.  The storage and reading of EDEX metadata is handled by the Postgres DBMS.  Users may query the metadata tables by using the termainal-based front-end for Postgres called <strong>psql</strong>. Postgres is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/edex_postgres</code></p>
 <h3 id="hdf5">HDF5<a class="headerlink" href="#hdf5" title="Permanent link"></a></h3>
 <p><a href="http://www.hdfgroup.org/HDF5/">http://www.hdfgroup.org/HDF5/</a></p>
-<p><a href="http://www.hdfgroup.org/HDF5/"><strong>Hierarchical Data Format (v.5)</strong></a> is the primary data storage format used by AWIPS for processed grids, satellite and radar imagery and other products.   Similar to netCDF, developed and supported by Unidata, HDF5 supports multiple types of data within a single file.  For example, a single HDF5 file of radar data may contain multiple volume scans of base reflectivity and base velocity as well as derived products such as composite reflectivity.  The file may also contain data from multiple radars. HDF5 is stored in <code>/awips2/edex/data/hdf5/</code></p>
-<h3 id="pypies-httpd-pypies">PyPIES (httpd-pypies)<a class="headerlink" href="#pypies-httpd-pypies" title="Permanent link"></a></h3>
-<p><strong>PyPIES</strong>, Python Process Isolated Enhanced Storage, was created for AWIPS to isolate the management of HDF5 Processed Data Storage from the EDEX processes.  PyPIES manages access, i.e., reads and writes, of data in the HDF5 files.  In a sense, PyPIES provides functionality similar to a DBMS (i.e PostgreSQL for metadata); all data being written to an HDF5 file is sent to PyPIES, and requests for data stored in HDF5 are processed by PyPIES.</p>
-<p>PyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/httpd-pypies</code> </p>
+<p><a href="http://www.hdfgroup.org/HDF5/"><strong>Hierarchical Data Format (v.5)</strong></a> is the primary data storage format used by AWIPS for processed grids, satellite and radar imagery and other products.   Similar to netCDF, developed and supported by Unidata, HDF5 supports multiple types of data within a single file.  For example, a single HDF5 file of radar data may contain multiple volume scans of base reflectivity and base velocity as well as derived products such as composite reflectivity.  The file may also contain data from multiple radars. HDF5 data is stored on the EDEX server in <code>/awips2/edex/data/hdf5/</code>.</p>
+<h3 id="pypies">PyPIES<a class="headerlink" href="#pypies" title="Permanent link"></a></h3>
+<p><strong>PyPIES</strong>, Python Process Isolated Enhanced Storage, (httpd-pypies) was created for AWIPS to isolate the management of HDF5 Processed Data Storage from the EDEX processes.  PyPIES manages access, i.e., reads and writes, of data in the HDF5 files.  In a sense, PyPIES provides functionality similar to a DBMS (i.e PostgreSQL for metadata); all data being written to an HDF5 file is sent to PyPIES, and requests for data stored in HDF5 are processed by PyPIES.</p>
+<p>PyPIES is implemented in two parts: 1. The PyPIES manager is a Python application that runs as part of an Apache HTTP server, and handles requests to store and retrieve data. 2. The PyPIES logger is a Python process that coordinates logging. PyPIES is started and stopped by <code>edex start</code> and <code>edex stop</code>, and is controlled by the system script <code>/etc/rc.d/init.d/httpd-pypies</code>.</p>
                 
                   
                 
