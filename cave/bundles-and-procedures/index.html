@@ -291,6 +291,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Bundles and Procedures
@@ -303,6 +305,8 @@
       
 <nav class="md-nav md-nav--secondary">
   
+  
+    
   
   
     <label class="md-nav__title" for="toc">Table of contents</label>
@@ -317,22 +321,22 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#file-open-bundle" title="File &gt; Open Bundle" class="md-nav__link">
-    File &gt; Open Bundle
+  <a href="#file-load-display" title="File &gt; Load Display" class="md-nav__link">
+    File &gt; Load Display
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#file-save-bundle" title="File &gt; Save Bundle" class="md-nav__link">
-    File &gt; Save Bundle
+  <a href="#file-save-display" title="File &gt; Save Display" class="md-nav__link">
+    File &gt; Save Display
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#file-delete-bundle" title="File &gt; Delete Bundle" class="md-nav__link">
-    File &gt; Delete Bundle
+  <a href="#file-manage-bundles" title="File &gt; Manage Bundles" class="md-nav__link">
+    File &gt; Manage Bundles
   </a>
   
 </li>
@@ -1078,6 +1082,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
@@ -1091,22 +1097,22 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#file-open-bundle" title="File &gt; Open Bundle" class="md-nav__link">
-    File &gt; Open Bundle
+  <a href="#file-load-display" title="File &gt; Load Display" class="md-nav__link">
+    File &gt; Load Display
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#file-save-bundle" title="File &gt; Save Bundle" class="md-nav__link">
-    File &gt; Save Bundle
+  <a href="#file-save-display" title="File &gt; Save Display" class="md-nav__link">
+    File &gt; Save Display
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#file-delete-bundle" title="File &gt; Delete Bundle" class="md-nav__link">
-    File &gt; Delete Bundle
+  <a href="#file-manage-bundles" title="File &gt; Manage Bundles" class="md-nav__link">
+    File &gt; Manage Bundles
   </a>
   
 </li>
@@ -1181,30 +1187,29 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/cave/bundles-and-procedures.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>Bundles and Procedures</h1>
-                
-                <p>AWIPS contains two methods for saving and loading data resources: <strong>Bundles</strong> are a simple way to save loaded resources to access in future CAVE sessions.  <strong>Procedures</strong> are similar to Bundles, but can be thought of a <em>groups of bundles</em> and allows the user to manage saved resources with more control.</p>
+                <h1 id="bundles-and-procedures">Bundles and Procedures<a class="headerlink" href="#bundles-and-procedures" title="Permanent link"></a></h1>
+<p>AWIPS contains two methods for saving and loading data resources: <strong>Bundles</strong> are a simple way to save loaded resources to access in future CAVE sessions.  <strong>Procedures</strong> are similar to Bundles, but can be thought of as <em>groups of bundles</em> and allows the user to manage saved resources with more control.</p>
 <h2 id="bundles">Bundles<a class="headerlink" href="#bundles" title="Permanent link"></a></h2>
-<h3 id="file-open-bundle"><strong>File &gt; Open Bundle</strong><a class="headerlink" href="#file-open-bundle" title="Permanent link"></a></h3>
+<h3 id="file-load-display"><strong>File &gt; Load Display</strong><a class="headerlink" href="#file-load-display" title="Permanent link"></a></h3>
 <p>Load a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users.</p>
-<p>Each selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE)</p>
+<p>Each selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE).</p>
 <p><img alt="image" src="../../images/KTZZHoCV5S.gif" /></p>
-<p>Most saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor</p>
+<p>Most saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor.</p>
 <hr />
-<h3 id="file-save-bundle"><strong>File &gt; Save Bundle</strong><a class="headerlink" href="#file-save-bundle" title="Permanent link"></a></h3>
+<h3 id="file-save-display"><strong>File &gt; Save Display</strong><a class="headerlink" href="#file-save-display" title="Permanent link"></a></h3>
 <p>Save a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.</p>
 <hr />
-<h3 id="file-delete-bundle"><strong>File &gt; Delete Bundle</strong><a class="headerlink" href="#file-delete-bundle" title="Permanent link"></a></h3>
-<p>Select and remove a saved bundle under File &gt; Delete Bundle.  Select the file name and click <strong>OK</strong> and then confirm deletion to remove the saved file permanently.</p>
-<p><img alt="image" src="../../images/delete_bundle1.png" /></p>
+<h3 id="file-manage-bundles"><strong>File &gt; Manage Bundles</strong><a class="headerlink" href="#file-manage-bundles" title="Permanent link"></a></h3>
+<p>Select and remove a saved bundle under File &gt; Manage Bundles, this will open the Delete Bundle dialog.  Select the file name and click <strong>OK</strong> and then confirm deletion to remove the saved file permanently.</p>
+<p><img alt="image" src="../../images/fileMenuManageBundles.png" /></p>
 <p><img alt="image" src="../../images/delete_bundle2.png" /></p>
 <hr />
 <h3 id="load-bundle-from-local-disk">Load Bundle from Local Disk<a class="headerlink" href="#load-bundle-from-local-disk" title="Permanent link"></a></h3>
-<p>To load a previously-saved display from a path within the file directory of the workstation, select <strong>File &gt; Open Bundle</strong> and then select the <strong>File</strong> button on the right to browse your local directories.</p>
+<p>To load a previously-saved display from a path within the file directory of the workstation, select <strong>File &gt; Load Dislay</strong> and then select the <strong>File</strong> button on the right to browse your local directories.</p>
 <p><img alt="image" src="../../images/XB6vQf78pl.gif" /></p>
 <hr />
 <h3 id="save-bundle-to-local-disk">Save Bundle to Local Disk<a class="headerlink" href="#save-bundle-to-local-disk" title="Permanent link"></a></h3>
-<p>To save a product display to a path within the file directory of the workstation, select <strong>File &gt; Save Bundle</strong> and then select the <strong>File</strong> button on the right.</p>
+<p>To save a product display to a path within the file directory of the workstation, select <strong>File &gt; Save Display</strong> and then select the <strong>File</strong> button on the right.</p>
 <hr />
 <h2 id="procedures">Procedures<a class="headerlink" href="#procedures" title="Permanent link"></a></h2>
 <h3 id="new-procedure">New Procedure<a class="headerlink" href="#new-procedure" title="Permanent link"></a></h3>

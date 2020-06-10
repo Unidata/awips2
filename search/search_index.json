@@ -312,7 +312,12 @@
         },
         {
             "location": "/cave/maps-views-projections/",
-            "text": "Default Map Scales\n\uf0c1\n\n\nThe first toolbar menu item is a dropdown menu for different geographic areas and map projections.  The default view is always \nCONUS\n, which is a North Polar Steregraphic projection centered on the Continental United States.\n\n\nDefault projections and areas available in the menu\n\n\n\n\nCONUS\n\n\nN. Hemisphere\n (North Polar Stereographic)\n\n\nRegional\n (for the selected localization site)\n\n\nWFO\n (for the selected localization site)\n\n\nWorld - Mercator\n\n\nWorld - CED\n\n\nWorld - Mollweide\n\n\nGOES East Full Disk\n (Geostationary)\n\n\nGOES West Full Disk\n (Geostationary)\n\n\nRegional\n Mercator projections for\n\n\nAfrica\n\n\nAlaska\n\n\nAntarctica\n\n\nArctic\n\n\nAustralia,New Zealand\n\n\nEurope\n\n\nHawaii\n\n\nJapan\n\n\nPacific Ocean\n\n\nPuerto Rico\n\n\nSouth America\n\n\n\n\n\n\nWFO\n (Has a submenu which contains a map scale for every NWS localization site)\n\n\n\n\n\n\n\n\nNew Map Editor / View\n\uf0c1\n\n\nFile > New Map\n\n\nOpens a new map editor tab with the default projection (CONUS Polar Stereographic).\n\n\n\n\nThis can also be done by \nright-click\n on any tab and selecting \nNew Editor\n\n\n\n\n\n\nNew Projection\n\uf0c1\n\n\nFile > New Projection\n\n\nCreate a new map projection.",
+            "text": "Maps, Views, Projections\n\uf0c1\n\n\nDefault Map Scales\n\uf0c1\n\n\nThe first toolbar menu item is a dropdown menu for different geographic areas and map projections.  The default view is always \nCONUS\n, which is a North Polar Steregraphic projection centered on the Continental United States.\n\n\nDefault projections and areas available in the menu\n\n\n\n\nCONUS\n\n\nN. Hemisphere\n (North Polar Stereographic)\n\n\nRegional\n (for the selected localization site)\n\n\nWFO\n (for the selected localization site)\n\n\nWorld - Mercator\n\n\nWorld - CED\n\n\nWorld - Mollweide\n\n\nGOES East Full Disk\n (Geostationary)\n\n\nGOES West Full Disk\n (Geostationary)\n\n\nRegional\n Mercator projections for\n\n\nAfrica\n\n\nAlaska\n\n\nAntarctica\n\n\nArctic\n\n\nAustralia,New Zealand\n\n\nEurope\n\n\nHawaii\n\n\nJapan\n\n\nPacific Ocean\n\n\nPuerto Rico\n\n\nSouth America\n\n\n\n\n\n\nWFO\n (Has a submenu which contains a map scale for every NWS localization site)\n\n\n\n\n\n\n\n\nNew Map Editor / View\n\uf0c1\n\n\nFile > New Map\n\n\nOpens a new map editor tab with the default projection (CONUS Polar Stereographic).\n\n\n\n\nThis can also be done by \nright-click\n on any tab and selecting \nNew Editor\n\n\n\n\n\n\nNew Projection\n\uf0c1\n\n\nFile > New Projection\n\n\nCreate a new map projection.",
+            "title": "Maps, Views, Projections"
+        },
+        {
+            "location": "/cave/maps-views-projections/#maps-views-projections",
+            "text": "",
             "title": "Maps, Views, Projections"
         },
         {
@@ -332,7 +337,12 @@
         },
         {
             "location": "/cave/bundles-and-procedures/",
-            "text": "AWIPS contains two methods for saving and loading data resources: \nBundles\n are a simple way to save loaded resources to access in future CAVE sessions.  \nProcedures\n are similar to Bundles, but can be thought of a \ngroups of bundles\n and allows the user to manage saved resources with more control.\n\n\nBundles\n\uf0c1\n\n\nFile > Open Bundle\n\uf0c1\n\n\nLoad a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users.\n\n\nEach selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE)\n\n\n\n\nMost saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor\n\n\n\n\nFile > Save Bundle\n\uf0c1\n\n\nSave a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.\n\n\n\n\nFile > Delete Bundle\n\uf0c1\n\n\nSelect and remove a saved bundle under File > Delete Bundle.  Select the file name and click \nOK\n and then confirm deletion to remove the saved file permanently.\n\n\n\n\n\n\n\n\nLoad Bundle from Local Disk\n\uf0c1\n\n\nTo load a previously-saved display from a path within the file directory of the workstation, select \nFile > Open Bundle\n and then select the \nFile\n button on the right to browse your local directories.\n\n\n\n\n\n\nSave Bundle to Local Disk\n\uf0c1\n\n\nTo save a product display to a path within the file directory of the workstation, select \nFile > Save Bundle\n and then select the \nFile\n button on the right.\n\n\n\n\nProcedures\n\uf0c1\n\n\nNew Procedure\n\uf0c1\n\n\n\n\nSelect the menu \nFile > Procedures > New\n\n\nSelect \nCopy Into\n to add all loaded resources to the Procedure Stack\n\n\nSelect \nSave\n (or \nSave As\n) and then enter a name for the Procedure before clicking \nOK\n to save.\n\n\n\n\n\n\nOpen Procedure\n\uf0c1\n\n\nSimilar to creating a new Procedure, select \nFile > Procedures > Open\n, select the saved resources and click \nLoad\n to load them to CAVE.\n\n\nDelete Procedure\n\uf0c1\n\n\nFrom the menu  \nFile > Procedures > Delete\n you can delete existing Procedure files in a way similar to deleting saved Bundle files.",
+            "text": "Bundles and Procedures\n\uf0c1\n\n\nAWIPS contains two methods for saving and loading data resources: \nBundles\n are a simple way to save loaded resources to access in future CAVE sessions.  \nProcedures\n are similar to Bundles, but can be thought of as \ngroups of bundles\n and allows the user to manage saved resources with more control.\n\n\nBundles\n\uf0c1\n\n\nFile > Load Display\n\uf0c1\n\n\nLoad a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users.\n\n\nEach selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE).\n\n\n\n\nMost saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor.\n\n\n\n\nFile > Save Display\n\uf0c1\n\n\nSave a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.\n\n\n\n\nFile > Manage Bundles\n\uf0c1\n\n\nSelect and remove a saved bundle under File > Manage Bundles, this will open the Delete Bundle dialog.  Select the file name and click \nOK\n and then confirm deletion to remove the saved file permanently.\n\n\n\n\n\n\n\n\nLoad Bundle from Local Disk\n\uf0c1\n\n\nTo load a previously-saved display from a path within the file directory of the workstation, select \nFile > Load Dislay\n and then select the \nFile\n button on the right to browse your local directories.\n\n\n\n\n\n\nSave Bundle to Local Disk\n\uf0c1\n\n\nTo save a product display to a path within the file directory of the workstation, select \nFile > Save Display\n and then select the \nFile\n button on the right.\n\n\n\n\nProcedures\n\uf0c1\n\n\nNew Procedure\n\uf0c1\n\n\n\n\nSelect the menu \nFile > Procedures > New\n\n\nSelect \nCopy Into\n to add all loaded resources to the Procedure Stack\n\n\nSelect \nSave\n (or \nSave As\n) and then enter a name for the Procedure before clicking \nOK\n to save.\n\n\n\n\n\n\nOpen Procedure\n\uf0c1\n\n\nSimilar to creating a new Procedure, select \nFile > Procedures > Open\n, select the saved resources and click \nLoad\n to load them to CAVE.\n\n\nDelete Procedure\n\uf0c1\n\n\nFrom the menu  \nFile > Procedures > Delete\n you can delete existing Procedure files in a way similar to deleting saved Bundle files.",
+            "title": "Bundles and Procedures"
+        },
+        {
+            "location": "/cave/bundles-and-procedures/#bundles-and-procedures",
+            "text": "AWIPS contains two methods for saving and loading data resources:  Bundles  are a simple way to save loaded resources to access in future CAVE sessions.   Procedures  are similar to Bundles, but can be thought of as  groups of bundles  and allows the user to manage saved resources with more control.",
             "title": "Bundles and Procedures"
         },
         {
@@ -341,28 +351,28 @@
             "title": "Bundles"
         },
         {
-            "location": "/cave/bundles-and-procedures/#file-open-bundle",
-            "text": "Load a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users.  Each selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE)   Most saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor",
-            "title": "File &gt; Open Bundle"
+            "location": "/cave/bundles-and-procedures/#file-load-display",
+            "text": "Load a previously-saved bundle from within the AWIPS system.  The Open Bundle dialog allows you to select your own saved bundles as well as those saved by other users.  Each selected bundle will load its contents to new tabs which are named after the bundle file name (e.g. NAM_ThetaE).   Most saved bundles will consist of a single Map Editor (tab), but with multiple tabs saved each will open again in its own Map Editor.",
+            "title": "File &gt; Load Display"
         },
         {
-            "location": "/cave/bundles-and-procedures/#file-save-bundle",
+            "location": "/cave/bundles-and-procedures/#file-save-display",
             "text": "Save a product display within the AWIPS system, synching the bundle between CAVE and the EDEX server.",
-            "title": "File &gt; Save Bundle"
+            "title": "File &gt; Save Display"
         },
         {
-            "location": "/cave/bundles-and-procedures/#file-delete-bundle",
-            "text": "Select and remove a saved bundle under File > Delete Bundle.  Select the file name and click  OK  and then confirm deletion to remove the saved file permanently.",
-            "title": "File &gt; Delete Bundle"
+            "location": "/cave/bundles-and-procedures/#file-manage-bundles",
+            "text": "Select and remove a saved bundle under File > Manage Bundles, this will open the Delete Bundle dialog.  Select the file name and click  OK  and then confirm deletion to remove the saved file permanently.",
+            "title": "File &gt; Manage Bundles"
         },
         {
             "location": "/cave/bundles-and-procedures/#load-bundle-from-local-disk",
-            "text": "To load a previously-saved display from a path within the file directory of the workstation, select  File > Open Bundle  and then select the  File  button on the right to browse your local directories.",
+            "text": "To load a previously-saved display from a path within the file directory of the workstation, select  File > Load Dislay  and then select the  File  button on the right to browse your local directories.",
             "title": "Load Bundle from Local Disk"
         },
         {
             "location": "/cave/bundles-and-procedures/#save-bundle-to-local-disk",
-            "text": "To save a product display to a path within the file directory of the workstation, select  File > Save Bundle  and then select the  File  button on the right.",
+            "text": "To save a product display to a path within the file directory of the workstation, select  File > Save Display  and then select the  File  button on the right.",
             "title": "Save Bundle to Local Disk"
         },
         {
