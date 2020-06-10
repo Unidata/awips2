@@ -1,4 +1,4 @@
-
+# Maps, Views, Projections
 ## Default Map Scales
 
 The first toolbar menu item is a dropdown menu for different geographic areas and map projections.  The default view is always **CONUS**, which is a North Polar Steregraphic projection centered on the Continental United States.
