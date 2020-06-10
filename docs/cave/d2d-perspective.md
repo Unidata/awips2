@@ -124,10 +124,9 @@ This check button enables/disables the ability to display data on its native sca
 
 ### Image Combination (Insert)
 
-This check button enables/disables the ability to display two images at once. You can also enable/disable the ability to combine images by using the Toggle Image Combination iconified button on the Toolbar.
+This check button enables/disables the ability to display two images at once.
 
-Combined-image displays have been improved by removing the valid time for non-forecast products and removing the date string (time is kept) from the left side of the legend. In particular, this
-makes All-Tilts radar legends more usable.
+Combined-image displays have been improved by removing the valid time for non-forecast products and removing the date string (time is kept) from the left side of the legend. In particular, this makes All-Tilts radar legends more usable.
 
 
 ### Display Properties
