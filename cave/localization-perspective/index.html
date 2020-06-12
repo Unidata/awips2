@@ -303,6 +303,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Localization Perspective
@@ -315,6 +317,8 @@
       
 <nav class="md-nav md-nav--secondary">
   
+  
+    
   
   
     <label class="md-nav__title" for="toc">Table of contents</label>
@@ -337,13 +341,6 @@
         <li class="md-nav__item">
   <a href="#customizing-cave-menus" title="Customizing CAVE Menus" class="md-nav__link">
     Customizing CAVE Menus
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#add-new-predefined-area-to-ncp" title="Add new Predefined Area to NCP" class="md-nav__link">
-    Add new Predefined Area to NCP
   </a>
   
 </li>
@@ -1024,6 +1021,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
@@ -1049,13 +1048,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#add-new-predefined-area-to-ncp" title="Add new Predefined Area to NCP" class="md-nav__link">
-    Add new Predefined Area to NCP
-  </a>
-  
-</li>
-      
       
       
     </ul>
@@ -1073,10 +1065,9 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/cave/localization-perspective.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>Localization Perspective</h1>
-                
-                <h2 id="localization-levels">Localization Levels<a class="headerlink" href="#localization-levels" title="Permanent link"></a></h2>
-<p>AWIPS uses a hierarchical system known as <em>Localization</em> to configure many aspects of EDEX and CAVE, such as available menu items, color maps, and derived parameters.  This system allows a user to override existing configurations and customize CAVE.  For example, a <em>User-level</em> localization file will supercede any similar file in a lower level (such as <em>Site</em>).</p>
+                <h1 id="localization-perspective">Localization perspective<a class="headerlink" href="#localization-perspective" title="Permanent link"></a></h1>
+<h2 id="localization-levels">Localization Levels<a class="headerlink" href="#localization-levels" title="Permanent link"></a></h2>
+<p>AWIPS uses a hierarchical system known as <em>Localization</em> to configure many aspects of EDEX and CAVE, such as available menu items, color maps, and derived parameters.  This system allows a user to override existing configurations and customize CAVE.  For example, a <em><strong>User</strong>-level</em> localization file will supercede any similar file in a higher level (such as <strong>Site</strong>).</p>
 <div class="admonition note">
 <p class="admonition-title">There are three <em>levels of localization</em>, starting with the default <strong>BASE</strong></p>
 <ul>
@@ -1091,8 +1082,8 @@
 </div>
 <hr />
 <h2 id="localization-editor">Localization Editor<a class="headerlink" href="#localization-editor" title="Permanent link"></a></h2>
-<p>The Localization Perspective acts as file editor for the XML, Python, and text files which customize the look and feel of CAVE.  </p>
-<p>Users may copy and add files to available directories at their own <em>User</em> localization version.</p>
+<p>The Localization Perspective acts as file editor for the XML, Python, and text files which customize the look and feel of CAVE.  This perspective is available in the menu <strong>CAVE &gt; Perspective &gt; Localization</strong>.</p>
+<p>Users may copy and add files to available directories at their own <strong>User</strong> localization version.</p>
 <p>Examples of things that can be accessed through the perspective include (this list is not all-inclusive):</p>
 <ul>
 <li>
@@ -1116,41 +1107,60 @@
 <p><img alt="image alt text" src="../../images/image_2.jpg" /></p>
 <p>There may be several versions of each file including <strong>BASE</strong>, <strong>CONFIGURED</strong> (GFE only), <strong>SITE</strong>, and <strong>USER</strong>.  Each file version is listed separately under the actual file name.</p>
 <p>The <strong><em>File Editor</em></strong> view opens the selected configuration file in an appropriate editor.  For example, a Python file is opened in a Python editor, and an XML file is opened in an XML editor.</p>
-<p>--</p>
+<hr />
 <h2 id="customizing-cave-menus">Customizing CAVE Menus<a class="headerlink" href="#customizing-cave-menus" title="Permanent link"></a></h2>
-<p>Navigate to <strong>CAVE</strong> &gt; <strong>Menus</strong> and select a submenu (e.g. <strong>satellite</strong>).  This directory lists all of the menu file contributions made by this data plugin.   Most data menu directories will have an <code>index.xml</code> file from which you can investigate the menu structure and made needed changes. </p>
-<p>Selecting a file such as <strong>index.xml</strong> will show a sub-menu with a default localization level (typically <strong>BASE</strong> or <strong>CONFIGURED</strong>). Double-click this tab to open in the file editor (you may need to click <strong>Source</strong> at the bottom of the view to see the raw XML).  Right-click this tab and select <strong>Copy To</strong> &gt; <strong>User (awips)</strong> and you will see the file localization versions update with the new copy. Select this file to edit, and override, the existing version.</p>
-<p>--</p>
-<h2 id="add-new-predefined-area-to-ncp">Add new Predefined Area to NCP<a class="headerlink" href="#add-new-predefined-area-to-ncp" title="Permanent link"></a></h2>
-<p>In the Localization Perspective, navigate to ‘<strong>NCEP - Predefined Area Menus</strong>’, double-click ‘<strong>AreaMenus.xml</strong>’, and then right-click ‘<strong>BASE</strong>’ and select ‘<strong>Copy To - User</strong>’.</p>
-<p><img alt="image alt text" src="../../images/image_4.png" /></p>
-<p>You will see a new ‘<strong>USER (username)</strong>’ entry for the file <strong>AreaMenus.xml</strong>.  </p>
-<p><img alt="image alt text" src="../../images/image_5.png" /> </p>
-<p>Double-click the new file and copy or create a new AreaMenuItem entry, such as a new CONUS Mercator projection called <strong>CONUS_Mercator</strong>:</p>
-<pre><code>&lt;AreaMenuItem subMenuName="" menuName="CONUS (Mercator)"&gt;
+<p>Navigate to <strong>D2D &gt; Menus</strong> and select a submenu (e.g. <strong>satellite</strong>).  This directory lists all of the menu file contributions made by this data plugin.   Most data menu directories will have an <code>index.xml</code> file from which you can investigate the menu structure and make needed changes.</p>
+<p>Selecting a file such as <code>index.xml</code> (by double clicking, or expanding) will show a sub-menu with a default localization level (typically <strong>BASE</strong> or <strong>CONFIGURED</strong>). Double-click this file to open in the file editor (you may need to click <strong>Source</strong> at the bottom of the view to see the raw XML).  Right-click this file and select <strong>Copy To</strong> &gt; <strong>User (<em>username</em>)</strong> and you will see the file localization versions update with the new copy. Select this file to edit, and override, the existing version.</p>
+<p><img alt="copy to" src="../../images/copyToMenu.png" /></p>
+<!---
 
-    &lt;source&gt;PREDEFINED_AREA&lt;/source&gt;
+## Add new Predefined Area to NCP
 
-    &lt;areaName&gt;CONUS_Mercator&lt;/areaName&gt;
+In the Localization Perspective, navigate to ‘**NCEP - Predefined Area Menus**’, double-click ‘**AreaMenus.xml**’, and then right-click ‘**BASE**’ and select ‘**Copy To - User**’.
 
-&lt;/AreaMenuItem&gt;
-</code></pre>
-<p><img alt="image alt text" src="../../images/image_6.png" /></p>
-<p>Now you can either copy and post an existing xml area file, or simple create one in the NCP.  Switch back to the NCP, and select ‘<strong>Area - World</strong>’ to load a known Mercator projection.  Zoom in to the continental United States and then from the menu bar select ‘<strong>File - Save Area</strong>’ and name it <strong>CONUS_Mercator</strong> so it matches the name string given in the above AreaMenuItem.</p>
-<p><img alt="image alt text" src="../../images/image_7.png" /></p>
-<p><img alt="image alt text" src="../../images/image_8.png" /></p>
-<p>You can switch back to the Localization Perspective to confirm that the file was saved.  It will be viewable under <strong>NCEP - Predefined Areas</strong> and, in this example, be called <strong>CONUS_Mercator.xml</strong>.</p>
-<p><img alt="image alt text" src="../../images/image_9.png" /></p>
-<p>CAVE needs to be restarted in order for the new menu item to show up under the NCP <strong>Area</strong> menu.</p>
-<p><img alt="image alt text" src="../../images/image_10.png" /></p>
-<p>Switch to the new Area to confirm.</p>
-<p><img alt="image alt text" src="../../images/image_11.png" /></p>
-<p>On your workstation you can find the new USER localization files in ~/caveData</p>
-<pre><code>find ~/caveData -name CONUS_Mercator.xml
+![image alt text](../images/image_4.png)
 
-./etc/user/mjames/ncep/PredefinedAreas/CONUS_Mercator.xml
-./.localization/NCEP/Predefined Areas/CONUS_Mercator.xml
-</code></pre>
+You will see a new ‘**USER (username)**’ entry for the file **AreaMenus.xml**.
+
+![image alt text](../images/image_5.png)
+
+Double-click the new file and copy or create a new AreaMenuItem entry, such as a new CONUS Mercator projection called **CONUS_Mercator**:
+
+    <AreaMenuItem subMenuName="" menuName="CONUS (Mercator)">
+
+        <source>PREDEFINED_AREA</source>
+
+        <areaName>CONUS_Mercator</areaName>
+
+    </AreaMenuItem>
+
+![image alt text](../images/image_6.png)
+
+Now you can either copy and paste an existing xml area file, or simple create one in the NCP.  Switch back to the NCP, and select ‘**Area - World**’ to load a known Mercator projection.  Zoom in to the continental United States and then from the menu bar select ‘**File - Save Area**’ and name it **CONUS_Mercator** so it matches the name string given in the above AreaMenuItem.
+
+![image alt text](../images/image_7.png)
+
+![image alt text](../images/image_8.png)
+
+You can switch back to the Localization Perspective to confirm that the file was saved.  It will be viewable under **NCEP - Predefined Areas** and, in this example, be called **CONUS_Mercator.xml**.
+
+![image alt text](../images/image_9.png)
+
+CAVE needs to be restarted in order for the new menu item to show up under the NCP **Area** menu.
+
+![image alt text](../images/image_10.png)
+
+Switch to the new Area to confirm.
+
+![image alt text](../images/image_11.png)
+
+On your workstation you can find the new USER localization files in ~/caveData
+
+    find ~/caveData -name CONUS_Mercator.xml
+
+    ./etc/user/mjames/ncep/PredefinedAreas/CONUS_Mercator.xml
+    ./.localization/NCEP/Predefined Areas/CONUS_Mercator.xml
+-->
                 
                   
                 
