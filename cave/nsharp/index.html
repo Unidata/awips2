@@ -1124,58 +1124,90 @@
                 
                 
                 <h1 id="nsharp">NSHARP<a class="headerlink" href="#nsharp" title="Permanent link"></a></h1>
-<p>NSHARP, which stands for the <strong>N</strong>ational Center <strong>S</strong>ounding and <strong>H</strong>odograph <strong>A</strong>nalysis and <strong>R</strong>esearch <strong>P</strong>rogram, is an AWIPS plugin originally based on NAWIPS NSHAREP, SPCs <em>BigSHARP</em> sounding display tool, and the Python package <a href="https://github.com/aeroelastics/SHARPy">SHARpy</a>. </p>
+<p>NSHARP, which stands for the <strong>N</strong>ational Center <strong>S</strong>ounding and <strong>H</strong>odograph <strong>A</strong>nalysis and <strong>R</strong>esearch <strong>P</strong>rogram, is an AWIPS plugin originally based on NAWIPS NSHAREP, SPCs <em>BigSHARP</em> sounding display tool, and the Python package <a href="https://github.com/aeroelastics/SHARPy">SHARpy</a>.</p>
 <p>NSHARP is available a number of ways in CAVE:</p>
 <ul>
-<li>From the <strong>D2D toolbar</strong> select the NSHARP icon</li>
+<li>From the <strong>D2D toolbar</strong> select the NSHARP icon: <img alt="" src="../../images/nsharpIcon.png" /></li>
 <li>From the <strong>Upper Air</strong> menu select <strong>NSHARP Soundings</strong></li>
-<li>From the <strong>Upper Air</strong> menu select a station from the RAOB menus</li>
+<li>From the <strong>Upper Air</strong> menu select a station from the <em>RAOB</em> menus</li>
 <li>From the <strong>Upper Air</strong> menu select <strong>NUCAPS Soundings</strong></li>
-<li>From within <strong>Models &gt; Volume Browser</strong></li>
-<li>From the <strong>Maps</strong> menu select <strong>Sounding Locs</strong> to </li>
+<li>
+<p>From the <strong>Models</strong> or <strong>Tools</strong> menu select <strong>Volume Browser</strong></p>
+<ul>
+<li>
+<p>Make sure <strong>Sounding</strong> is selected from the menu at the top</p>
+<p><img alt="" src="../../images/volumeBrowserSoundingMenu.png" /></p>
+</li>
+<li>
+<p>Select a source that has data (signified by a green box to the right)</p>
+<p><img alt="" src="../../images/volumeBrowserSources.png" /></p>
+</li>
+<li>
+<p>Select <strong>Soundings</strong> from the Fields menu</p>
+<p><img alt="" src="../../images/volumeBroswerFields.png" /></p>
+</li>
+<li>
+<p>Select any point from the Planes menu and an option will load in the table below</p>
+</li>
+<li>
+<p>Use the <strong>Load</strong> button to load data and open the NSharp display</p>
+<p><img alt="" src="../../images/volumeBrowserLoad.png" /></p>
+</li>
 </ul>
+</li>
+</ul>
+<hr />
 <h2 id="nsharp-configurations">NSHARP Configurations<a class="headerlink" href="#nsharp-configurations" title="Permanent link"></a></h2>
 <p>NSHARP has four configurations for use in different operational settings:</p>
 <ul>
-<li>
-<p><strong>SPC Wide</strong> - more insets and graphs at the expense of timeline/station inventory.</p>
-</li>
-<li>
-<p><strong>D2D Skewt Standard</strong> - default for WFOs, larger SkewT with inventory, no Wind/Height, temperature advection, insets, or graphs.</p>
-</li>
-<li>
-<p><strong>D2D Lite</strong> - Skew-T, table, and inventory only.</p>
-</li>
-<li>
-<p><strong>OPC</strong> - Ocean Prediction Center display.</p>
-</li>
+<li><strong>SPC Wide</strong> - more insets and graphs at the expense of timeline/station inventory.</li>
+<li><strong>D2D Skewt Standard</strong> - default for WFOs, larger SkewT with inventory, no Wind/Height, temperature advection, insets, or graphs.</li>
+<li><strong>D2D Lite</strong> - Skew-T, table, and inventory only.</li>
+<li><strong>OPC</strong> - Ocean Prediction Center display.</li>
 </ul>
-<blockquote>
-<p>If you would like to interactively explore the different graphical areas in&nbsp;NSHARP&nbsp;<strong>on the Web</strong>, see the&nbsp;<a href="http://www.wdtd.noaa.gov/buildTraining/nsharp-interactive/interactive.html" style="font-weight: 200;">NSHARP Interactive Overview</a></p>
-</blockquote>
-<div class="admonition tip">
-<p class="admonition-title">To change the NSHARP confiuguration:</p>
+<p><strong>To change the NSHARP confiuguration:</strong></p>
 <ul>
+<li>Open the <strong>NSHARP(D2D)</strong> controls tab by clicking on the Nsharp toolbar (<img alt="" src="../../images/nsharpIcon.png" />) icon again</li>
 <li>Click the <strong>Configure</strong> button</li>
-<li>Click <strong>Display Pane Configuration</strong> (second from bottom)</li>
-<li>Choose configuration, apply, save, close</li>
+<li>Click <strong>Display Pane Configuration</strong> (third from the bottom)</li>
+<li>Use the dropdown to choose a configuration, apply, save, close</li>
 </ul>
-</div>
+<p>If you would like to interactively explore the different graphical areas in NSHARP <strong>on the Web</strong>, see the <a href="http://www.wdtd.noaa.gov/buildTraining/nsharp-interactive/interactive.html">NSHARP Interactive Overview</a>.</p>
+<hr />
 <h2 id="skew-t-display">Skew-T Display<a class="headerlink" href="#skew-t-display" title="Permanent link"></a></h2>
-<p>The Skew-T display renders a vertical profile of temperature, dew point, and wind for RAOBs and model point soundings using a Skew-T Log-P diagram. Skew-T is the default upper air chart in AWIPS, and can be changed to <em>turbulence display</em> ("T") or an <em>icing display</em> ("I"). </p>
-<p>The upper-left red box is linked to the cursor readout when over the SkewT chart, reported as temperature, dewpoint, wind direction and speed, pressure, height AGL, and RH of the trace.</p>
+<p><img alt="" src="../../images/nsharpSkewT.png" /></p>
+<p>The Skew-T display renders a vertical profile of temperature, dew point, and wind for RAOBs and model point soundings using a Skew-T Log-P diagram. The box in the upper-left of the main display is linked to the cursor readout when over the SkewT chart.  It reports the temperature, dewpoint, wind direction and speed, pressure, height AGL, and relative humidity of the trace.</p>
+<p>Skew-T is the default upper air chart in AWIPS, and can be changed to <em>turbulence display</em> (<strong>T</strong>) or an <em>icing display</em> (<strong>I</strong>).  These options are available as buttons at the bottom of the NSHARP(D2D) controls tab (mentioned in <a href="#nsharp-configurations">NSHARP Configurations</a>).  Use the <a href="http://www.wdtd.noaa.gov/buildTraining/nsharp-interactive/interactive.html">AWIPS-2 NSHARP Interactive Overview page</a> for more information about the Skew-T display.</p>
+<hr />
 <h2 id="windspeed-vs-height-and-inferred-temperature-advection">Windspeed vs Height and Inferred Temperature Advection<a class="headerlink" href="#windspeed-vs-height-and-inferred-temperature-advection" title="Permanent link"></a></h2>
-<p>The windspeed vs height and inferred temperature advection with height plot (referred to by label "iii" in the NSHARP schematic images) is situated next to the SkewT to show the values at the same heights. Inferred temperature advection is from the thermal wind. Use the AWIPS-2 NSHARP Interactive Overview page for more information about the Skew-T display.</p>
+<p><img alt="" src="../../images/nsharpWindHeightTemp.png" /></p>
+<p>The windspeed vs height and inferred temperature advection with height plot is situated next to the SkewT to show the values at the same heights. Inferred temperature advection is from the thermal wind. Use the <a href="http://www.wdtd.noaa.gov/buildTraining/nsharp-interactive/interactive.html">AWIPS-2 NSHARP Interactive Overview page</a> for more information.</p>
+<hr />
 <h2 id="hodograph-display">Hodograph Display<a class="headerlink" href="#hodograph-display" title="Permanent link"></a></h2>
-<p>This panel contains the hodograph display from the sounding data (referred to by label "iv" in the NSHARP schematic images). The rings in the hodograph represent the wind speed in 20 knot increments. The hodograph trace uses different colors to highlight wind observations in 3 km height increments. This display also contains information such as the mean wind, Bunkers Left/Right Moving storm motion, upshear and downshear Corfidi vectors, and a user-defined motion. Use the AWIPS NSHARP Interactive Overview page for more information about the hodograph display.</p>
+<p><img alt="" src="../../images/nsharpHodograph.png" /></p>
+<p>This panel contains the hodograph display from the sounding data. The rings in the hodograph represent the wind speed in 20 knot increments. The hodograph trace uses different colors to highlight wind observations in 3 km height increments. This display also contains information such as the mean wind, Bunkers Left/Right Moving storm motion, upshear and downshear Corfidi vectors, and a user-defined motion. Use the <a href="http://www.wdtd.noaa.gov/buildTraining/nsharp-interactive/interactive.html">AWIPS NSHARP Interactive Overview page</a> for more information about the hodograph display.</p>
+<hr />
 <h2 id="insets">Insets<a class="headerlink" href="#insets" title="Permanent link"></a></h2>
-<p>In the SPC Wide Screen Configuration there are four small insets beneath the hodograph containing storm-relative windspeed versus height, a Storm Slinky, Theta-E vs Pressure, Possible Watch Type, Thea-E vs Height, and storm-relative wind vectors (referred to by label "v" in the NSHARP schematic images). There are buttons in the NSHARP(D2D) control button tab that toggle the six possible contents in the four boxes. Use the AWIPS NSHARP Interactive Overview page for more information on the tables and a list/definition of the parameters available.</p>
+<p><img alt="" src="../../images/nsharpInsets.png" /></p>
+<p>In the SPC Wide Screen Configuration there are four small insets beneath the hodograph containing storm-relative windspeed versus height, a Storm Slinky, Theta-E vs Pressure, Possible Watch Type, Thea-E vs Height, and storm-relative wind vectors. There are buttons in the NSHARP(D2D) control button tab that toggle the six possible contents in the four boxes. There are also two buttons <strong>PvIn</strong> and <strong>NxIn</strong> in the control tab that can be used to cycle through the previous and next inset.
+<center><img alt="" src="../../images/nsharpControlsInsets.png" /></center></p>
+<p>Use the <a href="http://www.wdtd.noaa.gov/buildTraining/nsharp-interactive/interactive.html">AWIPS NSHARP Interactive Overview page</a> for more information.</p>
+<hr />
 <h2 id="table-output-displays">Table Output Displays<a class="headerlink" href="#table-output-displays" title="Permanent link"></a></h2>
-<p>The Table Output Displays (referred to by label "vi" in the NSHARP schematic images) contains five different pages of parameters ranging from parcel instability to storm relative shear to severe hazards potential. Use the AWIPS NSHARP Interactive Overview page for more information on the tables and a list/definition of the parameters available.</p>
+<p><img alt="" src="../../images/nsharpTables.png" /></p>
+<p>The Table Output Displays contains five different pages of parameters ranging from parcel instability to storm relative shear to severe hazards potential.  There are two buttons <strong>PtDt</strong> and <strong>NxDt</strong> in the controls tab that can be used to cycle through the previous and next tables.
+<center><img alt="" src="../../images/nsharpControlsTables.png" /></center></p>
+<p>Use the <a href="http://www.wdtd.noaa.gov/buildTraining/nsharp-interactive/interactive.html">AWIPS NSHARP Interactive Overview page</a> for more information on the tables and a list/definition of the parameters available.</p>
+<hr />
 <h2 id="graphsstatistics">Graphs/Statistics<a class="headerlink" href="#graphsstatistics" title="Permanent link"></a></h2>
-<p>In the SPC Wide Screen Configuration there are two graphs boxes under the insets (referred to by label "vii" in the NSHARP schematic images), and they can display information on Enhanced Bulk Shear, Significant Tornado Parameter, Significant Hail Parameter (SHIP), Winter Weather, Fire Weather, Hail model (not implemented), and the Sounding Analog Retrieval System (SARS). There are buttons in the NSHARP(D2D) control button tab that toggle the six possible contents in the two boxes. Use the AWIPS NSHARP Interactive Overview page for more information on the tables and a list/definition of the parameters available.</p>
+<p><img alt="" src="../../images/nsharpGraphs.png" /></p>
+<p>In the SPC Wide Screen Configuration there are two graphs boxes under the insets, and they can display information on Enhanced Bulk Shear, Significant Tornado Parameter, Significant Hail Parameter (SHIP), Winter Weather, Fire Weather, Hail model (not implemented), and the Sounding Analog Retrieval System (SARS). There are buttons in the NSHARP(D2D) control button tab that toggle the six possible contents in the two boxes.
+<center><img alt="" src="../../images/nsharpControlsGraphs.png" /></center></p>
+<p>Use the <a href="http://www.wdtd.noaa.gov/buildTraining/nsharp-interactive/interactive.html">AWIPS NSHARP Interactive Overview page</a> for more information.</p>
+<hr />
 <h2 id="sounding-inventory">Sounding Inventory<a class="headerlink" href="#sounding-inventory" title="Permanent link"></a></h2>
-<p>This section (referred to by label "viii" in the NSHARP schematic images) controls the inventory of the soundings that have been loaded for potential display in NSHARP. The different colors of the text represent variously that a sounding/station is being displayed, available for display, or not available for display. Use the AWIPS NSHARP Interactive Overview page for more information on how to use the sounding inventory and time line.</p>
+<p><img alt="" src="../../images/nsharpInventory.png" /></p>
+<p>This section controls the inventory of the soundings that have been loaded for potential display in NSHARP. The different colors of the text represent variously that a sounding/station is being displayed, available for display, or not available for display. Use the <a href="http://www.wdtd.noaa.gov/buildTraining/nsharp-interactive/interactive.html">AWIPS NSHARP Interactive Overview page</a> for more information on how to use the sounding inventory and time line.</p>
                 
                   
                 
