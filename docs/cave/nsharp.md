@@ -19,7 +19,7 @@ NSHARP is available a number of ways in CAVE:
 
      - Select **Soundings** from the Fields menu
 
-		 ![](../images/volumeBroswerFields.png)
+		 ![](../images/volumeBrowserFields.png)
 
      - Select any point from the Planes menu and an option will load in the table
          - To create a new point go to select **Tools** > **Points** and use the right-click-hold menu to create a new point anywhere on the map
