@@ -21,7 +21,8 @@ NSHARP is available a number of ways in CAVE:
 
 		 ![](../images/volumeBroswerFields.png)
 
-     - Select any point from the Planes menu and an option will load in the table below
+     - Select any point from the Planes menu and an option will load in the table
+         - To create a new point go to select **Tools** > **Points** and use the right-click-hold menu to create a new point anywhere on the map
      - Use the **Load** button to load data and open the NSharp display
 
 		 ![](../images/volumeBrowserLoad.png)
