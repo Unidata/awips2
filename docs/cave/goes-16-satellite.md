@@ -1,8 +1,11 @@
+# GOES 16/17
 
 
-The GOES-R decoder supports the ingest and display of NOAAport provisional products (currently on the NOTHER feed), as well as Level 2b netCDF files.  A GOES-R Geostationary Lightning Mapper (GLM) decoder is also provided to handle sensor lightning observations.
+The GOES-R decoder supports the ingest and display of NOAAport products (currently on the **NIMAGE** feed), Derived products (Level 2b netCDF files), and the Geostationary Lightning Mapper (GLM) products.
 
-GOES-R products are accessible in the **Satellite** menu.  The menu is broken into sections and has submenus for each of the separate geospatial products: CONUS, Full Disk, Mesoscale Sectors, Hawaii, Alaska, and Puerto Rico.  Each submenu has products for **individual channels** as well as **derived products** and **channel differences**.  GLM data can also be found with its own submenu option a little lower down the menu.
+GOES-R products are accessible in the **Satellite** menu.  The menu is broken into sections and has submenus for each of the separate geospatial products: CONUS, Full Disk, Mesoscale Sectors, Hawaii, Alaska, and Puerto Rico.  Each submenu has products for [**individual channels**](#individual-channels) and [**RGB Composites**](#rgb-composites), as well as submenus for [**channel differences**](#channel-differences) and [**derived products**](#derived-products).  [**GLM data**](#geostationary-lightning-mapper-glm) can also be found with its own submenu option a little lower down the menu and under the **Surface** menu.
+
+> **NOTE**: The RGB products are not available on MacOS.
 
 ![](../images/satelliteMenu.png)
 
