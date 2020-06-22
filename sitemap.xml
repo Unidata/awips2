@@ -56,11 +56,6 @@
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>http://unidata.github.io/awips2/cave/d2d-gis-shapefiles/</loc>
-     <lastmod>2020-06-22</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
      <loc>http://unidata.github.io/awips2/cave/d2d-gridded-models/</loc>
      <lastmod>2020-06-22</lastmod>
      <changefreq>daily</changefreq>
