@@ -42,7 +42,7 @@ pages:
     - NSHARP: cave/nsharp.md
     - WarnGen Walkthrough: cave/warngen.md
     - GOES 16/17: cave/goes-16-satellite.md
-    - GIS and Shapefiles: cave/d2d-gis-shapefiles.md
+#    - GIS and Shapefiles: cave/d2d-gis-shapefiles.md
     - Volume Browser: cave/d2d-gridded-models.md
     - Display Tools: cave/d2d-tools.md
     - Radar Tools: cave/d2d-radar-tools.md
