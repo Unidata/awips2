@@ -230,6 +230,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Install EDEX
@@ -242,6 +244,8 @@
       
 <nav class="md-nav md-nav--secondary">
   
+  
+    
   
   
     <label class="md-nav__title" for="toc">Table of contents</label>
@@ -1113,6 +1117,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
@@ -1257,7 +1263,8 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/install/install-edex.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                <h2 id="download-and-install-edex">Download and Install EDEX<a class="headerlink" href="#download-and-install-edex" title="Permanent link"></a></h2>
+                <h1 id="install-edex">Install EDEX<a class="headerlink" href="#install-edex" title="Permanent link"></a></h1>
+<h2 id="download-and-install-edex">Download and Install EDEX<a class="headerlink" href="#download-and-install-edex" title="Permanent link"></a></h2>
 <blockquote>
 <p><a href="https://www.unidata.ucar.edu/blogs/news/category/AWIPS">Release 18.1.1-7, March 25, 2019</a></p>
 </blockquote>
@@ -1312,7 +1319,7 @@
 </blockquote>
 <h3 id="3-edex-setup">3. EDEX Setup<a class="headerlink" href="#3-edex-setup" title="Permanent link"></a></h3>
 <blockquote>
-<p>The command <code>edex setup</code> will try to determine your fully-qualified domain name and set it in <code>/awips2/edex/bin/setup.env</code>. EDEX Server Administrators should double-check that the addresses and names defined in setup.env are resolvable from both inside and outside the server, and make appropriate edits to <code>/etc/hosts</code> if necessary.  </p>
+<p>The command <code>edex setup</code> will try to determine your fully-qualified domain name and set it in <code>/awips2/edex/bin/setup.env</code>. EDEX Server Administrators should double-check that the addresses and names defined in setup.env are resolvable from both inside and outside the server, and make appropriate edits to <code>/etc/hosts</code> if necessary.</p>
 <p>For example, in the XSEDE Jetstream cloud, the fully-qualified domain name defined in <code>/awips2/edex/bin/setup.env</code></p>
 <pre><code>  export EXT_ADDR=js-196-132.jetstream-cloud.org
   export DB_ADDR=localhost
@@ -1397,7 +1404,7 @@ Failed to restart iptables.service: Unit iptables.service failed to load: No suc
   service qpidd start
   service edex_camel start
 </code></pre>
-<p>The fifth service, <strong>edex_ldm</strong>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running. </p>
+<p>The fifth service, <strong>edex_ldm</strong>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running.</p>
 <pre><code>  ldmadmin start
 </code></pre>
 <p>To start <em>all services except the LDM</em> (good for troubleshooting):</p>
@@ -1434,9 +1441,9 @@ SELINUXTYPE=targeted
 </div>
 <hr />
 <h3 id="ssd-mount">SSD Mount<a class="headerlink" href="#ssd-mount" title="Permanent link"></a></h3>
-<p>Though a Solid State Drive is not required, it is <em>strongly encouraged</em> in order to handle the amount of disk IO for real-time IDD feeds.  </p>
+<p>Though a Solid State Drive is not required, it is <em>strongly encouraged</em> in order to handle the amount of disk IO for real-time IDD feeds.</p>
 <p>The simplest configuration would be to mount an 500GB+ SSD to <strong>/awips2</strong> to contain both the installed software (approx. 20GB) and the real-time data (approx. 150GB per day).</p>
-<p>The default <a href="">purge rules</a> are configured such that <strong>/awips2</strong> does not exceed 450GB. <strong>/awips2/data_store</strong> is scoured every hour and should not exceed 50GB. </p>
+<p>The default <a href="">purge rules</a> are configured such that <strong>/awips2</strong> does not exceed 450GB. <strong>/awips2/data_store</strong> is scoured every hour and should not exceed 50GB.</p>
 <p>If you want to increase EDEX data retention you should mount a large disk to <strong>/awips2/edex/data/hdf5</strong> since this will be where the archived processed data exists, and any case studies created.</p>
 <pre><code>    Filesystem      Size  Used Avail Use% Mounted on
     /dev/sda1        30G  2.5G   26G   9% /
@@ -1479,13 +1486,13 @@ NIMAGE  ^(sat[^/]*)/ch[0-9]/([^/]*)/([^/]*)/([^ ]*) ([^/]*)/([^/]*)/([^/]*)/ (T[
 <hr />
 <h3 id="directories-to-know">Directories to Know<a class="headerlink" href="#directories-to-know" title="Permanent link"></a></h3>
 <ul>
-<li><code>/awips2</code> - Contains all of the installed AWIPS software. </li>
+<li><code>/awips2</code> - Contains all of the installed AWIPS software.</li>
 <li><code>/awips2/edex/logs</code> - EDEX logs.</li>
 <li><code>/awips2/httpd_pypies/var/log/httpd</code> - httpd-pypies logs.</li>
 <li><code>/awips2/database/data/pg_log</code> - PostgreSQL logs.</li>
 <li><code>/awips2/qpid/log</code> - Qpid logs.</li>
-<li><code>/awips2/edex/data/hdf5</code> - HDF5 data store. </li>
-<li><code>/awips2/edex/data/utility</code> - Localization store and configuration files. </li>
+<li><code>/awips2/edex/data/hdf5</code> - HDF5 data store.</li>
+<li><code>/awips2/edex/data/utility</code> - Localization store and configuration files.</li>
 <li><code>/awips2/ldm/etc</code> - Location of <strong>ldmd.conf</strong> and <strong>pqact.conf</strong></li>
 <li><code>/awips2/ldm/logs</code> - LDM logs.</li>
 <li><code>/awips2/data_store</code> - Raw data store.</li>
