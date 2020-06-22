@@ -9,7 +9,7 @@
         <meta name="description" content="Documentation for all things AWIPS.">
       
       
-        <link rel="canonical" href="http://unidata.github.io/awips2/edex/distributed-computing/">
+        <link rel="canonical" href="http://unidata.github.io/awips2/install/common-problems/">
       
       
         <meta name="author" content="support-awips@unidata.ucar.edu">
@@ -21,7 +21,7 @@
     
     
       
-        <title>Distributed EDEX - Unidata AWIPS User Manual</title>
+        <title>Common Problems - Unidata AWIPS User Manual</title>
       
     
     
@@ -87,13 +87,9 @@
               
 
                   
-                      <span class="md-header-nav__parent">
-                      EDEX User Manual
-                      </span>
-                  
  
                   
-                      Distributed EDEX
+                      Common Problems
                   
 
               
@@ -217,7 +213,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../install/install-cave/" title="Install CAVE" class="md-nav__link">
+    <a href="../install-cave/" title="Install CAVE" class="md-nav__link">
       Install CAVE
     </a>
   </li>
@@ -229,7 +225,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../install/install-edex/" title="Install EDEX" class="md-nav__link">
+    <a href="../install-edex/" title="Install EDEX" class="md-nav__link">
       Install EDEX
     </a>
   </li>
@@ -239,11 +235,47 @@
       
       
 
+  
 
-  <li class="md-nav__item">
-    <a href="../../install/common-problems/" title="Common Problems" class="md-nav__link">
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Common Problems
+      </label>
+    
+    <a href="./" title="Common Problems" class="md-nav__link md-nav__link--active">
       Common Problems
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#windows-cave-start-up-error" title="Windows CAVE Start Up Error" class="md-nav__link">
+    Windows CAVE Start Up Error
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
     
@@ -443,12 +475,10 @@
       
       
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+  <li class="md-nav__item md-nav__item--nested">
     
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
     
     <label class="md-nav__link" for="nav-6">
       EDEX User Manual
@@ -466,7 +496,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../../install/start-edex/" title="EDEX Start and Stop" class="md-nav__link">
+    <a href="../start-edex/" title="EDEX Start and Stop" class="md-nav__link">
       EDEX Start and Stop
     </a>
   </li>
@@ -478,7 +508,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../settings/" title="EDEX Settings" class="md-nav__link">
+    <a href="../../edex/settings/" title="EDEX Settings" class="md-nav__link">
       EDEX Settings
     </a>
   </li>
@@ -488,132 +518,11 @@
           
           
 
-  
 
-
-  <li class="md-nav__item md-nav__item--active">
-    
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
-    
-    
-      <label class="md-nav__link md-nav__link--active" for="toc">
-        Distributed EDEX
-      </label>
-    
-    <a href="./" title="Distributed EDEX" class="md-nav__link md-nav__link--active">
+  <li class="md-nav__item">
+    <a href="../../edex/distributed-computing/" title="Distributed EDEX" class="md-nav__link">
       Distributed EDEX
     </a>
-    
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-  
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#databaserequest-server" title="Database/Request Server" class="md-nav__link">
-    Database/Request Server
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-install" title="1. Install" class="md-nav__link">
-    1. Install
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-iptables-config" title="2. IPtables Config" class="md-nav__link">
-    2. IPtables Config
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-database-config" title="3. Database Config" class="md-nav__link">
-    3. Database Config
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-start-edex" title="4. Start EDEX" class="md-nav__link">
-    4. Start EDEX
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-monitor-services" title="5. Monitor Services" class="md-nav__link">
-    5. Monitor Services
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ingestdecode-server" title="Ingest/Decode Server" class="md-nav__link">
-    Ingest/Decode Server
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-install_1" title="1. Install" class="md-nav__link">
-    1. Install
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-edex-config" title="2. EDEX Config" class="md-nav__link">
-    2. EDEX Config
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-start-edex" title="3. Start EDEX" class="md-nav__link">
-    3. Start EDEX
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-monitor-services" title="4. Monitor Services" class="md-nav__link">
-    4. Monitor Services
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#additional-notes" title="Additional Notes" class="md-nav__link">
-    Additional Notes
-  </a>
-  
-</li>
-      
-      
-      
-    </ul>
-  
-</nav>
-    
   </li>
 
         
@@ -623,7 +532,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../edex-ingest-docker-container/" title="Docker EDEX" class="md-nav__link">
+    <a href="../../edex/edex-ingest-docker-container/" title="Docker EDEX" class="md-nav__link">
       Docker EDEX
     </a>
   </li>
@@ -635,7 +544,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../ldm/" title="LDM Feeds" class="md-nav__link">
+    <a href="../../edex/ldm/" title="LDM Feeds" class="md-nav__link">
       LDM Feeds
     </a>
   </li>
@@ -647,7 +556,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
+    <a href="../../edex/data-distribution-files/" title="Data Distribution Files" class="md-nav__link">
       Data Distribution Files
     </a>
   </li>
@@ -659,7 +568,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../new-grid/" title="Ingest a New Grid" class="md-nav__link">
+    <a href="../../edex/new-grid/" title="Ingest a New Grid" class="md-nav__link">
       Ingest a New Grid
     </a>
   </li>
@@ -671,7 +580,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../data-purge/" title="Purging and Retention" class="md-nav__link">
+    <a href="../../edex/data-purge/" title="Purging and Retention" class="md-nav__link">
       Purging and Retention
     </a>
   </li>
@@ -683,7 +592,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../edex-users/" title="Monitor Users" class="md-nav__link">
+    <a href="../../edex/edex-users/" title="Monitor Users" class="md-nav__link">
       Monitor Users
     </a>
   </li>
@@ -695,7 +604,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../data-plugins/" title="Data Plugins" class="md-nav__link">
+    <a href="../../edex/data-plugins/" title="Data Plugins" class="md-nav__link">
       Data Plugins
     </a>
   </li>
@@ -707,7 +616,7 @@
 
 
   <li class="md-nav__item">
-    <a href="../case-studies/" title="Archive Case Studies" class="md-nav__link">
+    <a href="../../edex/case-studies/" title="Archive Case Studies" class="md-nav__link">
       Archive Case Studies
     </a>
   </li>
@@ -1092,102 +1001,15 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#databaserequest-server" title="Database/Request Server" class="md-nav__link">
-    Database/Request Server
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-install" title="1. Install" class="md-nav__link">
-    1. Install
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-iptables-config" title="2. IPtables Config" class="md-nav__link">
-    2. IPtables Config
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-database-config" title="3. Database Config" class="md-nav__link">
-    3. Database Config
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-start-edex" title="4. Start EDEX" class="md-nav__link">
-    4. Start EDEX
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#5-monitor-services" title="5. Monitor Services" class="md-nav__link">
-    5. Monitor Services
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#ingestdecode-server" title="Ingest/Decode Server" class="md-nav__link">
-    Ingest/Decode Server
-  </a>
-  
-    <nav class="md-nav">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#1-install_1" title="1. Install" class="md-nav__link">
-    1. Install
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#2-edex-config" title="2. EDEX Config" class="md-nav__link">
-    2. EDEX Config
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#3-start-edex" title="3. Start EDEX" class="md-nav__link">
-    3. Start EDEX
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#4-monitor-services" title="4. Monitor Services" class="md-nav__link">
-    4. Monitor Services
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#additional-notes" title="Additional Notes" class="md-nav__link">
-    Additional Notes
+  <a href="#windows-cave-start-up-error" title="Windows CAVE Start Up Error" class="md-nav__link">
+    Windows CAVE Start Up Error
   </a>
   
 </li>
@@ -1206,179 +1028,33 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/edex/distributed-computing.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/install/common-problems.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>Distributed EDEX</h1>
-                
-                <p>AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data. While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS could consist of a dozen servers or more, the early Unidata releases were stripped of operations-specific configurations and plugins, and released as a standalone server. This worked, since (at the time) a single EDEX instance with an attached SSD could handle most of NOAAport. However, with GOES-R(16) coming online in 2017, and more gridded forecast models being created at finer temporal and spatial resolutions, there is now a need to distribute the data decoding across multiple machine to handle this firehose of data.</p>
+                <h1 id="common-problems">Common Problems<a class="headerlink" href="#common-problems" title="Permanent link"></a></h1>
+<h2 id="windows-cave-start-up-error">Windows CAVE Start Up Error<a class="headerlink" href="#windows-cave-start-up-error" title="Permanent link"></a></h2>
+<p>One common error some users are seeing manifests itself just after selecting an EDEX server to connect to.  The following error dialogs may show up:</p>
+<p><img alt="" src="../../images/errorPurgingLogs.png" />
+<img alt="" src="../../images/errorWorkbenchNull.png" /></p>
+<p>These errors are actually happening because the Windows machine is using IPv6, which is not compatible with AWIPS at this time.</p>
+<p><strong>To fix the issue simply follow these steps:</strong></p>
+<blockquote>
+<p><strong>Note</strong>: These screenshots may vary from your system.</p>
+</blockquote>
+<p><strong>1. Close all error windows and any open windows associated with CAVE.</strong></p>
+<p><strong>2. In the Windows 10 search field, search for "control panel".</strong></p>
+<p><img alt="" src="../../images/ipv6ProblemStep2.png" /></p>
+<p><strong>3. Once in the Control Panel, look for "Network and Sharing Center".</strong></p>
+<p><img alt="" src="../../images/ipv6ProblemStep3a.png" />
+<img alt="" src="../../images/ipv6ProblemStep3b.png" /></p>
+<p><strong>4. Select the adapter for your current connection (should be either "Ethernet" or "Wi-Fi").</strong></p>
+<p><img alt="" src="../../images/ipv6ProblemStep4.png" /></p>
+<p><strong>5. Click on "Properties".</strong></p>
+<p><img alt="" src="../../images/ipv6ProblemStep5.png" /></p>
+<p><strong>6. Uncheck "Internet Protocol Version 6 (TCP/IPv6)" and select OK.</strong></p>
+<p><img alt="" src="../../images/ipv6ProblemStep6.png" /></p>
+<p><strong>7. Restart CAVE.</strong></p>
 <hr />
-<p>This walkthrough will install different EDEX components on two machines in the XSEDE Jetstream Cloud, the first is used to <strong>ingest and decode</strong> while the second is used to <strong>store and serve</strong> data.</p>
-<p><img alt="" src="../../images/awips2_distributed.png" /></p>
-<hr />
-<h2 id="databaserequest-server">Database/Request Server<a class="headerlink" href="#databaserequest-server" title="Permanent link"></a></h2>
-<div class="admonition note">
-<p class="admonition-title">Specs</p>
-<ul>
-<li>IP address <strong>10.0.0.9</strong></li>
-<li>CentOS 6.9</li>
-<li>m1.medium (CPU: 6, Mem: 16 GB)</li>
-<li>1000GB attached storage for <code>/awips2/edex/data/hdf5</code></li>
-</ul>
-</div>
-<h3 id="1-install">1. Install<a class="headerlink" href="#1-install" title="Permanent link"></a></h3>
-<pre><code>groupadd fxalpha &amp;&amp; useradd -G fxalpha awips
-mkdir /awips2
-wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
-yum clean all
-yum groupinstall awips2-database
-</code></pre>
-<h3 id="2-iptables-config">2. IPtables Config<a class="headerlink" href="#2-iptables-config" title="Permanent link"></a></h3>
-<p>It is required that ports 5432 and 5672 be open for the specific IP addresses of outside EDEX ingest servers.  It is <em>not recommended</em> that you leave port 5432 open to all connections (since the default awips database password is known, and is not meant as a security measure).  Further, it <em>is recommended</em> that you change the default postgres awips user password (which then requires a reconfiguration of every remote EDEX ingest server in order to connect to this database/request server).</p>
-<pre><code>vi /etc/sysconfig/iptables
-
-*filter
-:INPUT DROP [0:0]
-:FORWARD DROP [0:0]
-:OUTPUT ACCEPT [0:0]
-:EXTERNAL - [0:0]
-:EDEX - [0:0]
--A INPUT -i lo -j ACCEPT
--A INPUT -p icmp --icmp-type any -j ACCEPT
--A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
--A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
--A INPUT -m state --state NEW -m tcp -p tcp --dport 9581 -j ACCEPT
--A INPUT -m state --state NEW -m tcp -p tcp --dport 9582 -j ACCEPT
--A INPUT -s 10.0.0.7 -j EDEX
--A INPUT -j EXTERNAL
--A EXTERNAL -j REJECT
--A EDEX -m state --state NEW -p tcp --dport 5432 -j ACCEPT
--A EDEX -m state --state NEW -p tcp --dport 5672 -j ACCEPT
--A EDEX -j REJECT
-COMMIT
-</code></pre>
-<p>Note the line <strong><code>-A INPUT -s 10.0.0.7 -j EDEX</code></strong> as well as the following <strong><code>-A EDEX ...</code></strong> rules for ports 5432 (PostgreSQL) and 5672 (PyPIES/HDF5).  </p>
-<div class="admonition note">
-<p class="admonition-title">The two ports left open to all connections (9581,9582) in addition to default port 22 are for outside CAVE client connections</p>
-</div>
-<h3 id="3-database-config">3. Database Config<a class="headerlink" href="#3-database-config" title="Permanent link"></a></h3>
-<p>In the file <code>/awips2/database/data/pg_hba.conf</code> you define remote connections for all postgres tables with as <code>&lt;IP address&gt;/32</code>, after the block of IPv4 local connections:</p>
-<pre><code>vi /awips2/database/data/pg_hba.conf
-
-# "local" is for Unix domain socket connections only
-local      all   all                               trust
-hostssl    all   all         10.0.0.7/32           cert clientcert=1
-hostssl    all   all         162.0.0.0/8           cert clientcert=1
-hostssl    all   all         127.0.0.1/32          cert clientcert=1
-# IPv6 local connections:
-hostssl    all   all         ::1/128               cert clientcert=1
-hostnossl  all   all         ::1/128               md5
-</code></pre>
-<h3 id="4-start-edex">4. Start EDEX<a class="headerlink" href="#4-start-edex" title="Permanent link"></a></h3>
-<pre><code>edex start database
-</code></pre>
-<p>This will start PostgreSQL, httpd-pypies, Qpid, and the EDEX Request JVM (and will not start the LDM or the EDEX Ingest and IngestGrib JVMs)</p>
-<h3 id="5-monitor-services">5. Monitor Services<a class="headerlink" href="#5-monitor-services" title="Permanent link"></a></h3>
-<p>The command <code>edex</code> will show which services are running, and for a Database/Request server, will not include the LDM, EDEXingest, or EDEXgrib:</p>
-<pre><code>edex
-
-[edex status]
-postgres    :: running :: pid 571
-pypies      :: running :: pid 639
-qpid        :: running :: pid 674
-EDEXingest  :: not running
-EDEXgrib    :: not running
-EDEXrequest :: running :: pid 987 1029 23792
-</code></pre>
-<p>Since this Database/Request server is not running the main <em>edexIngest</em> JVM, we won't see anything from <code>edex log</code>, instead watch the Request Server with the command</p>
-<pre><code>edex log request
-</code></pre>
-<div class="admonition warning">
-<p class="admonition-title">Confirm that EDEX Request connects to PostgreSQL!</p>
-<p>With the above <code>edex log request</code>, ensure that the log progresses <strong>past this point</strong>:</p>
-<pre><code>Spring-enabled Plugins:
------------------------
-acars-common, acars-common-dataaccess, acarssounding-common, activetable-common,
-activetable-request, airep-common, airep-common-dataaccess, airmet-common, 
-atcf-common, atcf-request, auth-request, awipstools-request, aww-common...
-
-JAXB context for PersistencePathKeySet inited in: 5ms
-INFO 20:21:09,134 5584 [EDEXMain] Reflections: Reflections took 436 ms to scan 258 urls, producing 31 keys and 3637 values
-Found 499 db classes in 720 ms
-</code></pre>
-<p>If the log stops at the <strong>Found db classes...</strong> line, that means EDEX is not connecting to PostgreSQL - double-check <code>DB_ADDR</code> in <code>/awips2/edex/bin/setup.env</code></p>
-</div>
-<hr />
-<h2 id="ingestdecode-server">Ingest/Decode Server<a class="headerlink" href="#ingestdecode-server" title="Permanent link"></a></h2>
-<div class="admonition note">
-<p class="admonition-title">Specs</p>
-<ul>
-<li>IP address <strong>10.0.0.7</strong></li>
-<li>CentOS 6.9</li>
-<li>m1.xxlarge (CPU: 44, Mem: 120 GB)</li>
-</ul>
-</div>
-<h3 id="1-install_1">1. Install<a class="headerlink" href="#1-install_1" title="Permanent link"></a></h3>
-<pre><code>groupadd fxalpha &amp;&amp; useradd -G fxalpha awips
-wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
-yum clean all
-yum groupinstall awips2-ingest
-</code></pre>
-<h3 id="2-edex-config">2. EDEX Config<a class="headerlink" href="#2-edex-config" title="Permanent link"></a></h3>
-<p><code>vi /awips2/edex/bin/setup.env</code></p>
-<p>Here you should redefine <code>DB_ADDR</code> and <code>PYPIES_SERVER</code> to point to the <strong>Database/Request</strong> server (10.0.0.9)</p>
-<pre><code>export EDEX_SERVER=10.0.0.7
-
-# postgres connection
-export DB_ADDR=10.0.0.9
-export DB_PORT=5432
-
-# pypies hdf5 connection
-export PYPIES_SERVER=http://10.0.0.9:9582
-
-# qpid connection
-export BROKER_ADDR=${EDEX_SERVER}
-</code></pre>
-<p>Notice that <code>EDEX_SERVER</code> and <code>BROKER_ADDR</code> (qpid) should remain defined as the <em>localhost</em> IP address (10.0.0.7)</p>
-<h3 id="3-start-edex">3. Start EDEX<a class="headerlink" href="#3-start-edex" title="Permanent link"></a></h3>
-<pre><code>edex start ingest
-</code></pre>
-<p>This will start Qpid and the EDEX Ingest and IngestGrib JVMs (and not start PostgreSQL, httpd-pypies, or the EDEX Request JVM)</p>
-<h3 id="4-monitor-services">4. Monitor Services<a class="headerlink" href="#4-monitor-services" title="Permanent link"></a></h3>
-<p>Watch the edex JVM log with the command</p>
-<pre><code>edex log
-</code></pre>
-<div class="admonition warning">
-<p class="admonition-title">Confirm that EDEX connects to PostgreSQL!</p>
-<p>With the above <code>edex log</code>, ensure that the log progresses <strong>past this point</strong>:</p>
-<pre><code>Spring-enabled Plugins:
------------------------
-acars-common, acars-common-dataaccess, acarssounding-common, activetable-common,
-activetable-ingest, airep-common, airep-common-dataaccess, airmet-common, 
-atcf-common, atcf-ingest, aww-common...
-
-JAXB context for PersistencePathKeySet inited in: 5ms
-INFO 20:21:09,134 5584 [EDEXMain] Reflections: Reflections took 436 ms to scan 258 urls, producing 31 keys and 3637 values
-Found 499 db classes in 720 ms
-</code></pre>
-<p>If the log stops at the <strong>Found db classes...</strong> line, that means EDEX is not connecting to the <em>remote PostgreSQL instance</em> - double-check <code>DB_ADDR</code> in <code>/awips2/edex/bin/setup.env</code></p>
-<p>You can <strong>manually check remote PostgreSQL connectivity</strong> on any EDEX Ingest server from the command line:</p>
-<pre><code>su - awips
-psql -U awips -h &lt;remote IP address&gt; -p 5432 metadata
-</code></pre>
-<p>Where the default passwd is <em>awips</em> and is defined in files in <code>/awips2/edex/conf/db/hibernateConfig/</code></p>
-</div>
-<hr />
-<h2 id="additional-notes">Additional Notes<a class="headerlink" href="#additional-notes" title="Permanent link"></a></h2>
-<ul>
-<li>Be mindful of what IP address and hostnames are used in <code>/awips2/edex/bin/setup.env</code> and <code>/awips2/database/data/pg_hba.conf</code>, and that they are resolvable from the command line.  Consult or edit <code>/etc/hosts</code> as needed.</li>
-<li>
-<p>You can install multiple <code>awips2-ingest</code> servers, each decoding a different dataset or feed, all pointing to the same Database/Request server (<code>DB_ADDR</code> and <code>PYPIES_SERVER</code> in <code>/awips2/edex/bin/setup.env</code>):</p>
-</li>
-<li>
-<p>Every EDEX Ingest IP address must be allowed in both <strong>iptables</strong> and <strong>pg_hba.conf</strong> as <a href="#2-iptables-config">shown above</a>.</p>
-</li>
-</ul>
                 
                   
                 
@@ -1397,7 +1073,7 @@ psql -U awips -h &lt;remote IP address&gt; -p 5432 metadata
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../settings/" title="EDEX Settings" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../install-edex/" title="Install EDEX" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -1406,19 +1082,19 @@ psql -U awips -h &lt;remote IP address&gt; -p 5432 metadata
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                EDEX Settings
+                Install EDEX
               </span>
             </div>
           </a>
         
         
-          <a href="../edex-ingest-docker-container/" title="Docker EDEX" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../../cave/d2d-perspective/" title="D2D Perspective" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Docker EDEX
+                D2D Perspective
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
