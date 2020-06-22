@@ -1,3 +1,4 @@
+# Install EDEX
 
 ## Download and Install EDEX
 
@@ -28,12 +29,12 @@ All of these command should be run as **root**
 ### 2. Install EDEX
 >
 >Download and run [sudo ./awips_install.sh --edex <i class="fa fa-download"></i>](https://www.unidata.ucar.edu/software/awips2/awips_install.sh)
-> 
+>
 >    	wget https://www.unidata.ucar.edu/software/awips2/awips_install.sh
 >    	chmod 755 awips_install.sh
 >    	sudo ./awips_install.sh --edex
 >	/usr/bin/edex setup
-> 	
+>
 >
 >
 >!!! note "**awips_install.sh --edex** will perform the following steps (it's always a good idea to review downloaded shell scripts):"
@@ -47,7 +48,7 @@ All of these command should be run as **root**
 
 ### 3. EDEX Setup
 >
-> The command `edex setup` will try to determine your fully-qualified domain name and set it in `/awips2/edex/bin/setup.env`. EDEX Server Administrators should double-check that the addresses and names defined in setup.env are resolvable from both inside and outside the server, and make appropriate edits to `/etc/hosts` if necessary.  
+> The command `edex setup` will try to determine your fully-qualified domain name and set it in `/awips2/edex/bin/setup.env`. EDEX Server Administrators should double-check that the addresses and names defined in setup.env are resolvable from both inside and outside the server, and make appropriate edits to `/etc/hosts` if necessary.
 >
 >For example, in the XSEDE Jetstream cloud, the fully-qualified domain name defined in `/awips2/edex/bin/setup.env`
 >
@@ -64,13 +65,13 @@ All of these command should be run as **root**
 ### 4. Configure iptables
 >
 >Configure iptables to allow TCP connections on ports 9581 and 9582 if you want to serve data to CAVE clients and the Python API.
-> 
+>
 >If you are running a Registry (Data Delivery) server, you will also want to open port **9588**.
 >
 >- **To open ports to all connections**
->     
+>
 >		    vi /etc/sysconfig/iptables
->    
+>
 >		    *filter
 >		    :INPUT ACCEPT [0:0]
 >		    :FORWARD ACCEPT [0:0]
@@ -87,11 +88,11 @@ All of these command should be run as **root**
 >		COMMIT
 >
 >- **To open ports to specific IP addresses**
->    
+>
 >   In this example, the IP range `128.117.140.0/24` will match all 128.117.140.* addresses, while `128.117.156.0/24` will match 128.117.156.*.
->    
+>
 >   		vi /etc/sysconfig/iptables
->       
+>
 >   		*filter
 >   		:INPUT DROP [0:0]
 >   		:FORWARD DROP [0:0]
@@ -111,7 +112,7 @@ All of these command should be run as **root**
 >   		#-A EDEX -m state --state NEW -p tcp --dport 9588 -j ACCEPT # for registry/dd
 >   		-A EDEX -j REJECT
 >   		COMMIT
-> 
+>
 >**Restart iptables**
 >
 >   	service iptables restart
@@ -120,7 +121,7 @@ All of these command should be run as **root**
 >Failed to restart iptables.service: Unit iptables.service failed to load: No such file or directory.*
 >
 >The solution is:
->	
+>
 >   	yum install iptables-services
 >   	systemctl enable iptables
 >   	service iptables restart
@@ -137,7 +138,7 @@ All of these command should be run as **root**
 >       service qpidd start
 >       service edex_camel start
 >
->The fifth service, **edex_ldm**, does **not run at boot** to prevent filling up disk space if EDEX is not running. 
+>The fifth service, **edex_ldm**, does **not run at boot** to prevent filling up disk space if EDEX is not running.
 >
 >       ldmadmin start
 >
@@ -148,7 +149,7 @@ All of these command should be run as **root**
 >To restart EDEX
 >
 >       edex restart
- 
+
 
 ---
 
@@ -157,7 +158,7 @@ All of these command should be run as **root**
 ### /etc/security/limits.conf
 
 **/etc/security/limits.conf** defines the number of user processes and files (this step is automatically performed by `./awips_install.sh --edex`). Without these definitions, Qpid is known to crash during periods of high ingest.
-    
+
     awips soft nproc 65536
     awips soft nofile 65536
 
@@ -184,11 +185,11 @@ All of these command should be run as **root**
 
 ### SSD Mount
 
-Though a Solid State Drive is not required, it is *strongly encouraged* in order to handle the amount of disk IO for real-time IDD feeds.  
+Though a Solid State Drive is not required, it is *strongly encouraged* in order to handle the amount of disk IO for real-time IDD feeds.
 
 The simplest configuration would be to mount an 500GB+ SSD to **/awips2** to contain both the installed software (approx. 20GB) and the real-time data (approx. 150GB per day).
 
-The default [purge rules]() are configured such that **/awips2** does not exceed 450GB. **/awips2/data_store** is scoured every hour and should not exceed 50GB. 
+The default [purge rules]() are configured such that **/awips2** does not exceed 450GB. **/awips2/data_store** is scoured every hour and should not exceed 50GB.
 
 If you want to increase EDEX data retention you should mount a large disk to **/awips2/edex/data/hdf5** since this will be where the archived processed data exists, and any case studies created.
 
@@ -200,7 +201,7 @@ If you want to increase EDEX data retention you should mount a large disk to **/
 
 ---
 
-### Configure LDM Feeds 
+### Configure LDM Feeds
 
 EDEX installs its own version of the LDM to the directory **/awips2/ldm**.  As with a the default LDM configuration, two files are used to control what IDD feeds are ingested:
 
@@ -210,7 +211,7 @@ EDEX installs its own version of the LDM to the directory **/awips2/ldm**.  As w
 		REQUEST FNEXRAD|IDS|DDPLUS|UNIWISC ".*" idd.unidata.ucar.edu
 		REQUEST NGRID ".*" idd.unidata.ucar.edu
 		REQUEST NOTHER "^TIP... KNES.*" idd.unidata.ucar.edu
-	 
+
 	!!! note "[read more about ldmd.conf in the LDM User Manual](https://www.unidata.ucar.edu/software/ldm/ldm-current/basics/ldmd.conf.html)"
 
 * **/awips2/ldm/etc/pqact.conf** - specifies the WMO headers and file pattern actions to request:
@@ -230,13 +231,13 @@ EDEX installs its own version of the LDM to the directory **/awips2/ldm**.  As w
 
 ### Directories to Know
 
-* `/awips2` - Contains all of the installed AWIPS software. 
+* `/awips2` - Contains all of the installed AWIPS software.
 * `/awips2/edex/logs` - EDEX logs.
 * `/awips2/httpd_pypies/var/log/httpd` - httpd-pypies logs.
 * `/awips2/database/data/pg_log` - PostgreSQL logs.
 * `/awips2/qpid/log` - Qpid logs.
-* `/awips2/edex/data/hdf5` - HDF5 data store. 
-* `/awips2/edex/data/utility` - Localization store and configuration files. 
+* `/awips2/edex/data/hdf5` - HDF5 data store.
+* `/awips2/edex/data/utility` - Localization store and configuration files.
 * `/awips2/ldm/etc` - Location of **ldmd.conf** and **pqact.conf**
 * `/awips2/ldm/logs` - LDM logs.
 * `/awips2/data_store` - Raw data store.
