@@ -363,6 +363,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Volume Browser
@@ -375,6 +377,8 @@
       
 <nav class="md-nav md-nav--secondary">
   
+  
+    
   
   
     <label class="md-nav__title" for="toc">Table of contents</label>
@@ -405,6 +409,13 @@
           <li class="md-nav__item">
   <a href="#points" title="Points" class="md-nav__link">
     Points
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#choose-by-id" title="Choose By ID" class="md-nav__link">
+    Choose By ID
   </a>
   
 </li>
@@ -1100,6 +1111,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
@@ -1129,6 +1142,13 @@
           <li class="md-nav__item">
   <a href="#points" title="Points" class="md-nav__link">
     Points
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#choose-by-id" title="Choose By ID" class="md-nav__link">
+    Choose By ID
   </a>
   
 </li>
@@ -1237,17 +1257,18 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/cave/d2d-gridded-models.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>Volume Browser</h1>
-                
-                <p>The Volume Browser provides access to numerical models, other gridded data, and selected point data sources, such as RAOB, METAR, and Profiler. Through the Browser interface, you can choose the data source(s), field(s), plane(s), and point(s), and generate a customized list of model graphics or images for display.</p>
+                <h1 id="volume-browser">Volume Browser<a class="headerlink" href="#volume-browser" title="Permanent link"></a></h1>
+<p>The Volume Browser provides access to numerical models, other gridded data, sounding data, and selected point data sources, such as RAOB, METAR, and Profiler. Through the Browser interface, you can choose the data source(s), field(s), plane(s), and point(s), and generate a customized list of model graphics or images for display.</p>
 <p>The Volume Browser window is divided into four areas:</p>
-<ul>
-<li>The Menu Bar along the top</li>
+<p><img alt="" src="../../images/volumeBrowserLabeled.png" /></p>
+<ol>
+<li>The <a href="#volume-browser-menu-bar"><strong>Menu Bar</strong></a> along the top</li>
 <li>The Data Selection Menus</li>
 <li>The Product Selection List</li>
 <li>The Load Buttons (Diff and Load) to load items from the Product Selection List</li>
-</ul>
+</ol>
 <p>Each area is then subdivided into menu components. The menu bar along the top of the Volume Browser window has dropdown lists that contain options for controlling all the various menu choices of the Volume Browser.</p>
+<hr />
 <h2 id="volume-browser-menu-bar">Volume Browser Menu Bar<a class="headerlink" href="#volume-browser-menu-bar" title="Permanent link"></a></h2>
 <p>The dropdown menus in the Volume Browser menu bar contain options for controlling and manipulating the Volume Browser or the products chosen through the Volume Browser</p>
 <ul>
@@ -1266,19 +1287,20 @@
 <li>Find (Ctrl+F)</li>
 </ul>
 </li>
+<li><a href="#vb-tools"><strong>Tools</strong></a></li>
+<li><a href="#display-types"><strong>Display Types</strong></a></li>
+<li><a href="#animation-types"><strong>Animation Types</strong></a></li>
 </ul>
+<hr />
 <h2 id="vb-tools">VB Tools<a class="headerlink" href="#vb-tools" title="Permanent link"></a></h2>
-<blockquote>
+<p><img alt="" src="../../images/volumeBrowserToolsMenu.png" /></p>
 <h3 id="baselines">Baselines<a class="headerlink" href="#baselines" title="Permanent link"></a></h3>
-</blockquote>
 <p>Selecting Baselines displays 10 lines, labeled A-A' to J-J', along which cross-sections can be
 constructed from within the Volume Browser.  These baseline resources are <strong>editable</strong>.</p>
 <p>If you are zoomed in over an area when you load baselines and none appear, press the middle mouse button (B3) to "snap" a baseline to where the mouse cursor is. The system chooses a baseline that has not been recently used. If you
 are working with a baseline, a second click with B3 will return you to the original baseline, even
 if you modified another baseline.</p>
-<blockquote>
 <h3 id="points">Points<a class="headerlink" href="#points" title="Permanent link"></a></h3>
-</blockquote>
 <p>Points are used to generate model soundings, time-height cross-sections, time series, and variable vs.
 height plots using the Volume Browser. As with the Baselines, the locations of these Points can be
 edited in the following manner:</p>
@@ -1294,39 +1316,28 @@ plotted sounding(s) is provided in the upper left corner of the Main Display Pan
 <p>Points may be created, deleted, hidden, and manipulated (location, name, font, and color). Points are
 not limited in terms of number, location, or designation. Points may also be assigned to different
 groups to facilitate their use.</p>
+<h3 id="choose-by-id">Choose By ID<a class="headerlink" href="#choose-by-id" title="Permanent link"></a></h3>
+<p>Choose By ID, which is a function of DMD (Digital Mesocyclone Display), is a method of selecting feature locations. The tool is used to monitor the same feature at a certain location. Without the Choose By ID tool, a monitored feature (over a period of time) could move away from its monitored location and another feature could move in its place. You can use Choose By ID to set points, baselines, and "Home" for conventional locations like METARs and RAOBs (Radiosonde Observations), but its primary use is for the WSR-88D-identified mesocyclone locations.</p>
+<hr />
 <h2 id="display-types">Display Types<a class="headerlink" href="#display-types" title="Permanent link"></a></h2>
-<blockquote>
+<p><img alt="" src="../../images/volumeBrowserDisplayMenu.png" /></p>
 <h3 id="plan-view-default">Plan View (default)<a class="headerlink" href="#plan-view-default" title="Permanent link"></a></h3>
-</blockquote>
-<p>The default option for the Volume Browser. From the Plan-view perspective, data are plotted onto horizontal surfaces. The Plan view Planes are discussed in the planes section that follows. The additional options menu that appears in the Volume Browser menu bar allows you to choose whether you want the Plan view data to Animate in Time or Animate in Space.</p>
-<blockquote>
+<p>This is the default option for the Volume Browser. From the Plan-view perspective, data are plotted onto horizontal surfaces. The additional options menu that appears in the Volume Browser menu bar allows you to choose whether you want the Plan view data to Animate in Time or Animate in Space.</p>
 <h3 id="cross-section">Cross Section<a class="headerlink" href="#cross-section" title="Permanent link"></a></h3>
-</blockquote>
-<p>Allows you to view gridded data as vertical slices along specific baselines. You need to use either the Interactive Baseline Tool or the predefined latitude/longitude baselines to specify the slice you wish to see. One of the additional options menus that appear in the Volume Browser menu bar allows you to choose whether you want the cross-section data to animate in time or space, while the other options menu allows you to adjust the vertical resolution. Descriptions of these options follows. (Note that the Fields and Planes submenu labels have changed after selecting "Cross section.") </p>
-<blockquote>
+<p>Allows you to view gridded data as vertical slices along specific baselines. You need to use either the Interactive Baseline Tool or the predefined latitude/longitude baselines to specify the slice you wish to see. One of the additional options menus that appear in the Volume Browser menu bar allows you to choose whether you want the cross-section data to animate in time or space, while the other options menu allows you to adjust the vertical resolution. Descriptions of these options follows. (Note that the Fields and Planes submenu labels have changed after selecting "Cross section.")</p>
 <h3 id="time-height">Time Height<a class="headerlink" href="#time-height" title="Permanent link"></a></h3>
-</blockquote>
-<p>Used in conjunction with the Interactive Points Tool to enable you to view a time height cross section of a full run of gridded model data for a specific location. Additional options menus in the Volume Browser menu bar allow you to choose the direction in which you want the data to be plotted, and to adjust the vertical resolution. </p>
-<blockquote>
+<p>Used in conjunction with the Interactive Points Tool to enable you to view a time height cross section of a full run of gridded model data for a specific location. Additional options menus in the Volume Browser menu bar allow you to choose the direction in which you want the data to be plotted, and to adjust the vertical resolution.</p>
 <h3 id="var-vs-hgt">Var vs Hgt<a class="headerlink" href="#var-vs-hgt" title="Permanent link"></a></h3>
-</blockquote>
 <p>Enables you to view a profile of a meteorological model field as it changes through height, which is displayed in millibars. By using the Interactive Points Tool, you can select one or more locations from which to plot the data.</p>
-<blockquote>
 <h3 id="sounding">Sounding<a class="headerlink" href="#sounding" title="Permanent link"></a></h3>
-</blockquote>
 <p>Works in conjunction with the Interactive Points Tool to enable you to generate a Skew-T chart for a specific location, no additional menus appear in the Volume Browser when the Soundings setting is chosen.</p>
-<blockquote>
 <h3 id="time-series">Time Series<a class="headerlink" href="#time-series" title="Permanent link"></a></h3>
-</blockquote>
 <p>Used in conjunction with the Interactive Points Tool to enable you to plot gridded data on a time versus data value graph for a specified point.</p>
 <h2 id="animation-types">Animation Types<a class="headerlink" href="#animation-types" title="Permanent link"></a></h2>
-<blockquote>
+<p><img alt="" src="../../images/volumeBrowserAnimationMenu.png" /></p>
 <h3 id="time">Time<a class="headerlink" href="#time" title="Permanent link"></a></h3>
-</blockquote>
 <p>The default option for the Volume Browser. It allows you to view model data through time</p>
-<blockquote>
 <h3 id="space">Space<a class="headerlink" href="#space" title="Permanent link"></a></h3>
-</blockquote>
 <p>Allows you to loop through a series of predefined latitude or longitude cross-sectional slices at a fixed time.</p>
                 
                   
