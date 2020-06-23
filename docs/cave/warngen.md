@@ -1,25 +1,26 @@
-WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a *non-operational* forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but prevents you from transmitting a generated warning upstream. 
+WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a *non-operational* forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but prevents you from transmitting a generated warning upstream.
 
 !!! warning "In order to select a feature it must be within your *CAVE localization* coverage (load **Maps** > **County Warning Areas** to see coverages)"
 
 Steps involved in using WarnGen in Unidata AWIPS CAVE
 
 * Load NEXRAD Display from the Radar menu.
-* Choose a WFO site with active severe weather (LKZ is used in the video).
+* Choose a WFO site with active severe weather (LUB is used in the video).
 * Re-localize to this site in the CAVE &gt; Preferences &gt; Localization menu.
 * Load NEXRAD Display again and select a WSR-88D site to load a 2-panel display of 0.5 degree Reflectivity (N0Q) and Velocity (N0U).
 * Click the WarnGen toolbar button or load from Tools &gt; WarnGen.
 * Drag the storm marker to the center of a storm feature.
 * Step through frames back and forth and adjust the marker to match the trajectory of the storm feature.
-* From the WarnGen dialog select the type of warning to generate, the time range, the basis of the warning, and any threats to add (wind, hail, etc). 
+* From the WarnGen dialog select the type of warning to generate, the time range, the basis of the warning, and any threats to add (wind, hail, etc).
 * Click "Create Text" at the bottom of the WarnGen dialog to generate a text warning product in a new window.
 * Click "Reset" at the top of the WarnGen dialog to reset the storm marker at any time.
 * Select "Line of Storms" to enable a two-pointed vector which is to be positioned parallel to a storm line.
 
-
+<!--
 <iframe width="700" height="450"
 src="https://www.youtube.com/embed/KSKmIMjkVCU?autoplay=1">
 </iframe>
+-->
 
 ## Load NEXRAD level 3 display
 
@@ -35,7 +36,7 @@ Click on any NEXRAD Display station to load a two-pane Reflectivity/Velocity vie
 
 ## Launch WarnGen
 
-Select **WarnGen** from the D2D Toolbar or from the **Tools** menu.  When started, the storm centroid marker appears and the WarnGen GUI will pop up as a separate window. 
+Select **WarnGen** from the D2D Toolbar or from the **Tools** menu.  When started, the storm centroid marker appears and the WarnGen GUI will pop up as a separate window.
 
 |                           |                                   |
 :--------------------------:|:---------------------------------:|
@@ -71,13 +72,13 @@ When reshaping your warning polygon in this manner, the philosophy is to include
 
 There will be some occasions where you will want to add vertices to your warning polygon. Most often, these situations will involve line warnings with bowing segments or single storm warnings where you want to account for storm motion uncertainty or multiple threat areas that may have differing storm motions.
 
-New vertices are added to the warning polygon using a context relative menu accessed by selecting the warning polygon line segments with a **Right Mouse Button "click and hold"**. 
- 
+New vertices are added to the warning polygon using a context relative menu accessed by selecting the warning polygon line segments with a **Right Mouse Button "click and hold"**.
+
 1. Hold right-click and select **add vertex**.
 2. Click the left mouse button at the location you desire for the new vertex and the point is created there.
 3. Clicking the middle mouse button (or scroll wheel) along an edge of the polygon will also place a vertex at that point.
 
-Vertex points are removed from the warning polygon using the same context relative menu. Instead of selecting a line segment, you select the vertex you wish to remove and then **click and hold** with right mouse button.  Hold right-click and select **remove vertex**. 
+Vertex points are removed from the warning polygon using the same context relative menu. Instead of selecting a line segment, you select the vertex you wish to remove and then **click and hold** with right mouse button.  Hold right-click and select **remove vertex**.
 
 ## Restoring a Polygon
 
@@ -98,10 +99,8 @@ With a tracked storm in WarnGen:
 1. Select **CAVE &gt; New &gt; Text Workstation**
 2. Select the **Track** button to preview the polygon
 3. Select the **Create Text** button.
-4. Select **Enter** on the AWIPS Header Block window to enter the text editor. 
+4. Select **Enter** on the AWIPS Header Block window to enter the text editor.
 	- Blue text is locked and uneditable. You should not need to edit most text, and you need to be careful not to make the hazards inconsistent with the locked intensity summary at the bottom of the warning.
 	- If WarnGen has text you need to edit, there will be wildcards around the text, and WarnGen will not let you send the warning until you modify it.
 5. Read the text of the warning, identify your ETN number after the “SV.W.” (e.g. 0004) at the top of the warning, and make changes to the warning text if WarnGen tells you to.
 6. Click the **Send** button (will not actually send). Sending warnings on the WES-2 Bridge is safe because it is not connected to the live AWIPS communications route, and the transmission capabilities have been disabled, firewalled, and modified to prevent any risk of warnings going out.  Unidata AWIPS always disables the sending of warnings.
-
-
