@@ -4,6 +4,8 @@ The radar tools are a subset of the tools available in CAVE. These programs are 
 
 ![image](../images/toolsMenuRadarTools.png)
 
+---
+
 ## Estimated Actual Velocity (EAV)
 
 A velocity (V) display from the radar shows only the radial component of the wind, so the indicated speed depends on the direction of the wind and the azimuth (direction) from the radar. Consider, for example, a north wind. Straight north of the radar, the full speed of the wind will be seen on the V product. As one moves around to the east of the radar, the radial component gets smaller, eventually reaching zero straight east of the radar. If the wind direction is known, then the actual wind speed can be computed by dividing the observed radial speed by the cosine of the angle between the radar radial and the actual direction. The EAV tool allows you to provide that angle and use the sampling function of the display to show the actual wind speed.
