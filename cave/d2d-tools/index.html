@@ -375,6 +375,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Display Tools
@@ -387,6 +389,8 @@
       
 <nav class="md-nav md-nav--secondary">
   
+  
+    
   
   
     <label class="md-nav__title" for="toc">Table of contents</label>
@@ -442,13 +446,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#time-of-arrival-lead-time" title="Time of Arrival / Lead Time" class="md-nav__link">
-    Time of Arrival / Lead Time
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#home" title="Home" class="md-nav__link">
     Home
   </a>
@@ -486,6 +483,13 @@
         <li class="md-nav__item">
   <a href="#text-window" title="Text Window" class="md-nav__link">
     Text Window
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#time-of-arrival-lead-time" title="Time of Arrival / Lead Time" class="md-nav__link">
+    Time of Arrival / Lead Time
   </a>
   
 </li>
@@ -1096,6 +1100,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
@@ -1150,13 +1156,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#time-of-arrival-lead-time" title="Time of Arrival / Lead Time" class="md-nav__link">
-    Time of Arrival / Lead Time
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#home" title="Home" class="md-nav__link">
     Home
   </a>
@@ -1199,6 +1198,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#time-of-arrival-lead-time" title="Time of Arrival / Lead Time" class="md-nav__link">
+    Time of Arrival / Lead Time
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#units-calculator" title="Units Calculator" class="md-nav__link">
     Units Calculator
   </a>
@@ -1229,24 +1235,31 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/cave/d2d-tools.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>Display Tools</h1>
-                
-                <p>These programs are accessible though the <strong>Tools</strong> dropdown menu.</p>
-<p><img alt="image" src="../../images/xiXbVEr.png" /></p>
-<p>Many of the tools listed under the Tools menu can be placed into an editable state. Do not enable the "Hide Legends" feature if you want to place a tool in an editable state, because access to editability is by clicking the center mouse button over the Product Legend</p>
+                <h1 id="display-tools">Display Tools<a class="headerlink" href="#display-tools" title="Permanent link"></a></h1>
+<p>The display tools are a subset of the tools available in CAVE.  These programs are accessible though the <strong>Tools</strong> dropdown menu.</p>
+<p><img alt="image" src="../../images/toolsMenuDisplayTools.png" /></p>
+<p>Many of the tools listed under the Tools menu can be placed into an <strong>editable state</strong>. Do not enable the "Hide Legends" feature if you want to place a tool in an editable state, because access to editability is done by clicking the center mouse button, or right-clicking over the <strong>Product Legend</strong>.</p>
+<blockquote>
+<p><strong>Note</strong>: To see information about some of the other options in the Tools menu, check out the <a href="../d2d-radar-tools"><strong>Radar Tools</strong></a> page.</p>
+</blockquote>
+<hr />
 <h2 id="azran-overlay">Az/Ran Overlay<a class="headerlink" href="#azran-overlay" title="Permanent link"></a></h2>
 <p>This tool displays a movable azimuth/range radar map overlay. The overlay is in the "editable" state when displayed, and can be relocated by clicking the right mouse button.</p>
 <p><img alt="image" src="../../images/xVAgVCCHwH.gif" /></p>
+<hr />
 <h2 id="baselines">Baselines<a class="headerlink" href="#baselines" title="Permanent link"></a></h2>
 <p>Selecting Baselines displays 10 lines, labeled A-A' to J-J', along which cross-sections can be constructed from within the Volume Browser. Baselines come up editable.</p>
 <p>"Snapping" an Interactive Baseline: If you are zoomed in over an area when you load Interactive Baselines and no Baselines appear, press the right mouse button to "snap" a Baseline to where the mouse cursor is. The system chooses a Baseline that has not been recently used. If you are working with a Baseline, a second click with the right mouse button will return you to the original Baseline, even if you modified another Baseline in the meantime.</p>
 <p><img alt="image" src="../../images/hK6RakT.png" /></p>
+<hr />
 <h2 id="choose-by-id">Choose By ID<a class="headerlink" href="#choose-by-id" title="Permanent link"></a></h2>
 <p>Choose By ID, which is a function of DMD (Digital Mesocyclone Display), is a method of selecting feature locations. The tool is used to monitor the same feature at a certain location. Without the Choose By ID tool, a monitored feature (over a period of time) could move away from its monitored location and another feature could move in its place. You can use Choose By ID to set points, baselines, and "Home" for conventional locations like METARs and RAOBs (Radiosonde Observations), but its primary use is for the WSR-88D-identified mesocyclone locations. You can also access the Choose By ID tool from the Tools menu on the Volume Browser.</p>
 <p><img alt="image" src="../../images/E6cghWV.png" /></p>
+<hr />
 <h2 id="distance-bearing">Distance Bearing<a class="headerlink" href="#distance-bearing" title="Permanent link"></a></h2>
 <p>Selecting this tool displays six editable lines, each of which shows the azimuth and range of the labeled end of the line relative to the unlabeled end of the line. You can make the lines editable by clicking the center mouse button over the legend at the lower right of the display. Once in edit mode, a line can be moved as a unit and/or either of its end points can be adjusted.</p>
 <p><img alt="image" src="../../images/fgaCqrd.png" /></p>
+<hr />
 <h2 id="distance-speed">Distance Speed<a class="headerlink" href="#distance-speed" title="Permanent link"></a></h2>
 <p>This tool can be used to determine the speed and direction of a storm or any other meteorological feature of interest. Selecting Distance Speed displays a Centroid Marker to move to the location of the storm or feature of interest in any two or more frames of displayed imagery (e.g., a satellite or radar loop). The system then displays a storm track with the direction (degrees) and speed (knots) of movement. When you select the Distance Speed option, the Distance Speed dialog box opens.</p>
 <p><img alt="image" src="../../images/6zWvawlhVQ.gif" /></p>
@@ -1274,17 +1287,19 @@
 </ul>
 </li>
 </ul>
+<hr />
 <h2 id="distance-scale">Distance Scale<a class="headerlink" href="#distance-scale" title="Permanent link"></a></h2>
-<p>This tool can be used to determine the size of a storm or any other meteorological feature of interest.</p>
+<p>Enabling this feature adds a scalebar to the bottom right hand of the main D2D display.  This tool can be used to determine the size of a storm or any other meteorological feature of interest.</p>
 <p><img alt="image" src="../../images/iYYc68NN9w.gif" /></p>
+<hr />
 <h2 id="feature-following-zoom">Feature Following Zoom<a class="headerlink" href="#feature-following-zoom" title="Permanent link"></a></h2>
 <p>When you zoom in over a small area to be able to view a feature in detail, animation will often cause the feature to move into and then out of the field of view. This tool allows you to follow a feature of interest even when zoomed in to a small area.</p>
 <p>To use this feature, first, you need to identify the location and motion of the feature, using Distance Speed or the WarnGen tracker. Once satisfied that the tracking icon is following the feature of interest, load this tool, and the center of the zoom area will track with the Distance Speed icon. Toggling the overlay off will resume the standard zooming behavior, and toggling it back on will reinvoke the feature following zoom.</p>
-<h2 id="time-of-arrival-lead-time">Time of Arrival / Lead Time<a class="headerlink" href="#time-of-arrival-lead-time" title="Permanent link"></a></h2>
-<p>Selecting the Time Of Arrival / Lead Time option displays a tracking line from a feature's initial starting point in a past frame to its final position in the current frame. Once the final position is set, an Arrival Point is displayed. You can drag this point anywhere along the line to get the Time Of Arrival / Lead Time and Distance. You can also change the Mode from Point to Circular Front or Polyline anywhere along the line to better represent the feature(s).</p>
+<hr />
 <h2 id="home">Home<a class="headerlink" href="#home" title="Permanent link"></a></h2>
 <p>Selecting the Home option displays a marker, which is an "X" with the word "Home" next to it.
-Clicking on the Home Location Legend with the center mouse button makes the marker editable; drag the "X" or click with the right mouse button to change its location. When the Home Marker is displayed, use the Sample feature (clock and hold while moving the pointer around the screen) to display the range in miles and azimuth (in degrees) of the pointer location relative to the Home location.</p>
+Clicking on the Home Location Legend with the center mouse button makes the marker editable; drag the "X" or click with the right mouse button to change its location. When the Home Marker is displayed, use the <strong>Sample</strong> feature (click and hold to access the menu to turn on sampling) to display the range in miles and azimuth (in degrees) of the pointer location relative to the Home location.</p>
+<hr />
 <h2 id="points">Points<a class="headerlink" href="#points" title="Permanent link"></a></h2>
 <p>The Points option initially displays a circular 10-point pattern, labeled A through J on the Map display. Points are used to generate model soundings, time-height cross-sections, time series, and variable vs. height plots using the Volume Browser. As with the Baselines, the locations of these Points can be edited in the following manner:</p>
 <ul>
@@ -1302,22 +1317,20 @@ plotted sounding(s) is provided in the upper left corner of the Main Display Pan
 <ol>
 <li>
 <p><strong>Create Point Dialog Box</strong>: The Create Point dialog box is opened by clicking and holding the right mouse button on the map (but not on any exisiting Point) and selecting the "New Point..." option.</p>
-<p>The Create Point dialog box opens with the Lat and Lon text boxes populated with the latitude
-and longiture values at the point where you had clicked the right mouse button. The latitude and longitude values can be viewed in "Degrees : Minutes : Seconds," "Degrees : Minutes," or "Degrees Only" (N and S refer to North and South; W and E refer to West and East).</p>
-<p>In the Create Point dialog box, you must:</p>
+<p>The Create Point dialog box opens with the Lat and Lon text boxes populated with the latitude and longiture values at the point where you had clicked the right mouse button. The latitude and longitude values can be viewed in "Degrees : Minutes : Seconds," "Degrees : Minutes," or "Degrees Only" (N and S refer to North and South; W and E refer to West and East).</p>
+<p>In the Create Point dialog box, you <strong>must</strong>:</p>
 <ul>
 <li>Enter the Point's name</li>
+</ul>
+<p>And <strong>may</strong> do any of the following:</p>
+<ul>
 <li>Modify the latitude and longitude values</li>
 <li>Assign the Point's color and font use</li>
 <li>Assign the Point to a group</li>
 <li>Select whether the Point is movable or hidden</li>
 </ul>
-<p>By default, individual Points do not have an assigned color. They inherit the color
-of the Interactive Points layer reflected in the Interactive Points product legend. You can
-change the color of the Interactive Points layer by right clicking on the Interactive Points
-product legend and selecting a color from the dropdown list. The selected color then
-changes all points not having an assigned color to the new color.</p>
-<p>Points can be assigned to "<No Group>," which will organize them in the root location containing the group names when accessed by the Edit Points dialog box (see below).</p>
+<p>By default, individual Points do not have an assigned color. They inherit the color of the Interactive Points layer reflected in the Interactive Points product legend. You can change the color of the Interactive Points layer by right clicking on the Interactive Points product legend and selecting a color from the dropdown list. The selected color then changes all points not having an assigned color to the new color.</p>
+<p>Points can be assigned to "<strong>&lt;No Group></strong>" which will organize them in the root location containing the group names when accessed by the Edit Points dialog box (see below).</p>
 </li>
 <li>
 <p><strong>Edit Point Dialog Box</strong>: The Edit Point dialog box is opened by clicking and holding the right mouse button on a Point on the map and selecting the "Edit Point..." option. The latitude and longitude values can be viewed in "Degrees : Minutes : Seconds," "Degrees : Minutes," or "Degrees Only" (N and S refer to North and South; W and E refer to West and East).</p>
@@ -1343,6 +1356,7 @@ moved.</li>
 </ul>
 </li>
 </ol>
+<hr />
 <h2 id="put-home-cursor">Put home cursor<a class="headerlink" href="#put-home-cursor" title="Permanent link"></a></h2>
 <p>The Put home cursor tool provides an easy way to locate a METAR observation station, a city and
 state, or a latitude/longitude coordinate. For Canada and Mexico, only the METAR observation stations and latitude/longitude coordinates are accessible. When you select Put home cursor from the Tools dropdown menu, the Home marker X is displayed and the Put Home Cursor dialog box opens.</p>
@@ -1358,18 +1372,28 @@ Station, City/State, or Lat/Lon radio button, an Entry Box is activated next to 
 <p><strong>Go</strong>: This menu button initiates the search for the desired station, city/state, or latitude/longitude. The Home marker jumps to the newly specified location.</p>
 </li>
 </ul>
+<hr />
 <h2 id="range-rings">Range Rings<a class="headerlink" href="#range-rings" title="Permanent link"></a></h2>
-<p>The Range Rings Tool displays adjustable range rings around locations of interest to your local office. When you select Range Rings from the Tools dropdown menu, the Range Rings legend appears in the Main Display Pane. The tool comes up editable, and the rangeRing dialog box opens. (Clicking B2 over the legend toggles tool editability and closes/opens the rangeRing dialog box.) Within this dialog box, you can toggle on/off any of the target locations using the square selectors. Adjust the size of the radii (in nautical miles) by typing a new value in the entry boxes associated with each location and pressing the Apply button. You can also add labels at the center of the range ring and/or at any of the radial distances using the Labels Options menu associated with each location. Using the Movable Rings, you can add a new location at a specific point by using the Interactive Points Tool, or by typing in latitude/longitude coordinates. There is no practical limit on the number of new locations you can add to the display. The list of locations is pre-set but can be customized at a field site</p>
+<p>The Range Rings Tool displays adjustable range rings around locations of interest to your local office. When you select Range Rings from the Tools dropdown menu, the Range Rings legend appears in the Main Display Pane. The tool comes up editable, and the rangeRing dialog box opens. (Clicking the middle mouse button over the legend toggles tool editability and closes/opens the rangeRing dialog box.) Within this dialog box, you can toggle on/off any of the target locations using the square selectors. Adjust the size of the radii (in nautical miles) by typing a new value in the entry boxes associated with each location and pressing the Apply button. You can also add labels at the center of the range ring and/or at any of the radial distances using the Labels Options menu associated with each location. Using the Movable Rings, you can add a new location at a specific point by using the Interactive Points Tool, or by typing in latitude/longitude coordinates. There is no practical limit on the number of new locations you can add to the display. The list of locations is pre-set but can be customized at a field site.</p>
 <p><img alt="image" src="../../images/d0HFeY8.png" /></p>
+<hr />
 <h2 id="sunsetsunrise">Sunset/Sunrise<a class="headerlink" href="#sunsetsunrise" title="Permanent link"></a></h2>
 <p>By typing a date, as well as the latitude and longitude of a location into the Sunrise/Sunset Tool dialog box, you can obtain the time (for any time zone) of sunrise and sunset, as well as the total length of daylight for that date. Additional features include the ability to calculate the sunrise/sunset in a different hemisphere, and the azimuthal angles, relative to true north, of the sunrise and sunset.</p>
 <p><img alt="image" src="../../images/jkzIvS0.png" /></p>
+<hr />
 <h2 id="text-window">Text Window<a class="headerlink" href="#text-window" title="Permanent link"></a></h2>
-<p>Selecting this option brings up a Text Display window that behaves in the same way, except for scripts, as a window on the Text Workstation.</p>
+<p>Selecting this option brings up a Text Display window that behaves in the same way as a window on the <a href="#text-workstation">Text Workstation</a>, except that the scripts menu is disabled.</p>
+<hr />
+<h2 id="time-of-arrival-lead-time">Time of Arrival / Lead Time<a class="headerlink" href="#time-of-arrival-lead-time" title="Permanent link"></a></h2>
+<p>Selecting the Time Of Arrival / Lead Time option displays a tracking line from a feature's initial starting point in a past frame to its final position in the current frame. Once the final position is set, an Arrival Point is displayed. You can drag this point anywhere along the line to get the Time Of Arrival / Lead Time and Distance. You can also change the Mode from Point to Circular Front or Polyline anywhere along the line to better represent the feature(s).</p>
+<hr />
 <h2 id="units-calculator">Units Calculator<a class="headerlink" href="#units-calculator" title="Permanent link"></a></h2>
-<p>This tool converts the units of the first column into differing units of the second column. The units are grouped into temperature, velocity, distance, time, and atmospheric pressure. First, simply type the number and select the units of the value you wish to convert in the firstcolumn entry box. Then in the second column, select the desired units to which you want the original value converted. The new value will appear in the second column entry box.</p>
+<p>This tool converts the units of the first column into differing units of the second column. The units are grouped into temperature, speed, distance, time, and atmospheric pressure. First, simply type the number and select the units of the value you wish to convert in the firstcolumn entry box. Then in the second column, select the desired units to which you want the original value converted. The new value will appear in the second column entry box.</p>
 <p><img alt="image" src="../../images/pdSH69h.png" /></p>
+<hr />
 <h2 id="text-workstation">Text Workstation<a class="headerlink" href="#text-workstation" title="Permanent link"></a></h2>
+<p>By selecting one of the "Text" buttons, a text window opens up. In National Weather Service operations, the text workstation is used to edit new warning text as well as look up past warnings, METARs, and TAFs. This functionality is <strong>disabled</strong> in the Unidata AWIPS version.</p>
+<p><img alt="" src="../../images/textWorkstation.png" /></p>
                 
                   
                 
