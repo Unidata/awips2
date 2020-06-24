@@ -399,6 +399,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Editing Menus
@@ -412,20 +414,22 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#changing-the-models-displayed-with-d2d-bundles" title="Changing the models displayed with D2D bundles" class="md-nav__link">
-    Changing the models displayed with D2D bundles
+  <a href="#modifying-menus" title="Modifying Menus" class="md-nav__link">
+    Modifying Menus
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#removing-menus-from-the-menubar" title="Removing menus from the menubar" class="md-nav__link">
-    Removing menus from the menubar
+  <a href="#removing-menus" title="Removing Menus" class="md-nav__link">
+    Removing Menus
   </a>
   
 </li>
@@ -998,20 +1002,22 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#changing-the-models-displayed-with-d2d-bundles" title="Changing the models displayed with D2D bundles" class="md-nav__link">
-    Changing the models displayed with D2D bundles
+  <a href="#modifying-menus" title="Modifying Menus" class="md-nav__link">
+    Modifying Menus
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#removing-menus-from-the-menubar" title="Removing menus from the menubar" class="md-nav__link">
-    Removing menus from the menubar
+  <a href="#removing-menus" title="Removing Menus" class="md-nav__link">
+    Removing Menus
   </a>
   
 </li>
@@ -1033,56 +1039,26 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/cave/d2d-edit-menus.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>Editing Menus</h1>
-                
-                <p>Any of the data menus can be customized in the Localization Perspective.  </p>
-<h2 id="changing-the-models-displayed-with-d2d-bundles">Changing the models displayed with D2D bundles<a class="headerlink" href="#changing-the-models-displayed-with-d2d-bundles" title="Permanent link"></a></h2>
-<ol>
-<li>
-<p>In the Localization Perspective you can navigate to <strong>D2D</strong> &gt; <strong>Volume Browser</strong> &gt; <strong>VbSources</strong> and click on <strong>volume.xml</strong> to expand. Then right-click on <strong>BASE</strong> and select <strong>Copy To...</strong> <strong>User</strong> (awips).</p>
-</li>
-<li>
-<p>You can then right-click again on the <strong>VbSources</strong> folder and select <strong>Refresh</strong> to see your new localization file called <strong>USER (awips)</strong>.  </p>
-</li>
-<li>
-<p>Open the file and add or edit the model names: </p>
-<pre><code>&lt;menuContributionFile&gt;
-    &lt;include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml"&gt;
-             &lt;substitute key="modelName" value="CMC" /&gt;
-             &lt;substitute key="menuName" value="CMC" /&gt;
-             &lt;substitute key="frameCount" value="41" /&gt;
-             &lt;substitute key="TP" value="TP"/&gt;
-    &lt;/include&gt;
-    &lt;include installTo="menu:models" 
-             fileName="menus/volume/allFamilies.xml"&gt;
-             &lt;substitute key="modelName" value="GFS" /&gt;
-             &lt;substitute key="menuName" value="GFS" /&gt;
-             &lt;substitute key="frameCount" value="41" /&gt;
-             &lt;substitute key="TP" value="TP"/&gt;
-    &lt;/include&gt;
-    ...
-</code></pre>
-</li>
-</ol>
-<p>Notice that you specify both the <code>modelName</code> (what it's named inside EDEX, such as NAM12), and <code>menuName</code>, if you prefer a more detailed menu entry, such as "NAM 12km". When you are finished, save the file and restart CAVE for the changes to take effect.</p>
-<p>Your new localization file exists on the EDEX server (assuming username awips) as
-<code>/awips2/edex/data/utility/cave_static/users/awips/volumebrowser/VbSources/index.html</code></p>
-<p>and will exist on the local CAVE machine under <code>~/caveData/etc/user/awips/volumebrowser/VbSources/index.html</code></p>
-<h2 id="removing-menus-from-the-menubar">Removing menus from the menubar<a class="headerlink" href="#removing-menus-from-the-menubar" title="Permanent link"></a></h2>
+                <h1 id="editing-menus">Editing Menus<a class="headerlink" href="#editing-menus" title="Permanent link"></a></h1>
+<p>Any of the menus in the menubar can be customized in the <strong>Localization Perspective</strong>.  </p>
+<hr />
+<h2 id="modifying-menus">Modifying Menus<a class="headerlink" href="#modifying-menus" title="Permanent link"></a></h2>
+<p>Once in the <strong>Localization Perspective</strong>, menus can be modified by going to the <strong>D2D</strong> &gt; <strong>Menus</strong> directory in the File Browser.  Here there are submenus for different data types and menu structures.  Usually the <strong>index.xml</strong> file found in these submenus is the <em>master</em> file which the actual menu is based off of.  This file can reference other xml files and you may have to modify these <em>child</em> xml files to get the results you are looking for.  </p>
+<p>In order to modify any file, you must right click on it and 
+select <strong>Copy To &gt; USER (my-username)</strong>.  Then you may open this copy and begin to modify it.  Once this process has been completed and a change has been made and saved, CAVE will need to be restarted and opened in the D2D perspective to see the change.</p>
+<hr />
+<h2 id="removing-menus">Removing Menus<a class="headerlink" href="#removing-menus" title="Permanent link"></a></h2>
 <p>This example covers how to remove a menu (in this case <strong>MRMS</strong>) from D2D:</p>
 <ol>
-<li>switch to the Localization Perspective</li>
-<li>find the <strong>mrms</strong> folder under CAVE &gt; Menus</li>
-<li>double-click to expand <strong>index.html</strong></li>
-<li>right-click <strong>BASE</strong> and select <strong>Copy To...</strong>, then select <strong>USER</strong> level</li>
-<li>right-click refresh the <strong>mrms</strong> entry</li>
+<li>Switch to the <strong>Localization Perspective</strong></li>
+<li>Find the <strong>mrms</strong> folder under <strong>D2D</strong> &gt; <strong>Menus</strong></li>
+<li>Double-click to expand <strong>index.xml</strong></li>
+<li>Right-click <strong>BASE</strong> and select <strong>Copy To...</strong>, then select <strong>USER</strong> level</li>
+<li>Right-click refresh the <strong>mrms</strong> entry</li>
 <li>
-<p>double click <strong>USER</strong> to open the editor and change</p>
+<p>Double click <strong>USER</strong> to open the editor and change</p>
 <pre><code>&lt;menuContributionFile&gt;
-    &lt;include installTo="menu:mrms?after=MRMS_MENU_START"
-    fileName="menus/mrms/mrms.xml"&gt;
-    &lt;/include&gt;
+    &lt;include installTo="menu:mrms?after=MRMS_MENU_START" fileName="menus/mrms/mrms.xml"/&gt;
 &lt;/menuContributionFile&gt;
 </code></pre>
 <p>to </p>
@@ -1091,7 +1067,7 @@
 </code></pre>
 </li>
 </ol>
-<p>With this you can restart CAVE and will not see the MRMS menu anymore.  Repeat this example for other product menus, such as <strong>local</strong>, <strong>hydro</strong>, <strong>scan</strong>, etc., to further customize D2D data menus for any level of localization.</p>
+<p>With this completed, you can now restart CAVE and will not see the MRMS menu anymore.  Repeat this example for other product menus, such as <strong>radar</strong>, <strong>upperair</strong>, <strong>tools</strong>, etc., to further customize D2D data menus for any level of localization.</p>
                 
                   
                 
