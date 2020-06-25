@@ -1046,6 +1046,27 @@
 <p>Once in the <strong>Localization Perspective</strong>, menus can be modified by going to the <strong>D2D</strong> &gt; <strong>Menus</strong> directory in the File Browser.  Here there are submenus for different data types and menu structures.  Usually the <strong>index.xml</strong> file found in these submenus is the <em>master</em> file which the actual menu is based off of.  This file can reference other xml files and you may have to modify these <em>child</em> xml files to get the results you are looking for.  </p>
 <p>In order to modify any file, you must right click on it and 
 select <strong>Copy To &gt; USER (my-username)</strong>.  Then you may open this copy and begin to modify it.  Once this process has been completed and a change has been made and saved, CAVE will need to be restarted and opened in the D2D perspective to see the change.</p>
+<p>This example covers how to add a new menu entry to an existing menu.</p>
+<ol>
+<li>Switch to the <strong>Localization Perspective</strong></li>
+<li>Find the <strong>grid</strong> folder under <strong>D2D</strong> &gt; <strong>Menus</strong></li>
+<li>Double-click to expand <strong>index.xml</strong></li>
+<li>Right-click to <strong>BASE (common_static)</strong> and select <strong>Copy To...</strong>, then select <strong>USER</strong> level</li>
+<li>
+<p>Double-click <strong>USER</strong> to open the editor and copy an existing include tag, and update the <em>modelName</em> (this must match an existing product found in the Product Browser) and the <em>menuName</em> (this can be anything)</p>
+<pre><code>&lt;include installTo="menu:models" fileName="menus/grid/allFamilies.xml"&gt;
+    &lt;substitute key="modelName" value="GEFS" /&gt;
+    &lt;substitute key="menuName" value="GEFS" /&gt;
+    &lt;substitute key="frameCount" value="41" /&gt;
+    &lt;substitute key="TP" value="TP"/&gt;
+&lt;/include&gt;
+</code></pre>
+</li>
+<li>
+<p>Once this is completed, save the file and restart CAVE</p>
+</li>
+<li>Navigate to the <strong>Models</strong> menu and you should see a new entry with <strong>GEFS</strong></li>
+</ol>
 <hr />
 <h2 id="removing-menus">Removing Menus<a class="headerlink" href="#removing-menus" title="Permanent link"></a></h2>
 <p>This example covers how to remove a menu (in this case <strong>MRMS</strong>) from D2D:</p>
