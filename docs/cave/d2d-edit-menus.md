@@ -11,6 +11,24 @@ Once in the **Localization Perspective**, menus can be modified by going to the 
 In order to modify any file, you must right click on it and 
 select **Copy To > USER (my-username)**.  Then you may open this copy and begin to modify it.  Once this process has been completed and a change has been made and saved, CAVE will need to be restarted and opened in the D2D perspective to see the change.
 
+This example covers how to add a new menu entry to an existing menu.
+
+1. Switch to the **Localization Perspective**
+2. Find the **grid** folder under **D2D** > **Menus**
+3. Double-click to expand **index.xml**
+4. Right-click to **BASE (common_static)** and select **Copy To...**, then select **USER** level
+5. Double-click **USER** to open the editor and copy an existing include tag, and update the *modelName* (this must match an existing product found in the Product Browser) and the *menuName* (this can be anything)
+    
+        <include installTo="menu:models" fileName="menus/grid/allFamilies.xml">
+            <substitute key="modelName" value="GEFS" />
+            <substitute key="menuName" value="GEFS" />
+            <substitute key="frameCount" value="41" />
+            <substitute key="TP" value="TP"/>
+        </include>
+      
+6. Once this is completed, save the file and restart CAVE
+7. Navigate to the **Models** menu and you should see a new entry with **GEFS**
+
 ---
 
 ## Removing Menus
