@@ -423,6 +423,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Import/Export
@@ -436,13 +438,15 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#export-images" title="Export Images" class="md-nav__link">
-    Export Images
+  <a href="#export-imagesgifs" title="Export Images/GIFs" class="md-nav__link">
+    Export Images/GIFs
   </a>
   
 </li>
@@ -1012,13 +1016,15 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#export-images" title="Export Images" class="md-nav__link">
-    Export Images
+  <a href="#export-imagesgifs" title="Export Images/GIFs" class="md-nav__link">
+    Export Images/GIFs
   </a>
   
 </li>
@@ -1061,18 +1067,16 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/cave/import-export.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>Import/Export</h1>
-                
-                <h2 id="export-images">Export Images<a class="headerlink" href="#export-images" title="Permanent link"></a></h2>
-<p><strong>File &gt; Export &gt; Image</strong></p>
-<p>which captures a screenshot of the current view</p>
-<p><img alt="image" src="../../images/UxmboZS.png" /></p>
+                <h1 id="importexport">Import/Export<a class="headerlink" href="#importexport" title="Permanent link"></a></h1>
+<h2 id="export-imagesgifs">Export Images/GIFs<a class="headerlink" href="#export-imagesgifs" title="Permanent link"></a></h2>
+<p>The D2D screen can be exported as a PNG image as well as an animated GIF using the <strong>File &gt; Export &gt; Image</strong> menu option.  This captures the current state of the screen, and allows you to set animation options (frame number, dwell time, etc) for exporting GIFs.  If you choose to animate, you will either need to rename the destination file to have the <em>.gif</em> extension, or CAVE will pop up a dialog when you go to save, asking you to confirm that you want to output a GIF.</p>
+<blockquote>
+<p><strong>Note</strong>: This functionality <strong>does not</strong> currently work on <strong>Mac OS</strong> because it implements OGL libraries which are not compatible on Mac.</p>
+</blockquote>
+<p><img alt="image" src="../../images/exportImageDialog.png" /></p>
 <hr />
 <h2 id="export-kml">Export KML<a class="headerlink" href="#export-kml" title="Permanent link"></a></h2>
-<p><strong>File &gt; Export &gt; KML</strong></p>
-<p>The "Export" submenu also includes a "KML" option, which allows users to save D2D displays or
-GFE grids in the KML (Keyhole Markup Language) file format. When zipped (compressed), the KML
-file format forms a KMZ file, which can be used in applications such as Google Earth.</p>
+<p>The <em>Export</em> submenu also includes a <em>KML</em> option (<strong>File &gt; Export &gt; KML</strong>), which allows users to save D2D displays or GFE grids in the KML (Keyhole Markup Language) file format. When zipped (compressed), the KML file format forms a KMZ file, which can be used in applications such as Google Earth.</p>
 <p><img alt="image" src="../../images/YRP9kOM.png" /></p>
 <p>The KML dialog box includes options to select frames to export. This includes exporting all frames,
 the current/displayed frame, a range of frames, and, in GFE, the selected time range as highlighted in
@@ -1095,52 +1099,28 @@ tiles when loaded in Google Earth.</p>
 </ul>
 <hr />
 <h2 id="cave-import-formats">CAVE Import Formats<a class="headerlink" href="#cave-import-formats" title="Permanent link"></a></h2>
-<p>CAVE supported the following geo-referenced data files. CAVE can import the following through formats through the <strong>CAVE</strong> -&gt; <strong>Import</strong> menu.</p>
+<p>CAVE supported the following geo-referenced data files. CAVE can import the following through formats through the <strong>File &gt; Import</strong> menu.</p>
 <ol>
-<li>
-<p><strong>GIS Data</strong></p>
-</li>
-<li>
-<p><strong>BCD File</strong></p>
-</li>
-<li>
-<p><strong>GeoTIFF</strong></p>
-</li>
-<li>
-<p><strong>LPI File</strong></p>
-</li>
-<li>
-<p><strong>SPI File</strong></p>
-</li>
-<li>
-<p><strong>Displays</strong></p>
-</li>
+<li><strong>Background...</strong></li>
+<li><strong>Image...</strong></li>
+<li><strong>BCD File</strong></li>
+<li><strong>GeoTIFF</strong></li>
+<li><strong>LPI File</strong></li>
+<li><strong>SPI File</strong> </li>
+<li><strong>Displays</strong></li>
 </ol>
-<p><img alt="image" src="../../images/image_14.png" /></p>
+<p><img alt="image" src="../../images/importMenu.png" /></p>
 <hr />
 <h2 id="cave-export-formats">CAVE Export Formats<a class="headerlink" href="#cave-export-formats" title="Permanent link"></a></h2>
-<p>CAVE can export to the following through the <strong>CAVE</strong> -&gt; <strong>Export</strong> menu.</p>
+<p>CAVE can export to the following through the <strong>File &gt; Export</strong> menu.</p>
 <ol>
-<li>
-<p><strong>KML</strong></p>
-</li>
-<li>
-<p><strong>Editor Display</strong></p>
-</li>
-<li>
-<p><strong>Perspective Display</strong></p>
-</li>
-<li>
-<p><strong>Capture Current Frame</strong></p>
-</li>
-<li>
-<p><strong>Capture All Frames</strong></p>
-</li>
-<li>
-<p><strong>Print Screen</strong></p>
-</li>
+<li><strong>Image</strong></li>
+<li><strong>Print Screen</strong></li>
+<li><strong>KML</strong></li>
+<li><strong>Editor Display...</strong></li>
+<li><strong>Perspective Displays...</strong></li>
 </ol>
-<p><img alt="image" src="../../images/image_15.png" /></p>
+<p><img alt="image" src="../../images/exportMenu.png" /></p>
                 
                   
                 
