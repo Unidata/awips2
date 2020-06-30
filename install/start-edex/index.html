@@ -21,7 +21,7 @@
     
     
       
-        <title>EDEX Start and Stop - Unidata AWIPS User Manual</title>
+        <title>EDEX Basic Commands - Unidata AWIPS User Manual</title>
       
     
     
@@ -93,7 +93,7 @@
                   
  
                   
-                      EDEX Start and Stop
+                      EDEX Basic Commands
                   
 
               
@@ -459,18 +459,22 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
-        EDEX Start and Stop
+        EDEX Basic Commands
       </label>
     
-    <a href="./" title="EDEX Start and Stop" class="md-nav__link md-nav__link--active">
-      EDEX Start and Stop
+    <a href="./" title="EDEX Basic Commands" class="md-nav__link md-nav__link--active">
+      EDEX Basic Commands
     </a>
     
       
 <nav class="md-nav md-nav--secondary">
   
+  
+    
   
   
     <label class="md-nav__title" for="toc">Table of contents</label>
@@ -1040,6 +1044,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
@@ -1117,24 +1123,23 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/install/start-edex.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>EDEX Start and Stop</h1>
-                
-                <p>To start all EDEX services</p>
+                <h1 id="edex-basic-commands">EDEX Basic Commands<a class="headerlink" href="#edex-basic-commands" title="Permanent link"></a></h1>
+<p>To start all EDEX services:</p>
 <pre><code>edex start
 </code></pre>
-<p>To stop all EDEX services</p>
+<p>To stop all EDEX services:</p>
 <pre><code>edex stop
 </code></pre>
-<p>These command will start and stop five EDEX service files installed into <code>/etc/init.d/</code>, four of which are run on boot:</p>
+<p>These commands will start and stop five EDEX service files installed into <strong>/etc/init.d/</strong>, four of which are run on boot:</p>
 <pre><code>service postgres start
 service httpd-pypies start
 service qpidd start
 service edex_camel start
 </code></pre>
-<p>The fifth, <code>edex_ldm</code>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running. </p>
+<p>The fifth, <code>edex_ldm</code>, does <strong>not run at boot</strong> to prevent filling up disk space if EDEX is not running:</p>
 <pre><code>service edex_ldm start
 </code></pre>
-<p>All of these services are started and stopped by a single program <code>edex</code>,</p>
+<p>All of these services are started and stopped by the single program: <code>edex</code> as mentioned above.</p>
 <hr />
 <h3 id="edex-start">edex start<a class="headerlink" href="#edex-start" title="Permanent link"></a></h3>
 <pre><code>edex start
@@ -1178,7 +1183,7 @@ Stopping AWIPS LDM:Stopping the LDM server...
 </code></pre>
 <p>This command configures and/or confirms that the EDEX hostname and IP address definitions exist (<code>edex setup</code> is run by <code>edex start</code>).</p>
 <blockquote>
-<p>If your EDEX server is running but you see the message "Connectivity Error: Unable to validate localization preferences" in CAVE, it may mean that the domain name defined in <code>/awips2/edex/bin/setup.env</code> can not be resolved from <em>outside</em> the server.  Some machines have different <strong>internally-resolved</strong> and <strong>externally-resolved</strong> domain names (cloud-based especially). The name defined in <code>setup.env</code> must be <strong>externally-resolvable</strong>.</p>
+<p><strong>Note</strong>: If your EDEX server is running but you see the message <strong>"Connectivity Error: Unable to validate localization preferences"</strong> in CAVE, it may mean that the domain name defined in <strong>/awips2/edex/bin/setup.env</strong> can not be resolved from <em>outside</em> the server.  Some machines have different <em>internally-resolved</em> and <em>externally-resolved</em> domain names (cloud-based especially). The name defined in <strong>setup.env</strong> must be <em>externally-resolvable</em>.</p>
 </blockquote>
 <hr />
 <h3 id="edex-log">edex log<a class="headerlink" href="#edex-log" title="Permanent link"></a></h3>
@@ -1223,7 +1228,7 @@ Queues
 </code></pre>
 <hr />
 <h3 id="edex-users">edex users<a class="headerlink" href="#edex-users" title="Permanent link"></a></h3>
-<p>To see a list of clients connecting to your EDEX server, use the <code>edex users [YYYYMMDD]</code> command, where <code>YYYYMMDD</code> is the optional date string.</p>
+<p>To see a list of clients connecting to your EDEX server, use the <code>edex users [YYYYMMDD]</code> command, where <code>[YYYYMMDD]</code> is the optional date string.</p>
 <pre><code>edex users
 
  -- EDEX Users 20160826 --
