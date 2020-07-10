@@ -1,12 +1,14 @@
+# Docker EDEX
+
 Project home: [https://github.com/Unidata/edex-docker](https://github.com/Unidata/edex-docker)
 
 ---
 
-EDEX can be run inside a docker container, which allows you to process data into an AWIPS system without requiring a full CentOS installation and configuration.
+EDEX can be run inside a docker container, which allows you to process data into an AWIPS system without requiring accessing and altering the machine's native CentOS installation and configuration.
 
-The [EDEX Docker Image](https://github.com/Unidata/edex-docker) is built on CentOS 7 and contains the latest Unidata AWIPS release.  
+The [EDEX Docker Image](https://github.com/Unidata/edex-docker) is built on CentOS 7 and contains the latest Unidata AWIPS release (18.1.1).  
 
-This container is an *ingest-only* install, meaning there is *no database or request server*.  This example requires a Database/Request server be configured for you to access remotely.  See the [Distributed EDEX](https://unidata.github.io/awips2/edex/distributed-computing/) document for more. 
+This container is an **ingest-only** install, meaning there is **no database or request server**.  This example requires a Database/Request server be configured for you to access remotely.  See the [**Distributed EDEX**](https://unidata.github.io/awips2/edex/distributed-computing/) document for more. 
 
 ---
 
@@ -21,36 +23,36 @@ Download and install Docker and Docker Compose:
 
 ## Run the EDEX Ingest Container
 
-Clone this repository
+Clone the source repository:
 
     git clone https://github.com/Unidata/edex-docker.git
     cd edex-docker
 
-Run the container with docker-compose
+Run the container with docker-compose:
 
     docker-compose up -d edex-ingest
 
-Confirm the container is running
+Confirm the container is running:
 
     docker ps -a 
 
-Enter the container
+Enter the container:
 
     docker exec -it edex-ingest bash    
 
-Stop the container
+Stop the container:
 
     docker-compose stop
 
-Delete the container (keep the image)
+Delete the container (keep the image):
 
     docker-compose rm -f
     
-Run commands inside the container, such as
+Run commands inside the container, such as:
 
     docker exec edex-ingest edex
 
-which should return something like
+which should return something like:
 
     [edex status]
      qpid        :: running :: pid 22474
@@ -89,30 +91,30 @@ The file `docker-compose.yml` defines files to mount to the container and which 
 
 ## Mounted Files
 
-- `etc/ldmd.conf`
+### etc/ldmd.conf
 
-    Defines which data feeds to receive. By default there is only one active request line (`REQUEST IDS|DDPLUS ".*" idd.unidata.ucar.edu`) to not overwhelm small EDEX containers ingesting large volumes of radar and gridded data files.  Any updates to the file `etc/ldmd.conf` will be read the next time you restart the container.
+Defines which data feeds to receive. By default there is only one active request line (`REQUEST IDS|DDPLUS ".*" idd.unidata.ucar.edu`) to not overwhelm small EDEX containers ingesting large volumes of radar and gridded data files.  Any updates to the file `etc/ldmd.conf` will be read the next time you restart the container.
  
-- `etc/pqact.conf`
+### etc/pqact.conf
 
-    Defines how products are processed and where they are written to on the filesystem. This is the full set of pattern actions used in Unidata AWIPS, and generally you do not need to edit this file. Instead control which data feeds are requested in `ldmd.conf` (above).
+Defines how products are processed and where they are written to on the filesystem. This is the full set of pattern actions used in Unidata AWIPS, and generally you do not need to edit this file. Instead control which data feeds are requested in `ldmd.conf` (above).
 
-- `bin/setup.env`
+### bin/setup.env
 
-    Defines the remote EDEX Database/Request server:
+Defines the remote EDEX Database/Request server:
     
-        ### EDEX localization related variables ###
-        export AW_SITE_IDENTIFIER=OAX
-        export EXT_ADDR=js-157-198.jetstream-cloud.org
+    ### EDEX localization related variables ###
+    export AW_SITE_IDENTIFIER=OAX
+    export EXT_ADDR=js-157-198.jetstream-cloud.org
 
-    **EXT_ADDR** must be set to an allowed EDEX Database/Request Server. In this example we are using a JetStream Cloud instance, which controls our *edex-ingest* access with IPtables, SSL certificates, and PostgreSQL **pg_hba.conf** rules (this server is used in software training workshop environments and will not allow outside connections). 
+> **Note**: *EXT_ADDR* must be set to an allowed EDEX Database/Request Server. In this example we are using a JetStream Cloud instance, which controls our *edex-ingest* access with IPtables, SSL certificates, and PostgreSQL pg_hba.conf rules. This server will not allow outside connections, you must change this to point to an appropriate server. 
 
-- `bin/runedex.sh`
+### bin/runedex.sh
 
-    The default script run when the container is started, acts as a sort-of service manager for EDEX and the LDM (see `ENTRYPOINT ["/awips2/edex/bin/runedex.sh"]` in *Dockerfile.edex*), essentially:
+The default script run when the container is started, acts as a sort-of service manager for EDEX and the LDM (see `ENTRYPOINT ["/awips2/edex/bin/runedex.sh"]` in *Dockerfile.edex*), essentially:
 
-        /awips2/qpid/bin/qpid-wrapper &
-        /awips2/edex/bin/start.sh -noConsole ingest &
-        ldmadmin mkqueue
-        ldmadmin start
+    /awips2/qpid/bin/qpid-wrapper &
+    /awips2/edex/bin/start.sh -noConsole ingest &
+    ldmadmin mkqueue
+    ldmadmin start
         
