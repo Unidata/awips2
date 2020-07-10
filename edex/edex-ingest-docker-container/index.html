@@ -495,6 +495,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Docker EDEX
@@ -507,6 +509,8 @@
       
 <nav class="md-nav md-nav--secondary">
   
+  
+    
   
   
     <label class="md-nav__title" for="toc">Table of contents</label>
@@ -537,6 +541,40 @@
   <a href="#mounted-files" title="Mounted Files" class="md-nav__link">
     Mounted Files
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#etcldmdconf" title="etc/ldmd.conf" class="md-nav__link">
+    etc/ldmd.conf
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etcpqactconf" title="etc/pqact.conf" class="md-nav__link">
+    etc/pqact.conf
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binsetupenv" title="bin/setup.env" class="md-nav__link">
+    bin/setup.env
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binrunedexsh" title="bin/runedex.sh" class="md-nav__link">
+    bin/runedex.sh
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1012,6 +1050,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
@@ -1042,6 +1082,40 @@
     Mounted Files
   </a>
   
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#etcldmdconf" title="etc/ldmd.conf" class="md-nav__link">
+    etc/ldmd.conf
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#etcpqactconf" title="etc/pqact.conf" class="md-nav__link">
+    etc/pqact.conf
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binsetupenv" title="bin/setup.env" class="md-nav__link">
+    bin/setup.env
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#binrunedexsh" title="bin/runedex.sh" class="md-nav__link">
+    bin/runedex.sh
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
       
@@ -1061,13 +1135,12 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/edex/edex-ingest-docker-container.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>Docker EDEX</h1>
-                
-                <p>Project home: <a href="https://github.com/Unidata/edex-docker">https://github.com/Unidata/edex-docker</a></p>
+                <h1 id="docker-edex">Docker EDEX<a class="headerlink" href="#docker-edex" title="Permanent link"></a></h1>
+<p>Project home: <a href="https://github.com/Unidata/edex-docker">https://github.com/Unidata/edex-docker</a></p>
 <hr />
-<p>EDEX can be run inside a docker container, which allows you to process data into an AWIPS system without requiring a full CentOS installation and configuration.</p>
-<p>The <a href="https://github.com/Unidata/edex-docker">EDEX Docker Image</a> is built on CentOS 7 and contains the latest Unidata AWIPS release.  </p>
-<p>This container is an <em>ingest-only</em> install, meaning there is <em>no database or request server</em>.  This example requires a Database/Request server be configured for you to access remotely.  See the <a href="https://unidata.github.io/awips2/edex/distributed-computing/">Distributed EDEX</a> document for more. </p>
+<p>EDEX can be run inside a docker container, which allows you to process data into an AWIPS system without requiring accessing and altering the machine's native CentOS installation and configuration.</p>
+<p>The <a href="https://github.com/Unidata/edex-docker">EDEX Docker Image</a> is built on CentOS 7 and contains the latest Unidata AWIPS release (18.1.1).  </p>
+<p>This container is an <strong>ingest-only</strong> install, meaning there is <strong>no database or request server</strong>.  This example requires a Database/Request server be configured for you to access remotely.  See the <a href="https://unidata.github.io/awips2/edex/distributed-computing/"><strong>Distributed EDEX</strong></a> document for more. </p>
 <hr />
 <h2 id="download-and-install-docker">Download and Install Docker<a class="headerlink" href="#download-and-install-docker" title="Permanent link"></a></h2>
 <p>Download and install Docker and Docker Compose:</p>
@@ -1078,29 +1151,29 @@
 <li><a href="https://docs.docker.com/compose/">docker-compose</a> (it should be bundled with Docker by default on Mac and Windows)</li>
 </ul>
 <h2 id="run-the-edex-ingest-container">Run the EDEX Ingest Container<a class="headerlink" href="#run-the-edex-ingest-container" title="Permanent link"></a></h2>
-<p>Clone this repository</p>
+<p>Clone the source repository:</p>
 <pre><code>git clone https://github.com/Unidata/edex-docker.git
 cd edex-docker
 </code></pre>
-<p>Run the container with docker-compose</p>
+<p>Run the container with docker-compose:</p>
 <pre><code>docker-compose up -d edex-ingest
 </code></pre>
-<p>Confirm the container is running</p>
+<p>Confirm the container is running:</p>
 <pre><code>docker ps -a
 </code></pre>
-<p>Enter the container</p>
+<p>Enter the container:</p>
 <pre><code>docker exec -it edex-ingest bash
 </code></pre>
-<p>Stop the container</p>
+<p>Stop the container:</p>
 <pre><code>docker-compose stop
 </code></pre>
-<p>Delete the container (keep the image)</p>
+<p>Delete the container (keep the image):</p>
 <pre><code>docker-compose rm -f
 </code></pre>
-<p>Run commands inside the container, such as</p>
+<p>Run commands inside the container, such as:</p>
 <pre><code>docker exec edex-ingest edex
 </code></pre>
-<p>which should return something like</p>
+<p>which should return something like:</p>
 <pre><code>[edex status]
  qpid        :: running :: pid 22474
  EDEXingest  :: running :: pid 21860 31513
@@ -1133,34 +1206,26 @@ docker-compose up -d edex-ingest
       hard: 1024
 </code></pre>
 <h2 id="mounted-files">Mounted Files<a class="headerlink" href="#mounted-files" title="Permanent link"></a></h2>
-<ul>
-<li>
-<p><code>etc/ldmd.conf</code></p>
+<h3 id="etcldmdconf">etc/ldmd.conf<a class="headerlink" href="#etcldmdconf" title="Permanent link"></a></h3>
 <p>Defines which data feeds to receive. By default there is only one active request line (<code>REQUEST IDS|DDPLUS ".*" idd.unidata.ucar.edu</code>) to not overwhelm small EDEX containers ingesting large volumes of radar and gridded data files.  Any updates to the file <code>etc/ldmd.conf</code> will be read the next time you restart the container.</p>
-</li>
-<li>
-<p><code>etc/pqact.conf</code></p>
+<h3 id="etcpqactconf">etc/pqact.conf<a class="headerlink" href="#etcpqactconf" title="Permanent link"></a></h3>
 <p>Defines how products are processed and where they are written to on the filesystem. This is the full set of pattern actions used in Unidata AWIPS, and generally you do not need to edit this file. Instead control which data feeds are requested in <code>ldmd.conf</code> (above).</p>
-</li>
-<li>
-<p><code>bin/setup.env</code></p>
+<h3 id="binsetupenv">bin/setup.env<a class="headerlink" href="#binsetupenv" title="Permanent link"></a></h3>
 <p>Defines the remote EDEX Database/Request server:</p>
 <pre><code>### EDEX localization related variables ###
 export AW_SITE_IDENTIFIER=OAX
 export EXT_ADDR=js-157-198.jetstream-cloud.org
 </code></pre>
-<p><strong>EXT_ADDR</strong> must be set to an allowed EDEX Database/Request Server. In this example we are using a JetStream Cloud instance, which controls our <em>edex-ingest</em> access with IPtables, SSL certificates, and PostgreSQL <strong>pg_hba.conf</strong> rules (this server is used in software training workshop environments and will not allow outside connections). </p>
-</li>
-<li>
-<p><code>bin/runedex.sh</code></p>
+<blockquote>
+<p><strong>Note</strong>: <em>EXT_ADDR</em> must be set to an allowed EDEX Database/Request Server. In this example we are using a JetStream Cloud instance, which controls our <em>edex-ingest</em> access with IPtables, SSL certificates, and PostgreSQL pg_hba.conf rules. This server will not allow outside connections, you must change this to point to an appropriate server. </p>
+</blockquote>
+<h3 id="binrunedexsh">bin/runedex.sh<a class="headerlink" href="#binrunedexsh" title="Permanent link"></a></h3>
 <p>The default script run when the container is started, acts as a sort-of service manager for EDEX and the LDM (see <code>ENTRYPOINT ["/awips2/edex/bin/runedex.sh"]</code> in <em>Dockerfile.edex</em>), essentially:</p>
 <pre><code>/awips2/qpid/bin/qpid-wrapper &amp;
 /awips2/edex/bin/start.sh -noConsole ingest &amp;
 ldmadmin mkqueue
 ldmadmin start
 </code></pre>
-</li>
-</ul>
                 
                   
                 
