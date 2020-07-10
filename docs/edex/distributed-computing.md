@@ -1,8 +1,18 @@
+# Distributed EDEX
 
-
-AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data. While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS could consist of a dozen servers or more, the early Unidata releases were stripped of operations-specific configurations and plugins, and released as a standalone server. This worked, since (at the time) a single EDEX instance with an attached SSD could handle most of NOAAport. However, with GOES-R(16) coming online in 2017, and more gridded forecast models being created at finer temporal and spatial resolutions, there is now a need to distribute the data decoding across multiple machine to handle this firehose of data.
+AWIPS makes use of service-oriented architecture to request, process, and serve real-time meteorological data. While originally developed for use on internal NWS forecast office networks, where operational installations of AWIPS could consist of a dozen servers or more, the early Unidata releases were stripped of operations-specific configurations and plugins, and released as a standalone server. This worked, since (at the time) a single EDEX instance with an attached SSD could handle most of NOAAport. However, with GOES-R(16) coming online in 2017, and more gridded forecast models being created at finer temporal and spatial resolutions, there is now a need to distribute the data decoding across multiple machines to handle this firehose of data.
 
 ---
+
+## Unidata's Current EDEX Server
+
+Currently, with our specific EDEX server we use a Database/Request instance that also decodes and ingests a good portion of the data.   It handles all data requests from CAVE users, as well as the majority of the decoding and ingesting for data feeds coming down on the LDM.  The **radar** data has been specifically exluded (from the decoding and ingest) and it has its own [**Ingest/Decode Server**](#ingestdecode-server) which is explained in more detail below.
+
+For our EDEX we have designated an instance of the ingest/decoding server to be dedicated to handling the radar data.  Our *Radar-EDEX* recieves and decodes all radar down from the LDM and then stores it back on our main [**Database/Request EDEX**](#databaserequest-server) in the form of HDF5 data files and PostgreSQL metadata.
+
+---
+
+## Example Installation
 
 This walkthrough will install different EDEX components on two machines in the XSEDE Jetstream Cloud, the first is used to **ingest and decode** while the second is used to **store and serve** data.
 
@@ -10,15 +20,11 @@ This walkthrough will install different EDEX components on two machines in the X
 
 ---
 
-## Database/Request Server
+### Database/Request Server
 
-!!! note "Specs"
-    * IP address **10.0.0.9**
-    * CentOS 6.9
-    * m1.medium (CPU: 6, Mem: 16 GB)
-    * 1000GB attached storage for `/awips2/edex/data/hdf5`
+For this example, this server will be referred to by the IP address **10.0.0.9**.
 
-### 1. Install
+#### 1. Install
 
 	groupadd fxalpha && useradd -G fxalpha awips
 	mkdir /awips2
@@ -26,7 +32,7 @@ This walkthrough will install different EDEX components on two machines in the X
 	yum clean all
 	yum groupinstall awips2-database
 
-### 2. IPtables Config
+#### 2. IPtables Config
 
 It is required that ports 5432 and 5672 be open for the specific IP addresses of outside EDEX ingest servers.  It is *not recommended* that you leave port 5432 open to all connections (since the default awips database password is known, and is not meant as a security measure).  Further, it *is recommended* that you change the default postgres awips user password (which then requires a reconfiguration of every remote EDEX ingest server in order to connect to this database/request server).
 
@@ -56,7 +62,7 @@ Note the line **`-A INPUT -s 10.0.0.7 -j EDEX`** as well as the following **`-A 
 
 !!! Note "The two ports left open to all connections (9581,9582) in addition to default port 22 are for outside CAVE client connections"
 
-### 3. Database Config
+#### 3. Database Config
 
 In the file `/awips2/database/data/pg_hba.conf` you define remote connections for all postgres tables with as `<IP address>/32`, after the block of IPv4 local connections:
 
@@ -71,13 +77,13 @@ In the file `/awips2/database/data/pg_hba.conf` you define remote connections fo
     hostssl    all   all         ::1/128               cert clientcert=1
     hostnossl  all   all         ::1/128               md5
 
-### 4. Start EDEX
+#### 4. Start EDEX
 
 	edex start database
 
 This will start PostgreSQL, httpd-pypies, Qpid, and the EDEX Request JVM (and will not start the LDM or the EDEX Ingest and IngestGrib JVMs)
 
-### 5. Monitor Services
+#### 5. Monitor Services
 
 The command `edex` will show which services are running, and for a Database/Request server, will not include the LDM, EDEXingest, or EDEXgrib:
 
@@ -113,21 +119,18 @@ Since this Database/Request server is not running the main *edexIngest* JVM, we 
 
 ---
 
-## Ingest/Decode Server
+### Ingest/Decode Server
 
-!!! note "Specs"
-    * IP address **10.0.0.7**
-    * CentOS 6.9
-    * m1.xxlarge (CPU: 44, Mem: 120 GB)
+For this example, this server will be referred to by the IP address **10.0.0.7**.
 
-### 1. Install
+#### 1. Install
 
 	groupadd fxalpha && useradd -G fxalpha awips
 	wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
 	yum clean all
 	yum groupinstall awips2-ingest
 
-### 2. EDEX Config
+#### 2. EDEX Config
 
 `vi /awips2/edex/bin/setup.env`
 
@@ -147,13 +150,13 @@ Here you should redefine `DB_ADDR` and `PYPIES_SERVER` to point to the **Databas
 
 Notice that `EDEX_SERVER` and `BROKER_ADDR` (qpid) should remain defined as the *localhost* IP address (10.0.0.7)
 
-### 3. Start EDEX
+#### 3. Start EDEX
 
 	edex start ingest
 
 This will start Qpid and the EDEX Ingest and IngestGrib JVMs (and not start PostgreSQL, httpd-pypies, or the EDEX Request JVM)
 
-### 4. Monitor Services
+#### 4. Monitor Services
 
 Watch the edex JVM log with the command
 
