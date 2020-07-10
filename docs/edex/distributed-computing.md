@@ -14,7 +14,7 @@ For our EDEX we have designated an instance of the ingest/decoding server to be 
 
 ## Example Installation
 
-This walkthrough will install different EDEX components on two machines in the XSEDE Jetstream Cloud, the first is used to **ingest and decode** while the second is used to **store and serve** data.
+This walkthrough will install different EDEX components on two machines in the XSEDE Jetstream Cloud, the first is used to **store and serve** while the second is used to **ingest and decode** data.
 
 ![](/images/awips2_distributed.png)
 
