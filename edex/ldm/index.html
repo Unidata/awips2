@@ -507,6 +507,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         LDM Feeds
@@ -519,6 +521,8 @@
       
 <nav class="md-nav md-nav--secondary">
   
+  
+    
   
   
     <label class="md-nav__title" for="toc">Table of contents</label>
@@ -535,6 +539,33 @@
   <a href="#optional-ldm-feeds" title="Optional LDM Feeds" class="md-nav__link">
     Optional LDM Feeds
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fnmoc-and-cmc-models" title="FNMOC and CMC models" class="md-nav__link">
+    FNMOC and CMC models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lightning-restricted-to-educational-use-with-rebroadcasting-restricted" title="Lightning (restricted to educational use with rebroadcasting restricted)" class="md-nav__link">
+    Lightning (restricted to educational use with rebroadcasting restricted)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fslgsd-experimental-hrrr-sub-hourly" title="FSL/GSD Experimental HRRR (Sub-hourly)" class="md-nav__link">
+    FSL/GSD Experimental HRRR (Sub-hourly)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1019,6 +1050,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
@@ -1034,6 +1067,33 @@
   <a href="#optional-ldm-feeds" title="Optional LDM Feeds" class="md-nav__link">
     Optional LDM Feeds
   </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fnmoc-and-cmc-models" title="FNMOC and CMC models" class="md-nav__link">
+    FNMOC and CMC models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#lightning-restricted-to-educational-use-with-rebroadcasting-restricted" title="Lightning (restricted to educational use with rebroadcasting restricted)" class="md-nav__link">
+    Lightning (restricted to educational use with rebroadcasting restricted)
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fslgsd-experimental-hrrr-sub-hourly" title="FSL/GSD Experimental HRRR (Sub-hourly)" class="md-nav__link">
+    FSL/GSD Experimental HRRR (Sub-hourly)
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1075,37 +1135,38 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/edex/ldm.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>LDM Feeds</h1>
-                
-                <h2 id="default-ldm-feeds-for-edex">Default LDM Feeds for EDEX<a class="headerlink" href="#default-ldm-feeds-for-edex" title="Permanent link"></a></h2>
-<p>from <code>/awips2/ldm/etc/ldmd.conf</code></p>
-<pre><code>REQUEST NEXRAD3 "./p(DHR|DPR|DSP|DTA|DAA|DVL|EET|HHC|N0Q|N0S|N0U|OHA|NVW|NTV|NST)." idd.unidata.ucar.edu
-REQUEST FNEXRAD|IDS|DDPLUS|UNIWISC ".*" idd.unidata.ucar.edu
+                <h1 id="ldm-feeds">LDM Feeds<a class="headerlink" href="#ldm-feeds" title="Permanent link"></a></h1>
+<h2 id="default-ldm-feeds-for-edex">Default LDM Feeds for EDEX<a class="headerlink" href="#default-ldm-feeds-for-edex" title="Permanent link"></a></h2>
+<p>Data feeds are defined by the <strong>ldmd.conf</strong> file in <code>/awips2/ldm/etc/ldmd.conf</code>.  The default feeds that come "turned on" with our EDEX are the following:</p>
+<pre><code>REQUEST NEXRAD3 "./p(DHR|DPR|DSP|DTA|DAA|HHC|N.P|N.Q|N.S|N.U|OHA)." idd.unidata.ucar.edu
+REQUEST FNEXRAD|IDS|DDPLUS ".*" idd.unidata.ucar.edu
+REQUEST UNIWISC|NIMAGE ".*" idd.unidata.ucar.edu        # AREA/GINI
+REQUEST EXP "WwWind" idd.unidata.ucar.edu               # ESPL/PSD Profilers
+REQUEST DIFAX "GLM" idd.unidata.ucar.edu                # GOES GLM
+REQUEST EXP ".*" lead.unidata.ucar.edu                  # GOES ABI netCDF4 (full sector)
 REQUEST NGRID ".*" idd.unidata.ucar.edu
-REQUEST NOTHER "^TIP... KNES.*" idd.unidata.ucar.edu
-REQUEST HDS|NIMAGE ".*" idd.unidata.ucar.edu
-
-REQUEST CONDUIT "nam" idd.unidata.ucar.edu
-REQUEST CONDUIT "rap" idd.unidata.ucar.edu
-REQUEST CONDUIT "pgrb2" idd.unidata.ucar.edu
-REQUEST CONDUIT "nwstg" idd.unidata.ucar.edu
+REQUEST HDS ".*" idd.unidata.ucar.edu
+REQUEST CONDUIT "nam" idd.unidata.ucar.edu              # NAM12
+REQUEST CONDUIT "pgrb2" idd.unidata.ucar.edu            # GFS0p25
 </code></pre>
 <blockquote>
-<p>Remember than LDM commands such as these require <strong>TAB SEPARATION</strong> between items.</p>
+<p><strong>Note</strong>: Remember that LDM commands such as these require <strong>TAB SEPARATION</strong> between items.</p>
 </blockquote>
 <h2 id="optional-ldm-feeds">Optional LDM Feeds<a class="headerlink" href="#optional-ldm-feeds" title="Permanent link"></a></h2>
-<p>FNMOC and CMC models</p>
+<p>Some additional feeds are included but commented out using '#'.  To activate the feed, simply remove the #, save the file, and <a href="#restart-the-ldm">restart the LDM</a>.</p>
+<h3 id="fnmoc-and-cmc-models">FNMOC and CMC models<a class="headerlink" href="#fnmoc-and-cmc-models" title="Permanent link"></a></h3>
 <pre><code>REQUEST FNMOC ".*" idd.unidata.ucar.edu
 REQUEST CMC ".*" idd.unidata.ucar.edu
 </code></pre>
-<p>Lightning (restricted to educational use with rebroadcasting restricted)</p>
+<h3 id="lightning-restricted-to-educational-use-with-rebroadcasting-restricted">Lightning (restricted to educational use with rebroadcasting restricted)<a class="headerlink" href="#lightning-restricted-to-educational-use-with-rebroadcasting-restricted" title="Permanent link"></a></h3>
 <pre><code>REQUEST        LIGHTNING       ".*"    striker2.atmos.albany.edu
 REQUEST        LIGHTNING       ".*"    idd.unidata.ucar.edu
 </code></pre>
-<p>FSL/GSD Experimental HRRR (Sub-hourly)</p>
+<h3 id="fslgsd-experimental-hrrr-sub-hourly">FSL/GSD Experimental HRRR (Sub-hourly)<a class="headerlink" href="#fslgsd-experimental-hrrr-sub-hourly" title="Permanent link"></a></h3>
 <pre><code>REQUEST FSL2 "^GRIB2.FSL.HRRR" hrrr.unidata.ucar.edu
 </code></pre>
 <h2 id="restart-the-ldm">Restart the LDM<a class="headerlink" href="#restart-the-ldm" title="Permanent link"></a></h2>
+<p>Use the following commands to restart the LDM:</p>
 <pre><code>sudo service edex_ldm restart
 
 ldmadmin restart
@@ -1121,6 +1182,7 @@ ldmadmin restart
 <pre><code>notifyme -vl - -h idd.unidata.ucar.edu -f NEXRAD3 -p DHR -o 360
 </code></pre>
 <h2 id="ldm-logging">LDM Logging<a class="headerlink" href="#ldm-logging" title="Permanent link"></a></h2>
+<p>To open a real-time readout of LDM logging you can run use the <code>edex</code> command.  To exit, press <code>CTRL+C</code>.</p>
 <pre><code>edex log ldm
 
 [edex] EDEX Log Viewer
