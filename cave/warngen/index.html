@@ -1166,7 +1166,7 @@
                 
                 
                 <h1 id="warngen-walkthrough">WarnGen Walkthrough<a class="headerlink" href="#warngen-walkthrough" title="Permanent link"></a></h1>
-<p>WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a <em>non-operational</em> forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but prevents you from transmitting a generated warning upstream.</p>
+<p>WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a <em>non-operational</em> forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but <strong>prevents you from transmitting a generated warning upstream</strong>.</p>
 <div class="admonition warning">
 <p class="admonition-title">In order to select a feature it must be within your <em>CAVE localization</em> coverage (load <strong>Maps</strong> &gt; <strong>County Warning Areas</strong> to see coverages)</p>
 </div>
@@ -1183,14 +1183,16 @@
 <li>Step through frames back and forth and adjust the marker to match the trajectory of the storm feature</li>
 <li>Click <strong>Track</strong> in the Warngen GUI to update the polygon shape and trajectory</li>
 <li>From the WarnGen dialog select the type of warning to generate, time range, basis of the warning, and any threats (wind, hail, etc)</li>
-<li>Click <a href="#text-window"><strong>Create Text</strong></a> at the bottom of the WarnGen dialog to generate a text warning product in a new window</li>
-</ol>
+<li>
+<p>Click <a href="#text-window"><strong>Create Text</strong></a> at the bottom of the WarnGen dialog to generate a text warning product in a new window</p>
 <blockquote>
 <p>Note: Since you are not "issuing" the warning, leave the top to rows blank ("TTAAii" and "CCCC") and Click "Enter" and a separate text window should open </p>
 </blockquote>
 <p><img alt="" src="../../images/warngenHeaderBlock.png" /></p>
-<ol>
-<li>Click <a href="#redrawing-a-polygon"><strong>Reset</strong></a> at the top of the WarnGen dialog to reset the storm marker at any time</li>
+</li>
+<li>
+<p>Click <a href="#redrawing-a-polygon"><strong>Reset</strong></a> at the top of the WarnGen dialog to reset the storm marker at any time</p>
+</li>
 <li>Select <strong>Line of Storms</strong> to enable a two-pointed vector which is to be positioned parallel to a storm line</li>
 <li>To <a href="#add-and-remove-vertex-points"><strong>add another vertex</strong></a>, middle button click along the polygon</li>
 </ol>
