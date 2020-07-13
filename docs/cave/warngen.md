@@ -1,6 +1,6 @@
 # WarnGen Walkthrough
 
-WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a *non-operational* forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but prevents you from transmitting a generated warning upstream.
+WarnGen is an AWIPS graphics application for creating and issuing warnings as is done by National Weather Service offices.  In the Unidata AWIPS release it is a *non-operational* forecasting tool, meaning it allows users to experiment and simulate with the drawing and text-generation tools, but **prevents you from transmitting a generated warning upstream**.
 
 !!! warning "In order to select a feature it must be within your *CAVE localization* coverage (load **Maps** > **County Warning Areas** to see coverages)"
 
@@ -19,9 +19,9 @@ WarnGen is an AWIPS graphics application for creating and issuing warnings as is
 11. From the WarnGen dialog select the type of warning to generate, time range, basis of the warning, and any threats (wind, hail, etc)
 12. Click [**Create Text**](#text-window) at the bottom of the WarnGen dialog to generate a text warning product in a new window
 
- > Note: Since you are not "issuing" the warning, leave the top to rows blank ("TTAAii" and "CCCC") and Click "Enter" and a separate text window should open 
-    
-![](../images/warngenHeaderBlock.png)
+    > Note: Since you are not "issuing" the warning, leave the top to rows blank ("TTAAii" and "CCCC") and Click "Enter" and a separate text window should open 
+ 
+    ![](../images/warngenHeaderBlock.png)
 
 13. Click [**Reset**](#redrawing-a-polygon) at the top of the WarnGen dialog to reset the storm marker at any time
 14. Select **Line of Storms** to enable a two-pointed vector which is to be positioned parallel to a storm line
