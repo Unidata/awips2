@@ -357,6 +357,13 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#video-using-warngen-in-awips" title="Video - Using WarnGen in AWIPS" class="md-nav__link">
+    Video - Using WarnGen in AWIPS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#load-nexrad-level-3-display" title="Load NEXRAD level 3 display" class="md-nav__link">
     Load NEXRAD level 3 display
   </a>
@@ -371,8 +378,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#select-the-nearest-wsr-88d-location" title="Select the nearest WSR-88D location" class="md-nav__link">
-    Select the nearest WSR-88D location
+  <a href="#load-single-radar-data-from-the-local-radars" title="Load single radar data from the local radars" class="md-nav__link">
+    Load single radar data from the local radars
   </a>
   
 </li>
@@ -429,13 +436,6 @@
         <li class="md-nav__item">
   <a href="#text-window" title="Text Window" class="md-nav__link">
     Text Window
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#issuing-a-warning" title=""Issuing" a Warning" class="md-nav__link">
-    "Issuing" a Warning
   </a>
   
 </li>
@@ -1073,6 +1073,13 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#video-using-warngen-in-awips" title="Video - Using WarnGen in AWIPS" class="md-nav__link">
+    Video - Using WarnGen in AWIPS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#load-nexrad-level-3-display" title="Load NEXRAD level 3 display" class="md-nav__link">
     Load NEXRAD level 3 display
   </a>
@@ -1087,8 +1094,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#select-the-nearest-wsr-88d-location" title="Select the nearest WSR-88D location" class="md-nav__link">
-    Select the nearest WSR-88D location
+  <a href="#load-single-radar-data-from-the-local-radars" title="Load single radar data from the local radars" class="md-nav__link">
+    Load single radar data from the local radars
   </a>
   
 </li>
@@ -1149,13 +1156,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#issuing-a-warning" title=""Issuing" a Warning" class="md-nav__link">
-    "Issuing" a Warning
-  </a>
-  
-</li>
-      
       
       
     </ul>
@@ -1181,53 +1181,51 @@
 </div>
 <p>Steps involved in using WarnGen in Unidata AWIPS CAVE</p>
 <ul>
-<li>Load NEXRAD Display from the Radar menu.</li>
-<li>Choose a WFO site with active severe weather (LUB is used in the video).</li>
-<li>Re-localize to this site in the CAVE &gt; Preferences &gt; Localization menu.</li>
-<li>Load NEXRAD Display again and select a WSR-88D site to load a 2-panel display of 0.5 degree Reflectivity (N0Q) and Velocity (N0U).</li>
-<li>Click the WarnGen toolbar button or load from Tools &gt; WarnGen.</li>
-<li>Drag the storm marker to the center of a storm feature.</li>
-<li>Step through frames back and forth and adjust the marker to match the trajectory of the storm feature.</li>
-<li>From the WarnGen dialog select the type of warning to generate, the time range, the basis of the warning, and any threats to add (wind, hail, etc).</li>
-<li>Click "Create Text" at the bottom of the WarnGen dialog to generate a text warning product in a new window.</li>
-<li>Click "Reset" at the top of the WarnGen dialog to reset the storm marker at any time.</li>
-<li>Select "Line of Storms" to enable a two-pointed vector which is to be positioned parallel to a storm line.</li>
+<li>Load NEXRAD Display from the Radar menu</li>
+<li>Choose a CWA with active severe weather (PAH is used in the video below)</li>
+<li>Re-localize to this site in the <strong>CAVE</strong> &gt; <strong>Preferences</strong> &gt; <strong>Localization</strong> menu</li>
+<li>Exit out of CAVE and reload (you should notice the new CWA at the top of CAVE)</li>
+<li>Load radar data from the local radar menu <strong>kpah</strong> &gt; <strong>Z + SRM8</strong></li>
+<li>Use the "period" key in the number pad to toggle between the 0.5 Reflectivity and SRM</li>
+<li>Click the WarnGen toolbar button or load from <strong>Tools</strong> &gt; <strong>WarnGen</strong></li>
+<li>Drag the storm marker to the center of a storm feature</li>
+<li>Step through frames back and forth and adjust the marker to match the trajectory of the storm feature</li>
+<li>Click <strong>Track</strong> in the Warngen GUI to update the polygon shape and trajectory</li>
+<li>From the WarnGen dialog select the type of warning to generate, time range, basis of the warning, and any threats (wind, hail, etc)</li>
+<li>Click "Create Text" at the bottom of the WarnGen dialog to generate a text warning product in a new window</li>
+<li>Note: Since you are not "issuing" the warning, leave the top to rows blank ("TTAAii" and "CCCC") and Click "Enter" and a separate text window should open </li>
 </ul>
-<!--
-<iframe width="700" height="450"
-src="https://www.youtube.com/embed/KSKmIMjkVCU?autoplay=1">
+<p><img alt="" src="../../images/warngenHeaderBlock.png" /></p>
+<ul>
+<li>Click "Reset" at the top of the WarnGen dialog to reset the storm marker at any time.</li>
+<li>Select "Line of Storms" to enable a two-pointed vector which is to be positioned parallel to a storm line</li>
+<li>To add another vertex, middle button click along the polygon</li>
+</ul>
+<h2 id="video-using-warngen-in-awips">Video - Using WarnGen in AWIPS<a class="headerlink" href="#video-using-warngen-in-awips" title="Permanent link"></a></h2>
+<p>The video below walks through creating a warning polygon and text in AWIPS. More detailed information can be found in the text below the video.</p>
+<iframe width="700" height="350"src="https://www.youtube.com/embed/hjytnJOxrOg?autoplay=0&rel=0" title="Tutorial: Using WarnGen in AWIPS" frameborder="0" allowfullscreen>
 </iframe>
--->
 
 <h2 id="load-nexrad-level-3-display">Load NEXRAD level 3 display<a class="headerlink" href="#load-nexrad-level-3-display" title="Permanent link"></a></h2>
-<p>Select the menu <strong>Radar</strong> &gt; <strong>NEXRAD Display</strong> and note coverage areas of current severe weather.  We choose a WFO ID that contains some active severe weather (KLZK Little Rock, Arkansas, in this example).</p>
+<p>Select the menu <strong>Radar</strong> &gt; <strong>NEXRAD Display</strong> and note coverage areas of current severe weather.  We choose a CWA ID that contains some active severe weather (PAH Paducah, Kentucky, in this example).</p>
 <h2 id="select-site-localization">Select SITE Localization<a class="headerlink" href="#select-site-localization" title="Permanent link"></a></h2>
-<p>Open <strong>CAVE</strong> &gt; <strong>Preferences</strong> &gt; <strong>Localization</strong>, select the WFO ID (KLZK) for the coverage area you want to use, followed by <strong>Apply</strong> and then <strong>Restart</strong>.</p>
-<h2 id="select-the-nearest-wsr-88d-location">Select the nearest WSR-88D location<a class="headerlink" href="#select-the-nearest-wsr-88d-location" title="Permanent link"></a></h2>
-<p>Click on any NEXRAD Display station to load a two-pane Reflectivity/Velocity view.</p>
+<p>Open <strong>CAVE</strong> &gt; <strong>Preferences</strong> &gt; <strong>Localization</strong>, select the CWA site ID (PAH) for the coverage area you want to use, followed by <strong>Apply</strong> and <strong>Okay</strong> and restart CAVE. Once CAVE is restarted, you should notice the new CWA at the top of the CAVE window.</p>
+<p><img alt="" src="../../images/warngenLocalization.png" /></p>
+<h2 id="load-single-radar-data-from-the-local-radars">Load single radar data from the local radars<a class="headerlink" href="#load-single-radar-data-from-the-local-radars" title="Permanent link"></a></h2>
+<p>Click on the local radar <strong>kpah</strong> &gt; <strong>Z + SRM8</strong>. Use the "period" key in the number pad to toggle between the 0.5 Reflectivity and SRM.
+<img alt="" src="../../images/warngenLocalRadar.png" /></p>
 <h2 id="launch-warngen">Launch WarnGen<a class="headerlink" href="#launch-warngen" title="Permanent link"></a></h2>
-<p>Select <strong>WarnGen</strong> from the D2D Toolbar or from the <strong>Tools</strong> menu.  When started, the storm centroid marker appears and the WarnGen GUI will pop up as a separate window.</p>
-<table>
-<thead>
-<tr>
-<th align="center"></th>
-<th align="center"></th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center"><img alt="" src="../../images/Warngen_Basic.png" /></td>
-<td align="center"><img alt="" src="../../images/warngen.png" /></td>
-</tr>
-</tbody>
-</table>
+<p>Select <strong>WarnGen</strong> from the D2D Toolbar or from the <strong>Tools</strong> &gt; <strong>WarnGen</strong> menu.  When started, the storm centroid marker appears and the WarnGen GUI will pop up as a separate window.</p>
+<p><img alt="" src="../../images/warngen.png" /></p>
 <h2 id="generate-a-storm-motion-vector">Generate a Storm Motion Vector<a class="headerlink" href="#generate-a-storm-motion-vector" title="Permanent link"></a></h2>
 <ol>
 <li>Click and drag <strong>Drag Me to Storm</strong> to the feature you want to track (WarnGen uses a dot to track a single storm and a line to track a line of storms).</li>
 <li>Step back 3 to 4 frames.</li>
-<li>Drag the dot to the previous position of the feature you first marked.</li>
+<li>Drag the dot to the previous position of the feature you first marked to create the storm motion vector.</li>
+<li>Click the <strong>Track</strong> button in the WarnGen GUI to update the polygon based off the storm motion.</li>
 <li>Review the product loop and make adjustments to ensure the vector is accurate.</li>
 </ol>
+<p><img alt="" src="../../images/warngenDMTS.png" /></p>
 <h2 id="restart">Restart<a class="headerlink" href="#restart" title="Permanent link"></a></h2>
 <p>Click the <strong>Reset</strong> button to clear all current polygons and vectors and reset the storm centroid marker.</p>
 <h2 id="redrawing-a-polygon">Redrawing a Polygon<a class="headerlink" href="#redrawing-a-polygon" title="Permanent link"></a></h2>
@@ -1238,7 +1236,7 @@ src="https://www.youtube.com/embed/KSKmIMjkVCU?autoplay=1">
 <p>When reshaping your warning polygon in this manner, the philosophy is to include all areas that are at risk of experiencing severe weather covered by that warning type. Effective polygons account for uncertainty over time and typically widen downstream. There will be a lot of training provided on Storm-Based Warning Fundamentals in RAC and in the workshop, and this lesson is more focused on the basic mechanics.</p>
 <h2 id="add-and-remove-vertex-points">Add and Remove Vertex Points<a class="headerlink" href="#add-and-remove-vertex-points" title="Permanent link"></a></h2>
 <p>There will be some occasions where you will want to add vertices to your warning polygon. Most often, these situations will involve line warnings with bowing segments or single storm warnings where you want to account for storm motion uncertainty or multiple threat areas that may have differing storm motions.</p>
-<p>New vertices are added to the warning polygon using a context relative menu accessed by selecting the warning polygon line segments with a <strong>Right Mouse Button "click and hold"</strong>.</p>
+<p>New vertices are added to the warning polygon using a context relative menu accessed by selecting the warning polygon line segments with a <strong>Right Mouse Button "click and hold"</strong> or a simple <strong>Middle Mouse Button</strong> while at the location you want to add a vertex.</p>
 <ol>
 <li>Hold right-click and select <strong>add vertex</strong>.</li>
 <li>Click the left mouse button at the location you desire for the new vertex and the point is created there.</li>
@@ -1248,23 +1246,28 @@ src="https://www.youtube.com/embed/KSKmIMjkVCU?autoplay=1">
 <h2 id="restoring-a-polygon">Restoring a Polygon<a class="headerlink" href="#restoring-a-polygon" title="Permanent link"></a></h2>
 <p>When you are customizing a polygon in WarnGen, speed is critical. Everyone, even veteran warning forecasters, will occasionally draw a warning polygon one way and then realize, prior to sending the warning, that they want to draw the warning boundaries differently. Depending on the complexity of the changes you make to a warning polygon, sometimes it’s faster to just start over from scratch. The easiest way to proceed, especially if you are still comfortable with the storm motion, is to select the “Track” button from the “Redraw Box on Screen from” section of the WarnGen GUI.</p>
 <h2 id="text-window">Text Window<a class="headerlink" href="#text-window" title="Permanent link"></a></h2>
-<p>Using the customized settings in the WarnGen GUI, WarnGen translates the information into a text product that is displayed in a text window on the Text Display. Initially the AWIPS Header Block window appears, and you will just click Enter to modify the text of the warning. The auto-generated text contains the storm speed and direction, the counties and cities affected by the warning/advisory, the valid times of the product, the warning/advisory body text (including any optional bullets selected in the GUI), and additional code to help our partners to efficiently process and disseminate the warning/advisory. The locked parts of the text are highlighted in blue and most of your text should not need to be edited if you configured your WarnGen window correctly.</p>
+<p>Using the customized settings in the WarnGen GUI, WarnGen translates the information into a text product that is displayed in a text window on the Text Display. Initially the AWIPS Header Block window appears, and you will just click Enter to modify the text of the warning. </p>
+<p><img alt="" src="../../images/warngenHeaderBlock.png" /></p>
+<p>The auto-generated text contains the storm speed and direction, the counties and cities affected by the warning/advisory, the valid times of the product, the warning/advisory body text (including any optional bullets selected in the GUI), and additional code to help our partners to efficiently process and disseminate the warning/advisory. The locked parts of the text are highlighted in blue and most of your text should not need to be edited if you configured your WarnGen window correctly.</p>
+<div class="admonition danger">
+<p class="admonition-title">The Unidata AWIPS software is non-operational, so you will not be able to "issue" or send the warnings you create</p>
+</div>
 <p>For some products like Severe Weather Statements, there are parts of text that must be edited that have wild-card characters around them that need to be removed after modifying the text inside (e.g. !<strong> WEAKENED.MOVED OUT OF THE WARNED AREA. </strong>!). When you attempt to send a product, WarnGen will instruct you to modify this text if you have not. Once the text looks ready for submission you click the Send button, and, on a live system, the warning will be transmitted for public broadcast after you press the Go Ahead button on the final WarnGen check. WES-2 Bridge has been implemented in a way that cannot interact with the live AWIPS processes and communications, so warnings issued on the WES-2 Bridge will not be transmitted as live products.</p>
 <p>NOTE: Edits made to product text in the editor window should be limited to items such as forecaster name/initials, call-to-action text, etc. If changes are warranted for items such as storm motion, warned counties, or Latitude/Longitude points, close the editor window and make changes using the D-2D and WarnGen graphical tools, then recreate the polygon and/or the text.</p>
-<h2 id="issuing-a-warning">"Issuing" a Warning<a class="headerlink" href="#issuing-a-warning" title="Permanent link"></a></h2>
-<p>With a tracked storm in WarnGen:</p>
-<ol>
-<li>Select <strong>CAVE &gt; New &gt; Text Workstation</strong></li>
-<li>Select the <strong>Track</strong> button to preview the polygon</li>
-<li>Select the <strong>Create Text</strong> button.</li>
-<li>Select <strong>Enter</strong> on the AWIPS Header Block window to enter the text editor.<ul>
-<li>Blue text is locked and uneditable. You should not need to edit most text, and you need to be careful not to make the hazards inconsistent with the locked intensity summary at the bottom of the warning.</li>
-<li>If WarnGen has text you need to edit, there will be wildcards around the text, and WarnGen will not let you send the warning until you modify it.</li>
-</ul>
-</li>
-<li>Read the text of the warning, identify your ETN number after the “SV.W.” (e.g. 0004) at the top of the warning, and make changes to the warning text if WarnGen tells you to.</li>
-<li>Click the <strong>Send</strong> button (will not actually send). Sending warnings on the WES-2 Bridge is safe because it is not connected to the live AWIPS communications route, and the transmission capabilities have been disabled, firewalled, and modified to prevent any risk of warnings going out.  Unidata AWIPS always disables the sending of warnings.</li>
-</ol>
+<!--
+## "Issuing" a Warning
+
+With a tracked storm in WarnGen:
+
+1. Select **CAVE &gt; New &gt; Text Workstation**
+2. Select the **Track** button to preview the polygon
+3. Select the **Create Text** button.
+4. Select **Enter** on the AWIPS Header Block window to enter the text editor.
+    - Blue text is locked and uneditable. You should not need to edit most text, and you need to be careful not to make the hazards inconsistent with the locked intensity summary at the bottom of the warning.
+    - If WarnGen has text you need to edit, there will be wildcards around the text, and WarnGen will not let you send the warning until you modify it.
+5. Read the text of the warning, identify your ETN number after the “SV.W.” (e.g. 0004) at the top of the warning, and make changes to the warning text if WarnGen tells you to.
+6. Click the **Send** button (will not actually send). Sending warnings on the WES-2 Bridge is safe because it is not connected to the live AWIPS communications route, and the transmission capabilities have been disabled, firewalled, and modified to prevent any risk of warnings going out.  Unidata AWIPS always disables the sending of warnings.
+-->
                 
                   
                 
