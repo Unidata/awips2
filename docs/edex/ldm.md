@@ -17,6 +17,8 @@ Data feeds are defined by the **ldmd.conf** file in `/awips2/ldm/etc/ldmd.conf`.
 
 > **Note**: Remember that LDM commands such as these require **TAB SEPARATION** between items.
 
+---
+
 ## Optional LDM Feeds
 
 Some additional feeds are included but commented out using '#'.  To activate the feed, simply remove the #, save the file, and [restart the LDM](#restart-the-ldm).
@@ -35,6 +37,8 @@ Some additional feeds are included but commented out using '#'.  To activate the
 
     REQUEST FSL2 "^GRIB2.FSL.HRRR" hrrr.unidata.ucar.edu
 
+---
+
 ## Restart the LDM
 
 Use the following commands to restart the LDM:
@@ -42,6 +46,8 @@ Use the following commands to restart the LDM:
     sudo service edex_ldm restart
 
     ldmadmin restart
+
+---
         
 ## Monitor Incoming Data Feeds
 
@@ -56,6 +62,8 @@ To watch for a specific product and feed and time (360 sec = 6 min):
 To watch the same on a remote queue:
 
     notifyme -vl - -h idd.unidata.ucar.edu -f NEXRAD3 -p DHR -o 360
+
+---
     
 ## LDM Logging
 

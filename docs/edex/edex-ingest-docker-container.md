@@ -21,6 +21,8 @@ Download and install Docker and Docker Compose:
 * [Docker for Windows](https://docs.docker.com/docker-for-windows/install/)
 * [docker-compose](https://docs.docker.com/compose/) (it should be bundled with Docker by default on Mac and Windows)
 
+---
+
 ## Run the EDEX Ingest Container
 
 Clone the source repository:
@@ -70,6 +72,8 @@ docker-compose stop
 docker-compose up -d edex-ingest
 ```
 
+---
+
 ## Configuration and Customization
 
 The file `docker-compose.yml` defines files to mount to the container and which ports to open:
@@ -88,6 +92,8 @@ The file `docker-compose.yml` defines files to mount to the container and which 
         nofile:
           soft: 1024
           hard: 1024
+
+---
 
 ## Mounted Files
 
