@@ -1152,6 +1152,7 @@ REQUEST CONDUIT "pgrb2" idd.unidata.ucar.edu            # GFS0p25
 <blockquote>
 <p><strong>Note</strong>: Remember that LDM commands such as these require <strong>TAB SEPARATION</strong> between items.</p>
 </blockquote>
+<hr />
 <h2 id="optional-ldm-feeds">Optional LDM Feeds<a class="headerlink" href="#optional-ldm-feeds" title="Permanent link"></a></h2>
 <p>Some additional feeds are included but commented out using '#'.  To activate the feed, simply remove the #, save the file, and <a href="#restart-the-ldm">restart the LDM</a>.</p>
 <h3 id="fnmoc-and-cmc-models">FNMOC and CMC models<a class="headerlink" href="#fnmoc-and-cmc-models" title="Permanent link"></a></h3>
@@ -1165,12 +1166,14 @@ REQUEST        LIGHTNING       ".*"    idd.unidata.ucar.edu
 <h3 id="fslgsd-experimental-hrrr-sub-hourly">FSL/GSD Experimental HRRR (Sub-hourly)<a class="headerlink" href="#fslgsd-experimental-hrrr-sub-hourly" title="Permanent link"></a></h3>
 <pre><code>REQUEST FSL2 "^GRIB2.FSL.HRRR" hrrr.unidata.ucar.edu
 </code></pre>
+<hr />
 <h2 id="restart-the-ldm">Restart the LDM<a class="headerlink" href="#restart-the-ldm" title="Permanent link"></a></h2>
 <p>Use the following commands to restart the LDM:</p>
 <pre><code>sudo service edex_ldm restart
 
 ldmadmin restart
 </code></pre>
+<hr />
 <h2 id="monitor-incoming-data-feeds">Monitor Incoming Data Feeds<a class="headerlink" href="#monitor-incoming-data-feeds" title="Permanent link"></a></h2>
 <p>To watch incoming data in real-time:</p>
 <pre><code>notifyme -vl -
@@ -1181,6 +1184,7 @@ ldmadmin restart
 <p>To watch the same on a remote queue:</p>
 <pre><code>notifyme -vl - -h idd.unidata.ucar.edu -f NEXRAD3 -p DHR -o 360
 </code></pre>
+<hr />
 <h2 id="ldm-logging">LDM Logging<a class="headerlink" href="#ldm-logging" title="Permanent link"></a></h2>
 <p>To open a real-time readout of LDM logging you can run use the <code>edex</code> command.  To exit, press <code>CTRL+C</code>.</p>
 <pre><code>edex log ldm

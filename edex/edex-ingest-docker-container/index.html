@@ -1150,6 +1150,7 @@
 <li><a href="https://docs.docker.com/docker-for-windows/install/">Docker for Windows</a></li>
 <li><a href="https://docs.docker.com/compose/">docker-compose</a> (it should be bundled with Docker by default on Mac and Windows)</li>
 </ul>
+<hr />
 <h2 id="run-the-edex-ingest-container">Run the EDEX Ingest Container<a class="headerlink" href="#run-the-edex-ingest-container" title="Permanent link"></a></h2>
 <p>Clone the source repository:</p>
 <pre><code>git clone https://github.com/Unidata/edex-docker.git
@@ -1188,6 +1189,7 @@ docker-compose stop
 docker-compose up -d edex-ingest
 </code></pre>
 
+<hr />
 <h2 id="configuration-and-customization">Configuration and Customization<a class="headerlink" href="#configuration-and-customization" title="Permanent link"></a></h2>
 <p>The file <code>docker-compose.yml</code> defines files to mount to the container and which ports to open:</p>
 <pre><code>edex-ingest:
@@ -1205,6 +1207,7 @@ docker-compose up -d edex-ingest
       soft: 1024
       hard: 1024
 </code></pre>
+<hr />
 <h2 id="mounted-files">Mounted Files<a class="headerlink" href="#mounted-files" title="Permanent link"></a></h2>
 <h3 id="etcldmdconf">etc/ldmd.conf<a class="headerlink" href="#etcldmdconf" title="Permanent link"></a></h3>
 <p>Defines which data feeds to receive. By default there is only one active request line (<code>REQUEST IDS|DDPLUS ".*" idd.unidata.ucar.edu</code>) to not overwhelm small EDEX containers ingesting large volumes of radar and gridded data files.  Any updates to the file <code>etc/ldmd.conf</code> will be read the next time you restart the container.</p>

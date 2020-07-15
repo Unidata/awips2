@@ -519,6 +519,8 @@
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
+    
     
       <label class="md-nav__link md-nav__link--active" for="toc">
         Data Distribution Files
@@ -532,9 +534,25 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" title="Overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-site-override" title="Creating a Site Override" class="md-nav__link">
+    Creating a Site Override
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#adding-a-regex-to-the-satellite-data-distribution-file" title="Adding a REGEX to the Satellite Data Distribution File" class="md-nav__link">
@@ -575,6 +593,13 @@
           <li class="md-nav__item">
   <a href="#grib-data" title="Grib Data" class="md-nav__link">
     Grib Data
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#addtional-information" title="Addtional Information" class="md-nav__link">
+    Addtional Information
   </a>
   
 </li>
@@ -1032,9 +1057,25 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
+  
   
     <label class="md-nav__title" for="toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" title="Overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#creating-a-site-override" title="Creating a Site Override" class="md-nav__link">
+    Creating a Site Override
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#adding-a-regex-to-the-satellite-data-distribution-file" title="Adding a REGEX to the Satellite Data Distribution File" class="md-nav__link">
@@ -1079,6 +1120,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#addtional-information" title="Addtional Information" class="md-nav__link">
+    Addtional Information
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1101,9 +1149,13 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/edex/data-distribution-files.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>Data Distribution Files</h1>
-                
-                <p>EDEX alerts the appropriate decoding plug-ins of new data by use of XML files that describe data based on regular expressions.  If the WMO header, or file name, matches a regular expression listed in a distribution XML, then EDEX will put a message into the QPID queue for the decoder which indicates that a piece of data is available. If a piece of data does not match any distribution XML, EDEX will:</p>
+                <h1 id="data-distribution-files">Data Distribution Files<a class="headerlink" href="#data-distribution-files" title="Permanent link"></a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link"></a></h2>
+<p>EDEX uses <strong>distribution files</strong> to alert the appropriate decoding plug-in that new data has been recieved.  These files do so by use of XML and regular expressions.  If the WMO header, or file name*, matches a regular expression listed in a distribution XML, then EDEX will put a message into the QPID queue for its corresponding decoder to recognize and process.  It is worth noting that more than one distribution file can recognize a single peice of data and notify their decoders to act.</p>
+<blockquote>
+<p>*Sometimes the distribution file will not look at the filename.  If this file is coming in through the LDM using a proper FILE action, then the it is possible the distribution file will only look at the header and not the filename.  If the file is ingested using the <em>manual</em> endpoint (/awips2/data_store/ingest/), then this behaviour could be different.</p>
+</blockquote>
+<p>If a piece of data <strong>does not</strong> match any distribution XML, EDEX will:</p>
 <ul>
 <li>
 <p>Create an entry in <code>/awips2/edex/logs/edex-ingest-unrecognized-files-yyyymmdd.log</code></p>
@@ -1112,120 +1164,164 @@
 <p>Skip processing of the unrecognized file.</p>
 </li>
 </ul>
-<p>Distribution filters are stored in the <strong>edex_static</strong> branch of the Localization Store, and a list of available files can be found in the base-level directory.  </p>
-<p>For each plug-in, the distribution file is named <code>&lt;data-type&gt;.xml</code>; for example, the distribution file for satellite data is <code>satellite.xml</code>. The distribution files follow the AWIPS base/site localization pattern: </p>
-<pre><code>[root@edex]# cd /awips2/edex/data/utility/edex_static/base/distribution
+<p>Distribution files are stored in the <strong>common_static</strong> branch of the <em>Localization Store</em> (series of directories that exist in <strong>/awips2/edex/data/utility/</strong>), and a list of available files can be found in the base-level directory.  The base directory is: <code>/awips2/edex/data/utility/common_static/base/distribution/</code>.</p>
+<p>For each plug-in, the distribution file is named <code>[data-type].xml</code>.  For example, the distribution file for radar data is <code>radar.xml</code>. The distribution files follow the AWIPS base/site localization pattern: </p>
+<pre><code>[root@edex]# cd /awips2/edex/data/utility/common_static/base/distribution
 [root@edex distribution]# ls
-acars.xml         ffg.xml            poessounding.xml
-airep.xml         goessounding.xml   profiler.xml
-airmet.xml        grib.xml           q2.xml
-atcf.xml          hpe.xml            radar.xml
-aww.xml           idft.xml           recco.xml
+acars.xml         goesr.xml            poessounding.xml
+airep.xml         goessounding.xml     profiler.xml
+airmet.xml        grib.xml             radar.xml
+atcf.xml          intlsigmet.xml       redbook.xml
+aww.xml           lsr.xml              satellite.gini.xml
 ...
 </code></pre>
+<hr />
+<h2 id="creating-a-site-override">Creating a Site Override<a class="headerlink" href="#creating-a-site-override" title="Permanent link"></a></h2>
 <ul>
 <li>
-<p>base files are located in <strong>/awips2/edex/data/utility/edex_static/base/distribution </strong></p>
+<p><em>Base</em> files are located in <strong>/awips2/edex/data/utility/common_static/base/distribution/</strong></p>
 </li>
 <li>
-<p>site override distribution files are located in <strong>/awips2/edex/data/utility/edex_static/site/XXX/distribution</strong>, where <strong>XXX</strong> is the site identifier.</p>
+<p><em>Site</em> override distribution files are located in <strong>/awips2/edex/data/utility/common_static/<em>site/XXX</em>/distribution/</strong>, where <strong><em>XXX</em></strong> is the site identifier.</p>
 </li>
 </ul>
 <p>Note that site-level files override the base files; as a result, local modifications to distribution files must be made as follows:</p>
 <ol>
 <li>
-<p>The base distribution file must be copied from <strong>/awips2/edex/data/utility/edex_static/base/distribution</strong> to <strong>/awips2/edex/data/utility/edex_static/site/XXX/distribution</strong></p>
+<p>The base distribution file must be copied from <strong>/awips2/edex/data/utility/common_static/base/distribution</strong> to <strong>/awips2/edex/data/utility/common_static/site/XXX/distribution</strong></p>
 </li>
 <li>
-<p>The local modification must be made to the file in <strong>/awips2/edex/data/utility/edex_static/site/XXX/distribution</strong></p>
+<p>The local modification must be made to the file in <strong>/awips2/edex/data/utility/common_static/site/XXX/distribution</strong></p>
 </li>
 </ol>
 <p>The basic structure of the distribution file is:</p>
 <pre><code>&lt;requestPatterns xmlns:ns2="group"&gt;
-    &lt;regex&gt;pattern&lt;/regex&gt;
-    &lt;regex&gt;pattern&lt;/regex&gt;
+    &lt;regex&gt;[pattern]&lt;/regex&gt;
+    &lt;regex&gt;[pattern]&lt;/regex&gt;
 &lt;/requestPatterns&gt;
 </code></pre>
-<p>In each <strong><regex></regex> </strong>tag, <strong><em>pattern</em></strong> is replaced with a regular expression that will match either the filename or the WMO header of the raw data. Only data that matches a pattern in the distribution file will be processed.</p>
+<p>In each <strong><regex></regex> </strong>tag, <strong><em>[pattern]</em></strong> is replaced with a regular expression that will match either the filename or the WMO header of the raw data. Only data that matches a pattern in the distribution file will be processed.</p>
 <p>The contents of the base version of the radar distribution file:</p>
-<pre><code>[root@edex]# cd /awips2/edex/data/utility/edex_static/base/distribution/
+<pre><code>[root@edex]# cd /awips2/edex/data/utility/common_static/base/distribution/
 [root@edex]# tail -4 radar.xml
 
-&lt;requestPatterns xmlns:ns2="group"&gt;
+&lt;requestPatterns &gt;
     &lt;regex&gt;^SDUS[234578]. .*&lt;/regex&gt;
     &lt;regex&gt;^Level3.*&lt;/regex&gt;
 &lt;/requestPatterns&gt;
 </code></pre>
-<p>Looking at the base radar.xml distribution file in the previous example, there are two regular expressions.  The first regular expression matches the standard WMO ID of radar products.   Via the edexBridge the LDM will place a message in the external.dropbox QPID queue, indicating a radar product has arrived.  EDEX will then take the message containing the radar WMO ID and compare it against the regular expressions in radar.xml.  If a match is found, EDEX places a message in the QPID queue Ingest.radar.  The radar decoder will then consume the message and process the radar data accordingly. </p>
+<p>Looking at the base radar.xml distribution file in this example, there are two regular expressions.  The first regular expression matches the standard WMO ID of radar products.   Using edexBridge the LDM will place a message in the <strong>external.dropbox</strong> QPID queue, indicating a radar product has arrived.  EDEX will then take the message containing the radar WMO ID (which comes from the file header) and compare it against the regular expressions in radar.xml.  If a match is found, EDEX places a message in the QPID queue Ingest.radar.  The radar decoder will then consume the message and process the radar data accordingly. </p>
+<hr />
 <h2 id="adding-a-regex-to-the-satellite-data-distribution-file">Adding a REGEX to the Satellite Data Distribution File<a class="headerlink" href="#adding-a-regex-to-the-satellite-data-distribution-file" title="Permanent link"></a></h2>
 <p>As a quick example, suppose we have a local data source for satellite imagery that does not have a WMO header; also suppose that the data source writes to files whose names start with <strong>LOCAL.sat</strong>.</p>
 <p>To add this locally produced satellite data file to the EDEX distribution; perform the following steps.</p>
 <ol>
 <li>
-<p>Copy the base version of <strong>satellite.gini.xml</strong> from the base distribution directory <strong>/awips2/edex/data/utility/edex_static/base/distribution</strong> into the site distribution directory <strong>/awips2/edex/data/utility/edex_static/site/XXX/distribution</strong></p>
+<p>Copy the base version of <strong>satellite.gini.xml</strong> from the base distribution directory <strong>/awips2/edex/data/utility/common_static/base/distribution</strong> into the site distribution directory <strong>/awips2/edex/data/utility/common_static/site/XXX/distribution</strong></p>
 </li>
 <li>
-<p>Edit the site version of <strong>satellite.xml</strong>, adding a new <code>&lt;regex&gt;&lt;/regex&gt;</code> tag immediately below the existing regular expression (<code>&lt;regex&gt;&lt;/regex&gt;</code>) tag. The contents of the tag will be <strong>LOCAL.sat</strong>. The final result will be:</p>
-<pre><code>&lt;requestPatterns xmlns:ns2="group"&gt;
-    &lt;regex&gt;TI[CGT]... ....&lt;/regex&gt;
-    &lt;regex&gt;.*NEXRCOMP.*&lt;/regex&gt;
-    &lt;regex&gt;^LOCAL.sat.*&lt;/regex&gt;
-&lt;/requestPatterns&gt;
-</code></pre>
+<p>Edit the site version of <strong>satellite.gini.xml</strong>, adding a new <code>&lt;regex&gt; &lt;/regex&gt;</code> tag immediately below the existing regular expression (<code>&lt;regex&gt; &lt;/regex&gt;</code>) tag. The contents of the tag will be <strong>^LOCAL.sat</strong>. The final result will be:
+<!---
+Note: this next code block is formatted using html so that one of the lines of code can be bolded for emphasis.  This is why &lt; and &gt; are used instead of < and >.
+-->
+<pre>
+  &lt;requestPatterns xmlns:ns2="group"&gt;
+      &lt;regex&gt;TI[CGT]... ....&lt;/regex&gt;
+      &lt;regex&gt;rad/NEXRCOMP&lt;/regex&gt;
+      &lt;regex&gt;.*.gini.*&lt;/regex&gt;
+      <b>&lt;regex&gt;^LOCAL.sat.*&lt;/regex&gt;</b>
+  &lt;/requestPatterns&gt;
+</pre></p>
 </li>
 <li>
 <p>Save the file and exit the editor. EDEX will automatically pick up the new distribution pattern.</p>
 </li>
 </ol>
-<p>Raw files are written to <strong>/data_store</strong>, and a message is sent via QPID to the EDEX distribution service from the LDM. When a regular expression match is found in a data distribution file, the raw data file is placed in a queue for the matching plugin to decode and process. The distribution files are used to match file headers as well as filenames, which is how files dropped into EDEX's manual endpoint (<strong>/awips2/data_store/ingest</strong>) are processed.</p>
+<p>Raw files are written to subdirectories in  <strong>/awips2/data_store/</strong>, and a message is sent via QPID to the EDEX distribution service from the LDM. When a regular expression match is found in a data distribution file, the raw data file is placed in a queue for the matching plugin to decode and process. The distribution files are used to match file headers as well as filenames, which is how files dropped into EDEX's manual endpoint (<strong>/awips2/data_store/ingest/</strong>) are processed.</p>
+<hr />
 <h2 id="editing-an-edex-data-distribution-file">Editing an EDEX Data Distribution File<a class="headerlink" href="#editing-an-edex-data-distribution-file" title="Permanent link"></a></h2>
-<p>Because these files are in the <strong>edex_static/*<em> directory, they have to be manually edited using a text editor. You should not edit the base files; rather, you should copy the base version to your site and then edit the site version. The regular expressions in the distribution files need to correspond with the regular expressions in the LDM **<em>pqact.conf</em></em></strong><em> </em>*file.</p>
-<p>If patterns exist in <strong><em>pqact.conf</em></strong> but are not in the distribution files, then raw data files will be written to <strong>/data_store</strong> but will not be ingested and processed by EDEX. Entries for these non-ingested files would be written to the unrecognized files log in <strong>/awips/edex/logs</strong>.</p>
+<p>Because these files are in the <strong>common/_static</strong> directory, they have to be manually edited using a text editor. You should not edit the base files; rather, as stated above, <a href="#creating-a-site-override">you should copy the base version to your site and then edit the site version</a>. </p>
+<p>The regular expressions in the distribution files do not necessarily need to correspond with the regular expressions in the LDM <strong><em>pqact.conf</em></strong> file.  It is important to note that:</p>
+<ul>
+<li>The regex in the <strong>pqact.conf</strong> file applies to the <em>productID</em> that is passed through the LDM.</li>
+</ul>
+<p>and</p>
+<ul>
+<li>The regex in the <strong>distribution</strong> files (.xml) typically applies to the header in the file.  It can also apply to the filename, if the file is coming through the manual endpoint, or if the data has no header to begin with.</li>
+</ul>
+<p>If patterns exist in <strong><em>pqact.conf</em></strong> but there are no corresponding matching regex expressions in any distribution file, then raw data files will be written to <strong>/awips2/data_store/</strong> but will not be ingested and processed by EDEX. Entries for these non-ingested files would be written to the unrecognized files log in <strong>/awips/edex/logs</strong>.</p>
+<hr />
 <h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link"></a></h2>
 <h3 id="surface-obs">Surface Obs<a class="headerlink" href="#surface-obs" title="Permanent link"></a></h3>
-<p><strong>/awips2/edex/data/utility/edex_static/base/distribution/obs.xml</strong> Processes any file header that starts with <strong>SA</strong> or <strong>SP</strong>, which should match any WMO header that contains METAR data (e.g.<strong>SAUS</strong>, <strong>SPUS</strong>, <strong>SACN</strong>, <strong>SAMX</strong>).</p>
+<p>Its distribution file is located at: <strong>/awips2/edex/data/utility/common_static/base/distribution/obs.xml</strong>:</p>
 <pre><code>&lt;requestPatterns xmlns:ns2="group"&gt;
   &lt;regex&gt;^S[AP].*&lt;/regex&gt;
 &lt;/requestPatterns&gt;
 </code></pre>
+<p>It will process any file header that starts with <strong>SA</strong> or <strong>SP</strong>, which should match any WMO header that contains METAR data (e.g.<strong>SAUS</strong>, <strong>SPUS</strong>, <strong>SACN</strong>, <strong>SAMX</strong>).</p>
+<hr />
 <h3 id="text-data">Text Data<a class="headerlink" href="#text-data" title="Permanent link"></a></h3>
-<p><strong>/awips2/edex/data/utility/edex_static/base/distribution/text.xml</strong> Processes lots of WM patterns. The second pattern ^S[A-CEG-Z].<em> matches any header that starts with </em><em>S</em><em> except for </em><em>SD</em><em>or </em><em>SF</em><em>, so it also matches the </em><em>SA</em><em> and </em><em>SP</em><em> files that the </em><em>obs.xml</em>* plugin matches. This means that METARs are processed by both plugins simultaneously.</p>
+<p>Its distribution file is located at <strong>/awips2/edex/data/utility/common_static/base/distribution/text.xml</strong>:</p>
 <pre><code>&lt;requestPatterns&gt;
-  &lt;regex&gt;^[ACFNRUW][A-Z].*&lt;/regex&gt;
-  &lt;regex&gt;^S[ACEG-Z].*&lt;/regex&gt;
+  &lt;regex&gt;^[ACFNRUW][A-Z][A-Z0-9]{4} [A-Z0-9]{4}&lt;/regex&gt;
+  &lt;regex&gt;^S[A-CEG-Z].*&lt;/regex&gt;
+  &lt;!-- Only have AFOS mapping for T[BCX] --&gt;
   &lt;regex&gt;^T[BCX].*&lt;/regex&gt;
-  &lt;regex&gt;^SF[A-OQ-TVZ].*&lt;/regex&gt;
+  &lt;regex&gt;^SF[A-OQ-TV-Z].*&lt;/regex&gt;
   &lt;regex&gt;^SDUS1.*&lt;/regex&gt;
   &lt;regex&gt;^SDUS4[1-6].*&lt;/regex&gt;
   &lt;regex&gt;^SDUS9[^7].*&lt;/regex&gt;
   &lt;regex&gt;^SFU[^S].*&lt;/regex&gt;
-  &lt;regex&gt;^SFUS4[^1].*&lt;/regex&gt; 
+  &lt;regex&gt;^SFUS4[^1].*&lt;/regex&gt;
   &lt;regex&gt;^SFP[^A].*&lt;/regex&gt;
-  &lt;regex&gt;^SFPA[^4].*&lt;/regex&gt; 
-  &lt;regex&gt;^SFPA4[^1].*&lt;/regex&gt;
-  &lt;regex&gt;^BMBB91.*&lt;/regex&gt; 
-  &lt;regex&gt;^N.*&lt;/regex&gt;
-  &lt;regex&gt;^F[EHIJKLMQVWX].*&lt;/regex&gt; 
+  &lt;regex&gt;^SFPA[^4].*&lt;/regex&gt;
+  &lt;regex&gt;^SFPA4[^12].*&lt;/regex&gt;
+  &lt;regex&gt;^BMBB91.*&lt;/regex&gt;
+  &lt;regex&gt;^N[A-Z][A-Z0-9]{4} [A-Z0-9]{4}&lt;/regex&gt;
+  &lt;regex&gt;^F[EHIJKLMQVWX].*&lt;/regex&gt;
+  &lt;regex&gt;wcl_decrypted&lt;/regex&gt;
+  &lt;regex&gt;ecmwf_mos_decrypted&lt;/regex&gt;
 &lt;/requestPatterns&gt;
 </code></pre>
+<p>Processes lots of WM patterns. The second pattern ^S[A-CEG-Z].* matches any header that starts with <strong>S</strong> except for <strong>SD</strong> or <strong>SF</strong>.  This is because it matches A through C (<em>A-C</em>), E, and G through Z (<em>G-Z</em>).  So it also matches the <strong>SA</strong> and <strong>SP</strong> files that the <strong>obs.xml</strong> plugin matches. This means that METARs are processed by both plugins simultaneously.</p>
+<hr />
 <h3 id="grib-data">Grib Data<a class="headerlink" href="#grib-data" title="Permanent link"></a></h3>
-<p><strong>/awips2/edex/data/utility/edex_static/base/distribution/grib.xml</strong> The grib/grid decoder distribution file matches all numerical grids distributed over the IDD NGRID feed by matching WMO header, and from CONDUIT by matching the <em>.grib</em> file extension.</p>
+<p>Its distribution file is located at <strong>/awips2/edex/data/utility/common_static/base/distribution/grib.xml</strong>:</p>
 <pre><code>&lt;requestPatterns&gt;
     &lt;!-- Super Set of all possible WMO grib patterns --&gt;
+    &lt;!-- Is specifically not restricting on CCCC since HPE isn't populating it --&gt;
     &lt;regex&gt;^[EHLMOYZ][A-Z]{3}\d{2}&lt;/regex&gt;
-    &lt;!-- This to match Unidata CONDUIT products w/o standard headers --&gt;
+    &lt;!-- Exclude Data Delivery specific patterns --&gt;
+    &lt;regexExclude&gt;^LZ[ABC][ABC]9[123] (KWBC|KNCF)&lt;/regexExclude&gt;
+
+    &lt;!-- ECMWF decrypted --&gt;
+    &lt;regex&gt;ecmwf_decrypted&lt;/regex&gt;
+
+    &lt;!-- NWPS pattern --&gt;
+    &lt;regex&gt;\p{Alpha}{3}_nwps_CG1&lt;/regex&gt;
+    &lt;regex&gt;\p{Alpha}{3}_nwps_CG0_Trkng&lt;/regex&gt;
+
+    &lt;!--  grib files without WMO headers --&gt;
     &lt;regex&gt;.*grib.*&lt;/regex&gt;
+    &lt;regex&gt;.*GRIB.*&lt;/regex&gt;
+    &lt;regex&gt;.*grb.*&lt;/regex&gt;
     &lt;regex&gt;^US058.*&lt;/regex&gt;
     &lt;regex&gt;^CMC_reg.*&lt;/regex&gt;
 &lt;/requestPatterns&gt;
 </code></pre>
+<p>The grib/grid decoder distribution file matches all numerical grids distributed over the IDD NGRID feed by matching WMO header, and from CONDUIT by matching various <em>.grib</em> file extensions.  It also includes an example of a <em>regexExclude</em> message which can be used to single out matching values that aren't to be included.</p>
+<hr />
+<h3 id="addtional-information">Addtional Information<a class="headerlink" href="#addtional-information" title="Permanent link"></a></h3>
 <p>Important notes about regular expressions:</p>
 <ul>
 <li>
-<p>Any time a new entry is placed in the <strong>pqact.conf</strong> file on LDM, a corresponding entry needs to be added to the appropriate Data Distribution file in the data distribution directory, or the data file will be logged to <strong>edex-ingest-unrecognized-files-YYYYMMDD.log</strong></p>
+<p>Any time a new entry is placed in the <strong>pqact.conf</strong> file on LDM, it is likely a corresponding entry needs to be added to the appropriate Data Distribution file in the data distribution directory, or the data file will be logged to <strong>edex-ingest-unrecognized-files-YYYYMMDD.log</strong>.  </p>
+<blockquote>
+<p>The exception to this rule is if the new data coming from the LDM is a type of data that already exists and EDEX already has a distribution file with a matching regex that will recognize it.</p>
+</blockquote>
 </li>
 <li>
-<p>Any time an entry is removed from the <strong>pqact.conf</strong> file, the corresponding entry should be removed from the appropriate Data Distribution file in the data distribution directory.</p>
+<p>If you have written a new regex for a distribution file to match on a filename, and it is not matching, then the file most likely has a header. In this case EDEX will only look at the header to match the regex.  You must change your regex to something that matches the header, not the filename.</p>
 </li>
 </ul>
                 
