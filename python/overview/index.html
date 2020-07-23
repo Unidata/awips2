@@ -9,7 +9,7 @@
         <meta name="description" content="Documentation for all things AWIPS.">
       
       
-        <link rel="canonical" href="http://unidata.github.io/awips2/python/awips-grids-and-cartopy/">
+        <link rel="canonical" href="http://unidata.github.io/awips2/python/overview/">
       
       
         <meta name="author" content="support-awips@unidata.ucar.edu">
@@ -21,7 +21,7 @@
     
     
       
-        <title>AWIPS Grids and Cartopy - Unidata AWIPS User Manual</title>
+        <title>Python API - Unidata AWIPS User Manual</title>
       
     
     
@@ -87,13 +87,9 @@
               
 
                   
-                      <span class="md-header-nav__parent">
-                      Python API
-                      </span>
-                  
  
                   
-                      AWIPS Grids and Cartopy
+                      Python API
                   
 
               
@@ -698,157 +694,17 @@
   
 
 
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-    
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-8" type="checkbox" id="nav-8" checked>
-    
-    <label class="md-nav__link" for="nav-8">
-      Python API
-    </label>
-    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-8">
-        Python API
-      </label>
-      <ul class="md-nav__list" data-md-scrollfix>
-        
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../python-awips-data-access/" title="Overview" class="md-nav__link">
-      Overview
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-  
-
-
   <li class="md-nav__item md-nav__item--active">
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
     
-      <label class="md-nav__link md-nav__link--active" for="toc">
-        AWIPS Grids and Cartopy
-      </label>
     
-    <a href="./" title="AWIPS Grids and Cartopy" class="md-nav__link md-nav__link--active">
-      AWIPS Grids and Cartopy
+    <a href="./" title="Python API" class="md-nav__link md-nav__link--active">
+      Python API
     </a>
     
-      
-<nav class="md-nav md-nav--secondary">
-  
-  
-  
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#with-pcolormesh" title="with pcolormesh" class="md-nav__link">
-    with pcolormesh
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#with-contourf" title="with contourf" class="md-nav__link">
-    with contourf
-  </a>
-  
-</li>
-      
-      
-      
-    </ul>
-  
-</nav>
-    
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../satellite-imagery/" title="Satellite Imagery" class="md-nav__link">
-      Satellite Imagery
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../nexrad-level-3-radar/" title="NEXRAD Level 3 Radar" class="md-nav__link">
-      NEXRAD Level 3 Radar
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../upper-air-bufr-soundings/" title="Upper air BUFR Soundings" class="md-nav__link">
-      Upper air BUFR Soundings
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../model-sounding-data/" title="Model Sounding Data" class="md-nav__link">
-      Model Sounding Data
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../map-resources-and-topography/" title="Map Resources and Topography" class="md-nav__link">
-      Map Resources and Topography
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../surface-obs-plot-metpy/" title="Surface Obs Plot with MetPy" class="md-nav__link">
-      Surface Obs Plot with MetPy
-    </a>
-  </li>
-
-        
-      </ul>
-    </nav>
   </li>
 
     
@@ -998,27 +854,8 @@
 <nav class="md-nav md-nav--secondary">
   
   
+    
   
-    <label class="md-nav__title" for="toc">Table of contents</label>
-    <ul class="md-nav__list" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#with-pcolormesh" title="with pcolormesh" class="md-nav__link">
-    with pcolormesh
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#with-contourf" title="with contourf" class="md-nav__link">
-    with contourf
-  </a>
-  
-</li>
-      
-      
-      
-    </ul>
   
 </nav>
                   </div>
@@ -1030,71 +867,12 @@
             <article class="md-content__inner md-typeset">
               
                 
-                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/python/awips-grids-and-cartopy.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
+                  <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/python/overview.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>AWIPS Grids and Cartopy</h1>
-                
-                <p>The simplest example of requesting and plotting AWIPS gridded data with Matplotlib and Cartopy.</p>
-<pre><code class="python">from awips.dataaccess import DataAccessLayer
-import cartopy.crs as ccrs
-import matplotlib.pyplot as plt
-from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
-%matplotlib inline
-
-DataAccessLayer.changeEDEXHost(&quot;edex-cloud.unidata.ucar.edu&quot;)
-request = DataAccessLayer.newDataRequest()
-request.setDatatype(&quot;grid&quot;)
-request.setLocationNames(&quot;RAP13&quot;)
-request.setParameters(&quot;T&quot;)
-request.setLevels(&quot;2.0FHAG&quot;)
-cycles = DataAccessLayer.getAvailableTimes(request, True)
-times = DataAccessLayer.getAvailableTimes(request)
-fcstRun = DataAccessLayer.getForecastRun(cycles[-1], times)
-response = DataAccessLayer.getGridData(request, [fcstRun[0]])
-grid = response[0]
-data = grid.getRawData()
-lons, lats = grid.getLatLonCoords()
-bbox = [lons.min(), lons.max(), lats.min(), lats.max()]
-
-def make_map(bbox, projection=ccrs.PlateCarree()):
-    fig, ax = plt.subplots(figsize=(16, 9),
-            subplot_kw=dict(projection=projection))
-    ax.set_extent(bbox)
-    ax.coastlines(resolution='50m')
-    gl = ax.gridlines(draw_labels=True)
-    gl.xlabels_top = gl.ylabels_right = False
-    gl.xformatter = LONGITUDE_FORMATTER
-    gl.yformatter = LATITUDE_FORMATTER
-    return fig, ax
-</code></pre>
-
-<h3 id="with-pcolormesh">with pcolormesh<a class="headerlink" href="#with-pcolormesh" title="Permanent link"></a></h3>
-<pre><code class="python">cmap = plt.get_cmap('rainbow')
-fig, ax = make_map(bbox=bbox)
-cs = ax.pcolormesh(lons, lats, data, cmap=cmap)
-cbar = fig.colorbar(cs, shrink=0.7, orientation='horizontal')
-cbar.set_label(str(grid.getLocationName()) +&quot; &quot; \
-               + str(grid.getLevel()) + &quot; &quot; \
-               + str(grid.getParameter()) \
-               + &quot; (&quot; + str(grid.getUnit()) + &quot;) &quot; \
-               + &quot;valid &quot; + str(grid.getDataTime().getRefTime()))
-</code></pre>
-
-<p><img alt="png" src="../../images/cartopy_2_1.png" /></p>
-<h3 id="with-contourf">with contourf<a class="headerlink" href="#with-contourf" title="Permanent link"></a></h3>
-<pre><code class="python">fig2, ax2 = make_map(bbox=bbox)
-cs2 = ax2.contourf(lons, lats, data, 80, cmap=cmap,
-                  vmin=data.min(), vmax=data.max())
-cbar2 = fig2.colorbar(cs2, shrink=0.7, orientation='horizontal')
-cbar2.set_label(str(grid.getLocationName()) +&quot; &quot; \
-               + str(grid.getLevel()) + &quot; &quot; \
-               + str(grid.getParameter()) \
-               + &quot; (&quot; + str(grid.getUnit()) + &quot;) &quot; \
-               + &quot;valid &quot; + str(grid.getDataTime().getRefTime()))
-</code></pre>
-
-<p><img alt="png" src="../../images/cartopy_4_0.png" /></p>
+                <h1 id="python-api">Python API<a class="headerlink" href="#python-api" title="Permanent link"></a></h1>
+<p>The <strong>python-awips</strong> package provides a data access framework (DAF) for requesting grid and geometry datasets from an EDEX server.  The DAF can be used to interact in command line, or scripting form, with the EDEX.  This is an alternative to using CAVE to interact with the data.</p>
+<p>Thorough documentation for python-awips can be found <a href="https://python-awips.readthedocs.io/en/latest/"><strong>here</strong></a>.</p>
                 
                   
                 
@@ -1113,7 +891,7 @@ cbar2.set_label(str(grid.getLocationName()) +&quot; &quot; \
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid">
         
-          <a href="../python-awips-data-access/" title="Overview" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../../cave/d2d-map-resources/" title="Map Overlays" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-flex__cell md-flex__cell--shrink">
               <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
@@ -1122,19 +900,19 @@ cbar2.set_label(str(grid.getLocationName()) +&quot; &quot; \
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Overview
+                Map Overlays
               </span>
             </div>
           </a>
         
         
-          <a href="../satellite-imagery/" title="Satellite Imagery" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+          <a href="../../dev/awips-development-environment/" title="AWIPS Development Environment (ADE)" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
             <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
               <span class="md-flex__ellipsis">
                 <span class="md-footer-nav__direction">
                   Next
                 </span>
-                Satellite Imagery
+                AWIPS Development Environment (ADE)
               </span>
             </div>
             <div class="md-flex__cell md-flex__cell--shrink">
