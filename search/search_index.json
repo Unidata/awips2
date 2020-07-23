@@ -1422,12 +1422,17 @@
         },
         {
             "location": "/edex/edex-users/",
-            "text": "To see a list of clients connecting to your EDEX server, use the \nedex users [YYYYMMDD]\n command, where \nYYYYMMDD\n is the optional date string.\n\n\nedex users\n\n -- EDEX Users 20160826 --\nuser@101.253.20.225\nuser@192.168.1.67\nawips@0.0.0.0\nawips@sdsmt.edu\n...\n\n\n\nLogging Daily EDEX Users\n\uf0c1\n\n\nCreate a short script to run once daily at 20 minutes after 00 UTC, appending each day's \nedex users\n list to a logfile \n/home/awips/edex-users.log\n.\n\n\n\n\n\n\nvi ~/edexUsers.sh\n\n\n#!/bin/bash\n/awips2/edex/bin/edex users >> /home/awips/edex-users.log\n\n\n\n\n\n\n\ncrontab -e\n\n\n0 20 * * * /home/awips/edexUsers.sh 1>> /dev/null 2>&1",
+            "text": "Monitor Users\n\uf0c1\n\n\nTo see a list of clients connecting to your EDEX server, use the \nedex users [YYYYMMDD]\n command, where \n[YYYYMMDD]\n is the optional date string.\n\n\nedex users\n\n -- EDEX Users 20160826 --\nuser@101.253.20.225\nuser@192.168.1.67\nawips@0.0.0.0\nawips@sdsmt.edu\n...\n\n\n\nLogging Daily EDEX Users\n\uf0c1\n\n\nTo get a running log of who has accessed EDEX, you can create a short script.  \n\n\nThe example below is a script that runs once daily at 20 minutes after 00 UTC, appending each day's \nedex users\n list to a logfile \n/home/awips/edex-users.log\n:\n\n\n\n\n\n\nvi~/edexUsers.sh\n\n#!/bin/bash\n/awips2/edex/bin/edex users >> /home/awips/edex-users.log\n\n\n\n\n\n\n\ncrontab -e\n\n0 20 * * * /home/awips/edexUsers.sh 1>> /dev/null 2>&1",
+            "title": "Monitor Users"
+        },
+        {
+            "location": "/edex/edex-users/#monitor-users",
+            "text": "To see a list of clients connecting to your EDEX server, use the  edex users [YYYYMMDD]  command, where  [YYYYMMDD]  is the optional date string.  edex users\n\n -- EDEX Users 20160826 --\nuser@101.253.20.225\nuser@192.168.1.67\nawips@0.0.0.0\nawips@sdsmt.edu\n...",
             "title": "Monitor Users"
         },
         {
             "location": "/edex/edex-users/#logging-daily-edex-users",
-            "text": "Create a short script to run once daily at 20 minutes after 00 UTC, appending each day's  edex users  list to a logfile  /home/awips/edex-users.log .    vi ~/edexUsers.sh  #!/bin/bash\n/awips2/edex/bin/edex users >> /home/awips/edex-users.log    crontab -e  0 20 * * * /home/awips/edexUsers.sh 1>> /dev/null 2>&1",
+            "text": "To get a running log of who has accessed EDEX, you can create a short script.    The example below is a script that runs once daily at 20 minutes after 00 UTC, appending each day's  edex users  list to a logfile  /home/awips/edex-users.log :    vi~/edexUsers.sh\n\n#!/bin/bash\n/awips2/edex/bin/edex users >> /home/awips/edex-users.log    crontab -e\n\n0 20 * * * /home/awips/edexUsers.sh 1>> /dev/null 2>&1",
             "title": "Logging Daily EDEX Users"
         },
         {

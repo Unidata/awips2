@@ -558,9 +558,36 @@
       
     
     
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Monitor Users
+      </label>
+    
     <a href="./" title="Monitor Users" class="md-nav__link md-nav__link--active">
       Monitor Users
     </a>
+    
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#logging-daily-edex-users" title="Logging Daily EDEX Users" class="md-nav__link">
+    Logging Daily EDEX Users
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
     
   </li>
 
@@ -863,6 +890,20 @@
     
   
   
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#logging-daily-edex-users" title="Logging Daily EDEX Users" class="md-nav__link">
+    Logging Daily EDEX Users
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -876,7 +917,8 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/edex/edex-users.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                <p>To see a list of clients connecting to your EDEX server, use the <code>edex users [YYYYMMDD]</code> command, where <code>YYYYMMDD</code> is the optional date string.</p>
+                <h1 id="monitor-users">Monitor Users<a class="headerlink" href="#monitor-users" title="Permanent link"></a></h1>
+<p>To see a list of clients connecting to your EDEX server, use the <code>edex users [YYYYMMDD]</code> command, where <code>[YYYYMMDD]</code> is the optional date string.</p>
 <pre><code>edex users
 
  -- EDEX Users 20160826 --
@@ -886,18 +928,21 @@ awips@0.0.0.0
 awips@sdsmt.edu
 ...
 </code></pre>
-<h1 id="logging-daily-edex-users">Logging Daily EDEX Users<a class="headerlink" href="#logging-daily-edex-users" title="Permanent link"></a></h1>
-<p>Create a short script to run once daily at 20 minutes after 00 UTC, appending each day's <code>edex users</code> list to a logfile <code>/home/awips/edex-users.log</code>.</p>
+<h2 id="logging-daily-edex-users">Logging Daily EDEX Users<a class="headerlink" href="#logging-daily-edex-users" title="Permanent link"></a></h2>
+<p>To get a running log of who has accessed EDEX, you can create a short script.  </p>
+<p>The example below is a script that runs once daily at 20 minutes after 00 UTC, appending each day's <code>edex users</code> list to a logfile <code>/home/awips/edex-users.log</code>:</p>
 <ol>
 <li>
-<p><code>vi ~/edexUsers.sh</code></p>
-<pre><code>#!/bin/bash
+<pre><code>vi~/edexUsers.sh
+
+#!/bin/bash
 /awips2/edex/bin/edex users &gt;&gt; /home/awips/edex-users.log
 </code></pre>
 </li>
 <li>
-<p><code>crontab -e</code></p>
-<pre><code>0 20 * * * /home/awips/edexUsers.sh 1&gt;&gt; /dev/null 2&gt;&amp;1
+<pre><code>crontab -e
+
+0 20 * * * /home/awips/edexUsers.sh 1&gt;&gt; /dev/null 2&gt;&amp;1
 </code></pre>
 </li>
 </ol>
