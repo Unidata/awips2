@@ -637,15 +637,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-load-mode-inventory" title="1. Load Mode &gt; Inventory" class="md-nav__link">
-    1. Load Mode &gt; Inventory
+  <a href="#set-load-mode-to-inventory" title="Set Load Mode to Inventory" class="md-nav__link">
+    Set Load Mode to Inventory
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-set-data-display-time-in-cave" title="2. Set Data Display Time in CAVE" class="md-nav__link">
-    2. Set Data Display Time in CAVE
+  <a href="#set-data-display-time-in-cave" title="Set Data Display Time in CAVE" class="md-nav__link">
+    Set Data Display Time in CAVE
   </a>
   
 </li>
@@ -978,15 +978,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#1-load-mode-inventory" title="1. Load Mode &gt; Inventory" class="md-nav__link">
-    1. Load Mode &gt; Inventory
+  <a href="#set-load-mode-to-inventory" title="Set Load Mode to Inventory" class="md-nav__link">
+    Set Load Mode to Inventory
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#2-set-data-display-time-in-cave" title="2. Set Data Display Time in CAVE" class="md-nav__link">
-    2. Set Data Display Time in CAVE
+  <a href="#set-data-display-time-in-cave" title="Set Data Display Time in CAVE" class="md-nav__link">
+    Set Data Display Time in CAVE
   </a>
   
 </li>
@@ -1014,34 +1014,38 @@
                 
                 
                 <h1 id="case-study-server-configuration">Case Study Server Configuration<a class="headerlink" href="#case-study-server-configuration" title="Permanent link"></a></h1>
-<p>This document covers what is necessary to install and run AWIPS EDEX as an archive and case study server (no purging of data).</p>
+<p>This document covers what is necessary to install and run AWIPS EDEX as an archive and case study server (no purging of processed data).</p>
+<hr />
 <h2 id="quick-install">Quick Install<a class="headerlink" href="#quick-install" title="Permanent link"></a></h2>
-<p>Follow the <a href="../../install-edex/">EDEX Install Instructions</a> including iptables config and an optional SSD mount (for large data volumes)</p>
+<p>Follow the <a href="../../install/install-edex/">EDEX Install Instructions</a> including iptables config and an optional SSD mount (for large data volumes).</p>
 <pre><code>groupadd fxalpha &amp;&amp; useradd -G fxalpha awips
 mkdir -p /awips2/data_store
-wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/awips2.repo
+wget -O /etc/yum.repos.d/awips2.repo https://www.unidata.ucar.edu/software/awips2/doc/el7.repo
 yum clean all
 yum groupinstall awips2-server -y
 </code></pre>
+<hr />
 <h2 id="disable-data-purging">Disable Data Purging<a class="headerlink" href="#disable-data-purging" title="Permanent link"></a></h2>
-<p>The easiest way to disable data purging is to add an <strong>&lt;exclude&gt;purge.*&lt;/exclude&gt;</strong> entry in <strong>/awips2/edex/conf/modes/ingest-modes.xml</strong> so that the purge plugin is not loaded when the EDEX ingest JVM is started:</p>
-<pre><code>vi /awips2/edex/conf/modes/ingest-modes.xml
+<p>The easiest way to disable data purging is to add an <code>&lt;exclude&gt;purge.*&lt;/exclude&gt;</code> entry in <code>/awips2/edex/conf/modes/modes.xml</code> so that the purge plugin is not loaded when the EDEX ingest JVM is started:</p>
+<pre><code>vi /awips2/edex/conf/modes/modes.xml
 
 &lt;?xml version="1.0" encoding="UTF-8" standalone="yes"?&gt;
 &lt;edexModes&gt;
     &lt;mode name="ingest"&gt;
-    &lt;exclude&gt;.*request.*&lt;/exclude&gt;
-    &lt;exclude&gt;edex-security.xml&lt;/exclude&gt;
-    &lt;exclude&gt;(taf|shef).*&lt;/exclude&gt;
-    &lt;exclude&gt;purge.*&lt;/exclude&gt;
+            &lt;exclude&gt;.*request.*&lt;/exclude&gt;
+            &lt;exclude&gt;edex-security.xml&lt;/exclude&gt;
+            ...
+            &lt;exclude&gt;purge.*&lt;/exclude&gt;
     &lt;/mode&gt;
+    ...
 &lt;/edexModes&gt;
 </code></pre>
+<hr />
 <h2 id="start-edex">Start EDEX<a class="headerlink" href="#start-edex" title="Permanent link"></a></h2>
-<p>without the LDM</p>
+<p>Start EDEX without running the LDM, since we do not want current data.  Run the following command:</p>
 <pre><code>edex start base
 </code></pre>
-<p>monitor services</p>
+<p>Double check everything is running, except the LDM:</p>
 <pre><code>edex
 
 [edex status]
@@ -1053,27 +1057,29 @@ yum groupinstall awips2-server -y
  EDEXrequest :: running :: pid 6566 44303 44599
  ldmadmin    :: not running
 </code></pre>
+<hr />
 <h2 id="ingest-case-study-data">Ingest Case Study Data<a class="headerlink" href="#ingest-case-study-data" title="Permanent link"></a></h2>
 <p>Raw data files of any type can be copied or moved into <code>/awips2/data_store/ingest/</code> to be picked up and decoded by EDEX.  Most data types are recognized by regular expression matching of the WMO Header or filename.  </p>
 <p>Individual files can be ingested on the command line with the regex header/pattern supplied as the last argument:</p>
-<pre><code>qpidNotify.py /full/path/to/data.file &lt;regex match&gt;
+<pre><code>qpidNotify.py /full/path/to/data.file [regex match]
 </code></pre>
-<p>for example</p>
+<p>For example:</p>
 <pre><code>qpidNotify.py /home/awips/uniwisc_U5_132GOES-15_IMG10.7um_4km_20171024_1830.area.png uniwisc
 
 qpidNotify.py /awips2/data_store/grid/NAM12/conduit/NAM_CONUS_12km_conduit_20171025_1200Z_F084_TMPK-7.000007.grib2 grib
 
 qpidNotify.py /awips2/data_store/radar/FTG_N0Q_20171015_1815 Level3
 </code></pre>
+<hr />
 <h2 id="viewing-archive-data-in-cave">Viewing Archive Data in CAVE<a class="headerlink" href="#viewing-archive-data-in-cave" title="Permanent link"></a></h2>
 <p>Because we are installing and configuring a standalone EDEX archive server without real-time LDM data ingest (and with purge disabled), any case study data that is ingested will be the "latest available" to CAVE, and you will see CAVE product menu time fill in with the latest of all data ingested.</p>
 <p>However, to display specific time-based data (in case you ingest more than one case study), there are two options:</p>
-<h3 id="1-load-mode-inventory">1. Load Mode &gt; Inventory<a class="headerlink" href="#1-load-mode-inventory" title="Permanent link"></a></h3>
+<h3 id="set-load-mode-to-inventory">Set Load Mode to Inventory<a class="headerlink" href="#set-load-mode-to-inventory" title="Permanent link"></a></h3>
 <p>In the top-left toolbar change <strong>Valid time seq</strong> to <strong>Inventory</strong>.</p>
 <p><img alt="" src="../../images/load_mode_inventory1.png" /></p>
-<p>Now any data product selected from the menus or the Product Browser will prompt you to select the exact time.</p>
+<p>Now any data product selected from the menus or the Product Browser should prompt you to select the exact time.</p>
 <p><img alt="" src="../../images/load_mode_inventory2.png" /></p>
-<h3 id="2-set-data-display-time-in-cave">2. Set Data Display Time in CAVE<a class="headerlink" href="#2-set-data-display-time-in-cave" title="Permanent link"></a></h3>
+<h3 id="set-data-display-time-in-cave">Set Data Display Time in CAVE<a class="headerlink" href="#set-data-display-time-in-cave" title="Permanent link"></a></h3>
 <p>At the bottom of the CAVE application, double-click the <strong>Time:</strong> entry to bring up a dialog window where you can set CAVE to a previous time, and choose the option of freezing CAVE at that time or allowing CAVE to "move forward in time" from that position as if it were real-time.</p>
 <p><img alt="" src="../../images/cave_set_time.png" /></p>
                 
