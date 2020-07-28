@@ -67,14 +67,15 @@ pages:
 #    - Hazard Alerts: cave/hazard-services-alert.md
 #    - Hazard Settings: cave/hazard-services-settings.md
 #    - Examples: cave/hazard-services-example.md
-- Supported Data Types:
-    - Gridded Model Display: cave/d2d-grids.md
-    - Surface Obs: cave/d2d-pointdata-surface-obs.md
-    - Satellite Imagery: cave/d2d-satellite.md
-    - NEXRAD Radar: cave/d2d-radar.md
-    - Upper Air: cave/d2d-uair.md
-    - NCEP/Hydro: cave/d2d-hydro.md
-    - Map Overlays: cave/d2d-map-resources.md
+# - Supported Data Types:
+#     - Gridded Model Display: cave/d2d-grids.md
+#     - Surface Obs: cave/d2d-pointdata-surface-obs.md
+#     - Satellite Imagery: cave/d2d-satellite.md
+#     - NEXRAD Radar: cave/d2d-radar.md
+#     - Upper Air: cave/d2d-uair.md
+#     - NCEP/Hydro: cave/d2d-hydro.md
+#     - Map Overlays: cave/d2d-map-resources.md
+- Development: dev/awips-development-environment.md
 - Python API: python/overview.md
     # - Overview: python/python-awips-data-access.md
     # - AWIPS Grids and Cartopy: python/awips-grids-and-cartopy.md
@@ -84,12 +85,11 @@ pages:
     # - Model Sounding Data: python/model-sounding-data.md
     # - Map Resources and Topography: python/map-resources-and-topography.md
     # - Surface Obs Plot with MetPy: python/surface-obs-plot-metpy.md
-- Development: dev/awips-development-environment.md
 - Appendix:
     - AWIPS Grid Parameters: appendix/appendix-grid-parameters.md
     - Maps Database: python/maps-database.md
     - Acronyms and Abbreviations: appendix/appendix-acronyms.md
-    - COTS and FOSS: appendix/appendix-cots.md
+    # - COTS and FOSS: appendix/appendix-cots.md
     - WSR-88D Product Table: appendix/appendix-wsr88d.md
     - Keyboard Shortcuts: cave/cave-keyboard-shortcuts.md
 

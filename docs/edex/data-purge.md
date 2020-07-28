@@ -168,13 +168,18 @@ For example, there is a **Model** category which sets the purge time to 3 hours 
 
 ### Logging
 
-Raw data purging can be seen in the **Ingest** logs (`/awips2/edex/logs/edex-ingest-[yyyymmdd].log` where `[yyyymmdd]` is the date stamp).
+Raw data purging can be seen in the **purge** logs as well (`/awips2/edex/logs/edex-ingest-purge-[yyyymmdd].log` where `[yyyymmdd]` is the date stamp).
 
-    [centos@tg-atm160027-edex-dev purge]$ grep -i 'archive' /awips2/edex/logs/edex-ingest-20200723.log
-    INFO  2020-07-23 01:40:00,002 2588 [DefaultQuartzScheduler_Worker-10] CurrentTimeClusterLockHandler: EDEX - Overriding lock for cluster task [ClusteredQuartz/clusteredquartz://archive/archiveScheduled/?cron=0+40+*+*+*+%3F] time out [1800000] exceeded by 1800000 ms.
-    INFO  2020-07-23 01:40:00,025 2592 [DefaultQuartzScheduler_Worker-10] JmsPooledProducer: EDEX - Creating AMQ producer archiveScheduledWork
-    INFO  2020-07-23 01:42:44,188 7793 [Camel (camel) thread #2 - timer://jmsPooledResourceCheck] JmsPooledProducer: EDEX - Closing AMQ producer archiveScheduledWork
-    INFO  2020-07-23 04:05:00,002 9517 [DefaultQuartzScheduler_Worker-10] CurrentTimeClusterLockHandler: EDEX - Overriding lock for cluster task [ClusteredQuartz/clusteredquartz://archive/archivePurgeScheduled/?cron=0+5+0%2F2+*+*+%3F] time out [3599999] exceeded by 3600001 ms.
-    INFO  2020-07-23 04:05:00,020 9521 [DefaultQuartzScheduler_Worker-10] JmsPooledProducer: EDEX - Creating AMQ producer archivePurgeScheduledWork
-    INFO  2020-07-23 04:07:46,389 1638 [Camel (camel) thread #2 - timer://jmsPooledResourceCheck] JmsPooledProducer: EDEX - Closing AMQ producer archivePurgeScheduledWork
+    [centos@tg-atm160027-edex-dev purge]$ grep -i 'archive' /awips2/edex/logs/edex-ingest-purge-20200728.log
+    INFO  2020-07-28 20:05:23,959 2329 [Purge-Archive] ArchivePurgeManager: EDEX - Start purge of category Raw - Observation, directory "/awips2/data_store/bufrhdw".
+    INFO  2020-07-28 20:05:23,960 2330 [Purge-Archive] ArchivePurgeManager: EDEX - End purge of category Raw - Observation, directory "/awips2/data_store/bufrhdw", deleted 0 files and directories.
+    INFO  2020-07-28 20:05:23,961 2331 [Purge-Archive] ArchivePurgeManager: EDEX - Unlocked: "/awips2/data_store/bufrhdw"
+    INFO  2020-07-28 20:05:23,963 2332 [Purge-Archive] ArchivePurgeManager: EDEX - Locked: "/awips2/data_store/xml"
+    INFO  2020-07-28 20:05:23,963 2333 [Purge-Archive] ArchivePurgeManager: EDEX - Start purge of category Raw - Products, directory "/awips2/data_store/xml".
+    INFO  2020-07-28 20:05:23,964 2334 [Purge-Archive] ArchivePurgeManager: EDEX - End purge of category Raw - Products, directory "/awips2/data_store/xml", deleted 5 files and directories.
+    INFO  2020-07-28 20:05:23,967 2335 [Purge-Archive] ArchivePurgeManager: EDEX - Unlocked: "/awips2/data_store/xml"
+    INFO  2020-07-28 20:05:23,967 2336 [Purge-Archive] ArchivePurger: EDEX - Raw::Archive Purged 28387 files in 23.8s.
+    INFO  2020-07-28 20:05:23,979 2337 [Purge-Archive] ArchivePurgeManager: EDEX - Purging directory: "/awips2/edex/data/archive".
+    INFO  2020-07-28 20:05:23,992 2338 [Purge-Archive] ArchivePurger: EDEX - Processed::Archive Purged 0 files in 25ms.
+    INFO  2020-07-28 20:05:23,992 2339 [Purge-Archive] ArchivePurger: EDEX - Archive Purge finished.  Time to run: 23.9s
     ...
