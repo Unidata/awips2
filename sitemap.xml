@@ -141,47 +141,12 @@
      <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>http://unidata.github.io/awips2/cave/d2d-grids/</loc>
-     <lastmod>2020-07-28</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
-     <loc>http://unidata.github.io/awips2/cave/d2d-pointdata-surface-obs/</loc>
-     <lastmod>2020-07-28</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
-     <loc>http://unidata.github.io/awips2/cave/d2d-satellite/</loc>
-     <lastmod>2020-07-28</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
-     <loc>http://unidata.github.io/awips2/cave/d2d-radar/</loc>
-     <lastmod>2020-07-28</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
-     <loc>http://unidata.github.io/awips2/cave/d2d-uair/</loc>
-     <lastmod>2020-07-28</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
-     <loc>http://unidata.github.io/awips2/cave/d2d-hydro/</loc>
-     <lastmod>2020-07-28</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
-     <loc>http://unidata.github.io/awips2/cave/d2d-map-resources/</loc>
+     <loc>http://unidata.github.io/awips2/dev/awips-development-environment/</loc>
      <lastmod>2020-07-28</lastmod>
      <changefreq>daily</changefreq>
     </url>
     <url>
      <loc>http://unidata.github.io/awips2/python/overview/</loc>
-     <lastmod>2020-07-28</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
-     <loc>http://unidata.github.io/awips2/dev/awips-development-environment/</loc>
      <lastmod>2020-07-28</lastmod>
      <changefreq>daily</changefreq>
     </url>
@@ -197,11 +162,6 @@
     </url>
     <url>
      <loc>http://unidata.github.io/awips2/appendix/appendix-acronyms/</loc>
-     <lastmod>2020-07-28</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
-     <loc>http://unidata.github.io/awips2/appendix/appendix-cots/</loc>
      <lastmod>2020-07-28</lastmod>
      <changefreq>daily</changefreq>
     </url>
