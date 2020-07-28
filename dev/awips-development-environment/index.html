@@ -21,7 +21,7 @@
     
     
       
-        <title>AWIPS Development Environment (ADE) - Unidata AWIPS User Manual</title>
+        <title>Development - Unidata AWIPS User Manual</title>
       
     
     
@@ -87,13 +87,9 @@
               
 
                   
-                      <span class="md-header-nav__parent">
-                      Development
-                      </span>
-                  
  
                   
-                      AWIPS Development Environment (ADE)
+                      Development
                   
 
               
@@ -710,41 +706,86 @@
   
 
 
-  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
-    
-      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-9" type="checkbox" id="nav-9" checked>
-    
-    <label class="md-nav__link" for="nav-9">
-      Development
-    </label>
-    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
-      <label class="md-nav__title" for="nav-9">
-        Development
-      </label>
-      <ul class="md-nav__list" data-md-scrollfix>
-        
-        
-          
-          
-          
-
-  
-
-
   <li class="md-nav__item md-nav__item--active">
     
     <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
     
+      
     
-    <a href="./" title="AWIPS Development Environment (ADE)" class="md-nav__link md-nav__link--active">
-      AWIPS Development Environment (ADE)
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Development
+      </label>
+    
+    <a href="./" title="Development" class="md-nav__link md-nav__link--active">
+      Development
     </a>
     
-  </li>
-
-        
-      </ul>
-    </nav>
+      
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-remove-awips-instances" title="1. Remove AWIPS Instances" class="md-nav__link">
+    1. Remove AWIPS Instances
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-set-up-awips-repo" title="2. Set Up AWIPS Repo" class="md-nav__link">
+    2. Set Up AWIPS Repo
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-install-the-ade" title="3. Install the ADE" class="md-nav__link">
+    3. Install the ADE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-download-the-source-code" title="4. Download the Source Code" class="md-nav__link">
+    4. Download the Source Code
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-set-up-eclipse" title="5. Set Up Eclipse" class="md-nav__link">
+    5. Set Up Eclipse
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-run-cave" title="6. Run CAVE" class="md-nav__link">
+    6. Run CAVE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" title="Troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+    
   </li>
 
     
@@ -851,6 +892,77 @@
               </div>
             
             
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-remove-awips-instances" title="1. Remove AWIPS Instances" class="md-nav__link">
+    1. Remove AWIPS Instances
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-set-up-awips-repo" title="2. Set Up AWIPS Repo" class="md-nav__link">
+    2. Set Up AWIPS Repo
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-install-the-ade" title="3. Install the ADE" class="md-nav__link">
+    3. Install the ADE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-download-the-source-code" title="4. Download the Source Code" class="md-nav__link">
+    4. Download the Source Code
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-set-up-eclipse" title="5. Set Up Eclipse" class="md-nav__link">
+    5. Set Up Eclipse
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-run-cave" title="6. Run CAVE" class="md-nav__link">
+    6. Run CAVE
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" title="Troubleshooting" class="md-nav__link">
+    Troubleshooting
+  </a>
+  
+</li>
+      
+      
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
           
           <div class="md-content">
             <article class="md-content__inner md-typeset">
@@ -859,28 +971,50 @@
                   <a href="https://github.com/Unidata/awips2/edit/unidata_18.1.1/docs/dev/awips-development-environment.md" title="Edit this page" class="md-icon md-content__icon">edit</a>
                 
                 
-                  <h1>AWIPS Development Environment (ADE)</h1>
-                
-                <p>Quick instructions on how to deploy CAVE from Eclipse.</p>
-<ol>
-<li>
-<p>Change <code>/etc/yum.repos.d/awips2.repo</code> to </p>
-<pre><code>[awips2repo]
+                <h1 id="awips-development-environment-ade">AWIPS Development Environment (ADE)<a class="headerlink" href="#awips-development-environment-ade" title="Permanent link"></a></h1>
+<p>Quick instructions on how to download the latest source code and run CAVE from Eclipse.</p>
+<blockquote>
+<p><strong>Note</strong>: It is important to keep in mind these instructions are intended for a system that is specifically used for developing AWIPS.  It should not be used in conjunction with installed production versions of AWIPS.</p>
+</blockquote>
+<h2 id="1-remove-awips-instances">1. Remove AWIPS Instances<a class="headerlink" href="#1-remove-awips-instances" title="Permanent link"></a></h2>
+<p>First, make sure to remove any instances of AWIPS that are already installed, this can potentially cause problems when setting up the development environment.  Below is an example that had CAVE installed.</p>
+<p>Uninstall with yum:</p>
+<pre><code>yum clean all
+yum groupremove awips2-cave
+</code></pre>
+<p>Check to make sure all rpms have been removed:</p>
+<pre><code>rpm -qa | grep awips2
+</code></pre>
+<p>Remove the awips2 directory:</p>
+<pre><code>rm -rf /awips2
+</code></pre>
+<hr />
+<h2 id="2-set-up-awips-repo">2. Set Up AWIPS Repo<a class="headerlink" href="#2-set-up-awips-repo" title="Permanent link"></a></h2>
+<p>Create a repo file named <code>/etc/yum.repos.d/awips2.repo</code>, and set the contents to the following:
+<pre>
+[awips2repo]
 name=AWIPS II Repository
-baseurl=https://www.unidata.ucar.edu/repos/yum/el6-dev/
+baseurl=https://www.unidata.ucar.edu/repos/yum/<b>el7-dev</b>/
 enabled=1
 protect=0
 gpgcheck=0
-proxy=_none_
+proxy=<em>none</em>
+</pre></p>
+<blockquote>
+<p><strong>Note</strong>: This file may already exist if AWIPS had been previously installed on the machine, so make sure to edit the baseurl.</p>
+</blockquote>
+<hr />
+<h2 id="3-install-the-ade">3. Install the ADE<a class="headerlink" href="#3-install-the-ade" title="Permanent link"></a></h2>
+<p>Install the AWIPS Development Environment (ADE) using yum.  This will install Eclipse (4.6.1), Java (1.8), Ant (1.9.6), Python 2.7 and its modules (Numpy, Matplotlib, Shapely, Jep, and others). </p>
+<pre><code>yum clean all
+yum groupinstall awips2-ade
 </code></pre>
-</li>
-<li>
-<p><code>yum clean all &amp;&amp; yum groupinstall awips2-ade</code></p>
-<p>This will install Eclipse (4.6.1), Java (1.8), Ant (1.9.6), Maven, Python 2.7 and its modules (Numpy, Matplotlib, Shapely, others). </p>
-</li>
-<li>
-<p><code>git clone https://github.com/Unidata/awips2.git</code></p>
-<p>The full list of repositories required:</p>
+<hr />
+<h2 id="4-download-the-source-code">4. Download the Source Code<a class="headerlink" href="#4-download-the-source-code" title="Permanent link"></a></h2>
+<p>If it's not already installed, install git:</p>
+<pre><code>yum install git
+</code></pre>
+<p>Next clone all of the required repositories for AWIPS:</p>
 <pre><code>git clone https://github.com/Unidata/awips2.git
 git clone https://github.com/Unidata/awips2-core.git
 git clone https://github.com/Unidata/awips2-core-foss.git
@@ -891,9 +1025,10 @@ git clone https://github.com/Unidata/awips2-gsd.git
 git clone https://github.com/Unidata/awips2-drawing.git
 git clone https://github.com/Unidata/awips2-cimss.git
 </code></pre>
-</li>
-<li>
-<p>Run <code>/awips2/eclipse/eclipse.sh</code></p>
+<hr />
+<h2 id="5-set-up-eclipse">5. Set Up Eclipse<a class="headerlink" href="#5-set-up-eclipse" title="Permanent link"></a></h2>
+<p>Open eclipse by running: <code>/awips2/eclipse/eclipse.sh</code></p>
+<p>Verify or make the following changes to set up eclipse for AWIPS development:</p>
 <ul>
 <li>
 <p>Preferences &gt; Java </p>
@@ -901,32 +1036,47 @@ git clone https://github.com/Unidata/awips2-cimss.git
 </li>
 <li>
 <p>Preferences &gt; PyDev &gt; Python Interpreter</p>
-<p>Set to <strong>/awips2/python/bin/python</strong> (should be resolved by Auto-Config)</p>
+<p>Set to <strong>/awips2/python/bin/python</strong></p>
+</li>
+<li>
+<p>There might be some unresolved errors.  These should be made to warnings instead.</p>
+<p>Preferences &gt; Java &gt; Compiler &gt; Building &gt; <strong>Circular Dependencies</strong> &gt; Change to Warning
+Preferences &gt; Plug-in Development &gt; API Baselines &gt; <strong>Missing API Baseline</strong> &gt; Change to Warning</p>
+</li>
+<li>
+<p><strong>Turn off automatic building</strong> (you will turn this back on after importing the repos)</p>
+<p>Project &gt; Uncheck "Build Automatically"</p>
 </li>
 <li>
 <p>File &gt; Import &gt; General &gt; Existing Projects Into Workspace</p>
-<p>Import all of the git cloned project folders <strong>EXCEPT</strong> for the main (first) <strong>github.com/Unidata/awips2.git</strong> directory (which should be <strong>~/awips2</strong>).</p>
+<p>Import all of the git cloned project folders <strong>EXCEPT</strong> for the main (first) <strong>github.com/Unidata/awips2.git</strong> directory (which should be <strong>~/awips2</strong>).<br />
+Select <strong>awips2-core</strong>, <strong>awips2-core-foss</strong>, <strong>awips2-foss</strong>, <strong>awips2-ncep</strong>, etc. &gt; Select All Projects &gt; Finish </p>
 <p>You'll want to import <strong>~/awips2</strong> in two parts to ensure a clean and error-free Eclipse build:</p>
 <ol>
 <li>Import <strong>awips2/cave</strong> &gt; Select All Projects &gt; Finish</li>
 <li>Import <strong>awips2/edexOsgi</strong> &gt; Select All Projects &gt; Finish</li>
 </ol>
-<p>Now import all other repositories fully: </p>
-<p>Select <strong>awips2-core</strong>, <strong>awips2-core-foss</strong>, <strong>awips2-foss</strong>, <strong>awips2-ncep</strong>, etc. &gt; Select All Projects &gt; Finish </p>
 </li>
 <li>
 <p>Project &gt; Clean</p>
-<p>Run a clean build and ensure no errors are reported.  </p>
-</li>
-</ul>
+<p>Clean the build and ensure no errors are reported.  </p>
 </li>
 <li>
-<p>Run <strong>com.raytheon.viz.product.awips/developer.product</strong></p>
+<p>Turn automatic building back on</p>
+<p>Project &gt; Check "Build Automatically"</p>
+</li>
+</ul>
+<hr />
+<h2 id="6-run-cave">6. Run CAVE<a class="headerlink" href="#6-run-cave" title="Permanent link"></a></h2>
+<p>Launch CAVE from eclipse using <strong>com.raytheon.viz.product.awips/developer.product</strong>.</p>
 <p>Double-click the <strong>developer.product</strong> file to open the Product View in Eclipse.  Select <strong>Overview</strong> &gt; <strong>Synchronize</strong> and then right-click the file in the left-side package explorer:</p>
 <p>Select <strong>Run As</strong> &gt; <strong>Eclipse Application</strong> to launch CAVE in the development environment. </p>
 <p>Select <strong>Debug</strong> &gt; <strong>Eclipse Application</strong> to launch CAVE in in debug mode. </p>
-</li>
-</ol>
+<hr />
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link"></a></h2>
+<ul>
+<li>If you are getting a lot of errors, try changing your Java Compiler to 1.7, build the project, then change back to 1.8 and rebuild.</li>
+</ul>
                 
                   
                 
