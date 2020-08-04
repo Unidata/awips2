@@ -1,6 +1,6 @@
 # Unidata AWIPS User Manual
 
-[https://www.unidata.ucar.edu/software/awips2](https://www.unidata.ucar.edu/software/awips2)
+[https://www.unidata.ucar.edu/software/awips2](https://www.unidata.ucar.edu/software/awips2) 
 
 ---
 
