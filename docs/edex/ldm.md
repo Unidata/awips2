@@ -15,8 +15,6 @@ Data feeds are defined by the **ldmd.conf** file in `/awips2/ldm/etc/ldmd.conf`.
     REQUEST CONDUIT "nam" idd.unidata.ucar.edu              # NAM12
     REQUEST CONDUIT "pgrb2" idd.unidata.ucar.edu            # GFS0p25
 
-> **Note**: Remember that LDM commands such as these require **TAB SEPARATION** between items.
-
 ---
 
 ## Optional LDM Feeds
