@@ -1132,12 +1132,12 @@ metadata=# select nx,ny,dx,dy,majoraxis,minoraxis,la1,lo1,lov,latin1,latin2 from
  201 | 155 | 4.29699993133545 | 4.29699993133545 |   6378160 |   6356775 | 42.2830009460449 | -72.3610000610352 | -67.0770034790039 | 45.3680000305176 | 45.3680000305176
 (1 row)
 </code></pre>
-<p>Compare with the projection info returned by wgrib on the original file (look at the bolded sections below and make sure they match up with the corresponding entries returned from the database above):
+<p>Compare with the projection info returned by wgrib on the original file (look at the bolded sections below and make sure they match up with the corresponding entries returned from the database above):</p>
 <!--
 Using html for this code block so that certain sections within the code can be emphasized (bolded)
 -->
 <pre>
-wgrib -V wrf.grib<br />
+wgrib -V wrf.grib  
 rec 799:27785754:date 2014102318 ALBDO kpds5=84 kpds6=1 kpds7=0 levels=(0,0) grid=255 sfc 6hr fcst: bitmap: 736 undef
   ALBDO=Albedo [%]
   timerange 0 P1 6 P2 0 TimeU 1  <b>nx 201 ny 155</b> GDS grid 3 num_in_ave 0 missing 0
@@ -1146,7 +1146,8 @@ rec 799:27785754:date 2014102318 ALBDO kpds5=84 kpds6=1 kpds7=0 levels=(0,0) gri
       <b>Latin1 45.368000 Latin2 45.368000</b> LatSP 0.000000 LonSP 0.000000
       North Pole (201 x 155) <b>Dx 4.297000 Dy 4.297000</b> scan 64 mode 8
   min/max data 5 21.9  num bits 8  BDS_Ref 50  DecScale 1 BinScale 0
-</pre></p>
+</pre>
+
 <p>Notice that our grib file has a <strong>Lambert Conformal</strong> projection.  We will need these values for the next step. Note that <strong>there is a tolerance of +/- 0.1 degrees</strong> to keep in mind when defining your coverage area.</p>
 <h3 id="grib2-products_1">Grib2 Products<a class="headerlink" href="#grib2-products_1" title="Permanent link"></a></h3>
 <p>When the grid was ingested a record was added to the <code>grid_coverage</code> table with its navigation information:</p>
@@ -1159,7 +1160,7 @@ nx  | ny  |  dx   |  dy   | majoraxis | minoraxis |    la1    | lo1 | lov | lati
 600 | 640 | 0.005 | 0.005 |           |           | 40.799999 | 261 |     |        |       
 (1 row)
 </code></pre>
-<p>Compare with the projection info returned by wgrib2 on the original file (look at the bolded sections below and make sure they match up with the corresponding entries returned from the database above):
+<p>Compare with the projection info returned by wgrib2 on the original file (look at the bolded sections below and make sure they match up with the corresponding entries returned from the database above):</p>
 <!--
     Using html for this code block so that certain sections within the code can be emphasized (bolded)
 -->
@@ -1171,7 +1172,7 @@ wgrib2 -grid -nxny cpti.grib2
     lon <b>260.999999</b> to 263.999999 by <b>0.005000</b> #points=384000:(600 x 640)
   ...
 </pre>
-Notice that our grib2 file has a <strong>Lat/lon Grid</strong> projection.  Where:</p>
+<p>Notice that our grib2 file has a <strong>Lat/lon Grid</strong> projection.  Where:</p>
 <ul>
 <li><strong>nx</strong> is <strong>600</strong></li>
 <li><strong>ny</strong> is <strong>640</strong></li>
@@ -1422,21 +1423,22 @@ rec 799:27785754:date 2014102318 ALBDO kpds5=84 kpds6=1 kpds7=0 levels=(0,0) gri
 </ul>
 <p><strong>OR:</strong></p>
 <ul>
-<li>Running the following command:
+<li>Running the following command:</li>
+</ul>
 <pre>
 wgrib2 -varX cpti.grib2
  1:0:var209_255_1_<b>161</b>_3_61
 ...
 </pre>
-    Where the 4th argument after "var" is the center id, in this case <strong>161</strong>.</li>
-</ul>
-<p>To get the subcenter, simply run:
+<pre><code>Where the 4th argument after "var" is the center id, in this case **161**.
+</code></pre>
+<p>To get the subcenter, simply run:</p>
 <pre>
 wgrib2 -subcenter cpti.grib2
   1:0:subcenter=<b>0</b>
 ...
 </pre>
-The subcenter of this file is <strong>0</strong>.</p>
+<p>The subcenter of this file is <strong>0</strong>.</p>
 <p>So based on the center and subcenter, the corresponding directory is:</p>
 <pre><code>/awips2/edex/data/utility/common_static/base/grib/tables/161/0/
 </code></pre>
@@ -1453,7 +1455,7 @@ wgrib2 -full_name cpti.grib2
 <p>So, the full path to the corresponding table would be:</p>
 <pre><code>/awips2/edex/data/utility/common_static/base/grib/tables/161/0/4.2.209.3.table
 </code></pre>
-<p>The parameter ID was also listed in that output as <strong>61</strong>.  Make sure that specific parameter information is defined in the table:
+<p>The parameter ID was also listed in that output as <strong>61</strong>.  Make sure that specific parameter information is defined in the table:</p>
 <pre>
 ...
 56:56:Reflectivity at -20C:dBZ:ReflectivityM20C
@@ -1461,7 +1463,8 @@ wgrib2 -full_name cpti.grib2
 58:58:Merged Reflectivity At Lowest Altitude (RALA):dBZ:MergedReflectivityAtLowestAltitude
 59:59:CPTI 80mph+:%:CPTI80mph
 <b>61:61:CPTI 110mph+:%:CPTI110mph</b>
-</pre></p>
+</pre>
+
 <p>You will have to restart ingestGrib for the changes to take place:</p>
 <pre><code>  sudo service edex_camel restart ingestGrib
 </code></pre>

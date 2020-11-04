@@ -932,11 +932,10 @@ cd edex-docker
  edex (status|start|stop|setup|log|purge|qpid|users)
 </code></pre>
 <p>To update to the latest version and restart:</p>
-<pre><code class="bash">docker pull unidata/edex-ingest:latest
+<pre><code class="language-bash">docker pull unidata/edex-ingest:latest
 docker-compose stop
 docker-compose up -d edex-ingest
 </code></pre>
-
 <hr />
 <h2 id="configuration-and-customization">Configuration and Customization<a class="headerlink" href="#configuration-and-customization" title="Permanent link"></a></h2>
 <p>The file <code>docker-compose.yml</code> defines files to mount to the container and which ports to open:</p>

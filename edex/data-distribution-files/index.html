@@ -968,7 +968,9 @@ aww.xml           lsr.xml              satellite.gini.xml
 <p>Copy the base version of <strong>satellite.gini.xml</strong> from the base distribution directory <strong>/awips2/edex/data/utility/common_static/base/distribution</strong> into the site distribution directory <strong>/awips2/edex/data/utility/common_static/site/XXX/distribution</strong></p>
 </li>
 <li>
-<p>Edit the site version of <strong>satellite.gini.xml</strong>, adding a new <code>&lt;regex&gt; &lt;/regex&gt;</code> tag immediately below the existing regular expression (<code>&lt;regex&gt; &lt;/regex&gt;</code>) tag. The contents of the tag will be <strong>^LOCAL.sat</strong>. The final result will be:
+<p>Edit the site version of <strong>satellite.gini.xml</strong>, adding a new <code>&lt;regex&gt; &lt;/regex&gt;</code> tag immediately below the existing regular expression (<code>&lt;regex&gt; &lt;/regex&gt;</code>) tag. The contents of the tag will be <strong>^LOCAL.sat</strong>. The final result will be:</p>
+</li>
+</ol>
 <!---
 Note: this next code block is formatted using html so that one of the lines of code can be bolded for emphasis.  This is why &lt; and &gt; are used instead of < and >.
 -->
@@ -976,14 +978,13 @@ Note: this next code block is formatted using html so that one of the lines of c
   &lt;requestPatterns xmlns:ns2="group"&gt;
       &lt;regex&gt;TI[CGT]... ....&lt;/regex&gt;
       &lt;regex&gt;rad/NEXRCOMP&lt;/regex&gt;
-      &lt;regex&gt;.*.gini.*&lt;/regex&gt;
+      &lt;regex&gt;.\*.gini.\*&lt;/regex&gt;
       <b>&lt;regex&gt;^LOCAL.sat.*&lt;/regex&gt;</b>
   &lt;/requestPatterns&gt;
-</pre></p>
-</li>
-<li>
-<p>Save the file and exit the editor. EDEX will automatically pick up the new distribution pattern.</p>
-</li>
+</pre>
+
+<ol>
+<li>Save the file and exit the editor. EDEX will automatically pick up the new distribution pattern.</li>
 </ol>
 <p>Raw files are written to subdirectories in  <strong>/awips2/data_store/</strong>, and a message is sent via QPID to the EDEX distribution service from the LDM. When a regular expression match is found in a data distribution file, the raw data file is placed in a queue for the matching plugin to decode and process. The distribution files are used to match file headers as well as filenames, which is how files dropped into EDEX's manual endpoint (<strong>/awips2/data_store/ingest/</strong>) are processed.</p>
 <hr />

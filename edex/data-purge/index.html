@@ -958,7 +958,7 @@ airepPurgeRules.xml          cwaPurgeRules.xml            profilerPurgeRules.xml
 </code></pre>
 <hr />
 <h3 id="time-based-purge">Time-based purge<a class="headerlink" href="#time-based-purge" title="Permanent link"></a></h3>
-<p>If a plugin has no XML file, the default rule of 1 day (24 hours) is used, from <code>/awips2/edex/data/utility/common_static/base/purge/defaultPurgeRules.xml</code>:
+<p>If a plugin has no XML file, the default rule of 1 day (24 hours) is used, from <code>/awips2/edex/data/utility/common_static/base/purge/defaultPurgeRules.xml</code>:</p>
 <!--
 Use html <pre> tag to be able to bold a specific section.  Make sure to replace '<' with '&lt;' and '>' with '&gt;'.
 -->
@@ -968,7 +968,8 @@ Use html <pre> tag to be able to bold a specific section.  Make sure to replace 
         <b>&lt;period&gt;01-00:00:00&lt;/period&gt;</b>
     &lt;/defaultRule&gt;
 &lt;/purgeRuleSet&gt;
-</pre></p>
+</pre>
+
 <p>Time-based purging is set with the <em>period</em> tag and uses the <em>reference time</em> of the data. The reference time of the data is determined by the decoder. </p>
 <hr />
 <h3 id="30-day-nexrad3-example">30-day NEXRAD3 Example<a class="headerlink" href="#30-day-nexrad3-example" title="Permanent link"></a></h3>

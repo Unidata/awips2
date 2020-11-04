@@ -870,7 +870,7 @@ yum groupremove awips2-cave
 </code></pre>
 <hr />
 <h2 id="2-set-up-awips-repo">2. Set Up AWIPS Repo<a class="headerlink" href="#2-set-up-awips-repo" title="Permanent link"></a></h2>
-<p>Create a repo file named <code>/etc/yum.repos.d/awips2.repo</code>, and set the contents to the following:
+<p>Create a repo file named <code>/etc/yum.repos.d/awips2.repo</code>, and set the contents to the following:</p>
 <pre>
 [awips2repo]
 name=AWIPS II Repository
@@ -878,8 +878,8 @@ baseurl=https://www.unidata.ucar.edu/repos/yum/<b>el7-dev</b>/
 enabled=1
 protect=0
 gpgcheck=0
-proxy=<em>none</em>
-</pre></p>
+proxy=_none_
+</pre>
 <blockquote>
 <p><strong>Note</strong>: This file may already exist if AWIPS had been previously installed on the machine, so make sure to edit the baseurl.</p>
 </blockquote>
