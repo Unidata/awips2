@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,26 +33,28 @@ import javax.persistence.UniqueConstraint;
 
 /**
  * Derived class that consolidates storage info for a Parm.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 03/14/08     #1030      randerso    Initial port
- * 08/05/2013   #1571      randerso    Moved to com.raytheon.uf.common.dataplugin
- *                                     Added GridParmInfo as a field.
- *                                     Added hibernate annotations
- * 10/22/2013   #2361      njensen     Remove ISerializableObject
- * 01/15/2014   #1571      randerso    Added clone method and copy constructor
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 14, 2008  1030     randerso  Initial port
+ * Aug 05, 2013  1571     randerso  Moved to com.raytheon.uf.common.dataplugin
+ *                                  Added GridParmInfo as a field. Added
+ *                                  hibernate annotations
+ * Oct 22, 2013  2361     njensen   Remove ISerializableObject
+ * Jan 15, 2014  1571     randerso  Added clone method and copy constructor
+ * Jan 04, 2018  7178     randerso  Change clone() to copy()
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 @Entity
-@Table(name = "gfe_parminfo", uniqueConstraints = { @UniqueConstraint(columnNames = { "parmId_id" }) })
+@Table(name = "gfe_parminfo", uniqueConstraints = {
+        @UniqueConstraint(columnNames = { "parmId_id" }) })
 public class ParmStorageInfo implements Cloneable {
 
     /**
@@ -87,7 +89,7 @@ public class ParmStorageInfo implements Cloneable {
 
     /**
      * Constructor
-     * 
+     *
      * @param dataType
      * @param gridParmInfo
      * @param dataOffset
@@ -106,7 +108,7 @@ public class ParmStorageInfo implements Cloneable {
 
     /**
      * Copy constructor
-     * 
+     *
      * @param orig
      */
     public ParmStorageInfo(final ParmStorageInfo orig) {
@@ -114,14 +116,9 @@ public class ParmStorageInfo implements Cloneable {
         this.dataOffset = orig.dataOffset;
         this.dataMultiplier = orig.dataMultiplier;
         this.dataType = orig.dataType;
-        this.gridParmInfo = orig.gridParmInfo.clone();
+        this.gridParmInfo = orig.gridParmInfo.copy();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#clone()
-     */
     @Override
     public ParmStorageInfo clone() {
         return new ParmStorageInfo(this);
@@ -212,11 +209,6 @@ public class ParmStorageInfo implements Cloneable {
         return gridParmInfo;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -232,11 +224,6 @@ public class ParmStorageInfo implements Cloneable {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -245,7 +232,7 @@ public class ParmStorageInfo implements Cloneable {
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof ParmStorageInfo)) {
+        if (getClass() != obj.getClass()) {
             return false;
         }
         ParmStorageInfo other = (ParmStorageInfo) obj;

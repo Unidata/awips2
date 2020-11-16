@@ -30,6 +30,7 @@ import com.raytheon.uf.viz.core.datastructure.LoopProperties;
 import com.raytheon.uf.viz.core.drawables.PaintProperties;
 import com.raytheon.uf.viz.core.drawables.ResourcePair;
 import com.raytheon.uf.viz.core.exception.VizException;
+import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.d2d.ui.AbstractNonMapDisplay;
 import com.raytheon.viz.core.graphing.GraphProperties;
 
@@ -40,14 +41,15 @@ import com.raytheon.viz.core.graphing.GraphProperties;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 19, 2009            askripsk    Initial creation
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ----------------------------------
+ * Mar 19, 2009           askripsk  Initial creation
+ * Feb 07, 2018  6845     bsteffen  Do not paint invisible resources.
  * 
  * </pre>
  * 
  * @author askripsk
- * @version 1.0
  */
 @XmlRootElement
 public class RadarXYDisplay extends AbstractNonMapDisplay {
@@ -59,18 +61,10 @@ public class RadarXYDisplay extends AbstractNonMapDisplay {
         super(new PixelExtent(0, 1000, 0, 1000), new RadarXYDescriptor());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
-     * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-     */
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
         target.setBackgroundColor(backgroundColor);
-        // super.paint(target, paintProps);
         LoopProperties lp = paintProps.getLoopProperties();
         if (lp == null) {
             lp = new LoopProperties();
@@ -80,10 +74,11 @@ public class RadarXYDisplay extends AbstractNonMapDisplay {
 
         // Plot the resource data on the graph
         for (ResourcePair rp : getDescriptor().getResourceList()) {
-            if (rp.getResource() != null) {
+            AbstractVizResource<?, ?> resource = rp.getResource();
+            if (resource != null && rp.getProperties().isVisible()) {
                 graphProps = (GraphProperties) calcPaintDataTime(graphProps,
-                        rp.getResource());
-                rp.getResource().paint(target, graphProps);
+                        resource);
+                resource.paint(target, graphProps);
             }
         }
     }

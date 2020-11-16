@@ -68,6 +68,7 @@ import com.raytheon.uf.edex.plugin.grid.dao.GridDao;
  * ------------- -------- --------- -----------------------------------------
  * Sep 28, 2015  3756     nabowle   Initial creation
  * Apr 11, 2016  5564     bsteffen  Move localization files to common_static
+ * Jun 24, 2019  ----     mjames    Simple localization levels
  * 
  * </pre>
  * 

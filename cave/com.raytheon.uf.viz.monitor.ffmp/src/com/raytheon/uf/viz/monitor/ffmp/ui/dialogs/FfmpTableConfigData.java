@@ -69,8 +69,13 @@ public class FfmpTableConfigData {
      */
     public enum COLUMN_NAME {
 
-        NAME("NAME"), RATE("RATE"), QPE("QPE"), QPF("QPF"), GUID("GUID"), RATIO(
-                "RATIO"), DIFF("DIFF");
+        NAME("NAME"),
+        RATE("RATE"),
+        QPE("QPE"),
+        QPF("QPF"),
+        GUID("GUID"),
+        RATIO("RATIO"),
+        DIFF("DIFF");
 
         private final String columnName;
 
@@ -120,7 +125,7 @@ public class FfmpTableConfigData {
     private void createFFMPTableColumnAttributes() {
         FFMPConfig config = FFMPConfig.getInstance();
         AttributesDlgData attrData = new AttributesDlgData();
-        
+
         ArrayList<FFMPTableColumnXML> columnList = config.getFFMPConfigData()
                 .getTableColumnData();
         SortDirection sortDir = SortDirection.Ascending;
@@ -147,42 +152,50 @@ public class FfmpTableConfigData {
                             sortDir = SortDirection.None;
                         }
                     }
-                    if (colName.equalsIgnoreCase(COLUMN_NAME.NAME
-                            .getColumnName())) {
-                        tableColumnAttrMap.put(key, new ColumnAttribData(
-                                COLUMN_NAME.NAME.getColumnName(), sortDir,
-                                reverseFilter, "::"));
-                        attrData.setColumnVisible(key,
-                                col.getDisplayedInTable());
-                    } else if (colName.equalsIgnoreCase(COLUMN_NAME.RATE
-                            .getColumnName())) {
-                        tableColumnAttrMap.put(key, new ColumnAttribData(
-                                COLUMN_NAME.RATE.getColumnName(), sortDir,
-                                reverseFilter, "::"));
-                        attrData.setColumnVisible(key,
-                                col.getDisplayedInTable());
-                    } else if (colName.equalsIgnoreCase(COLUMN_NAME.QPE
-                            .getColumnName())) {
-                        tableColumnAttrMap.put(key, new ColumnAttribData(
-                                COLUMN_NAME.QPE.getColumnName(), sortDir,
-                                reverseFilter, "::"));
-                        attrData.setColumnVisible(key,
-                                col.getDisplayedInTable());
-                    } else if (colName.equalsIgnoreCase(COLUMN_NAME.QPF
-                            .getColumnName())) {
+                    if (colName.equalsIgnoreCase(
+                            COLUMN_NAME.NAME.getColumnName())) {
                         tableColumnAttrMap.put(key,
-                                new ColumnAttribData(qpfType + "::"
-                                        + COLUMN_NAME.QPF.getColumnName(),
+                                new ColumnAttribData(
+                                        COLUMN_NAME.NAME.getColumnName(),
                                         sortDir, reverseFilter, "::"));
                         attrData.setColumnVisible(key,
                                 col.getDisplayedInTable());
-                    } else if (colName.equalsIgnoreCase(COLUMN_NAME.GUID
-                            .getColumnName())) {
+                    } else if (colName.equalsIgnoreCase(
+                            COLUMN_NAME.RATE.getColumnName())) {
+                        tableColumnAttrMap.put(key,
+                                new ColumnAttribData(
+                                        COLUMN_NAME.RATE.getColumnName(),
+                                        sortDir, reverseFilter, "::"));
+                        attrData.setColumnVisible(key,
+                                col.getDisplayedInTable());
+                    } else if (colName.equalsIgnoreCase(
+                            COLUMN_NAME.QPE.getColumnName())) {
+                        tableColumnAttrMap.put(key,
+                                new ColumnAttribData(
+                                        COLUMN_NAME.QPE.getColumnName(),
+                                        sortDir, reverseFilter, "::"));
+                        attrData.setColumnVisible(key,
+                                col.getDisplayedInTable());
+                    } else if (colName.equalsIgnoreCase(
+                            COLUMN_NAME.QPF.getColumnName())) {
+                        tableColumnAttrMap.put(key,
+                                new ColumnAttribData(
+                                        qpfType + "::"
+                                                + COLUMN_NAME.QPF
+                                                        .getColumnName(),
+                                        sortDir, reverseFilter, "::"));
+                        attrData.setColumnVisible(key,
+                                col.getDisplayedInTable());
+                    } else if (colName.equalsIgnoreCase(
+                            COLUMN_NAME.GUID.getColumnName())) {
                         for (String ffgName : ffgNames) {
-                            tableColumnAttrMap.put(ffgName + "_"
-                                    + COLUMN_NAME.GUID.getColumnName(),
-                                    new ColumnAttribData(ffgName + "::"
+                            tableColumnAttrMap.put(
+                                    ffgName + "_"
                                             + COLUMN_NAME.GUID.getColumnName(),
+                                    new ColumnAttribData(
+                                            ffgName + "::"
+                                                    + COLUMN_NAME.GUID
+                                                            .getColumnName(),
                                             sortDir, reverseFilter, "::"));
                         }
                         attrData.setColumnVisible(
@@ -190,26 +203,28 @@ public class FfmpTableConfigData {
                                 col.getDisplayedInTable());
                     } else if (colName.equalsIgnoreCase("RATIO")) {
                         for (String ffgName : ffgNames) {
-                            tableColumnAttrMap
-                                    .put(ffgName + "_"
+                            tableColumnAttrMap.put(
+                                    ffgName + "_"
                                             + COLUMN_NAME.RATIO.getColumnName(),
-                                            new ColumnAttribData(ffgName
-                                                    + "::"
+                                    new ColumnAttribData(
+                                            ffgName + "::"
                                                     + COLUMN_NAME.RATIO
                                                             .getColumnName(),
-                                                    sortDir, reverseFilter,
-                                                    "::"));
+                                            sortDir, reverseFilter, "::"));
                         }
                         attrData.setColumnVisible(
                                 COLUMN_NAME.RATIO.getColumnName(),
                                 col.getDisplayedInTable());
-                    } else if (colName.equalsIgnoreCase(COLUMN_NAME.DIFF
-                            .getColumnName())) {
+                    } else if (colName.equalsIgnoreCase(
+                            COLUMN_NAME.DIFF.getColumnName())) {
                         for (String ffgName : ffgNames) {
-                            tableColumnAttrMap.put(ffgName + "_"
-                                    + COLUMN_NAME.DIFF.getColumnName(),
-                                    new ColumnAttribData(ffgName + "::"
+                            tableColumnAttrMap.put(
+                                    ffgName + "_"
                                             + COLUMN_NAME.DIFF.getColumnName(),
+                                    new ColumnAttribData(
+                                            ffgName + "::"
+                                                    + COLUMN_NAME.DIFF
+                                                            .getColumnName(),
                                             sortDir, reverseFilter, "::"));
                         }
                         attrData.setColumnVisible(
@@ -218,12 +233,12 @@ public class FfmpTableConfigData {
                     }
 
                     boolean includedInTable = false;
-                    if (colName.equalsIgnoreCase(COLUMN_NAME.GUID
-                            .getColumnName())
-                            || colName.equalsIgnoreCase(COLUMN_NAME.RATIO
-                                    .getColumnName())
-                            || colName.equalsIgnoreCase(COLUMN_NAME.DIFF
-                                    .getColumnName())) {
+                    if (colName
+                            .equalsIgnoreCase(COLUMN_NAME.GUID.getColumnName())
+                            || colName.equalsIgnoreCase(
+                                    COLUMN_NAME.RATIO.getColumnName())
+                            || colName.equalsIgnoreCase(
+                                    COLUMN_NAME.DIFF.getColumnName())) {
                         if (config.getIncludedGuids().contains(displayName)) {
                             includedInTable = true;
                             attrData.setGuidColumnIncluded(displayName,
@@ -253,8 +268,10 @@ public class FfmpTableConfigData {
 
         ffgNames = prodRunXml.getGuidanceTypes(productXml);
 
-        String includedQpf = FFMPConfig.getInstance().getFFMPConfigData().getIncludedQPF();
-        if ((includedQpf != null) && (includedQpf.equalsIgnoreCase("xxxxx") == false)) {
+        String includedQpf = FFMPConfig.getInstance().getFFMPConfigData()
+                .getIncludedQPF();
+        if ((includedQpf != null)
+                && (includedQpf.equalsIgnoreCase("xxxxx") == false)) {
             qpfType = includedQpf;
             if (prodRunXml.getQpfTypes(productXml).contains(qpfType) == false) {
                 qpfType = prodRunXml.getQpfTypes(productXml).get(0);
@@ -362,10 +379,11 @@ public class FfmpTableConfigData {
             sortDir = SortDirection.None;
         }
 
-        tableColumnAttrMap.put(
-                COLUMN_NAME.QPF.getColumnName(),
-                new ColumnAttribData(qpfName + "::"//DR14406: old code no split-string: "::" 
-                        + COLUMN_NAME.QPF.getColumnName(), sortDir,false,"::"));
+        tableColumnAttrMap.put(COLUMN_NAME.QPF.getColumnName(),
+                new ColumnAttribData(
+                        qpfName + "::"// DR14406: old code no split-string: "::"
+                                + COLUMN_NAME.QPF.getColumnName(),
+                        sortDir, false, "::"));
 
         this.qpfType = qpfType;
     }

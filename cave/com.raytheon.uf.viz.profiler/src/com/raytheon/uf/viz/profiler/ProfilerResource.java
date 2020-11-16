@@ -132,7 +132,7 @@ public class ProfilerResource extends
      */
     protected ProfilerResource(ProfilerResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
 
         ProfilerUtils.decimalFormat.setMaximumFractionDigits(0);
         ProfilerUtils.decimalFormat.setGroupingUsed(false);
@@ -171,7 +171,6 @@ public class ProfilerResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         this.target = target;
-        dataTimes = new ArrayList<DataTime>();
 
         incX = (ProfilerUtils.profilerRectangle.width / NUM_PROFILE_STAFFS);
         incYheight = ProfilerUtils.profilerRectangle.height / MAX_Y;

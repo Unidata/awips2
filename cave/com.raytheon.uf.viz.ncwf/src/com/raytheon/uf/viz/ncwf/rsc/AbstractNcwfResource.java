@@ -19,7 +19,6 @@
  **/
 package com.raytheon.uf.viz.ncwf.rsc;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
@@ -40,14 +39,14 @@ import com.raytheon.viz.grid.rsc.DataMappedGridResource;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 4, 2011            bsteffen     Initial creation
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -----------------------------------
+ * Feb 04, 2011           bsteffen  Initial creation
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  * @param <T>
  */
 public abstract class AbstractNcwfResource<T extends AbstractResourceData>
@@ -55,8 +54,9 @@ public abstract class AbstractNcwfResource<T extends AbstractResourceData>
 
     protected String resourceName;
 
-    protected AbstractNcwfResource(T resourceData, LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+    protected AbstractNcwfResource(T resourceData,
+            LoadProperties loadProperties) {
+        super(resourceData, loadProperties, false);
         resourceData.addChangeListener(new IResourceDataChanged() {
             @Override
             public void resourceChanged(ChangeType type, Object object) {
@@ -72,7 +72,6 @@ public abstract class AbstractNcwfResource<T extends AbstractResourceData>
             }
 
         });
-        this.dataTimes = new ArrayList<DataTime>();
     }
 
     @Override
@@ -100,16 +99,9 @@ public abstract class AbstractNcwfResource<T extends AbstractResourceData>
         return getGridResource() != null;
     }
 
-    @Override
-    public DataTime[] getDataTimes() {
-        if (this.dataTimes == null) {
-            return new DataTime[0];
-        }
-        return this.dataTimes.toArray(new DataTime[this.dataTimes.size()]);
-    }
-
     private DataMappedGridResource getGridResource() {
-        List<DataMappedGridResource> gridResources = descriptor.getResourceList()
+        List<DataMappedGridResource> gridResources = descriptor
+                .getResourceList()
                 .getResourcesByTypeAsType(DataMappedGridResource.class);
         if (gridResources.isEmpty()) {
             return null;

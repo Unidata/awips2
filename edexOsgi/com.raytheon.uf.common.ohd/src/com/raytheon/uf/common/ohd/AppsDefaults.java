@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -29,36 +29,37 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.util.FileUtil;
 
 /*
  * Created on Jul 10, 2003
- * 
+ *
  * Modified 12/28/04 to provide getInt() method.
  */
 
 /*
  * @author Chip Gobs
- * 
+ *
  * This is the Java version of get_Apps_defaults.c
  */
 
 /**
  * This class was adapted from ohd.hseb.util.AppsDefaults.
- * 
+ *
  * The constructor was modified to get the Apps_defaults files from the
  * localization server hierarchy.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
@@ -74,14 +75,16 @@ import com.raytheon.uf.common.util.FileUtil;
  * May 17, 2016 5576       bkowal       Added {@link #consideredTrue(String)}.
  * Oct 28, 2016 19478      xwei         Loading system env into a hashMap
  * Oct 05, 2017 6407       bkowal       Handle null values in {@link #consideredTrue(String)}.
- * 
+ * Aug 14, 2018 7434       mapeters     Listen for added/removed Apps_defaults files, allow
+ *                                      other objects to listen to Apps_defaults changes
+ *
  * </pre>
- * 
+ *
  * @author randerso
  */
 public class AppsDefaults {
 
-    public static String NAME = "Apps_defaults";
+    public static final String NAME = "Apps_defaults";
 
     private final Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -116,7 +119,17 @@ public class AppsDefaults {
 
     private ILocalizationFile _appsDefaultsNationalFile;
 
+    /**
+     * Internal observer of Apps_defaults file changes for updating the mappings
+     * in this class and notifying others of the changes
+     */
     private ILocalizationPathObserver appsDefaultsObserver;
+
+    /**
+     * External observers of Apps_defaults changes for responding to the updated
+     * mappings in this class
+     */
+    private final Set<ILocalizationPathObserver> externalObservers = new CopyOnWriteArraySet<>();
 
     private Set<String> tokens = new HashSet<>();
 
@@ -139,12 +152,12 @@ public class AppsDefaults {
     }
 
     /**
-     * 
+     *
      */
     private AppsDefaults() {
         _envProperties = new Properties();
 
-        Map<String, String> m = new HashMap<String, String>(System.getenv());
+        Map<String, String> m = new HashMap<>(System.getenv());
         this.checkAppsDefaults(m, "Environment");
         _envProperties.putAll(m);
 
@@ -176,7 +189,7 @@ public class AppsDefaults {
         // Bypass the public update() method so we
         // force a file read.
         synchronized (LOCK) {
-            Set<String> tokenSet = new HashSet<String>();
+            Set<String> tokenSet = new HashSet<>();
             userMap = new HashMap<>();
             if (_appsDefaultsUserFile.exists()) {
                 logger.info("USER file exists, updating map...");
@@ -198,13 +211,13 @@ public class AppsDefaults {
                 tokenSet.addAll(baseMap.keySet());
             }
 
-            if (userMap.isEmpty() == false) {
+            if (!userMap.isEmpty()) {
                 checkAppsDefaults(userMap, _appsDefaultsUserFile.toString());
             }
-            if (siteMap.isEmpty() == false) {
+            if (!siteMap.isEmpty()) {
                 checkAppsDefaults(siteMap, _appsDefaultsSiteFile.toString());
             }
-            if (baseMap.isEmpty() == false) {
+            if (!baseMap.isEmpty()) {
                 checkAppsDefaults(baseMap,
                         _appsDefaultsNationalFile.toString());
             }
@@ -245,63 +258,69 @@ public class AppsDefaults {
     }
 
     private void updateDirectories() {
-        _appsDefaultsUserFile = null;
-        _appsDefaultsSiteFile = null;
-        _appsDefaultsNationalFile = null;
+        synchronized (LOCK) {
+            _appsDefaultsUserFile = null;
+            _appsDefaultsSiteFile = null;
+            _appsDefaultsNationalFile = null;
 
-        IPathManager pm = PathManagerFactory.getPathManager();
-        _appsDefaultsUserFile = pm
-                .getLocalizationFile(
-                        pm.getContext(LocalizationType.COMMON_STATIC,
-                                LocalizationLevel.USER),
-                        Apps_defaults_FILENAME);
-        if (_appsDefaultsUserFile.exists()) {
-            logger.info("Setting user Apps_defaults file: "
-                    + _appsDefaultsUserFile);
-        } else {
-            logger.info("No user Apps_defaults file found.");
-        }
+            IPathManager pm = PathManagerFactory.getPathManager();
+            _appsDefaultsUserFile = pm
+                    .getLocalizationFile(
+                            pm.getContext(LocalizationType.COMMON_STATIC,
+                                    LocalizationLevel.USER),
+                            Apps_defaults_FILENAME);
+            if (_appsDefaultsUserFile.exists()) {
+                logger.info("Setting user Apps_defaults file: "
+                        + _appsDefaultsUserFile);
+            } else {
+                logger.info("No user Apps_defaults file found.");
+            }
 
-        _appsDefaultsSiteFile = pm
-                .getLocalizationFile(
-                        pm.getContext(LocalizationType.COMMON_STATIC,
-                                LocalizationLevel.SITE),
-                        Apps_defaults_FILENAME);
-        if (_appsDefaultsSiteFile.exists()) {
-            logger.info("Setting site Apps_defaults file: "
-                    + _appsDefaultsSiteFile);
-        } else {
-            logger.warn("No site Apps_defaults file found.");
-        }
+            _appsDefaultsSiteFile = pm
+                    .getLocalizationFile(
+                            pm.getContext(LocalizationType.COMMON_STATIC,
+                                    LocalizationLevel.SITE),
+                            Apps_defaults_FILENAME);
+            if (_appsDefaultsSiteFile.exists()) {
+                logger.info("Setting site Apps_defaults file: "
+                        + _appsDefaultsSiteFile);
+            } else {
+                logger.warn("No site Apps_defaults file found.");
+            }
 
-        _appsDefaultsNationalFile = pm
-                .getLocalizationFile(
-                        pm.getContext(LocalizationType.COMMON_STATIC,
-                                LocalizationLevel.BASE),
-                        Apps_defaults_FILENAME);
-        if (_appsDefaultsNationalFile.exists()) {
-            logger.info("Setting base Apps_defaults file: "
-                    + _appsDefaultsNationalFile);
-        } else {
-            logger.error("No base Apps_defaults file found.");
-        }
+            _appsDefaultsNationalFile = pm
+                    .getLocalizationFile(
+                            pm.getContext(LocalizationType.COMMON_STATIC,
+                                    LocalizationLevel.BASE),
+                            Apps_defaults_FILENAME);
+            if (_appsDefaultsNationalFile.exists()) {
+                logger.info("Setting base Apps_defaults file: "
+                        + _appsDefaultsNationalFile);
+            } else {
+                logger.error("No base Apps_defaults file found.");
+            }
 
-        if (this.appsDefaultsObserver == null) {
-            appsDefaultsObserver = new ILocalizationPathObserver() {
-                @Override
-                public void fileChanged(ILocalizationFile file) {
-                    logger.info("Detected change in Apps_defaults file: "
-                            + file.toString() + " ...");
-                    initialize();
-                }
-            };
-            pm.addLocalizationPathObserver(Apps_defaults_FILENAME,
-                    appsDefaultsObserver);
+            if (this.appsDefaultsObserver == null) {
+                appsDefaultsObserver = new ILocalizationPathObserver() {
+                    @Override
+                    public void fileChanged(ILocalizationFile file) {
+                        logger.info("Detected change in Apps_defaults file: "
+                                + file.toString() + " ...");
+                        updateDirectories();
+                        initialize();
+                        for (ILocalizationPathObserver observer : externalObservers) {
+                            observer.fileChanged(file);
+                        }
+                    }
+                };
+                pm.addLocalizationPathObserver(Apps_defaults_FILENAME,
+                        appsDefaultsObserver);
+            }
         }
     }
 
     /**
-     * 
+     *
      * @return
      */
     public static synchronized AppsDefaults getInstance() {
@@ -312,7 +331,7 @@ public class AppsDefaults {
     }
 
     /**
-     * 
+     *
      * @param map
      * @param file
      */
@@ -349,7 +368,7 @@ public class AppsDefaults {
     }
 
     /**
-     * 
+     *
      * @return a set of all tokens found in the Apps_defaults files
      */
     public Set<String> getTokens() {
@@ -358,7 +377,7 @@ public class AppsDefaults {
 
     /**
      * Get the value of a specified token.
-     * 
+     *
      * @param tokenName
      *            The name of the token.
      * @param defaultValue
@@ -382,7 +401,7 @@ public class AppsDefaults {
 
     /**
      * Get the double value of a specified token.
-     * 
+     *
      * @param tokenName
      *            The name of the token.
      * @param defaultValue
@@ -406,7 +425,7 @@ public class AppsDefaults {
 
     /**
      * Get the float value of a specified token.
-     * 
+     *
      * @param tokenName
      *            The name of the token.
      * @param defaultValue
@@ -430,7 +449,7 @@ public class AppsDefaults {
 
     /**
      * Get the boolean value of a specified token.
-     * 
+     *
      * @param tokenName
      *            The name of the token.
      * @param defaultValue
@@ -447,7 +466,7 @@ public class AppsDefaults {
 
     /**
      * Get the boolean value of a specified token.
-     * 
+     *
      * @param tokenName
      *            The name of the token.
      * @param defaultValue
@@ -477,7 +496,7 @@ public class AppsDefaults {
     /**
      * Determines if the specified value is contained within the set of values
      * that should be interpreted as {@code true}.
-     * 
+     *
      * @param tokenValue
      *            the specified value
      * @return {@code true} when the specified value is present in the true set;
@@ -498,7 +517,7 @@ public class AppsDefaults {
 
     /**
      * Get the value of a specified token.
-     * 
+     *
      * @param tokenName
      *            The name of the token.
      * @param defaultValue
@@ -516,7 +535,7 @@ public class AppsDefaults {
     // -----------------------------------------------------
 
     /**
-     * 
+     *
      * @param tokenName
      *            the token to get. if null, a list of tokens will be written to
      *            the tokens set.
@@ -568,7 +587,7 @@ public class AppsDefaults {
 
     /**
      * Should this token value be expanded?
-     * 
+     *
      * @param tokenValue
      *            A token value to inspect.
      * @return Should this token value be expanded?
@@ -586,7 +605,7 @@ public class AppsDefaults {
     // -----------------------------------------------------
 
     /**
-     * 
+     *
      */
     private String expandFirstReferBack(String tokenValue, int recursionCount) {
 
@@ -632,7 +651,7 @@ public class AppsDefaults {
 
     /**
      * Parse one line of data from an Apps_Defaults file.
-     * 
+     *
      * @param line
      *            The text of a single line of data.
      * @return
@@ -669,7 +688,7 @@ public class AppsDefaults {
     // -----------------------------------------------------
 
     /**
-     * 
+     *
      */
     private String findTokenName(String line, int delimiterIndex) {
         String tokenName = null;
@@ -742,7 +761,7 @@ public class AppsDefaults {
 
         boolean error = false;
 
-        StringBuffer tokenValueBuffer = new StringBuffer();
+        StringBuilder tokenValueBuffer = new StringBuilder();
 
         for (int i = delimiterIndex + 1; ((i < line.length())
                 && (!foundTokenValue)) && (!foundComment); i++) {
@@ -783,7 +802,7 @@ public class AppsDefaults {
                     // tokenValueBuffer.delete(0, tokenValueBuffer.length());
 
                     // works in java < 1.2, but the previous line is prefered
-                    tokenValueBuffer = new StringBuffer();
+                    tokenValueBuffer = new StringBuilder();
 
                     error = true;
                 }
@@ -802,7 +821,7 @@ public class AppsDefaults {
                     // tokenValueBuffer.delete(0, tokenValueBuffer.length());
 
                     // works in java < 1.2, but the previous line is prefered
-                    tokenValueBuffer = new StringBuffer();
+                    tokenValueBuffer = new StringBuilder();
 
                     error = true;
                     break; // exit loop
@@ -908,15 +927,15 @@ public class AppsDefaults {
     /**
      * <pre>
      * Set context using the callingContext in the APP_CONTEXT variable.
-     *    if a token for the context is defined and is ON 
+     *    if a token for the context is defined and is ON
      *       then log run and return true.
-     * 
+     *
      * If the token is defined and is OFF
      *    then log not run and return false.
      * </pre>
-     * 
+     *
      * Used by java directly initiated by a cron.
-     * 
+     *
      * @param callingContext
      *            calling context for the application.
      * @return true if context is ON; false otherwise.
@@ -940,15 +959,15 @@ public class AppsDefaults {
     /**
      * <pre>
      * If no token is defined for the expected app context
-     *    or if the token is defined and is ON 
+     *    or if the token is defined and is ON
      *       then log run and return true.
-     * 
+     *
      * If the token is defined and is OFF
      *    then log not run and return false.
      * </pre>
-     * 
+     *
      * Used by java that was not directly initiated by a cron.
-     * 
+     *
      * @param callingContext
      *            calling context for the application.
      * @return true if context is ON; false otherwise.
@@ -971,14 +990,14 @@ public class AppsDefaults {
 
     /**
      * Set and return the APP_CONTEXT variable.
-     * 
+     *
      * <pre>
      * Example:
-     *    APP_CONTEXT for class C called by class B 
+     *    APP_CONTEXT for class C called by class B
      *    which was called by class A:
      *       ClassA___ClassB___ClassC
      * </pre>
-     * 
+     *
      * @param callingContext
      * @param useParentContext
      * @return context name
@@ -1002,14 +1021,14 @@ public class AppsDefaults {
 
     /**
      * Set the APP_CONTEXT variable in the processBuilder environment.
-     * 
+     *
      * <pre>
      * Example:
-     *    APP_CONTEXT for class C called by class B 
+     *    APP_CONTEXT for class C called by class B
      *    which was called by class A:
      *       ClassA___ClassB___ClassC
      * </pre>
-     * 
+     *
      * @param processBuilder
      */
     public void setAppContext(ProcessBuilder processBuilder) {
@@ -1023,11 +1042,35 @@ public class AppsDefaults {
      * Sets the class used to determine the data dir, if necessary. See
      * AppsDefaults's private constructor. At present only intended for use by
      * CAVE since edex receives a corresponding environment variable.
-     * 
+     *
      * @param dataDirClass
      */
     public static void setDataDirClass(Class<?> dataDirClass) {
         AppsDefaults.dataDirClass = dataDirClass;
+    }
+
+    /**
+     * Add the given observer for responding to Apps_defaults changes. The
+     * observer will be notified after the mappings in this class have been
+     * updated to reflect the file changes.
+     *
+     * @param observer
+     * @return true if the given observer was not already in the set of
+     *         observers
+     */
+    public boolean addObserver(ILocalizationPathObserver observer) {
+        return externalObservers.add(observer);
+    }
+
+    /**
+     * Remove the given observer from responding to Apps_defaults changes.
+     *
+     * @param observer
+     * @return true if the given observer was in the set of observers before
+     *         removing it
+     */
+    public boolean removeObserver(ILocalizationPathObserver observer) {
+        return externalObservers.remove(observer);
     }
 
 } // end class AppsDefaults

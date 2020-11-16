@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,30 +31,32 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.raytheon.uf.common.time.TimeRange;
 
 /**
- * 
+ *
  * BEGIN LEGACY DOCUMENTATION
- * 
+ *
  * A GridSlice is a part of a DataSlice. A GridSlice contains either scalar,
  * vector, or weather data, its attributes, its history, and its valid time
  * range.
- * 
+ *
  * END LEGACY DOCUMENTATION
- * 
+ *
  * An abstract grid slice that contains useful code used by differing
  * implementations of IGridSlice.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- ------------------------
+ * ------------- -------- --------- ----------------------------
  * Jan 29, 2008           chammack  Initial Creation.
  * Jan 31, 2008  879      rbell     Legacy conversion
  * Apr 23, 2015  4259     njensen   Updated for new JEP API
  * Aug 02, 2016  5744     mapeters  Removed dead cache code
- * 
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Change clone() to copy().
+ *
  * </pre>
- * 
+ *
  * @author chammack
  */
 public abstract class AbstractGridSlice implements IGridSlice {
@@ -78,7 +80,7 @@ public abstract class AbstractGridSlice implements IGridSlice {
     /**
      * Constructor that uses a Timerange and GFERecord. The data grid is still
      * null.
-     * 
+     *
      * @param validTime
      *            TimeRange to use
      * @param gfeRecord
@@ -94,7 +96,7 @@ public abstract class AbstractGridSlice implements IGridSlice {
 
     /**
      * Constructor that uses a TimeRange, GridParmInfo and GridDataHistory
-     * 
+     *
      * @param validTime
      *            TimeRange to use
      * @param gpi
@@ -112,7 +114,7 @@ public abstract class AbstractGridSlice implements IGridSlice {
 
     /**
      * Copy constructor
-     * 
+     *
      * @param rhs
      *            AbstractGridSlice to be constructed from
      */
@@ -149,18 +151,14 @@ public abstract class AbstractGridSlice implements IGridSlice {
 
         this.validTime = rhsAbstractGridSlice.validTime.clone();
         if (rhsAbstractGridSlice.gridParmInfo != null) {
-            this.gridParmInfo = rhsAbstractGridSlice.gridParmInfo.clone();
+            this.gridParmInfo = rhsAbstractGridSlice.gridParmInfo.copy();
         } else {
             this.gridParmInfo = null;
         }
         this.gridDataHistory.clear();
         for (GridDataHistory thisGDH : rhs.getHistory()) {
             if (thisGDH != null) {
-                try {
-                    this.gridDataHistory.add(thisGDH.clone());
-                } catch (CloneNotSupportedException e) {
-                    this.gridDataHistory.add(null);
-                }
+                this.gridDataHistory.add(thisGDH.copy());
             } else {
                 this.gridDataHistory.add(null);
             }
@@ -215,7 +213,7 @@ public abstract class AbstractGridSlice implements IGridSlice {
             return "AbstractGridSlice type is NONE";
         }
 
-        if (gridDataHistory.size() == 0) {
+        if (gridDataHistory.isEmpty()) {
             return "Grid history length 0";
         }
 
@@ -254,12 +252,6 @@ public abstract class AbstractGridSlice implements IGridSlice {
         return rVal.toString();
     }
 
-    @Override
-    public AbstractGridSlice clone() throws CloneNotSupportedException {
-        throw new UnsupportedOperationException(
-                "Cannot clone abstract grid slice");
-    }
-
     /**
      * @return the gridParmInfo
      */
@@ -278,6 +270,7 @@ public abstract class AbstractGridSlice implements IGridSlice {
     /**
      * @return the gridDataHistory
      */
+    @Override
     public List<GridDataHistory> getGridDataHistory() {
         return gridDataHistory;
     }

@@ -42,7 +42,6 @@ import org.eclipse.core.runtime.ListenerList;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID.DataType;
-import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridLocation;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
@@ -73,9 +72,8 @@ import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.common.util.RWLArrayList;
 import com.raytheon.uf.viz.core.jobs.JobPool;
 import com.raytheon.viz.core.mode.CAVEMode;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IParmManager;
 import com.raytheon.viz.gfe.core.internal.NotificationRouter.AbstractGFENotificationObserver;
@@ -164,8 +162,12 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * Nov 17, 2015  5129     dgilling  Changes to support new IFPClient
  * Feb 05, 2016  5242     dgilling  Remove calls to deprecated Localization
  *                                  APIs.
- * Mar 16, 2017  6092     randerso  Made decodeDbString public for use in runProcedure.py
+ * Mar 16, 2017  6092     randerso  Made decodeDbString public for use in
+ *                                  runProcedure.py
  * Jan 08, 2018  19900    ryu       Fix CAVE crash when starting GFE for non-activated site.
+ * Jan 04, 2018  7178     randerso  Removed deallocateUnusedGrids. Code cleanup
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
  * Feb 01, 2019  ----     mjames    Use only BASE level for now/dev.
  * Feb 04, 2019  ----     mjames    Force sync of python files required by GFE perspective.
  *
@@ -174,7 +176,7 @@ import com.raytheon.viz.gfe.types.MutableInteger;
  * @author chammack
  */
 public class ParmManager implements IParmManager, IMessageClient {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ParmManager.class);
 
     private static final int NOTIFICATION_THREADS = 4;
@@ -267,17 +269,17 @@ public class ParmManager implements IParmManager, IMessageClient {
     // virtual parm definitions (modulename = key)
     private List<VCModule> vcModules;
 
-    private ListenerList availableSourcesListeners;
+    private ListenerList<IAvailableSourcesChangedListener> availableSourcesListeners;
 
-    private ListenerList displayedParmListListeners;
+    private ListenerList<IDisplayedParmListChangedListener> displayedParmListListeners;
 
-    private ListenerList newModelListeners;
+    private ListenerList<INewModelAvailableListener> newModelListeners;
 
-    private ListenerList parmIdChangedListeners;
+    private ListenerList<IParmIDChangedListener> parmIdChangedListeners;
 
-    private ListenerList parmListChangedListeners;
+    private ListenerList<IParmListChangedListener> parmListChangedListeners;
 
-    private ListenerList systemTimeRangeChangedListeners;
+    private ListenerList<ISystemTimeRangeChangedListener> systemTimeRangeChangedListeners;
 
     private TimeRange systemTimeRange;
 
@@ -328,28 +330,26 @@ public class ParmManager implements IParmManager, IMessageClient {
      *            the DataManager
      * @throws GFEServerException
      */
-    @SuppressWarnings("unchecked")
     public ParmManager(DataManager dmgr) throws GFEServerException {
         this.dataManager = dmgr;
         this.parms = new RWLArrayList<>();
-        this.displayedParmListListeners = new ListenerList(
+        this.displayedParmListListeners = new ListenerList<>(
                 ListenerList.IDENTITY);
-        this.parmListChangedListeners = new ListenerList(ListenerList.IDENTITY);
-        this.systemTimeRangeChangedListeners = new ListenerList(
+        this.parmListChangedListeners = new ListenerList<>(
                 ListenerList.IDENTITY);
-        this.availableSourcesListeners = new ListenerList(
+        this.systemTimeRangeChangedListeners = new ListenerList<>(
                 ListenerList.IDENTITY);
-        this.newModelListeners = new ListenerList(ListenerList.IDENTITY);
-        this.parmIdChangedListeners = new ListenerList(ListenerList.IDENTITY);
+        this.availableSourcesListeners = new ListenerList<>(
+                ListenerList.IDENTITY);
+        this.newModelListeners = new ListenerList<>(ListenerList.IDENTITY);
+        this.parmIdChangedListeners = new ListenerList<>(ListenerList.IDENTITY);
 
         // Get virtual parm definitions
         vcModules = initVirtualCalcParmDefinitions();
         vcModulePool = new VCModuleJobPool("GFE Virtual ISC Python executor",
                 this.dataManager, vcModules.size() + 2, Boolean.TRUE);
 
-        PythonPreferenceStore prefs = Activator.getDefault()
-                .getPreferenceStore();
-        String mutableModel = prefs.getString("mutableModel");
+        String mutableModel = GFEPreference.getString("mutableModel");
         String oldMutableModel = null;
         CAVEMode opMode = CAVEMode.getMode();
         switch (opMode) {
@@ -383,7 +383,7 @@ public class ParmManager implements IParmManager, IMessageClient {
             this.origMutableDb = mutableDb;
         }
 
-        dbCategories = Arrays.asList(prefs.getStringArray("dbTypes"));
+        dbCategories = Arrays.asList(GFEPreference.getStringArray("dbTypes"));
 
         this.dbInvChangeListener = new AbstractGFENotificationObserver<DBInvChangeNotification>(
                 DBInvChangeNotification.class) {
@@ -499,7 +499,6 @@ public class ParmManager implements IParmManager, IMessageClient {
         this.productDB = determineProductDatabase();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void dispose() {
         dataManager.getNotificationRouter()
@@ -1054,18 +1053,6 @@ public class ParmManager implements IParmManager, IMessageClient {
     private void setParms(final Collection<Parm> addParms,
             final Collection<Parm> removeParms,
             final Collection<Parm> displayedStateModParms) {
-        // logDebug << "--- setParms(parmsToAdd,parmsToRemov,displayedStateMod):
-        // "
-        // << printAMR(addParms, displayedStateModParms, removeParms) <<
-        // std::endl;
-        // System.out
-        // .println("--- setParms(parmsToAdd,parmsToRemov,displayedStateMod): "
-        // + "add: "
-        // + addParms.toString()
-        // + ", remove: "
-        // + removeParms.toString()
-        // + ", mod: "
-        // + displayedStateModParms.toString());
 
         // update list of parms
         this.parms.acquireWriteLock();
@@ -1620,19 +1607,12 @@ public class ParmManager implements IParmManager, IMessageClient {
         // now get the current time and determine its thresholds limits
 
         Date baseTime = SimulatedTime.getSystemTime().getTime();
-        int hoursPast = 1 * TimeUtil.HOURS_PER_DAY; // defaults
-        int hoursFuture = 6 * TimeUtil.HOURS_PER_DAY; // defaults
 
-        PythonPreferenceStore prefStore = Activator.getDefault()
-                .getPreferenceStore();
-
-        if (prefStore.contains("SystemTimeRange_beforeCurrentTime")) {
-            hoursPast = prefStore.getInt("SystemTimeRange_beforeCurrentTime");
-        }
-
-        if (prefStore.contains("SystemTimeRange_afterCurrentTime")) {
-            hoursFuture = prefStore.getInt("SystemTimeRange_afterCurrentTime");
-        }
+        int hoursPast = GFEPreference.getInt(
+                "SystemTimeRange_beforeCurrentTime",
+                1 * TimeUtil.HOURS_PER_DAY);
+        int hoursFuture = GFEPreference.getInt(
+                "SystemTimeRange_afterCurrentTime", 6 * TimeUtil.HOURS_PER_DAY);
 
         if (hoursFuture == hoursPast) {
             hoursFuture++;
@@ -2619,18 +2599,6 @@ public class ParmManager implements IParmManager, IMessageClient {
     }
 
     @Override
-    public void deallocateUnusedGrids(int seconds) {
-        parms.acquireReadLock();
-        try {
-            for (Parm p : parms) {
-                p.deallocateUnusedGrids(seconds);
-            }
-        } finally {
-            parms.releaseReadLock();
-        }
-    }
-
-    @Override
     public DatabaseID findDatabase(String databaseName, int version) {
         List<DatabaseID> availableDatabases = getAvailableDbs();
 
@@ -2964,7 +2932,7 @@ public class ParmManager implements IParmManager, IMessageClient {
             try {
                 // gets the module from the ifpServer
             	
-                modFile.openInputStream();
+                modFile.getFile(true);
 
                 // create the VCModule
                 statusHandler.debug("Loading VCModule: " + modFile);

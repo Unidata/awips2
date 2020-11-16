@@ -27,4 +27,13 @@
             type="nucaps">
       </verticalSoundingProvider>
    </extension>
+       <extension
+          point="com.raytheon.uf.viz.localization.perspective.localizationpath">
+       <path
+             application="D2D"
+             localizationType="cave_static"
+             name="NUCAPS SOUNDING CONFIG"
+             value="nucaps">
+       </path>
+    </extension>
 </plugin>

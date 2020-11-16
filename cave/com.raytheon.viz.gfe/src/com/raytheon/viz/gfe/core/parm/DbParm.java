@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -25,11 +25,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
@@ -40,7 +38,6 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
-import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockStatus;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerMsg;
 import com.raytheon.uf.common.dataplugin.gfe.server.message.ServerResponse;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.GetGridRequest;
@@ -60,47 +57,64 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.ITimer;
 import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.GfeClientConfig;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
+import com.raytheon.viz.gfe.core.griddata.IDataObject;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 
 /**
- * Placeholder for DbParm
- * 
+ * DbParm is a concrete-class of the Parm hierarchy and is used to handle
+ * parameters that come directly from the IFPGridDatabase on the server.
+ *
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 06/17/08     #940       bphillip    Implemented GFE Locking
- * 01/29/08     #1271      njensen     Rewrote populateGridFromData()
- *                                      to use IFPClient
- * 02/23/12     #346       dgilling    Implement a dispose method.
- * 03/01/12     #346       dgilling    Re-order dispose method.
- * 01/21/12     #1504      randerso    Cleaned up old debug logging to improve performance
- * 02/12/13     #1597      randerso    Made save threshold a configurable value. Added detailed
- *                                     logging for save performance
- * 04/23/13     #1949      rjpeter     Added logging of number of records.
- * 06/26/13     #2044      randerso    Fixed error message priority
- * 04/03/2014   #2737      randerso    Moved clientSendStatus from SaveGridRequest to SaveGFEGridRequest
- * 11/17/2015   #5129      dgilling    Support new IFPClient.
- * 04/28/2016   #5618      randerso    Changed "Unable to get grid" message from INFO to ERROR
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 17, 2008  940      bphillip  Implemented GFE Locking
+ * Jan 29, 2008  1271     njensen   Rewrote populateGridFromData() to use
+ *                                  IFPClient
+ * Feb 23, 2012  346      dgilling  Implement a dispose method.
+ * Mar 01, 2012  346      dgilling  Re-order dispose method.
+ * Jan 21, 2012  1504     randerso  Cleaned up old debug logging to improve
+ *                                  performance
+ * Feb 12, 2013  1597     randerso  Made save threshold a configurable value.
+ *                                  Added detailed logging for save performance
+ * Apr 23, 2013  1949     rjpeter   Added logging of number of records.
+ * Jun 26, 2013  2044     randerso  Fixed error message priority
+ * Apr 03, 2014  2737     randerso  Moved clientSendStatus from SaveGridRequest
+ *                                  to SaveGFEGridRequest
+ * Nov 17, 2015  5129     dgilling  Support new IFPClient.
+ * Apr 28, 2016  5618     randerso  Changed "Unable to get grid" message from
+ *                                  INFO to ERROR
+ * Dec 14, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Changes to support IDataObject. Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 
 public class DbParm extends Parm {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DbParm.class);
 
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler("GFE:");
 
+    /**
+     * Constructor
+     *
+     * @param parmID
+     * @param gridInfo
+     * @param mutable
+     * @param displayable
+     * @param dataMgr
+     * @param lt
+     */
     public DbParm(ParmID parmID, GridParmInfo gridInfo, boolean mutable,
             boolean displayable, DataManager dataMgr, LockTable lt) {
         super(parmID, gridInfo, mutable, displayable, dataMgr);
@@ -116,8 +130,9 @@ public class DbParm extends Parm {
                 this.grids.releaseWriteLock();
             }
         } catch (GFEOperationFailedException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error populating parm: "
-                    + parmID + "attempting recovery", e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error populating parm: " + parmID + "attempting recovery",
+                    e);
             boolean success = recoverGetGridFailure(true);
             if (!success) {
                 statusHandler.handle(Priority.PROBLEM,
@@ -127,11 +142,6 @@ public class DbParm extends Parm {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.parm.Parm#dispose()
-     */
     @Override
     public void dispose() {
         looseLocks();
@@ -160,19 +170,21 @@ public class DbParm extends Parm {
             statusHandler.error(String.format(
                     "Unable to retrieve gridded data [inventory] for %s: %s",
                     getParmID(), sr.message()));
-            return new IGridData[0]; // empty sequence
+            // empty array
+            return new IGridData[0];
         }
 
         // now filter out those grids which are not of interest
         List<TimeRange> invTR = sr.getPayload();
-        List<TimeRange> desiredTR = new ArrayList<TimeRange>();
+        List<TimeRange> desiredTR = new ArrayList<>();
         for (TimeRange tr : invTR) {
             if (tr.overlaps(timeRange)) {
                 desiredTR.add(tr);
             }
             if (tr.getEnd().after(timeRange.getEnd())) {
+                // efficiency so we don't have to go through everything
                 break;
-            } // efficiency so we don't have to go through everything
+            }
         }
 
         return getGridsFromDb(desiredTR, populate, null);
@@ -194,56 +206,56 @@ public class DbParm extends Parm {
     // ---------------------------------------------------------------------------
     private IGridData[] getGridsFromDb(List<TimeRange> gridTimes,
             boolean populate, Map<TimeRange, List<GridDataHistory>> histories) {
-        // success = true;
         List<IGridSlice> dataSlices = null;
-        // want populated
         if (populate) {
+            // want populated
+
             if (gridTimes.isEmpty()) {
-                return new IGridData[0]; // nothing to do
+                // nothing to do
+                return new IGridData[0];
             }
 
             GetGridRequest ggr = new GetGridRequest(getParmID(), gridTimes);
             ServerResponse<List<IGridSlice>> sr = dataManager.getClient()
                     .getGridData(ggr);
             if (!sr.isOkay()) {
-                statusHandler
-                        .error(String
-                                .format("Unable to retrieve gridded data [get data] for %s: %s",
-                                        getParmID(), sr.message()));
-                // success = false;
-                return new IGridData[0]; // empty sequence
+                statusHandler.error(String.format(
+                        "Unable to retrieve gridded data [get data] for %s: %s",
+                        getParmID(), sr.message()));
+                // empty array
+                return new IGridData[0];
             }
 
             dataSlices = sr.getPayload();
 
-            // want empty shell
         } else {
+            // want empty shell
+
             if (histories == null) {
                 ServerResponse<Map<TimeRange, List<GridDataHistory>>> sr = dataManager
                         .getClient().getGridHistory(getParmID(), gridTimes);
                 histories = sr.getPayload();
                 if ((!sr.isOkay()) || (histories.size() != gridTimes.size())) {
-                    statusHandler
-                            .error(String
-                                    .format("Unable to retrieve gridded data [history] for %s: %s",
-                                            getParmID(), sr.message()));
-                    // success = false;
-                    return new IGridData[0]; // empty sequence
+                    statusHandler.error(String.format(
+                            "Unable to retrieve gridded data [history] for %s: %s",
+                            getParmID(), sr.message()));
+                    // empty array
+                    return new IGridData[0];
                 }
             }
 
-            dataSlices = new ArrayList<IGridSlice>();
+            dataSlices = new ArrayList<>();
             for (TimeRange tr : gridTimes) {
                 dataSlices.add(getGridSlice(tr, histories.get(tr)));
             }
         }
 
         // convert the data slices to grids
-        List<IGridData> grids = new ArrayList<IGridData>(dataSlices.size());
-        for (int i = 0; i < dataSlices.size(); i++) {
+        List<IGridData> grids = new ArrayList<>(dataSlices.size());
+        for (IGridSlice slice : dataSlices) {
             IGridData g;
             try {
-                g = AbstractGridData.makeGridData(this, dataSlices.get(i));
+                g = AbstractGridData.makeGridData(this, slice, false);
                 grids.add(g);
             } catch (Exception e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
@@ -283,8 +295,8 @@ public class DbParm extends Parm {
                     new DiscreteKey[0]);
             break;
         default:
-            throw new IllegalArgumentException("Unknown grid type: "
-                    + this.gridInfo.getGridType());
+            throw new IllegalArgumentException(
+                    "Unknown grid type: " + this.gridInfo.getGridType());
         }
         return gs;
     }
@@ -298,17 +310,13 @@ public class DbParm extends Parm {
         // replace the data portion of the input "grid" with what was retrieved
         // from the network
         if (grids.length == 1) {
-            // logDebug << "GRID LOAD " << parmID() << ' '
-            // << grid->gridTime() << std::endl;
             grid.replace(grids[0]);
-            // delete grids[0]; // deallocate the memory
         }
 
-        // failure
         else {
-            statusHandler.error("Unable to get grid for " + getParmID()
-                    + " tr=" + grid.getGridTime()
-                    + ". Temporarily using default data");
+            // failure
+            statusHandler.error("Unable to get grid for " + getParmID() + " tr="
+                    + grid.getGridTime() + ". Temporarily using default data");
             IGridData g = makeEmptyGrid();
             g.changeValidTime(grid.getGridTime(), false);
             g.updateHistory(grid.getHistory());
@@ -319,7 +327,7 @@ public class DbParm extends Parm {
 
     @Override
     public void populateGrids(List<IGridData> grids) {
-        List<TimeRange> gridTimes = new ArrayList<TimeRange>(grids.size());
+        List<TimeRange> gridTimes = new ArrayList<>(grids.size());
         for (IGridData grid : grids) {
             gridTimes.add(grid.getGridTime());
         }
@@ -331,13 +339,14 @@ public class DbParm extends Parm {
         if (grids.size() == newGrids.length) {
             int index = 0;
             for (IGridData grid : grids) {
-                grid.replace(newGrids[index++]);
+                grid.replace(newGrids[index]);
+                index++;
             }
         }
 
         // failure
         else {
-            List<IGridData> gridsNotReplaced = new ArrayList<IGridData>(grids);
+            List<IGridData> gridsNotReplaced = new ArrayList<>(grids);
             Iterator<IGridData> iter = gridsNotReplaced.iterator();
             while (iter.hasNext()) {
                 IGridData grid = iter.next();
@@ -384,8 +393,7 @@ public class DbParm extends Parm {
             return;
         }
 
-        List<TimeRange> newTimeRanges = new ArrayList<TimeRange>(
-                histories.keySet());
+        List<TimeRange> newTimeRanges = new ArrayList<>(histories.keySet());
 
         // Find the full range of data affected
         Collections.sort(newTimeRanges);
@@ -393,8 +401,8 @@ public class DbParm extends Parm {
         // First get the new grids from the network
 
         // direct access to the grids with standard technique
-        IGridData[] grids = this
-                .getGridsFromDb(newTimeRanges, false, histories);
+        IGridData[] grids = this.getGridsFromDb(newTimeRanges, false,
+                histories);
 
         boolean normal;
         if (grids.length != newTimeRanges.size()) {
@@ -423,12 +431,6 @@ public class DbParm extends Parm {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.parm.Parm#historyUpdateArrived(java.util.Map)
-     */
     @Override
     public void historyUpdateArrived(
             Map<TimeRange, List<GridDataHistory>> histories) {
@@ -439,8 +441,7 @@ public class DbParm extends Parm {
             return;
         }
 
-        List<TimeRange> newTimeRanges = new ArrayList<TimeRange>(
-                histories.keySet());
+        List<TimeRange> newTimeRanges = new ArrayList<>(histories.keySet());
 
         // Find the full range of data affected
         Collections.sort(newTimeRanges);
@@ -456,12 +457,11 @@ public class DbParm extends Parm {
                 GridDataHistory[] currentHist = grids[0].getHistory();
 
                 // if current history exists and has a matching update time
-                if ((currentHist != null)
-                        && currentHist[0].getUpdateTime().equals(
-                                newHist.get(0).getUpdateTime())) {
+                if ((currentHist != null) && currentHist[0].getUpdateTime()
+                        .equals(newHist.get(0).getUpdateTime())) {
                     // update last sent time
-                    currentHist[0].setLastSentTime(newHist.get(0)
-                            .getLastSentTime());
+                    currentHist[0]
+                            .setLastSentTime(newHist.get(0).getLastSentTime());
                 }
             }
 
@@ -491,12 +491,13 @@ public class DbParm extends Parm {
             for (LockTable lt : lockTableList) {
                 // it is for our parm
                 if (lt.getParmId().equals(getParmID())) {
-                    lockTableArrived(lt); // treat as a notification
+                    // treat as a notification
+                    lockTableArrived(lt);
                 }
                 // it is for another parm
                 else {
-                    Parm otherParm = dataManager.getParmManager().getParm(
-                            lt.getParmId());
+                    Parm otherParm = dataManager.getParmManager()
+                            .getParm(lt.getParmId());
                     if (otherParm != null) {
                         otherParm.lockTableArrived(lt);
                     }
@@ -518,6 +519,7 @@ public class DbParm extends Parm {
 
         ITimer timer = TimeUtil.getTimer();
         timer.start();
+
         List<TimeRange> myLocks = lockTable.lockedByMe();
         if (myLocks.isEmpty()) {
             timer.stop();
@@ -526,7 +528,7 @@ public class DbParm extends Parm {
             return true;
         }
 
-        // FIXME: Purge functionality
+        // this operation cannot be undone
         purgeUndoGrids();
 
         // compute grid size in bytes
@@ -535,21 +537,26 @@ public class DbParm extends Parm {
         int gridSize = gloc.getNx() * gloc.getNy();
         switch (gridType) {
         case SCALAR:
-            gridSize *= 4; // 4 bytes per grid cell
+            // 4 bytes per grid cell
+            gridSize *= 4;
             break;
+
         case VECTOR:
-            gridSize *= 8; // 2 floats (8 bytes) per grid cell
+            // 2 floats (8 bytes) per grid cell
+            gridSize *= 8;
             break;
+
         case WEATHER:
         case DISCRETE:
+        default:
             // do nothing since 1 byte per grid cell and
             // ignoring size of keys for now
         }
 
         // assemble the save grid request and lock requests
-        List<SaveGridRequest> sgr = new ArrayList<SaveGridRequest>();
-        List<LockRequest> lreq = new ArrayList<LockRequest>();
-        List<TimeRange> pendingUnlocks = new ArrayList<TimeRange>();
+        List<SaveGridRequest> sgr = new ArrayList<>();
+        List<LockRequest> lreq = new ArrayList<>();
+        List<TimeRange> pendingUnlocks = new ArrayList<>();
 
         boolean success = true;
         int gridCount = 0;
@@ -558,6 +565,7 @@ public class DbParm extends Parm {
         int totalRecords = 0;
         long size = 0;
         int recordCount = 0;
+        List<IGridData> savedGrids = new LinkedList<>();
         for (int i = 0; i < trs.size(); i++) {
             // ensure we have a lock for the time period
             TimeRange lockTime = new TimeRange();
@@ -576,7 +584,7 @@ public class DbParm extends Parm {
             // List<IGridSlice> dataSlices = new ArrayList<IGridSlice>();
             IGridData[] grids = this.getGridInventory(lockTime);
 
-            List<GFERecord> records = new ArrayList<GFERecord>();
+            List<GFERecord> records = new ArrayList<>();
             boolean allSaved = true;
 
             // time range remaining to be saved
@@ -584,28 +592,24 @@ public class DbParm extends Parm {
                     lockTime.getEnd());
 
             for (IGridData data : grids) {
-                IGridSlice collapsedGrid;
-                try {
-                    collapsedGrid = data.getGridSlice().clone();
-                    collapsedGrid.collapse();
-                    data.setGridSlice(collapsedGrid);
-                } catch (CloneNotSupportedException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            e.getLocalizedMessage(), e);
-                    return false;
-                }
+                IDataObject collapsedGrid;
+                collapsedGrid = data.getDataObject().copy();
+                collapsedGrid.collapse();
+                data.setDataObject(collapsedGrid);
                 GFERecord record = new GFERecord(this.getParmID(),
                         data.getGridTime());
                 data.setSaveHistory();
                 record.setGridHistory(data.getHistory());
                 record.setMessageData(data.getGridSlice());
                 records.add(record);
+                savedGrids.add(data);
                 gridCount += (gridType.equals(GridType.VECTOR) ? 2 : 1);
                 size += gridSize;
 
-                if (size > GfeClientConfig.getInstance().getGridSaveThreshold()) {
-                    TimeRange tr = new TimeRange(saveTime.getStart(), data
-                            .getGridTime().getEnd());
+                if (size > GfeClientConfig.getInstance()
+                        .getGridSaveThreshold()) {
+                    TimeRange tr = new TimeRange(saveTime.getStart(),
+                            data.getGridTime().getEnd());
                     sgr.add(new SaveGridRequest(getParmID(), tr, records));
 
                     // save this batch of grids
@@ -647,7 +651,7 @@ public class DbParm extends Parm {
         }
 
         // if any pending saves
-        if (sgr.size() > 0) {
+        if (!sgr.isEmpty()) {
             if (doSave(sgr)) {
                 for (TimeRange t : pendingUnlocks) {
                     lreq.add(new LockRequest(getParmID(), t, LockMode.UNLOCK));
@@ -668,11 +672,14 @@ public class DbParm extends Parm {
             }
         }
 
-        if (lreq.size() > 0) {
+        if (!lreq.isEmpty()) {
             success &= requestLock(lreq);
         }
 
         if (success) {
+            for (IGridData grid : savedGrids) {
+                grid.successfullySaved();
+            }
             purgeUndoGrids();
         }
 
@@ -704,67 +711,6 @@ public class DbParm extends Parm {
         return success;
     }
 
-    // -- public
-    // -----------------------------------------------------------------
-    // DbParm::deallocateUnusedGrids()
-    // Deallocates grids that haven't been used in awhile.
-    // -- implementation
-    // ---------------------------------------------------------
-    // never deallocate grids within a lock (my lock)
-    // ---------------------------------------------------------------------------
-    @Override
-    public void deallocateUnusedGrids(int seconds) {
-        Date time = this.dataManager.getSpatialDisplayManager()
-                .getSpatialEditorTime();
-        IGridData se = null;
-
-        if (time != null) {
-            se = overlappingGrid(time);
-        }
-
-        long milliseconds = 1000L * seconds;
-
-        // go through each grid in existence
-        // must use for i loop to avoid concurrentModification exception
-        long now = System.currentTimeMillis();
-        this.grids.acquireReadLock();
-        try {
-            for (IGridData grid : this.grids) {
-                if (!grid.isPopulated()) {
-                    continue;
-                }
-
-                if (grid == se) {
-                    continue; // grid overlaps spatial editor time -- skip it
-                }
-
-                long lastAccess = grid.getLastAccessTime();
-
-                long delta = now - lastAccess;
-                if (delta < milliseconds) {
-                    continue; // recently accessed
-                }
-
-                // grid is populated, is it modified?
-                final TimeRange gTime = grid.getGridTime();
-                boolean locked = this.getLockTable().checkLock(gTime)
-                        .equals(LockStatus.LOCKED_BY_ME);
-
-                // only deallocate unlocked grids
-                if (!locked) {
-                    // String msg = "Deallocating " + getParmID() + " tr=" +
-                    // gTime;
-                    // statusHandler.handle(Priority.DEBUG, msg, new Exception(
-                    // "Debug: " + msg));
-
-                    grid.depopulate();
-                }
-            }
-        } finally {
-            this.grids.releaseReadLock();
-        }
-    }
-
     @Override
     public boolean revertParameter() {
 
@@ -773,41 +719,36 @@ public class DbParm extends Parm {
         List<TimeRange> timesToSave = this.getLockTable().lockedByMe();
 
         if (!timesToSave.isEmpty()) {
+            // this operation cannot be undone
             purgeUndoGrids();
         }
 
-        List<LockRequest> lreq = new ArrayList<LockRequest>(timesToSave.size());
-        for (int i = 0; i < timesToSave.size(); i++) {
-            // String msg = "Reverting " + getParmID() + " tr="
-            // + timesToSave.get(i);
-            // statusHandler.handle(Priority.DEBUG, msg, new Exception("Debug: "
-            // + msg));
-
-            boolean success = true;
+        List<LockRequest> lreq = new ArrayList<>(timesToSave.size());
+        for (TimeRange tr : timesToSave) {
+            boolean success = false;
             IGridData[] grids = null;
             try {
-                grids = this.getGridsFromDb(timesToSave.get(i), false);
+                grids = this.getGridsFromDb(tr, false);
+                success = true;
             } catch (GFEOperationFailedException e) {
-                e.printStackTrace();
-                success = false;
+                statusHandler.debug(
+                        "Exception getting grids from db for " + getParmID(),
+                        e);
             }
 
             if (!success) {
-                retVal = false;
-                this.recoverGetGridFailure(true);
-                Status statusMessage = new Status(
-                        IStatus.ERROR,
-                        Activator.PLUGIN_ID,
-                        "Cannot revert parameter "
-                                + getParmID()
-                                + " completely due to problem getting data from servers");
-                Activator.getDefault().getLog().log(statusMessage);
+                success = recoverGetGridFailure(true);
+                if (!success) {
+                    statusHandler.error("Cannot revert parameter " + getParmID()
+                            + " completely due to problem getting data from servers");
+                    retVal = false;
+                }
             } else {
-                this.replaceGrids(timesToSave.get(i), grids);
+                this.replaceGrids(tr, grids);
             }
 
-            LockRequest lr = new LockRequest(this.getParmID(),
-                    timesToSave.get(i), LockMode.UNLOCK);
+            LockRequest lr = new LockRequest(this.getParmID(), tr,
+                    LockMode.UNLOCK);
             lreq.add(lr);
         }
         if (!requestLock(lreq)) {
@@ -819,34 +760,40 @@ public class DbParm extends Parm {
         return retVal;
     }
 
+    /**
+     * @param allGrids
+     *            true if all grids should be recovered
+     * @return true if successful
+     */
     public boolean recoverGetGridFailure(boolean allGrids) {
+        TimeRange allTimes = TimeRange.allTimes();
 
-        List<TimeRange> notMyLocks = new ArrayList<TimeRange>();
+        List<TimeRange> notMyLocks = new ArrayList<>();
         if (!allGrids) {
             notMyLocks = calcNonLocks();
         } else {
-            notMyLocks.add(new TimeRange(0, (long) Integer.MAX_VALUE * 1000));
+            notMyLocks.add(allTimes);
         }
 
         // failure occurred - get the entire inventory
         IGridData[] grids = null;
         int ntrys = 20;
-        boolean success = true;
+        boolean success = false;
+        while (ntrys > 0) {
+            ntrys--;
 
-        while (ntrys-- > 0) {
-            statusHandler.handle(Priority.PROBLEM,
-                    "Attempting recovery in getGrids for " + getParmID()
-                            + " trys remaining#=" + ntrys);
-            TimeRange allTimes = new TimeRange(0,
-                    (long) Integer.MAX_VALUE * 1000);
+            statusHandler.debug("Attempting recovery in getGrids for "
+                    + getParmID() + " trys remaining#=" + ntrys);
             try {
                 grids = getGridsFromDb(allTimes, false);
-            } catch (GFEOperationFailedException e) {
-                success = false;
-            }
-
-            if (success) {
+                success = true;
                 break;
+            } catch (GFEOperationFailedException e) {
+                Priority priority = (ntrys > 0 ? Priority.DEBUG
+                        : Priority.PROBLEM);
+                statusHandler.handle(priority,
+                        "Exception getting grids from db for " + getParmID(),
+                        e);
             }
         }
 
@@ -861,7 +808,7 @@ public class DbParm extends Parm {
         // Now replace the existing grids with the new ones
         for (int i = 0; i < notMyLocks.size(); i++) {
             // just get the ones that are covered by "notmylock"
-            List<IGridData> tGrids = new ArrayList<IGridData>();
+            List<IGridData> tGrids = new ArrayList<>();
             for (int j = 0; j < grids.length; j++) {
                 if (grids[j].getGridTime().overlaps(notMyLocks.get(i))) {
                     tGrids.add(grids[j]);
@@ -883,14 +830,14 @@ public class DbParm extends Parm {
     private List<TimeRange> calcNonLocks() {
         // create inverse of the lock table
         List<TimeRange> myLocks = lockTable.lockedByMe();
-        List<TimeRange> notMyLocks = new ArrayList<TimeRange>();
+        List<TimeRange> notMyLocks = new ArrayList<>();
 
         Collections.sort(myLocks);
 
         for (int i = 0; i < myLocks.size(); i++) {
             if (i == 0) {
-                notMyLocks.add(new TimeRange(0, myLocks.get(0).getStart()
-                        .getTime()));
+                notMyLocks.add(new TimeRange(TimeRange.MIN_TIME,
+                        myLocks.get(0).getStart().getTime()));
             } else {
                 Date startTime = myLocks.get(i - 1).getEnd();
                 Date endTime = myLocks.get(i).getStart();
@@ -900,11 +847,12 @@ public class DbParm extends Parm {
             }
         }
 
-        if (notMyLocks.size() == 0) {
-            notMyLocks.add(new TimeRange(0, (long) Integer.MAX_VALUE * 1000));
+        if (notMyLocks.isEmpty()) {
+            notMyLocks.add(TimeRange.allTimes());
         } else {
-            notMyLocks.add(new TimeRange(myLocks.get(myLocks.size() - 1)
-                    .getEnd().getTime(), (long) Integer.MAX_VALUE * 1000));
+            notMyLocks.add(new TimeRange(
+                    myLocks.get(myLocks.size() - 1).getEnd().getTime(),
+                    TimeRange.MAX_TIME));
         }
         return notMyLocks;
     }
@@ -919,10 +867,11 @@ public class DbParm extends Parm {
         // unlock any existing locks
         List<TimeRange> timesToUnlock = getLockTable().lockedByMe();
         if (timesToUnlock.isEmpty()) {
-            return; // nothing to do
+            // nothing to do
+            return;
         }
 
-        List<LockRequest> lreq = new ArrayList<LockRequest>();
+        List<LockRequest> lreq = new ArrayList<>();
         for (int i = 0; i < timesToUnlock.size(); i++) {
             lreq.add(new LockRequest(getParmID(), timesToUnlock.get(i),
                     LockMode.UNLOCK));

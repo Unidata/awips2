@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -30,7 +30,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.action.MenuManager;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
@@ -57,31 +56,33 @@ import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.GFEServerException;
+import com.raytheon.viz.gfe.PreferenceConstants;
 import com.raytheon.viz.gfe.core.msgs.IGlobalSelectionTRChangedListener;
 import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
 import com.raytheon.viz.gfe.core.msgs.SelectTimeRangesChangedMsg;
-import com.raytheon.viz.gfe.preferences.TimeScaleDisplayedPeriodsPreference;
 import com.raytheon.viz.gfe.rsc.GFEFonts;
 import com.raytheon.viz.gfe.ui.SelectTRMenu;
 
 /**
  * Displays the time range.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 02/19/2008              dfitch      Initial creation.
- * Apr 7, 2009       #2212 randerso    Reimplemented
- * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
- *                                     Code cleanup
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 19, 2008           dfitch    Initial creation.
+ * Apr 07, 2009  2212     randerso  Reimplemented
+ * Mar 10, 2016  5479     randerso  Use improved GFEFonts API Code cleanup
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author dfitch
- * @version 1.0
  */
 
 public class TimeScale extends Canvas implements IMessageClient {
@@ -89,6 +90,7 @@ public class TimeScale extends Canvas implements IMessageClient {
 
     private static final int MAJOR_TICK = 10;
 
+    /** TimeScale height in pixels */
     public static final int HEIGHT = 60;
 
     // Font height in pixels, before config adjustment
@@ -101,12 +103,10 @@ public class TimeScale extends Canvas implements IMessageClient {
 
     private static final SimpleDateFormat[] dateFormat;
     static {
-        dateFormat = new SimpleDateFormat[] { //
-        new SimpleDateFormat("MMM dd (EEE)"), //
-                new SimpleDateFormat("MMM dd"), //
-                new SimpleDateFormat("M/d"), //
-                new SimpleDateFormat("d"), //
-        };
+        dateFormat = new SimpleDateFormat[] {
+                new SimpleDateFormat("MMM dd (EEE)"),
+                new SimpleDateFormat("MMM dd"), new SimpleDateFormat("M/d"),
+                new SimpleDateFormat("d"), };
         for (SimpleDateFormat sdf : dateFormat) {
             sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         }
@@ -119,13 +119,6 @@ public class TimeScale extends Canvas implements IMessageClient {
             setSystem(true);
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * org.eclipse.ui.progress.UIJob#runInUIThread(org.eclipse.core.runtime
-         * .IProgressMonitor)
-         */
         @Override
         public IStatus runInUIThread(IProgressMonitor monitor) {
 
@@ -154,21 +147,23 @@ public class TimeScale extends Canvas implements IMessageClient {
 
     private RepaintJob repaintJob;
 
-    @SuppressWarnings("unchecked")
-    TimeScale(final Composite aParent, final GridManager aGridManager) {
-        super(aParent, SWT.NONE);
-        gridManager = aGridManager;
+    /**
+     * Constructor
+     *
+     * @param parent
+     * @param gridManager
+     */
+    protected TimeScale(final Composite parent, final GridManager gridManager) {
+        super(parent, SWT.NONE);
+        this.gridManager = gridManager;
         repaintJob = new RepaintJob();
 
-        displayedPeriods = TimeScaleDisplayedPeriodsPreference
-                .getTimeScaleDisplayedPeriods();
+        displayedPeriods = GFEPreference.getStringArray(
+                PreferenceConstants.GFE_TIME_SCALE_DISPLAY_PERIODS);
         Arrays.sort(displayedPeriods);
 
-        IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
-        String color;
-        if ((color = prefs.getString("CurrentSystemTime_color")).isEmpty()) {
-            color = "Green";
-        }
+        String color = GFEPreference.getString("CurrentSystemTime_color",
+                "Green");
         CurrentSystemTime_color = new Color(Display.getDefault(),
                 RGBColors.getRGBColor(color));
 
@@ -176,18 +171,17 @@ public class TimeScale extends Canvas implements IMessageClient {
 
             @Override
             public void propertyChange(PropertyChangeEvent event) {
-                if (event.getProperty().equals(
-                        TimeScaleDisplayedPeriodsPreference.getPreferenceKey())) {
-                    displayedPeriods = TimeScaleDisplayedPeriodsPreference
-                            .getTimeScaleDisplayedPeriods();
+                if (PreferenceConstants.GFE_TIME_SCALE_DISPLAY_PERIODS
+                        .equals(event.getProperty())) {
+                    displayedPeriods = GFEPreference.getStringArray(
+                            PreferenceConstants.GFE_TIME_SCALE_DISPLAY_PERIODS);
                     Arrays.sort(displayedPeriods);
                     refresh();
                 }
             }
         };
 
-        Activator.getDefault().getPreferenceStore()
-                .addPropertyChangeListener(periodListener);
+        GFEPreference.addPropertyChangeListener(periodListener);
 
         int hourFontNum = GFEFonts.getFontNum("TimeScale_font", 2);
         hourFont = GFEFonts.getFont(getDisplay(), hourFontNum);
@@ -225,12 +219,9 @@ public class TimeScale extends Canvas implements IMessageClient {
                     CurrentSystemTime_color = null;
                 }
 
-                Activator.getDefault().getPreferenceStore()
-                        .removePropertyChangeListener(periodListener);
+                GFEPreference.removePropertyChangeListener(periodListener);
 
-                gridManager
-                        .getDataManager()
-                        .getSpatialDisplayManager()
+                gridManager.getDataManager().getSpatialDisplayManager()
                         .removeGlobalSelectionTRChangedListener(
                                 globalTRListener);
 
@@ -254,8 +245,8 @@ public class TimeScale extends Canvas implements IMessageClient {
                 super.mouseClick(e);
 
                 if (e.stateMask == SWT.BUTTON1) {
-                    gridManager.setSelectedTime(gridManager.getUtil()
-                            .pixelToDate(e.x));
+                    gridManager.setSelectedTime(
+                            gridManager.getUtil().pixelToDate(e.x));
                 } else if (e.stateMask == SWT.BUTTON2) {
                     TimeRange tr = gridManager.getUtil().pixelToHour(e.x);
                     gridManager.getDataManager().getParmOp()
@@ -263,13 +254,6 @@ public class TimeScale extends Canvas implements IMessageClient {
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#displayContextMenu
-             * (org.eclipse.swt.events.MouseEvent)
-             */
             @Override
             public void displayContextMenu(MouseEvent e)
                     throws GFEServerException {
@@ -288,17 +272,17 @@ public class TimeScale extends Canvas implements IMessageClient {
                 // Select All Weather Elements
                 menuMgr.add(new CommandContributionItem(
                         new CommandContributionItemParameter(
-                                PlatformUI.getWorkbench(),
-                                null,
+                                PlatformUI.getWorkbench(), null,
                                 "com.raytheon.viz.gfe.actions.SelectAllWeatherElements",
                                 null, null, null, null,
                                 "Select All Weather Elements", null, null,
-                                CommandContributionItem.STYLE_PUSH, null, true)));
+                                CommandContributionItem.STYLE_PUSH, null,
+                                true)));
 
                 // Deselect All
                 menuMgr.add(new CommandContributionItem(
-                        new CommandContributionItemParameter(PlatformUI
-                                .getWorkbench(), null,
+                        new CommandContributionItemParameter(
+                                PlatformUI.getWorkbench(), null,
                                 "com.raytheon.viz.gfe.actions.ClearSelection",
                                 null, null, null, null, "Deselect All", null,
                                 null, CommandContributionItem.STYLE_PUSH, null,
@@ -319,11 +303,10 @@ public class TimeScale extends Canvas implements IMessageClient {
         gridManager.getUtil().paintBackground(event, rect);
         gridManager.getUtil().paintTimeScaleLines(event, rect);
 
-        Rectangle selection = gridManager
-                .getUtil()
-                .timeRangeToPixels(
-                        gridManager.getDataManager().getSpatialDisplayManager()
-                                .getGlobalTimeRange()).intersection(rect);
+        Rectangle selection = gridManager.getUtil()
+                .timeRangeToPixels(gridManager.getDataManager()
+                        .getSpatialDisplayManager().getGlobalTimeRange())
+                .intersection(rect);
         gridManager.getUtil().paintSelectionTimeRange(event, selection);
 
         paintTimeNow(event, rect);
@@ -401,15 +384,15 @@ public class TimeScale extends Canvas implements IMessageClient {
         // if room, then paint label, and then leader lines
         gc.setLineStyle(SWT.LINE_DOT);
         if (availableWidth >= labelSize.x) {
-            gc.drawString(label, labelXLoc - (labelSize.x / 2), y1, true);
+            gc.drawString(label, labelXLoc - labelSize.x / 2, y1, true);
 
             // left line and arrow
-            gc.drawLine(x1, y1 + d, labelXLoc - (labelSize.x / 2), y1 + d);
+            gc.drawLine(x1, y1 + d, labelXLoc - labelSize.x / 2, y1 + d);
             gc.drawLine(x1, y1 + d, x1 + d, y1);
             gc.drawLine(x1, y1 + d, x1 + d, y2);
 
             // right line and arrow
-            gc.drawLine(x2, y1 + d, labelXLoc + (labelSize.x / 2), y1 + d);
+            gc.drawLine(x2, y1 + d, labelXLoc + labelSize.x / 2, y1 + d);
             gc.drawLine(x2, y1 + d, x2 - d, y1);
             gc.drawLine(x2, y1 + d, x2 - d, y2);
         }
@@ -418,18 +401,19 @@ public class TimeScale extends Canvas implements IMessageClient {
 
     /**
      * Paints the white tick marks for the hours on the TimeScale
-     * 
-     * @param gc
+     *
+     * @param event
+     * @param rect
      */
-    public void paintTicks(PaintEvent event, Rectangle rect) {
+    private void paintTicks(PaintEvent event, Rectangle rect) {
         GC gc = event.gc;
 
         TimeRange tr = gridManager.getVisibleTimeRange();
         Date startTime = tr.getStart();
         Date stopTime = tr.getEnd();
 
-        Calendar currentTickCal = Calendar.getInstance(TimeZone
-                .getTimeZone("GMT"));
+        Calendar currentTickCal = Calendar
+                .getInstance(TimeZone.getTimeZone("GMT"));
         currentTickCal.setTime(startTime);
         currentTickCal.set(Calendar.MINUTE, 0);
         currentTickCal.set(Calendar.SECOND, 0);
@@ -443,8 +427,8 @@ public class TimeScale extends Canvas implements IMessageClient {
         Font origFont = gc.getFont();
         gc.setFont(hourFont);
 
-        int pixelsPerDay = gridManager.getUtil().durationToPixels(
-                TimeUtil.MILLIS_PER_HOUR * 24);
+        int pixelsPerDay = gridManager.getUtil()
+                .durationToPixels(TimeUtil.MILLIS_PER_DAY);
         int xMax = getClientArea().width;
 
         gc.setLineWidth(0);
@@ -454,7 +438,7 @@ public class TimeScale extends Canvas implements IMessageClient {
         int hour = currentTickCal.get(Calendar.HOUR_OF_DAY);
         if (hour > 0) {
             int width = gridManager.getUtil().durationToPixels(
-                    (24 - hour) * TimeUtil.MILLIS_PER_HOUR);
+                    (TimeUtil.HOURS_PER_DAY - hour) * TimeUtil.MILLIS_PER_HOUR);
             paintDate(gc, getClientArea().x, top + PERIOD_FONT_HEIGHT, width,
                     currentTickDate);
         }
@@ -470,14 +454,14 @@ public class TimeScale extends Canvas implements IMessageClient {
                 int width = Math.min(xMax - x, pixelsPerDay);
                 paintDate(gc, x, top + PERIOD_FONT_HEIGHT, width,
                         currentTickDate);
-            } else if ((hour % gridManager.getUtil().getHourIncrement()) == 0) {
+            } else if (hour % gridManager.getUtil().getHourIncrement() == 0) {
                 // draw major tick
                 gc.drawLine(x, bottom - MAJOR_TICK, x, bottom);
 
                 String s = String.format("%02d", hour);
                 Point p = gc.stringExtent(s);
-                gc.drawString(s, x - (p.x / 2), top + PERIOD_FONT_HEIGHT
-                        + HOUR_FONT_HEIGHT, true);
+                gc.drawString(s, x - p.x / 2,
+                        top + PERIOD_FONT_HEIGHT + HOUR_FONT_HEIGHT, true);
             } else {
                 // draw minor tick
                 gc.drawLine(x, bottom - MINOR_TICK, x, bottom);
@@ -492,10 +476,11 @@ public class TimeScale extends Canvas implements IMessageClient {
 
     /**
      * Paints the horizontal white lines
-     * 
-     * @param gc
+     *
+     * @param event
+     * @param bounds
      */
-    public void paintWhiteLines(PaintEvent event, Rectangle bounds) {
+    private void paintWhiteLines(PaintEvent event, Rectangle bounds) {
         GC gc = event.gc;
 
         gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
@@ -514,16 +499,23 @@ public class TimeScale extends Canvas implements IMessageClient {
         int i = 0;
         String s;
         do {
-            s = dateFormat[i++].format(date);
+            s = dateFormat[i].format(date);
+            i++;
             p = gc.stringExtent(s);
-        } while ((i < dateFormat.length) && (p.x > width));
+        } while (i < dateFormat.length && p.x > width);
 
         if (p.x <= width) {
-            gc.drawString(s, x + ((width - p.x) / 2), y, true);
+            gc.drawString(s, x + (width - p.x) / 2, y, true);
         }
     }
 
-    public void paintTimeNow(PaintEvent event, Rectangle rect) {
+    /**
+     * Paints the Time Now indicator on the TimeScale
+     *
+     * @param event
+     * @param rect
+     */
+    private void paintTimeNow(PaintEvent event, Rectangle rect) {
         GC gc = event.gc;
 
         Date now = SimulatedTime.getSystemTime().getTime();
@@ -532,12 +524,12 @@ public class TimeScale extends Canvas implements IMessageClient {
         gc.setLineStyle(SWT.LINE_SOLID);
         gc.setLineWidth(0);
         gc.setForeground(CurrentSystemTime_color);
-        gc.drawPolyline(new int[] { x, 0, x, y, x - (y / 2), 0, x + (y / 2), 0,
-                x, y });
+        gc.drawPolyline(
+                new int[] { x, 0, x, y, x - y / 2, 0, x + y / 2, 0, x, y });
     }
 
     /**
-     * 
+     *
      */
     private void refresh() {
         this.repaintJob.schedule();

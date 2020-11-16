@@ -38,7 +38,9 @@ import org.eclipse.ui.menus.IMenuService;
 import org.eclipse.ui.menus.MenuUtil;
 
 import com.raytheon.viz.core.map.GeoUtil;
+import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
 import com.raytheon.viz.volumebrowser.vbui.VbUtil;
+import com.raytheon.viz.volumebrowser.vbui.VolumeBrowserAction;
 import com.raytheon.viz.volumebrowser.xml.MenuContribution;
 import com.raytheon.viz.volumebrowser.xml.TitleImgContribution;
 import com.raytheon.viz.volumebrowser.xml.ToolBarContribution;
@@ -56,10 +58,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * ------------- -------- ----------- -----------------------------------------
  * Dec 11, 2013  2602     bsteffen    Set the id of menu items.
  * Dec 06, 2017  6355     nabowle     Allow dynamic contribution. Hide when empty.
+ * Feb 08, 2018  6717     bsteffen    Do not add more lats or lons in space mode.
  *
  * </pre>
  *
- * @author unkown
  */
 public class ToolBarContributionItem extends ContributionItem {
 
@@ -87,7 +89,7 @@ public class ToolBarContributionItem extends ContributionItem {
         return toolBarContribution.xml.toolItemText;
     }
 
-    public void addContrib(IContributionItem contributionItem) {
+    private void addContrib(IContributionItem contributionItem) {
         IContributionItem[] tmpContribs = new IContributionItem[contribs.length
                 + 1];
         System.arraycopy(contribs, 0, tmpContribs, 0, contribs.length);
@@ -107,7 +109,10 @@ public class ToolBarContributionItem extends ContributionItem {
         if (!isLat && !isLon) {
             return;
         }
-
+        if (VolumeBrowserAction.getVolumeBrowserDlg().getDialogSettings()
+                .getSpaceTimeSelection() == SpaceTimeMenu.SPACE) {
+            return;
+        }
         String keyPrefixString = toolBarContribution.xml.toolItemText;
         String idPrefixString = "xSect" + toolBarContribution.xml.toolItemText;
 

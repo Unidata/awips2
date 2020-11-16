@@ -21,18 +21,19 @@
 #------*-python-*-------------------------------------------------------------
 # Config file for the GFE (Graphical Forecast Editor).
 #    
-#     SOFTWARE HISTORY
-#    
-#    Date            Ticket#       Engineer       Description
-#    ------------    ----------    -----------    --------------------------
-#    11/20/2013      2488          randerso       Changed to use DejaVu fonts
-#    05/28/2014      2841          randerso       Added separate configurable limits for
-#                                                 text formatter and product script tasks
-#    02/04/2015      17039         ryu            Removed HighlightFramingCodes setting.
-#    02/09/2016      5283          nabowle        Remove NGM support.
-#    06/23/2017      6138          dgilling       Remove obsolete winter 
-#                                                 weather phensigs.
-#    12/06/2017      DCS20267      psantos        Add NWPS rip current guidance
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- --------------------------------------------
+# Nov 20, 2013  2488     randerso  Changed to use DejaVu fonts
+# May 28, 2014  2841     randerso  Added separate configurable limits for text
+#                                  formatter and product script tasks
+# Feb 04, 2015  17039    ryu       Removed HighlightFramingCodes setting.
+# Feb 09, 2016  5283     nabowle   Remove NGM support.
+# Jun 23, 2017  6138     dgilling  Remove obsolete winter weather phensigs.
+# Jan 23, 2018  7153     randerso  Cleaned up spelling errors in comments
+# Dec 06, 2017  DCS20267 psantos   Add NWPS rip current guidance
+##
 
 ##
 # This is a base file that is not intended to be overridden.
@@ -73,7 +74,7 @@ dbTypes = ['', 'D2D', 'V']
 # then the gfe will use the area as a mask in displaying data in the
 # spatial editor. The user also can set masks for individual weather
 # elements by adding config entries of the form SITEID_PARMNAME_mask.
-# Sipmlified formats also available are PARMNAME_mask and just mask.
+# Simplified formats also available are PARMNAME_mask and just mask.
 # The software first looks for a specific site/parmName entry, then
 # for the site entry, then parmName, then just mask.  If you want all of
 # the weather elements clipped except one, then specify an empty name ("")
@@ -340,7 +341,7 @@ ReferenceSet_color = 'Gray80'
 # Defines the border width used to indicate the Edit Area on the spatial editor
 ReferenceSet_width = 0
 
-# Defines the initial horizontial size of the grid manager when first
+# Defines the initial horizontal size of the grid manager when first
 # starting the GFE in pixels.  Do not place a decimal point after the number.
 TimeScale_horizSize = 350
 
@@ -396,9 +397,9 @@ TemporalEditorWEMode = "VISIBLE"
 #FormatterLauncherDialog_Categories = []
 
 # Default setting for the Wx/Discrete Show Description option.  Setting it
-# to 1 will enable the descriptions, setting it to 0 will disable the
+# to True will enable the descriptions, setting it to False will disable the
 # descriptions.
-#WxDiscrete_Description = 1
+#WxDiscrete_Description = True
 
 # Default setting for the font and colors for the Product Output Dialog.
 #ProductOutputDialog_font = TextFont2
@@ -410,7 +411,6 @@ ProductOutputDialog_nonWrapPils = ['AFM','PFM','FWF','SFT','WCN','FWS','TCV','HL
 #ProductOutputDialog_wrapSize = 66
 #ProductOutputDialog_lockColor = "blue"
 #ProductOutputDialog_frameColor = "red"
-#ProductOutputDialog_insertColor = "cyan"
 
 # The initial size of the Call to action dialog (in pixels)
 #ProductOutputDialog_CTAWidth = 575
@@ -477,7 +477,7 @@ ProductOutputDialog_nonWrapPils = ['AFM','PFM','FWF','SFT','WCN','FWS','TCV','HL
 #ImageLegend_color = "white"
 
 # Sample Shadows. The samples can have a shadow character written in
-# black offset from the sample text.  This improves constrast when the
+# black offset from the sample text.  This improves contrast when the
 # main sample color is light and the background color (e.g., image) is
 # also fairly light.  Acceptable entries are yes and no.
 #ShowSampleShadows = yes
@@ -664,6 +664,7 @@ HistoryModelColor_HPCQPF = '#3dc9ff'
 HistoryModelColor_HPCGuide = '#3dc9ff'
 HistoryModelColor_RFCQPF = '#3bffb7'
 HistoryModelColor_Restore = '#e0a0ff'
+HistoryModelColor_DGEX = 'orange'
 HistoryModelColor_MOSGuide = '#e608ff'
 HistoryModelColor_OPCTAFBE = '#a0a0cc'
 HistoryModelColor_OPCTAFBSW = '#a0a0cc'
@@ -694,6 +695,7 @@ HistoryModelText_HPCQPF = 'HPCQPF'
 HistoryModelText_HPCGuide = 'HPCGuide'
 HistoryModelText_RFCQPF = 'RFCQPF'
 HistoryModelText_Restore = 'Restore'
+HistoryModelText_DGEX = 'DGEX'
 HistoryModelText_MOSGuide = 'GMOS'
 HistoryModelText_OPCTAFBE = 'OPC'
 HistoryModelText_OPCTAFBSW = 'OPC'
@@ -866,7 +868,7 @@ SnowLevel_deltaValue = 100.0
 
 # fuzz values
 # fuzz values define the value considered to be the same during a
-# homogenous area select using the GridPoint Tool. For example, if the
+# homogeneous area select using the GridPoint Tool. For example, if the
 # fuzz is 2.0 degrees for Temperature and you click on 40 degrees, then
 # all points between 38 and 42 will be selected as long as they are
 # contiguous to the click point.  If not specified, the fuzz is set
@@ -905,7 +907,7 @@ Swell2_spatialGraphicType = [ "WindArrow" ]
 
 # Bounded Area Visual attributes
 # The user may turn on/off the boundary, and the text labels, for
-# the bounded area visual. Allowables values are yes and no (or 1 and 0).
+# the bounded area visual. Allowable values are yes and no (or True and False).
 # By default, then are both enabled.
 #BoundedArea_Labels = yes
 #BoundedArea_Boundary = yes
@@ -1413,7 +1415,7 @@ TemporalEditorAbsoluteEditMode = no
 # Choices are "ABSOLUTE", # "MODERATED", or "STANDARD_DEVIATION".
 TemporalEditorStatisticsMode = "ABSOLUTE"
 # Initial minimum and maximum values for scales on temporal editor range
-# statistics dialog in moderated and stadard deviation operation modes 
+# statistics dialog in moderated and standard deviation operation modes 
 # (dialog is not shown in absolute mode). Do NOT include a decimal point
 # for moderated mode values, you MUST include a decimal point for standard
 # deviation values.
@@ -1437,7 +1439,7 @@ WeatherDiscreteCombineMode = no
 # Skip: Skip grids for which there is  missing data.
 #   A User Alert message will report which grids were skipped.
 # Create: Create grids to supply the missing data.
-#   A User Alert message will report which gridswere created.
+#   A User Alert message will report which grids were created.
 MissingDataMode = "Stop"
 
 # Default setting for showing the dialog box when the user attempts to
@@ -1533,7 +1535,7 @@ Png_smoothImage = 0     # ifpIMAGE only
 
 # Alternate way of specifying the weather elements to be displayed.
 # If this entry is specified, then the DefaultGroup is ignored (for
-# ifpIMAGE). Format is a list of weather elements in a psudo weather
+# ifpIMAGE). Format is a list of weather elements in a pseudo weather
 # element bundle formats, which consist
 # of "parmName_level:optType_modelName seq", where the
 # seq is normally -1 for singleton databases, 0 for model databases for
@@ -1612,7 +1614,7 @@ Png_legendFormat_LT_end = "%b %d %I:%M %p %Z"       # ifpIMAGE only
 #Png_fitToDataArea = "BOU"
 
 # Add a "logo bar" to the bottom of each image.  If this flag is set to 1,
-# then a bar containing the noaa and nws logos will be inserted at the bottom
+# then a bar containing the NOAA and NWS logos will be inserted at the bottom
 # of the image.
 #Png_logo = 0
 
@@ -1664,8 +1666,8 @@ Png_legendFormat_LT_end = "%b %d %I:%M %p %Z"       # ifpIMAGE only
 
 # If set true, then these options will be set when the zone combiner
 # starts for each product.
-#ZoneCombiner_LabelZones = 0
-#ZoneCombiner_LabelGroups = 1
+#ZoneCombiner_LabelZones = False
+#ZoneCombiner_LabelGroups = True
 
 
 #------------------------------------------------------------------------
@@ -1674,16 +1676,28 @@ Png_legendFormat_LT_end = "%b %d %I:%M %p %Z"       # ifpIMAGE only
 # Product Generation Scripts appear under the product generation menu
 # on the GFE.
 Scripts = [
-    "Png Images...:" +
-    "ifpIMAGE " +\
-    "-h {host} -c {entry:ConfigFile:imageTest1} -o {prddir}/IMAGE",
-    
     "Ascii Grids...: " +
     "ifpAG -h {host} -r {port} -o {prddir}/AG/{ztime}.ag " +\
       "-d {productDB} ",
 
     "Make and Send HTI:" +
-     "/awips2/GFESuite/hti/bin/make_hti.sh {site}"
+     "xterm -e ssh px2f /awips2/GFESuite/hti/bin/make_hti.sh {site}",
+     
+    "Official Grids to LDAD: " +
+    "ifpAG -h {host} -r {port} -o - -d {productDB} | gzip -9 > " +
+    " /data/fxa/LDAD/ifp/Official/.incoming; " +
+    "mv /data/fxa/LDAD/ifp/Official/.incoming /data/fxa/LDAD/ifp/Official/{ztime} &"
+    
+    "Png Images...:" +
+    "ifpIMAGE " +\
+    "-h {host} -c {entry:ConfigFile:imageTest1} -o {prddir}/IMAGE",
+
+    "Send Grids to NDFD..:" +
+    "sendGridsToNDFD.sh {site} &",
+
+    "Send Point and Click Grids to Consolidated Web Farm..:" +
+    "/awips2/GFESuite/bin/rsyncGridsToCWF_client.sh {site} &",
+    
     ]
 
 ##   Note: Please define TextProducts through
@@ -1691,11 +1705,8 @@ Scripts = [
 ##   within the GFE.
 
 # Ordering Product Generation
-# To provide an order for the products generated, list an order
-# preference in the list variable 'ProductList'.  Any products not listed in
-# 'ProductList' will be listed at the bottom of the product generation menu
-# in alphabetical order.
-#ProductList = ["Png Images", "Ascii Grids", "YourProduct"]
+# NOTE: 'ProductList' is not supported in AWIPS 2. 
+# Products will be listed in the order they appear in the list of Scripts above.
 
 #------------------------------------------------------------------------
 # Product Generation Script Notes
@@ -1724,7 +1735,7 @@ Scripts = [
 #       {SelectedStart}          -- Start of Selected Time range
 #       {SelectedEnd}            -- End of Selected Time range
 #       {time}                   -- Current local time in format: YYYYMMDD_HHMM
-#       {ztime}                  -- Current zulu time in format: YYYYMMDD_HHMM
+#       {ztime}                  -- Current Zulu time in format: YYYYMMDD_HHMM
 #       {module:<module name>}   -- The correct path of the module will
 #                                   be substituted in the command line.
 #                                   The module must have a .py extension.

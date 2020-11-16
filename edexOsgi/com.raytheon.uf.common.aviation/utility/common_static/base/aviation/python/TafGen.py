@@ -24,7 +24,7 @@
 #
 #    Status:
 #       %PS%
-#    
+#
 #    History:
 #       %PL%
 #
@@ -35,13 +35,14 @@
 #    Date          Ticket#       Engineer       Description
 #    ----------    ----------    -----------    --------------------------
 #    10/28/2015    15464         zhao           Modified mkTempo & mkProb30 to handle case of "TS"+"SKC"
+#    02/02/2018    7001          tgurney        Clean up NameErrors
 #
 
 ##
 # This is a base file that is not intended to be overridden.
 ##
 
-import sys,os,copy,cPickle,math,ConfigParser,time,logging
+import math,ConfigParser,logging
 import AvnLib, AvnParser, Avn
 
 _Logger = logging.getLogger(Avn.CATEGORY)
@@ -97,7 +98,7 @@ def fixPcp(plist):
     return pcp
 
 class Config:
-    def __init__(self,siteIdent,model):            
+    def __init__(self,siteIdent,model):
         self.grpTafFile = Avn.getTafPath(siteIdent, 'grp_taf.cfg')
         self.fltCatFile = Avn.getTafPath(siteIdent, 'flt_cat.cfg')
         self.model = model
@@ -121,7 +122,7 @@ class Config:
                 prdCfg['tempo_pop'] = config.getint('mos','tempo_precip')
                 prdCfg['prob30_tstm'] = config.getint('mos','prob30_tstm')
                 prdCfg['prob30_pop'] = config.getint('mos','prob30_precip')
-                
+
             prdCfg['prob30']=config.getboolean('prob30','value')
             prdCfg['short_dt']=config.getint('def_singleton','short_dt')
             prdCfg['long_dt']=config.getint('def_singleton','long_dt')
@@ -176,7 +177,8 @@ class Projection:
         if thresholds[-1] == 5:#MVFR limit
             thresholds[-1] = 5.1 #so that 5 SM will be MVFR
         nlen = len(thresholds)
-        if val < 0 : return 0
+        if val < 0:
+            return 0
         #VLIFR 
         elif val < thresholds[0]:
             return 1
@@ -188,7 +190,7 @@ class Projection:
             for i in range(nlen-1):
                 if thresholds[i] <= val < thresholds[i+1]:
                     return i+2
-    
+
     def mkVisCat(self):
         if self.vis:
             return self.getCat(self.vis['value'],self.fltCat['vis'])
@@ -225,10 +227,10 @@ class Projection:
                 skyStr = self.sky['str']
                 if 'TS' in tmpStr:
                 #make sure cig is below threshold
-		    try:
-		       cig = int(self.sky['str'][3:])
-		    except ValueError:
-		       cig = 250
+                    try:
+                       cig = int(self.sky['str'][3:])
+                    except ValueError:
+                       cig = 250
                     if cig > self.grpTaf['cbhight']:
                         cig = self.grpTaf['cbhight']
                     skyStr = "%s%03d%s" %('BKN',cig,'CB')
@@ -303,7 +305,7 @@ class LampProjection(Projection):
         #mkProb30 needs to be called after mkTempo since some
         #consolidation is done in mkProb30
         self.prob30 = self.mkProb30(fcstData['pcp'])
-        
+
     def mkPcp(self,pcpn):
         if self.pcat or pcpn['pop'] > self.grpTaf['prev_pop']:
             self.sky = self.csky
@@ -379,8 +381,6 @@ class LampProjection(Projection):
                 return {'wxStr':fixPcp(tmpStr),'visStr':visStr,\
                             'skyStr':skyStr}
 
-
-
 class Comparison:
 
     def __init__(self,proj1,proj2,grpTaf):
@@ -404,17 +404,19 @@ class Comparison:
             bdd = self.dataB.get('wind',{}).get('dd',0)
             agg = self.dataA.get('wind',{}).get('gg',0)
             bgg = self.dataB.get('wind',{}).get('gg',0)
-            if (agg > 10 or bgg > 10) and abs(agg-bgg) > 5:return None 
+            if (agg > 10 or bgg > 10) and abs(agg-bgg) > 5:
+                return None 
             if aff < self.grpTaf['wdthrsh'] and bff < self.grpTaf['wdthrsh']:
                 return 1
             ddir = abs(add - bdd)
             dspd = abs(aff - bff)
-            if ddir > 180: ddir = 360 - ddir
+            if ddir > 180:
+                ddir = 360 - ddir
             if ddir < 30 and dspd < self.grpTaf['wddt']:
                 return 1
         elif not self.dataA['wind'] and not self.dataB['wind']:
             return 1
-    
+
     def compPcp(self):
         if self.dataA.get('pcp') == self.dataB.get('pcp'):
             return 1
@@ -456,7 +458,7 @@ class Comparison:
                 self.compTstm()
 
 class Summarize:
-    
+
     def __init__(self,grpTaf,list):
         self.startTimes=[v['startTime'] for v in list]
         self.endTimes=[v['endTime'] for v in list]
@@ -484,7 +486,7 @@ class Summarize:
 
     def summTime(self):
         return {'from':self.startTimes[0],'to':self.endTimes[-1]}
-        
+
     def summVis(self):
         if filter(None,self.vis):
             vsby=min([v['value'] for v in self.vis if v is not None])
@@ -499,7 +501,7 @@ class Summarize:
                 d[s['cig']]=s['str']
             minCig = min(d.keys())
             return {'str':d[minCig]} 
-        
+
     def summObv(self):
         d={}
         for s,v in zip(self.obv,self.vis):
@@ -521,7 +523,7 @@ class Summarize:
                     if dDir > 30:
                         varW = 'VRB%02dKT' % (sum(wspd)/len(wspd))
                         return {'str': varW}
-        
+
 
     def summWind(self):
         rt = self.varWind(self.wdDir,self.wdSpd)
@@ -559,7 +561,7 @@ class Summarize:
                 return {'str':'%03d%02dKT' % (dd,ff)}
         else:
             return rt
-    
+
     def summPcp(self):
         if self.tstm:
             if self.pcp:
@@ -577,7 +579,7 @@ class Summarize:
             for t,ind in zip(self.tempo,xrange(30)):
                 if t:
                     tList.append(ind)
-        elif pb:    
+        elif pb:
             for t,ind in zip(self.prob30,xrange(30)):
                 if t:
                     tList.append(ind)
@@ -605,7 +607,7 @@ class Summarize:
                     'sky':{'str':prob30['skyStr']},
                     'vsby':{'str':prob30['visStr']}}
 
-        
+
     def returnPrd(self):
         prd = {'time':self.summTime()}
         if self.summWind() and self.summWind().get('str'):
@@ -643,12 +645,12 @@ class TafGen:
         else:
             self.tafTime = AvnLib.getValidTime('taf', tafType)
         #get TAF's start and end projections
-        
+
         try:
             self.tafDuration=int(AvnParser.getTafSiteCfg(self.ident)['thresholds']['tafduration'])
         except:
             self.tafDuration=24
-            
+
         nBeg,nEnd = self.getTafPrd(self.tafDuration)
         if self.model == 'gfslamp':
             self.projData = [LampProjection(self.ident,self.grpTaf,self.fltCat, \
@@ -675,7 +677,7 @@ class TafGen:
                 break
         return (n_st,n_ed)
 
-    def meetThrshds(short,long,dict):
+    def meetThrshds(self,short,long,dict):
         longPrd = self.projData[dict[long]]
         if long > 1:
             lgdt = self.subEndTimes[dict[long]] - \
@@ -683,8 +685,8 @@ class TafGen:
         else:
             lgdt = self.subEndTimes[dict[long]] - \
                  self.subStartTimes[dict[long]]
-        lgCigCat = longPrd['cigCat']
-        lgVisCat = longPrd['visCat']
+        longCigCat = longPrd['cigCat']
+        longVisCat = longPrd['visCat']
         shrtPrd = self.projData[dict[short]]
         shrtCigCat = shrtPrd['cigCat']
         shrtVisCat = shrtPrd['visCat']
@@ -699,20 +701,21 @@ class TafGen:
             shrtCigCat < self.grpTaf['cig_cat']['high_c'] and \
             longCigCat > self.grpTaf['cig_cat']['low_c'] and \
             shrtCigCat > self.grpTaf['cig_cat']['low_c']:
-            return 1           
+            return 1
 
     def isSingleton(self,ref,dict):
         if self.projData[dict[ref]]['tempo'] or\
-            self.projData[dict[ref]]['prob30']: return None
+            self.projData[dict[ref]]['prob30']:
+            return None
         #check if the period is short enough to be a singleton
         dt = self.subEndTimes[dict[ref]]-self.subEndTimes[dict[ref-1]]
         pTime = self.subEndTimes[dict[ref]] - self.subStartTimes[0]
         if dt < self.grpTaf['short_dt']*3600 and pTime > self.grpTaf['low_p']*3600:
-            if meetThrshds(ref,ref-1,dict) and \
+            if self.meetThrshds(ref,ref-1,dict) and \
                 Comparison(self.projData[dict[ref]],self.projData[dict[ref-1]],\
                             self.grpTaf).isSame():
                 return ref-1
-            elif meetThrshds(ref,ref+1,dict) and \
+            elif self.meetThrshds(ref,ref+1,dict) and \
                 Comparison(self.projData[dict[ref]],self.projData[dict[ref+1]],\
                             self.grpTaf).isSame():
                 return ref+1
@@ -721,17 +724,17 @@ class TafGen:
         dic = {}
         for g,ind in zip(grpList,xrange(100)):
             dic[g] = ind
-        
+
         for k in dic.keys()[1:]:
             neighbor = self.isSingleton(k,dic)
             if neighbor and neighbor < k:
                 dic[neighbor] = dic[k]
                 dic[k] = None
             elif neighbor and neighbor > k:
-                dic[k] = None    
-        return dic                    
-            
-                
+                dic[k] = None
+        return dic
+
+
     def Brk4Tempo(self,gList,fcstD):
         #fcstD is the current proj to be determined if it can be combined with 
         #last group in gList.
@@ -740,8 +743,8 @@ class TafGen:
         dt = fcstD['endTime'] - self.subStartTimes[startInd]
         if fcstD['tempo'] and dt > 4*3600:
             return 1
-                            
-                         
+
+
     def checkOcnl(self,grpInd):
         #create the indexes that mark the locations of tempo & prob30
         pstr = ''.join([{True:'1',False:'0'}.get(x.has_key('prob30')) for x in self.projData])
@@ -756,7 +759,7 @@ class TafGen:
         binary = []
         for i in range(len(pstr)):
             binary.append(0)
-            
+
         beg = 0
         for s in grpDic.keys():
             if s > 1:
@@ -764,10 +767,11 @@ class TafGen:
             e = grpDic[s]
 
             #if the group has only one projection, skip it
-            if e - beg <= 0: continue 
-                 
-            pp = pstr[beg:e+1].find('1')      
-            pt = tstr[beg:e+1].find('1')        
+            if e - beg <= 0:
+                continue 
+
+            pp = pstr[beg:e+1].find('1')
+            pt = tstr[beg:e+1].find('1')
             pp1,pt1 = -1,-1
             if pp >= 0:
                 pp1 = pstr[beg+pp+1:e+1].find('1')
@@ -786,7 +790,7 @@ class TafGen:
                         binary[b] = 1
                     else:#grpDic[s-1]+1 is the grp begining index
                         binary[b+grpDic[s-1]+1] = 1
-                
+
         #merge grpInd and binary
         lev = 0
         newInd = []
@@ -800,7 +804,7 @@ class TafGen:
                     lev += 1
                 newInd.append(g+lev)
         return newInd
-                     
+
     def formNewDic(self,noGrp):
         period=[]
         if noGrp:

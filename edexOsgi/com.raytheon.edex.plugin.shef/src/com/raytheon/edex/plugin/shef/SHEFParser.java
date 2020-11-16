@@ -62,12 +62,12 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Apr 27, 2015   4377     skorolev    Corrected set up the default product id.
  * Mar 10, 2016   5352     mduff       Truncated identifier to 10 characters.
  * Jan 10, 2018   5049     mduff       Rewrote parsing.
+ * Jan 23, 2018   6784     mduff       Refactored shef missing var names.
  * May 25, 2018   5049     mduff       Fixed bug introduced during refactor.
  * 
  * </pre>
  * 
  * @author jkorman
- * @version 1.0
  */
 public class SHEFParser {
 
@@ -813,7 +813,7 @@ public class SHEFParser {
                 }
                 case UNKNOWN: {
                     if (isMissingValue(token.getToken())) {
-                        value = ShefConstants.SHEF_MISSING;
+                        value = ShefConstants.SHEF_MISSING_STR;
                         qualifier = getMissingQualifier(token.getToken());
                     } else if (isTraceValue(token.getToken())) {
                         value = ShefConstants.SHEF_TRACE;
@@ -1721,7 +1721,7 @@ public class SHEFParser {
                         }
                         case UNKNOWN: {
                             if (isMissingValue(bToken.getToken())) {
-                                value = ShefConstants.SHEF_MISSING;
+                                value = ShefConstants.SHEF_MISSING_STR;
                                 qualifier = getMissingQualifier(
                                         bToken.getToken());
                             } else if (isTraceValue(bToken.getToken())) {
@@ -2357,7 +2357,7 @@ public class SHEFParser {
                     }
                     case UNKNOWN: {
                         if (isMissingValue(token.getToken())) {
-                            value = ShefConstants.SHEF_MISSING;
+                            value = ShefConstants.SHEF_MISSING_STR;
                             qualifier = getMissingQualifier(token.getToken());
 
                         } else if (isTraceValue(token.getToken())) {
@@ -2953,7 +2953,7 @@ public class SHEFParser {
                         if ("MM".equals(s)) {
                             if (isBData) {
                                 ParserToken tt = new ParserToken(
-                                        ShefConstants.SHEF_MISSING + "M",
+                                        ShefConstants.SHEF_MISSING_STR + "M",
                                         TokenType.QNUMERIC);
                                 tokens.set(i, tt);
                             } else {
@@ -2966,7 +2966,7 @@ public class SHEFParser {
                                          * then treat as missing
                                          */
                                         tt = new ParserToken(
-                                                ShefConstants.SHEF_MISSING,
+                                                ShefConstants.SHEF_MISSING_STR,
                                                 TokenType.NUMERIC);
                                         tokens.set(i, tt);
                                     } else if (TokenType.SLASH
@@ -3019,9 +3019,9 @@ public class SHEFParser {
                             } else if (isMissingValue(t.getToken())) {
                                 String q = getMissingQualifier(t.getToken());
                                 if ("M".equals(q)) {
-                                    q = ShefConstants.SHEF_MISSING + "M";
+                                    q = ShefConstants.SHEF_MISSING_STR + "M";
                                 } else {
-                                    q = ShefConstants.SHEF_MISSING;
+                                    q = ShefConstants.SHEF_MISSING_STR;
                                 }
                                 ParserToken tt = new ParserToken(q);
                                 tokens.set(i, tt);
@@ -3033,9 +3033,9 @@ public class SHEFParser {
                     } else if (isMissingValue(t.getToken())) {
                         String q = getMissingQualifier(t.getToken());
                         if ("M".equals(q)) {
-                            q = ShefConstants.SHEF_MISSING + "M";
+                            q = ShefConstants.SHEF_MISSING_STR + "M";
                         } else {
-                            q = ShefConstants.SHEF_MISSING;
+                            q = ShefConstants.SHEF_MISSING_STR;
                         }
                         ParserToken tt = new ParserToken(q);
                         tokens.set(i, tt);
@@ -3060,8 +3060,8 @@ public class SHEFParser {
                         tokens.remove(i);
                     }
                 } else if (TokenType.DECIMAL.equals(t.getType())) {
-                    ParserToken tt = new ParserToken(ShefConstants.SHEF_MISSING,
-                            TokenType.NUMERIC);
+                    ParserToken tt = new ParserToken(
+                            ShefConstants.SHEF_MISSING_STR, TokenType.NUMERIC);
                     tokens.set(i, tt);
                 } else {
                     i++;

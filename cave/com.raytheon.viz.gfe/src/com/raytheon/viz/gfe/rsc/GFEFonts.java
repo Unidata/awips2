@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -30,30 +30,33 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.drawables.IFont;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
+import com.raytheon.viz.gfe.IConfigurationChangeListener;
 
 /**
  * Get appropriate SWT or GL font based on GFE preferences
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 14, 2010            randerso    Initial creation
- * Apr 27, 2011 #9250      bkowal      getStyle and getName are now used to
- *                                     get the style and name associated with
- *                                     a FontData object.
- * Nov 20, 2013 #2488      randerso    Changed to use DejaVu fonts
- * Nov 05, 2015 #5070      randerso    Remove scale factor for GLFonts (was adjusting for DPI)
- * Mar 10, 2016 #5479      randerso    Cleaned up for more general use throughout GFE
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Oct 14, 2010           randerso  Initial creation
+ * Apr 27, 2011  9250     bkowal    getStyle and getName are now used to get the
+ *                                  style and name associated with a FontData
+ *                                  object.
+ * Nov 20, 2013  2488     randerso  Changed to use DejaVu fonts
+ * Nov 05, 2015  5070     randerso  Remove scale factor for GLFonts (was
+ *                                  adjusting for DPI)
+ * Mar 10, 2016  5479     randerso  Cleaned up for more general use throughout
+ *                                  GFE
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class GFEFonts {
@@ -70,10 +73,21 @@ public class GFEFonts {
 
     private static FontData[] fontData;
 
+    static {
+        GFEPreference.addConfigurationChangeListener(
+                new IConfigurationChangeListener() {
+
+                    @Override
+                    public void configurationChanged(String config) {
+                        fontData = null;
+                    }
+                });
+    }
+
     /**
      * Retrieves FontData for one of the five predefined GFE fonts. These are
      * defined in gfeConfig in the TextFontn settings
-     * 
+     *
      * @param size
      *            GFE font size 0-4
      * @return FontData for the requested font
@@ -95,13 +109,13 @@ public class GFEFonts {
             for (int i = 0; i < NUM_FONTS; i++) {
                 String s = "TextFont" + i;
                 try {
-                    String fontString = Activator.getDefault()
-                            .getPreferenceStore().getString(s);
+                    String fontString = GFEPreference.getString(s);
                     fontData[i] = StringConverter.asFontData(fontString);
                 } catch (Throwable e) {
                     statusHandler.handle(Priority.PROBLEM,
                             "Error loading GFE font " + s
-                                    + " using default font.", e);
+                                    + " using default font.",
+                            e);
                     fontData[i] = new FontData(DEFAULT_FONT_NAME,
                             DEFAULT_FONT_SIZE[i], DEFAULT_FONT_STYLE);
                 }
@@ -113,7 +127,7 @@ public class GFEFonts {
     /**
      * Returns the desired GFE font for the specified device. The caller is
      * responsible for disposing the font.
-     * 
+     *
      * @param device
      *            SWT graphics device
      * @param size
@@ -127,7 +141,7 @@ public class GFEFonts {
     /**
      * Returns the desired GFE font for the specified device. The caller is
      * responsible for disposing the font.
-     * 
+     *
      * @param device
      *            SWT graphics device
      * @param size
@@ -138,14 +152,14 @@ public class GFEFonts {
      */
     private static Font getFont(Device device, int size, int style) {
         FontData fd = getFontData(size);
-        return new Font(device, new FontData(fd.getName(), fd.getHeight(),
-                style));
+        return new Font(device,
+                new FontData(fd.getName(), fd.getHeight(), style));
     }
 
     /**
      * Returns the desired GFE font for the specified target. The caller is
      * responsible for disposing the font.
-     * 
+     *
      * @param target
      *            IGraphicsTarget
      * @param size
@@ -187,7 +201,7 @@ public class GFEFonts {
      */
     public static int getFontNum(String setting, int fontNum) {
         if (GFEPreference.contains(setting)) {
-            fontNum = GFEPreference.getIntPreference(setting);
+            fontNum = GFEPreference.getInt(setting);
         }
         return fontNum;
     }
@@ -197,9 +211,9 @@ public class GFEFonts {
      * the font number from the current configuration file. This should be a
      * value in the range 0-4. If the current config file does not contain the
      * setting, font number 2 is used.
-     * 
+     *
      * @param device
-     * 
+     *
      * @param gc
      *            The current graphics context.
      * @param setting
@@ -225,7 +239,7 @@ public class GFEFonts {
      * <p>
      * It is the caller's responsibility to call dispose() on the returned font
      * when it is no longer needed.
-     * 
+     *
      * @param target
      *            The graphics target that builds the IFont.
      * @param setting

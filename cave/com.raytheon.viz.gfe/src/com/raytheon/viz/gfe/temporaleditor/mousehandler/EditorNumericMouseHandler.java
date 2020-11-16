@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -36,7 +36,6 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.Message;
@@ -55,21 +54,21 @@ import com.raytheon.viz.gfe.temporaleditor.TimeSeries;
 
 /**
  * MouseHandler to resize temporal editor bars.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 28, 2009  #2159     rjpeter       Initial creation
- * Feb 20, 2015  #4051     dgilling      Allow grids to be edited when there is
- *                                       no active edit area.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 28, 2009  2159     rjpeter   Initial creation
+ * Feb 20, 2015  4051     dgilling  Allow grids to be edited when there is no
+ *                                  active edit area.
+ * Jan 24, 2018  7153     randerso  Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author rjpeter
- * @version 1.0
  */
 public class EditorNumericMouseHandler extends MouseHandler {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -85,6 +84,11 @@ public class EditorNumericMouseHandler extends MouseHandler {
 
     private boolean adjustingMagnitude;
 
+    /**
+     * Constructor
+     *
+     * @param teBar
+     */
     public EditorNumericMouseHandler(TemporalEditorNumericBar teBar) {
         this.teBar = teBar;
     }
@@ -102,15 +106,14 @@ public class EditorNumericMouseHandler extends MouseHandler {
             GridType gridType = parm.getGridInfo().getGridType();
             adjustingMagnitude = (e.stateMask & SWT.SHIFT) == 0;
 
-            if (!adjustingMagnitude
-                    && (GridType.SCALAR.equals(gridType) || !verifyAbsoluteMode())) {
+            if (!adjustingMagnitude && (GridType.SCALAR.equals(gridType)
+                    || !verifyAbsoluteMode())) {
                 // can't adjust direction for scalars or in relative mode
                 return;
             }
 
             try {
-                DataManager.getCurrentInstance().getParmOp()
-                        .clearUndoParmList();
+                parm.getDataManager().getParmOp().clearUndoParmList();
                 IGridData gridToChange = parm.startParmEdit(date);
                 if (gridToChange != null) {
                     if (adjustingMagnitude) {
@@ -134,7 +137,7 @@ public class EditorNumericMouseHandler extends MouseHandler {
         float val = teBar.getScale().getValueForHeight(e.y);
         Parm parm = teBar.getClosestParm(date, val);
 
-        if (parm != null && parm.isOkToEdit(tr)) {
+        if ((parm != null) && parm.isOkToEdit(tr)) {
 
             GridType gridType = parm.getGridInfo().getGridType();
 
@@ -152,13 +155,12 @@ public class EditorNumericMouseHandler extends MouseHandler {
                 IGridData grid = parm.overlappingGrid(date);
                 lastEditedTr = grid.getGridTime();
 
-                IGridData gridsToChange = parm.startParmEdit(lastEditedTr
-                        .getStart());
+                IGridData gridsToChange = parm
+                        .startParmEdit(lastEditedTr.getStart());
 
                 if (gridsToChange != null) {
                     parmInDrag = parm;
-                    DataManager.getCurrentInstance().getParmOp()
-                            .clearUndoParmList();
+                    parm.getDataManager().getParmOp().clearUndoParmList();
                 }
             } catch (GFEOperationFailedException exc) {
                 statusHandler.handle(Priority.PROBLEM, "Grid edit failed", exc);
@@ -192,8 +194,8 @@ public class EditorNumericMouseHandler extends MouseHandler {
                     } else {
                         processDirectionValue(e, parmInDrag, date, grid);
                     }
-                    teBar.getTimeSeriesForParm(parmInDrag).generateSamples(
-                            newTR);
+                    teBar.getTimeSeriesForParm(parmInDrag)
+                            .generateSamples(newTR);
                 }
             } catch (GFEOperationFailedException exc) {
                 statusHandler.handle(Priority.PROBLEM, "Grid edit failed", exc);
@@ -218,7 +220,8 @@ public class EditorNumericMouseHandler extends MouseHandler {
             MessageBox mb = new MessageBox(teBar.getContainer().getShell(),
                     SWT.ICON_WARNING | SWT.OK);
             mb.setText("Direction Edit not allowed");
-            mb.setMessage("Editing Direction is not allowed in TE Relative Edit Mode");
+            mb.setMessage(
+                    "Editing Direction is not allowed in TE Relative Edit Mode");
             mb.open();
             return false;
         }
@@ -270,7 +273,7 @@ public class EditorNumericMouseHandler extends MouseHandler {
     }
 
     /**
-     * 
+     *
      * @param e
      * @param parm
      * @param date
@@ -283,9 +286,8 @@ public class EditorNumericMouseHandler extends MouseHandler {
                 .getMode();
 
         if (!teMode.equals(TEMode.RELATIVE)) {
-            Grid2DBit gridArea = TemporalEditorUtil
-                    .determinePointsToUse(DataManagerUIFactory
-                            .getCurrentInstance().getRefManager()
+            Grid2DBit gridArea = TemporalEditorUtil.determinePointsToUse(
+                    DataManagerUIFactory.getCurrentInstance().getRefManager()
                             .getActiveRefSet());
             float dir = teBar.getScale().getDirectionForHeight(e.y);
 
@@ -299,11 +301,6 @@ public class EditorNumericMouseHandler extends MouseHandler {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.gridmanager.MouseHandler#displayContextMenu ()
-     */
     @Override
     public void displayContextMenu(MouseEvent e) throws GFEServerException {
         super.displayContextMenu(e);

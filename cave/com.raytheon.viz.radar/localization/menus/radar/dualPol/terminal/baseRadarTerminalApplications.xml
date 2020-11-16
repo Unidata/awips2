@@ -18,18 +18,33 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="Radar Applications"
-		id="${icao}TerminalRadarApplications">
-		<contribute xsi:type="titleItem" titleText="------ Applications ------"
-			id="${icao}TerminalApplications" />
-		<contribute xsi:type="command"
-			commandId="com.raytheon.viz.awipstools.estimatedactualvelocity"
-			menuText="Estimated Actual Velocity" id="${icao}EstimatedActualVelocity" />
-		<contribute xsi:type="command"
-			commandId="com.raytheon.viz.radar.ui.RadarDisplayControls" menuText="Radar Display Controls..."
-			id="${icao}ApplicationsRadarDisplayControls" />
-		<contribute xsi:type="command" commandId="com.raytheon.viz.awipstools.vrshear"
-			menuText="VR - Shear" id="${icao}VRShear" />
-	</contribute>
+    <contribute xsi:type="subMenu" menuText="Radar Applications"
+        id="${icao}TerminalRadarApplications">
+        <contribute xsi:type="titleItem" titleText="------ Applications ------"
+            id="${icao}TerminalApplications" />
+        <contribute xsi:type="command"
+            commandId="com.raytheon.viz.awipstools.estimatedactualvelocity"
+            menuText="Estimated Actual Velocity" id="${icao}EstimatedActualVelocity" />
+        <contribute xsi:type="command"
+            commandId="com.raytheon.uf.viz.radarapps.otr.oneTimeRequest"
+            menuText="One Time Request..." id="${icao}OneTimeRequest" />
+        <contribute xsi:type="command"
+            commandId="com.raytheon.viz.radar.ui.RadarDisplayControls"
+            menuText="Radar Display Controls..." id="${icao}ApplicationsRadarDisplayControls" />
+        <contribute xsi:type="command"
+            commandId="com.raytheon.uf.viz.radarapps.rmr.radarMultipleRequest"
+            menuText="Radar Multiple Request..." id="${icao}RadarMultipleRequest" />
+        <contribute xsi:type="command"
+            commandId="com.raytheon.uf.viz.radarapps.rps.rpsListEditor"
+            menuText="RPS List Editor..." id="${icao}RPSListEditor" />
+        <contribute xsi:type="command"
+            commandId="com.raytheon.viz.awipstools.vrshear" menuText="VR - Shear"
+            id="${icao}VRShear" />
+    </contribute>
 </menuTemplate>

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -23,8 +23,6 @@ import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import jep.NDArray;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.GFERecord;
@@ -39,13 +37,15 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.TimeRange;
 
+import jep.NDArray;
+
 /**
- * Weather Grid Slize
- * 
+ * Weather Grid Slice
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Mar 15, 2011           randerso  Initial creation
@@ -59,16 +59,18 @@ import com.raytheon.uf.common.time.TimeRange;
  * Aug 02, 2016  5744     mapeters  Removed dead cache code
  * Aug 08, 2016  5744     randerso  Fix bad clone method exposed by previous
  *                                  change
- * 
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Change clone() to copy(). Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author randerso
  */
 
 @DynamicSerialize
 public class WeatherGridSlice extends AbstractGridSlice {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WeatherGridSlice.class);
 
     @DynamicSerializeElement
@@ -85,9 +87,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
     }
 
     /**
-     * Constructor with TimeRange, GFERecord, Grid2DByte, and a WeatherKey
-     * array.
-     * 
+     * Constructor with TimeRange, GFERecord, Grid2DByte, WeatherKey array.
+     *
      * @param validTime
      * @param gfeRecord
      * @param grid
@@ -101,9 +102,9 @@ public class WeatherGridSlice extends AbstractGridSlice {
     }
 
     /**
-     * Constructor with TimeRange, GFERecord, Grid2DBWeatherKeyDiscreteKey
-     * array.
-     * 
+     * Constructor with TimeRange, GridParmInfo, GridHistory array, Grid2DByte,
+     * WeatherKey array.
+     *
      * @param validTime
      * @param gpi
      * @param history
@@ -117,24 +118,34 @@ public class WeatherGridSlice extends AbstractGridSlice {
         this.keys = keys;
     }
 
+    /**
+     * Constructor with TimeRange, GridParmInfo, GridHistory list, Grid2DByte,
+     * WeatherKey list.
+     *
+     * @param validTime
+     * @param gpi
+     * @param history
+     * @param grid
+     * @param keys
+     */
     public WeatherGridSlice(TimeRange validTime, GridParmInfo gpi,
             List<GridDataHistory> history, Grid2DByte grid,
             List<WeatherKey> keys) {
-        this(validTime, gpi, history
-                .toArray(new GridDataHistory[history.size()]), grid, keys
-                .toArray(new WeatherKey[keys.size()]));
+        this(validTime, gpi,
+                history.toArray(new GridDataHistory[history.size()]), grid,
+                keys.toArray(new WeatherKey[keys.size()]));
     }
 
     /**
      * Copy constructor
-     * 
+     *
      * @param rhs
      *            WeatherGridSlice to copy
      */
     public WeatherGridSlice(WeatherGridSlice rhs) {
         super(rhs);
 
-        Grid2DByte grid = rhs.getWeatherGrid().clone();
+        Grid2DByte grid = rhs.getWeatherGrid().copy();
         setWeatherGrid(grid);
 
         this.keys = new WeatherKey[rhs.keys.length];
@@ -145,7 +156,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
     public void assign(IGridSlice gs) {
         if (!(gs instanceof WeatherGridSlice)) {
             throw new IllegalArgumentException(
-                    "Attempted to assign WeatherGridSlice to non-WeatherGridSlice object");
+                    "gs must be an instance of WeatherGridSlice, received: "
+                            + gs.getClass().getName());
         }
 
         super.assign(gs);
@@ -157,8 +169,11 @@ public class WeatherGridSlice extends AbstractGridSlice {
             Grid2DByte weatherGrid = getWeatherGrid();
             if ((weatherGrid.getXdim() != gsWeatherGrid.getXdim())
                     || (weatherGrid.getYdim() != gsWeatherGrid.getYdim())) {
-                throw new IllegalArgumentException(
-                        "Supplied grid is not of same dimension");
+                throw new IllegalArgumentException(String.format(
+                        "This grid and supplied grid have different dimensions.\n"
+                                + "Expected: [%d,%d], received: [%d,%d]",
+                        weatherGrid.getXdim(), weatherGrid.getYdim(),
+                        gsWeatherGrid.getXdim(), gsWeatherGrid.getYdim()));
             }
 
             weatherGrid.assign(gsWeatherGrid);
@@ -196,7 +211,13 @@ public class WeatherGridSlice extends AbstractGridSlice {
 
     @Override
     public boolean equals(Object rhs) {
-        if (!(rhs instanceof WeatherGridSlice)) {
+        if (this == rhs) {
+            return true;
+        }
+        if (rhs == null) {
+            return false;
+        }
+        if (getClass() != rhs.getClass()) {
             return false;
         }
 
@@ -234,7 +255,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
      * Checks the key and grid values to ensure that there is a key entry for
      * every grid value. Returns the status. Checks that all data in the grid
      * has a key by using the key's length.
-     * 
+     *
      * @return null if everything was ok, otherwise the reason why not
      */
     public String checkKeyAndData() {
@@ -257,7 +278,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
      * set to InvalidWeatherKey on failure. Success is always returned for
      * scalar and vector data. Uses the WeatherKey's isValid() to determine is a
      * key is valid.
-     * 
+     *
      * @return null if the key is ok, otherwise the reason why not
      */
     public String checkKey() {
@@ -272,7 +293,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
 
     /**
      * Assigns the specified discrete value to the GridSlice.
-     * 
+     *
      * @param aValue
      *            value to assign into the grid
      * @param editArea
@@ -284,7 +305,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
             return false;
         }
 
-        Point gridSize = new Point(weatherGrid.getXdim(), weatherGrid.getYdim());
+        Point gridSize = new Point(weatherGrid.getXdim(),
+                weatherGrid.getYdim());
         if ((editArea.getXdim() != gridSize.x)
                 || (editArea.getYdim() != gridSize.y)) {
             return false;
@@ -325,7 +347,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
 
     /**
      * Assigns the specified value to the GridSlice.
-     * 
+     *
      * @param gs
      *            grid slice to assign from
      * @param editArea
@@ -358,8 +380,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
                             keyIndex = (byte) k;
                         }
                     }
-                    if (!found) // not found, so add the key
-                    {
+                    if (!found) {
+                        // not found, so add the key
                         WeatherKey newKey[] = new WeatherKey[keys.length + 1];
                         System.arraycopy(keys, 0, newKey, 0, keys.length);
                         newKey[newKey.length - 1] = dKey;
@@ -377,7 +399,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
 
     /**
      * Assigns the specified weather value to the GridSlice.
-     * 
+     *
      * @param aValue
      *            the value to set this grid as
      * @return the result of the assignment
@@ -412,16 +434,17 @@ public class WeatherGridSlice extends AbstractGridSlice {
 
     /**
      * Assigns the specified value to the GridSlice.
-     * 
+     *
      * @param gs
      *            grid slice to assign from
      * @return result of assignment
      */
     public boolean assign(WeatherGridSlice gs) {
         super.assign(gs);
-        Grid2DByte weatherGrid = gs.weatherGrid.clone();
+        Grid2DByte weatherGrid = gs.weatherGrid.copy();
 
-        List<WeatherKey> currentKeys = new ArrayList<>(Arrays.asList(this.keys));
+        List<WeatherKey> currentKeys = new ArrayList<>(
+                Arrays.asList(this.keys));
         byte[] data = weatherGrid.getBuffer().array();
         int thisB;
         for (int i = 0; i < data.length; i++) {
@@ -442,19 +465,21 @@ public class WeatherGridSlice extends AbstractGridSlice {
     }
 
     /**
-     * Returns a Grid2DBit that corresponds to the gridcells that are equal to
+     * Returns a Grid2DBit that corresponds to the grid cells that are equal to
      * the specified WeatherKey value.
-     * 
+     *
      * @param value
      *            the WeatherKey to test for
      * @return a Grid2DBit with bits set that match the input WeatherKey
      */
     public Grid2DBit eq(WeatherKey value) {
         if (!value.isValid()) {
-            throw new IllegalArgumentException("Supplied key is invalid");
+            throw new IllegalArgumentException(
+                    "Supplied key is invalid: " + value);
         }
 
-        Point gridSize = new Point(weatherGrid.getXdim(), weatherGrid.getYdim());
+        Point gridSize = new Point(weatherGrid.getXdim(),
+                weatherGrid.getYdim());
         Grid2DBit bits = new Grid2DBit(gridSize.x, gridSize.y);
 
         // Get or make a Discrete
@@ -484,7 +509,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
 
     /**
      * Returns the inverse of the eq function. See eq() above for details.
-     * 
+     *
      * @param value
      *            the WeatherKey to test for
      * @return a Grid2DBit with bits set that do not match the input WeatherKey
@@ -504,12 +529,13 @@ public class WeatherGridSlice extends AbstractGridSlice {
     /**
      * Returns a Grid2DBit whose bits are set wherever the discrete type is the
      * same as that specified in the TextString value.
-     * 
+     *
      * @param value
      * @return the resulting grid
      */
     public Grid2DBit almost(String value) {
-        Point gridSize = new Point(weatherGrid.getXdim(), weatherGrid.getYdim());
+        Point gridSize = new Point(weatherGrid.getXdim(),
+                weatherGrid.getYdim());
         Grid2DBit bits = new Grid2DBit(gridSize.x, gridSize.y);
 
         // Check for each value
@@ -537,7 +563,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
             k++;
         }
 
-        if (byteValues.size() == 0) {
+        if (byteValues.isEmpty()) {
             return bits;
         }
 
@@ -553,10 +579,23 @@ public class WeatherGridSlice extends AbstractGridSlice {
         return bits;
     }
 
+    /**
+     * Almost is not valid for weather grids
+     *
+     * @param gs
+     * @param fuzz
+     * @return mask with no bits set
+     */
     public Grid2DBit almost(WeatherGridSlice gs, float fuzz) {
         return new Grid2DBit(weatherGrid.getXdim(), weatherGrid.getYdim());
     }
 
+    /**
+     * Almost is not valid for weather grids
+     *
+     * @param gs
+     * @return mask with no bits set
+     */
     public Grid2DBit almost(WeatherGridSlice gs) {
         return almost(gs, 0);
     }
@@ -564,7 +603,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
     /**
      * Returns a Grid2DBit whose bits are set where ever the specified GridSlice
      * is equal to the same value as this GridSlice.
-     * 
+     *
      * @param gs
      * @return the resulting grid
      */
@@ -587,7 +626,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
     /**
      * Returns the inverse of the eq() function. See eq() above for more
      * details.
-     * 
+     *
      * @param gs
      * @return the resulting grid
      */
@@ -632,7 +671,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
             // process the grid
             for (int i = 0; i < weatherGrid.getXdim(); i++) {
                 for (int j = 0; j < weatherGrid.getYdim(); j++) {
-                    used[0xFF & weatherGrid.get(i, j)] = true; // indicate used
+                    // indicate used
+                    used[0xFF & weatherGrid.get(i, j)] = true;
                 }
             }
 
@@ -652,15 +692,18 @@ public class WeatherGridSlice extends AbstractGridSlice {
                     invMapping[i] = nk;
                     for (int j = i + 1; j < used.length; j++) {
                         if (keys[i].equals(keys[j])) {
-                            invMapping[j] = nk; // key index
-                            used[j] = false; // to prevent reprocessing
+                            // key index
+                            invMapping[j] = nk;
+
+                            // to prevent reprocessing
+                            used[j] = false;
                         }
                     }
                     nk++;
                 }
             }
-            WeatherKey[] newKeys = tmpKeys.toArray(new WeatherKey[tmpKeys
-                    .size()]);
+            WeatherKey[] newKeys = tmpKeys
+                    .toArray(new WeatherKey[tmpKeys.size()]);
 
             // anything to do?
             if (Arrays.equals(newKeys, keys)) {
@@ -683,25 +726,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
     }
 
     @Override
-    public WeatherGridSlice clone() throws CloneNotSupportedException {
-        TimeRange aValidTime = this.validTime.clone();
-        GridParmInfo aGpi = this.gridParmInfo.clone();
-        GridDataHistory[] aHistory = new GridDataHistory[this.gridDataHistory
-                .size()];
-        for (int i = 0; i < aHistory.length; i++) {
-            aHistory[i] = this.gridDataHistory.get(i).clone();
-        }
-
-        Grid2DByte aGrid = null;
-        if (weatherGrid != null) {
-            aGrid = weatherGrid.clone();
-        }
-
-        WeatherKey[] aKey = new WeatherKey[this.keys.length];
-        for (int i = 0; i < aKey.length; i++) {
-            aKey[i] = new WeatherKey(keys[i]);
-        }
-        return new WeatherGridSlice(aValidTime, aGpi, aHistory, aGrid, aKey);
+    public WeatherGridSlice copy() {
+        return new WeatherGridSlice(this);
     }
 
     private String checkDims() {
@@ -715,12 +741,8 @@ public class WeatherGridSlice extends AbstractGridSlice {
         if ((x != gridParmInfo.getGridLoc().getNx())
                 || (y != gridParmInfo.getGridLoc().getNy())) {
             return "Grid Dimensions and GridParmInfo Dimensions are not identical GridDim: "
-                    + x
-                    + ","
-                    + y
-                    + " GridParmInfoDim: "
-                    + gridParmInfo.getGridLoc().getNx()
-                    + ","
+                    + x + "," + y + " GridParmInfoDim: "
+                    + gridParmInfo.getGridLoc().getNx() + ","
                     + gridParmInfo.getGridLoc().getNy();
         }
 
@@ -729,7 +751,7 @@ public class WeatherGridSlice extends AbstractGridSlice {
 
     /**
      * Return the discrete grid
-     * 
+     *
      * @return the discrete grid
      */
     public Grid2DByte getWeatherGrid() {
@@ -737,24 +759,33 @@ public class WeatherGridSlice extends AbstractGridSlice {
     }
 
     /**
-     * Return the discrete key
-     * 
-     * @return the discrete key
+     * Return the weather keys
+     *
+     * @return the weather keys as array
      */
     public WeatherKey[] getKeys() {
         return this.keys;
     }
 
+    /**
+     * @param grid
+     */
     public void setWeatherGrid(Grid2DByte grid) {
         this.weatherGrid = grid;
     }
 
-    public void setKeys(WeatherKey[] keys) {
-        this.keys = keys;
+    /**
+     * @param keys
+     */
+    public void setKeys(List<WeatherKey> keys) {
+        setKeys(keys.toArray(new WeatherKey[0]));
     }
 
-    public void setKey(List<WeatherKey[]> key) {
-        setKeys(key.toArray(new WeatherKey[] {}));
+    /**
+     * @param keys
+     */
+    public void setKeys(WeatherKey[] keys) {
+        this.keys = keys;
     }
 
     @Override
@@ -770,10 +801,16 @@ public class WeatherGridSlice extends AbstractGridSlice {
                 weatherGrid.getXdim());
     }
 
+    /**
+     * @return true if populated
+     */
     public boolean isPopulated() {
         return weatherGrid != null;
     }
 
+    /**
+     * @return weather keys as list of strings
+     */
     public List<String> getKeyList() {
         List<String> list = new ArrayList<>(keys.length);
         for (WeatherKey k : keys) {

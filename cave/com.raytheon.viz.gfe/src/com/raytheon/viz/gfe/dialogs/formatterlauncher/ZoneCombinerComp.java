@@ -34,7 +34,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ArmEvent;
 import org.eclipse.swt.events.ArmListener;
@@ -80,7 +79,7 @@ import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.exception.VizException;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.textformatter.TextProductManager;
@@ -128,6 +127,10 @@ import com.raytheon.viz.gfe.ui.zoneselector.ZoneSelector;
  * Nov 16, 2016  6007     randerso  Fix issue where combinations file may not be
  *                                  found if created in another GFE session
  * Aug 07, 2017  6379     njensen   Use ProtectedFileLookup
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ * Feb 20, 2018  7045     randerso  Fixed invalid thread access when combination
+ *                                  file is updated.
  *
  * </pre>
  *
@@ -254,17 +257,9 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
     private final ExecutorService asyncExecutor;
 
     private void initPreferences() {
-        IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
-
-        if (prefs.contains("ZoneCombiner_LabelZones")) {
-            int selected = prefs.getInt("ZoneCombiner_LabelZones");
-            labelZones = selected != 0;
-        }
-
-        if (prefs.contains("ZoneCombiner_LabelGroups")) {
-            int selected = prefs.getInt("ZoneCombiner_LabelGroups");
-            labelZoneGroups = selected != 0;
-        }
+        labelZones = GFEPreference.getBoolean("ZoneCombiner_LabelZones", false);
+        labelZoneGroups = GFEPreference.getBoolean("ZoneCombiner_LabelGroups",
+                true);
     }
 
     /**
@@ -272,8 +267,11 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
      *
      * @param parent
      *            Parent composite.
+     * @param callBack
      * @param productName
      *            Product name.
+     * @param textProductMgr
+     * @param dataManager
      */
     public ZoneCombinerComp(Composite parent, IProductTab callBack,
             String productName, TextProductManager textProductMgr,
@@ -578,6 +576,9 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         });
     }
 
+    /**
+     * @return the zone groupings
+     */
     public List<List<String>> getZoneGroupings() {
         if (zoneSelector != null) {
             return zoneSelector.getZoneGroupings();
@@ -586,6 +587,9 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         }
     }
 
+    /**
+     * Force the zoneSelector to be refreshed
+     */
     public void refresh() {
         zoneSelector.refresh();
     }
@@ -611,10 +615,16 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         shuffleDlg.open();
     }
 
+    /**
+     * Set includeAllZones on the zoneSelector
+     */
     public void setIncludeAllZones() {
         zoneSelector.setIncludeAllZones(isIncludeAllZones());
     }
 
+    /**
+     * @return true if includeAllZones is set
+     */
     public boolean isIncludeAllZones() {
         return includeAllZones;
     }
@@ -918,14 +928,25 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
         }
     }
 
+    /**
+     * @return the productCombinationsLbl
+     */
     public Label getProductCombinationsLbl() {
         return productCombinationsLbl;
     }
 
+    /**
+     * @param productCombinationsLbl
+     *            the productCombinationsLbl to set
+     */
     public void setProductCombinationsLbl(Label productCombinationsLbl) {
         this.productCombinationsLbl = productCombinationsLbl;
     }
 
+    /**
+     * @param productMgr
+     *            the productMgr to set
+     */
     public void setTextProductManager(TextProductManager productMgr) {
         textProductMgr = productMgr;
     }
@@ -944,6 +965,8 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
      * Returns the localization for the save and delete functions. This is a
      * wrapper around getLocalization(String, level).
      *
+     * @param local
+     *            The name of the local file
      * @return the USER-level File.
      */
     public File getLocalization(String local) {
@@ -978,7 +1001,10 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
     }
 
     /**
-     * @param text
+     * Load a saved combination file
+     *
+     * @param nameToLoad
+     *            name of the file to load
      */
     protected void loadSavedCombination(String nameToLoad) {
         String actName = CombinationsFileUtil.nameToFN(this.mapNames,
@@ -1070,7 +1096,12 @@ public class ZoneCombinerComp extends Composite implements IZoneCombiner {
 
     @Override
     public void setStatusText(String significance, String message) {
-        callBack.updateStatus(significance, message);
+        VizApp.runAsync(new Runnable() {
+            @Override
+            public void run() {
+                callBack.updateStatus(significance, message);
+            }
+        });
     }
 
     @Override

@@ -1,24 +1,25 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.gfe.dialogs;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,32 +37,39 @@ import org.eclipse.swt.widgets.Scale;
 import org.eclipse.swt.widgets.Shell;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.TimeConstraints;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
-import com.raytheon.viz.gfe.core.DataManager;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.viz.gfe.GFEPreference;
+import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState.InterpMode;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Grid Interpolation Dialog
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer        Description
- * ------------ ----------  --------------  --------------------------
- * Feb 26, 2008             Eric Babin      Initial Creation
- * Jun  4, 2008    #1161    Ron Anderson    Reworked
- * Oct 25, 2012 #1287       rferrel         Code clean for non-blocking dialog.
- * 
+ *
+ * Date          Ticket#  Engineer      Description
+ * ------------- -------- ------------- ----------------------------------------
+ * Feb 26, 2008           Eric Babin    Initial Creation
+ * Jun 04, 2008  1161     randerso      Reworked
+ * Oct 25, 2012  1287     rferrel       Code clean for non-blocking dialog.
+ * Jan 24, 2018  7153     randerso      Changes to allow new GFE config file to
+ *                                      be selected when perspective is
+ *                                      re-opened.
+ *
  * </pre>
- * 
+ *
  * @author ebabin
- * @version 1.0
  */
 
 public class GridsInterpolateDialog extends CaveJFACEDialog {
-    private final int MAX_INTERVAL = 24;
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GridsInterpolateDialog.class);
+
+    private static final int MAX_INTERVAL = 24;
 
     private Composite top;
 
@@ -85,20 +93,13 @@ public class GridsInterpolateDialog extends CaveJFACEDialog {
 
     /**
      * Constructor taking parent shell
-     * 
+     *
      * @param parent
      */
     public GridsInterpolateDialog(Shell parent) {
         super(parent);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveJFACEDialog#createDialogArea(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected Control createDialogArea(Composite parent) {
         top = (Composite) super.createDialogArea(parent);
@@ -116,50 +117,39 @@ public class GridsInterpolateDialog extends CaveJFACEDialog {
     }
 
     private void getDefaults() {
-        PythonPreferenceStore pythonPreferenceStore = Activator.getDefault()
-                .getPreferenceStore();
-        interpMode = readInterpMode(pythonPreferenceStore);
-        interval = readInterval(pythonPreferenceStore);
-        duration = readDuration(pythonPreferenceStore);
+        interpMode = readInterpMode();
+        interval = readInterval();
+        duration = readDuration();
     }
 
-    private InterpMode readInterpMode(PythonPreferenceStore p) {
-        InterpMode mode = InterpMode.GAPS;
-        if (p.contains("InterpolateDialogMode")) {
-            String modeStr = p.getString("InterpolateDialogMode");
-
-            try {
-                mode = InterpMode.valueOf(modeStr.toUpperCase());
-            } catch (IllegalArgumentException ex) {
-                // mode = InterpMode.GAPS;
-                // invalid value entered, no-op
-            } catch (NullPointerException ex) {
-                // mode = InterpMode.GAPS;
-                // invalid value entered, no-op
-            }
+    private InterpMode readInterpMode() {
+        String modeStr = GFEPreference.getString("InterpolateDialogMode",
+                "GAPS");
+        InterpMode mode;
+        try {
+            mode = InterpMode.valueOf(modeStr.toUpperCase());
+        } catch (Exception e) {
+            statusHandler.error(String.format(
+                    "GFE config file: [%s] contains an invalid setting [%s] for InterpolateDialogMode. Valid values are %s",
+                    GFEPreference.getConfigName(), modeStr,
+                    Arrays.toString(InterpMode.values())), e);
+            mode = InterpMode.GAPS;
         }
-
         return mode;
     }
 
-    private int readInterval(PythonPreferenceStore p) {
-        int startint = quantum;
-        if (p.contains("InterpolateDefaultInterval")) {
-            int intv = p.getInt("InterpolateDefaultInterval");
-            if (intv > 0) {
-                startint = intv;
-            }
-        }
+    private int readInterval() {
+        int startint = GFEPreference.getInt("InterpolateDefaultInterval",
+                quantum);
+
         return startint;
     }
 
-    private int readDuration(PythonPreferenceStore p) {
+    private int readDuration() {
         int startdur = quantum;
-        if (p.contains("InterpolateDefaultDuration")) {
-            int durv = p.getInt("InterpolateDefaultDuration");
-            if (durv > 0 && durv <= interval) {
-                startdur = durv;
-            }
+        int durv = GFEPreference.getInt("InterpolateDefaultDuration", quantum);
+        if (durv <= interval) {
+            startdur = durv;
         }
         return startdur;
     }
@@ -169,7 +159,7 @@ public class GridsInterpolateDialog extends CaveJFACEDialog {
         if (interpMode == null) {
             interpMode = InterpMode.values()[0];
         }
-        modeMap = new HashMap<Button, InterpMode>(InterpMode.values().length);
+        modeMap = new HashMap<>(InterpMode.values().length);
         for (InterpMode mode : InterpMode.values()) {
             Button button = new Button(top, SWT.RADIO);
             button.setText(mode.getDisplayString());
@@ -214,9 +204,11 @@ public class GridsInterpolateDialog extends CaveJFACEDialog {
             }
 
             intervalScale.addSelectionListener(new SelectionListener() {
+                @Override
                 public void widgetDefaultSelected(SelectionEvent arg0) {
                 }
 
+                @Override
                 public void widgetSelected(SelectionEvent arg0) {
                     interval = intervalScale.getSelection();
                     intervalScale.setSelection(interval);
@@ -265,9 +257,11 @@ public class GridsInterpolateDialog extends CaveJFACEDialog {
             }
 
             durationScale.addSelectionListener(new SelectionListener() {
+                @Override
                 public void widgetDefaultSelected(SelectionEvent arg0) {
                 }
 
+                @Override
                 public void widgetSelected(SelectionEvent arg0) {
                     // duration is limited by max of interval
                     duration = durationScale.getSelection();
@@ -287,8 +281,8 @@ public class GridsInterpolateDialog extends CaveJFACEDialog {
     }
 
     private void computeTimeConstraints() {
-        Parm[] parms = DataManager.getCurrentInstance().getParmManager()
-                .getSelectedParms();
+        Parm[] parms = DataManagerUIFactory.getCurrentInstance()
+                .getParmManager().getSelectedParms();
 
         int minRepeatInterval = 24 * 3600;
         displayInterval = true;
@@ -319,13 +313,6 @@ public class GridsInterpolateDialog extends CaveJFACEDialog {
         quantum = minRepeatInterval / 3600;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
@@ -335,7 +322,7 @@ public class GridsInterpolateDialog extends CaveJFACEDialog {
 
     /**
      * Gets the user selected interval
-     * 
+     *
      * @return interval in hours
      */
     public int getInterval() {
@@ -344,7 +331,7 @@ public class GridsInterpolateDialog extends CaveJFACEDialog {
 
     /**
      * Gets the user selected duration
-     * 
+     *
      * @return duration in hours
      */
     public int getDuration() {
@@ -353,7 +340,7 @@ public class GridsInterpolateDialog extends CaveJFACEDialog {
 
     /**
      * Gets the user selected interpolation mode
-     * 
+     *
      * @return interpolation mode
      */
     public InterpMode getInterpMode() {

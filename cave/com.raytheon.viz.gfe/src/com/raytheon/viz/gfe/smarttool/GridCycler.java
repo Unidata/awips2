@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -53,42 +53,42 @@ import com.raytheon.viz.gfe.core.parm.Parm;
 
 /**
  * Ported from GridCycler.C. Retrieves and stores data on a grid.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Feb 28, 2008            njensen     Initial creation
- * Mar 13, 2013 1791       bsteffen    Implement bulk getGrids to improve
- *                                     performance.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 28, 2008           njensen   Initial creation
+ * Mar 13, 2013  1791     bsteffen  Implement bulk getGrids to improve
+ *                                  performance.
+ * Jan 03, 2018  7178     randerso  Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
 public class GridCycler {
 
-    private static GridCycler instance;
+    private static GridCycler instance = new GridCycler();
 
-    private ArrayList<String> missingData = new ArrayList<String>();
+    private List<String> missingData = new ArrayList<>();
 
     private GridCycler() {
 
     }
 
+    /**
+     * @return the singleton GridCycler instance
+     */
     public static GridCycler getInstance() {
-        if (instance == null) {
-            instance = new GridCycler();
-        }
-
         return instance;
     }
 
     /**
      * Get the grids for the given parm the correspond to the timeRange.
-     * 
+     *
      * @param argParm
      *            the parm to get grids for
      * @param timeRange
@@ -102,8 +102,8 @@ public class GridCycler {
      * @return an IGridData of the data or null
      * @throws GFEOperationFailedException
      */
-    public IGridData[] getCorrespondingResult(Parm argParm,
-            TimeRange timeRange, String mode, MissingDataMode dataMode)
+    public IGridData[] getCorrespondingResult(Parm argParm, TimeRange timeRange,
+            String mode, MissingDataMode dataMode)
             throws GFEOperationFailedException {
         IGridData[] grids = argParm.getGridInventory(timeRange);
 
@@ -111,9 +111,9 @@ public class GridCycler {
         IGridData[] resultGrids = new IGridData[0];
 
         if (grids.length == 0) {
-            if (dataMode == MissingDataMode.CREATE)
-            // Missing Data Mode is Create
-            {
+            if (dataMode == MissingDataMode.CREATE) {
+                // Missing Data Mode is Create
+
                 grids = argParm.createCorrespondingGrids(timeRange);
 
                 if (grids.length != 0) {
@@ -127,15 +127,11 @@ public class GridCycler {
         }
 
         if (grids.length == 0) {
-            ;
+            // nothing to do
         } else if ("First".equals(mode) || (grids.length == 1)) {
-            grids[0].populate();
             resultGrid = grids[0];
             resultGrids = new IGridData[] { resultGrid };
         } else if ("List".equals(mode)) {
-            for (IGridData grid : grids) {
-                grid.populate();
-            }
             resultGrids = grids;
         } else {
             Parm tempParm = null;
@@ -167,7 +163,7 @@ public class GridCycler {
     /**
      * This is a wrapper around the 4-arg method, that just uses the current GFE
      * preferences.
-     * 
+     *
      * @param argParm
      *            the parm to get grids for
      * @param timeRange
@@ -179,14 +175,13 @@ public class GridCycler {
      * @return an IGridData of the data or null
      * @throws GFEOperationFailedException
      */
-    public IGridData[] getCorrespondingResult(Parm argParm,
-            TimeRange timeRange, String mode)
-            throws GFEOperationFailedException {
+    public IGridData[] getCorrespondingResult(Parm argParm, TimeRange timeRange,
+            String mode) throws GFEOperationFailedException {
         String missingMode = Message
                 .inquireLastMessage(MissingDataModeMsg.class).getMode()
                 .toString();
-        MissingDataMode dataMode = MissingDataMode.valueOf(missingMode
-                .toUpperCase());
+        MissingDataMode dataMode = MissingDataMode
+                .valueOf(missingMode.toUpperCase());
         return getCorrespondingResult(argParm, timeRange, mode, dataMode);
     }
 
@@ -194,7 +189,7 @@ public class GridCycler {
      * Performs the same basic function as getCorrespondingResult but operates
      * on an array of timeRanges and returns an array of data(one entry for each
      * corresponding timeRange).
-     * 
+     *
      * @param argParm
      *            the parm to get grids for
      * @param timeRanges
@@ -210,7 +205,7 @@ public class GridCycler {
             TimeRange[] timeRanges, String mode)
             throws GFEOperationFailedException {
         // first step is to determine which grids need to be populated.
-        List<IGridData> grids = new ArrayList<IGridData>();
+        List<IGridData> grids = new ArrayList<>();
         for (TimeRange timeRange : timeRanges) {
             IGridData[] inv = argParm.getGridInventory(timeRange);
             for (IGridData data : inv) {
@@ -234,7 +229,7 @@ public class GridCycler {
     /**
      * Store the given Numeric Python grid in the given parm and timeRange
      * masked by the given edit area
-     * 
+     *
      * @param parm
      *            the parm being stored
      * @param timeRange
@@ -273,7 +268,7 @@ public class GridCycler {
                     Object[] cast = (Object[]) result;
                     Grid2DByte bgrid = (Grid2DByte) cast[0];
                     List<?> keys = (List<?>) cast[1];
-                    List<WeatherKey> keyList = new ArrayList<WeatherKey>();
+                    List<WeatherKey> keyList = new ArrayList<>();
                     String siteId = parm.getParmID().getDbId().getSiteId();
                     for (Object o : keys) {
                         keyList.add(new WeatherKey(siteId, (String) o));
@@ -291,7 +286,7 @@ public class GridCycler {
 
                     Object[] cast = (Object[]) result;
                     List<?> pkeys = (List<?>) cast[1];
-                    List<DiscreteKey> keys = new ArrayList<DiscreteKey>();
+                    List<DiscreteKey> keys = new ArrayList<>();
                     for (Object o : pkeys) {
                         keys.add(new DiscreteKey(siteId, (String) o, parmId));
                     }
@@ -303,6 +298,9 @@ public class GridCycler {
                     }
                     break;
                 }
+                default:
+                    throw new IllegalArgumentException("Invalid GridType: "
+                            + parm.getGridInfo().getGridType());
                 }
 
             } catch (Exception e) {
@@ -321,7 +319,7 @@ public class GridCycler {
 
     /**
      * Adds a new message about missing data
-     * 
+     *
      * @param msg
      *            the message about how missing data was handled
      */
@@ -338,7 +336,7 @@ public class GridCycler {
 
     /**
      * Create grid data of the appropriate type from the input parameters.
-     * 
+     *
      * @param parm
      *            The Parm with which the grid data will be associated
      * @param timeRange
@@ -359,8 +357,8 @@ public class GridCycler {
         GridParmInfo gpi = parm.getGridInfo();
 
         // Create a data history array
-        GridDataHistory gdh = new GridDataHistory(OriginType.CALCULATED,
-                parmID, timeRange);
+        GridDataHistory gdh = new GridDataHistory(OriginType.CALCULATED, parmID,
+                timeRange);
         GridDataHistory[] gdha = new GridDataHistory[] { gdh };
 
         IGridSlice slice = null;
@@ -371,15 +369,15 @@ public class GridCycler {
         if (GridType.SCALAR == gridType) {
             slice = new ScalarGridSlice(timeRange, gpi, gdha,
                     (Grid2DFloat) grid);
-            data[0] = new ScalarGridData(parm, slice);
+            data[0] = new ScalarGridData(parm, slice, true);
         } else if (GridType.VECTOR == gridType) {
             Grid2DFloat mag = (Grid2DFloat) grid;
             Grid2DFloat dir = (Grid2DFloat) auxGrid;
             slice = new VectorGridSlice(timeRange, gpi, gdha, mag, dir);
-            data[0] = new VectorGridData(parm, slice);
+            data[0] = new VectorGridData(parm, slice, true);
         } else if (GridType.WEATHER == gridType) {
             // Build an array of all the discrete keys in the definition.
-            List<WeatherKey> keyList = new ArrayList<WeatherKey>(auxKeys.size());
+            List<WeatherKey> keyList = new ArrayList<>(auxKeys.size());
 
             String siteId = parmID.getDbId().getSiteId();
             for (String key : auxKeys) {
@@ -394,13 +392,13 @@ public class GridCycler {
             // Create a grid gridSlice from the grid and discrete keys
             slice = new WeatherGridSlice(timeRange, gpi, gdha,
                     (Grid2DByte) grid, weatherKeys);
-            data[0] = new WeatherGridData(parm, slice);
+            data[0] = new WeatherGridData(parm, slice, true);
         } else if (GridType.DISCRETE == gridType) {
             ParmID parmId = parm.getParmID();
             String siteId = parmId.getDbId().getSiteId();
 
             // Build an array of all the discrete keys in the definition.
-            List<DiscreteKey> dkList = new ArrayList<DiscreteKey>(2);
+            List<DiscreteKey> dkList = new ArrayList<>(2);
             for (String key : auxKeys) {
                 dkList.add(new DiscreteKey(siteId, key, parmId));
             }
@@ -416,55 +414,11 @@ public class GridCycler {
                     (Grid2DByte) grid, discreteKeys);
 
             // Create a DiscreteGridData and save it in the output array
-            data[0] = new DiscreteGridData(parm, slice);
+            data[0] = new DiscreteGridData(parm, slice, true);
         } else {
             throw new RuntimeException("Unknown grid type " + gridType);
         }
 
         return data;
-    }
-
-    /**
-     * We were forcing the first key of generated weather or discrete grids to
-     * be NoWx or None, but the byte grid indices were thrown off because they
-     * weren't being adjusted. Fixing that behavior broke some formatter code
-     * that apparently expected NoWx to be the first key. This is the
-     * complicated version.
-     * <p>
-     * If NoWx/None is already the first key, nothing happens. If it is not in
-     * the grid at all, it is added as the last key and then swapped with key 0.
-     * If it is in the grid, but not as key 0, then the keys for NoWx/None and
-     * key 0 are swapped. After any key change, the index grid is adjusted
-     * accordingly.
-     * <p>
-     * 
-     * @param noneKey
-     *            The key to force to dklist[0] (assumed to be NoWx or None)
-     * @param grid
-     *            The Grid2DByte of a WEATHER or DISCRETE grid
-     * @param dkList
-     *            The discrete keys of the grid
-     */
-    private void makeFirstKey(DiscreteKey noneKey, IGrid2D grid,
-            List<DiscreteKey> dkList) {
-        Grid2DByte byteGrid = (Grid2DByte) grid;
-        int noneIdx = dkList.indexOf(noneKey);
-        switch (noneIdx) {
-        case 0:
-            break; // this is the desired condition
-        case -1:
-            // Append old key 0 to end, replace key 0 with NoWx
-            dkList.add(dkList.get(0));
-            dkList.set(0, noneKey);
-            byteGrid.setAllOfValue((byte) 0, (byte) (dkList.size() - 1));
-            break;
-        default: // swap keys to put NoWx at key 0
-            dkList.set(noneIdx, dkList.get(0));
-            dkList.set(0, noneKey);
-            byteGrid.setAllOfValue((byte) 0, Byte.MAX_VALUE);
-            byteGrid.setAllOfValue((byte) noneIdx, (byte) 0);
-            byteGrid.setAllOfValue(Byte.MAX_VALUE, (byte) noneIdx);
-            break;
-        }
     }
 }

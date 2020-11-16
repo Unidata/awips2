@@ -44,9 +44,6 @@
         <constructor-arg ref="gfeClientController"/>
     </bean>
     <bean id="dbInventoryHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetDbInventoryHandler"/>
-    <bean id="executeIscMosaicHandler" class="com.raytheon.edex.plugin.gfe.server.handler.ExecuteIscMosaicRequestHandler">
-        <constructor-arg ref="iscMosaicPythonThreadPool"/>
-    </bean>
     <bean id="discreteDefinitionHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetDiscreteDefinitionHandler"/>
     <bean id="gridDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetGridDataHandler">
         <property name="byteLimitInMB" value="${edex.requestsrv.byteLimitInMB}" />
@@ -58,9 +55,6 @@
     <bean id="iscSendStatusHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetIscSendStatusHandler"/>
     <bean id="knownSitesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetKnownSitesHandler"/>
     <bean id="lockTablesHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetLockTablesHandler"/>
-    <bean id="netCDFHandler" class="com.raytheon.edex.plugin.gfe.server.handler.ExecuteIfpNetCDFGridRequestHandler">
-        <constructor-arg ref="ifpnetCDFPythonThreadPool"/>
-    </bean>
     <bean id="purgeGfeGridsHandler" class="com.raytheon.edex.plugin.gfe.server.handler.PurgeGfeGridsRequestHandler"/>
     <bean id="officeTypeHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetOfficeTypeHandler"/>
     <bean id="officialDbNameHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetOfficialDbNameHandler"/>
@@ -86,56 +80,14 @@
     <bean id="getLatestDbIdHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetLatestModelDbIdHandler"/>
     <bean id="getTopoDataHandler" class="com.raytheon.edex.plugin.gfe.server.handler.GetTopoDataHandler"/>
 
-    <!-- ISC Send Beans -->
-
-    <bean id="iscSendQueue" class="com.raytheon.edex.plugin.gfe.isc.IscSendQueue" factory-method="getInstance"/>
-    <bean id="sendIscSrv" class="com.raytheon.edex.plugin.gfe.isc.SendIscSrv" depends-on="gfeDbRegistered, gfeSitesActiveRequest">
-        <property name="runningTimeOutMillis" value="300000"/>
-        <property name="threadSleepInterval" value="5000"/>
-    </bean>
-
-    <bean factory-bean="contextManager" factory-method="registerContextStateProcessor">
-        <constructor-arg ref="gfe-request-camel"/>
-        <constructor-arg ref="sendIscSrv"/>
-    </bean>
-    <!-- End ISC Send Beans -->
-
-    <!-- ISC Receive Beans -->
-
-    <bean id="iscReceiveSrv" class="com.raytheon.edex.plugin.gfe.isc.IscReceiveSrv"/>
-
-    <!-- End ISC Receive Beans -->
-
-    <!-- Additional ISC Beans -->
-
-    <bean id="ifpnetCDFFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
-        <constructor-arg value="ifpnetCDF"/>
-    </bean>
-    <bean id="ifpnetCDFPythonThreadPool" class="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator">
-        <constructor-arg value="2" />
-        <constructor-arg value="ifpnetCDF" />
-        <constructor-arg ref="ifpnetCDFFactory"/>
-    </bean>
-
-    <bean id="iscMosaicFactory" class="com.raytheon.edex.plugin.gfe.isc.IscScriptFactory">
-        <constructor-arg value="iscMosaic"/>
-    </bean>
-    <bean id="iscMosaicPythonThreadPool" class="com.raytheon.uf.common.python.concurrent.PythonJobCoordinator">
-        <constructor-arg value="2" />
-        <constructor-arg value="iscMosaic" />
-        <constructor-arg ref="iscMosaicFactory" />
-    </bean>
-
-    <!-- End Additional ISC Beans -->
-
     <bean id="logPurger" class="com.raytheon.edex.plugin.gfe.log.LogPurger"/>
 
-    <bean id="productIscPurger" class="com.raytheon.uf.common.dataplugin.gfe.util.FilePurger">
+    <bean id="productIscPurger" class="com.raytheon.uf.edex.maintenance.FilePurger">
         <constructor-arg value="/awips2/GFESuite/products/ISC"/> <!--  directory to be purged -->
         <constructor-arg value="2419200000"/> <!-- purge age: 28 days in milliseconds -->
     </bean>
 
-    <bean id="productAtblPurger" class="com.raytheon.uf.common.dataplugin.gfe.util.FilePurger">
+    <bean id="productAtblPurger" class="com.raytheon.uf.edex.maintenance.FilePurger">
         <constructor-arg value="/awips2/GFESuite/products/ATBL"/> <!--  directory to be purged -->
         <constructor-arg value="2419200000"/> <!-- purge age: 28 days in milliseconds -->
     </bean>
@@ -153,7 +105,6 @@
             <doTry>
                 <pipeline>
                     <bean ref="serializationUtil" method="transformFromThrift"/>
-                    <bean ref="iscReceiveSrv" method="processRequest"/>
                 </pipeline>
                 <doCatch>
                     <exception>java.lang.Throwable</exception>
@@ -163,32 +114,7 @@
         </route>
     </camelContext>
 
-    <!-- ISC Send Routes -->
-    <camelContext id="clusteredGfeIscRoutes" xmlns="http://camel.apache.org/schema/spring" errorHandlerRef="errorHandler">
-
-        <route id="iscSendJobQueueAggr">
-            <from uri="jms-durable:queue:iscSendNotification" />
-            <doTry>
-                <bean ref="serializationUtil" method="transformFromThrift"/>
-                <bean ref="iscSendQueue" method="addSendJobs"/>
-                <doCatch>
-                    <exception>java.lang.Throwable</exception>
-                    <to uri="log:iscSendQueue?level=ERROR"/>
-                </doCatch>
-            </doTry>
-        </route>
-
-        <route id="iscSendTrigger">
-            <from uri="timer://iscSendTimer?fixedRate=true&amp;period=5000"/>
-            <bean ref="iscSendQueue" method="fireSendJobs"/>
-        </route>
-    </camelContext>
-
-    <bean factory-bean="contextManager" factory-method="registerClusteredContext">
-        <constructor-arg ref="clusteredGfeIscRoutes"/>
-    </bean>
-
-    <!-- ISC Services Beans -->
+<!-- ISC Services Beans -->
     <bean id="iscProvider" class="com.raytheon.edex.plugin.gfe.isc.IscServiceProvider" />
 
     <bean id="fetchATSrv" class="com.raytheon.edex.plugin.gfe.isc.FetchActiveTableSrv" />
@@ -216,4 +142,5 @@
     <bean factory-bean="contextManager" factory-method="registerClusteredContext">
         <constructor-arg ref="clusteredIscBeans"/>
     </bean>
+
 </beans>

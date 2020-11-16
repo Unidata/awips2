@@ -132,13 +132,13 @@ public class PointsDataManager implements ILocalizationFileObserver {
 
     private static final String AWIPSTOOLS = "awipsTools";
 
-    private final ListenerList pointsListeners = new ListenerList();
+    private final ListenerList<IPointChangedListener> pointsListeners = new ListenerList<>();
 
     private final Map<String, Point> points = new HashMap<>();
 
     private Coordinate home;
 
-    private final ListenerList homeListeners = new ListenerList();
+    private final ListenerList<IPointChangedListener> homeListeners = new ListenerList<>();
 
     private Coordinate wfoCenter;
 
@@ -1436,7 +1436,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
      * Let listners no about changes to point or groups.
      */
     private void firePointChangeListeners() {
-        for (final Object listener : pointsListeners.getListeners()) {
+        for (final IPointChangedListener listener : pointsListeners) {
             // fire listeners in separate threads to avoid waiting to draw
             // the updated location while waiting on another listener to
             // finish
@@ -1444,7 +1444,7 @@ public class PointsDataManager implements ILocalizationFileObserver {
 
                 @Override
                 protected IStatus run(IProgressMonitor monitor) {
-                	((IPointChangedListener) listener).pointChanged();
+                    listener.pointChanged();
                     return Status.OK_STATUS;
                 }
 

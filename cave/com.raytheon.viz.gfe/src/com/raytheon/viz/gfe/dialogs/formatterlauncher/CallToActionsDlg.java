@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -39,31 +39,32 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
 /**
  * Display the CallToActions dialog.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 12 JAN 2010  DR3463      RT           Initial creation
- * 07 Nov 2012  1298       rferrel     Changes for non-blocking dialog.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 12, 2010  3463     RT        Initial creation
+ * Nov 07, 2012  1298     rferrel   Changes for non-blocking dialog.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author lvenable
- * @version 1.0
- * 
+ *
  */
 public class CallToActionsDlg extends CaveJFACEDialog {
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(CallToActionsDlg.class);
 
-    private final String psplitRE = "\n\\s*?(?:\n\\s*?)+";
+    private static final String psplitRE = "\n\\s*?(?:\n\\s*?)+";
 
     /**
      * Composite containing the Product Editor controls.
@@ -79,72 +80,43 @@ public class CallToActionsDlg extends CaveJFACEDialog {
 
     /**
      * Constructor.
-     * 
+     *
      * @param parent
      *            Parent Shell.
+     * @param callToActionType
+     * @param CtaText
+     * @param productEditorComp
      */
     public CallToActionsDlg(Shell parent, int callToActionType,
             String[] CtaText, ProductEditorComp productEditorComp) {
         super(parent);
 
-        this.setShellStyle(SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
+        this.setShellStyle(
+                SWT.DIALOG_TRIM | SWT.RESIZE | SWT.APPLICATION_MODAL);
         this.callToActionType = callToActionType;
         this.txt = CtaText;
         this.productEditorComp = productEditorComp;
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell newShell) {
         super.configureShell(newShell);
         newShell.setText("Call To Actions");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#isResizable()
-     */
     @Override
     protected boolean isResizable() {
         return true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#getInitialSize()
-     */
     @Override
     protected Point getInitialSize() {
-        PythonPreferenceStore prefs = Activator.getDefault()
-                .getPreferenceStore();
-        int width = prefs.getInt("ProductOutputDialog_CTAWidth");
-        if (width == 0) {
-            width = 575;
-        }
-
-        int height = prefs.getInt("ProductOutputDialog_CTAHeight");
-        if (height == 0) {
-            height = 300;
-        }
+        int width = GFEPreference.getInt("ProductOutputDialog_CTAWidth", 575);
+        int height = GFEPreference.getInt("ProductOutputDialog_CTAHeight", 300);
         return new Point(width, height);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveJFACEDialog#createContents(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected Control createContents(Composite parent) {
         Composite comp = (Composite) super.createContents(parent);
@@ -152,17 +124,10 @@ public class CallToActionsDlg extends CaveJFACEDialog {
         return comp;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveJFACEDialog#createDialogArea(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected Control createDialogArea(Composite parent) {
-        ScrolledComposite scrolled = new ScrolledComposite(parent, SWT.H_SCROLL
-                | SWT.V_SCROLL | SWT.BORDER);
+        ScrolledComposite scrolled = new ScrolledComposite(parent,
+                SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
         GridLayout layout = new GridLayout(1, false);
         scrolled.setLayout(layout);
         GridData gridData = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -179,7 +144,7 @@ public class CallToActionsDlg extends CaveJFACEDialog {
         List<Object> ctaList;
         switch (callToActionType) {
         case 1: // Hazard
-            ctaList = new ArrayList<Object>();
+            ctaList = new ArrayList<>();
             for (String phenSig : this.txt) {
                 ctaList.addAll(TextFmtCtaUtil.hazText(phenSig));
             }
@@ -191,8 +156,8 @@ public class CallToActionsDlg extends CaveJFACEDialog {
             ctaList = TextFmtCtaUtil.ctaText();
             break;
         default:
-            throw new IllegalArgumentException("Unknown callToActionType: "
-                    + callToActionType);
+            throw new IllegalArgumentException(
+                    "Unknown callToActionType: " + callToActionType);
         }
         createButtons(comp, ctaList);
 
@@ -206,13 +171,6 @@ public class CallToActionsDlg extends CaveJFACEDialog {
         return scrolled;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse
-     * .swt.widgets.Composite)
-     */
     @Override
     protected void createButtonsForButtonBar(Composite parent) {
         createButton(parent, IDialogConstants.CANCEL_ID,

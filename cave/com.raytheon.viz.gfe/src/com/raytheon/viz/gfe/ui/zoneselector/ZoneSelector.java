@@ -1,18 +1,18 @@
 /**
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -41,19 +41,18 @@ import com.raytheon.uf.viz.core.VizApp;
 import com.raytheon.uf.viz.core.rsc.IInputHandler;
 import com.raytheon.uf.viz.zoneselector.AbstractZoneSelector;
 import com.raytheon.uf.viz.zoneselector.ZoneSelectorResource;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.dialogs.formatterlauncher.IZoneCombiner;
 import com.raytheon.viz.ui.input.InputAdapter;
 import com.raytheon.viz.ui.input.PanHandler;
 
 /**
  * Zone Selector
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Aug 11, 2011           randerso  Initial creation
@@ -61,17 +60,18 @@ import com.raytheon.viz.ui.input.PanHandler;
  * Feb 05, 2016  5316     randerso  Moved AbstractZoneSelector to separate
  *                                  project Code cleanup
  * Jun 23, 2016  5674     randerso  Change to use mouse-base pan and zoom
- * 
+ * Jan 25, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class ZoneSelector extends AbstractZoneSelector {
     private static final int NO_GROUP = -1;
 
-    IInputHandler theMouseListener = new InputAdapter() {
+    private IInputHandler theMouseListener = new InputAdapter() {
 
         /**
          * Primary mouse button
@@ -119,22 +119,16 @@ public class ZoneSelector extends AbstractZoneSelector {
             }
 
             int button = e.stateMask & SWT.BUTTON_MASK;
-            switch (button) {
-            case SWT.BUTTON1:
+            if (button == SWT.BUTTON1) {
                 button1Drag(e.x, e.y);
-            default:
-                // do nothing
             }
             return true;
         }
 
         @Override
         public boolean handleMouseUp(Event e) {
-            switch (e.button) {
-            case MB1:
+            if (e.button == MB1) {
                 button1Release(e.x, e.y);
-            default:
-                // do nothing
             }
             return true;
         }
@@ -208,14 +202,14 @@ public class ZoneSelector extends AbstractZoneSelector {
 
         this.lclFmtrDialog = lclFmtrDialog;
 
-        comboDict = new HashMap<String, Integer>();
-        colors = new ArrayList<RGB>();
+        comboDict = new HashMap<>();
+        colors = new ArrayList<>();
 
         // get basic editor zone colors
-        noZoneColor = RGBColors.getRGBColor(config("ZoneCombiner_noZoneColor",
-                "black"));
-        backColor = RGBColors.getRGBColor(config(
-                "ZoneCombiner_backgroundColor", "gray40"));
+        noZoneColor = RGBColors.getRGBColor(
+                GFEPreference.getString("ZoneCombiner_noZoneColor", "black"));
+        backColor = RGBColors.getRGBColor(GFEPreference
+                .getString("ZoneCombiner_backgroundColor", "gray40"));
     }
 
     @Override
@@ -234,9 +228,9 @@ public class ZoneSelector extends AbstractZoneSelector {
 
     /**
      * Command to set the state of include all zones.
-     * 
+     *
      * If it has changed, redo the combo dictionary and redraw.
-     * 
+     *
      * @param includeAllZones
      */
     public void setIncludeAllZones(boolean includeAllZones) {
@@ -250,7 +244,7 @@ public class ZoneSelector extends AbstractZoneSelector {
 
     /**
      * Command to limit combos to one group
-     * 
+     *
      * @param limitOneGroup
      */
     public void setLimitToOneGroup(boolean limitOneGroup) {
@@ -283,7 +277,7 @@ public class ZoneSelector extends AbstractZoneSelector {
         if (comboDict == null) {
             this.comboDict.clear();
         } else {
-            this.comboDict = new HashMap<String, Integer>(comboDict);
+            this.comboDict = new HashMap<>(comboDict);
             this.includeUnmentionedZones(this.includeAllZones);
             if (this.limitToOneGroup) {
                 this.comboDict = this.setOneGroup(this.comboDict);
@@ -323,7 +317,7 @@ public class ZoneSelector extends AbstractZoneSelector {
 
     /**
      * update colors command
-     * 
+     *
      * @param colors
      */
     public void updateColors(List<RGB> colors) {
@@ -333,7 +327,7 @@ public class ZoneSelector extends AbstractZoneSelector {
 
     /**
      * command to label the zone groups
-     * 
+     *
      * @param labelZoneGroups
      */
     public void setLabelZoneGroups(boolean labelZoneGroups) {
@@ -348,7 +342,7 @@ public class ZoneSelector extends AbstractZoneSelector {
 
     /**
      * update combo dictionary with different combinations
-     * 
+     *
      * @param comboDict
      */
     public void updateCombos(Map<String, Integer> comboDict) {
@@ -356,12 +350,12 @@ public class ZoneSelector extends AbstractZoneSelector {
             comboDict = this.setOneGroup(comboDict);
         }
 
-        this.comboDict = new HashMap<String, Integer>(comboDict);
+        this.comboDict = new HashMap<>(comboDict);
         this.cleanUpCombosOfUnknownZones();
 
         // existing keys
-        for (String c : comboDict.keySet()) {
-            this.assignCombo(c, comboDict.get(c));
+        for (Entry<String, Integer> entry : comboDict.entrySet()) {
+            this.assignCombo(entry.getKey(), entry.getValue());
         }
 
         // other keys not in comboDict
@@ -392,7 +386,8 @@ public class ZoneSelector extends AbstractZoneSelector {
 
             if (!zones.isEmpty()) {
                 int group = this.getZoneInfo(this.pressZone).group;
-                if (group == NO_GROUP) { // new group
+                if (group == NO_GROUP) {
+                    // new group
                     group = this.getNewGroup();
 
                     // reassign group
@@ -515,21 +510,16 @@ public class ZoneSelector extends AbstractZoneSelector {
         if (this.limitToOneGroup) {
             return 1;
         }
+
         // determine the groups in use
-        ArrayList<Integer> groupsInUse = new ArrayList<Integer>();
-        for (String k : this.comboDict.keySet()) {
-            if (!groupsInUse.contains(this.comboDict.get(k))) {
-                groupsInUse.add(this.comboDict.get(k));
-            }
-        }
-        int newGroup = 1;
-        while (true) {
-            if (!groupsInUse.contains(newGroup)) {
-                return newGroup;
-            } else {
-                newGroup += 1;
-            }
-        }
+        Set<Integer> groupsInUse = new HashSet<>(this.comboDict.values());
+
+        // return first group not in use
+        int newGroup = 0;
+        do {
+            newGroup++;
+        } while (groupsInUse.contains(newGroup));
+        return newGroup;
     }
 
     private void assignCombo(String zone, int group) {
@@ -545,7 +535,8 @@ public class ZoneSelector extends AbstractZoneSelector {
                 this.comboDict.remove(zone);
             }
         } else {
-            this.comboDict.put(zone, group); // reassign group
+            // reassign group
+            this.comboDict.put(zone, group);
         }
         // deal with the group label
         this.setZoneGroupLabel(zone, group);
@@ -559,8 +550,8 @@ public class ZoneSelector extends AbstractZoneSelector {
     // if there are zones identified in the input combo file that
     // don't appear as edit area names, then eliminate them.
     private void cleanUpCombosOfUnknownZones() {
-        Set<String> keys = new HashSet<String>(comboDict.keySet());
-        List<String> deletedEans = new ArrayList<String>();
+        Set<String> keys = new HashSet<>(comboDict.keySet());
+        List<String> deletedEans = new ArrayList<>();
         for (String k : keys) {
             if (!this.zoneNames.contains(k)) {
                 deletedEans.add(k);
@@ -568,7 +559,7 @@ public class ZoneSelector extends AbstractZoneSelector {
             }
         }
 
-        if ((deletedEans.size() > 0) && (this.lclFmtrDialog != null)) {
+        if ((!deletedEans.isEmpty()) && (this.lclFmtrDialog != null)) {
             this.lclFmtrDialog.setStatusText("S",
                     "Removed Unknown Edit Areas: " + deletedEans);
         }
@@ -608,7 +599,7 @@ public class ZoneSelector extends AbstractZoneSelector {
         if (!includeAllZones) {
             return;
         }
-        List<String> added = new ArrayList<String>();
+        List<String> added = new ArrayList<>();
         Set<String> keys = this.comboDict.keySet();
         for (String z : this.zoneNames) {
             if (!keys.contains(z)) {
@@ -619,7 +610,7 @@ public class ZoneSelector extends AbstractZoneSelector {
                 added.add(z);
             }
         }
-        if (added.size() > 0) {
+        if (!added.isEmpty()) {
             if (this.lclFmtrDialog != null) {
                 this.lclFmtrDialog.setStatusText("R",
                         "Missing zones have been added " + added.toString());
@@ -630,23 +621,10 @@ public class ZoneSelector extends AbstractZoneSelector {
     // converts the incoming comboDict to only have 1 group.
     private Map<String, Integer> setOneGroup(Map<String, Integer> comboDict) {
         for (String k : comboDict.keySet()) {
-            comboDict.put(k, 1); // everything gets the 1st group.
+            // everything gets the 1st group.
+            comboDict.put(k, 1);
         }
         return comboDict;
-    }
-
-    // gets Config() information.
-    private String config(String configName, String defaultVal) {
-        // If the configName is set in AFPS.AFPSConfig(), then return
-        // its value. Otherwise, return the defaultVal
-        String retVal = defaultVal;
-        PythonPreferenceStore prefs = Activator.getDefault()
-                .getPreferenceStore();
-        if (prefs.contains(configName)) {
-            retVal = prefs.getString(configName);
-        }
-
-        return retVal;
     }
 
     /**
@@ -655,21 +633,20 @@ public class ZoneSelector extends AbstractZoneSelector {
     public List<List<String>> getZoneGroupings() {
         Map<String, Integer> comboDict = getCombos();
 
-        Map<Integer, List<String>> reverseDict = new HashMap<Integer, List<String>>();
+        Map<Integer, List<String>> reverseDict = new HashMap<>();
         for (Entry<String, Integer> entry : comboDict.entrySet()) {
             List<String> list = reverseDict.get(entry.getValue());
             if (list == null) {
-                list = new ArrayList<String>();
+                list = new ArrayList<>();
                 reverseDict.put(entry.getValue(), list);
             }
             list.add(entry.getKey());
         }
 
-        List<Integer> keys = new ArrayList<Integer>(reverseDict.keySet());
+        List<Integer> keys = new ArrayList<>(reverseDict.keySet());
         Collections.sort(keys);
 
-        List<List<String>> groupings = new ArrayList<List<String>>(
-                reverseDict.size());
+        List<List<String>> groupings = new ArrayList<>(reverseDict.size());
         for (Integer key : keys) {
             groupings.add(reverseDict.get(key));
         }

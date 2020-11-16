@@ -25,6 +25,7 @@
 #    Sep 01, 2014    3572          randerso       Fix getTopo       
 #    Apr 23, 2015    4259          njensen        Updated for new JEP API
 #    Dec  2, 2015    18356         yteng          Fix typo in __getitem__
+#    Jan  4, 2018    7178          randerso       removed populate call
 #
 ########################################################################
 import DatabaseID, AbsTime, JUtil
@@ -58,13 +59,11 @@ class DBSSWE:
         for t, g in map(lambda x, y: (x, y), self.keys(),
                         self._parm.getGridInventory()):
             if t == key:                
-                #return g.pyData()
-                g.populate()
-                slice = g.getGridSlice()
-                result = slice.getNDArray()
+                gridSlice = g.getGridSlice()
+                result = gridSlice.getNDArray()
                 if type(result) is numpy.ndarray and result.dtype == numpy.int8:                
                     # discrete or weather
-                    dkeys = JUtil.javaObjToPyVal(slice.getKeyList())
+                    dkeys = JUtil.javaObjToPyVal(gridSlice.getKeyList())
                     result = [result, dkeys] 
                 return result
         return None

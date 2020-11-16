@@ -1020,6 +1020,56 @@
         </reference>
      </activeWhen>
   </handler>
+  <handler
+        class="com.raytheon.viz.ui.actions.NullAction"
+        commandId="com.raytheon.viz.ui.saveProcedure">
+        <activeWhen>
+            <reference
+                  definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+            </reference>
+        </activeWhen>
+        <enabledWhen>
+            <not>
+                <reference
+                      definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </not>
+        </enabledWhen>
+  </handler>
+  <handler
+        class="com.raytheon.viz.ui.actions.NullAction"
+        commandId="org.eclipse.ui.window.newEditor">
+        <activeWhen>
+            <reference
+                  definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+            </reference>
+        </activeWhen>
+        <enabledWhen>
+            <not>
+                <reference
+                      definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+                </reference>
+            </not>
+        </enabledWhen>
+  </handler>
+  <handler
+        class="com.raytheon.viz.ui.actions.NullAction"
+        commandId="com.raytheon.viz.ui.tools.looping.fasterLoop">
+        <activeWhen>
+            <reference
+                  definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+            </reference>
+        </activeWhen>
+  </handler>
+  <handler
+        class="com.raytheon.viz.ui.actions.NullAction"
+        commandId="com.raytheon.viz.ui.tools.looping.slowerLoop">
+        <activeWhen>
+            <reference
+                  definitionId="com.raytheon.viz.gfe.inGFEActionSet">
+            </reference>
+        </activeWhen>
+  </handler>
     </extension>
     <extension point="com.raytheon.uf.viz.core.resource">
         <resource class="com.raytheon.viz.gfe.rsc.GFEResource" name="GFEResource"
@@ -1167,17 +1217,15 @@
                 <separator name="xxx4" visible="true">
                 </separator>
                 <command
-                      commandId="com.raytheon.viz.gfe.SiteActivation"
-                      label="Site Activation..."
-                      style="push">
-                </command>
-                <!-- Commented out for now. May re-enable when DR #15463 is worked
-                <command
                       commandId="com.raytheon.viz.gfe.CoordinateConversion"
                       label="Coordinate Conversion..."
                       style="push">
                 </command>
-                -->
+                <command
+                      commandId="com.raytheon.viz.gfe.SiteActivation"
+                      label="Site Activation..."
+                      style="push">
+                </command>
             </menu>
             <menu label="WeatherElement" mnemonic="W">
                 <visibleWhen>
@@ -1900,6 +1948,7 @@
            point="com.raytheon.uf.viz.core.component">
            <component key="gfeclient" class="com.raytheon.viz.gfe.gfeclient.GfeClient"/>
         <component key="gfeClientServer" class="com.raytheon.viz.gfe.gfeclient.GfeClientServer"/>
+        <component key="ServiceBackup" class="com.raytheon.viz.gfe.ServiceBackupComponent"/>
         <component key="ActivateSite" class="com.raytheon.viz.gfe.ActivateSiteComponent"/>
     </extension>
  <extension
@@ -1988,7 +2037,7 @@
           localizationType="CAVE_STATIC"
           name="Text Utilities"
           recursive="false"
-          value="gfe/userPython/textUtilities/regular">
+          value="gfe/userPython/textUtilities">
     </path>
     <path
           application="GFE"
@@ -2011,6 +2060,54 @@
           name="Weather Element Groups"
           recursive="true"
           value="gfe/weGroups">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter=".py,.properties"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ServerConfigAdapter"
+          localizationType="COMMON_STATIC"
+          name="Server Config Files"
+          recursive="false"
+          value="gfe/config">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter=".py"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.SmartInitAdapter"
+          localizationType="COMMON_STATIC"
+          name="Smart Inits"
+          recursive="false"
+          value="gfe/smartinit">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter=".xml"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ParameterInfoAdapter"
+          localizationType="COMMON_STATIC"
+          name="Parameter Info Files"
+          value="grid/parameterInfo">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter="gfeParamName.xml"
+          localizationType="COMMON_STATIC"
+          name="Param Names"
+          value="parameter/alias">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter="gfeLevelMappingFile.xml"
+          localizationType="COMMON_STATIC"
+          name="Level Mapping"
+          value="grid">
+    </path>
+    <path
+          application="GFE Server"
+          extensionFilter="VTECPartners.py,.properties"
+          localizationAdapter="com.raytheon.viz.gfe.localization.adapters.ServerConfigAdapter"
+          localizationType="COMMON_STATIC"
+          name="VTEC Partners"
+          value="vtec">
     </path>
  </extension>
  

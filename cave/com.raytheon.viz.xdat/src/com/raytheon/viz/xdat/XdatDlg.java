@@ -27,15 +27,22 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TimeZone;
 
+import org.apache.commons.lang.math.NumberUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.FocusAdapter;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
@@ -60,6 +67,7 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.ohd.AppsDefaults;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
+import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
@@ -82,6 +90,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 22 May 2015  4501       skorolev    Removed old DB connection commands. Got rid of Vector.
  * 26 Jan 2016  5054       randerso    Made XdatDlg parented to display
  * 04 Aug 2016  5800       mduff       Fixed widget disposed errors, cleanup.
+ * 12 Mar 2018  DCS18260   astrakovsky Changed rows to be selected in one click and
+ *                                     fixed GUI not updating.
  * 
  * </pre>
  * 
@@ -90,8 +100,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
 
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(XdatDlg.class);
+    private final IUFStatusHandler statusHandler = UFStatus.getHandler(XdatDlg.class);
 
     private final String NEWLINE = "\n";
 
@@ -104,6 +113,55 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      * Version.
      */
     private final String version = "TaskOrder 10";
+
+    /**
+     * Search data format.
+     */
+    private static final String ID_DATA_FORMAT = "%-8S %2s   %-4S %2S %1S %19S %13S % 6.2f   % 6.2f";
+
+    /**
+     * Regex for splitting columns in data lines.
+     */
+    private static final String SPLIT_REGEX = "[ ]++";
+
+    /**
+     * Enum for types of updates to data in the text area.
+     */
+    protected enum UpdateType {
+        REJECTED_DATA, SITE_ABOVE_FLOOD_STAGE, SITES_TURNED_OFF, UNKNOWN_SITES, SEARCH_DATA, LIST_SELECTION, COOP_PRECIP, PRECIP_ACCUMULATION, GROUP_DATA
+    }
+
+    /**
+     * The last type of data displayed.
+     */
+    private UpdateType lastUpdate = null;
+
+    /**
+     * Last selected ID for search and list selection refresh.
+     */
+    private String lastSelectedId = null;
+
+    /**
+     * Last hour and duration for precipitation refresh.
+     */
+    private int lastPrecipHour = 12;
+    private int lastPrecipDuration = 24;
+
+    /**
+     * Last selected group for group refresh.
+     */
+    private String lastSelectedGroup = null;
+
+    /**
+     * Last line selected.
+     */
+    private int lastLine = -1;
+
+    /**
+     * Start and end lines of saved selection.
+     */
+    private int savedTopLine = -1;
+    private int savedBottomLine = -1;
 
     /**
      * ID text control.
@@ -203,8 +261,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         databaseMgr = new XdatDB();
         appsDefaults = AppsDefaults.getInstance();
 
-        setText("xdat (Version: " + version + ") (db_name = " + XdatDB.IHFS
-                + ")");
+        setText("xdat (Version: " + version + ") (db_name = " + XdatDB.IHFS + ")");
     }
 
     @Override
@@ -315,8 +372,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
             public void widgetSelected(SelectionEvent event) {
                 String PeType = getPeType();
                 idTF.setText(idTF.getText().trim().toUpperCase());
-                InsertDataDlg insertDlg = new InsertDataDlg(shell, PeType,
-                        databaseMgr, displayCB);
+                InsertDataDlg insertDlg = new InsertDataDlg(shell, PeType, databaseMgr, displayCB);
                 insertDlg.open();
             }
         });
@@ -375,8 +431,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 idTF.setText(idTF.getText().trim().toUpperCase());
-                XdatEditDataDlg editDataDlg = new XdatEditDataDlg(shell,
-                        displayCB, databaseMgr);
+                XdatEditDataDlg editDataDlg = new XdatEditDataDlg(shell, displayCB, databaseMgr);
                 editDataDlg.open();
             }
         });
@@ -509,8 +564,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         gd.horizontalSpan = 2;
         gd.widthHint = 100;
         gd.heightHint = 130;
-        startDateList = new List(peDateComp, SWT.BORDER | SWT.SINGLE
-                | SWT.V_SCROLL);
+        startDateList = new List(peDateComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
         startDateList.setLayoutData(gd);
         startDateList.setFont(controlFont);
         startDateList.addSelectionListener(new SelectionAdapter() {
@@ -531,8 +585,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         gd.horizontalSpan = 2;
         gd.widthHint = 100;
         gd.heightHint = 130;
-        endDateList = new List(peDateComp, SWT.BORDER | SWT.SINGLE
-                | SWT.V_SCROLL);
+        endDateList = new List(peDateComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
         endDateList.setLayoutData(gd);
         endDateList.setFont(controlFont);
         endDateList.addSelectionListener(new SelectionAdapter() {
@@ -588,11 +641,129 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.widthHint = 750;
         gd.heightHint = 500;
-        textArea = new StyledText(parentComp, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL | SWT.H_SCROLL);
+        textArea = new StyledText(parentComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
         textArea.setFont(controlFont);
         textArea.setEditable(false);
         textArea.setLayoutData(gd);
+
+        // select the line clicked
+        textArea.addMouseListener(new MouseAdapter() {
+
+            @Override
+            public void mouseDown(MouseEvent e) {
+                /*
+                 * Select clicked line - start on mouse down to ensure immediate
+                 * selection.
+                 */
+                selectLine();
+            }
+
+            @Override
+            public void mouseUp(MouseEvent e) {
+                // Select all lines highlighted while mouse was down.
+                appendLineSelection();
+            }
+
+        });
+
+        /*
+         * Also do selection when keys are pressed to account for line changing
+         * on some key presses.
+         */
+        textArea.addKeyListener(new KeyAdapter() {
+
+            @Override
+            public void keyPressed(KeyEvent e) {
+                /*
+                 * Select line with cursor - start on key down to ensure
+                 * immediate selection.
+                 */
+                selectLine();
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                /*
+                 * Repeat selection to prevent multiple lines being highlighted
+                 * while key is down.
+                 */
+                selectLine();
+            }
+
+        });
+
+    }
+
+    /**
+     * Select the current line only.
+     */
+    private void selectLine() {
+        int line = textArea.getLineAtOffset(textArea.getCaretOffset());
+        textArea.setSelection(textArea.getOffsetAtLine(line), getEndOfLine(line));
+        lastLine = line;
+    }
+
+    /**
+     * Select the area between the previous line selected and the current one
+     * (inclusive).
+     */
+    private void appendLineSelection() {
+        if (textArea.getLineCount() > lastLine && lastLine > -1) {
+            int line = textArea.getLineAtOffset(textArea.getCaretOffset());
+            int selectionStart;
+            int selectionEnd;
+            if (line > lastLine) {
+                selectionStart = textArea.getOffsetAtLine(lastLine);
+                selectionEnd = getEndOfLine(line);
+            } else {
+                selectionStart = textArea.getOffsetAtLine(line);
+                selectionEnd = getEndOfLine(lastLine);
+            }
+            textArea.setSelection(selectionStart, selectionEnd);
+        }
+    }
+
+    /**
+     * Get the cursor offset of the end of the specified line in the text area.
+     */
+    private int getEndOfLine(int lineNum) {
+        int lineEnd;
+        if (textArea.getLineCount() > lineNum + 1) {
+            lineEnd = textArea.getOffsetAtLine(lineNum + 1) - 1;
+        } else {
+            lineEnd = textArea.getCharCount() - 1;
+        }
+        return lineEnd;
+    }
+
+    /**
+     * Save the current text area selection.
+     */
+    @Override
+    public void saveSelection() {
+        if (textArea.isTextSelected()) {
+            savedBottomLine = getCurrentLineNumber();
+            savedTopLine = savedBottomLine - (getSelectedText().size() - 1);
+        } else {
+            savedBottomLine = -1;
+            savedTopLine = -1;
+        }
+    }
+
+    /**
+     * Restore the last saved text area selection.
+     */
+    @Override
+    public void restoreSelection() {
+        if (savedTopLine > -1 && savedBottomLine > -1) {
+            if (savedBottomLine < getLineCount() - 1) {
+                setSelection(getOffsetAtLine(savedTopLine), getOffsetAtLine(savedBottomLine + 1) - 1);
+            } else if (savedTopLine < getLineCount() - 1) {
+                setSelection(getOffsetAtLine(savedTopLine), textArea.getCharCount() - 1);
+            } else {
+                setSelection(0, textArea.getCharCount() - 1);
+            }
+        }
     }
 
     /**
@@ -646,6 +817,164 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     }
 
     /**
+     * Get the text on the display.
+     * 
+     * @return the text area content.
+     */
+    @Override
+    public String getDisplayText() {
+        return textArea.getText();
+    }
+
+    /**
+     * Get the currently selected line.
+     * 
+     * @return the line number.
+     */
+    @Override
+    public int getCurrentLineNumber() {
+        return textArea.getLineAtOffset(textArea.getCaretOffset());
+    }
+
+    /**
+     * Get the offset at line.
+     * 
+     * @return the offset.
+     */
+    @Override
+    public int getOffsetAtLine(int line) {
+        return textArea.getOffsetAtLine(line);
+    }
+
+    /**
+     * Get the line indicated
+     */
+    @Override
+    public String getLine(int line) {
+        return textArea.getLine(line);
+    }
+
+    /**
+     * Get the line count
+     */
+    @Override
+    public int getLineCount() {
+        return textArea.getLineCount();
+    }
+
+    /**
+     * Set the top index
+     * 
+     * @param int
+     *            the top index to set.
+     */
+    @Override
+    public void setTopIndex(int index) {
+        textArea.setTopIndex(index);
+    }
+
+    /**
+     * Get the top index
+     */
+    @Override
+    public int getTopIndex() {
+        return textArea.getTopIndex();
+    }
+
+    /**
+     * Set the text selection
+     * 
+     * @param point
+     *            the selection point to set.
+     */
+    @Override
+    public void setSelection(Point point) {
+        textArea.setSelection(point);
+    }
+
+    /**
+     * Set the text selection
+     * 
+     * @param int
+     *            the selection coordinates to set.
+     */
+    @Override
+    public void setSelection(int x, int y) {
+        textArea.setSelection(x, y);
+    }
+
+    /**
+     * Get the text selection
+     */
+    @Override
+    public Point getSelection() {
+        return textArea.getSelection();
+    }
+
+    /**
+     * Get the last update
+     * 
+     * @return
+     */
+    @Override
+    public UpdateType getLastUpdate() {
+        return lastUpdate;
+    }
+
+    /**
+     * Set the last update
+     * 
+     * @param lastUpdate
+     */
+    @Override
+    public void setLastUpdate(UpdateType lastUpdate) {
+        this.lastUpdate = lastUpdate;
+    }
+
+    /**
+     * Refresh the contents of the text area, preserving selection and scroll
+     * position.
+     */
+    @Override
+    public void refreshTextArea() {
+        if (lastUpdate != null) {
+            int index = getTopIndex();
+            saveSelection();
+            switch (lastUpdate) {
+            case REJECTED_DATA:
+                displayRejectedData();
+                break;
+            case SITE_ABOVE_FLOOD_STAGE:
+                displaySiteAboveFldStg();
+                break;
+            case SITES_TURNED_OFF:
+                displaySitesTurnedOffData();
+                break;
+            case UNKNOWN_SITES:
+                displayUnknownSitesData();
+                break;
+            case SEARCH_DATA:
+                displaySearchData();
+                break;
+            case LIST_SELECTION:
+                displayIdSelection(lastSelectedId);
+                break;
+            case COOP_PRECIP:
+                displayCoopPrecip();
+                break;
+            case PRECIP_ACCUMULATION:
+                displayPrecipAccumulation(lastPrecipHour, lastPrecipDuration);
+                break;
+            case GROUP_DATA:
+                retrieveAndDisplayGroupData(lastSelectedGroup);
+                break;
+            }
+            setTopIndex(index);
+            restoreSelection();
+        }
+    }
+
+    /**
      * Save the data (text on the display) to a file.
      */
     private void saveData() {
@@ -654,8 +983,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
          * Check if there is text to be saved.
          */
         if (textArea.getText().trim().length() == 0) {
-            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
-                    | SWT.OK);
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
             mb.setText("Save Warning");
             mb.setMessage("There is no text to be saved.");
             mb.open();
@@ -693,11 +1021,9 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
          */
         if (saveFile.exists() == true) {
 
-            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
-                    | SWT.YES | SWT.NO);
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.YES | SWT.NO);
             mb.setText("Save Warning");
-            mb.setMessage("The file to save already exists.\n\n"
-                    + "Do you want to overwrite the file?");
+            mb.setMessage("The file to save already exists.\n\n" + "Do you want to overwrite the file?");
             int answer = mb.open();
 
             if (answer == SWT.NO) {
@@ -743,8 +1069,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     public String getStartDate() {
         String startDate = null;
         if (startDateList.getSelectionIndex() >= 0) {
-            startDate = startDateList
-                    .getItem(startDateList.getSelectionIndex());
+            startDate = startDateList.getItem(startDateList.getSelectionIndex());
         } else {
             startDate = startDateList.getItem(0);
         }
@@ -780,8 +1105,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         if (startDateList.getSelectionIndex() == -1) {
             startDateStr = startDateList.getItem(0);
         } else {
-            startDateStr = startDateList.getItem(startDateList
-                    .getSelectionIndex());
+            startDateStr = startDateList.getItem(startDateList.getSelectionIndex());
         }
 
         if (endDateList.getSelectionIndex() == -1) {
@@ -796,17 +1120,16 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
 
         String peStr = getSelectedPE();
 
-        java.util.List<String[]> rejectedDataBuf = databaseMgr.getRejectedData(
-                peStr, startDateStr, endDateStr);
+        java.util.List<String[]> rejectedDataBuf = databaseMgr.getRejectedData(peStr, startDateStr, endDateStr);
 
         if (rejectedDataBuf == null) {
-            textArea.setText("No rejected " + peStr
-                    + " data found in the rejecteddata table.\n");
+            textArea.setText("No rejected " + peStr + " data found in the rejecteddata table.\n");
         } else {
 
             String formattedStr = formatRejectedData(rejectedDataBuf, peStr);
             textArea.setText(formattedStr);
         }
+        setLastUpdate(UpdateType.REJECTED_DATA);
     }
 
     /**
@@ -818,8 +1141,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      *            Physical Element.
      * @return The formatted data.
      */
-    private String formatRejectedData(java.util.List<String[]> rejectedDataBuf,
-            String peStr) {
+    private String formatRejectedData(java.util.List<String[]> rejectedDataBuf, String peStr) {
         StringBuilder strBld = new StringBuilder();
 
         String titleFmt = "                                   %S %S %S";
@@ -829,15 +1151,13 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         /*
          * Add the Title text
          */
-        strBld.append(String.format(titleFmt, "REJECTED", peStr, "DATA"))
-                .append("\n\n");
+        strBld.append(String.format(titleFmt, "REJECTED", peStr, "DATA")).append("\n\n");
 
         /*
          * Add the data header
          */
-        strBld.append(
-                String.format(headerFmt, "ID", "PE", "DUR", "TS", "E",
-                        "OBSTIME", "POSTING TIME", "VALUE")).append(NEWLINE);
+        strBld.append(String.format(headerFmt, "ID", "PE", "DUR", "TS", "E", "OBSTIME", "POSTING TIME", "VALUE"))
+                .append(NEWLINE);
 
         /*
          * Add a dash separator.
@@ -855,10 +1175,8 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
             double dblVal = Double.valueOf(strArray[7]);
             double rndVal = (Math.round(dblVal * 10.0)) / 10.0;
 
-            strBld.append(
-                    String.format(dataFmt, strArray[0], strArray[1],
-                            strArray[2], strArray[3], strArray[4], strArray[5],
-                            strArray[6], rndVal)).append(NEWLINE);
+            strBld.append(String.format(dataFmt, strArray[0], strArray[1], strArray[2], strArray[3], strArray[4],
+                    strArray[5], strArray[6], rndVal)).append(NEWLINE);
         }
 
         return strBld.toString();
@@ -870,8 +1188,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     private void displaySiteAboveFldStg() {
         SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         dbFormat.setTimeZone(TimeUtil.GMT_TIME_ZONE);
-        SimpleDateFormat startDate = new SimpleDateFormat("mm/dd/yyy",
-                Locale.US);
+        SimpleDateFormat startDate = new SimpleDateFormat("mm/dd/yyy", Locale.US);
         startDate.setTimeZone(TimeUtil.GMT_TIME_ZONE);
 
         Calendar cal = TimeUtil.newGmtCalendar();
@@ -881,13 +1198,11 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         String floodHours = appsDefaults.getToken("xdat_flood_hours", "6");
 
         try {
-            if ((setToday != null) && !setToday.isEmpty()
-                    && !setToday.equals(" ")) {
+            if ((setToday != null) && !setToday.isEmpty() && !setToday.equals(" ")) {
                 sDate = startDate.parse(setToday);
             }
         } catch (ParseException e) {
-            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
-                    | SWT.OK);
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
             mb.setText("Error with xdat_settoday token");
             mb.setMessage("Invalid value entered as token value.");
             mb.open();
@@ -898,8 +1213,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         sDate = cal.getTime();
         String dateStr = dbFormat.format(sDate);
 
-        java.util.List<String[]> aboveFsBuf = databaseMgr
-                .getAboveFsSearch(dateStr);
+        java.util.List<String[]> aboveFsBuf = databaseMgr.getAboveFsSearch(dateStr);
 
         if (aboveFsBuf == null) {
             textArea.setText("No sites above flood stage");
@@ -907,6 +1221,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
             String formattedStr = formatSiteAboveFldStageData(aboveFsBuf, sDate);
             textArea.setText(formattedStr);
         }
+        setLastUpdate(UpdateType.SITE_ABOVE_FLOOD_STAGE);
     }
 
     /**
@@ -916,10 +1231,8 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      *            Array of flood stage data.
      * @return The formatted data.
      */
-    private String formatSiteAboveFldStageData(
-            java.util.List<String[]> aboveFsBuf, Date sDate) {
-        SimpleDateFormat displayDate = new SimpleDateFormat(
-                "yyyy-MM-dd HH:00:00", Locale.US);
+    private String formatSiteAboveFldStageData(java.util.List<String[]> aboveFsBuf, Date sDate) {
+        SimpleDateFormat displayDate = new SimpleDateFormat("yyyy-MM-dd HH:00:00", Locale.US);
         StringBuilder strBld = new StringBuilder();
 
         String titleFmt = "         %s %s";
@@ -935,17 +1248,14 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
             cal.add(Calendar.HOUR_OF_DAY, -1 * (Integer.parseInt(floodHours)));
         }
 
-        strBld.append(
-                String.format(titleFmt, "Site Above Flood Stage since",
-                        displayDate.format(new Date(cal.getTimeInMillis()))))
-                .append(NEWLINE).append(NEWLINE);
+        strBld.append(String.format(titleFmt, "Site Above Flood Stage since",
+                displayDate.format(new Date(cal.getTimeInMillis())))).append(NEWLINE).append(NEWLINE);
 
         /*
          * Add the data header
          */
-        strBld.append(
-                String.format(headerFmt, "ID", "PE", "DUR", "TS", "E",
-                        "OBSTIME", "PRODUCT", "VALUE", "FS")).append(NEWLINE);
+        strBld.append(String.format(headerFmt, "ID", "PE", "DUR", "TS", "E", "OBSTIME", "PRODUCT", "VALUE", "FS"))
+                .append(NEWLINE);
 
         /*
          * Add a dash separator.
@@ -970,11 +1280,8 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
                 productID = "";
             }
 
-            strBld.append(
-                    String.format(dataFmt, dataArray[0], dataArray[1],
-                            dataArray[2], dataArray[3], dataArray[4],
-                            dataArray[5], productID, rndVal, fsVal)).append(
-                    NEWLINE);
+            strBld.append(String.format(dataFmt, dataArray[0], dataArray[1], dataArray[2], dataArray[3], dataArray[4],
+                    dataArray[5], productID, rndVal, fsVal)).append(NEWLINE);
         }
 
         return strBld.toString();
@@ -985,8 +1292,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      */
     private void displaySitesTurnedOffData() {
 
-        java.util.List<String[]> sitesTurnedOffBuf = databaseMgr
-                .getSitesTurnedOffData();
+        java.util.List<String[]> sitesTurnedOffBuf = databaseMgr.getSitesTurnedOffData();
 
         if (sitesTurnedOffBuf == null) {
             textArea.setText("No location data found with post = 0");
@@ -994,6 +1300,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
             String formattedStr = formatSitesTurnedOffData(sitesTurnedOffBuf);
             textArea.setText(formattedStr);
         }
+        setLastUpdate(UpdateType.SITES_TURNED_OFF);
     }
 
     /**
@@ -1003,8 +1310,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      *            Array of data.
      * @return The formatted data.
      */
-    private String formatSitesTurnedOffData(
-            java.util.List<String[]> sitesTurnedOffBuf) {
+    private String formatSitesTurnedOffData(java.util.List<String[]> sitesTurnedOffBuf) {
         StringBuilder strBld = new StringBuilder();
 
         String titleFmt = "%50s";
@@ -1014,15 +1320,12 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         /*
          * Add the Title text
          */
-        strBld.append(String.format(titleFmt, "SITES WITH LOCATION POST = 0"))
-                .append(NEWLINE).append(NEWLINE);
+        strBld.append(String.format(titleFmt, "SITES WITH LOCATION POST = 0")).append(NEWLINE).append(NEWLINE);
 
         /*
          * Add the data header
          */
-        strBld.append(
-                String.format(headerFmt, "ID", "County", "State", "Description"))
-                .append(NEWLINE);
+        strBld.append(String.format(headerFmt, "ID", "County", "State", "Description")).append(NEWLINE);
 
         /*
          * Add a dash separator.
@@ -1037,9 +1340,8 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
          */
         for (String[] dataArray : sitesTurnedOffBuf) {
 
-            strBld.append(
-                    String.format(dataFmt, dataArray[0], dataArray[1],
-                            dataArray[2], dataArray[3])).append(NEWLINE);
+            strBld.append(String.format(dataFmt, dataArray[0], dataArray[1], dataArray[2], dataArray[3]))
+                    .append(NEWLINE);
         }
 
         return strBld.toString();
@@ -1053,6 +1355,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
 
         if (postFlag.equalsIgnoreCase("NONE")) {
             textArea.setText("Shefdecoder not posting unknown data.");
+            setLastUpdate(UpdateType.UNKNOWN_SITES);
             return;
         }
 
@@ -1061,16 +1364,15 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
             unknownTable = "unkstn";
         }
 
-        java.util.List<String[]> unknownSiteBuf = databaseMgr
-                .getUnknownSites(unknownTable);
+        java.util.List<String[]> unknownSiteBuf = databaseMgr.getUnknownSites(unknownTable);
 
         if (unknownSiteBuf == null) {
-            textArea.setText("No unknown station data found in table "
-                    + unknownTable + ".\n");
+            textArea.setText("No unknown station data found in table " + unknownTable + ".\n");
         } else {
             String formattedStr = formatUnknownSitesData(unknownSiteBuf);
             textArea.setText(formattedStr);
         }
+        setLastUpdate(UpdateType.UNKNOWN_SITES);
     }
 
     /**
@@ -1080,8 +1382,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      *            Array of data.
      * @return The formatted data.
      */
-    private String formatUnknownSitesData(
-            java.util.List<String[]> unknownSiteBuf) {
+    private String formatUnknownSitesData(java.util.List<String[]> unknownSiteBuf) {
         StringBuilder strBld = new StringBuilder();
 
         String titleFmt = "%40s";
@@ -1091,15 +1392,12 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         /*
          * Add the Title text
          */
-        strBld.append(String.format(titleFmt, "Unknown Station IDs")).append(
-                "\n\n");
+        strBld.append(String.format(titleFmt, "Unknown Station IDs")).append("\n\n");
 
         /*
          * Add the data header
          */
-        strBld.append(
-                String.format(headerFmt, "ID", "Product ID", "Product Time"))
-                .append(NEWLINE);
+        strBld.append(String.format(headerFmt, "ID", "Product ID", "Product Time")).append(NEWLINE);
 
         /*
          * Add a dash separator.
@@ -1123,9 +1421,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
                 productTime = "";
             }
 
-            strBld.append(
-                    String.format(dataFmt, dataArray[0], productID, productTime))
-                    .append(NEWLINE);
+            strBld.append(String.format(dataFmt, dataArray[0], productID, productTime)).append(NEWLINE);
         }
 
         return strBld.toString();
@@ -1135,78 +1431,487 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      * Display the search data on the display.
      */
     private void displaySearchData() {
-        /*
-         * code very similar to SiteListDlg.displayListSelection(). need
-         * refactor
-         */
 
         String selectedId = idTF.getText().trim().toUpperCase();
 
         if (selectedId.trim().compareTo("") == 0) {
-            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
-                    | SWT.OK);
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
             mb.setText("Search Warning");
             mb.setMessage("You need to enter an ID into the ID text field.");
             mb.open();
             return;
         }
 
-        String peType = getSelectedPE();
+        displayIdSelection(selectedId);
 
-        java.util.List<String[]> dataVec = databaseMgr.getListData(selectedId,
-                peType, getStartDate(), getEndDate());
+        setLastUpdate(UpdateType.SEARCH_DATA);
+    }
 
-        if (dataVec == null) {
-            String[] msg = new String[] { "No data available." };
-            setDisplayText(msg);
-            return;
-        }
+    /**
+     * Display the data associated with the selected ID.
+     */
+    @Override
+    public void displayIdSelection(String selectedId) {
 
-        String locationDes = databaseMgr.getLocationDes(selectedId);
+        if (selectedId != null) {
 
-        if (locationDes.equals("null")) {
-            locationDes = "";
-        }
+            // Get the PE type from main window
+            String peType = getSelectedPE();
 
-        String[] displayData = new String[dataVec.size() + 3];
-        // 1st three lines for header
-        String dataFmt = "%-8S %2s   %-4S %2S %1S %19S %13S % 6.2f   % 6.2f";
-        String displayHeader = " ID      PE  DUR   TS E       OBSTIME           PRODUCT    VALUE   CHANGE";
-        String dashLine = "---------------------------------------------------------------------------";
-        displayData[0] = "\t\t" + selectedId + "\t  " + locationDes;
-        displayData[1] = displayHeader;
-        displayData[2] = dashLine;
+            java.util.List<String[]> dataList = databaseMgr.getListData(selectedId, peType, getStartDate(),
+                    getEndDate());
 
-        for (int i = 0; i < dataVec.size(); i++) {
-            String[] rowData = dataVec.get(i);
+            if (dataList == null) {
+                String[] msg = new String[] { "No data available." };
+                setDisplayText(msg);
+                return;
+            }
 
-            double dblVal = Double.valueOf(rowData[5]);
-            double rndVal = (Math.round(dblVal * 100.0)) / 100.0;
-            double change = 0;
             /*
-             * if this is not the last one, then calculate the changes
+             * Format the data.
              */
-            if (i < (dataVec.size() - 1)) {
-                String[] nextRowData = dataVec.get(i + 1);
-                if ((Double.valueOf(rowData[5]) != HydroConstants.MISSING_VALUE)
-                        && (Double.valueOf(nextRowData[5]) != HydroConstants.MISSING_VALUE)) {
-                    change = Double.valueOf(rowData[5])
-                            - Double.valueOf(nextRowData[5]);
-                    change = (Math.round(change * 100.0)) / 100.0;
+            String locationDes = databaseMgr.getLocationDes(selectedId);
+
+            if (locationDes.equals("null")) {
+                locationDes = "";
+            }
+
+            /*
+             * Add 3 for the first 3 lines, which are header rows
+             */
+            String[] displayData = new String[dataList.size() + 3];
+            String displayHeader = " ID      PE  DUR   TS E       OBSTIME           PRODUCT    VALUE   CHANGE";
+            String dashLine = "---------------------------------------------------------------------------";
+            displayData[0] = "\t\t" + selectedId + "\t  " + locationDes;
+            displayData[1] = displayHeader;
+            displayData[2] = dashLine;
+
+            for (int i = 0; i < dataList.size(); i++) {
+                String[] rowData = dataList.get(i);
+
+                double dblVal = Double.valueOf(rowData[5]);
+                double rndVal = (Math.round(dblVal * 100.0)) / 100.0;
+                double change = 0;
+
+                /*
+                 * If this is not the last one then calculate the change
+                 */
+                if (i < (dataList.size() - 1)) {
+                    String[] nextRowData = dataList.get(i + 1);
+                    double nextDblVal = Double.valueOf(nextRowData[5]);
+                    if ((dblVal != HydroConstants.MISSING_VALUE) && (nextDblVal != HydroConstants.MISSING_VALUE)) {
+                        change = dblVal - nextDblVal;
+                        change = (Math.round(change * 100.0)) / 100.0;
+                    }
                 }
+
+                String productID = rowData[0];
+                if (productID == null) {
+                    productID = "";
+                }
+
+                displayData[i + 3] = String.format(ID_DATA_FORMAT, selectedId, peType, rowData[1], rowData[2],
+                        rowData[3], rowData[4], productID, rndVal, change);
             }
 
-            String productID = rowData[0];
-            if (productID == null) {
-                productID = "";
-            }
-
-            displayData[i + 3] = String.format(dataFmt, selectedId, peType,
-                    rowData[1], rowData[2], rowData[3], rowData[4], productID,
-                    rndVal, change);
+            setDisplayText(displayData);
+            lastSelectedId = selectedId;
+            idTF.setText(selectedId);
         }
 
-        setDisplayText(displayData);
+    }
+
+    /**
+     * Update the GUI with the new value and changes without reloading from DB.
+     */
+    @Override
+    public void updateTextAreaValue(String newValue) {
+
+        /*
+         * Need to deal with lines above and below to adjust change Note: line
+         * variable naming refers to the timestamp, so the "next" line appears
+         * earlier in the text area.
+         */
+        int bottomLineNum = getCurrentLineNumber();
+        int topLineNum = bottomLineNum - (getSelectedText().size() - 1);
+        String bottomLine = getSelectedText().get(getSelectedText().size() - 1);
+        String nextLine = "";
+        String previousLine = "";
+        if (topLineNum > 3) {
+            // only get next line if non-header lines above exist
+            nextLine = getLine(topLineNum - 1);
+        }
+        if (bottomLineNum < getLineCount() - 1) {
+            // only get last line if lines below exist
+            previousLine = getLine(bottomLineNum + 1);
+        }
+
+        // decode lines
+        String[] bottomLineSplit = bottomLine.trim().split(SPLIT_REGEX);
+        double bottomValue = Double.parseDouble(bottomLineSplit[8]);
+        String[] nextLineSplit = null;
+        double nextValue = 0;
+        String[] previousLineSplit = null;
+        double previousValue = 0;
+        if (!nextLine.isEmpty()) {
+            // selection is not top line - line above selection exists
+            nextLineSplit = nextLine.trim().split(SPLIT_REGEX);
+            nextValue = Double.parseDouble(nextLineSplit[8]);
+        }
+        if (!previousLine.isEmpty()) {
+            // selection is not bottom line - line below selection exists
+            previousLineSplit = previousLine.trim().split(SPLIT_REGEX);
+            previousValue = Double.parseDouble(previousLineSplit[8]);
+        }
+
+        // decode changes
+        double bottomChange = Double.parseDouble(bottomLineSplit[9]);
+        double newCurrentValue = 0;
+        double newMidChange = 0;
+        double newBottomChange = 0;
+        double newNextChange = 0;
+
+        // update value and change for selection
+        if (NumberUtils.isNumber(newValue)) {
+            // if number, parse
+            newCurrentValue = Double.parseDouble(newValue);
+            if (previousLineSplit != null && bottomValue != HydroConstants.MISSING_VALUE) {
+                /*
+                 * If old value was not missing, calculate change and add to old
+                 * change
+                 */
+                newBottomChange = bottomChange + (newCurrentValue - bottomValue);
+            } else if (previousLineSplit != null && previousValue != HydroConstants.MISSING_VALUE) {
+                /*
+                 * if old value was missing, calculate change from previous line
+                 * if the value exists
+                 */
+                newBottomChange = newCurrentValue - previousValue;
+            }
+            // change remains 0 if no way to calculate or last line was selected
+        } else {
+            // interpret non-numerical values as missing
+            newCurrentValue = HydroConstants.MISSING_VALUE;
+            // current and next change should be 0 if value is missing
+        }
+
+        // update change for next line if next line exists
+        if (nextLineSplit != null && nextValue != HydroConstants.MISSING_VALUE
+                && newCurrentValue != HydroConstants.MISSING_VALUE) {
+            newNextChange = nextValue - newCurrentValue;
+        }
+        // change remains 0 if no way to calculate
+
+        // round value and changes
+        newCurrentValue = (Math.round(newCurrentValue * 100.0)) / 100.0;
+        newMidChange = (Math.round(newMidChange * 100.0)) / 100.0;
+        newBottomChange = (Math.round(newBottomChange * 100.0)) / 100.0;
+        newNextChange = (Math.round(newNextChange * 100.0)) / 100.0;
+
+        // rebuild text contents
+        StringBuilder builder = new StringBuilder("");
+        for (String s : getSelectedText()) {
+            builder.append(s);
+            builder.append(NEWLINE);
+        }
+        String textContent = getDisplayText();
+        String[] unchangedTextContents = textContent.split(nextLine + NEWLINE + builder.toString());
+        builder = new StringBuilder("");
+
+        if (unchangedTextContents.length == 2 || unchangedTextContents.length == 1) {
+            /*
+             * If no duplicate lines, result will contain the surrounding text,
+             * or just what was in front if this is the bottom line
+             * 
+             * Add unmodified text preceding the edited line and the one above
+             * it (if applicable)
+             */
+            builder.append(unchangedTextContents[0]);
+
+            // add next line with change affected by edited line
+            if (nextLineSplit != null) {
+                builder.append(formatIdDataLine(nextLineSplit, nextValue, newNextChange));
+            }
+            builder.append(NEWLINE);
+
+            /*
+             * Add all edited lines except for the bottom one, which has a
+             * different change
+             */
+            for (int ii = 0; ii < getSelectedText().size() - 1; ii++) {
+                String[] lineSplit = getSelectedText().get(ii).trim().split(SPLIT_REGEX);
+                builder.append(formatIdDataLine(lineSplit, newCurrentValue, newMidChange));
+                builder.append(NEWLINE);
+            }
+
+            // add the edited bottom line with new value and change
+            builder.append(formatIdDataLine(bottomLineSplit, newCurrentValue, newBottomChange));
+            builder.append(NEWLINE);
+
+            if (unchangedTextContents.length == 2) {
+                /*
+                 * If edited bottom line was not the last line, add the rest of
+                 * the unmodified text
+                 */
+                builder.append(unchangedTextContents[1]);
+            }
+
+        } else if (unchangedTextContents.length > 2) {
+            // duplicate lines exist, need to handle line by line
+
+            // split text by lines
+            unchangedTextContents = textContent.split(NEWLINE);
+            // add lines above selection (and next line if applicable)
+            for (int ii = 0; ii < topLineNum - 1; ii++) {
+                builder.append(unchangedTextContents[ii]);
+                builder.append(NEWLINE);
+            }
+
+            // add next line with change affected by edited line
+            if (nextLineSplit != null) {
+                builder.append(formatIdDataLine(nextLineSplit, nextValue, newNextChange));
+            } else {
+                builder.append(unchangedTextContents[topLineNum - 1]);
+            }
+            builder.append(NEWLINE);
+
+            /*
+             * Add all edited lines except for the bottom one, which has a
+             * different change
+             */
+            for (int ii = 0; ii < getSelectedText().size() - 1; ii++) {
+                String[] lineSplit = getSelectedText().get(ii).trim().split(SPLIT_REGEX);
+                builder.append(formatIdDataLine(lineSplit, newCurrentValue, newMidChange));
+                builder.append(NEWLINE);
+            }
+
+            // add the edited bottom line with new value and change
+            builder.append(formatIdDataLine(bottomLineSplit, newCurrentValue, newBottomChange));
+            builder.append(NEWLINE);
+
+            // add lines below selection
+            for (int ii = bottomLineNum + 1; ii < getLineCount() - 1; ii++) {
+                builder.append(unchangedTextContents[ii]);
+                builder.append(NEWLINE);
+            }
+
+        }
+
+        // update display and preserve scroll position and selection
+        int index = getTopIndex();
+        setDisplayText(builder.toString());
+        setTopIndex(index);
+        setSelection(getOffsetAtLine(topLineNum), getOffsetAtLine(bottomLineNum + 1) - 1);
+
+    }
+
+    /**
+     * Format data line from selected ID display.
+     */
+    private String formatIdDataLine(String[] lineSplit, double value, double change) {
+        if (lineSplit.length > 7) {
+            return String.format(ID_DATA_FORMAT, lineSplit[0], lineSplit[1], lineSplit[2], lineSplit[3], lineSplit[4],
+                    lineSplit[5] + " " + lineSplit[6], lineSplit[7], value, change);
+        } else {
+            return "";
+        }
+    }
+
+    /**
+     * Display COOP Precipitation
+     */
+    @Override
+    public void displayCoopPrecip() {
+        String startDate = getEndDate();
+        String header1 = "\t\t\t 24 Hour Precipitation Ending at " + getEndDate() + " 12Z";
+        String header2 = "  ID     PE  DUR  TS E       OBSTIME        PRODUCT       VALUE";
+        String dashLine = "-------------------------------------------------------------------";
+        String dataFmt = "%-8s %2s  %4s %2s %1s %19s %13s %6.2f";
+        java.util.List<String[]> coopPrecipData = databaseMgr.getCoopPrecipData(startDate);
+
+        if (coopPrecipData == null) {
+            setDisplayText("No data available.");
+        } else {
+            String[] displayText = new String[coopPrecipData.size() + 3];
+            displayText[0] = header1;
+            displayText[1] = header2;
+            displayText[2] = dashLine;
+
+            int i = 3;
+            for (String[] dataText : coopPrecipData) {
+                String productID = dataText[5];
+                if (productID == null) {
+                    productID = "";
+                }
+
+                double value = HydroConstants.MISSING_VALUE;
+                try {
+                    value = Double.parseDouble(dataText[6]);
+                } catch (NumberFormatException nfe) {
+                    value = HydroConstants.MISSING_VALUE;
+                    statusHandler.handle(Priority.ERROR, "Fail to parse " + dataText[6] + ".");
+                }
+                displayText[i] = String.format(dataFmt, dataText[0], "PP", dataText[1], dataText[2], dataText[3],
+                        dataText[4], productID, value);
+                i++;
+            }
+            setDisplayText(displayText);
+        }
+        setLastUpdate(UpdateType.COOP_PRECIP);
+    }
+
+    /**
+     * Display Precipitation Accumulation
+     */
+    @Override
+    public void displayPrecipAccumulation(int hour, int duration) {
+        SimpleDateFormat obsDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        Calendar date = null;
+        try {
+            Date sDate = obsDate.parse(getEndDate());
+            date = TimeUtil.newGmtCalendar(sDate);
+        } catch (ParseException e) {
+            date = TimeUtil.newGmtCalendar();
+            statusHandler.handle(Priority.ERROR, "Fail to parse " + getEndDate() + ".");
+        }
+
+        obsDate = new SimpleDateFormat("yyyy-MM-dd HH:00:00", Locale.US);
+        obsDate.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+        String obsTimeStr = obsDate.format(date.getTime());
+        String displayTime = obsTimeStr;
+        Map<String, Double> precipLidAndValue = databaseMgr.getPrecipLidAndValue(obsTimeStr);
+
+        date.add(Calendar.HOUR_OF_DAY, 0 - duration);
+        obsTimeStr = obsDate.format(date.getTime());
+
+        Map<String, Double> precipLidAndValue2 = databaseMgr.getPrecipLidAndValue(obsTimeStr);
+
+        java.util.List<String> precipLidAndDiffBuf = new ArrayList<>(precipLidAndValue.size());
+
+        if (precipLidAndValue.isEmpty()) {
+            precipLidAndDiffBuf.add("No " + duration + " Hour Precipitation data found.");
+        } else {
+            precipLidAndDiffBuf.add("\t\t\t " + duration + " Hour PC Accumulation Ending at " + displayTime);
+            precipLidAndDiffBuf.add("  ID     VALUE");
+            precipLidAndDiffBuf.add("--------------");
+
+            Iterator<String> iter = precipLidAndValue.keySet().iterator();
+            String lid = null;
+            java.util.List<XdatPcData> dataList = new ArrayList<>();
+            while (iter.hasNext()) {
+                lid = iter.next();
+
+                double value = precipLidAndValue.get(lid);
+                double value2 = -999;
+                if (precipLidAndValue2.containsKey(lid)) {
+                    value2 = precipLidAndValue2.get(lid);
+                }
+                // TODO determine how A1 handles missing data
+                double valDiff = value - value2;
+                int valint = (int) (valDiff * 100);
+                valDiff = Math.floor(valint) / 100.0;
+
+                if (valDiff < 0) {
+                    valDiff = 0;
+                }
+
+                XdatPcData data = new XdatPcData(lid, valDiff);
+                dataList.add(data);
+            }
+
+            Collections.sort(dataList);
+            for (int i = 0; i < dataList.size(); i++) {
+                XdatPcData data = dataList.get(i);
+
+                precipLidAndDiffBuf.add(String.format("%-8s %4.2f", data.getLid(), data.getValue()));
+            }
+
+        }
+        setDisplayText(precipLidAndDiffBuf.toArray(new String[precipLidAndDiffBuf.size()]));
+        lastPrecipHour = hour;
+        lastPrecipDuration = duration;
+        setLastUpdate(UpdateType.PRECIP_ACCUMULATION);
+    }
+
+    /**
+     * Retrieve and display the group data.
+     */
+    @Override
+    public void retrieveAndDisplayGroupData(String selectedGroup) {
+
+        if (selectedGroup != null) {
+
+            String groupsDir = AppsDefaults.getInstance().getToken("xdat_groups_dir");
+
+            File file = new File(groupsDir + File.separator + selectedGroup);
+
+            ReadIDsList idsList = new ReadIDsList(file);
+            java.util.List<String[]> idList = idsList.getIDsList();
+
+            StringBuilder strBld = new StringBuilder();
+            for (int i = 0; i < idList.size(); i++) {
+                java.util.List<String[]> results = databaseMgr.getGroupData(idList.get(i), getStartDate(),
+                        getEndDate());
+                if (results == null) {
+                    return;
+                }
+
+                // Format the group data and display the data on the screen.
+                strBld.append(formatGroupData(results));
+                strBld.append("\n\n");
+            }
+            setDisplayText(strBld.toString());
+            lastSelectedGroup = selectedGroup;
+            setLastUpdate(UpdateType.GROUP_DATA);
+        }
+
+    }
+
+    /**
+     * Format the group data.
+     * 
+     * @param results
+     *            Array of data to be formatted for the display.
+     * @return StringBuilder class containing the formatted data.
+     */
+    private StringBuilder formatGroupData(java.util.List<String[]> results) {
+
+        StringBuilder strBld = new StringBuilder();
+
+        boolean dataLine = false;
+
+        String idDesFmt = "\t\t\t %-10S  %S";
+
+        String dataLineFmt = "%-9S  %2S  %4S %2S  %1S   %19S   %12S %6S   %7S";
+
+        String hdr = "  ID       PE  DUR  TS  E       OBSTIME               PRODUCT   VALUE    CHANGE";
+        String dashLine = "-------------------------------------------------------------------------------";
+
+        for (String[] rowData : results) {
+
+            if (rowData.length == 2) {
+
+                if (dataLine) {
+                    dataLine = false;
+                    strBld.append(hdr).append("\n");
+                }
+
+                strBld.append(String.format(idDesFmt, rowData[0], rowData[1])).append("\n\n");
+            } else {
+                if (!dataLine) {
+                    strBld.append(hdr).append("\n");
+                    strBld.append(dashLine).append("\n");
+                }
+
+                dataLine = true;
+
+                strBld.append(String.format(dataLineFmt, rowData[0], rowData[1], rowData[2], rowData[3], rowData[4],
+                        rowData[5], rowData[6], rowData[7], rowData[8])).append("\n");
+            }
+        }
+
+        return strBld;
     }
 
     /**
@@ -1310,7 +2015,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      */
     private void displayPrecipDataDlg() {
 
-        PrecipDataDlg precipDlg = new PrecipDataDlg(shell, this, databaseMgr);
+        PrecipDataDlg precipDlg = new PrecipDataDlg(shell, this);
         precipDlg.open();
     }
 
@@ -1318,7 +2023,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
      * Display the group data dialog.
      */
     private void displayGroupDataDlg() {
-        groupDlg = new GroupDataDlg(shell, databaseMgr, this);
+        groupDlg = new GroupDataDlg(shell, this);
         groupDlg.open();
         groupDlg = null;
     }
@@ -1331,8 +2036,7 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
         final String text = textArea.getText();
 
         if (text.trim().length() == 0) {
-            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING
-                    | SWT.OK);
+            MessageBox mb = new MessageBox(getShell(), SWT.ICON_WARNING | SWT.OK);
             mb.setText("Print Warning");
             mb.setMessage("There is no text to be printed.");
             mb.open();
@@ -1369,4 +2073,5 @@ public class XdatDlg extends CaveSWTDialog implements ITextDisplay {
     public String getSelectedSite() {
         return idTF.getText();
     }
+
 }

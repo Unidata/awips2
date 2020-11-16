@@ -32,7 +32,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -48,6 +47,8 @@ import org.eclipse.swt.widgets.Shell;
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.ProgramArguments;
 import com.raytheon.uf.viz.core.notification.jobs.NotificationManagerJob;
@@ -61,6 +62,7 @@ import com.raytheon.viz.texteditor.dialogs.TextEditorDialog;
 import com.raytheon.viz.texteditor.msgs.ITextEditorCallback;
 import com.raytheon.viz.texteditor.msgs.ITextWorkstationCallback;
 import com.raytheon.viz.texteditor.notify.NotifyExpiration;
+import com.raytheon.viz.texteditor.scripting.runner.TextWsScriptThreadManager;
 import com.raytheon.viz.texteditor.util.RadarTextUtility;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.DialogUtil;
@@ -119,10 +121,11 @@ import com.raytheon.viz.ui.dialogs.DialogUtil;
  *                                        parent
  * Feb 14, 2017  6037        randerso     Ensure dialog does not appear over
  *                                        panels
- * Jun 25, 2017  ----        mjames@ucar  Simple dialog.
  * Jun 29, 2017  6347        randerso     Use -monitor command line parameter,
  *                                        if present, when opening as top level
  *                                        window
+ * Jan 03, 2018  6804        tgurney      Stop all scripts on dispose
+ * Jan 24, 2018  7132        tgurney      Set alarm/alert bell to null on dispose
  *
  * </pre>
  *
@@ -130,6 +133,9 @@ import com.raytheon.viz.ui.dialogs.DialogUtil;
  */
 public class TextWorkstationDlg extends CaveSWTDialog
         implements ITextEditorCallback, INotificationObserver {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
 
     private int INIT_BUTTON_CNT = 4;
 
@@ -153,13 +159,13 @@ public class TextWorkstationDlg extends CaveSWTDialog
 
     private Label localTimeLabel;
 
-    SimpleDateFormat sdfLocal = new SimpleDateFormat("EEE dd MMM yyyy HH:mm z");
+    private final SimpleDateFormat sdfLocal = new SimpleDateFormat(
+            "EEE dd MMM yyyy HH:mm z");
 
-    SimpleDateFormat sdfUTC = new SimpleDateFormat("EEE dd MMM yyyy HH:mm z");
+    private final SimpleDateFormat sdfUTC = new SimpleDateFormat(
+            "EEE dd MMM yyyy HH:mm z");
 
     private Timer timer;
-
-    private TimerTask updateTimeTask;
 
     private Date date;
 
@@ -200,7 +206,8 @@ public class TextWorkstationDlg extends CaveSWTDialog
         NotificationManagerJob.removeQueueObserver(
                 TextWorkstationConstants.getTextWorkstationQueueName(), null,
                 this);
-        AlarmAlertFunctions.closeAlarmAlertBell();
+        AlarmAlertFunctions.destroyAlarmAlertBell();
+        TextWsScriptThreadManager.getInstance().stopAllScripts();
         for (TextEditorDialog teDlg : textEditorArray) {
             if (teDlg != null) {
                 teDlg.disposeDialog();
@@ -233,6 +240,9 @@ public class TextWorkstationDlg extends CaveSWTDialog
                 ? TimeZone.getTimeZone(localTZName) : TimeZone.getDefault());
 
         createMenus();
+        new Label(shell, SWT.NONE)
+                .setText("host: " + TextWorkstationConstants.getHostName());
+        createAwipsLabel();
         createTimeLabels();
         startTimeTimer();
         createAlertAlarm();
@@ -251,7 +261,7 @@ public class TextWorkstationDlg extends CaveSWTDialog
         alarmDlg.openInvisible();
 
         // Create the alarm alert bell
-        AlarmAlertFunctions.getAlarmAlertBell(shell);
+        AlarmAlertFunctions.initAlarmAlertBell(shell);
     }
 
     @Override
@@ -391,6 +401,19 @@ public class TextWorkstationDlg extends CaveSWTDialog
         });
     }
 
+    private void createAwipsLabel() {
+        GridData gd = new GridData(300, 20);
+        Label awipsBlankLabel = new Label(shell, SWT.NONE);
+        awipsBlankLabel.setFont(fontAwipsLabel);
+        awipsBlankLabel.setText(" ");
+        awipsBlankLabel.setLayoutData(gd);
+        gd = new GridData(300, 80);
+        Label awipsLabel = new Label(shell, SWT.NONE);
+        awipsLabel.setFont(fontAwipsLabel);
+        awipsLabel.setText("   AWIPS  II");
+        awipsLabel.setLayoutData(gd);
+    }
+
     private void createTimeLabels() {
         GridData gd = null;
 
@@ -513,7 +536,7 @@ public class TextWorkstationDlg extends CaveSWTDialog
     private void startTimeTimer() {
         timer = new Timer();
 
-        updateTimeTask = new TimerTask() {
+        TimerTask updateTimeTask = new TimerTask() {
             @Override
             public void run() {
                 getDisplay().syncExec(new Runnable() {
@@ -525,7 +548,7 @@ public class TextWorkstationDlg extends CaveSWTDialog
             }
         };
 
-        timer.schedule(updateTimeTask, 200, 20000);
+        timer.schedule(updateTimeTask, 200, 20_000);
     }
 
     private void updateTimeLabels() {
@@ -601,7 +624,8 @@ public class TextWorkstationDlg extends CaveSWTDialog
                 // TODO: Open up a text editor dialog and have it retrieve and
                 // parse the warning based on the afosId
             } catch (NotificationException e) {
-                e.printStackTrace();
+                statusHandler
+                        .warn("Error in received text product notification", e);
             }
         }
     }

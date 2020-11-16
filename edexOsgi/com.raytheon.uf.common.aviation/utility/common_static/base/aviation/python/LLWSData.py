@@ -57,6 +57,7 @@
 #* ------------ ----------  ----------- --------------------------
 #*                                      Initial creation.
 #* Mar 25, 2013 1735        rferrel     Retrieve only the last 24 hours of acars records.
+#* Feb 21, 2018 5697        mapeters    Fix errors from removing profiler plugins
 ##  
 
 ##
@@ -105,19 +106,11 @@ def retrieve(siteID, info):
     secondsPerDay = day.total_seconds()
     msPerSecond = 1000.0
     th = LLWSThread.Server(info)
-    t = 0
     d = {}
     try :
         th.processMetarData(siteID)
     except NoDataException.NoDataException:
         raise NoDataException.NoDataException("No METAR data available for site %s" % siteID)
-    profilerIds = th.processProfilerData(siteID)
-    for profilerId in profilerIds:
-        try :
-            shear = th.genShear(siteID, profilerId)
-            d[profilerId] = shear
-        except LLWSThread.InValid:
-            pass
     
     # This gets all acarsRec in the database since 0 retrieves from the epoch.
     # This may be ok if database is purged frequently.

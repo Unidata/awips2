@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -60,13 +60,13 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
 
 /**
  * The weather element browser dialog.
- * 
- * 
+ *
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * 02/20/2008  	           Eric Babin  Initial Creation
+ * 02/20/2008              Eric Babin  Initial Creation
  * 06/27/2008              ebabin      Updated to properly add fields.
  * 04/30/2009   2282       rjpeter     Refactored.
  * 08/19/2009   2547       rjpeter     Fix Test/Prac database display.
@@ -77,10 +77,11 @@ import com.raytheon.viz.ui.widgets.ToggleSelectList;
  * 10/30/2012   1298       rferrel     Code clean up non-blocking dialog.
  *                                      Changes for non-blocking WeatherElementGroupDialog.
  * 03/07/2016   5444       randerso    Fix hard coded sizes of GUI elements
+ * 02/16/2018   6849       dgilling    Ensure items in Sources and Fields menus
+ *                                     are properly enabled and disabled.
  * </pre>
- * 
+ *
  * @author ebabin
- * @version 1.0
  */
 
 public class WeatherElementBrowserDialog extends CaveJFACEDialog {
@@ -89,6 +90,8 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     private static final int NUM_SEL_ITEMS = 20;
 
     private static final int NUM_CHARS = 20;
+
+    private static final String IFP = "IFP";
 
     private DataManager dataManager;
 
@@ -101,15 +104,15 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     private WEBrowserTypeRecord selectedType;
 
-    private final java.util.List<WEBrowserTypeRecord> typeEntries = new ArrayList<WEBrowserTypeRecord>();
+    private final java.util.List<WEBrowserTypeRecord> typeEntries = new ArrayList<>();
 
-    private final java.util.List<String> previousSources = new ArrayList<String>();
+    private final java.util.List<String> previousSources = new ArrayList<>();
 
-    private final java.util.List<String> previousFields = new ArrayList<String>();
+    private final java.util.List<String> previousFields = new ArrayList<>();
 
-    private final java.util.List<String> previousPlanes = new ArrayList<String>();
+    private final java.util.List<String> previousPlanes = new ArrayList<>();
 
-    private HashMap<String, ParmID> productIDs = new HashMap<String, ParmID>();
+    private HashMap<String, ParmID> productIDs = new HashMap<>();
 
     private ToolBar sourceToolBar, fieldsToolBar, planesToolBar;
 
@@ -120,13 +123,11 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     private ParmID[] currentDisplayedParms;
 
-    private final String IFP = "IFP";
-
     private int charWidth;
 
     /**
      * Constructor
-     * 
+     *
      * @param parent
      * @param dataManager
      */
@@ -167,13 +168,6 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         super.cancelPressed();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.window.Window#configureShell(org.eclipse.swt.widgets
-     * .Shell)
-     */
     @Override
     protected void configureShell(Shell shell) {
         super.configureShell(shell);
@@ -550,6 +544,8 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
                 });
             }
         }
+
+        processSourceSelection();
     }
 
     private void processSourceSelection() {
@@ -557,19 +553,19 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
                 .asList(sourceList.getSelection());
 
         // process anything newly selected
-        java.util.List<String> newSelectedSources = new ArrayList<String>(
+        java.util.List<String> newSelectedSources = new ArrayList<>(
                 currentSourceSelection);
         newSelectedSources.removeAll(previousSources);
         previousSources.removeAll(currentSourceSelection);
 
-        if (newSelectedSources.size() > 0) {
+        if (!newSelectedSources.isEmpty()) {
             String[] sourceArray = new String[newSelectedSources.size()];
             newSelectedSources.toArray(sourceArray);
             updateProductList(sourceArray, fieldsList.getSelection(),
                     planesList.getSelection(), true);
         }
 
-        if (previousSources.size() > 0) {
+        if (!previousSources.isEmpty()) {
             String[] sourceArray = new String[previousSources.size()];
             previousSources.toArray(sourceArray);
             updateProductList(sourceArray, fieldsList.getSelection(),
@@ -578,77 +574,70 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
         updateFieldsMenu();
 
-        if ((newSelectedSources.size() > 0) || (previousSources.size() > 0)) {
+        if ((!newSelectedSources.isEmpty()) || (!previousSources.isEmpty())) {
             previousSources.clear();
             previousSources.addAll(currentSourceSelection);
-            updateEnabledMenuItems(sourceMenu, sourceList);
+
         }
+
+        updateEnabledMenuItems(sourceMenu, sourceList);
     }
 
     /**
      * Add sources to the field menu.
-     * 
+     *
      * @param sourceList
      */
     private void updateFieldsMenu() {
-        Set<String> previousFields = getMenuStringSet(fieldsMenu);
-        SortedSet<String> sortedNewFields = new TreeSet<String>();
-        Map<String, ParmID[]> fieldMap = selectedType.getFieldMap();
+        Set<String> fieldsToDelete = getMenuStringSet(fieldsMenu);
 
-        // generate new menu
+        resetMenu(fieldsMenu);
+        SortedSet<String> sortedFields = new TreeSet<>();
+        Map<String, ParmID[]> fieldMap = selectedType.getFieldMap();
         for (String source : sourceList.getSelection()) {
             if (fieldMap.containsKey(source)) {
                 for (ParmID p : fieldMap.get(source)) {
                     String parmName = p.getParmName();
-                    if (!sortedNewFields.contains(parmName)) {
-                        sortedNewFields.add(parmName);
-                    }
+                    sortedFields.add(parmName);
                 }
             }
+        }
+
+        for (String field : sortedFields) {
+            final MenuItem item = new MenuItem(fieldsMenu, SWT.PUSH);
+            item.setText(field);
+            item.addSelectionListener(new SelectionAdapter() {
+                @Override
+                public void widgetSelected(SelectionEvent e) {
+                    addToList(item.getText(), fieldsList);
+                    processFieldSelection();
+                }
+            });
         }
 
         // generate delete list
-        Set<String> deletedFields = new HashSet<String>(previousFields);
-        deletedFields.removeAll(sortedNewFields);
-
-        // if any deleted or new menus added, recreate menu
-        if ((deletedFields.size() > 0)
-                || (previousFields.size() != sortedNewFields.size())) {
-            resetMenu(fieldsMenu);
-            for (String s : sortedNewFields) {
-                final MenuItem item = new MenuItem(fieldsMenu, SWT.PUSH);
-                item.setText(s);
-                item.addSelectionListener(new SelectionAdapter() {
-                    @Override
-                    public void widgetSelected(SelectionEvent e) {
-                        addToList(item.getText(), fieldsList);
-                        processFieldSelection();
-                    }
-                });
+        fieldsToDelete.removeAll(sortedFields);
+        // remove the delete items from the fields list
+        for (String dField : fieldsToDelete) {
+            int idxToRemove = fieldsList.indexOf(dField);
+            if (idxToRemove >= 0) {
+                fieldsList.remove(idxToRemove);
             }
-
-            // remove the delete items from the fields list
-            for (String dField : deletedFields) {
-                if (fieldsList.indexOf(dField) >= 0) {
-                    fieldsList.remove(dField);
-                }
-            }
-
-            // process the removals and cascade
-            processFieldSelection();
         }
+
+        processFieldSelection();
     }
 
     private void processFieldSelection() {
         java.util.List<String> currentFieldSelection = java.util.Arrays
                 .asList(fieldsList.getSelection());
 
-        java.util.List<String> newSelectedFields = new ArrayList<String>(
+        java.util.List<String> newSelectedFields = new ArrayList<>(
                 currentFieldSelection);
         newSelectedFields.removeAll(previousFields);
         previousFields.removeAll(currentFieldSelection);
 
-        if (newSelectedFields.size() > 0) {
+        if (!newSelectedFields.isEmpty()) {
             String[] fieldsArray = new String[newSelectedFields.size()];
             newSelectedFields.toArray(fieldsArray);
             updateProductList(sourceList.getSelection(), fieldsArray,
@@ -656,7 +645,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         }
 
         // process anything no longer selected
-        if (previousFields.size() > 0) {
+        if (!previousFields.isEmpty()) {
             String[] fieldsArray = new String[previousFields.size()];
             previousFields.toArray(fieldsArray);
             updateProductList(sourceList.getSelection(), fieldsArray,
@@ -666,16 +655,17 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         updatePresMenu(newSelectedFields, previousFields);
         updateMiscMenu(newSelectedFields, previousFields);
 
-        if ((newSelectedFields.size() > 0) || (previousFields.size() > 0)) {
+        if ((!newSelectedFields.isEmpty()) || (!previousFields.isEmpty())) {
             previousFields.clear();
             previousFields.addAll(currentFieldSelection);
-            updateEnabledMenuItems(fieldsMenu, fieldsList);
         }
+
+        updateEnabledMenuItems(fieldsMenu, fieldsList);
     }
 
     /**
      * Update the pressure list
-     * 
+     *
      * @param fields
      *            the Selected field
      * @param addFlag
@@ -685,7 +675,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     private void updatePresMenu(java.util.List<String> fieldsToAdd,
             java.util.List<String> fieldsToRemove) {
         Set<String> previousPres = getMenuStringSet(presMenu);
-        SortedSet<String> sortedNewPres = new TreeSet<String>(
+        SortedSet<String> sortedNewPres = new TreeSet<>(
                 new PressureComparator());
         Map<String, List<String>> pressureMap = selectedType
                 .getPressureMap(sourceList.getSelection());
@@ -702,11 +692,11 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         }
 
         // generate delete list
-        Set<String> deletedPres = new HashSet<String>(previousPres);
+        Set<String> deletedPres = new HashSet<>(previousPres);
         deletedPres.removeAll(sortedNewPres);
 
         // if any deleted or new menus added, recreate menu
-        if ((deletedPres.size() > 0)
+        if ((!deletedPres.isEmpty())
                 || (previousPres.size() != sortedNewPres.size())) {
             resetMenu(presMenu);
             for (String s : sortedNewPres) {
@@ -735,7 +725,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     /**
      * Update the misc list
-     * 
+     *
      * @param fields
      *            the Selected field
      * @param addFlag
@@ -745,7 +735,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     private void updateMiscMenu(java.util.List<String> fieldsToAdd,
             java.util.List<String> fieldsToRemove) {
         Set<String> previousPres = getMenuStringSet(miscMenu);
-        SortedSet<String> sortedNewPres = new TreeSet<String>();
+        SortedSet<String> sortedNewPres = new TreeSet<>();
         Map<String, List<String>> pressureMap = selectedType
                 .getMiscMap(sourceList.getSelection());
 
@@ -761,11 +751,11 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         }
 
         // generate delete list
-        Set<String> deletedPres = new HashSet<String>(previousPres);
+        Set<String> deletedPres = new HashSet<>(previousPres);
         deletedPres.removeAll(sortedNewPres);
 
         // if any deleted or new menus added, recreate menu
-        if ((deletedPres.size() > 0)
+        if ((!deletedPres.isEmpty())
                 || (previousPres.size() != sortedNewPres.size())) {
             resetMenu(miscMenu);
             for (String s : sortedNewPres) {
@@ -797,11 +787,11 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
                 .asList(planesList.getSelection());
 
         // process anything no longer selected
-        java.util.List<String> newSelectedPlanes = new ArrayList<String>(
+        java.util.List<String> newSelectedPlanes = new ArrayList<>(
                 currentPlaneSelection);
         newSelectedPlanes.removeAll(previousPlanes);
 
-        if (newSelectedPlanes.size() > 0) {
+        if (!newSelectedPlanes.isEmpty()) {
             String[] planesArray = new String[newSelectedPlanes.size()];
             newSelectedPlanes.toArray(planesArray);
             updateProductList(sourceList.getSelection(),
@@ -810,14 +800,14 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
         // process anything no longer selected
         previousPlanes.removeAll(currentPlaneSelection);
-        if (previousPlanes.size() > 0) {
+        if (!previousPlanes.isEmpty()) {
             String[] planesArray = new String[previousPlanes.size()];
             previousPlanes.toArray(planesArray);
             updateProductList(sourceList.getSelection(),
                     fieldsList.getSelection(), planesArray, false);
         }
 
-        if ((newSelectedPlanes.size() > 0) || (previousPlanes.size() > 0)) {
+        if ((!newSelectedPlanes.isEmpty()) || (!previousPlanes.isEmpty())) {
             previousPlanes.clear();
             previousPlanes.addAll(currentPlaneSelection);
             updateEnabledMenuItems(presMenu, planesList);
@@ -981,7 +971,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     }
 
     private Set<String> getMenuStringSet(Menu menu) {
-        Set<String> menuStringList = new HashSet<String>();
+        Set<String> menuStringList = new HashSet<>();
 
         for (MenuItem menuItem : menu.getItems()) {
             menuStringList.add(menuItem.getText());
@@ -992,7 +982,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     /**
      * Method for disabling/enabling menu items depending if they are already
      * selecting in the past in list.
-     * 
+     *
      * @param menu
      * @param list
      */
@@ -1009,7 +999,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     /**
      * Convenience method for checking a list for a specific item.
-     * 
+     *
      * @param list
      * @param item
      * @return boolean of If item is in passed in list.
@@ -1042,7 +1032,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     /**
      * Uses the passed in parms, to select the various lists, and items.
-     * 
+     *
      * @param parms
      */
     private void setUpSelections(ParmID[] selections) {
@@ -1060,7 +1050,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     /**
      * Load the WE Group
-     * 
+     *
      * @param name
      *            Group name to load
      */
@@ -1074,15 +1064,15 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     /**
      * Gets the list of available parms.
-     * 
+     *
      * @return a ParmID[] array.
      */
     private ParmID[] getAvailableParms() {
         if (availableParmIds == null) {
-            ArrayList<ParmID> parms = new ArrayList<ParmID>();
+            List<ParmID> parms = new ArrayList<>();
             for (DatabaseID database : getDatabases()) {
                 // ignore TOPO database type...
-                if (!database.getDbType().equalsIgnoreCase("Topo")) {
+                if (!"Topo".equalsIgnoreCase(database.getDbType())) {
                     ParmID[] dbParms = dataManager.getParmManager()
                             .getAvailableParms(database);
                     for (int i = 0; i < dbParms.length; i++) {
@@ -1104,7 +1094,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
             String[] planes, boolean addFlag) {
         if ((sources.length != 0) && (fields.length != 0)
                 && (planes.length != 0)) {
-            ArrayList<ParmID> filteredParmIDs = selectedType
+            List<ParmID> filteredParmIDs = selectedType
                     .getFilteredParmIDs(sources, fields, planes);
 
             for (ParmID parmID : filteredParmIDs) {
@@ -1125,7 +1115,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     /**
      * Method for adding an item to a list. Doesn't add item if already in list.
-     * 
+     *
      * @param itemToAdd
      * @param list
      */
@@ -1139,7 +1129,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
     /**
      * Method for removing an item from a list.
-     * 
+     *
      * @param itemToRemove
      * @param list
      */
@@ -1186,12 +1176,12 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     }
 
     /**
-     * 
+     *
      * Calls the database and gets the list of types.
      */
     private void loadTypesAndSites() {
-        ArrayList<String> typeList = new ArrayList<String>();
-        ArrayList<String> siteList = new ArrayList<String>();
+        List<String> typeList = new ArrayList<>();
+        List<String> siteList = new ArrayList<>();
 
         DatabaseID mutableID = dataManager.getParmManager()
                 .getMutableDatabase();
@@ -1199,7 +1189,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
         siteList.add(mutableID.getSiteId());
         final CAVEMode mode = CAVEMode.getMode();
 
-        if (mutableID.getDbType().equalsIgnoreCase("")) {
+        if (mutableID.getDbType().isEmpty()) {
             typeEntries.add(new WEBrowserTypeRecord(IFP, mode, dataManager
                     .getParmManager()));
         } else {
@@ -1218,7 +1208,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
 
             if (!typeList.contains(databaseType)) {
                 typeList.add(databaseType);
-                if (databaseType.equalsIgnoreCase("")) {
+                if (databaseType.isEmpty()) {
                     databaseType = IFP;
                 }
 
@@ -1249,7 +1239,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
     }
 
     private ParmID[] getSelectedParmIDS() {
-        ArrayList<ParmID> selectedParms = new ArrayList<ParmID>();
+        List<ParmID> selectedParms = new ArrayList<>();
         if (productSelectionList.getSelectionCount() > 0) {
             for (String key : productSelectionList.getSelection()) {
                 if (productIDs.containsKey(key)) {
@@ -1257,9 +1247,7 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
                 }
             }
         }
-        ParmID ids[] = new ParmID[selectedParms.size()];
-        selectedParms.toArray(ids);
-        return ids;
+        return selectedParms.toArray(new ParmID[0]);
     }
 
     /**
@@ -1267,20 +1255,17 @@ public class WeatherElementBrowserDialog extends CaveJFACEDialog {
      * pressure values in the form MBnnn or MBnnnn, where nnn or nnnn represents
      * a 3 or 4 digit number. These strings will be in numerical order so that
      * MB100 is "less than" MB1000.
-     * 
+     *
      */
     private class PressureComparator implements Comparator<String> {
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
-         */
         @Override
         public int compare(String s1, String s2) {
-            // we expect pressure strings to read MBnnnn (e.g., MB100 or
-            // MB1000), thus we'll strip the first two letters of the strings
-            // passed to us
+            /*
+             * we expect pressure strings to read MBnnnn (e.g., MB100 or
+             * MB1000), thus we'll strip the first two letters of the strings
+             * passed to us
+             */
             Integer pressure1 = Integer.parseInt(s1.substring(2));
             Integer pressure2 = Integer.parseInt(s2.substring(2));
 

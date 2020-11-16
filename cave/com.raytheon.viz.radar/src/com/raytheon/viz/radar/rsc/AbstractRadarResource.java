@@ -20,7 +20,6 @@
 package com.raytheon.viz.radar.rsc;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -107,6 +106,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Nov 03, 2015  4857     bsteffen   Set volume scan interval in time matcher
  * May 19, 2016  3253     bsteffen   Refactor of extra text.
  * Sep 13, 2016  3239     nabowle    Implement Interrogatable.
+ * Nov 28, 2017  5863     bsteffen   Change dataTimes to a NavigableSet
  *
  * </pre>
  *
@@ -194,17 +194,12 @@ public class AbstractRadarResource<D extends IDescriptor>
         this.interrogator = interrogator;
     }
 
-    /**
-     * @param resourceData
-     * @param loadProperties
-     */
     protected AbstractRadarResource(RadarResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         getCapability(ColorableCapability.class);
         resourceData.addChangeListener(this);
 
-        dataTimes = new ArrayList<>();
         radarRecords = Collections
                 .synchronizedMap(new HashMap<DataTime, VizRadarRecord>());
         icao = "";
@@ -222,9 +217,6 @@ public class AbstractRadarResource<D extends IDescriptor>
         upperTextMap.clear();
     }
 
-    /**
-     * @param record
-     */
     public void addRecord(PluginDataObject record) {
         if (!(record instanceof RadarRecord)) {
             statusHandler.handle(Priority.PROBLEM,
@@ -284,7 +276,6 @@ public class AbstractRadarResource<D extends IDescriptor>
             radarRecords.put(d, existing);
             synchronized (dataTimes) {
                 dataTimes.add(d);
-                Collections.sort(dataTimes);
             }
         }
     }
@@ -316,7 +307,7 @@ public class AbstractRadarResource<D extends IDescriptor>
     @Override
     public String inspect(ReferencedCoordinate latLon) throws VizException {
         InterrogateMap dataMap;
-        if (resourceData.mode.equals("CZ-Pg")) {
+        if ("CZ-Pg".equals(resourceData.mode)) {
             return null;
         }
         // Grab current time
@@ -538,12 +529,6 @@ public class AbstractRadarResource<D extends IDescriptor>
         return String.format(format, value, unitString);
     }
 
-    /**
-     * @param keys
-     * @param dataMap
-     * @param keysToSkip
-     * @return
-     */
     protected boolean containsNonNullKey(InterrogationKey<?> key,
             Set<InterrogationKey<?>> keys, InterrogateMap dataMap,
             Set<InterrogationKey<?>> keysToSkip) {
@@ -634,7 +619,7 @@ public class AbstractRadarResource<D extends IDescriptor>
             return null;
         }
         String[] result = upperTextMap.get(time);
-        if (result == null && upperTextMap.containsKey(time) == false) {
+        if (result == null && !upperTextMap.containsKey(time)) {
             if (record.getStoredDataAsync() == null) {
                 return null;
             }

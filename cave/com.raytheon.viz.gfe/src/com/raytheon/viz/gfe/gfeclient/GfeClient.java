@@ -77,6 +77,7 @@ import jep.NamingConventionClassEnquirer;
  * Apr 28, 2016  5236     njensen   Use Jep redirectOutput for python prints
  * Jan 24, 2017  6092     randerso  Change to use PythonEval in place of
  *                                  directly using Jep. Code cleanup.
+ * Feb 20, 2018  6602     dgilling  Update for new text utilities path.
  *
  * </pre>
  *
@@ -85,7 +86,7 @@ import jep.NamingConventionClassEnquirer;
 
 public class GfeClient extends AbstractAWIPSComponent {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GfeClient.class);
 
     private static final Collection<String> IGNORED_PARAMETERS = new HashSet<>(
@@ -144,7 +145,6 @@ public class GfeClient extends AbstractAWIPSComponent {
                 GfePyIncludeUtil.getUtilitiesIncludePath(includeUser),
                 GfePyIncludeUtil.getIToolIncludePath(),
                 GfePyIncludeUtil.getVtecIncludePath(),
-                GfePyIncludeUtil.getHeadlineIncludePath(),
                 GfeCavePyIncludeUtil.getAutotestIncludePath(),
                 GfePyIncludeUtil.getTextUtilitiesIncludePath(includeUser),
                 GfePyIncludeUtil.getTextProductsIncludePath(includeUser),

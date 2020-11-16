@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Event;
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.geotools.referencing.operation.DefaultMathTransformFactory;
 import org.opengis.referencing.datum.PixelInCell;
@@ -58,30 +59,34 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Implements the base edit tool architecture.
- * 
+ *
  * This class should be subclassed by those who want to implement GFE edit
  * tools. It provides a method to hook into user interactions (handleEvent) and
  * a mechanism to provide rendering capabilities. Users can subclass IRenderable
  * and return that renderable as part of the renderable list in this class.
  * These renderables will be contributed to the screen through the GFE System
  * Resource which will render them.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 04/20/2008              chammack    Initial Creation.
- * 04/16/2009   2262       rjpeter     Updated to handle mouse movement off the extent.
- * Aug 18, 2015 4749       njensen     Set dataManager to null in deactivateTool()
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 20, 2008           chammack  Initial Creation.
+ * Apr 16, 2009  2262     rjpeter   Updated to handle mouse movement off the
+ *                                  extent.
+ * Aug 18, 2015  4749     njensen   Set dataManager to null in deactivateTool()
+ * Jan 29, 2018  7153     randerso  Code cleanup
+ *
+ * Aug 13, 2018  19646    smoorthy  added mouse handler events with shift key checks
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 
-public abstract class AbstractGFEEditTool extends AbstractModalTool implements
-        IContextMenuContributor {
+public abstract class AbstractGFEEditTool extends AbstractModalTool
+        implements IContextMenuContributor {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractGFEEditTool.class);
 
@@ -101,7 +106,7 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
 
     /**
      * Handle a mouse event
-     * 
+     *
      * @param button
      *            the mouse button used
      * @param type
@@ -124,33 +129,33 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
 
     /**
      * Constructor
-     * 
+     *
      */
     protected AbstractGFEEditTool() {
         super();
         handler = new DelegateAction();
         freeformRenderable = new FreeformRenderable();
-        renderables = new ArrayList<IRenderable>();
-        persistentRenderables = new ArrayList<IRenderable>();
+        renderables = new ArrayList<>();
+        persistentRenderables = new ArrayList<>();
         renderables.add(freeformRenderable);
     }
 
     /**
      * Returns the grid geometry, if available
-     * 
+     *
      * @return the grid geometry, or null if not available
      */
     private GeneralGridGeometry getGridGeometry() {
-        return MapUtil.getGridGeometry(dataManager.getParmManager()
-                .compositeGridLocation());
+        return MapUtil.getGridGeometry(
+                dataManager.getParmManager().compositeGridLocation());
     }
 
     /**
      * Indicates whether the operation is allowed
-     * 
+     *
      * If this method returns null, the operation is valid, otherwise it returns
      * a string indicating why the operation is not allowed.
-     * 
+     *
      * @return a string indicating why the operation is not allowed, otherwise
      *         null.
      */
@@ -161,16 +166,16 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
 
     protected boolean isValidEditOp(EditOp editOp) {
         IGridData grid = getGrid();
-        return (grid != null) && grid.isSupportedEditOp(editOp);
+        return grid != null && grid.isSupportedEditOp(editOp);
     }
 
     protected boolean isEditStateOK(boolean sendUserMessage) {
         String errmsg = isOperationAllowed();
-        if (errmsg == null) {
+        if (errmsg == null || errmsg.isEmpty()) {
             return true;
         }
 
-        if (sendUserMessage && (errmsg != "")) {
+        if (sendUserMessage) {
             statusHandler.handle(Priority.SIGNIFICANT,
                     "Editing is currently not allowed.  Reason: " + errmsg);
 
@@ -180,34 +185,35 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
 
     }
 
-    protected void processDrawEvent(EventType type, Coordinate[] coords) {
+    protected void processDrawEvent(EventType type, Coordinate coord) {
         switch (type) {
         case START_DRAG:
             freeformRenderable.clear();
-            freeformRenderable.addAll(coords);
+            freeformRenderable.add(coord);
             break;
         case IN_DRAG:
-            freeformRenderable.addAll(coords);
+            freeformRenderable.add(coord);
             break;
         case END_DRAG:
             freeformRenderable.clear();
+            break;
+
+        default:
             break;
         }
     }
 
     /**
-     * Return the type of tool represented by this class
-     * 
-     * @return
+     * @return the type of tool represented by this class
      */
     protected abstract ToolType getToolType();
 
     /**
      * Return the list of renderables that is contributed to the display
-     * 
+     *
      * These renderables are only visible when the tool is activated.
-     * 
-     * @return
+     *
+     * @return the renderables
      */
     public IRenderable[] getRenderables() {
         return renderables.toArray(new IRenderable[renderables.size()]);
@@ -216,11 +222,11 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
     /**
      * Return the list of persistent renderables that is contributed to the
      * display
-     * 
+     *
      * These renderables are visible at all times (not just when the tool is
      * activated)
-     * 
-     * @return
+     *
+     * @return the persistent renderables
      */
     public IRenderable[] getPersistentRenderables() {
         return persistentRenderables
@@ -228,28 +234,25 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
     }
 
     /**
-     * Return the math transform
-     * 
-     * @return
+     * @return the math transform from Lon/Lat to grid coordinate
      */
     protected MathTransform getTransform() {
         GeneralGridGeometry gridGeometry = getGridGeometry();
-        if ((gridGeometry != null) && !gridGeometry.equals(lastGridGeometry)) {
+        if (gridGeometry != null && !gridGeometry.equals(lastGridGeometry)) {
             DefaultMathTransformFactory dmtf = new DefaultMathTransformFactory();
             try {
-                MathTransform mathTransform = gridGeometry.getGridToCRS(
-                        PixelInCell.CELL_CENTER).inverse();
+                MathTransform mathTransform = gridGeometry
+                        .getGridToCRS(PixelInCell.CELL_CENTER).inverse();
                 MathTransform fromLatLon = CRSCache.getInstance()
                         .getTransformFromLatLon(
                                 gridGeometry.getCoordinateReferenceSystem());
-                this.mathTransform = dmtf.createConcatenatedTransform(
-                        fromLatLon, mathTransform);
+                this.mathTransform = dmtf
+                        .createConcatenatedTransform(fromLatLon, mathTransform);
                 lastGridGeometry = gridGeometry;
             } catch (Exception e) {
-                statusHandler
-                        .handle(Priority.PROBLEM,
-                                "The mathtransform could not be computed for the editTool",
-                                e);
+                statusHandler.handle(Priority.PROBLEM,
+                        "The math transform could not be computed for the editTool",
+                        e);
                 return null;
             }
         }
@@ -302,13 +305,16 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
         editor.registerMouseHandler(handler);
         dataManager = DataManagerUIFactory.getCurrentInstance();
 
-        try {
-            dataManager.getSpatialDisplayManager().addEditTool(this);
-        } catch (VizException e) {
-            statusHandler.handle(Priority.PROBLEM, "Error activating gfe tool",
-                    e);
+        if (dataManager != null) {
+            try {
+                dataManager.getSpatialDisplayManager().addEditTool(this);
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error activating gfe tool: "
+                                + getClass().getSimpleName(),
+                        e);
+            }
         }
-
     }
 
     protected boolean startParmEdit() {
@@ -359,24 +365,7 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
 
         private boolean inDrag = false;
 
-        /** Shift flag, do not process events if shift is held */
-        private boolean shiftDown = false;
-
-        @Override
-        public boolean handleKeyDown(int keyCode) {
-            if ((keyCode & SWT.SHIFT) != 0) {
-                shiftDown = true;
-            }
-            return false;
-        }
-
-        @Override
-        public boolean handleKeyUp(int keyCode) {
-            if ((keyCode & SWT.SHIFT) != 0) {
-                shiftDown = false;
-            }
-            return false;
-        }
+      
 
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
@@ -387,17 +376,13 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
                 return false;
             }
 
-            if (shiftDown) {
-                return false;
-            }
-
             if (!isEditStateOK(true)) {
                 return true;
             }
 
             Coordinate coord = getCoordinate(x, y);
             Point point = transform(coord);
-            if ((point == null) && (getToolType() == ToolType.PARM_BASED)) {
+            if (point == null && getToolType() == ToolType.PARM_BASED) {
                 return true;
             }
 
@@ -405,20 +390,29 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
             mouseDownCoordinate = coord;
             return true;
         }
+        
+
+        @Override
+        public boolean handleMouseDown(Event event){
+            
+            //shift key is pressed, do nothing
+            if ((event.stateMask & SWT.SHIFT) != 0){
+                return false;    
+            }
+            
+            return handleMouseDown(event.x, event.y, event.button);
+        }
 
         @Override
         public boolean handleMouseDownMove(int x, int y, int mouseButton) {
-            if (shiftDown && !inDrag) {
-                return false;
-            }
-
+          
             if (!isEditStateOK(true)) {
                 return true;
             }
 
             Coordinate coord = getCoordinate(x, y);
             Point point = transform(coord);
-            if ((point == null) && (getToolType() == ToolType.PARM_BASED)) {
+            if (point == null && getToolType() == ToolType.PARM_BASED) {
                 return true;
             }
 
@@ -441,17 +435,43 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
 
             return true;
         }
+        
+        @Override
+        public boolean handleMouseDownMove(Event event){
+            
+            
+            //just return if shift is held and not currently dragging
+
+            if ((event.stateMask & SWT.SHIFT) != 0 && !inDrag){
+                return false;
+            }
+            
+            
+            int button = 0;
+            if ((event.stateMask & SWT.BUTTON1) != 0) {
+                button = 1;
+            } else if ((event.stateMask & SWT.BUTTON2) != 0) {
+                button = 2;
+            } else if ((event.stateMask & SWT.BUTTON3) != 0) {
+                button = 3;
+            } else if ((event.stateMask & SWT.BUTTON4) != 0) {
+                button = 4;
+            } else if ((event.stateMask & SWT.BUTTON5) != 0) {
+                button = 5;
+            }
+            return handleMouseDownMove(event.x, event.y, button);
+        }
+        
+        
 
         @Override
         public boolean handleMouseUp(int x, int y, int mouseButton) {
-            if (shiftDown && !inDrag) {
-                return false;
-            }
+
             Coordinate coord = getCoordinate(x, y);
             Point point = transform(coord);
 
             if (!inDrag) {
-                if ((point == null) && (getToolType() == ToolType.PARM_BASED)) {
+                if (point == null && getToolType() == ToolType.PARM_BASED) {
                     return false;
                 }
 
@@ -465,6 +485,19 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
 
             return true;
         }
+        
+        @Override
+        public boolean handleMouseUp(Event event) {
+            
+          //just return if shift is held and not currently dragging
+            if ((event.stateMask & SWT.SHIFT) != 0 && !inDrag){
+                return false;
+            }
+            
+            return handleMouseUp(event.x, event.y, event.button);
+        }
+        
+        
 
         private Coordinate getCoordinate(int x, int y) {
             IDisplayPaneContainer container = EditorUtil
@@ -491,6 +524,7 @@ public abstract class AbstractGFEEditTool extends AbstractModalTool implements
                     mt.transform(new double[] { coord.x, coord.y }, 0, out, 0,
                             1);
                 } catch (TransformException e) {
+                    // point can't be transformed, just ignore it
                     return null;
                 }
                 return new Point((int) Math.round(out[0]),

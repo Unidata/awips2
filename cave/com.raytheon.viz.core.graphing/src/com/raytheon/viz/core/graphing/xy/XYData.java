@@ -28,6 +28,7 @@ package com.raytheon.viz.core.graphing.xy;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 17, 2007            njensen     Initial creation
+ * Feb 08, 2018 6825       njensen     Added toString()
  * 
  * </pre>
  * 
@@ -35,43 +36,48 @@ package com.raytheon.viz.core.graphing.xy;
  */
 public class XYData {
 
-	private Object x;
+    private Object x;
 
-	private Object y;
+    private Object y;
 
-	public XYData(Object aX, Object aY) {
-		x = aX;
-		y = aY;
-	}
+    public XYData(Object aX, Object aY) {
+        x = aX;
+        y = aY;
+    }
 
-	/**
-	 * @return the x
-	 */
-	public Object getX() {
-		return x;
-	}
+    /**
+     * @return the x
+     */
+    public Object getX() {
+        return x;
+    }
 
-	/**
-	 * @param x
-	 *            the x to set
-	 */
-	public void setX(Object x) {
-		this.x = x;
-	}
+    /**
+     * @param x
+     *            the x to set
+     */
+    public void setX(Object x) {
+        this.x = x;
+    }
 
-	/**
-	 * @return the y
-	 */
-	public Object getY() {
-		return y;
-	}
+    /**
+     * @return the y
+     */
+    public Object getY() {
+        return y;
+    }
 
-	/**
-	 * @param y
-	 *            the y to set
-	 */
-	public void setY(Object y) {
-		this.y = y;
-	}
+    /**
+     * @param y
+     *            the y to set
+     */
+    public void setY(Object y) {
+        this.y = y;
+    }
+
+    @Override
+    public String toString() {
+        return "XYData [x=" + x + ", y=" + y + "]";
+    }
 
 }

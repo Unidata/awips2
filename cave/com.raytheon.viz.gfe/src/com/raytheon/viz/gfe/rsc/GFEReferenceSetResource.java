@@ -1,25 +1,25 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.gfe.rsc;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 
@@ -55,25 +55,28 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 
 /**
  * Resource used to render the GFE edit area (reference set)
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Mar 27, 2008		#1053	randerso	Initial creation
- * 02/14/2013       #1506   mnash       Use the new Python concurrency for QueryScript
- * 02/26/2013       #1708   randerso    Changed to not evaluate the ref set
- * 02/19/2014       #2819   randerso    Removed unnecessary .clone() call
- * 09/14/2016       #3241   bsteffen    Update deprecated JTSCompiler method calls
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 27, 2008  1053     randerso  Initial creation
+ * Feb 14, 2013  1506     mnash     Use the new Python concurrency for
+ *                                  QueryScript
+ * Feb 26, 2013  1708     randerso  Changed to not evaluate the ref set
+ * Feb 19, 2014  2819     randerso  Removed unnecessary .clone() call
+ * Sep 14, 2016  3241     bsteffen  Update deprecated JTSCompiler method calls
+ * Jan 05, 2018  7178     randerso  Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author randerso
  */
-public class GFEReferenceSetResource extends
-        AbstractVizResource<AbstractResourceData, IMapDescriptor> implements
-        IMessageClient, IReferenceSetChangedListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class GFEReferenceSetResource
+        extends AbstractVizResource<AbstractResourceData, IMapDescriptor>
+        implements IMessageClient, IReferenceSetChangedListener {
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFEReferenceSetResource.class);
 
     private IReferenceSetManager refSetMgr;
@@ -86,18 +89,17 @@ public class GFEReferenceSetResource extends
 
     private byte[] fillPattern = FillPatterns.getGLPattern("SELECTED_AREA");
 
+    /**
+     * Constructor
+     *
+     * @param refSetMgr
+     */
     public GFEReferenceSetResource(IReferenceSetManager refSetMgr) {
         super(new GFEResourceData(), new LoadProperties());
         this.refSetMgr = refSetMgr;
         this.needsUpdate = true;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
-     */
-    @SuppressWarnings("unchecked")
     @Override
     public void disposeInternal() {
         this.refSetMgr.removeReferenceSetChangedListener(this);
@@ -106,7 +108,7 @@ public class GFEReferenceSetResource extends
     }
 
     /**
-     * 
+     *
      */
     private void disposeShapes() {
         if (shadedShape != null) {
@@ -120,30 +122,18 @@ public class GFEReferenceSetResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         return this.refSetMgr.getActiveRefSet().getId().getName()
                 + " Edit Area";
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
-     * IGraphicsTarget)
-     */
-    @SuppressWarnings("unchecked")
     @Override
     public void initInternal(IGraphicsTarget target) {
         this.refSetMgr.addReferenceSetChangedListener(this);
         Message.registerInterest(this, RefSetAppearanceChangedMsg.class);
-        receiveMessage(Message
-                .inquireLastMessage(RefSetAppearanceChangedMsg.class));
+        receiveMessage(
+                Message.inquireLastMessage(RefSetAppearanceChangedMsg.class));
         initRefSetData(target);
     }
 
@@ -182,13 +172,6 @@ public class GFEReferenceSetResource extends
         shadedShape.setFillPattern(fillPattern);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
-     * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-     */
     @Override
     public void paintInternal(IGraphicsTarget aTarget,
             PaintProperties paintProps) throws VizException {
@@ -202,7 +185,8 @@ public class GFEReferenceSetResource extends
             aTarget.drawShadedShape(shadedShape, alpha);
         }
 
-        OutlineCapability outlineCapability = getCapability(OutlineCapability.class);
+        OutlineCapability outlineCapability = getCapability(
+                OutlineCapability.class);
         if (outlineCapability.isOutlineOn() && (outlineShape != null)
                 && outlineShape.isDrawable()) {
             aTarget.drawWireframeShape(outlineShape,
@@ -212,13 +196,6 @@ public class GFEReferenceSetResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.capabilities.IProjectableResource#project(org
-     * .opengis.referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
         this.needsUpdate = true;
@@ -229,23 +206,15 @@ public class GFEReferenceSetResource extends
     public void receiveMessage(Message message) {
         RefSetAppearanceChangedMsg msg = (RefSetAppearanceChangedMsg) message;
         getCapability(ColorableCapability.class).setColor(msg.getColor());
-        getCapability(OutlineCapability.class).setOutlineWidth(
-                msg.getLineWidth());
+        getCapability(OutlineCapability.class)
+                .setOutlineWidth(msg.getLineWidth());
         this.needsUpdate = true;
         issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.gfe.core.msgs.IReferenceSetChangedListener#
-     * referenceSetChanged
-     * (com.raytheon.uf.common.dataplugin.gfe.reference.ReferenceData,
-     * java.util.ArrayList)
-     */
     @Override
     public void referenceSetChanged(ReferenceData refSet,
-            ArrayList<Envelope> domains) {
+            List<Envelope> domains) {
         this.needsUpdate = true;
         issueRefresh();
     }

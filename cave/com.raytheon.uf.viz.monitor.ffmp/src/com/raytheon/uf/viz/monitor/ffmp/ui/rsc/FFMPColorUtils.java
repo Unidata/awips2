@@ -60,6 +60,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
  * Sep 05, 2013 2051        mnash       Moved style rule instantiation so that we don't get NPEs
  * Sep 28, 2015 4756        dhladky     Multiple guidance style rules for FFMP.
  * Dec 10, 2015 4834        njensen     Use non-deprecated ColorMapLoader
+ * Apr 11, 2018 6070        mduff       Clean up
  * 
  * </pre>
  * 
@@ -105,7 +106,8 @@ public class FFMPColorUtils {
      * @param time
      * @param tableLoad
      */
-    public FFMPColorUtils(FIELDS field, double time, String ffgName, boolean tableLoad) {
+    public FFMPColorUtils(FIELDS field, double time, String ffgName,
+            boolean tableLoad) {
 
         this.field = field;
         this.time = time;
@@ -117,10 +119,11 @@ public class FFMPColorUtils {
             sr = StyleManager.getInstance().getStyleRule(
                     StyleManager.StyleType.IMAGERY, getMatchCriteria());
             // Different style rules for different guidance sources selected
-            if (sr == null && ffgName.startsWith(FFMPRecord.FIELDS.GUIDANCE.getFieldName())) {
+            if (sr == null) {
                 // Could be a new source, load the default guidance map.
-                statusHandler.warn("No style rule matching "+ffgName+" in ffmpImageryStyleRules.xml, loading default!");
-                this.ffgName = ""; // append a blank
+                statusHandler.warn("No style rule matching " + ffgName
+                        + " in ffmpImageryStyleRules.xml, loading default!");
+                this.ffgName = "";
                 // try again
                 sr = StyleManager.getInstance().getStyleRule(
                         StyleManager.StyleType.IMAGERY, getMatchCriteria());
@@ -139,22 +142,24 @@ public class FFMPColorUtils {
                         + " TableLoad: " + tableLoad, e);
             }
 
-            if (cxml == null)
-                cxml = getDefaultColorMap(); // DR 14833: load the default map
+            if (cxml == null) {
+                // DR 14833: load the default map
+                cxml = getDefaultColorMap();
+            }
             ColorMap colorMap = new ColorMap(colormapfile, (ColorMap) cxml);
             colormapparams = new ColorMapParameters();
             colormapparams.setColorMap(colorMap);
-            colormapparams.setDisplayUnit(((ImagePreferences) sr
-                    .getPreferences()).getDisplayUnits());
-            colormapparams.setDataMapping(((ImagePreferences) sr
-                    .getPreferences()).getDataMapping());
+            colormapparams.setDisplayUnit(
+                    ((ImagePreferences) sr.getPreferences()).getDisplayUnits());
+            colormapparams.setDataMapping(
+                    ((ImagePreferences) sr.getPreferences()).getDataMapping());
 
             colormapparams.setColorMapMin(0);
             colormapparams.setColorMapMax(255);
         } catch (StyleException e) {
             statusHandler.error("Error loading ColorMap params: field: " + field
-                    + " time: " + time + " ffgName: " + ffgName
-                    + " TableLoad: " + tableLoad, e);
+                    + " time: " + time + " ffgName: " + ffgName + " TableLoad: "
+                    + tableLoad, e);
         }
     }
 
@@ -381,8 +386,8 @@ public class FFMPColorUtils {
          * StyleRule loaded. So it is guaranteed the default can be loaded.
          */
 
-        StyleRuleset srs = StyleManager.getInstance().getStyleRuleSet(
-                StyleManager.StyleType.IMAGERY);
+        StyleRuleset srs = StyleManager.getInstance()
+                .getStyleRuleSet(StyleManager.StyleType.IMAGERY);
 
         for (StyleRule srl : srs.getStyleRules()) {
             String pn = "", cm = "";

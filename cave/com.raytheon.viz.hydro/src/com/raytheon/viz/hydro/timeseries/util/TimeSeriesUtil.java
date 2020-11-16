@@ -48,6 +48,7 @@ import com.raytheon.viz.hydrocommon.util.QualityCodeUtil;
  * Aug 25, 2015 4794       mpduff      Added 5 min duration.
  * Jan 13, 2015 5243       tgurney     Fix convertDur2Short() handling of
  *                                     numeric characters
+ * Nov 28, 2017 DR#20465    jdeng      Fix timeseries plot error when dur=15 or 6 min
  * </pre>
  * 
  * @author mpduff
@@ -147,6 +148,7 @@ public class TimeSeriesUtil {
 
     private static final HashBiMap<Integer, Character> durationMap = HashBiMap
             .create(23);
+
     static {
         durationMap.put(0, 'I');
         durationMap.put(1, 'U');
@@ -288,12 +290,16 @@ public class TimeSeriesUtil {
             durValue = "5004";
         } else if (lowerDurName.contains("1 min")) {
             durValue = "1";
-        } else if (lowerDurName.contains("5 min")) {
-            durValue = "5";
         } else if (lowerDurName.contains("15 min")) {
             durValue = "15";
         } else if (lowerDurName.contains("30 min")) {
             durValue = "30";
+        } else if (lowerDurName.contains("5 min")) {
+            durValue = "5";
+        } else if (lowerDurName.contains("10 min")) {
+            durValue = "10";
+        } else if (lowerDurName.contains("6 min")) {
+            durValue = "6";
         }
 
         return durValue;
@@ -412,8 +418,8 @@ public class TimeSeriesUtil {
         /* fill a value with something, even if the value is missing. */
         /* ********************************************************* */
         ArrayList<TimeSeriesPoint> tsp = new ArrayList<TimeSeriesPoint>();
-        for (int i = 0; ((beginTime.getTime() / 1000 + (interval * i) <= endTime
-                .getTime() / 1000)); i++) {
+        for (int i = 0; ((beginTime.getTime() / 1000
+                + (interval * i) <= endTime.getTime() / 1000)); i++) {
             TimeSeriesPoint point = new TimeSeriesPoint();
             Date d = new Date(beginTime.getTime() + (interval * 1000L * i));
             point.setX(d);
@@ -479,8 +485,8 @@ public class TimeSeriesUtil {
                             / (double) timeDiff;
                 }
 
-                change = (td.getTsData()[i].getY() - td.getTsData()[i - 1]
-                        .getY());
+                change = (td.getTsData()[i].getY()
+                        - td.getTsData()[i - 1].getY());
 
                 assignedValue = (change * fraction)
                         + td.getTsData()[i - 1].getY();
@@ -564,10 +570,10 @@ public class TimeSeriesUtil {
                  * that had unfilled data
                  */
                 if (distribMode) {
-                    numHrsDiff = ((tmpTrace.getTsData()[i].getX().getTime() - previousTime
-                            .getTime()) / 3600) / 1000;
-                    double value = (tmpTrace.getTsData()[i].getY() - previousVal)
-                            / numHrsDiff;
+                    numHrsDiff = ((tmpTrace.getTsData()[i].getX().getTime()
+                            - previousTime.getTime()) / 3600) / 1000;
+                    double value = (tmpTrace.getTsData()[i].getY()
+                            - previousVal) / numHrsDiff;
 
                     for (int n = 0; n < numHrsDiff; n++) {
                         tmpTrace.getTsData()[i - 1 - n].setY(value);
@@ -578,8 +584,8 @@ public class TimeSeriesUtil {
                      * .getY() - previousVal);
                      */
 
-                    tmpTrace.getTsData()[i - 1].setY(td.getTsData()[i].getY()
-                            - previousVal);
+                    tmpTrace.getTsData()[i - 1]
+                            .setY(td.getTsData()[i].getY() - previousVal);
                 }
 
                 /*
@@ -593,8 +599,8 @@ public class TimeSeriesUtil {
 
                     if (distribMode) {
                         for (int n = 0; n < numHrsDiff; n++) {
-                            tmpTrace.getTsData()[i - 1 - (n + 1)].setY(tmpTrace
-                                    .getTsData()[i - 1].getY());
+                            tmpTrace.getTsData()[i - 1 - (n + 1)]
+                                    .setY(tmpTrace.getTsData()[i - 1].getY());
                         }
                     }
                 }
@@ -604,7 +610,8 @@ public class TimeSeriesUtil {
             }
 
             /* save any good values for the next pass */
-            if (tmpTrace.getTsData()[i].getY() != HydroConstants.MISSING_VALUE) {
+            if (tmpTrace.getTsData()[i]
+                    .getY() != HydroConstants.MISSING_VALUE) {
                 previousVal = tmpTrace.getTsData()[i].getY();
                 previousTime = tmpTrace.getTsData()[i].getX();
             }
@@ -824,7 +831,8 @@ public class TimeSeriesUtil {
      *            The quality code
      * @return true if valid request, false if invalid request
      */
-    public static long setQcBit(int bitPosition, int setting, long qualityCode) {
+    public static long setQcBit(int bitPosition, int setting,
+            long qualityCode) {
 
         /*
          * Variable used to set a specific bit in bit string to 1; initialized
@@ -884,10 +892,13 @@ public class TimeSeriesUtil {
      */
     public static long setQcNotQuestSummary(long qualityCode) {
 
-        if ((QualityCodeUtil.checkQcBit(EXTERN_NOTQUEST_QC, qualityCode) == false)
-                || (QualityCodeUtil.checkQcBit(REASONRANGE_QC, qualityCode) == false)
+        if ((QualityCodeUtil.checkQcBit(EXTERN_NOTQUEST_QC,
+                qualityCode) == false)
+                || (QualityCodeUtil.checkQcBit(REASONRANGE_QC,
+                        qualityCode) == false)
                 || (QualityCodeUtil.checkQcBit(ROC_QC, qualityCode) == false)
-                || (QualityCodeUtil.checkQcBit(OUTLIER_QC, qualityCode) == false)
+                || (QualityCodeUtil.checkQcBit(OUTLIER_QC,
+                        qualityCode) == false)
                 || (QualityCodeUtil.checkQcBit(SCC_QC, qualityCode) == false)
                 || (QualityCodeUtil.checkQcBit(MSC_QC, qualityCode) == false)) {
             qualityCode = setQcBit(NOTQUEST_QC, 0, qualityCode);
@@ -913,7 +924,8 @@ public class TimeSeriesUtil {
         return returnVal;
     }
 
-    public static boolean checkQcCode(int bitGroupDescription, long qualityCode) {
+    public static boolean checkQcCode(int bitGroupDescription,
+            long qualityCode) {
         boolean returnValue = false;
         switch (bitGroupDescription) {
         case QC_DEFAULT:

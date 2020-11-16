@@ -1,0 +1,40 @@
+
+text.text
+    {
+        fill: white;
+        font-size: 0.8em;
+        stroke-width: 0px;
+        font-weight: bold;
+        font-family: Courier;
+        baseline-shift: -0.4em;
+    }
+
+text.barb
+    {
+        fill: none;
+        font-size: 1em;
+        font-family: WindSymbolFont;
+    }
+
+text.arrow
+    {
+        fill: none;
+        font-size: 1em;
+        font-family: WindSymbolFont;
+    }
+
+text.weather
+    {
+        fill: none;
+        font-size: 1em;
+        stroke-width: 1px;
+        font-family: WxSymbolFont;
+    }
+
+text.special
+    {
+        fill: none;
+        font-size: 1em;
+        stroke-width: 1px;
+        font-family: SpecialSymbolFont;
+    }

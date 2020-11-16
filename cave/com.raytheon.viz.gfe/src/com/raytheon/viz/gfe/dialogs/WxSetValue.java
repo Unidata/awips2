@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -38,8 +38,7 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherSubKey;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WxDefinition;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.msgs.ICombineModeChangedListener;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState.CombineMode;
@@ -48,22 +47,24 @@ import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 
 /**
  * Provides UI to set a weather wx value for the set value dialog
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 18, 2009 #1318           randerso     Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 18, 2009  1318     randerso  Initial creation
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
-public class WxSetValue extends AbstractSetValue implements
-        ICombineModeChangedListener {
+public class WxSetValue extends AbstractSetValue
+        implements ICombineModeChangedListener {
 
     private WeatherWxValue weatherValue;
 
@@ -83,11 +84,14 @@ public class WxSetValue extends AbstractSetValue implements
 
     /**
      * Constructor
-     * 
+     *
      * @param parent
      *            composite to contain the controls
      * @param parm
      *            the parm to be acted on
+     * @param showCombine
+     * @param showAddToSession
+     * @param setPickupValueEachTime
      */
     public WxSetValue(Composite parent, Parm parm, boolean showCombine,
             boolean showAddToSession, boolean setPickupValueEachTime) {
@@ -148,7 +152,7 @@ public class WxSetValue extends AbstractSetValue implements
         layout.marginHeight = 0;
         layout.horizontalSpacing = 0;
         frame.setLayout(layout);
-        subKeyUI = new ArrayList<SubKey>();
+        subKeyUI = new ArrayList<>();
 
         // label the entries in the sub key frame
         createSubKeyLabels(frame);
@@ -202,11 +206,6 @@ public class WxSetValue extends AbstractSetValue implements
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.swt.widgets.Widget#dispose()
-     */
     @Override
     public void dispose() {
         parm.getListeners().removeCombineModeChangedListener(this);
@@ -224,14 +223,6 @@ public class WxSetValue extends AbstractSetValue implements
         dataManager.getParmOp().setCombineMode(state);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.ICombineModeChangedListener#combineModeChanged
-     * (com.raytheon.viz.gfe.core.parm.Parm,
-     * com.raytheon.viz.gfe.core.parm.ParmState.CombineMode)
-     */
     @Override
     public void combineModeChanged(Parm parm, final CombineMode mode) {
         // Parm Client notification
@@ -246,7 +237,7 @@ public class WxSetValue extends AbstractSetValue implements
 
     protected void addToSession() {
         // LogStream.logUse("Add to session")
-        parm.getParmState().addSessionPickupValue(weatherValue);
+        parm.getParmState().addSessionPickUpValue(weatherValue);
     }
 
     protected void reset() {
@@ -256,8 +247,9 @@ public class WxSetValue extends AbstractSetValue implements
         }
         subKeyUI.clear();
 
-        weatherValue = new WeatherWxValue(new WeatherKey(siteId,
-                "<NoCov>:<NoWx>:<NoInten>:<NoVis>:"), parm);
+        weatherValue = new WeatherWxValue(
+                new WeatherKey(siteId, "<NoCov>:<NoWx>:<NoInten>:<NoVis>:"),
+                parm);
 
         if (setPickUpValueEachTime) {
             setWxPickup();
@@ -289,14 +281,15 @@ public class WxSetValue extends AbstractSetValue implements
     protected void addSubKey() {
         // check to see if the last entry is a none type
         WeatherSubKey addedKey;
-        if (subKeyUI.size() == 0) {
+        if (subKeyUI.isEmpty()) {
             addedKey = new WeatherSubKey(siteId,
                     "<NoCov>:<NoWx>:<NoInten>:<NoVis>:<NoAttr>");
-        } else if (!subKeyUI.get(subKeyUI.size() - 1).subkey().getType()
-                .equals("<NoWx>")) {
+        } else if (!"<NoWx>"
+                .equals(subKeyUI.get(subKeyUI.size() - 1).subkey().getType())) {
             WeatherSubKey subkey = subKeyUI.get(subKeyUI.size() - 1).subkey();
             addedKey = new WeatherSubKey(subkey);
-        } else { // Do not add another empty key
+        } else {
+            // Do not add another empty key
             return;
         }
         ((GridLayout) subKeyFrame.getLayout()).numColumns++;
@@ -321,7 +314,8 @@ public class WxSetValue extends AbstractSetValue implements
             // make the subkey
             ((GridLayout) subKeyFrame.getLayout()).numColumns++;
             SubKey subk = new SubKey(subKeyFrame, sk);
-            subk.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false, true));
+            subk.setLayoutData(
+                    new GridData(SWT.DEFAULT, SWT.FILL, false, true));
             subKeyUI.add(subk);
         }
         subKeyFrame.layout();
@@ -346,7 +340,7 @@ public class WxSetValue extends AbstractSetValue implements
         typeLabel.setText("Type:");
         layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Point labelSize = typeLabel.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-        int vIndent = (comboSize.y - labelSize.y);
+        int vIndent = comboSize.y - labelSize.y;
         layoutData.verticalIndent = vIndent / 2;
         typeLabel.setLayoutData(layoutData);
 
@@ -370,7 +364,7 @@ public class WxSetValue extends AbstractSetValue implements
     }
 
     private void subKeyChanged() {
-        ArrayList<WeatherSubKey> wxsubkeys = new ArrayList<WeatherSubKey>();
+        List<WeatherSubKey> wxsubkeys = new ArrayList<>();
         for (SubKey key : subKeyUI) {
             if (key.subkey().isValid()) {
                 wxsubkeys.add(key.subkey());
@@ -395,11 +389,9 @@ public class WxSetValue extends AbstractSetValue implements
 
         private Combo typeCombo, covCombo, intenCombo, visCombo;
 
-        private ArrayList<Button> attributeCheckBoxes = new ArrayList<Button>();
+        private List<Button> attributeCheckBoxes = new ArrayList<>();
 
         private WxDefinition wxDef;
-
-        private PythonPreferenceStore prefs;
 
         private String type;
 
@@ -415,7 +407,6 @@ public class WxSetValue extends AbstractSetValue implements
             super(parent, SWT.BORDER);
 
             this.wxDef = subKey.wxDef();
-            this.prefs = Activator.getDefault().getPreferenceStore();
             GridLayout layout = new GridLayout(1, false);
             setLayout(layout);
 
@@ -440,8 +431,8 @@ public class WxSetValue extends AbstractSetValue implements
             List<String> types = WeatherSubKey.availableWxTypes(siteId);
 
             typeCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
-            typeCombo.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                    false));
+            typeCombo.setLayoutData(
+                    new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
             for (String t : types) {
                 typeCombo.add(labelType(t));
@@ -462,19 +453,16 @@ public class WxSetValue extends AbstractSetValue implements
                     this.type);
 
             // create a new one if we have valid coverages
-            if (coverages.size() > 0) {
+            if (!coverages.isEmpty()) {
                 // Choose the appropriate coverage for the current type
                 if (!coverages.contains(this.coverage)) {
-                    this.coverage = prefs.getString(this.type
-                            + "_defaultCoverage");
-                    if (coverage.isEmpty()) {
-                        this.coverage = coverages.get(0);
-                    }
+                    this.coverage = GFEPreference.getString(
+                            this.type + "_defaultCoverage", coverages.get(0));
                 }
 
                 covCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
-                covCombo.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT,
-                        true, false));
+                covCombo.setLayoutData(
+                        new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
                 for (String c : coverages) {
                     covCombo.add(labelCoverage(this.type, c));
@@ -497,23 +485,21 @@ public class WxSetValue extends AbstractSetValue implements
         }
 
         private void createIntensityCombo() {
-            List<String> intensities = WeatherSubKey.availableIntensities(
-                    siteId, this.type);
+            List<String> intensities = WeatherSubKey
+                    .availableIntensities(siteId, this.type);
 
             // create a new one if we have valid intensities
-            if (intensities.size() > 0) {
+            if (!intensities.isEmpty()) {
                 // Choose the appropriate coverage for the current type
                 if (!intensities.contains(this.intensity)) {
-                    this.intensity = prefs.getString(this.type
-                            + "_defaultIntensity");
-                    if (this.intensity.isEmpty()) {
-                        this.intensity = intensities.get(0);
-                    }
+                    this.intensity = GFEPreference.getString(
+                            this.type + "_defaultIntensity",
+                            intensities.get(0));
                 }
 
                 intenCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
-                intenCombo.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT,
-                        true, false));
+                intenCombo.setLayoutData(
+                        new GridData(SWT.FILL, SWT.DEFAULT, true, false));
                 for (String i : intensities) {
                     intenCombo.add(labelIntensity(this.type, i));
                 }
@@ -538,14 +524,14 @@ public class WxSetValue extends AbstractSetValue implements
                     .availableVisibilities(siteId);
 
             // create a new one if we have valid visibilities
-            if (visibilities.size() > 0) {
+            if (!visibilities.isEmpty()) {
                 if (!visibilities.contains(this.visibility)) {
                     this.visibility = visibilities.get(0);
                 }
 
                 visCombo = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY);
-                visCombo.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT,
-                        true, false));
+                visCombo.setLayoutData(
+                        new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
                 for (String v : visibilities) {
                     visCombo.add(v);
@@ -567,11 +553,11 @@ public class WxSetValue extends AbstractSetValue implements
 
         private void createAttributeButtons() {
             // available attributes
-            List<String> availAttributes = WeatherSubKey.availableAttributes(
-                    siteId, this.type);
+            List<String> availAttributes = WeatherSubKey
+                    .availableAttributes(siteId, this.type);
 
             // create a new one if we have valid attribute
-            if (availAttributes.size() > 0) {
+            if (!availAttributes.isEmpty()) {
                 for (String a : availAttributes) {
                     Button b = new Button(this, SWT.CHECK);
                     b.setText(labelAttribute(this.type, a));
@@ -696,27 +682,8 @@ public class WxSetValue extends AbstractSetValue implements
 
         // accessor for subkey
         public WeatherSubKey subkey() {
-            String stringV = this.coverage + ':' + this.type + ':'
-                    + this.intensity + ':' + this.visibility + ':';
-
-            String attrList = "";
-
-            if (this.attributes.size() > 0) {
-                int i = 0;
-                for (String attr : this.attributes) {
-                    attrList = attrList + attr;
-
-                    if (i < (this.attributes.size() - 1)) {
-                        attrList = attrList + ',';
-                    }
-                }
-            } else {
-                attrList = "<NoAttr>";
-            }
-
-            stringV = stringV + attrList;
-
-            return new WeatherSubKey(siteId, stringV);
+            return new WeatherSubKey(siteId, coverage, type, intensity,
+                    visibility, attributes);
         }
     }
 }

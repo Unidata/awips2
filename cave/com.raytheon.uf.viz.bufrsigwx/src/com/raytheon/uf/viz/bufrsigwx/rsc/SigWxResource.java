@@ -21,7 +21,6 @@ package com.raytheon.uf.viz.bufrsigwx.rsc;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -52,15 +51,17 @@ import com.raytheon.viz.pointdata.PointDataRequest;
  * <pre>
  *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 28, 2009 3099       bsteffen     Initial creation
- * Nov 05, 2015 5070       randerso     Adjust font sizes for dpi scaling
- * Feb 04, 2016 5309       tgurney      Remove dependency on dataURI
- * Sep 12, 2016 5886       tgurney      Update paintInternal signature,
- *                                      add needsUpdate flag,
- *                                      fix point data container iteration.
- *
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Sep 28, 2009  3099     bsteffen  Initial creation
+ * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
+ * Feb 04, 2016  5309     tgurney   Remove dependency on dataURI
+ * Sep 12, 2016  5886     tgurney   Update paintInternal signature, add
+ *                                  needsUpdate flag, fix point data container
+ *                                  iteration.
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
+ * 
  * </pre>
  *
  * @author bsteffen
@@ -84,7 +85,7 @@ public abstract class SigWxResource
 
     protected SigWxResource(SigWxResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         resourceData.addChangeListener((ChangeType type, Object object) -> {
             if (type == ChangeType.DATA_UPDATE) {
                 PluginDataObject[] pdo = (PluginDataObject[]) object;
@@ -97,7 +98,6 @@ public abstract class SigWxResource
             setUpdateNeeded(true);
             issueRefresh();
         });
-        this.dataTimes = new ArrayList<>();
     }
 
     /**
@@ -110,7 +110,6 @@ public abstract class SigWxResource
         Collection<SigWxData> toParse = recordsToParse.get(dataTime);
         if (toParse == null) {
             dataTimes.add(dataTime);
-            Collections.sort(this.dataTimes);
             toParse = new ArrayList<>();
             recordsToParse.put(dataTime, toParse);
         }
@@ -131,7 +130,7 @@ public abstract class SigWxResource
         }
 
         Collection<SigWxData> toParse = recordsToParse.get(curDataTime);
-        if (toParse != null && toParse.size() > 0) {
+        if (toParse != null && !toParse.isEmpty()) {
             updateRecords(paintProps.getDataTime());
         }
         this.displayedDataTime = curDataTime;
@@ -198,7 +197,7 @@ public abstract class SigWxResource
      */
     protected abstract void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps, PointDataContainer pdc)
-                    throws VizException;
+            throws VizException;
 
     /**
      * Determine the appropriate scale to use on both axis for constant sized

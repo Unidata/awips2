@@ -29,18 +29,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
 import com.raytheon.uf.common.dataquery.requests.TimeQueryRequest;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
+import com.raytheon.uf.common.inventory.exception.DataCubeException;
 import com.raytheon.uf.common.pointdata.ParameterDescription;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
 import com.raytheon.uf.common.pointdata.PointDataDescription.Type;
 import com.raytheon.uf.common.pointdata.PointDataView;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.BinOffset;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.catalog.DirectDbQuery;
@@ -61,17 +63,23 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 3, 2010            bsteffen     Initial creation
- * Aug 14,2012   #1055    dgilling     Fix getData regression from
+ * Dec 03, 2010            bsteffen    Initial creation
+ * Aug 14, 2012  #1055     dgilling    Fix getData regression from
  *                                     fxatext schema changes.
- * Sep  9, 2013  #2277    mschenke     Got rid of ScriptCreator references
- * Aug 18, 2015 4763       rjpeter     Use Number in blind cast.
+ * Sep 09, 2013  #2277     mschenke    Got rid of ScriptCreator references
+ * Aug 18, 2015   4763     rjpeter     Use Number in blind cast.
+ * Feb 05, 2018   6811     njensen     Fixed some parsing errors for RTP data
+ * Jul 26, 2018   6811     njensen     Fixed parsing errors for TRACE, NA, and m
+ * Sep 12, 2018   6811     njensen     Catch NumberFormatException for RTP and continue
+ * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
+
+    private static final IUFStatusHandler logger = UFStatus
+            .getHandler(CoopPrecipDataCubeAdapter.class);
 
     private static final String FFG = "FFG";
 
@@ -128,7 +136,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     @Override
     public List<List<DataTime>> timeQuery(List<TimeQueryRequest> requests)
             throws DataCubeException {
-        List<List<DataTime>> results = new ArrayList<List<DataTime>>(
+        List<List<DataTime>> results = new ArrayList<>(
                 requests.size());
         for (TimeQueryRequest request : requests) {
             DataTime[] result = timeQuery(request.getQueryTerms(),
@@ -147,7 +155,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
 
         String nnnid = getNNNid(queryParams);
 
-        Set<DataTime> times = new HashSet<DataTime>();
+        Set<DataTime> times = new HashSet<>();
         PointDataContainer pdc = getData(nnnid);
         for (int uriCounter = 0; uriCounter < pdc.getCurrentSz(); uriCounter++) {
             PointDataView pdv = pdc.readRandom(uriCounter);
@@ -187,8 +195,8 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
         } catch (VizException e) {
             throw new DataCubeException(e);
         }
-        List<Long> times = new ArrayList<Long>(queryResult.size());
-        List<String> products = new ArrayList<String>(queryResult.size());
+        List<Long> times = new ArrayList<>(queryResult.size());
+        List<String> products = new ArrayList<>(queryResult.size());
         for (Object[] objArr : queryResult) {
             times.add(((Number) objArr[0]).longValue());
             products.add((String) objArr[1]);
@@ -263,7 +271,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     }
 
     private PointDataContainer getRtpData(List<Long> times,
-            List<String> products) throws DataCubeException {
+            List<String> products) {
         Map<String, SPIEntry> stationCoordMap = getRtpSpi();
 
         PointDataContainer pdc = PointDataContainer.build(rtpDescription);
@@ -273,7 +281,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
             // Adapted from shef-read.p in the awips1 baseline.
             int index = 0;
             for (String line : product.split("\n")) {
-                if (line.startsWith(":")) {
+                if (line.startsWith(":") || line.contains("www.")) {
                     continue;
                 } else if (index == 0 && line.startsWith(".B")) {
                     String[] parts = line.split(" ");
@@ -314,14 +322,44 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
                     float precip = -9999f;
                     String value = "";
                     if (parts.length > index) {
-                        parts[index].trim();
+                        value = parts[index].trim();
                     }
-                    if (value.isEmpty() || value.equals("M")
-                            || value.equals("T")) {
+                    /*
+                     * Check to see if a report forgot a / to separate precip
+                     * and snow, such "0.04     M". If so, get rid of the spaces
+                     * and take the first value for precip.
+                     */
+                    if (value.contains(" ")) {
+                        value = value.split(" ")[0];
+                    }
+
+                    /*
+                     * Variants of missing seen so far are M, MM, MMMM, 0.00M,
+                     * m, and ---. M stands for Missing Data. T stands for Trace
+                     * Amounts. N can be the first half of N/A where the split
+                     * on / above separated out the A. NA is also possible, as
+                     * is TRACE.
+                     */
+                    if (value.isEmpty() || value.contains("M")
+                            || "m".equals(value) || ("---").equals(value)
+                            || value.contains("T") || value.contains("N")) {
                         precip = -9999f;
                     } else {
-                        precip = Float.parseFloat(value);
+                        try {
+                            precip = Float.parseFloat(value);
+                        } catch (NumberFormatException e) {
+                            logger.debug(
+                                    "Skipping piece of data due to failing to parse line "
+                                            + line,
+                                    e);
+                            continue;
+                        }
                     }
+                    /*
+                     * If the station name isn't in your SPI file, we have to
+                     * throw it out because we have no idea what the lat/lon is
+                     * to place the station.
+                     */
                     SPIEntry coord = stationCoordMap.get(station);
                     if (coord != null) {
                         PointDataView pdv = pdc.append();
@@ -342,7 +380,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     }
 
     private Map<String, Coordinate> getFfgCoords() throws DataCubeException {
-        Map<String, Coordinate> result = new HashMap<String, Coordinate>();
+        Map<String, Coordinate> result = new HashMap<>();
         String cwa = LocalizationManager.getInstance().getCurrentSite();
         List<Object[]> queryResult;
         try {
@@ -418,7 +456,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     @Override
     public void getRecords(List<PluginDataObject> objs, Request req,
             String dataset) throws DataCubeException {
-
+        // just here to match the interface
     }
 
     @Override
@@ -430,7 +468,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
 
     @Override
     public void initInventory() {
-
+        // just here to match the interface
     }
 
     @Override
@@ -441,7 +479,7 @@ public class CoopPrecipDataCubeAdapter implements IDataCubeAdapter {
     @Override
     public List<Map<String, RequestConstraint>> getBaseUpdateConstraints(
             Map<String, RequestConstraint> constraints) {
-        List<Map<String, RequestConstraint>> result = new ArrayList<Map<String, RequestConstraint>>(
+        List<Map<String, RequestConstraint>> result = new ArrayList<>(
                 1);
         result.add(constraints);
         return result;

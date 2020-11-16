@@ -29,7 +29,11 @@ import com.raytheon.edex.plugin.sfcobs.decoder.AbstractSfcObsDecoder;
 import com.raytheon.edex.plugin.sfcobs.decoder.synoptic.AbstractSynopticDecoder;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.sfcobs.ObsCommon;
+import com.raytheon.uf.common.pointdata.spatial.ObStation;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
+import com.raytheon.uf.edex.database.DataAccessLayerException;
+import com.raytheon.uf.edex.decodertools.core.DecoderTools;
+import com.raytheon.uf.edex.pointdata.spatial.ObStationDao;
 
 /**
  * Decode the FM-18 Buoy observation data.
@@ -42,18 +46,19 @@ import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
  * ------------ ---------- ----------- --------------------------
  * 20070928            391 jkorman     Initial Coding.
  * Jul 23, 2014 3410       bclement    location changed to floats
- * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement()}
+ * Sep 30, 2014 3629       mapeters    Replaced {@link AbstractSfcObsDecoder#matchElement(String, String)}
  *                                     calls, added Pattern constants.
  * Jan 08, 2015 3897       nabowle     Quietly discard reports with invalid
  *                                     Section 2 data due to receiving a lot of
  *                                     bad files with duplicate valid files.
+ * Jan 16, 2018 6976       njensen     Check common_obs_spatial for fixed buoys
  * 
  * </pre>
  * 
  * @author jkorman
- * @version 1.0
  */
 public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
+
     /** The logger */
     private static final Logger logger = LoggerFactory
             .getLogger(DRIBUSynopticDecoder.class);
@@ -114,8 +119,8 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
         try {
             decodeSection2();
         } catch (DecoderException de) {
-            logger.info("Discarding buoy report. "
-                    + de.getLocalizedMessage());
+            logger.info("Discarding buoy report. " + de.getLocalizedMessage(),
+                    de);
             return null;
         }
         decodeSection3();
@@ -131,6 +136,7 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
      *
      * @throws DecoderException
      */
+    @Override
     protected void decodeSection0() throws DecoderException {
         boolean isValid = false;
 
@@ -170,6 +176,7 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
      *
      * @return The decoded data.
      */
+    @Override
     protected PluginDataObject consolidateReport() {
         ObsCommon report = null;
         if ((buoyLatitude == null) || (buoyLongitude == null)) {
@@ -177,15 +184,44 @@ public class DRIBUSynopticDecoder extends AbstractSynopticDecoder {
         }
         report = (ObsCommon) super.consolidateReport();
         if (report != null) {
-            report.setReportType(DRIFTING_BUOY);
+            /*
+             * code borrowed from SHIPSynopticDecoder to determine if it's a
+             * fixed buoy by doing a geometry lookup on common_obs_spatial table
+             */
+            ObStationDao obSta = null;
+            ObStation staInfo = null;
+            String id = getReportIdentifier();
+            try {
+                obSta = new ObStationDao();
+                String gid = ObStation.createGID(ObStation.CAT_TYPE_BUOY_FXD,
+                        id);
+                staInfo = obSta.queryByGid(gid);
+            } catch (DataAccessLayerException e) {
+                logger.error("Unable to query station info for " + id
+                        + ", assuming drifting buoy", e);
+            }
+            int buoyElev = 0;
+            if (staInfo != null) {
+                buoyLatitude = (float) DecoderTools.getCoordinateLatitude(
+                        staInfo.getStationGeom().getCoordinate());
+                buoyLongitude = (float) DecoderTools.getCoordinateLongitude(
+                        staInfo.getStationGeom().getCoordinate());
+                if (staInfo.getElevation() != null) {
+                    buoyElev = staInfo.getElevation();
+                }
+                report.setReportType(SYNOPTIC_MOORED_BUOY);
+            } else {
+                report.setReportType(DRIFTING_BUOY);
+            }
 
             SurfaceObsLocation loc = new SurfaceObsLocation(
-                    getReportIdentifier());
+                    id);
             loc.assignLocation(buoyLatitude, buoyLongitude);
-            loc.setElevation(0);
+            loc.setElevation(buoyElev);
             loc.setLocationDefined(Boolean.FALSE);
             report.setLocation(loc);
         }
+
         return report;
     }
 

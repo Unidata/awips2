@@ -48,7 +48,7 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * <pre>
  *
  * SOFTWARE HISTORY
- *
+ * 
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Feb 17, 2009  1960     njensen   Initial creation
@@ -66,13 +66,12 @@ import com.raytheon.viz.pointdata.rsc.retrieve.PointDataPlotInfoRetriever;
  * Jan 28, 2016  5286     tgurney   Remove tcg dependency on dataURI
  * Feb 09, 2016  5283     nabowle   Remove NGM MOS support.
  * Sep 19, 2017  ----     mjames    Remove profiler, ldadmesonet
- *
+ * Nov 16, 2017  5697     bsteffen  Remove profiler plugin
+ * 
  * </pre>
  *
  * @author njensen
- * @version 1.0
  */
-
 @XmlAccessorType(XmlAccessType.NONE)
 public class PlotResourceData extends AbstractRequestableResourceData {
 
@@ -102,7 +101,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
     }
 
     @XmlAttribute
-    int pixelSampleDistance = 32;
+    protected int pixelSampleDistance = 32;
 
     @XmlAttribute
     protected int pixelSizeHint = 90;
@@ -140,7 +139,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
     @XmlJavaTypeAdapter(value = RequestableMetadataMarshaller.class)
     protected HashMap<String, RequestConstraint> timeQueryMetadataMap;
 
-    private static final Map<String, PluginPlotProperties> pluginProps = new HashMap<String, PluginPlotProperties>();
+    private static final Map<String, PluginPlotProperties> pluginProps = new HashMap<>();
 
     static {
         /*
@@ -164,8 +163,6 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("poessounding", new PluginPlotProperties());
         pluginProps.put("bufrua", new PluginPlotProperties());
         pluginProps.put("sfcobs", new PluginPlotProperties());
-        pluginProps.put("profiler", new PluginPlotProperties());
-        //pluginProps.put("fssobs", new PluginPlotProperties());
         pluginProps.put("modelsounding", new PluginPlotProperties());
         pluginProps.put("bufrmosAVN", new PluginPlotProperties());
         pluginProps.put("bufrmosETA", new PluginPlotProperties());
@@ -173,12 +170,13 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         pluginProps.put("bufrmosHPC", new PluginPlotProperties());
         pluginProps.put("bufrmosLAMP", new PluginPlotProperties());
         pluginProps.put("bufrmosMRF", new PluginPlotProperties());
-        //pluginProps.put("qc", new PluginPlotProperties());
+        pluginProps.put("profiler", new PluginPlotProperties());
         pluginProps.put("bufrascat", new PluginPlotProperties());
         pluginProps.put("bufrhdw", new PluginPlotProperties());
         pluginProps.put("bufrmthdw", new PluginPlotProperties());
         pluginProps.put("bufrssmi", new PluginPlotProperties());
-        //pluginProps.put("airep", new PluginPlotProperties());
+        pluginProps.put("pirep", new PluginPlotProperties());
+        pluginProps.put("airep", new PluginPlotProperties());
         pluginProps.put("acars", new PluginPlotProperties());
         pluginProps.put("lsr", new PluginPlotProperties());
     }
@@ -298,7 +296,8 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         return plotInfoRetriever;
     }
 
-    public void setPlotInfoRetriever(AbstractPlotInfoRetriever plotInfoRetriever) {
+    public void setPlotInfoRetriever(
+            AbstractPlotInfoRetriever plotInfoRetriever) {
         this.plotInfoRetriever = plotInfoRetriever;
     }
 
@@ -337,9 +336,9 @@ public class PlotResourceData extends AbstractRequestableResourceData {
     public DataTime[] getAvailableTimes() throws VizException {
         Map<String, RequestConstraint> map = null;
         if (timeQueryMetadataMap != null) {
-            map = new HashMap<String, RequestConstraint>(timeQueryMetadataMap);
+            map = new HashMap<>(timeQueryMetadataMap);
         } else {
-            map = new HashMap<String, RequestConstraint>(this.metadataMap);
+            map = new HashMap<>(this.metadataMap);
         }
 
         DataTime[] available = queryForTimes(map);
@@ -350,12 +349,36 @@ public class PlotResourceData extends AbstractRequestableResourceData {
     }
 
     @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result
+                + ((defaultPeriod == null) ? 0 : defaultPeriod.hashCode());
+        result = prime * result
+                + ((levelKey == null) ? 0 : levelKey.hashCode());
+        long temp;
+        temp = Double.doubleToLongBits(lowerLimit);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + ((plotInfoRetriever == null) ? 0
+                : plotInfoRetriever.hashCode());
+        result = prime * result
+                + ((plotModelFile == null) ? 0 : plotModelFile.hashCode());
+        result = prime * result
+                + ((plotSource == null) ? 0 : plotSource.hashCode());
+        result = prime * result + ((spiFile == null) ? 0 : spiFile.hashCode());
+        temp = Double.doubleToLongBits(upperLimit);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + pixelSizeHint;
+        return result;
+    }
+
+    @Override
     public boolean equals(Object obj) {
         if (!super.equals(obj)) {
             return false;
         }
 
-        if (obj instanceof PlotResourceData == false) {
+        if (obj.getClass() != this.getClass()) {
             return false;
         }
 
@@ -366,7 +389,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         } else if (this.plotSource == null && other.plotSource != null) {
             return false;
         } else if (this.plotSource != null
-                && this.plotSource.equals(other.plotSource) == false) {
+                && !this.plotSource.equals(other.plotSource)) {
             return false;
         }
 
@@ -375,7 +398,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         } else if (this.plotModelFile == null && other.plotModelFile != null) {
             return false;
         } else if (this.plotModelFile != null
-                && this.plotModelFile.equals(other.plotModelFile) == false) {
+                && !this.plotModelFile.equals(other.plotModelFile)) {
             return false;
         }
 
@@ -384,7 +407,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         } else if (this.spiFile == null && other.spiFile != null) {
             return false;
         } else if (this.spiFile != null
-                && this.spiFile.equals(other.spiFile) == false) {
+                && !this.spiFile.equals(other.spiFile)) {
             return false;
         }
 
@@ -393,7 +416,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         } else if (this.levelKey == null && other.levelKey != null) {
             return false;
         } else if (this.levelKey != null
-                && this.levelKey.equals(other.levelKey) == false) {
+                && !this.levelKey.equals(other.levelKey)) {
             return false;
         }
 
@@ -403,7 +426,7 @@ public class PlotResourceData extends AbstractRequestableResourceData {
                 && other.plotInfoRetriever != null) {
             return false;
         } else if (this.plotInfoRetriever != null
-                && this.plotInfoRetriever.equals(other.plotInfoRetriever) == false) {
+                && !this.plotInfoRetriever.equals(other.plotInfoRetriever)) {
             return false;
         }
 
@@ -412,12 +435,13 @@ public class PlotResourceData extends AbstractRequestableResourceData {
         } else if (this.defaultPeriod == null && other.defaultPeriod != null) {
             return false;
         } else if (this.defaultPeriod != null
-                && this.defaultPeriod.equals(other.defaultPeriod) == false) {
+                && !this.defaultPeriod.equals(other.defaultPeriod)) {
             return false;
         }
 
         return (this.pixelSizeHint == other.pixelSizeHint
-                && this.lowerLimit == other.lowerLimit && this.upperLimit == other.upperLimit);
+                && this.lowerLimit == other.lowerLimit
+                && this.upperLimit == other.upperLimit);
     }
 
     public int getPixelSampleDistance() {

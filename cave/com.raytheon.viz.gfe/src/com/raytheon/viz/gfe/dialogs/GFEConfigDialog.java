@@ -35,6 +35,9 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.swt.SWT;
@@ -62,21 +65,23 @@ import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.eclipse.ui.progress.UIJob;
 
 import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.localization.SaveableOutputStream;
 import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.FileUtil;
 import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PythonPreferenceStore;
 import com.raytheon.viz.gfe.config.ConfigCatalog;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
 
@@ -99,6 +104,8 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  * Apr 21, 2017  6239    randerso  Prevent UI deadlock if an async task calls
  *                                 getPreferenceStore() while the dialog is
  *                                 open.
+ * Jan 25, 2018  7153    randerso  Changes to allow new GFE config file to be
+ *                                 selected when perspective is re-opened.
  *
  * </pre>
  *
@@ -106,33 +113,34 @@ import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
  */
 
 public class GFEConfigDialog extends CaveJFACEDialog {
-    private final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFEConfigDialog.class);
 
-    private final String DEFAULT_CONFIG = "gfeConfig";
+    private static final String DEFAULT_CONFIG = "gfeConfig";
 
-    private final String LAST_CONFIG = FileUtil.join("gfe", "lastConfig.txt");
+    private static final String LAST_CONFIG = LocalizationUtil.join("gfe",
+            "lastConfig.txt");
 
     // Number of votes for Extra Photos
-    private final int[][] splashVotes = new int[][] { { 14, 10 }, { 15, 8 },
-            { 16, 7 }, { 17, 5 }, { 18, 5 }, { 19, 8 }, { 20, 5 }, { 21, 7 },
-            { 22, 7 }, { 23, 5 }, { 24, 6 }, { 25, 9 }, { 26, 6 }, { 27, 9 },
-            { 28, 8 } };
+    private static final int[][] splashVotes = new int[][] { { 14, 10 },
+            { 15, 8 }, { 16, 7 }, { 17, 5 }, { 18, 5 }, { 19, 8 }, { 20, 5 },
+            { 21, 7 }, { 22, 7 }, { 23, 5 }, { 24, 6 }, { 25, 9 }, { 26, 6 },
+            { 27, 9 }, { 28, 8 } };
 
-    private final int[][] splashDist = new int[splashVotes.length][2];
+    private static final int[][] splashDist = new int[splashVotes.length][2];
 
     // Percentage of time to show a winner
-    private final double winnerThreshold = .65;
+    private static final double winnerThreshold = .50;
 
     // Percentage of time to show an extra photo
-    private final double extrasThreshold = .30;
+    private static final double extrasThreshold = .25;
 
     // The remainder will be developer's choice photos
-    private final int totalPics = 45;
+    private static final int totalPics = 45;
 
-    private final int totalVotes;
+    private static final int totalVotes;
 
-    {
+    static {
         int val = 0;
         for (int i = 0; i < splashVotes.length; i++) {
             val += splashVotes[i][1];
@@ -159,6 +167,31 @@ public class GFEConfigDialog extends CaveJFACEDialog {
     private Button okButton;
 
     private List configList;
+
+    private UpdateJob updateJob;
+
+    private class UpdateJob extends UIJob {
+        private static final long UPDATE_PERIOD = 5
+                * TimeUtil.MILLIS_PER_SECOND;
+
+        public UpdateJob() {
+            super("GFEConfigUpdate");
+            this.setSystem(true);
+        }
+
+        @Override
+        public IStatus runInUIThread(IProgressMonitor monitor) {
+            if ((imgCanvas != null) && !imgCanvas.isDisposed()) {
+                Image oldImage = image;
+                image = nextImage();
+                imgCanvas.redraw();
+                oldImage.dispose();
+
+                this.schedule(UPDATE_PERIOD);
+            }
+            return Status.OK_STATUS;
+        }
+    }
 
     /**
      * @param parentShell
@@ -223,6 +256,7 @@ public class GFEConfigDialog extends CaveJFACEDialog {
 
             @Override
             public void widgetDisposed(DisposeEvent e) {
+                updateJob.cancel();
                 image.dispose();
             }
 
@@ -277,6 +311,15 @@ public class GFEConfigDialog extends CaveJFACEDialog {
 
         configList.addSelectionListener(new SelectionAdapter() {
             @Override
+            public void widgetDefaultSelected(SelectionEvent e) {
+                int index = configList.getSelectionIndex();
+                if (index >= 0) {
+                    configId.setText(configList.getItem(index));
+                }
+                okPressed();
+            }
+
+            @Override
             public void widgetSelected(SelectionEvent e) {
                 int index = configList.getSelectionIndex();
                 if (index >= 0) {
@@ -291,6 +334,9 @@ public class GFEConfigDialog extends CaveJFACEDialog {
                 validateConfigIdText();
             }
         });
+
+        updateJob = new UpdateJob();
+        updateJob.schedule(UpdateJob.UPDATE_PERIOD);
 
         return comp;
     }
@@ -400,11 +446,8 @@ public class GFEConfigDialog extends CaveJFACEDialog {
         display.update();
 
         /* load the selected python preferences */
-        PythonPreferenceStore pythonPrefs = new PythonPreferenceStore(config);
+        Activator.getDefault().loadConfiguration(config);
         statusHandler.info("GFE started with configuration: " + config);
-
-        /* set the preferences in the activator */
-        Activator.getDefault().setPreferenceStore(pythonPrefs);
 
         /*
          * save the last selected config to be used as the default next time GFE

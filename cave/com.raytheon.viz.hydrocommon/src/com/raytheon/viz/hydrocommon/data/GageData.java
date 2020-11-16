@@ -45,10 +45,10 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 05Oct2015    17978      lbousaidi   Added getParamCode(), getShefDurCode(), convertDur(), 
  *                                     getDataFormat().
  * May 03, 2016 5623       bkowal      Cleanup and formatting.
+ * Feb 21, 2018 6918       mduff       Added getFormattedGageValue()
  * </pre>
  * 
  * @author dhladky
- * @version 1.0
  */
 
 public class GageData implements Comparable<GageData> {
@@ -190,12 +190,12 @@ public class GageData implements Comparable<GageData> {
     /**
      * X direction shift of a station for decluttering purposes.
      */
-    int x_shift;
+    private int x_shift;
 
     /**
      * Y direction shift of a station for decluttering purposes.
      */
-    int y_shift;
+    private int y_shift;
 
     /**
      * The coordinate of this gage.
@@ -230,8 +230,11 @@ public class GageData implements Comparable<GageData> {
          * is available, but action or flood stage is missing. "Z" - Threat is
          * not available. Missing.
          */
-        THREAT_MISSING_DATA("Z"), THREAT_MISSING_STAGE("M"), THREAT_NONE("G"), THREAT_ACTION(
-                "Y"), THREAT_FLOOD("R");
+        THREAT_MISSING_DATA("Z"),
+        THREAT_MISSING_STAGE("M"),
+        THREAT_NONE("G"),
+        THREAT_ACTION("Y"),
+        THREAT_FLOOD("R");
 
         private String threatIndex;
 
@@ -406,18 +409,15 @@ public class GageData implements Comparable<GageData> {
         this.riverID = riverID;
     }
 
-    /**
-     * 
-     * @return
-     */
+    public String getFormattedGageValue() {
+        String format = getDataFormat(this.pe);
+        return String.format(format, this.value);
+    }
+
     public double getGageValue() {
         return value;
     }
 
-    /**
-     * 
-     * @return
-     */
     public double getGageValue2() {
         return value2;
     }
@@ -932,7 +932,7 @@ public class GageData implements Comparable<GageData> {
     public String getShefDurCode() {
 
         String shefDurCode;
-        if (getPe().equalsIgnoreCase("PC")) {
+        if ("PC".equalsIgnoreCase(getPe())) {
 
             // PC is always "I", but sometimes the duration might have been
             // screwed up
@@ -1052,14 +1052,14 @@ public class GageData implements Comparable<GageData> {
             format = "%6.0f";
         } else if (pe.toUpperCase().startsWith("S")) {
             /* Snow data */
-            if (pe.equalsIgnoreCase("SL")) {
+            if ("SL".equalsIgnoreCase(pe)) {
                 format = "%6.2f";
             } else {
                 format = "%6.1f";
             }
         } else if (pe.toUpperCase().startsWith("U")) {
             /* Wind data */
-            if (pe.equalsIgnoreCase("UQ")) {
+            if ("UQ".equalsIgnoreCase(pe)) {
                 format = "%8.4f";
             } else {
                 format = "%6.0f";
@@ -1069,7 +1069,7 @@ public class GageData implements Comparable<GageData> {
             format = "%5.0f";
         } else if (pe.toUpperCase().startsWith("Q")) {
             /* Flow/Runoff data */
-            if (!pe.equalsIgnoreCase("QB")) {
+            if (!"QB".equalsIgnoreCase(pe)) {
                 format = "%6.0f";
             } else {
                 format = "%6.2f";
@@ -1077,5 +1077,248 @@ public class GageData implements Comparable<GageData> {
         }
 
         return format;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((basistime == null) ? 0 : basistime.hashCode());
+        result = prime * result
+                + ((colorSet == null) ? 0 : colorSet.hashCode());
+        result = prime * result
+                + ((coordinate == null) ? 0 : coordinate.hashCode());
+        result = prime * result
+                + ((dispClass == null) ? 0 : dispClass.hashCode());
+        result = prime * result + (int) (dur ^ (dur >>> 32));
+        long temp;
+        temp = Double.doubleToLongBits(elevation);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result
+                + ((extremum == null) ? 0 : extremum.hashCode());
+        result = prime * result + (forecastSite ? 1231 : 1237);
+        temp = Double.doubleToLongBits(lat);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + ((lid == null) ? 0 : lid.hashCode());
+        temp = Double.doubleToLongBits(lon);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(major_flow);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(major_stage);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(minor_flow);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(minor_stage);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(moderate_flow);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(moderate_stage);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((pe == null) ? 0 : pe.hashCode());
+        temp = Double.doubleToLongBits(probability);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + (int) (quality_code ^ (quality_code >>> 32));
+        result = prime * result + ((riverID == null) ? 0 : riverID.hashCode());
+        result = prime * result
+                + ((shefQualCode == null) ? 0 : shefQualCode.hashCode());
+        result = prime * result
+                + ((threatIndex == null) ? 0 : threatIndex.hashCode());
+        result = prime * result + ((time == null) ? 0 : time.hashCode());
+        result = prime * result + ((ts == null) ? 0 : ts.hashCode());
+        result = prime * result + (use ? 1231 : 1237);
+        result = prime * result
+                + ((validtime == null) ? 0 : validtime.hashCode());
+        temp = Double.doubleToLongBits(value);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(value2);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + x;
+        result = prime * result + x_shift;
+        result = prime * result + y;
+        result = prime * result + y_shift;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        }
+        GageData other = (GageData) obj;
+        if (basistime == null) {
+            if (other.basistime != null) {
+                return false;
+            }
+        } else if (!basistime.equals(other.basistime)) {
+            return false;
+        }
+        if (colorSet == null) {
+            if (other.colorSet != null) {
+                return false;
+            }
+        } else if (!colorSet.equals(other.colorSet)) {
+            return false;
+        }
+        if (coordinate == null) {
+            if (other.coordinate != null) {
+                return false;
+            }
+        } else if (!coordinate.equals(other.coordinate)) {
+            return false;
+        }
+        if (dispClass == null) {
+            if (other.dispClass != null) {
+                return false;
+            }
+        } else if (!dispClass.equals(other.dispClass)) {
+            return false;
+        }
+        if (dur != other.dur) {
+            return false;
+        }
+        if (Double.doubleToLongBits(elevation) != Double
+                .doubleToLongBits(other.elevation)) {
+            return false;
+        }
+        if (extremum == null) {
+            if (other.extremum != null) {
+                return false;
+            }
+        } else if (!extremum.equals(other.extremum)) {
+            return false;
+        }
+        if (forecastSite != other.forecastSite) {
+            return false;
+        }
+        if (Double.doubleToLongBits(lat) != Double
+                .doubleToLongBits(other.lat)) {
+            return false;
+        }
+        if (lid == null) {
+            if (other.lid != null) {
+                return false;
+            }
+        } else if (!lid.equals(other.lid)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(lon) != Double
+                .doubleToLongBits(other.lon)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(major_flow) != Double
+                .doubleToLongBits(other.major_flow)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(major_stage) != Double
+                .doubleToLongBits(other.major_stage)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(minor_flow) != Double
+                .doubleToLongBits(other.minor_flow)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(minor_stage) != Double
+                .doubleToLongBits(other.minor_stage)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(moderate_flow) != Double
+                .doubleToLongBits(other.moderate_flow)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(moderate_stage) != Double
+                .doubleToLongBits(other.moderate_stage)) {
+            return false;
+        }
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (pe == null) {
+            if (other.pe != null) {
+                return false;
+            }
+        } else if (!pe.equals(other.pe)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(probability) != Double
+                .doubleToLongBits(other.probability)) {
+            return false;
+        }
+        if (quality_code != other.quality_code) {
+            return false;
+        }
+        if (riverID == null) {
+            if (other.riverID != null) {
+                return false;
+            }
+        } else if (!riverID.equals(other.riverID)) {
+            return false;
+        }
+        if (shefQualCode == null) {
+            if (other.shefQualCode != null) {
+                return false;
+            }
+        } else if (!shefQualCode.equals(other.shefQualCode)) {
+            return false;
+        }
+        if (threatIndex != other.threatIndex) {
+            return false;
+        }
+        if (time == null) {
+            if (other.time != null) {
+                return false;
+            }
+        } else if (!time.equals(other.time)) {
+            return false;
+        }
+        if (ts == null) {
+            if (other.ts != null) {
+                return false;
+            }
+        } else if (!ts.equals(other.ts)) {
+            return false;
+        }
+        if (use != other.use) {
+            return false;
+        }
+        if (validtime == null) {
+            if (other.validtime != null) {
+                return false;
+            }
+        } else if (!validtime.equals(other.validtime)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(value) != Double
+                .doubleToLongBits(other.value)) {
+            return false;
+        }
+        if (Double.doubleToLongBits(value2) != Double
+                .doubleToLongBits(other.value2)) {
+            return false;
+        }
+        if (x != other.x) {
+            return false;
+        }
+        if (x_shift != other.x_shift) {
+            return false;
+        }
+        if (y != other.y) {
+            return false;
+        }
+        if (y_shift != other.y_shift) {
+            return false;
+        }
+        return true;
     }
 }

@@ -1,25 +1,24 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.uf.edex.plugin.modelsounding.decoder;
 
-import java.io.File;
 import java.util.Calendar;
 import java.util.List;
 
@@ -27,11 +26,12 @@ import com.raytheon.uf.common.dataplugin.modelsounding.SoundingLevel;
 import com.raytheon.uf.common.dataplugin.modelsounding.SoundingSite;
 import com.raytheon.uf.common.geospatial.spi.SPIContainer;
 import com.raytheon.uf.common.geospatial.spi.SPIEntry;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
-import com.raytheon.uf.common.localization.PathManager;
+import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
 import com.raytheon.uf.common.pointdata.PointDataContainer;
 import com.raytheon.uf.common.pointdata.PointDataDescription;
@@ -53,7 +53,7 @@ import com.raytheon.uf.edex.plugin.modelsounding.common.SoundingModels;
 /**
  * This class contains several utility methods that construct a ProfilerObs
  * instance from the BUFR decoded data.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer    Description
@@ -68,11 +68,11 @@ import com.raytheon.uf.edex.plugin.modelsounding.common.SoundingModels;
  * Sep 16, 2014  3628     mapeters    Replaced static imports.
  * Jul 12, 2016  5744     mapeters    SoundingStations constructor no longer takes
  *                                    path parameter
- * Sep 05, 2018           mjames@ucar Remove modelBufr filter.
-
- * 
+ * Jan 04, 2018  7100     dgilling    Code cleanup, read SPI file from
+ *                                    CONFIGURED level.
+ *
  * </pre>
- * 
+ *
  * @author jkorman
  */
 public class ModelSoundingDataAdapter {
@@ -82,13 +82,48 @@ public class ModelSoundingDataAdapter {
 
     private static final Object LOCK = new Object();
 
-    public static final String MODEL_STATION_LIST = "modelBufrStationList.txt";
+    public static final String SPI_FILE = LocalizationUtil.join("basemaps",
+            "modelBufr.spi");
+
+    public static final String MODEL_STATION_LIST_FILENAME = "modelBufrStationList.txt";
+
+    public static final String MODEL_STATION_LIST_PATH = LocalizationUtil
+            .join("modelsounding", MODEL_STATION_LIST_FILENAME);
 
     private static SoundingStations stationsList = new SoundingStations();
 
+    private static SPIContainer SPI_DATA = populateSPIData();
+
+    public static void updateSPIData() {
+        SPIContainer spi = populateSPIData();
+        synchronized (LOCK) {
+            if ((spi != null) && (spi.isLoaded())) {
+                SPI_DATA = spi;
+            }
+        }
+    }
+
+    public static void updateStationList() {
+        SoundingStations ss = new SoundingStations();
+        synchronized (LOCK) {
+            stationsList = ss;
+        }
+    }
+
+    public static void update() {
+        SoundingStations ss = new SoundingStations();
+        SPIContainer spi = populateSPIData();
+        synchronized (LOCK) {
+            stationsList = ss;
+            if ((spi != null) && (spi.isLoaded())) {
+                SPI_DATA = spi;
+            }
+        }
+    }
+
     /**
      * Get the temporal and model information.
-     * 
+     *
      * @param dataDoc
      * @param wmoHeader
      * @return
@@ -134,7 +169,7 @@ public class ModelSoundingDataAdapter {
     /**
      * Construct a ProfilerObs instance from the BUFR decoded data contained in
      * the specified separator.
-     * 
+     *
      * @param iterator
      *            A iterator containing decoded BUFR data.
      * @param wmoHeader
@@ -188,7 +223,7 @@ public class ModelSoundingDataAdapter {
 
     /**
      * Extract all header data from the "main" observation list.
-     * 
+     *
      * @param dataList
      *            List of data packets to get data from.
      * @return The ProfilerObs with primary data populated.
@@ -206,47 +241,57 @@ public class ModelSoundingDataAdapter {
             obsData = new SoundingSite();
             SurfaceObsLocation location = new SurfaceObsLocation();
 
-            IBUFRDataPacket dp = dataList.get(index++);
+            IBUFRDataPacket dp = dataList.get(index);
+            index++;
             /*
              * dp is forecastHr packet, already handled in
              * SoundingModelTemporalData
              */
 
-            int wmoStaNum = getInt(dataList.get(index++), -9999);
+            int wmoStaNum = getInt(dataList.get(index), -9999);
+            index++;
             view.setInt("wmoStaNum", wmoStaNum);
             // Map the WMO station number to a station Id
             String stationId = stationsList.mapId(String.format("%010d",
                     wmoStaNum));
             // Now determine if the station Id is in this localization list.
-            if (stationId != null) {
-                location.setStationId(stationId);
-                obsData.setSiteId(String.format("%06d", wmoStaNum));
-            }
-            if (model.equals(SoundingModels.MODEL_ETA)) {
+            SPIEntry s = SPI_DATA.getEntryById(stationId);
+            if (s != null) {
+                if (stationId != null) {
+                    location.setStationId(stationId);
+                    obsData.setSiteId(String.format("%06d", wmoStaNum));
+                }
+                if (model.equals(SoundingModels.MODEL_ETA)) {
+                    index++;
+                }
+                Double lat = null;
+                dp = dataList.get(index);
                 index++;
+                int d = dp.getReferencingDescriptor().getDescriptor();
+                if (d == BUFRDescriptor.createDescriptor(0, 5, 2)) {
+                    lat = (Double) dp.getValue();
+                }
+                Double lon = null;
+                dp = dataList.get(index);
+                index++;
+                d = dp.getReferencingDescriptor().getDescriptor();
+                if (d == BUFRDescriptor.createDescriptor(0, 6, 2)) {
+                    lon = (Double) dp.getValue();
+                }
+                location.assignLocation(lat.floatValue(), lon.floatValue());
+                dp = dataList.get(index);
+                d = dp.getReferencingDescriptor().getDescriptor();
+                if (d == BUFRDescriptor.createDescriptor(0, 10, 194)) {
+                    stationHeight = (dp.getValue() != null) ? ((Double) dp
+                            .getValue()).intValue() : null;
+                    location.setElevation(stationHeight);
+                }
+                obsData.setLocation(location);
+
+                obsData.setPointDataView(view);
+            } else {
+                obsData = null;
             }
-            Double lat = null;
-            dp = dataList.get(index++);
-            int d = dp.getReferencingDescriptor().getDescriptor();
-            if (d == BUFRDescriptor.createDescriptor(0, 5, 2)) {
-                lat = (Double) dp.getValue();
-            }
-            Double lon = null;
-            dp = dataList.get(index++);
-            d = dp.getReferencingDescriptor().getDescriptor();
-            if (d == BUFRDescriptor.createDescriptor(0, 6, 2)) {
-                lon = (Double) dp.getValue();
-            }
-            location.assignLocation(lat.floatValue(), lon.floatValue());
-            dp = dataList.get(index);
-            d = dp.getReferencingDescriptor().getDescriptor();
-            if (d == BUFRDescriptor.createDescriptor(0, 10, 194)) {
-                stationHeight = (dp.getValue() != null) ? ((Double) dp
-                        .getValue()).intValue() : null;
-                location.setElevation(stationHeight);
-            }
-            obsData.setLocation(location);
-            obsData.setPointDataView(view);
         }
 
         return obsData;
@@ -254,7 +299,7 @@ public class ModelSoundingDataAdapter {
 
     /**
      * Extract all header data from the "main" observation list.
-     * 
+     *
      * @param siteData
      *            List of data packets to get data from.
      * @return The ProfilerObs with primary data populated.
@@ -314,7 +359,7 @@ public class ModelSoundingDataAdapter {
 
     /**
      * Creates individual level data from level "sublists" that were decoded.
-     * 
+     *
      * @param levelList
      *            A sublist containing level data.
      * @param level
@@ -342,7 +387,7 @@ public class ModelSoundingDataAdapter {
 
     /**
      * Extract all header data from the "main" observation list.
-     * 
+     *
      * @param siteData
      *            List of data packets to get data from.
      * @return The ProfilerObs with primary data populated.
@@ -479,6 +524,28 @@ public class ModelSoundingDataAdapter {
             }
         }
         return retValue;
+    }
+
+    private static SPIContainer populateSPIData() {
+        IPathManager pathMgr = PathManagerFactory.getPathManager();
+        LocalizationContext ctx = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.CONFIGURED);
+        String site = ctx.getContextName();
+
+        logger.info("Loading " + SPI_FILE + " for site [" + site + "]");
+
+        ILocalizationFile srcFile = pathMgr.getLocalizationFile(ctx, SPI_FILE);
+
+        SPIContainer container = new SPIContainer(srcFile);
+        if (container.isLoaded()) {
+            logger.info("Loading " + SPI_FILE + " for site [" + site
+                    + "] Successful");
+        } else {
+            logger.error("Loading " + SPI_FILE + " for site [" + site
+                    + "] failed");
+        }
+
+        return container;
     }
 
 }

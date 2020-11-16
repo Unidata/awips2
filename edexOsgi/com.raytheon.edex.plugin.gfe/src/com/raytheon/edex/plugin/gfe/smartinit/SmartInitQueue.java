@@ -58,6 +58,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  * Oct 16, 2014  3454     bphillip  Upgrading to Hibernate 4
  * Sep 12, 2016  5861     randerso  Remove references to IFPServerConfigManager
  *                                  which was largely redundant with IFPServer.
+ * Feb 20, 2018  6928     randerso  Added call to SmartInitSrv.runNow() after
+ *                                  writing SmartInitRecords to the database
  *
  * </pre>
  *
@@ -65,7 +67,7 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  */
 
 public class SmartInitQueue {
-    protected static final transient IUFStatusHandler statusHandler = UFStatus
+    protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SmartInitQueue.class);
 
     private static SmartInitQueue queue;
@@ -94,7 +96,7 @@ public class SmartInitQueue {
     private Map<SmartInitRecordPK, SmartInitRecord> initSet;
 
     private SmartInitQueue() {
-        initSet = new HashMap<SmartInitRecordPK, SmartInitRecord>();
+        initSet = new HashMap<>();
     }
 
     /**
@@ -120,8 +122,7 @@ public class SmartInitQueue {
         List<String> siteInitModules = config.initModels(gfeModel);
 
         StringBuilder initNameBuilder = new StringBuilder(120);
-        List<SmartInitRecord> inits = new ArrayList<SmartInitRecord>(
-                siteInitModules.size());
+        List<SmartInitRecord> inits = new ArrayList<>(siteInitModules.size());
         for (String moduleName : siteInitModules) {
             initNameBuilder.setLength(0);
             initNameBuilder.append(site);
@@ -214,8 +215,7 @@ public class SmartInitQueue {
         synchronized (this) {
             if (initSet.size() > 0) {
                 initsToStore = initSet;
-                initSet = new HashMap<SmartInitRecordPK, SmartInitRecord>(
-                        (int) (initsToStore.size() * 1.25) + 1);
+                initSet = new HashMap<>((int) (initsToStore.size() * 1.25) + 1);
             }
         }
 
@@ -278,12 +278,14 @@ public class SmartInitQueue {
                     }
                 }
             }
+
+            SmartInitSrv.getServer().runNow();
         }
 
     }
 
     private List<SmartInitRecord> splitManual(String initName) {
-        List<SmartInitRecord> rval = new ArrayList<SmartInitRecord>(60);
+        List<SmartInitRecord> rval = new ArrayList<>(60);
 
         try {
             if (initName == null) {
@@ -317,7 +319,7 @@ public class SmartInitQueue {
             }
 
             boolean calcAll = true;
-            if ((tokens.length > 1) && tokens[1].equals("0")) {
+            if ((tokens.length > 1) && "0".equals(tokens[1])) {
                 calcAll = false;
             }
 
@@ -326,7 +328,7 @@ public class SmartInitQueue {
             String dbName = dbId.toString();
 
             if ((tokens.length > 2) && (tokens[2].length() > 0)) {
-                siteInitModules = new ArrayList<String>();
+                siteInitModules = new ArrayList<>();
                 siteInitModules.add(tokens[2]);
             } else {
                 IFPServerConfig config = IFPServer

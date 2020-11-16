@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,17 +26,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Pattern;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 
@@ -49,10 +45,9 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.uf.viz.core.drawables.FillPatterns;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PreferenceInitializer;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.msgs.ClearHighlightsMsg;
 import com.raytheon.viz.gfe.core.msgs.GMDisplayModeMsg;
@@ -75,157 +70,47 @@ import com.raytheon.viz.gfe.rsc.GFEFonts;
 
 /**
  * Displays the Grid Manager Data.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 02/19/2008              dfitch      Initial creation.
- * Apr 7, 2009       #2212 randerso    Reimplemented
- * Jun 23, 2011  #9897     ryu         Update static variables on new GFE config
- * Oct 29, 2014  #3776     randerso    Cached fill patterns used in history mode
- *                                     Renamed static variables to match AWIPS standards
- * Mar 10, 2016 #5479      randerso    Use improved GFEFonts API
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 19, 2008           dfitch    Initial creation.
+ * Apr 07, 2009  2212     randerso  Reimplemented
+ * Jun 23, 2011  9897     ryu       Update static variables on new GFE config
+ * Oct 29, 2014  3776     randerso  Cached fill patterns used in history mode
+ *                                  Renamed static variables to match AWIPS
+ *                                  standards
+ * Mar 10, 2016  5479     randerso  Use improved GFEFonts API
+ * Jan 23, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ * Feb 19, 2018  7117     randerso  Fixed grid display for satellite grids
+ *
  * </pre>
- * 
+ *
  * @author dfitch
- * @version 1.0
  */
 
 public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         IGridVisibilityChangedListener, IActivatedParmChangedListener,
         IGridDataChangedListener, ISelectionTimeRangeChangedListener,
         IParameterSelectionChangedListener, ILockTableChangedListener,
-        IParmIDChangedListener, IGridHistoryUpdatedListener, DisposeListener
+        IParmIDChangedListener, IGridHistoryUpdatedListener {
 
-{
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridBar.class);
-
-    protected static final int MILLIS_PER_SECOND = 1000;
-
-    protected static final int MILLIS_PER_MINUTE = 60 * MILLIS_PER_SECOND;
 
     private static final Date BASE_DATE = new Date(0);
 
     private static final Color DEFAULT_COLOR = new Color(null,
             RGBColors.getRGBColor("gray75"));
 
-    protected static Pattern lockedByMe;
-
-    public static Pattern lockedByOther;
-
-    protected static Map<RGB, Pattern> modifiedByMe = new HashMap<RGB, Pattern>();
-
-    protected static Map<RGB, Pattern> modifiedByOther = new HashMap<RGB, Pattern>();
-
-    protected static Color timeBlockVisible_color;
-
-    protected static Color timeBlockActive_color;
-
-    protected static Color timeBlockInvisible_color;
-
-    protected static boolean showEditorTimeLines;
-
-    protected static boolean showSplitBoundaries;
-
-    static {
-        new PreferenceInitializer() {
-            @Override
-            public void init() {
-                IPreferenceStore prefs = Activator.getDefault()
-                        .getPreferenceStore();
-
-                String color, pattern;
-
-                if ((color = prefs.getString("LockedByMe_color")).isEmpty()) {
-                    color = "forestgreen";
-                }
-                if ((pattern = prefs.getString("LockedByMe_pattern")).isEmpty()) {
-                    pattern = "WHOLE";
-                }
-                if (lockedByMe != null) {
-                    lockedByMe.dispose();
-                }
-                lockedByMe = FillPatterns.getSWTPattern(
-                        RGBColors.getRGBColor(color), pattern);
-
-                if ((color = prefs.getString("LockedByOther_color")).isEmpty()) {
-                    color = "tomato2";
-                }
-                if ((pattern = prefs.getString("LockedByOther_pattern"))
-                        .isEmpty()) {
-                    pattern = "WHOLE";
-                }
-                if (lockedByOther != null) {
-                    lockedByOther.dispose();
-                }
-                lockedByOther = FillPatterns.getSWTPattern(
-                        RGBColors.getRGBColor(color), pattern);
-
-                for (RGB key : modifiedByMe.keySet()) {
-                    Pattern pat = modifiedByMe.remove(key);
-                    pat.dispose();
-                }
-
-                for (RGB key : modifiedByOther.keySet()) {
-                    Pattern pat = modifiedByOther.remove(key);
-                    pat.dispose();
-                }
-
-                if ((color = prefs.getString("TimeBlockVisible_color"))
-                        .isEmpty()) {
-                    color = "White";
-                }
-                if (timeBlockVisible_color != null) {
-                    timeBlockVisible_color.dispose();
-                }
-                timeBlockVisible_color = new Color(Display.getDefault(),
-                        RGBColors.getRGBColor(color));
-
-                if ((color = prefs.getString("TimeBlockActive_color"))
-                        .isEmpty()) {
-                    color = "Yellow";
-                }
-                if (timeBlockActive_color != null) {
-                    timeBlockActive_color.dispose();
-                }
-                timeBlockActive_color = new Color(Display.getDefault(),
-                        RGBColors.getRGBColor(color));
-
-                if ((color = prefs.getString("TimeBlockInvisible_color"))
-                        .isEmpty()) {
-                    color = "Gray50";
-                }
-                if (timeBlockInvisible_color != null) {
-                    timeBlockInvisible_color.dispose();
-                }
-                timeBlockInvisible_color = new Color(Display.getDefault(),
-                        RGBColors.getRGBColor(color));
-
-                showEditorTimeLines = true;
-                if (prefs.contains("EditorTimeLines")) {
-                    showEditorTimeLines = prefs.getBoolean("EditorTimeLines");
-                }
-
-                showSplitBoundaries = true;
-                if (prefs.contains("SplitBoundaryDisplay")) {
-                    showSplitBoundaries = prefs
-                            .getBoolean("SplitBoundaryDisplay");
-                }
-            }
-        }.run();
-    }
-
-    // protected static final Color TimeBlockPreview_color = new Color(Display
-    // .getDefault(), RGBColors.getRGBColor("Cyan"));
-
     private static final int HEIGHT = 29;
 
     private static final int MARGIN = 3;
 
-    static final int DATA_BLOCK_HORIZONTAL_MARGIN = 2;
+    protected static final int DATA_BLOCK_HORIZONTAL_MARGIN = 2;
 
     private static final int DATA_BLOCK_HEIGHT = 20;
 
@@ -235,10 +120,9 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     static {
         Color white = Display.getDefault().getSystemColor(SWT.COLOR_WHITE);
-        HALF_INTENSITY = (white.getRed() + white.getGreen() + white.getBlue()) / 2;
+        HALF_INTENSITY = (white.getRed() + white.getGreen() + white.getBlue())
+                / 2;
     }
-
-    protected static Map<String, Color> historyColors = new HashMap<String, Color>();
 
     private GridCanvas canvas;
 
@@ -256,6 +140,8 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     private GridManager gridManager;
 
+    private GridBarPreferences prefs;
+
     private GridMode gridMode;
 
     private Font timeBlockSourceFont;
@@ -268,29 +154,20 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     private int verticalPosition;
 
-    // private int paintCount;
-    //
-    // private long lastReportTime;
-    //
-    // private int redrawCount;
-
-    // private Display display;
-
     /**
-     * @param aCanvas
-     * @param aParm
-     * @param aGridManager
+     * @param canvas
+     * @param parm
+     * @param gridManager
      */
-    @SuppressWarnings("unchecked")
-    public GridBar(final GridCanvas aCanvas, final Parm aParm,
-            final GridManager aGridManager) {
-        canvas = aCanvas;
-        // display = canvas.getDisplay();
-        parm = aParm;
-        gridManager = aGridManager;
+    public GridBar(final GridCanvas canvas, final Parm parm,
+            final GridManager gridManager) {
+        this.canvas = canvas;
+        this.parm = parm;
+        this.gridManager = gridManager;
+        this.prefs = gridManager.getGridBarPrefs();
 
-        highlights = new ArrayList<Highlight>();
-        highlightColors = new HashMap<String, Color>();
+        highlights = new ArrayList<>();
+        highlightColors = new HashMap<>();
 
         gridMode = Message.inquireLastMessage(GMDisplayModeMsg.class)
                 .getGridMode();
@@ -306,10 +183,10 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         this.parm.getListeners().addLockTableChangedListener(this);
         this.parm.getListeners().addParmIDChangedListener(this);
 
-        aGridManager.getDataManager().getSpatialDisplayManager()
+        gridManager.getDataManager().getSpatialDisplayManager()
                 .addActivatedParmChangedListener(this);
 
-        aGridManager.getDataManager().getSpatialDisplayManager()
+        gridManager.getDataManager().getSpatialDisplayManager()
                 .addGridVisibilityChangedListener(this);
 
         timeBlockSourceFont = GFEFonts.makeGFEFont(canvas.getDisplay(),
@@ -321,21 +198,12 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         gc.setFont(timeBlockLabelFont);
         descrHeight = gc.getFontMetrics().getAscent();
         gc.dispose();
-
-        this.canvas.addDisposeListener(this);
     }
 
-    @Override
-    public void widgetDisposed(DisposeEvent e) {
-        this.dispose();
-    }
-
-    @SuppressWarnings("unchecked")
+    /**
+     * Clean up resources and listeners
+     */
     public void dispose() {
-        if (!this.canvas.isDisposed()) {
-            this.canvas.removeDisposeListener(this);
-        }
-
         Message.unregisterInterest(this, HighlightMsg.class,
                 ClearHighlightsMsg.class, GMDisplayModeMsg.class);
 
@@ -353,7 +221,8 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         gridManager.getDataManager().getSpatialDisplayManager()
                 .removeGridVisibilityChangedListener(this);
 
-        if ((timeBlockSourceFont != null) && !timeBlockSourceFont.isDisposed()) {
+        if ((timeBlockSourceFont != null)
+                && !timeBlockSourceFont.isDisposed()) {
             timeBlockSourceFont.dispose();
             timeBlockSourceFont = null;
         }
@@ -364,13 +233,6 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.Message.IMessageClient#receiveMessage(
-     * com.raytheon.viz.gfe.core.msgs.Message)
-     */
     @Override
     public void receiveMessage(Message message) {
         if (message instanceof HighlightMsg) {
@@ -414,16 +276,6 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     }
 
     protected void paint(PaintEvent event) {
-        // this.paintCount++;
-        // long t = System.currentTimeMillis() - this.lastReportTime;
-        // if (t > 1000) {
-        // System.out.println(this.paintCount + " paints, " + this.redrawCount
-        // + " requests in the last " + t / 1000 + " seconds for "
-        // + this.toString());
-        // this.lastReportTime += t;
-        // this.paintCount = 0;
-        // this.redrawCount = 0;
-        // }
         gridManager.getUtil().paintBackground(event, getBounds());
         paintLocks(event);
         gridManager.getUtil().paintTimeScaleLines(event, getBounds());
@@ -434,11 +286,11 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         for (int i = 0; i < data.length; i++) {
             gridsTimeRange[i] = data[i].getGridTime();
         }
-        if (showSplitBoundaries) {
+        if (prefs.isShowSplitBoundaries()) {
             paintEmptyBlocks(event, parm.getGridInfo().getTimeConstraints(),
                     gridsTimeRange);
         }
-        if (showEditorTimeLines) {
+        if (prefs.isShowEditorTimeLines()) {
             gridManager.getUtil().paintSelected(event, getBounds());
         }
         paintDescription(event, getBounds());
@@ -460,7 +312,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Paints the selection box and the Description of the Parm
-     * 
+     *
      * @param gc
      */
     private void paintDescription(PaintEvent event, Rectangle rect) {
@@ -481,7 +333,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         gc.setLineWidth(0);
         gc.drawRectangle(selectionBox);
 
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
 
         // get the parm name
         String parmText = parm.getParmID().getParmName();
@@ -494,15 +346,14 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         String modelText = parm.getParmID().getDbId().getShortModelId();
         sb.append(modelText);
 
-        gc.drawText(sb.toString(),
-                selectionBox.x + selectionBox.width + MARGIN, selectionBox.y,
-                true);
+        gc.drawText(sb.toString(), selectionBox.x + selectionBox.width + MARGIN,
+                selectionBox.y, true);
         gc.setFont(origFont);
     }
 
     /**
      * Paints the parm's locks
-     * 
+     *
      * @param parm
      *            The parm
      */
@@ -511,7 +362,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
         LockTable lockTable = parm.getLockTable();
 
-        gc.setBackgroundPattern(lockedByMe);
+        gc.setBackgroundPattern(prefs.getLockedByMe());
         for (TimeRange timeRange : lockTable.lockedByMe()) {
             if (timeRange.overlaps(this.gridManager.getVisibleTimeRange())) {
                 Rectangle rect = computeLockRect(timeRange);
@@ -520,7 +371,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
         }
 
-        gc.setBackgroundPattern(lockedByOther);
+        gc.setBackgroundPattern(prefs.getLockedByOther());
         for (TimeRange timeRange : lockTable.lockedByOther()) {
             if (timeRange.overlaps(this.gridManager.getVisibleTimeRange())) {
                 Rectangle rect = computeLockRect(timeRange);
@@ -534,7 +385,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
             TimeRange dataTR[]) {
         GC gc = event.gc;
         TimeRange visibleRange = gridManager.getVisibleTimeRange();
-        gc.setForeground(timeBlockInvisible_color);
+        gc.setForeground(prefs.getTimeBlockInvisibleColor());
 
         gc.setLineStyle(DATA_BLOCK_LINE_STYLE);
         gc.setLineWidth(0);
@@ -555,7 +406,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Paints the actual data blocks
-     * 
+     *
      * @param dataTR
      */
     private void paintDataBlocks(PaintEvent event, TimeRange dataTR[]) {
@@ -628,7 +479,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         case LASTPUBLISHED:
         case LASTSENT: {
             Date[] time = paintSaveTimeBlock(gc, gridTR, gridId, mode);
-            if (time[0] != BASE_DATE) {
+            if (!time[0].equals(BASE_DATE)) {
                 srcStr = formatUpdateTime(time[0], time[1]);
             } else {
                 srcStr = new String();
@@ -643,7 +494,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Paints the actual data blocks
-     * 
+     *
      * @param dataTR
      */
     private void paintBlockText(GC gc, TimeRange dataTR, String text) {
@@ -652,11 +503,11 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
                 + bkgColor.getBlue();
 
         if (intensity < HALF_INTENSITY) {
-            gc.setForeground(Display.getCurrent().getSystemColor(
-                    SWT.COLOR_WHITE));
+            gc.setForeground(
+                    Display.getCurrent().getSystemColor(SWT.COLOR_WHITE));
         } else {
-            gc.setForeground(Display.getCurrent().getSystemColor(
-                    SWT.COLOR_BLACK));
+            gc.setForeground(
+                    Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
         }
 
         Rectangle rect = computeRect(dataTR);
@@ -675,7 +526,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Paints the actual data blocks
-     * 
+     *
      * @param dataTR
      */
     private void paintActualBlock(GC gc, TimeRange dataTR, boolean visible,
@@ -687,9 +538,6 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         }
 
         Rectangle rect = computeRect(dataTR);
-        if (rect.width < 1) {
-            rect.width = 1;
-        }
 
         Color hlColor = highlightColors.get(highlight);
         if (hlColor != null) {
@@ -699,18 +547,18 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         }
 
         if (!active && !visible) {
-            gc.setBackground(timeBlockInvisible_color);
+            gc.setBackground(prefs.getTimeBlockInvisibleColor());
             gc.fillRectangle(rect);
         } else if (!active && visible) {
-            gc.setBackground(timeBlockVisible_color);
+            gc.setBackground(prefs.getTimeBlockVisibleColor());
             gc.fillRectangle(rect);
         } else if (active && visible) {
-            gc.setBackground(timeBlockActive_color);
+            gc.setBackground(prefs.getTimeBlockActiveColor());
             gc.fillRectangle(rect);
         } else {
-            gc.setBackground(timeBlockInvisible_color);
+            gc.setBackground(prefs.getTimeBlockInvisibleColor());
             gc.fillRectangle(rect);
-            gc.setForeground(timeBlockActive_color);
+            gc.setForeground(prefs.getTimeBlockActiveColor());
             gc.drawRectangle(rect);
         }
     }
@@ -732,33 +580,32 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         case INITIALIZED: {
             String key = "HistoryModelColor_"
                     + history.getOriginParm().getDbId().getModelName();
-            color = getHistoryColor(key);
+            color = prefs.getHistoryColor(key);
             if (color == null) {
                 // model not defined, try the default
-                color = getHistoryColor("HistoryOriginColor_Populated");
-                historyColors.put(key, color);
+                color = prefs.getHistoryColor("HistoryOriginColor_Populated");
             }
         }
             break;
 
         case TIME_INTERPOLATED:
-            color = getHistoryColor("HistoryOriginColor_Interpolated");
+            color = prefs.getHistoryColor("HistoryOriginColor_Interpolated");
             break;
 
         case SCRATCH:
-            color = getHistoryColor("HistoryOriginColor_Scratch");
+            color = prefs.getHistoryColor("HistoryOriginColor_Scratch");
             break;
 
         case CALCULATED:
-            color = getHistoryColor("HistoryOriginColor_Calculated");
+            color = prefs.getHistoryColor("HistoryOriginColor_Calculated");
             break;
 
         case OTHER:
-            color = getHistoryColor("HistoryOriginColor_Other");
+            color = prefs.getHistoryColor("HistoryOriginColor_Other");
             break;
 
         default:
-            color = getHistoryColor("HistoryOriginColor_Other");
+            color = prefs.getHistoryColor("HistoryOriginColor_Other");
             break;
         }
 
@@ -769,28 +616,11 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         // determine the fill pattern
         Pattern fp = null;
         if (history.getTimeModified() != null) {
-            String patt;
             if (history.getWhoModified()
                     .equals(parm.getDataManager().getWsId())) {
-                patt = Activator.getDefault().getPreferenceStore()
-                        .getString("HistoryUserModPattern_Me");
-                if (!patt.isEmpty()) {
-                    fp = modifiedByMe.get(color.getRGB());
-                    if (fp == null) {
-                        fp = FillPatterns.getSWTPattern(color.getRGB(), patt);
-                        modifiedByMe.put(color.getRGB(), fp);
-                    }
-                }
+                fp = prefs.getModifiedByMe(color);
             } else {
-                patt = Activator.getDefault().getPreferenceStore()
-                        .getString("HistoryUserModPattern_Other");
-                if (!patt.isEmpty()) {
-                    fp = modifiedByOther.get(color.getRGB());
-                    if (fp == null) {
-                        fp = FillPatterns.getSWTPattern(color.getRGB(), patt);
-                        modifiedByOther.put(color.getRGB(), fp);
-                    }
-                }
+                fp = prefs.getModifiedByOther(color);
             }
         }
 
@@ -802,14 +632,14 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
         // if a pattern was used, then return a black for the interior color
         if (fp != null) {
-            gc.setBackground(Display.getCurrent().getSystemColor(
-                    SWT.COLOR_BLACK));
+            gc.setBackground(
+                    Display.getCurrent().getSystemColor(SWT.COLOR_BLACK));
         }
     }
 
     /**
      * Formats the a string using the grid data history.
-     * 
+     *
      * @param histories
      *            The grid data history.
      * @return The properly formated string.
@@ -818,82 +648,49 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         String ts = "";
 
         if (histories.length == 0) {
-            return ts; // empty string if no histories
+            // empty string if no histories
+            return ts;
         }
         GridDataHistory history = histories[0];
 
         // if modified, then display
-        if (history.getOrigin() == GridDataHistory.OriginType.INITIALIZED) {
-            ts = "P";
-            String fromPreference;
-            fromPreference = Activator.getDefault().getPreferenceStore()
-                    .getString("HistoryOriginText_Populated");
-            if (fromPreference.length() > 0) {
-                ts = fromPreference;
-            }
-            fromPreference = Activator
-                    .getDefault()
-                    .getPreferenceStore()
-                    .getString(
-                            "HistoryModelText_"
-                                    + history.getOriginParm().getDbId()
-                                            .getModelName());
-            if (fromPreference.length() > 0) {
-                ts = fromPreference;
-            }
-        } else if (history.getOrigin() == GridDataHistory.OriginType.TIME_INTERPOLATED) {
-            ts = "I";
-            String fromPreference = Activator.getDefault().getPreferenceStore()
-                    .getString("HistoryOriginText_Interpolated");
-            if (fromPreference.length() > 0) {
-                ts = fromPreference;
-            }
-        } else if (history.getOrigin() == GridDataHistory.OriginType.SCRATCH) {
-            ts = "S";
-            String fromPreference = Activator.getDefault().getPreferenceStore()
-                    .getString("HistoryOriginText_Scratch");
-            if (fromPreference.length() > 0) {
-                ts = fromPreference;
-            }
-        } else if (history.getOrigin() == GridDataHistory.OriginType.CALCULATED) {
-            ts = "C";
-            String fromPreference = Activator.getDefault().getPreferenceStore()
-                    .getString("HistoryOriginText_Calculated");
-            if (fromPreference.length() > 0) {
-                ts = fromPreference;
-            }
-        } else if (history.getOrigin() == GridDataHistory.OriginType.OTHER) {
-            ts = "?";
+        switch (history.getOrigin()) {
+        case INITIALIZED:
+            ts = GFEPreference.getString("HistoryOriginText_Populated", "P");
+            ts = GFEPreference.getString(
+                    "HistoryModelText_"
+                            + history.getOriginParm().getDbId().getModelName(),
+                    ts);
+            break;
 
-            String fromPreference = Activator.getDefault().getPreferenceStore()
-                    .getString("HistoryOriginText_Other");
-            if (fromPreference.length() > 0) {
-                ts = fromPreference;
-            }
-        } else {
+        case TIME_INTERPOLATED:
+            ts = GFEPreference.getString("HistoryOriginText_Interpolated", "I");
+            break;
+
+        case SCRATCH:
+            ts = GFEPreference.getString("HistoryOriginText_Scratch", "S");
+            break;
+
+        case CALCULATED:
+            ts = GFEPreference.getString("HistoryOriginText_Calculated", "C");
+            break;
+
+        case OTHER:
+            ts = GFEPreference.getString("HistoryOriginText_Other", "?");
+            break;
+
+        default:
             ts = "?";
         }
 
         if (history.getTimeModified() != null) {
             // modified by you or someone else
-            if (history.getWhoModified().equals(
-                    gridManager.getDataManager().getWsId())) {
-                ts = "m";
-                String fromPreference = Activator.getDefault()
-                        .getPreferenceStore()
-                        .getString("HistoryUserModText_Me");
-                if (fromPreference.length() > 0) {
-                    ts = fromPreference;
-                }
-            } else if (!history.getWhoModified().equals(
-                    gridManager.getDataManager().getWsId())) {
-                ts = "o";
-                String fromPreference = Activator.getDefault()
-                        .getPreferenceStore()
-                        .getString("HistoryUserModText_Other");
-                if (fromPreference.length() > 0) {
-                    ts = fromPreference;
-                }
+            if (history.getWhoModified()
+                    .equals(gridManager.getDataManager().getWsId())) {
+                ts = GFEPreference.getString("HistoryUserModText_Me", "m");
+            } else if (!history.getWhoModified()
+                    .equals(gridManager.getDataManager().getWsId())) {
+                ts = GFEPreference.getString("HistoryUserModText_Other", "o");
             }
         }
 
@@ -926,15 +723,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         default:
         }
 
-        Color color = TimeBasedColors.getColor(mode, time[1]);
-
-        // fill pattern is always WHOLE
-        // Graphics::FillPattern fp = Graphics::WHOLE;
-
-        // now do the drawing
-        // g->fillPattern(fp);
-        // g->fgColor(color);
-        // g->paintFilledRectangle(cd);
+        Color color = prefs.getTimeBasedColor(mode, time[1]);
 
         Rectangle rect = computeRect(dataTR);
         gc.setBackground(color);
@@ -945,7 +734,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Calculates the udpate time.
-     * 
+     *
      * @param his
      *            The gird data's history
      * @return the times [0] = early, [1] = late
@@ -969,7 +758,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Calculates the modified time.
-     * 
+     *
      * @param his
      *            The gird data's history
      * @param earlyTime
@@ -997,7 +786,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Calculates the published time.
-     * 
+     *
      * @param his
      *            The gird data's history
      * @param earlyTime
@@ -1025,7 +814,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Calculates the last sent time.
-     * 
+     *
      * @param his
      *            The gird data's history
      * @param earlyTime
@@ -1053,7 +842,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Formats the updated time
-     * 
+     *
      * @param updateTime
      *            The updated time.
      * @return The formatted string.
@@ -1063,26 +852,27 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
             return "";
         }
 
-        long ago = (SimulatedTime.getSystemTime().getTime().getTime() - updateTime
-                .getTime()) / 1000;
+        long ago = (SimulatedTime.getSystemTime().getTime().getTime()
+                - updateTime.getTime()) / TimeUtil.MILLIS_PER_SECOND;
 
         if (ago < 0) {
             return "0";
         }
 
         String o = "";
-        if (ago < 3600) {
-            o = o.concat(String.valueOf(ago / 60));
+        if (ago < TimeUtil.SECONDS_PER_HOUR) {
+            o = o.concat(String.valueOf(ago / TimeUtil.SECONDS_PER_MINUTE));
             o = o.concat("m");
-        } else if (ago < (3600 * 6)) {
-            int hrs = (int) ago / 3600;
-            int min = (int) (ago % 3600) / 60;
+        } else if (ago < (TimeUtil.SECONDS_PER_HOUR * 6)) {
+            int hrs = (int) ago / TimeUtil.SECONDS_PER_HOUR;
+            int min = (int) (ago % TimeUtil.SECONDS_PER_HOUR)
+                    / TimeUtil.SECONDS_PER_MINUTE;
             o = o.concat(String.valueOf(hrs));
             o = o.concat("h");
             o = o.concat(String.valueOf(min));
             o = o.concat("m");
-        } else if (ago < 86400) {
-            o = o.concat(String.valueOf((int) ago / 3600));
+        } else if (ago < TimeUtil.SECONDS_PER_DAY) {
+            o = o.concat(String.valueOf((int) ago / TimeUtil.SECONDS_PER_HOUR));
             o = o.concat("h");
         } else {
             o = o.concat(">1d");
@@ -1092,7 +882,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Formats the date with the proper text.
-     * 
+     *
      * @param earlyTime
      *            The early Time.
      * @param lateTime
@@ -1112,27 +902,26 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Paints the stretch blocks
-     * 
+     *
+     * @param event
      * @param dataTR
+     * @param isStretch
      */
     public void paintStretchBlocks(PaintEvent event, TimeRange dataTR,
             boolean isStretch) {
         GC gc = event.gc;
         int stretched = -2;
         if (isStretch) {
-            gc.setForeground(Display.getCurrent().getSystemColor(SWT.COLOR_RED));
+            gc.setForeground(
+                    Display.getCurrent().getSystemColor(SWT.COLOR_RED));
 
         } else {
-            gc.setForeground(Display.getCurrent().getSystemColor(
-                    SWT.COLOR_GREEN));
+            gc.setForeground(
+                    Display.getCurrent().getSystemColor(SWT.COLOR_GREEN));
             stretched = -1;
         }
 
         Rectangle rect = computeRect(dataTR);
-
-        // gc.drawRectangle(rect.x + stretched, rect.y + stretched, rect.width -
-        // 2
-        // * stretched, rect.height - 2 * stretched);
 
         int x1 = rect.x + stretched;
         int x2 = (rect.x + rect.width) - stretched;
@@ -1141,11 +930,6 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         gc.drawPolyline(new int[] { x1, y2, x1, y1, x2, y1, x2, y2 });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return parm.getParmID().compositeNameUI();
@@ -1153,14 +937,15 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Truncates the label so it fits within the box.
-     * 
+     *
      * @param label
      *            The text to be truncated.
      * @param maxLengthPixels
      *            The max length that the text can be.
      * @return The truncated string if necessary.
      */
-    private String truncateLabelToFit(GC gc, String label, int maxLengthPixels) {
+    private String truncateLabelToFit(GC gc, String label,
+            int maxLengthPixels) {
         if (maxLengthPixels == 0) {
             return "";
         }
@@ -1176,24 +961,9 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     }
 
-    private Color getHistoryColor(String key) {
-        Color color = historyColors.get(key);
-        if (color == null) {
-            String colorString = Activator.getDefault().getPreferenceStore()
-                    .getString(key);
-            if (!colorString.isEmpty()) {
-                RGB rgbColor = RGBColors.getRGBColor(colorString);
-                color = new Color(Display.getCurrent(), rgbColor);
-                historyColors.put(key, color);
-            }
-        }
-
-        return color;
-    }
-
     /**
      * Compute data block rectangle from timeRange
-     * 
+     *
      * @param tr
      *            desired TimeRange
      * @return rectangle to be drawn
@@ -1204,8 +974,8 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         rect.x += DATA_BLOCK_HORIZONTAL_MARGIN;
         rect.y = (getBounds().y + getBounds().height) - DATA_BLOCK_HEIGHT - 1;
         rect.width -= (DATA_BLOCK_HORIZONTAL_MARGIN * 2) - 1;
-        if (rect.width < 0) {
-            rect.width = 0;
+        if (rect.width < 1) {
+            rect.width = 1;
         }
         rect.height = DATA_BLOCK_HEIGHT + 1;
         rect.intersect(getBounds());
@@ -1222,6 +992,9 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         return rect;
     }
 
+    /**
+     * @return the bounds of this GridBar
+     */
     public Rectangle getBounds() {
         return bounds;
     }
@@ -1235,103 +1008,15 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     }
 
+    /**
+     * Causes this GridBar to recompute its bounds
+     */
     public void resize() {
         computeBounds();
     }
 
     protected boolean inSelectionBox(int x, int y) {
         return (selectionBox != null) && selectionBox.contains(x, y);
-    }
-
-    private static class TimeBasedColors {
-        private static Map<GridMode, TimeBasedColors> map = new HashMap<GridMode, TimeBasedColors>();
-
-        public static Color getColor(GridMode mode, Date time) {
-            TimeBasedColors tbc = map.get(mode);
-            if (tbc == null) {
-                tbc = new TimeBasedColors(mode.toString());
-                map.put(mode, tbc);
-            }
-
-            return tbc.getColor(time);
-        }
-
-        private int[] minutes;
-
-        private Color[] colors;
-
-        /**
-         * @param string
-         */
-        private TimeBasedColors(String s) {
-            minutes = getPreferenceMinutes(s);
-            colors = getPreferenceColors(s);
-
-            if (minutes.length != colors.length) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Invalid time based color preferences");
-            }
-        }
-
-        /**
-         * Queries the preference store for the list of minutes
-         * 
-         * @param modifier
-         *            The modifier depending on the mode.
-         * @return Returns the list of minutes.
-         */
-        private int[] getPreferenceMinutes(String modifier) {
-            Integer minuteArray[] = Activator.getDefault().getPreferenceStore()
-                    .getIntArray(modifier + "_minutes");
-            int retVal[] = new int[minuteArray.length];
-            for (int i = 0; i < retVal.length; i++) {
-                retVal[i] = minuteArray[i].intValue();
-            }
-            return retVal;
-        }
-
-        /**
-         * Queries the preference store for the list of colors for the mode
-         * 
-         * @param modifier
-         *            The modifier depending on the mode.
-         * @return Returns the list of colors
-         */
-        private Color[] getPreferenceColors(String modifier) {
-            String colorStrings[] = Activator.getDefault().getPreferenceStore()
-                    .getStringArray(modifier + "_colors");
-
-            Color[] colors = new Color[colorStrings.length];
-            int i = 0;
-            for (String s : colorStrings) {
-                colors[i++] = new Color(null, RGBColors.getRGBColor(s));
-            }
-
-            return colors;
-
-        }
-
-        private Color getColor(Date time) {
-            // calculate the time, and the thresholds, determine the color.
-            // only look at the "lateTime"
-            Color color = DEFAULT_COLOR;
-            if (!time.equals(BASE_DATE)) {
-                long ago = (SimulatedTime.getSystemTime().getTime().getTime() - time
-                        .getTime()) / MILLIS_PER_MINUTE;
-                for (int i = 0; i < minutes.length; i++) {
-                    if (ago < minutes[i]) {
-                        color = colors[i];
-                        break;
-                    }
-                }
-                // if fell off the end, then use the very last color
-                if ((color == DEFAULT_COLOR) && (colors.length > 0)) {
-                    color = colors[colors.length - 1];
-                }
-            }
-
-            return color;
-        }
     }
 
     /*
@@ -1356,27 +1041,39 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         }
     }
 
+    /**
+     * Set the associated parm's selected state
+     *
+     * @param selected
+     */
     public void setSelection(boolean selected) {
         parm.getParmState().setSelected(selected);
     }
 
+    /**
+     * Toggle the associated parm's selected state
+     */
     public void toggleSelected() {
         ParmState ps = parm.getParmState();
         ps.setSelected(!ps.isSelected());
     }
 
+    /**
+     * Mark this GridBar as needing redrawn
+     */
     public void redraw() {
         canvas.markDirty(getBounds());
     }
 
     /**
      * Highlights the weather element blocks according to given time range.
-     * 
+     *
      * @param msg
      */
     private void highlightMsg(final HighlightMsg msg) {
         if (!msg.getParm().equals(parm)) {
-            return; // nothing to do -- not this parm
+            // nothing to do -- not this parm
+            return;
         }
 
         // extract info from message
@@ -1397,7 +1094,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Clears the specified highlights.
-     * 
+     *
      * @param msg
      */
     private void clearHighlightMsg(final ClearHighlightsMsg msg) {
@@ -1406,7 +1103,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
         // all highlights
         if (!selectedOnly) {
-            if (highlights.size() > 0) {
+            if (!highlights.isEmpty()) {
                 highlights.clear();
                 disposeHighlightColors();
                 redraw();
@@ -1425,7 +1122,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     }
 
     /**
-     * 
+     *
      */
     private void disposeHighlightColors() {
         for (Color color : highlightColors.values()) {
@@ -1436,7 +1133,7 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
     /**
      * Merges new highlights with old highlights.
-     * 
+     *
      * @param tr
      * @param onFlag
      * @param highlight
@@ -1457,12 +1154,12 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         else {
             boolean changed = false;
             for (int i = highlights.size() - 1; i >= 0; i--) {
-                if ((highlights.get(i).getColor().equals(highlight) || (highlight
-                        .length() == 0))
+                if ((highlights.get(i).getColor().equals(highlight)
+                        || (highlight.length() == 0))
                         && highlights.get(i).getTimeRange().overlaps(tr)) {
                     highlights.remove(i);
                     changed = true;
-                    if (highlights.size() == 0) {
+                    if (highlights.isEmpty()) {
                         disposeHighlightColors();
                     }
                 }
@@ -1471,13 +1168,12 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
         }
     }
 
-    // -- public
-    // ----------------------------------------------------------------
-    // TimeBlockVisual::highlightColor()
-    // Returns the highlight color or "" if not highlighted.
-    // -- implementation
-    // ---------------------------------------------------------
-    // ---------------------------------------------------------------------------
+    /**
+     * Returns the highlight color
+     *
+     * @param tr
+     * @return the highlight color or "" if not highlighted.
+     */
     public String highlightColor(final TimeRange tr) {
         // search list backwards for last entry that matches the time range.
         for (int i = highlights.size() - 1; i >= 0; i--) {
@@ -1486,26 +1182,18 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
             }
         }
 
-        return ""; // no highlight
+        // no highlight
+        return "";
     }
 
     @Override
     public void parmInventoryChanged(Parm parm, TimeRange timeRange) {
-        // System.out.println("parmInventoryChanged for " + this);
         if (this.parm.equals(parm)
                 && this.gridManager.checkVisibility(timeRange)) {
             redraw();
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.IGridHistoryUpdatedListener#historyUpdated
-     * (com.raytheon.viz.gfe.core.parm.Parm,
-     * com.raytheon.uf.common.time.TimeRange)
-     */
     @Override
     public void gridHistoryUpdated(Parm parm, TimeRange timeRange) {
         if (this.parm.equals(parm)
@@ -1531,7 +1219,6 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
 
         if (desiredVisiblity != parmVisible) {
             parmVisible = desiredVisiblity;
-            // System.out.println("gridVisibilityChanged for " + this);
             redraw();
         }
     }
@@ -1540,21 +1227,18 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     public void activatedParmChanged(Parm newParm) {
         boolean thisParm = parm.equals(newParm);
         if (!thisParm && !parmActive) {
+            // nothing to do for this parm (no need to paint)
             return;
-        } // nothing to do for this parm (no need to paint)
+        }
 
         // set _parmActive appropriately
         parmActive = (thisParm ? true : false);
 
-        // System.out.println("activatedParmChanged for "
-        // + parm.getParmID());
         redraw();
     }
 
     @Override
     public void gridDataChanged(ParmID parmId, TimeRange validTime) {
-        // System.out.println(this + " processing gridDataChanged(" + parmId
-        // + ", " + validTime + ")");
         if (this.parm.getParmID().equals(parmId)
                 && this.gridManager.checkVisibility(validTime)) {
             redraw();
@@ -1565,21 +1249,17 @@ public class GridBar implements IMessageClient, IParmInventoryChangedListener,
     public void selectionTimeRangeChanged(Parm parm,
             TimeRange selectionTimeRange) {
         if (parm.getParmState().isSelected()) {
-            // System.out.println("selectionTimeRangeChanged for "
-            // + parm.getParmID());
             redraw();
         }
     }
 
     @Override
     public void parameterSelectionChanged(Parm parm, boolean selected) {
-        // System.out.println("parameterSelectionChanged for " + this);
         redraw();
     }
 
     @Override
     public void lockTableChanged(Parm parm, LockTable lockTable) {
-        // System.out.println("lockTableChanged for " + this);
         if (this.parm.equals(parm)) {
             redraw();
         }

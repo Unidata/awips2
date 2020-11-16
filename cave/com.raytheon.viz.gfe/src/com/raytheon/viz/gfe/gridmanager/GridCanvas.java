@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -60,8 +60,8 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.viz.core.RGBColors;
 import com.raytheon.uf.viz.core.VizApp;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
@@ -98,41 +98,46 @@ import com.raytheon.viz.ui.cmenu.AbstractRightClickAction;
 
 /**
  * GridManager widget containing a GridBar for each displayed parm
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 7, 2009            randerso     Initial creation
- * Jun 3, 2011  8919      rferrel      Determine grid's VisMode based
- *                                     on imageOnEdit
- * 08/20/2012    #1082    randerso     Moved calcStepTimes to AbstractParmManager for
- *                                     use in PngWriter
- * 11/30/2012   #1328     mschenke     Made GFE use descriptor for time matching
- *                                     and time storage and manipulation
- * 01/22/2013    #1518    randerso     Removed use of Map with Parms as keys
- * 03/28/2013    #1838    randerso     Fixed selected time range when Select Grids When 
- *                                     Stepping is enabled. Cleaned up deprecated warnings.
- * 06/20/2013    #2111    dgilling     Prevent NullPointerException in mouse handler's
- *                                     displayContextMenu() method.
- * 11/03/2015    #4961    randerso     Make topo grids visible in the grid manager when 
- *                                     mutable dbType is EditTopo
- * Mar 10, 2016 #5479      randerso    Code cleanup
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 07, 2009           randerso  Initial creation
+ * Jun 03, 2011  8919     rferrel   Determine grid's VisMode based on
+ *                                  imageOnEdit
+ * Aug 20, 2012  1082     randerso  Moved calcStepTimes to AbstractParmManager
+ *                                  for use in PngWriter
+ * Nov 30, 2012  1328     mschenke  Made GFE use descriptor for time matching
+ *                                  and time storage and manipulation
+ * Jan 22, 2013  1518     randerso  Removed use of Map with Parms as keys
+ * Mar 28, 2013  1838     randerso  Fixed selected time range when Select Grids
+ *                                  When Stepping is enabled. Cleaned up
+ *                                  deprecated warnings.
+ * Jun 20, 2013  2111     dgilling  Prevent NullPointerException in mouse
+ *                                  handler's displayContextMenu() method.
+ * Nov 03, 2015  4961     randerso  Make topo grids visible in the grid manager
+ *                                  when mutable dbType is EditTopo
+ * Mar 10, 2016  5479     randerso  Code cleanup
+ * Dec 14, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Change clone() to copy(). Code cleanup
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class GridCanvas extends Canvas implements IMessageClient {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridCanvas.class);
 
-    public static final int GRIDBAR_SPACING = 3;
+    private static final int GRIDBAR_SPACING = 3;
 
-    public static final int SEPARATOR_HEIGHT = 10;
+    private static final int SEPARATOR_HEIGHT = 10;
 
     private static Color SEPARATOR_COLOR = new Color(Display.getDefault(),
             RGBColors.getRGBColor("CornflowerBlue"));
@@ -157,8 +162,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
         public IStatus runInUIThread(IProgressMonitor monitor) {
             Point p = scrolledComp.getOrigin();
             if (((increment < 0) && (p.y > 0))
-                    || ((increment > 0) && (p.y < (getSize().y - scrolledComp
-                            .getClientArea().height)))) {
+                    || ((increment > 0) && (p.y < (getSize().y
+                            - scrolledComp.getClientArea().height)))) {
                 p.y += increment;
                 scrolledComp.setOrigin(p);
 
@@ -195,13 +200,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
             this.schedule();
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * org.eclipse.ui.progress.UIJob#runInUIThread(org.eclipse.core.runtime
-         * .IProgressMonitor)
-         */
         @Override
         public IStatus runInUIThread(IProgressMonitor monitor) {
 
@@ -221,8 +219,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
     }
 
-    private class QuickviewMouseListener extends MouseTrackAdapter implements
-            MouseMoveListener {
+    private class QuickviewMouseListener extends MouseTrackAdapter
+            implements MouseMoveListener {
 
         @Override
         public void mouseMove(MouseEvent e) {
@@ -230,8 +228,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
             if (gridBar != null) {
                 GridManager gm = gridManager;
                 Date clickTime = gm.getUtil().pixelToDate(e.x);
-                IGridData gridData = gridBar.getParm().overlappingGrid(
-                        clickTime);
+                IGridData gridData = gridBar.getParm()
+                        .overlappingGrid(clickTime);
 
                 showQuickViewGrid(gridData);
             }
@@ -286,7 +284,14 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
     private QuickviewMouseListener quickviewMouseListener;
 
-    @SuppressWarnings("unchecked")
+    /**
+     * Constructor
+     *
+     * @param aParent
+     *            parent scrolled composite
+     * @param aGridManager
+     *            owning grid manager
+     */
     public GridCanvas(final ScrolledComposite aParent,
             final GridManager aGridManager) {
         super(aParent, SWT.NONE);
@@ -301,7 +306,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
         gridManager = aGridManager;
         dataMgr = gridManager.getDataManager();
 
-        gridBarList = new ArrayList<GridBar>();
+        gridBarList = new ArrayList<>();
 
         Parm[] displayedParms = gridManager.getDataManager().getParmManager()
                 .getDisplayedParms();
@@ -320,8 +325,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
                         updateParmList(deletions, additions);
                         if (!isDisposed() && !scrolledComp.isDisposed()) {
                             Rectangle r = scrolledComp.getClientArea();
-                            scrolledComp.setMinSize(computeSize(r.width,
-                                    SWT.DEFAULT));
+                            scrolledComp.setMinSize(
+                                    computeSize(r.width, SWT.DEFAULT));
                             redraw();
                         }
                     }
@@ -330,9 +335,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
         };
 
-        gridManager
-                .getDataManager()
-                .getParmManager()
+        gridManager.getDataManager().getParmManager()
                 .addDisplayedParmListChangedListener(
                         displayedParmListChangedListener);
 
@@ -348,13 +351,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
         MouseHandler mouseHandler = new MouseHandler() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#dragEnd(org.eclipse
-             * .swt.events.MouseEvent)
-             */
             @Override
             public void dragEnd(MouseEvent e) {
                 super.dragEnd(e);
@@ -371,13 +367,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#dragMove(org.eclipse
-             * .swt.events.MouseEvent)
-             */
             @Override
             public void dragMove(MouseEvent e) {
                 super.dragMove(e);
@@ -399,9 +388,9 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
                     Point selectionStart = getDragAnchor();
                     setSelection(new Rectangle(Math.min(selectionStart.x, e.x),
-                            Math.min(selectionStart.y, e.y), Math.abs(e.x
-                                    - selectionStart.x), Math.abs(e.y
-                                    - selectionStart.y)));
+                            Math.min(selectionStart.y, e.y),
+                            Math.abs(e.x - selectionStart.x),
+                            Math.abs(e.y - selectionStart.y)));
                 }
 
                 if (isButtonDown(2)) {
@@ -411,13 +400,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#dragStart(org.eclipse
-             * .swt.events.MouseEvent, org.eclipse.swt.graphics.Point)
-             */
             @Override
             public void dragStart(MouseEvent e) {
                 super.dragStart(e);
@@ -431,13 +413,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#mouseClick(org.
-             * eclipse.swt.events.MouseEvent)
-             */
             @Override
             public void mouseClick(MouseEvent e) {
                 super.mouseClick(e);
@@ -448,13 +423,6 @@ public class GridCanvas extends Canvas implements IMessageClient {
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#mouseDown(org.eclipse
-             * .swt.events.MouseEvent)
-             */
             @Override
             public void mouseDown(MouseEvent e) {
                 super.mouseDown(e);
@@ -465,20 +433,13 @@ public class GridCanvas extends Canvas implements IMessageClient {
                     if (!gridBar.inSelectionBox(e.x, e.y)) {
                         selectOnly(gridBar);
                         Date clickTime = gridManager.getUtil().pixelToDate(e.x);
-                        TimeRange timeRange = gridManager.getUtil().dateToHour(
-                                clickTime);
+                        TimeRange timeRange = gridManager.getUtil()
+                                .dateToHour(clickTime);
                         dataMgr.getParmOp().setSelectionTimeRange(timeRange);
                     }
                 }
             }
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * com.raytheon.viz.gfe.gridmanager.MouseHandler#displayContextMenu
-             * ()
-             */
             @Override
             public void displayContextMenu(MouseEvent e)
                     throws GFEServerException {
@@ -516,28 +477,25 @@ public class GridCanvas extends Canvas implements IMessageClient {
                         menuMgr.add(new PasteAction(parm, clickTime));
                     }
                     if (!isEmpty && okEdit) {
-                        if (!overGrid.getGridTime().equals(
-                                parm.getGridInfo()
-                                        .getTimeConstraints()
-                                        .constraintTime(
-                                                overGrid.getGridTime()
-                                                        .getStart()))) {
+                        if (!overGrid.getGridTime().equals(parm.getGridInfo()
+                                .getTimeConstraints().constraintTime(
+                                        overGrid.getGridTime().getStart()))) {
 
                             menuMgr.add(new FragmentAction(parm, clickTime));
                             menuMgr.add(new SplitAction(parm, clickTime));
                         }
 
                         WxValue defaultValue = WxValue.defaultValue(parm);
-                        if ((defaultValue != null)
-                                && !defaultValue.equals(parm.getParmState()
-                                        .getPickUpValue())) {
-                            menuMgr.add(new AssignAction(parm, overGrid
-                                    .getGridTime(), parm.getParmState()
-                                    .getPickUpValue()));
+                        if ((defaultValue != null) && !defaultValue
+                                .equals(parm.getParmState().getPickUpValue())) {
+                            menuMgr.add(new AssignAction(parm,
+                                    overGrid.getGridTime(),
+                                    parm.getParmState().getPickUpValue()));
                         }
 
-                        menuMgr.add(new AssignAction(parm, overGrid
-                                .getGridTime(), WxValue.defaultValue(parm)));
+                        menuMgr.add(
+                                new AssignAction(parm, overGrid.getGridTime(),
+                                        WxValue.defaultValue(parm)));
                     }
 
                     if (okEdit && !isEmpty) {
@@ -549,7 +507,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
                     if (isEmpty && okEdit && validConstraint) {
 
-                        menuMgr.add(new CreateFromScratchAction(parm, clickTime));
+                        menuMgr.add(
+                                new CreateFromScratchAction(parm, clickTime));
                     }
                     menuMgr.add(new UndoAction());
                     menuMgr.add(new SelectAllTimesAction(parm));
@@ -558,32 +517,29 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
                     String hlColor = gridBar.highlightColor(timeRange);
                     if (!hlColor.isEmpty() && !isEmpty) {
-                        menuMgr.add(new ClearHighlightAction(
-                                overGrid.getParm(), overGrid.getGridTime(),
-                                hlColor));
+                        menuMgr.add(new ClearHighlightAction(overGrid.getParm(),
+                                overGrid.getGridTime(), hlColor));
                     }
 
                     // Add in any smart tools
-                    if (parm.getParmID()
-                            .getDbId()
-                            .equals(parm.getDataManager().getParmManager()
-                                    .getMutableDatabase())) {
-                        String[] gmEditActions = Activator.getDefault()
-                                .getPreferenceStore()
-                                .getStringArray("GridManagerEditActions");
-                        List<String> popUpActions = new ArrayList<String>(0);
+                    if (parm.getParmID().getDbId().equals(parm.getDataManager()
+                            .getParmManager().getMutableDatabase())) {
+                        String[] gmEditActions = GFEPreference
+                                .getStringArray(
+                                        "GridManagerEditActions");
+                        List<String> popUpActions = new ArrayList<>(0);
                         if (gmEditActions.length > 0) {
                             // Only show tools this parm supports
-                            String[] parmTools = dataMgr
-                                    .getSmartToolInterface().listTools(parm);
+                            String[] parmTools = dataMgr.getSmartToolInterface()
+                                    .listTools(parm);
                             List<String> parmToolList = Arrays
                                     .asList(parmTools);
-                            popUpActions = new ArrayList<String>(
+                            popUpActions = new ArrayList<>(
                                     Arrays.asList(gmEditActions));
                             popUpActions.retainAll(parmToolList);
                         }
 
-                        if ((popUpActions.size() > 0)
+                        if ((!popUpActions.isEmpty())
                                 || (parm.getGridInfo().getGridType()
                                         .equals(GridType.SCALAR))
                                 || (parm.getGridInfo().getGridType()
@@ -629,8 +585,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
         quickviewMouseListener = new QuickviewMouseListener();
 
-        receiveMessage(Message
-                .inquireLastMessage(QuickViewModeChangedMsg.class));
+        receiveMessage(
+                Message.inquireLastMessage(QuickViewModeChangedMsg.class));
 
         activatedParmChangedListener = new IActivatedParmChangedListener() {
             @Override
@@ -653,15 +609,14 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
             @Override
             public void widgetDisposed(DisposeEvent e) {
-                gridManager
-                        .getDataManager()
-                        .getParmManager()
+                for (GridBar gridBar : gridBarList) {
+                    gridBar.dispose();
+                }
+                gridManager.getDataManager().getParmManager()
                         .removeDisplayedParmListChangedListener(
                                 displayedParmListChangedListener);
 
-                gridManager
-                        .getDataManager()
-                        .getSpatialDisplayManager()
+                gridManager.getDataManager().getSpatialDisplayManager()
                         .removeActivatedParmChangedListener(
                                 activatedParmChangedListener);
 
@@ -707,8 +662,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
         if (additions != null) {
             for (Parm parm : additions) {
                 if (!parm.getGridInfo().isTimeIndependentParm()
-                        || dataMgr.getParmManager().getMutableDatabase()
-                                .getDbType().equals("EditTopo")) {
+                        || "EditTopo".equals(dataMgr.getParmManager()
+                                .getMutableDatabase().getDbType())) {
                     GridBar gridBar = new GridBar(this, parm, gridManager);
                     gridBarList.add(gridBar);
                 }
@@ -737,7 +692,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
         if (separatorPosition == -1) {
             Rectangle bounds;
-            if (gridBarList.size() > 0) {
+            if (!gridBarList.isEmpty()) {
                 bounds = gridBarList.get(gridBarList.size() - 1).getBounds();
                 separatorPosition = bounds.y + bounds.height + GRIDBAR_SPACING;
             } else {
@@ -794,7 +749,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
     }
 
     protected void endStretch() {
-        ArrayList<IGridData> newGrids = new ArrayList<IGridData>();
+        ArrayList<IGridData> newGrids = new ArrayList<>();
         // Make changes only when the new TimeRange is
         // different from the original and the TimeRange is
         // valid
@@ -809,11 +764,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
                 TimeRange newTimes[] = sb.constraintTimes(lastDestinationTR);
                 for (TimeRange timeRange : newTimes) {
                     IGridData tmpGrid;
-                    try {
-                        tmpGrid = stretchGridID.grid().clone();
-                    } catch (CloneNotSupportedException e) {
-                        tmpGrid = null;
-                    }
+                    tmpGrid = stretchGridID.grid().copy();
 
                     tmpGrid.changeValidTime(timeRange, false);
                     newGrids.add(tmpGrid);
@@ -821,11 +772,7 @@ public class GridCanvas extends Canvas implements IMessageClient {
             } else {
 
                 IGridData grid;
-                try {
-                    grid = stretchGridID.grid().clone();
-                } catch (CloneNotSupportedException e) {
-                    grid = null;
-                }
+                grid = stretchGridID.grid().copy();
                 grid.changeValidTime(lastDestinationTR, false);
                 grid.updateHistoryToModified(dataMgr.getWsId());
 
@@ -876,15 +823,10 @@ public class GridCanvas extends Canvas implements IMessageClient {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.swt.widgets.Control#computeSize(int, int)
-     */
     @Override
     public Point computeSize(int hint, int hint2) {
         Rectangle rect;
-        if (gridBarList.size() > 0) {
+        if (!gridBarList.isEmpty()) {
             rect = gridBarList.get(gridBarList.size() - 1).getBounds();
             return new Point(hint, rect.y + rect.height + SEPARATOR_HEIGHT
                     + (GRIDBAR_SPACING * 2));
@@ -893,8 +835,11 @@ public class GridCanvas extends Canvas implements IMessageClient {
         }
     }
 
+    /**
+     * @return spacing from top of one grid bar to top of the next in pixels
+     */
     public int getGridBarSpacing() {
-        if (gridBarList.size() == 0) {
+        if (gridBarList.isEmpty()) {
             return 0;
         } else {
             return gridBarList.get(0).getBounds().height + GRIDBAR_SPACING;
@@ -937,7 +882,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
         // make it active, make it inactive depending upon okToEdit
         try {
-            if ((clickGridID.grid() != null) && clickGridID.grid().isOkToEdit()) {
+            if ((clickGridID.grid() != null)
+                    && clickGridID.grid().isOkToEdit()) {
                 gridManager.getDataManager().getSpatialDisplayManager()
                         .activateParm(parm);
             } else {
@@ -946,11 +892,10 @@ public class GridCanvas extends Canvas implements IMessageClient {
 
                 // special case - simulate image on active, even though
                 // we didn't really make the grid active
-                boolean imageOnEdit = Message.inquireLastMessage(
-                        SetImageOnActiveChangedMsg.class).isEnabled();
-                gridManager
-                        .getDataManager()
-                        .getSpatialDisplayManager()
+                boolean imageOnEdit = Message
+                        .inquireLastMessage(SetImageOnActiveChangedMsg.class)
+                        .isEnabled();
+                gridManager.getDataManager().getSpatialDisplayManager()
                         .setDisplayMode(parm,
                                 imageOnEdit ? VisMode.IMAGE : VisMode.GRAPHIC);
             }
@@ -960,9 +905,8 @@ public class GridCanvas extends Canvas implements IMessageClient {
             if (grid != null) {
                 dataMgr.getParmOp().setSelectionTimeRange(grid.getGridTime());
             } else {
-                dataMgr.getParmOp().setSelectionTimeRange(
-                        parm.getGridInfo().getTimeConstraints()
-                                .constraintTime(clickTime));
+                dataMgr.getParmOp().setSelectionTimeRange(parm.getGridInfo()
+                        .getTimeConstraints().constraintTime(clickTime));
             }
 
             // Set the grid's visibility state to true
@@ -994,15 +938,15 @@ public class GridCanvas extends Canvas implements IMessageClient {
     private void updateScrollbar() {
         int pageIncrement = getGridBarSpacing();
         if (pageIncrement > 0) {
-            pageIncrement = (scrolledComp.getClientArea().height / getGridBarSpacing())
-                    * getGridBarSpacing();
+            pageIncrement = (scrolledComp.getClientArea().height
+                    / getGridBarSpacing()) * getGridBarSpacing();
         }
         scrolledComp.getVerticalBar().setPageIncrement(pageIncrement);
     }
 
     /**
      * Scroll the grid manager to make the desired parm visible
-     * 
+     *
      * @param parm
      */
     public void makeVisible(Parm parm) {
@@ -1051,6 +995,12 @@ public class GridCanvas extends Canvas implements IMessageClient {
         }
     }
 
+    /**
+     * Mark the specified area as needing repainted
+     *
+     * @param rect
+     *            rectangular area needing repainted
+     */
     public void markDirty(Rectangle rect) {
         this.repaintJob.markDirty(rect);
     }

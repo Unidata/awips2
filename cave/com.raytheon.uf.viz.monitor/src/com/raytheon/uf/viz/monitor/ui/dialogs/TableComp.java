@@ -234,8 +234,8 @@ public abstract class TableComp extends Composite {
         GridData gd = new GridData(SWT.FILL, SWT.FILL, true, true);
         gd.heightHint = 350;
 
-        table = new Table(this, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL
-                | SWT.FULL_SELECTION);
+        table = new Table(this,
+                SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL | SWT.FULL_SELECTION);
         table.setLayoutData(gd);
         table.setHeaderVisible(true);
 
@@ -259,8 +259,8 @@ public abstract class TableComp extends Composite {
                 // white lines
                 // dividing the columns;
                 event.gc.setLineWidth(1);
-                event.gc.drawLine(rect.x + rect.width - 2, rect.y - 1, rect.x
-                        + rect.width - 2, rect.y - 1 + rect.height);
+                event.gc.drawLine(rect.x + rect.width - 2, rect.y - 1,
+                        rect.x + rect.width - 2, rect.y - 1 + rect.height);
 
                 // Draw a top line
                 event.gc.drawLine(rect.x, rect.y, rect.x + rect.width, rect.y);
@@ -269,13 +269,13 @@ public abstract class TableComp extends Composite {
                 TableItem ti = (TableItem) event.item;
                 int idx = table.indexOf(ti);
                 if (idx == table.getItemCount() - 1) {
-                    event.gc.drawLine(rect.x, rect.y + rect.height - 2, rect.x
-                            + rect.width, rect.y + rect.height - 2);
+                    event.gc.drawLine(rect.x, rect.y + rect.height - 2,
+                            rect.x + rect.width, rect.y + rect.height - 2);
                 }
 
                 if (tableIndex >= 0) {
-                    event.gc.setForeground(parent.getDisplay().getSystemColor(
-                            SWT.COLOR_BLUE));
+                    event.gc.setForeground(
+                            parent.getDisplay().getSystemColor(SWT.COLOR_BLUE));
                     event.gc.setLineWidth(3);
                     TableItem item = table.getItem(tableIndex);
                     rect = item.getBounds(currentCol);
@@ -316,12 +316,11 @@ public abstract class TableComp extends Composite {
         TableColumn tc;
         String[] columns = getColumnKeys(appName);
 
-        for (int i = 0; i < columns.length; i++) {
+        for (String column : columns) {
             tc = new TableColumn(table, SWT.CENTER);
-            String columnName = getColumnAttributeData(columns[i])
-                    .getColumnName();
+            String columnName = getColumnAttributeData(column).getColumnName();
             tc.setText(columnName);
-            tc.setData(columns[i]);
+            tc.setData(column);
 
             tc.addSelectionListener(new SelectionAdapter() {
                 @Override
@@ -338,8 +337,9 @@ public abstract class TableComp extends Composite {
                 }
             });
 
-            if (getColumnAttributeData(columns[i]).getSortDir() == CommonTableConfig.SortDirection.Both
-                    .getSortDir()) {
+            if (getColumnAttributeData(column)
+                    .getSortDir() == CommonTableConfig.SortDirection.Both
+                            .getSortDir()) {
                 columnSortMap.put(tc, SWT.UP);
             }
         }
@@ -415,8 +415,9 @@ public abstract class TableComp extends Composite {
             Image image = sortColumn.getImage();
             sortColumn.setImage(null);
             image.dispose();
-            sortColumn.setText(getColumnAttributeData(
-                    (String) sortColumn.getData()).getColumnName());
+            sortColumn.setText(
+                    getColumnAttributeData((String) sortColumn.getData())
+                            .getColumnName());
         }
 
         sortColumn = tc;
@@ -424,8 +425,8 @@ public abstract class TableComp extends Composite {
         /*
          * Set the sort image, pack the column and sort the data.
          */
-        tc.setImage(getSortHeaderImage(getColumnAttributeData(sortCol)
-                .getColumnName()));
+        tc.setImage(getSortHeaderImage(
+                getColumnAttributeData(sortCol).getColumnName()));
         tc.setText("");
         if (sortDir == SortDirection.Both.getSortDir()) {
             if (columnSortMap.get(tc) == SWT.UP) {

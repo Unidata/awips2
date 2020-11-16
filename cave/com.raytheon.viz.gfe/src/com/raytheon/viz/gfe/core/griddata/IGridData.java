@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -24,35 +24,57 @@ import java.util.Date;
 import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
+import com.raytheon.uf.common.dataplugin.gfe.db.objects.GridParmInfo;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
-import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * GridData is the ABC of the GridData hierarchy. It encapsulates the concept of
- * a data gridSlice and defines an interface for editing and accessing data.
- * 
- * 
+ * IGridData defines the common interface for the GridData hierarchy.
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 01/29/2008              chammack    Initial Class Skeleton.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 29, 2008           chammack  Initial Class Skeleton.
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Changes to support IDataObject. Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 public interface IGridData extends Comparable<IGridData> {
+    /*
+     * RODO DR #7178 design concept
+     *
+     * IGridSlice is a construct carried over from A1 that is used on both
+     * client and server side. It contains both metaData and optionally data
+     * (i.e. the actual grids/keys).
+     *
+     * IGridData was originally a wrapper around the IGridSlice on the client
+     * side that kept track of changed points and last access.
+     *
+     * As part of this change I separated the metaData and data (metaData moved
+     * into IGridData, data into IDataObject) so we can use soft references for
+     * the data part when it's unmodified so the GC can throw it out if we need
+     * the memory rather than evicting the data solely based on time.
+     *
+     * The old parm evictor code would replace the IGridSlice in IGridData with
+     * one with the data part unpopulated. I couldn't use soft references to the
+     * entire IGridSlice or we'd lose the metadata. Since IGridSlice is a server
+     * side object I couldn't use the SoftReference for the data inside it.
+     *
+     * If I were designing GFE from scratch today I would have reworked the
+     * server interface to separate the data and the metadata better.
+     */
+
     public enum EditOp {
         DELTA, SET, MOVE_COPY, SMOOTH, FILLINHOLE, CONTOUR, PENCILSTRETCH
     };
@@ -60,7 +82,7 @@ public interface IGridData extends Comparable<IGridData> {
     /**
      * Applies the given delta value to the identified points. If taper is true,
      * then a taper function is applied.
-     * 
+     *
      * @param time
      *            the time to apply the change
      * @param delta
@@ -69,7 +91,7 @@ public interface IGridData extends Comparable<IGridData> {
      *            the taper flag
      * @param pointsToChange
      *            the points to apply to
-     * @return
+     * @return true if successful
      */
     public boolean applyDelta(final Date time, float delta, boolean taper,
             Grid2DBit pointsToChange);
@@ -77,10 +99,10 @@ public interface IGridData extends Comparable<IGridData> {
     /**
      * Changes the parm association for this GridData. This should only be
      * called by the Parm class.
-     * 
+     *
      * @param newParm
      *            The new Parm this GridData will be associated with.
-     * @return True, if the swap was successful, false if not.
+     * @return true, if the swap was successful, false if not.
      */
     public boolean changeParmAssociation(final Parm newParm);
 
@@ -94,19 +116,17 @@ public interface IGridData extends Comparable<IGridData> {
      * then the data values may be adjusted based on the new duration vs. the
      * old duration. The "considerRate" indicates to consider the duration
      * change in the data.
-     * 
+     *
      * @param timeRange
      * @param considerRate
      */
-    public void changeValidTime(final TimeRange timeRange, boolean considerRate);
+    public void changeValidTime(final TimeRange timeRange,
+            boolean considerRate);
 
     /**
-     * Return a copy of the grid data object
-     * 
-     * @return
-     * @throws CloneNotSupportedException
+     * @return a copy of this object
      */
-    public IGridData clone() throws CloneNotSupportedException;
+    public IGridData copy();
 
     /**
      * Copies the given grid's data values into this grid. Any projection or
@@ -116,22 +136,16 @@ public interface IGridData extends Comparable<IGridData> {
      * copied, then false is returned. Note that this grid's time range is not
      * changed. Data values are adjusted to fit within the destination grid's
      * limits. Units are changed if necessary.
-     * 
+     *
      * @param sourceGrid
      * @return true if successful
      */
     public boolean copyGridValues(final IGridData sourceGrid);
 
     /**
-     * Depopulates the grid. Effectively removes the data associated with the
-     * grid
-     */
-    public void depopulate();
-
-    /**
      * Command from parm to indicate that a grid edit has ended. The points that
      * have changed are returned as a Grid2DBit.
-     * 
+     *
      * @return the points that were changed
      */
     public Grid2DBit endGridEdit();
@@ -139,51 +153,57 @@ public interface IGridData extends Comparable<IGridData> {
     /**
      * Returns a Grid2Bit whose bits match the grid points that have the same
      * value and are all touching.
-     * 
+     *
      * @param time
      * @param location
-     * @return
+     * @return the contiguous area
      */
     public Grid2DBit getContiguousArea(final Date time, final Point location);
 
     /**
-     * Return the underlying grid gridSlice. This must not be null.
-     * 
-     * @return
+     * @return the underlying gridSlice. This must not be null.
      */
+    @Deprecated
     public IGridSlice getGridSlice();
 
     /**
-     * Return the time the grid was last accessed
-     * 
+     * @return the underlying data object
+     */
+    public IDataObject getDataObject();
+
+    /**
      * @return time the grid was last accessed
      */
     public long getLastAccessTime();
 
     /**
-     * Returns the time range associated with this grid.
-     * 
-     * @return
+     * @return the grid information
+     */
+    public GridParmInfo getGridInfo();
+
+    /**
+     * @return the valid time of this grid
      */
     public TimeRange getGridTime();
 
     /**
-     * Returns the history of this data slice.
-     * 
-     * @return
+     * @return list of grid histories
+     */
+    public List<GridDataHistory> getGridDataHistory();
+
+    /**
+     * @return array of grid histories
      */
     public GridDataHistory[] getHistory();
 
     /**
-     * Return the parm that this grid data is associated with
-     * 
-     * @return
+     * @return the parm that this grid data is associated with
      */
     public Parm getParm();
 
     /**
      * Return the value at a point
-     * 
+     *
      * @param x
      *            the x coordinate
      * @param y
@@ -194,83 +214,91 @@ public interface IGridData extends Comparable<IGridData> {
 
     /**
      * Returns max of this grid and supplied grid.
-     * 
+     *
      * @param gridSlice
-     * @return
+     * @return the max grid
      */
-    public IGridSlice gridMax(IGridSlice gridSlice);
+    public IDataObject gridMax(IDataObject gridSlice);
 
     /**
      * Returns min of this grid and supplied grid.
-     * 
-     * @param gridSlice
-     * @return
+     *
+     * @param dataObject
+     * @return the min grid
      */
-    public IGridSlice gridMin(IGridSlice gridSlice);
+    public IDataObject gridMin(IDataObject dataObject);
 
     /**
      * Returns new grid that is multiplied by factor.
-     * 
+     *
      * @param factor
-     * @return
+     * @return the multiplied grid
      */
-    public IGridSlice gridMultiply(float factor);
+    public IDataObject gridMultiply(float factor);
 
     /**
      * Returns sum of supplied grid and this grid.
-     * 
-     * @param gridSlice
-     * @return
+     *
+     * @param dataObject
+     * @return the grid sum
      */
-    public IGridSlice gridSum(IGridSlice gridSlice);
+    public IDataObject gridSum(IDataObject dataObject);
 
     /**
-     * Return true if the grid is safe for editing
-     * 
-     * @return
+     * @return true if the grid is safe for editing
      */
     public boolean isOkToEdit();
 
+    /**
+     * @param editOp
+     * @return true if editOp is supported by this GridData
+     */
     public boolean isSupportedEditOp(EditOp editOp);
 
     /**
      * Returns true if the grid is valid
-     * 
+     *
      * @return true if the grid is valid
-     * 
+     *
      */
     public boolean isPopulated();
 
     /**
-     * Return true if the grid has been modified by a user
-     * 
-     * @return
+     * @return true if the grid has been modified by a user
      */
     public boolean isUserModified();
 
     /**
-     * Return true if the grid is valid
-     * 
-     * @return
+     * @return true if the grid is valid
      */
     public boolean isValid();
 
     /**
+     * Returns null if the slice is valid, or a String if the slice is invalid.
+     * The slice is invalid if the GridType is NONE, the GridDataHistory length
+     * is 0, the time range is invalid, or the grid data is invalid.
+     *
+     * @return a String containing the invalid reason, or null if valid
+     */
+    public String validateData();
+
+    /**
      * Copies the identified points and shifts them by delta. Return true for
      * success.
-     * 
+     *
      * @param time
      * @param pointsToMoveCopy
      * @param delta
      * @param copyOp
-     * @return
+     * @return true if successful
      */
     public boolean moveCopyArea(final Date time,
-            final Grid2DBit pointsToMoveCopy, final Point delta, boolean copyOp);
+            final Grid2DBit pointsToMoveCopy, final Point delta,
+            boolean copyOp);
 
     /**
      * Smooth the grid
-     * 
+     *
      * @param time
      * @param pointsToSmooth
      * @return true if successful
@@ -279,11 +307,11 @@ public interface IGridData extends Comparable<IGridData> {
 
     /**
      * Calculate portions of the grid based on a pencil stretch operation.
-     * 
+     *
      * @param time
      * @param value
      * @param path
-     * @return
+     * @return mask of changed grid cells
      */
     public Grid2DBit pencilStretch(Date time, WxValue value, Coordinate[] path);
 
@@ -291,20 +319,15 @@ public interface IGridData extends Comparable<IGridData> {
      * Calculate portions of the grid based on a pencil stretch operation.
      * LimittoEditArea defines whether the changes are limited to the active
      * edit area or not.
-     * 
+     *
      * @param time
      * @param value
      * @param path
      * @param limitToEditArea
-     * @return
+     * @return mask of changed grid cells
      */
     public Grid2DBit pencilStretch(Date time, WxValue value, Coordinate[] path,
             boolean limitToEditArea);
-
-    /**
-     * Populate the grid with values (if it is not already done)
-     */
-    public void populate();
 
     /**
      * Resets the save and publish times in the history.
@@ -314,7 +337,7 @@ public interface IGridData extends Comparable<IGridData> {
     /**
      * Set a value at a specific grid coordinate. The appropriate WxValue class
      * must be used.
-     * 
+     *
      * @param gridLoc
      *            the location in the grid
      * @param wxValue
@@ -323,28 +346,37 @@ public interface IGridData extends Comparable<IGridData> {
     public void set(Point gridLoc, WxValue wxValue);
 
     /**
-     * Set the underlying grid gridSlice
-     * 
-     * @param gridSlice
+     * Set the underlying dataObject
+     *
+     * @param dataObject
      */
-    public void setGridSlice(IGridSlice gridSlice);
+    public void setDataObject(IDataObject dataObject);
+
+    /**
+     * Set the underlying dataObject
+     *
+     * @param dataObject
+     * @param unsaved
+     *            true if data is unsaved and must not be depopulated
+     */
+    public void setDataObject(IDataObject dataObject, boolean unsaved);
 
     /**
      * Sets the save times in the history.
-     * 
-     * @return
+     *
+     * @return true if successful
      */
     public boolean setSaveHistory();
 
     /**
      * Set a value to all points in the passed in grid where a bit is set.
-     * 
+     *
      * @param aValue
      *            the value to set to
-     * 
+     *
      * @param editArea
      *            the points that the value should be set
-     * @return
+     * @return true if successful
      */
     public boolean setValue(WxValue aValue, Grid2DBit editArea);
 
@@ -355,24 +387,24 @@ public interface IGridData extends Comparable<IGridData> {
 
     /**
      * Updates the history
-     * 
+     *
      * @param history
-     * @return
+     * @return true if successful
      */
     public boolean updateHistory(GridDataHistory history);
 
     /**
      * Updates the history
-     * 
+     *
      * @param history
-     * @return
+     * @return true if successful
      */
     public boolean updateHistory(GridDataHistory[] history);
 
     /**
      * Updates the history to indicate grid has been modified. Returns true for
      * success.
-     * 
+     *
      * @param modifier
      */
     public void updateHistoryToModified(WsId modifier);
@@ -380,62 +412,21 @@ public interface IGridData extends Comparable<IGridData> {
     /**
      * Returns true if we are in ISC mode. If the iscCapable flag is set to
      * false, then always returns false
-     * 
+     *
      * @return True if in ISC mode and iscCapable flag is set, else false
      */
     public boolean iscMode();
 
     /**
-     * For scalar, returns the ISC grid merged with this grid. Returned
+     * Returns the ISC grid merged with this grid. Returned
      * Grid2DBit reflects the valid points of the grid. If not in ISCmode,
      * returns an empty grid
-     * 
+     *
      * @param t
      *            The time range to get
-     * @param gridSlice
-     *            The original grid gridSlice
      * @return the ISC grid merged with this grid
      */
-    public Grid2DBit getISCGrid(Date t, ScalarGridSlice slice);
-
-    /**
-     * For Vector, returns the ISC grid merged with this grid. Returned
-     * Grid2DBit reflects the valid points of the grid. If not in ISC mode,
-     * returns empty grid.
-     * 
-     * @param t
-     *            The time range to get
-     * @param gridSlice
-     *            The original grid gridSlice
-     * @return The ISC grid merged with this grid
-     */
-    public Grid2DBit getISCGrid(Date t, VectorGridSlice slice);
-
-    /**
-     * For Discrete, returns the ISC grid merged with this grid. Returned
-     * Grid2DBit reflects the valid points of the grid. If not in ISC mode,
-     * returns empty grid.
-     * 
-     * @param t
-     *            The time range to get
-     * @param slice
-     *            The original grid gridSlice
-     * @return The ISC grid merged with this grid
-     */
-    public Grid2DBit getISCGrid(Date t, DiscreteGridSlice slice);
-
-    /**
-     * For Weather, returns the ISC grid merged with this grid. Returned
-     * Grid2DBit reflects the valid points of the grid. If not in ISC mode,
-     * returns empty grid.
-     * 
-     * @param t
-     *            The time range to get
-     * @param slice
-     *            The original grid gridSlice
-     * @return The ISC grid merged with this grid
-     */
-    public Grid2DBit getISCGrid(Date t, WeatherGridSlice slice);
+    public Pair<Grid2DBit, IGridData> getISCGrid(Date t);
 
     /**
      * Returns a Grid2DBit representing the valid points on the associated isc
@@ -443,7 +434,7 @@ public interface IGridData extends Comparable<IGridData> {
      * returned Grid2DBit is correctly sized. IncludeOwnSite true always sets
      * the bits that represent this site, regardless of whether there is an ISC
      * grid and what is in the ISC grid.
-     * 
+     *
      * @param t
      *            The time range to get
      * @param includedOwnSite
@@ -455,30 +446,36 @@ public interface IGridData extends Comparable<IGridData> {
 
     /**
      * Returns a Grid2DBit representing the my site's points for this grid.
-     * 
+     *
      * @return A Grid2DBit representing the my site's points for this grid.
      */
     public Grid2DBit mySitePoints();
 
     /**
      * Returns a list of site ids that this grid contains
-     * 
+     *
      * @return The list of site ids that this grid contains
      */
     public List<String> getHistorySites();
 
     /**
      * Forces a lock on this grid
-     * 
+     *
      * @return true if successful, false if lock was not granted.
      */
     public boolean lockGrid();
 
     /**
      * Substitutes the given grid slice for "this" grid slice.
-     * 
+     *
      * @param source
      * @return true for success.
      */
     public boolean replace(IGridData source);
+
+    /**
+     * Notify grid that is has been successfully saved
+     */
+    public void successfullySaved();
+
 }

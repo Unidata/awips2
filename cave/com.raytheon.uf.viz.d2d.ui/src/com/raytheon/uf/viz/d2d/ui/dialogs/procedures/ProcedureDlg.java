@@ -50,8 +50,11 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IPartListener2;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchListener;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPartReference;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 import com.raytheon.uf.common.localization.ILocalizationFile;
@@ -88,6 +91,7 @@ import com.raytheon.viz.ui.UiUtil;
 import com.raytheon.viz.ui.actions.SaveBundle;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 import com.raytheon.viz.ui.dialogs.ICloseCallback;
+import com.raytheon.viz.ui.dialogs.SWTMessageBox;
 import com.raytheon.viz.ui.dialogs.localization.VizLocalizationFileListDlg;
 import com.raytheon.viz.ui.editor.AbstractEditor;
 import com.raytheon.viz.ui.views.PartAdapter2;
@@ -119,12 +123,15 @@ import com.raytheon.viz.ui.views.PartAdapter2;
  * Jan 29, 2016 5289       tgurney     Add missing minimize/maximize buttons in trim
  * Feb 12, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * Feb 24, 2017 6116       mapeters    Don't hardcode size of buttons
+ * Nov 13, 2017 6044       mapeters    Added null checks in disposed()
+ * Feb 20, 2018 6883       tgurney     Prompt for save on CAVE close
+ * Dec 13, 2018 6883       tgurney     Remove workbench listener when the dialog is closed
  *
  * </pre>
  *
  * @author unknown
  */
-public class ProcedureDlg extends CaveSWTDialog {
+public class ProcedureDlg extends CaveSWTDialog implements IWorkbenchListener {
 
     private final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProcedureDlg.class);
@@ -135,27 +142,19 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     public static final String PROCEDURES_DIR = "/procedures";
 
+    private static final String FIRST = "First";
+
+    private static final String NEXT = "Next";
+
     private static final Map<String, ProcedureDlg> openDialogs = new HashMap<>();
 
     private Font font;
 
     private List dataList;
 
-    private Button upBtn;
-
-    private Button downBtn;
-
-    private Button renameBtn;
-
-    private Button originalRdo;
-
     private Button currentRdo;
 
     private Button firstNextBtn;
-
-    private final String FIRST = "First";
-
-    private final String NEXT = "Next";
 
     private Button loadBtn;
 
@@ -165,13 +164,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
     private Button copyOutBtn;
 
-    private Button deleteBtn;
-
     private Button saveBtn;
-
-    private Button saveAsBtn;
-
-    private Button closeBtn;
 
     private String fileName;
 
@@ -241,7 +234,9 @@ public class ProcedureDlg extends CaveSWTDialog {
                 try {
                     bp.xml = b.toXML();
                 } catch (VizException e) {
-                    e.printStackTrace();
+                    statusHandler.error(
+                            "Error marshalling bundle to XML: " + b.getName(),
+                            e);
                 }
                 bp.name = (b.getName() != null ? b.getName() : " ");
                 this.bundles.add(bp);
@@ -249,13 +244,13 @@ public class ProcedureDlg extends CaveSWTDialog {
         }
 
         addListener(SWT.Close, new Listener() {
-
             @Override
             public void handleEvent(Event event) {
                 handleCloseRequest();
                 event.doit = false;
             }
         });
+        PlatformUI.getWorkbench().addWorkbenchListener(this);
     }
 
     @Override
@@ -270,10 +265,16 @@ public class ProcedureDlg extends CaveSWTDialog {
     @Override
     protected void disposed() {
         font.dispose();
+        IWorkbench workbench = PlatformUI.getWorkbench();
+        workbench.removeWorkbenchListener(this);
         if (activeEditorListener != null) {
-            IWorkbenchPage page = PlatformUI.getWorkbench()
-                    .getActiveWorkbenchWindow().getActivePage();
-            page.removePartListener(activeEditorListener);
+            IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+            if (window != null) {
+                IWorkbenchPage page = window.getActivePage();
+                if (page != null) {
+                    page.removePartListener(activeEditorListener);
+                }
+            }
         }
         synchronized (openDialogs) {
             openDialogs.remove(fileName);
@@ -281,7 +282,7 @@ public class ProcedureDlg extends CaveSWTDialog {
     }
 
     @Override
-    protected void preOpened() {
+    protected synchronized void preOpened() {
         Point currentPoint = null;
         if (lastShell != null) {
             if (!lastShell.isDisposed()) {
@@ -344,7 +345,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                         if (!copyOutBtn.isDisposed()) {
                             copyOutBtn.setEnabled(ProcedureComm.getInstance()
                                     .getCopyListenerCount() > 1
-                                    && bundles != null && bundles.size() > 0
+                                    && bundles != null && !bundles.isEmpty()
                                     && dataList.getSelectionIndex() >= 0);
                         }
                     }
@@ -387,7 +388,7 @@ public class ProcedureDlg extends CaveSWTDialog {
             @Override
             public void run() {
                 if (!dataList.isDisposed()) {
-                    if (bundles != null && bundles.size() > 0) {
+                    if (bundles != null && !bundles.isEmpty()) {
                         String[] list = new String[bundles.size()];
                         int i = 0;
                         for (BundlePair b : bundles) {
@@ -396,7 +397,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                         }
                         int currIdx = dataList.getSelectionIndex();
                         dataList.setItems(list);
-                        if (firstNextBtn.isEnabled() == false) {
+                        if (!firstNextBtn.isEnabled()) {
                             if (currIdx == -1 && firstNextBtn.getText()
                                     .toString().equals(FIRST)) {
                                 firstNextBtn.setEnabled(true);
@@ -469,7 +470,13 @@ public class ProcedureDlg extends CaveSWTDialog {
             saveBtn.setEnabled(false);
 
             if (closeAfterSave) {
-                close();
+                SWTMessageBox messageBox = new SWTMessageBox(shell,
+                        "Procedure Saved",
+                        "Procedure was saved to " + fileName + ".", SWT.OK);
+                messageBox.addCloseCallback((Object unused) -> {
+                    shell.close();
+                });
+                messageBox.open();
             }
         } catch (Exception e) {
             final String errMsg = "Error occurred during procedure save.";
@@ -512,7 +519,7 @@ public class ProcedureDlg extends CaveSWTDialog {
         rl.pack = false;
         listControlComp.setLayout(rl);
 
-        upBtn = new Button(listControlComp, SWT.PUSH);
+        Button upBtn = new Button(listControlComp, SWT.PUSH);
         upBtn.setText("Up");
         upBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -535,7 +542,7 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         });
 
-        downBtn = new Button(listControlComp, SWT.PUSH);
+        Button downBtn = new Button(listControlComp, SWT.PUSH);
         downBtn.setText("Down");
         downBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -558,7 +565,7 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         });
 
-        renameBtn = new Button(listControlComp, SWT.PUSH);
+        Button renameBtn = new Button(listControlComp, SWT.PUSH);
         renameBtn.setText("Rename...");
         renameBtn.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -606,7 +613,7 @@ public class ProcedureDlg extends CaveSWTDialog {
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 2;
-        originalRdo = new Button(buttonComp, SWT.RADIO);
+        Button originalRdo = new Button(buttonComp, SWT.RADIO);
         originalRdo.setText("Original");
         originalRdo.setSelection(true);
         originalRdo.setLayoutData(gd);
@@ -707,7 +714,7 @@ public class ProcedureDlg extends CaveSWTDialog {
         copyOutBtn.setText("Copy Out");
         copyOutBtn.setLayoutData(gd);
         if (ProcedureComm.getInstance().getCopyListenerCount() > 1
-                && bundles != null && bundles.size() > 0
+                && bundles != null && !bundles.isEmpty()
                 && dataList.getSelectionIndex() >= 0) {
             copyOutBtn.setEnabled(true);
         } else {
@@ -730,7 +737,7 @@ public class ProcedureDlg extends CaveSWTDialog {
         });
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        deleteBtn = new Button(buttonComp, SWT.PUSH);
+        Button deleteBtn = new Button(buttonComp, SWT.PUSH);
         deleteBtn.setText("Delete");
         deleteBtn.setLayoutData(gd);
         deleteBtn.addSelectionListener(new SelectionAdapter() {
@@ -742,7 +749,7 @@ public class ProcedureDlg extends CaveSWTDialog {
                 if (idx < 0) {
                     return;
                 }
-                if (bundles.size() > 0) {
+                if (!bundles.isEmpty()) {
                     bundles.remove(idx);
                 }
                 resyncProcedureAndList();
@@ -763,7 +770,7 @@ public class ProcedureDlg extends CaveSWTDialog {
         });
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        saveAsBtn = new Button(buttonComp, SWT.PUSH);
+        Button saveAsBtn = new Button(buttonComp, SWT.PUSH);
         saveAsBtn.setText("Save As...");
         saveAsBtn.setLayoutData(gd);
         saveAsBtn.addSelectionListener(new SelectionAdapter() {
@@ -773,7 +780,7 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         });
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        closeBtn = new Button(buttonComp, SWT.PUSH);
+        Button closeBtn = new Button(buttonComp, SWT.PUSH);
         closeBtn.setText("Close");
         closeBtn.setLayoutData(gd);
         closeBtn.addSelectionListener(new SelectionAdapter() {
@@ -1016,13 +1023,17 @@ public class ProcedureDlg extends CaveSWTDialog {
     /**
      * Confirm save dialog, for if the user hasn't saved the procedure but tries
      * to close it
+     *
+     * @return true on "Yes" or "No". false on "Cancel"
      */
-    private void showConfirmSaveDlg() {
+    private boolean showConfirmSaveDlg() {
+
         CaveSWTDialog dlg = new CaveSWTDialog(shell,
-                SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL, CAVE.DO_NOT_BLOCK) {
+                SWT.DIALOG_TRIM | SWT.PRIMARY_MODAL) {
 
             @Override
             protected void initializeComponents(Shell shell) {
+                this.setReturnValue(true);
                 final CaveSWTDialog self = this;
                 shell.setText("Confirm Save");
 
@@ -1068,7 +1079,6 @@ public class ProcedureDlg extends CaveSWTDialog {
                 yes.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent event) {
-                        self.close();
                         handleSaveRequest(true);
                     }
                 });
@@ -1097,12 +1107,17 @@ public class ProcedureDlg extends CaveSWTDialog {
                 cancel.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent event) {
+                        setCancelled();
                         self.close();
                     }
                 });
             }
+
+            public void setCancelled() {
+                this.setReturnValue(false);
+            }
         };
-        dlg.open();
+        return (boolean) dlg.open();
     }
 
     /**
@@ -1140,4 +1155,17 @@ public class ProcedureDlg extends CaveSWTDialog {
             }
         }
     }
+
+    @Override
+    public boolean preShutdown(IWorkbench workbench, boolean forced) {
+        if (!saved) {
+            return showConfirmSaveDlg();
+        }
+        return true;
+    }
+
+    @Override
+    public void postShutdown(IWorkbench workbench) {
+    }
+
 }

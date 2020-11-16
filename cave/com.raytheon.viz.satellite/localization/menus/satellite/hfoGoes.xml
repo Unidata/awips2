@@ -18,60 +18,64 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-		<contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml" 
-	                menuText="IR Window" id="irWindow">
-	        <substitute key="element" value="Imager 11 micron IR"/>
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-	    </contribute>
-	    <contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"  
-                menuText="Water Vapor" id="waterVapor">
-	        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)"/>
-	        <substitute key="colormap" value="Sat/WV/GEMPAK WV"/>
-    	</contribute>
-    	<contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"  
-                menuText="Visible" id="visible">
-	        <substitute key="element" value="Imager Visible"/>      
-	        <substitute key="colormap" value="Sat/VIS/Linear"/>
-	    </contribute>
-	    <contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"  
-                menuText="13u" id="13u">
-	        <substitute key="element" value="Imager 13 micron IR"/>
-	        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)"/>
-	    </contribute>
-	    <contribute xsi:type="placeholder" menuText="11-3.76u" id="11-3.76u" />
-	    <contribute xsi:type="placeholder" menuText="11u-13u"
-			id="11u-13u" />
-		<contribute xsi:type="placeholder" menuText="WV/IR"
-			id="WV/IR" />
-		<contribute xsi:type="subMenu" menuText="Central Pacific GMS">
-			<contribute xsi:type="placeholder" 
-				menuText="IR Window" id="irWindow"/>
-			<contribute xsi:type="placeholder" 
-				menuText="Water Vapor" id="waterVapor"/>
-			<contribute xsi:type="placeholder" 
-				menuText="Visible" id="visible"/>
-			<contribute xsi:type="placeholder" 
-				menuText="WV/IR" id="WV/IR" />
-	    </contribute>
-		<contribute xsi:type="subMenu" menuText="South Pacific GMS">
-			<contribute xsi:type="placeholder" 
-				menuText="IR Window" id="irWindow"/>
-			<contribute xsi:type="placeholder" 
-				menuText="Water Vapor" id="waterVapor"/>
-			<contribute xsi:type="placeholder" 
-				menuText="Visible" id="visible"/>
-			<contribute xsi:type="placeholder" 
-				menuText="WV/IR" id="WV/IR" />
-	    </contribute>    
-		<contribute xsi:type="subMenu" menuText="West Pacific GMS">
-			<contribute xsi:type="placeholder" 
-				menuText="IR Window" id="irWindow"/>
-			<contribute xsi:type="placeholder" 
-				menuText="Water Vapor" id="waterVapor"/>
-			<contribute xsi:type="placeholder" 
-				menuText="Visible" id="visible"/>
-			<contribute xsi:type="placeholder" 
-				menuText="WV/IR" id="WV/IR" />
-	    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"
+        menuText="IR Window" id="irWindow">
+        <substitute key="element" value="Imager 11 micron IR" />
+        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"
+        menuText="Water Vapor" id="waterVapor">
+        <substitute key="element" value="Imager 6.7-6.5 micron IR (WV)" />
+        <substitute key="colormap" value="Sat/WV/Gray Scale Water Vapor" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"
+        menuText="Visible" id="visible">
+        <substitute key="element" value="Imager Visible" />
+        <substitute key="colormap" value="Sat/VIS/ZA (Vis Default)" />
+    </contribute>
+    <contribute xsi:type="bundleItem" file="bundles/HfoGoes.xml"
+        menuText="13u" id="13u">
+        <substitute key="element" value="Imager 13 micron (IR)" />
+        <substitute key="colormap" value="Sat/IR/CIRA (IR Default)" />
+    </contribute>
+    <contribute xsi:type="placeholder" menuText="11-3.76u"
+        id="11-3.76u" />
+    <contribute xsi:type="placeholder" menuText="11u-13u" id="11u-13u" />
+    <contribute xsi:type="placeholder" menuText="WV/IR" id="WV/IR" />
+    <contribute xsi:type="subMenu" menuText="Central Pacific GMS">
+        <contribute xsi:type="placeholder" menuText="IR Window"
+            id="irWindow" />
+        <contribute xsi:type="placeholder" menuText="Water Vapor"
+            id="waterVapor" />
+        <contribute xsi:type="placeholder" menuText="Visible"
+            id="visible" />
+        <contribute xsi:type="placeholder" menuText="WV/IR"
+            id="WV/IR" />
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="South Pacific GMS">
+        <contribute xsi:type="placeholder" menuText="IR Window"
+            id="irWindow" />
+        <contribute xsi:type="placeholder" menuText="Water Vapor"
+            id="waterVapor" />
+        <contribute xsi:type="placeholder" menuText="Visible"
+            id="visible" />
+        <contribute xsi:type="placeholder" menuText="WV/IR"
+            id="WV/IR" />
+    </contribute>
+    <contribute xsi:type="subMenu" menuText="West Pacific GMS">
+        <contribute xsi:type="placeholder" menuText="IR Window"
+            id="irWindow" />
+        <contribute xsi:type="placeholder" menuText="Water Vapor"
+            id="waterVapor" />
+        <contribute xsi:type="placeholder" menuText="Visible"
+            id="visible" />
+        <contribute xsi:type="placeholder" menuText="WV/IR"
+            id="WV/IR" />
+    </contribute>
 </menuTemplate>

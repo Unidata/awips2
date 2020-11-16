@@ -20,24 +20,15 @@
 
 package com.raytheon.viz.hydro.pointprecipitation;
 
-import static com.raytheon.viz.hydro.pointprecipitation.PointPrecipConstants.FMT_DUR;
-import static com.raytheon.viz.hydro.pointprecipitation.PointPrecipConstants.FMT_DUR_HD_TR;
-import static com.raytheon.viz.hydro.pointprecipitation.PointPrecipConstants.FMT_DUR_TR;
-import static com.raytheon.viz.hydro.pointprecipitation.PointPrecipConstants.FMT_PCT;
-import static com.raytheon.viz.hydro.pointprecipitation.PointPrecipConstants.MIN_PERCENT;
-import static com.raytheon.viz.hydro.pointprecipitation.PointPrecipConstants.durationValues;
-import static com.raytheon.viz.hydrocommon.HydroConstants.DATE_FORMAT;
-import static com.raytheon.viz.hydrocommon.whfslib.PrecipUtil.MISSING_PRECIP;
-
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -54,7 +45,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
@@ -82,15 +72,12 @@ import org.eclipse.swt.widgets.Text;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rawpc;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rawpp;
 import com.raytheon.uf.common.ohd.AppsDefaults;
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.viz.hydro.pointprecipitation.PointPrecipConstants.FilterStation;
 import com.raytheon.viz.hydro.pointprecipitation.PointPrecipConstants.RawPrecipTable;
 import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.hydrocommon.HydroDataCache;
 import com.raytheon.viz.hydrocommon.data.RawPrecipData;
-import com.raytheon.viz.hydrocommon.util.HydroQC;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -104,42 +91,29 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 29 NOV 2007  373        lvenable    Initial creation.
  * 10/24/2008   1617       grichard    Support point precip. accum.
  * 09/29/2010   4384      lbousaidi    Fixed PC/PP display and make Save button 
- * 									   save to tokenized directory
+ *                                     save to tokenized directory
  * 03/14/2013   1790       rferrel     Changes for non-blocking dialog.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
  * Feb 21, 2017 6035       njensen     Fix sizing issues
+ * Feb 21, 2018 6968       mduff       Refactored to fix data value sorting.
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  * 
  */
 public class PointPrecipAccumDlg extends CaveSWTDialog {
+
+    private static final int[] durationValues = PointPrecipConstants.durationValues;
+
+    /**
+     * Other time period index.
+     */
+    private static final int OTHER_INDEX = 7;
 
     /**
      * Font used for controls.
      */
     private Font font;
-
-    /**
-     * Increment day button.
-     */
-    private Button upDayBtn;
-
-    /**
-     * Decrement day button.
-     */
-    private Button dnDayBtn;
-
-    /**
-     * Increment hours button.
-     */
-    private Button upHoursBtn;
-
-    /**
-     * Decrement hours button.
-     */
-    private Button dnHoursBtn;
 
     /**
      * Date/Time text control.
@@ -160,14 +134,14 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
     /**
      * End query time.
      */
-    private Calendar endQueryTime = Calendar.getInstance(TimeZone
-            .getTimeZone("GMT"));
+    private Calendar endQueryTime = Calendar
+            .getInstance(TimeZone.getTimeZone("GMT"));
 
     /**
      * Begin query time.
      */
-    private Calendar beginQueryTime = Calendar.getInstance(TimeZone
-            .getTimeZone("GMT"));
+    private Calendar beginQueryTime = Calendar
+            .getInstance(TimeZone.getTimeZone("GMT"));
 
     /**
      * Query end time.
@@ -182,7 +156,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
     /**
      * Selected Durations.
      */
-    private final int[] selectedDurations = new int[durationValues.length];
+    private final int[] selectedDurations = new int[PointPrecipConstants.durationValues.length];
 
     /**
      * Durations.
@@ -190,29 +164,9 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
     private int[] durations;
 
     /**
-     * hrfill.
-     */
-    private double[] hrfill;
-
-    /**
-     * amount.
-     */
-    private double[] amount;
-
-    /**
-     * summed_flag.
-     */
-    private int[] summedFlag;
-
-    /**
      * Other text control.
      */
     private Text otherTF;
-
-    /**
-     * Load Data button.
-     */
-    private Button loadDataBtn;
 
     /**
      * Filter by HSA check box.
@@ -250,11 +204,6 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
     private List ppIncList;
 
     /**
-     * List of PTS values.
-     */
-    private final java.util.List<String> pTs = new ArrayList<String>();
-
-    /**
      * Sort combo box.
      */
     private Combo sortCbo;
@@ -274,38 +223,14 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
      */
     private StyledText textEditor;
 
-    /**
-     * Other time period index.
-     */
-    private final int OTHER_INDEX = 7;
-
-    /**
-     * List of PC (CurPC) values.
-     */
-    private java.util.List<Rawpc> pcHead = new ArrayList<Rawpc>();
-
-    /**
-     * List of PP (CurPP) values.
-     */
-    private java.util.List<Rawpp> ppHead = new ArrayList<Rawpp>();
-
-    /** System wait cursor. */
-    private Cursor waitCursor = null;
-
     /** Mapping of raw data. */
-    private final Map<String, RawPrecipData> dataMap = new LinkedHashMap<String, RawPrecipData>();
+    private final Map<String, RawPrecipData> dataMap = new LinkedHashMap<>();
 
     /** Point precipitation options. */
     private final PointPrecipOptions paOptions = new PointPrecipOptions();
 
-    /** Text strings to display. */
-    private final java.util.List<String> text = new ArrayList<String>();
-
-    /** Use to format and order PC information for display. */
-    private final java.util.List<String> pcDetail = new ArrayList<String>();
-
-    /** Use to format not PC detail information for display. */
-    private final java.util.List<String> ppDetail = new ArrayList<String>();
+    /** List of all the row data objects */
+    private final java.util.List<PrecipAccumulationRowData> allRows = new ArrayList<>();
 
     /* Driver for sending data to printer. */
     private Printer printer;
@@ -340,18 +265,6 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
     /** Number of characters in the text being printed. */
     private int end;
 
-    /** Buffer to store line to print. */
-    private StringBuffer wordBuffer;
-
-    /** Display driver for the printer. */
-    private GC gc;
-
-    /** Flag to indicate the is PC detail data. */
-    private boolean pcDisplay = false;
-
-    /** Flag to indicate non-PC detail data to display. */
-    private boolean ppDisplay = false;
-
     /** size and location to display the dialog. */
     private Rectangle bounds;
 
@@ -365,19 +278,12 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Point Precipitation Accumulations");
 
-        waitCursor = parent.getDisplay().getSystemCursor(SWT.CURSOR_WAIT);
-
         // Set the query times to current AWIPS time
         Date d = SimulatedTime.getSystemTime().getTime();
         endQueryTime.setTime(d);
         beginQueryTime.setTime(d);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#constructShellLayout()
-     */
     @Override
     protected Layout constructShellLayout() {
         // Create the main layout for the shell.
@@ -387,11 +293,6 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         return mainLayout;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
     protected void disposed() {
         if (font != null) {
@@ -399,13 +300,6 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         setReturnValue(false);
@@ -460,30 +354,26 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         timeArrowsComp.setLayout(timeArrowRl);
 
         RowData rd = new RowData(25, 25);
-        upDayBtn = new Button(timeArrowsComp, SWT.ARROW);
+        Button upDayBtn = new Button(timeArrowsComp, SWT.ARROW);
         upDayBtn.setLayoutData(rd);
         upDayBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 endTime.add(Calendar.DAY_OF_MONTH, 1);
-                dateTimeTF.setText(HydroConstants.DATE_FORMAT.format(endTime
-                        .getTime()));
-                // dateTimeTF
-                // .setText(changeTime(endTime, Calendar.DAY_OF_MONTH, 1));
+                dateTimeTF.setText(
+                        HydroConstants.DATE_FORMAT.format(endTime.getTime()));
             }
         });
 
         rd = new RowData(25, 25);
-        dnDayBtn = new Button(timeArrowsComp, SWT.ARROW | SWT.DOWN);
+        Button dnDayBtn = new Button(timeArrowsComp, SWT.ARROW | SWT.DOWN);
         dnDayBtn.setLayoutData(rd);
         dnDayBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 endTime.add(Calendar.DAY_OF_MONTH, -1);
-                dateTimeTF.setText(HydroConstants.DATE_FORMAT.format(endTime
-                        .getTime()));
-                // dateTimeTF.setText(changeTime(endTime, Calendar.DAY_OF_MONTH,
-                // -1));
+                dateTimeTF.setText(
+                        HydroConstants.DATE_FORMAT.format(endTime.getTime()));
             }
         });
 
@@ -505,30 +395,26 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         hoursArrowsComp.setLayout(hoursArrowRl);
 
         rd = new RowData(25, 25);
-        upHoursBtn = new Button(hoursArrowsComp, SWT.ARROW);
+        Button upHoursBtn = new Button(hoursArrowsComp, SWT.ARROW);
         upHoursBtn.setLayoutData(rd);
         upHoursBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 endTime.add(Calendar.HOUR_OF_DAY, 1);
-                dateTimeTF.setText(HydroConstants.DATE_FORMAT.format(endTime
-                        .getTime()));
-                // dateTimeTF
-                // .setText(changeTime(endTime, Calendar.HOUR_OF_DAY, 1));
+                dateTimeTF.setText(
+                        HydroConstants.DATE_FORMAT.format(endTime.getTime()));
             }
         });
 
         rd = new RowData(25, 25);
-        dnHoursBtn = new Button(hoursArrowsComp, SWT.ARROW | SWT.DOWN);
+        Button dnHoursBtn = new Button(hoursArrowsComp, SWT.ARROW | SWT.DOWN);
         dnHoursBtn.setLayoutData(rd);
         dnHoursBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
                 endTime.add(Calendar.HOUR_OF_DAY, -1);
-                dateTimeTF.setText(HydroConstants.DATE_FORMAT.format(endTime
-                        .getTime()));
-                // dateTimeTF
-                // .setText(changeTime(endTime, Calendar.HOUR_OF_DAY, -1));
+                dateTimeTF.setText(
+                        HydroConstants.DATE_FORMAT.format(endTime.getTime()));
             }
         });
 
@@ -551,8 +437,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         // get all possible duration items
         java.util.List<String> durItems = new ArrayList<>(
                 durationValues.length + 1);
-        for (int i = 0; i < durationValues.length; i++) {
-            String s = ((Number) durationValues[i]).toString() + " Hour";
+        for (int durationValue : durationValues) {
+            String s = ((Number) durationValue).toString() + " Hour";
             durItems.add(s);
         }
         durItems.add("Other");
@@ -577,7 +463,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         durList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (durList.isSelected(OTHER_INDEX) == true) {
+                if (durList.isSelected(OTHER_INDEX)) {
                     otherTF.setEnabled(true);
                 } else {
                     otherTF.setEnabled(false);
@@ -607,7 +493,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
                 if (otherTF.getText().matches("([0-9])+")) {
                     otherTF.setText(otherTF.getText());
                 } else {
-                    userInformation("Enter duration in hours as a positive integer value");
+                    userInformation(
+                            "Enter duration in hours as a positive integer value");
                     otherTF.setFocus();
                 }
             }
@@ -615,22 +502,23 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
 
         gd = new GridData(120, SWT.DEFAULT);
         gd.horizontalSpan = 2;
-        loadDataBtn = new Button(durSubComp, SWT.PUSH);
+        Button loadDataBtn = new Button(durSubComp, SWT.PUSH);
         loadDataBtn.setText("Load Data");
         loadDataBtn.setLayoutData(gd);
         loadDataBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if ((durList.isSelected(OTHER_INDEX) == true)
+                if ((durList.isSelected(OTHER_INDEX))
                         && (!otherTF.getText().matches("([0-9])+"))) {
-                    userInformation("Enter duration in hours as a positive integer value");
+                    userInformation(
+                            "Enter duration in hours as a positive integer value");
                     otherTF.setFocus();
                 } else {
                     boolean valid = true;
 
                     if (byLocationChk.getSelection()
-                            && (locationTF.getText() == null)
-                            && locationTF.getText().equals("")) {
+                            && (locationTF.getText() == null
+                                    || locationTF.getText().isEmpty())) {
                         valid = false;
                         userInformation("Enter a Location");
                     }
@@ -703,7 +591,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
                 if (locationTF.getText().matches("(\\w)*")) {
                     locationTF.setText(locationTF.getText().toUpperCase());
                 } else {
-                    userInformation("Enter location ID as a word-character ([a-zA-Z_0-9]*) string");
+                    userInformation(
+                            "Enter location ID as a word-character ([a-zA-Z_0-9]*) string");
                     locationTF.setFocus();
                 }
             }
@@ -736,8 +625,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
 
         gd = new GridData(50, 110);
         // pcCtrList has part of the read_PETS_set data and is called ul_PCHead.
-        pcCtrList = new List(dataSourceComp, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL);
+        pcCtrList = new List(dataSourceComp,
+                SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
         pcCtrList.setLayoutData(gd);
         // Get real data for the list.
         // pa_options.numPC_defined is the number of items (item count) in
@@ -755,8 +644,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
 
         gd = new GridData(50, 110);
         // ppIncList has part of the read_PETS_set data and is called ul_PPHead.
-        ppIncList = new List(dataSourceComp, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL);
+        ppIncList = new List(dataSourceComp,
+                SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
         ppIncList.setLayoutData(gd);
         // Get real data for the list.
         // pa_options.numPP_defined is the number of items (item count) in
@@ -819,8 +708,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
      */
     private void createTextControl() {
         GridData gd = new GridData(900, 600);
-        textEditor = new StyledText(shell, SWT.BORDER | SWT.MULTI
-                | SWT.V_SCROLL | SWT.H_SCROLL);
+        textEditor = new StyledText(shell,
+                SWT.BORDER | SWT.MULTI | SWT.V_SCROLL | SWT.H_SCROLL);
         textEditor.setLayoutData(gd);
         textEditor.setFont(font);
     }
@@ -855,13 +744,6 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         saveBtn.setLayoutData(gd);
         saveBtn.addSelectionListener(new SelectionAdapter() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 saveFile();
@@ -875,13 +757,6 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         printBtn.setLayoutData(gd);
         printBtn.addSelectionListener(new SelectionAdapter() {
 
-            /*
-             * (non-Javadoc)
-             * 
-             * @see
-             * org.eclipse.swt.events.SelectionAdapter#widgetSelected(org.eclipse
-             * .swt.events.SelectionEvent)
-             */
             @Override
             public void widgetSelected(SelectionEvent e) {
                 printData();
@@ -910,13 +785,10 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         readAccumOptions();
 
         // Set the wait cursor
-        shell.setCursor(waitCursor);
+        shell.setCursor(shell.getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
         // Clear the old data
         dataMap.clear();
-
-        /* Reset the text store */
-        text.clear();
 
         /*
          * only try and load the data if at least one type source was selected
@@ -948,7 +820,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
      */
     private void retrievePrecipAcccumulation() {
         FilterStation ignoreStation = FilterStation.UseStation;
-
+        allRows.clear();
         Set<String> keySetPp = dataMap.keySet();
         Iterator<String> iterPp = keySetPp.iterator();
         while (iterPp.hasNext()) {
@@ -1010,18 +882,6 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         // Declare the durations array and initialize it (done via copyOf here).
         durations = java.util.Arrays.copyOf(selectedDurations, NUMDURATIONS);
 
-        // Declare the hrfill array and initialize it via fill operation.
-        hrfill = new double[NUMDURATIONS];
-        java.util.Arrays.fill(hrfill, 0.0);
-
-        // Declare the amount array and initialize it via fill operation.
-        amount = new double[NUMDURATIONS];
-        java.util.Arrays.fill(amount, MISSING_PRECIP);
-
-        // Declare the summed_flag array and initialize it via fill operation.
-        summedFlag = new int[NUMDURATIONS];
-        java.util.Arrays.fill(summedFlag, 0);
-
         return durations;
     }
 
@@ -1066,8 +926,10 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         if (byLocationChk.getSelection()) {
             lid = locationTF.getText();
         }
-
+        java.util.List<String> pTs = new ArrayList<>();
         setAccumBeginEnd(durTime);
+        ArrayList<Rawpc> pcHead;
+        ArrayList<Rawpp> ppHead;
         switch (pe) {
         case PC:
             /*
@@ -1079,7 +941,6 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
                 if (pcCtrList.getSelectionCount() < pcCtrList.getItemCount()) {
                     notGettingAllTs = true;
                 }
-                pTs.clear();
                 if (notGettingAllTs) {
                     int[] pcTsSet = pcCtrList.getSelectionIndices();
                     for (int i : pcTsSet) {
@@ -1101,7 +962,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
 
             String prevId = null;
             RawPrecipData pd = new RawPrecipData();
-            if ((pcHead != null) && (pcHead.size() > 0)) {
+            if ((pcHead != null) && (!pcHead.isEmpty())) {
                 // populate the data map
                 prevId = pcHead.get(0).getLid();
                 for (Rawpc rpc : pcHead) {
@@ -1133,7 +994,6 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
                 if (ppIncList.getSelectionCount() < ppIncList.getItemCount()) {
                     notGettingAllTs = true;
                 }
-                pTs.clear();
                 if (notGettingAllTs) {
                     int[] ppTsSet = ppIncList.getSelectionIndices();
                     for (int i : ppTsSet) {
@@ -1163,7 +1023,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
 
             // populate the data map
             pd = new RawPrecipData();
-            if ((ppHead != null) && (ppHead.size() > 0)) {
+            if ((ppHead != null) && (!ppHead.isEmpty())) {
                 prevId = ppHead.get(0).getLid();
                 for (Rawpp rpp : ppHead) {
                     id = rpp.getLid();
@@ -1218,7 +1078,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
      */
     private String initEndTime() {
         Date now = SimulatedTime.getSystemTime().getTime();
-        DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
+        PointPrecipConstants.DATE_FORMAT
+                .setTimeZone(TimeZone.getTimeZone("GMT"));
         endTime.setTime(now);
 
         if ((endTime.get(Calendar.HOUR_OF_DAY)) >= 18) {
@@ -1233,7 +1094,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         endTime.set(Calendar.MINUTE, 0);
         endTime.set(Calendar.SECOND, 0);
 
-        return (DATE_FORMAT.format(endTime.getTime()));
+        return (PointPrecipConstants.DATE_FORMAT.format(endTime.getTime()));
     }
 
     /**
@@ -1245,7 +1106,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         calendar.setTime(endTime.getTime());
 
-        return (DATE_FORMAT.format(calendar.getTime()));
+        return (PointPrecipConstants.DATE_FORMAT.format(calendar.getTime()));
     }
 
     /**
@@ -1300,30 +1161,37 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         if (showDetailsChk.getSelection()) {
             if (ppIncList.getSelectionCount() > 0) {
                 if (addPPChk.getSelection()) {
-                    hdr.append("PP values indicated by a 's' are summation of PP reports.\n");
+                    hdr.append(
+                            "PP values indicated by a 's' are summation of PP reports.\n");
                 } else {
-                    hdr.append("PP values are direct PP reports; no summing of reports.\n");
+                    hdr.append(
+                            "PP values are direct PP reports; no summing of reports.\n");
                 }
             }
-            hdr.append("Number of hours found for each duration are shown in parentheses.\n");
+            hdr.append(
+                    "Number of hours found for each duration are shown in parentheses.\n");
         }
-        percent = MIN_PERCENT * 100.0;
+        percent = PointPrecipConstants.MIN_PERCENT * 100.0;
         if (percent > 0.0) {
             hdr.append("Total considered missing if hours found < ");
-            hdr.append(String.format(FMT_PCT, percent));
+            hdr.append(String.format(PointPrecipConstants.FMT_PCT, percent));
             hdr.append(" of hours requested.\n");
         }
         hdr.append("\n");
-        hdr.append(String.format(FMT_DUR_HD_TR, "Location", "Name", "PE", "TS"));
+        hdr.append(String.format(PointPrecipConstants.FMT_DUR_HD_TR, "Location",
+                "Name", "PE", "TS"));
 
         for (int duration : durations) {
-            hdr.append(String.format(FMT_DUR, duration, "hr"));
+            hdr.append(String.format(PointPrecipConstants.FMT_DUR, duration,
+                    "hr"));
         }
         hdr.append("\n");
-        hdr.append(String.format(FMT_DUR_HD_TR, "========", "====", "==", "=="));
+        hdr.append(String.format(PointPrecipConstants.FMT_DUR_HD_TR, "========",
+                "====", "==", "=="));
 
         for (int duration : durations) {
-            hdr.append(String.format(FMT_DUR_TR, "===", "=="));
+            hdr.append(String.format(PointPrecipConstants.FMT_DUR_TR, "===",
+                    "=="));
         }
 
         hdr.append("\n");
@@ -1371,168 +1239,36 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
      *            The PointPrecipData object
      */
     private void writePaRecord(PointPrecipData data, RawPrecipData rawData) {
-        StringBuilder buffer = new StringBuilder();
-        StringBuilder dataStr = new StringBuilder();
-        String name = null;
-        final String pcFormat = "  %8.2f  %s   %s     %-1s     %s\n";
-        final String ppFormat = "  %8.2f  %s   %-16s %s     %s     %s\n";
-        SimpleDateFormat sdf = new SimpleDateFormat("MM/dd HH:mm");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        /*
-         * the max_value is placed here for possible sort purposes only. in all
-         * cases, it it stripped off before presenting the output.
-         */
-        if (data.getMaxValue() != MISSING_PRECIP) {
-            buffer.append(String.format("%.2f |", data.getMaxValue()));
-        } else {
-            buffer.append("-1. |");
-        }
-
         /* write the key information */
-        Object[] locInfo = PointPrecipDataManager.getInstance().getLocInfo(
-                data.getLid());
+        Object[] locInfo = PointPrecipDataManager.getInstance()
+                .getLocInfo(data.getLid());
 
         /* return if nothing is returned from location table */
-
         if (locInfo == null) {
             return;
         }
 
-        name = (String) locInfo[2];
+        PrecipAccumulationRowData rowData = new PrecipAccumulationRowData();
+        rowData.setMaxValue(data.getMaxValue());
+        rowData.setName((String) locInfo[2]);
+        rowData.setLid(data.getLid());
+        rowData.setPe(data.getPe());
+        rowData.setTs(data.getTs());
+        rowData.setDurations(durations);
+        rowData.setDetails(paOptions.isDetailsSwitch());
+        rowData.setHrFill(data.getHrfill());
+        rowData.setSummedFlags(data.getSummedFlag());
+        rowData.setAmount(data.getAmount());
 
-        // shorten the name if needed
-        if ((name != null) && (name.length() > 20)) {
-            name = name.substring(0, 20);
-        } else if (name == null) {
-            name = "";
+        String ts = data.getTs();
+        String pe = data.getPe();
+        if (pe.equalsIgnoreCase(PointPrecipConstants.PC)) {
+            rowData.setPcList(rawData.getPcList(ts));
+        } else {
+            rowData.setPpList(rawData.getPpList(ts));
         }
-        dataStr.append(String.format("%-8s %-20s %-2s %-2s :", data.getLid(),
-                name, data.getPe(), data.getTs()));
 
-        /* write out the info for each selected duration */
-        for (int i = 0; i < durations.length; i++) {
-            double[] amounts = data.getAmount();
-            if (amounts[i] == MISSING_PRECIP) {
-                dataStr.append("   MSG");
-            } else {
-                dataStr.append(String.format("%6.2f", amounts[i]));
-            }
-        }
-
-        /* show the details at the end of the line */
-        if (paOptions.isDetailsSwitch()) {
-            boolean first = true;
-            dataStr.append(" (");
-            int[] summedFlags = data.getSummedFlag();
-
-            for (int i = 0; i < durations.length; i++) {
-                if (first) {
-                    first = false;
-                } else {
-                    dataStr.append("/");
-                }
-
-                String derivedStr = "";
-                if ((summedFlags[i] == 1)
-                        && data.getPe().equalsIgnoreCase("PP")) {
-                    derivedStr = "s";
-                }
-
-                dataStr.append(String.format("%.1f%s", data.getHrfill()[i],
-                        derivedStr));
-            }
-            dataStr.append(")");
-        }
-        dataStr.append("\n");
-
-        text.add(buffer.toString() + dataStr.toString());
-
-        /*
-         * if showing details on only one location, then show the full time
-         * series.
-         */
-        if (paOptions.isLocSwitch() && paOptions.isDetailsSwitch()) {
-            /*
-             * when listing out the data, always list in descending cron order.
-             * the order of the linked list varies depending on whether it is PC
-             * or PP, so this needs to be accounted for. PP is provided in the
-             * descending time order, so the first pointer must be set special
-             * for PC. also display a column header line
-             */
-
-            String ts = data.getTs();
-            String pe = data.getPe();
-            ArrayList<Rawpc> pcList = null;
-            ArrayList<Rawpp> ppList = null;
-
-            if (pe.equalsIgnoreCase("PC")) {
-                pcList = rawData.getPcList(ts);
-            } else {
-                ppList = rawData.getPpList(ts);
-            }
-
-            text.add("\n");
-
-            String timeStr = null;
-            String extremum = null;
-            int qualCode = 0;
-            String qcStr = null;
-            short dur;
-            if (pe.equalsIgnoreCase("PC")) {
-                if (pcList != null) {
-                    pcDisplay = true;
-                    for (Rawpc pc : pcList) {
-                        if (pc.getTs().equalsIgnoreCase(ts)) {
-                            extremum = pc.getExtremum();
-                            if (pc.getQualityCode() != null) {
-                                qualCode = pc.getQualityCode();
-                            }
-                            qcStr = HydroQC.buildQcSymbol(qualCode);
-                            timeStr = sdf.format(pc.getObstime());
-                            pcDetail.add(String.format(pcFormat, pc.getValue(),
-                                    timeStr, extremum, pc.getShefQualCode(),
-                                    qcStr));
-                        }
-                    }
-                }
-
-                /* Same as AWIPS I PC data is displayed in descending order */
-                Collections.reverse(pcDetail);
-
-            } else {
-                ppDetail.add("     Value     Time      Duration         Ext Qualif  QC\n");
-                if (ppList != null) {
-                    ppDisplay = true;
-                    for (Rawpp pp : ppList) {
-                        extremum = pp.getExtremum();
-                        if (pp.getQualityCode() != null) {
-                            qualCode = pp.getQualityCode();
-                        }
-                        qcStr = HydroQC.buildQcSymbol(qualCode);
-                        timeStr = sdf.format(pp.getObstime());
-                        dur = pp.getDur();
-                        String durStr = null;
-
-                        /*
-                         * build a presentable string for the duration code
-                         * value
-                         */
-                        if (dur != 0) {
-                            durStr = PointPrecipDataManager.getInstance()
-                                    .getDur(dur);
-                            if (durStr == null) {
-                                durStr = dur + " ";
-                            }
-                        }
-
-                        ppDetail.add(String.format(ppFormat, pp.getValue(),
-                                timeStr, durStr, extremum,
-                                pp.getShefQualCode(), qcStr));
-                    }
-                }
-            }
-        }
+        allRows.add(rowData);
     }
 
     /**
@@ -1542,67 +1278,30 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         // write the header info to the dialog
         writeHdrInfo();
 
-        String[] lineArr = text.toArray(new String[text.size()]);
-
-        if (lineArr.length < 1) {
+        if (allRows.isEmpty()) {
             textEditor.append("\n  REQUESTED DATA NOT FOUND.\n");
         } else {
-            // sort by location or value, 0 = location,
-            // but don't sort it if only displaying a single site
+            // sort by location or value, 0 = location
             if (sortCbo.getSelectionIndex() == 0) {
-                ArrayList<String> al = new ArrayList<String>();
-                for (String s : lineArr) {
-                    // remove the leading number
-                    String line = s.substring(s.indexOf("|") + 1, s.length());
-                    al.add(line);
+                Collections.sort(allRows, new NameComparator());
+                for (PrecipAccumulationRowData row : allRows) {
+                    textEditor.append(row.getDataLine());
                 }
-                lineArr = al.toArray(new String[al.size()]);
-                Arrays.sort(lineArr);
             } else {
-                // sort by value
-                Arrays.sort(lineArr);
-                ArrayList<String> al = new ArrayList<String>();
-                for (int i = lineArr.length - 1; i >= 0; i--) {
-                    // for (String s: lineArr) {
-                    // remove the leading number
-                    String line = lineArr[i].substring(
-                            lineArr[i].indexOf("|") + 1, lineArr[i].length());
-                    al.add(line);
+                // Sort by value
+                Collections.sort(allRows, new PrecipComparator());
+                Collections.reverse(allRows);
+                for (PrecipAccumulationRowData row : allRows) {
+                    textEditor.append(row.getDataLine());
                 }
-
-                lineArr = al.toArray(new String[al.size()]);
             }
 
-            for (String s : lineArr) {
-                if (s.equals("\n")) {
-                    continue;
-                }
-
-                textEditor.append(s);
-
-                if (paOptions.isLocSwitch() && paOptions.isDetailsSwitch()) {
-
-                    if (pcDisplay) {
-                        textEditor
-                                .append("\n     Value     Time      Ext Qualif  QC\n");
-                        for (String s1 : pcDetail) {
-                            pcDisplay = false;
-                            textEditor.append(s1);
-                        }
-                    } else if (ppDisplay) {
-                        for (String s2 : ppDetail) {
-                            ppDisplay = false;
-                            textEditor.append(s2);
-                        }
-                    }
-
+            if (paOptions.isLocSwitch() && paOptions.isDetailsSwitch()) {
+                for (PrecipAccumulationRowData row : allRows) {
+                    textEditor.append(row.getTimeSeriesLines());
                 }
             }
         }
-
-        // clear these for the next time through
-        pcDetail.clear();
-        ppDetail.clear();
     }
 
     /**
@@ -1628,8 +1327,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         paOptions.setSortOption(sortCbo.getSelectionIndex());
 
         // Set the TS lists
-        ArrayList<String> pcTsList = new ArrayList<String>();
-        ArrayList<String> ppTsList = new ArrayList<String>();
+        ArrayList<String> pcTsList = new ArrayList<>();
+        ArrayList<String> ppTsList = new ArrayList<>();
         if (byDataSourceChk.getSelection()) {
             int[] indices = pcCtrList.getSelectionIndices();
             for (int i : indices) {
@@ -1669,8 +1368,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
             return;
         }
 
-        try {
-            BufferedWriter out = new BufferedWriter(new FileWriter(filename));
+        try (BufferedWriter out = new BufferedWriter(
+                new FileWriter(filename))) {
             out.write(textEditor.getText());
             out.close();
         } catch (IOException e) {
@@ -1691,7 +1390,8 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
             Rectangle clientArea = printer.getClientArea();
             Rectangle trim = printer.computeTrim(0, 0, 0, 0);
             Point dpi = printer.getDPI();
-            leftMargin = dpi.x + trim.x; // one inch from left side of paper
+            // one inch from left side of paper
+            leftMargin = dpi.x + trim.x;
             // one inch from right side of paper
             rightMargin = (clientArea.width - dpi.x) + trim.x + trim.width;
             // one inch from top edge of paper
@@ -1700,8 +1400,9 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
             bottomMargin = (clientArea.height - dpi.y) + trim.y + trim.height;
 
             /* Create a buffer for computing tab width. */
-            int tabSize = 4; // is tab width a user setting in your UI?
-            StringBuffer tabBuffer = new StringBuffer(tabSize);
+            // is tab width a user setting in your UI?
+            int tabSize = 4;
+            StringBuilder tabBuffer = new StringBuilder(tabSize);
             for (int i = 0; i < tabSize; i++) {
                 tabBuffer.append(' ');
             }
@@ -1711,13 +1412,13 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
              * Create printer GC, and create and set the printer font &
              * foreground color.
              */
-            gc = new GC(printer);
+            GC gc = new GC(printer);
 
             Font printerFont = new Font(printer, "Monospace", 8, SWT.NORMAL);
 
             Color printerForegroundColor = new Color(printer, new RGB(0, 0, 0));
-            Color printerBackgroundColor = new Color(printer, new RGB(255, 255,
-                    255));
+            Color printerBackgroundColor = new Color(printer,
+                    new RGB(255, 255, 255));
 
             gc.setFont(printerFont);
             gc.setForeground(printerForegroundColor);
@@ -1726,7 +1427,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
             lineHeight = gc.getFontMetrics().getHeight();
 
             /* Print text to current gc using word wrap */
-            printText(text);
+            printText(text, gc);
 
             printer.endJob();
 
@@ -1744,9 +1445,9 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
      * @param text
      *            The text to be printed
      */
-    private void printText(String text) {
+    private void printText(String text, GC gc) {
         printer.startPage();
-        wordBuffer = new StringBuffer();
+        StringBuilder wordBuffer = new StringBuilder();
         x = leftMargin;
         y = topMargin;
         index = 0;
@@ -1758,16 +1459,17 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
                 if ((c == 0x0a) || (c == 0x0d)) {
                     if ((c == 0x0d) && (index < end)
                             && (text.charAt(index) == 0x0a)) {
-                        index++; // if this is cr-lf, skip the lf
+                        // if this is cr-lf, skip the lf
+                        index++;
                     }
-                    printWordBuffer();
+                    printWordBuffer(wordBuffer, gc);
                     newline();
                 } else {
                     if (c != '\t') {
                         wordBuffer.append(c);
                     }
                     if (Character.isWhitespace(c)) {
-                        printWordBuffer();
+                        printWordBuffer(wordBuffer, gc);
                         if (c == '\t') {
                             x += tabWidth;
                         }
@@ -1783,7 +1485,7 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
     /**
      * Word buffer for formating lines on the printed page
      */
-    private void printWordBuffer() {
+    private void printWordBuffer(StringBuilder wordBuffer, GC gc) {
         if (wordBuffer.length() > 0) {
             String word = wordBuffer.toString();
             int wordWidth = gc.stringExtent(word).x;
@@ -1844,11 +1546,6 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
         printingThread.start();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialog#preOpened()
-     */
     @Override
     protected void preOpened() {
         super.preOpened();
@@ -1863,4 +1560,32 @@ public class PointPrecipAccumDlg extends CaveSWTDialog {
             shell.setBounds(bounds);
         }
     }
+
+    public class PrecipComparator
+            implements Comparator<PrecipAccumulationRowData> {
+
+        @Override
+        public int compare(PrecipAccumulationRowData o1,
+                PrecipAccumulationRowData o2) {
+            if (o1.getMaxValue() < o2.getMaxValue()) {
+                return -1;
+            }
+            if (o1.getMaxValue() > o2.getMaxValue()) {
+                return 1;
+            }
+
+            return 0;
+        }
+    }
+
+    public class NameComparator
+            implements Comparator<PrecipAccumulationRowData> {
+
+        @Override
+        public int compare(PrecipAccumulationRowData o1,
+                PrecipAccumulationRowData o2) {
+            return o1.getLid().compareTo(o2.getLid());
+        }
+    }
+
 }

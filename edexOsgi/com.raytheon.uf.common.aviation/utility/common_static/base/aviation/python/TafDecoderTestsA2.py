@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/local/viz/python/bin/python
 #
 # Author: M. Oberfield
 # Date: 31 March 2009

@@ -135,19 +135,25 @@
 #
 #    Change Document History:
 #       1:
-#       	Change Document:   GFS1-NHD_SPR_7383
-#       	Action Date:       06-NOV-2008 15:25:22
-#       	Relationship Type: In Response to
-#       	Status:           TEST
-#       	Title:             AvnFPS: Lack of customization in QC check
+#           Change Document:   GFS1-NHD_SPR_7383
+#           Action Date:       06-NOV-2008 15:25:22
+#           Relationship Type: In Response to
+#           Status:           TEST
+#           Title:             AvnFPS: Lack of customization in QC check
 #  
 # <pre>
+#
+# Retrieves data at airport locations as points from GFE and builds a data structure
+# from that data.  Partially ported from AWIPS 1 GridData.py.
+#
 # SOFTWARE HISTORY
 # Date         Ticket#     Engineer    Description
 # ------------ ----------  ----------- --------------------------
 #                                      Initial creation.
 # Mar 07, 2013 1735        rferrel     Changes to obtain grid data for a list of sites.
 # Apr 23, 2014 3006        randerso    Fix Wx parsing, handling of missing pdcs
+# Feb 23, 2018 7227        njensen     Request Vsby, PredHgt, CigHgt to get variable
+#                                       visibility and ceiling in NDFD TAFs
 #
 ##  
 #
@@ -156,10 +162,11 @@
 # This is a base file that is not intended to be overridden.
 ##
 
-import logging, os, time, ConfigParser
+import logging, time, ConfigParser
 import Avn, AvnLib, AvnParser, JUtil, cPickle
 import PointDataView, GfeValues
 
+# These variables are unchanged from AWIPS 1 AvnFPS
 _Missing = ''
 _WxCode = {'L': 'DZ', 'R': 'RA', 'RW': 'SHRA', 'ZL': 'FZDZ', 'ZR': 'FZRA', \
     'IP': 'PL', 'IPW': 'SHPL', 'S': 'SN', 'SP': 'SG', 'SW': 'SHSN', \
@@ -171,21 +178,31 @@ _Keys = ['Temp', 'DwptT', 'WDir', 'WSpd', 'WGust', 'Obvis', 'Vsby', \
     'Ints2', 'Prob2', 'PTyp3', 'Ints3', 'Prob3']
 _NumHours = 36
 
-Parameters = ['Sky', 'T', 'Td', 'Wind', 'WindGust', 'PoP', 'Wx']
+# Parameters to request from GFE.  These were determined by the parameters
+# requested in the AWIPS 1 AvnFPS IFPS2AvnFPS.py's _makeProduct().
+Parameters = ['Sky', 'T', 'Td', 'Wind', 'WindGust', 'PoP', 'Wx',
+              'Vsby', 'PredHgt', 'CigHgt']
 
+# Translations of AvnFPS parameter names to GFE parameter names
 Translate = { 'Sky':'Sky', 'Temp':'T', 'DwptT':'Td', 'WDir':'WindDir', 'WSpd':'WindSpd', 'WGust':'WindGust',
              'PoP1h':'PoP', 'Obvis':'Wx', 'PoP':'PoP', 'Tstm':'Wx', 'Tint':'Wx', 'PTyp1':'Wx', 'Prob1':'Wx', 'Ints1':'Wx',
-             'PTyp2':'Wx', 'Prob2':'Wx', 'Ints2':'Wx', 'PTyp3':'Wx', 'Prob3':'Wx', 'Ints3':'Wx',}
+             'PTyp2':'Wx', 'Prob2':'Wx', 'Ints2':'Wx', 'PTyp3':'Wx', 'Prob3':'Wx', 'Ints3':'Wx',
+             'Vsby': 'Vsby', 'PrdHt': 'PredHgt', 'CigHt': 'CigHgt'  }
+             # 'PrdCt': 'PredHgtCat', 'CigCt': 'CigHgtCat'
 
 _Logger = logging.getLogger(Avn.CATEGORY)
 
 ##############################################################################
+
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _wxcode(c):
     return _WxCode.get(c, _Missing)
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _intcode(c):
     return _IntCode.get(c, _Missing)
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _vis(c):
     try: 
         v = int(c)
@@ -195,6 +212,7 @@ def _vis(c):
         pass
     return 999
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _cldHgt(c):
     try: 
         v = int(c)
@@ -204,19 +222,22 @@ def _cldHgt(c):
         pass
     return 999
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _cig(c):
     try: 
         if c != '999':
             v = int(c)/100
         else:
             v = int(c)
-        if v < 0: v = 250
+        if v < 0:
+            v = 250
         if v < 999:
             return AvnLib.fixCldBase(v)
     except ValueError:
         pass
     return 999
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _skycode(c):
     try:
         ic = int(c)
@@ -235,12 +256,14 @@ def _skycode(c):
     except ValueError:
         return ''
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _stripmsng(c):
     if c == '999':
         return _Missing
     else:
         return c
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _winddir(c):
     try:
         v = int(c)
@@ -250,6 +273,7 @@ def _winddir(c):
         pass
     return None
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _windspd(c):
     try:
         v = int(c)
@@ -259,53 +283,9 @@ def _windspd(c):
         pass
     return None
 
-def _cvt(itime, d):
-    # create list of records, one per hour
-    data = []
-    for n in range(_NumHours):
-        dd = {'time': 3600.0*n+itime}
-        for k in _Keys:
-            if not k in d:
-                continue
-            arg = d[k][n]
-            if k in ['Temp', 'DwptT']:
-                v = int(arg)
-            elif k == 'Obvis':
-                v = _wxcode(arg)
-            elif k == 'Sky':                
-                v = _skycode(arg)
-            elif k == 'PrdHt':
-                v = _cldHgt(arg)
-            elif k == 'CigHt':
-                v = _cig(arg)
-            elif k == 'Vsby':
-                v = _vis(arg)
-            elif k == 'WDir':
-                v = _winddir(arg)
-            elif k in ['WSpd', 'WGust']:
-                v = _windspd(arg)
-            elif k[:4] == 'PTyp':
-                v = _wxcode(arg)
-            elif k[:4] == 'Ints':
-                v = _intcode(arg)
-            else:
-                v = _stripmsng(arg)
-            dd[k] = v
-        #
-        # Check for unrecognized weather types
-        for ptype, pints, pprob in [('PTyp1','Ints1','Prob1'),
-                                   ('PTyp2','Ints2','Prob2'),
-                                   ('PTyp3', 'Ints3', 'Prob3')]:
-            try:
-                if dd[ptype] == _Missing:
-                    dd[pints] = dd[pprob] = _Missing
-            except KeyError:
-                pass
-                
-        data.append(dd)
-    return data
-
-def _getData(pdc, firstTime):    
+# This function is ported from AWIPS 1 AvnFPS to return the same
+# data structure as AWIPS 1 AvnFPS returned.
+def _getData(pdc, firstTime):
     organizedData = {}
     data = []
     if pdc is not None :
@@ -320,9 +300,10 @@ def _getData(pdc, firstTime):
             dd = _createRecord(dd, organizedData[n])
             data.append(dd)
     else :
-    	return None
+        return None
     return {'issuetime': (firstTime / 1000), 'record': data}
 
+# This function is a port of AWIPS 1 AvnFPS' function _cvt(itime, d).
 def _createRecord(dd, pdv):
     for k in Translate:        
         try:
@@ -343,6 +324,12 @@ def _createRecord(dd, pdv):
             elif k == 'WGust':
                 v = GfeValues.scalarValue(arg)
             v = _windspd(v)
+        elif k == 'PrdHt':
+            v = _cldHgt(GfeValues.scalarValue(arg))
+        elif k == 'CigHt':
+            v = _cig(GfeValues.scalarValue(arg))
+        elif k == 'Vsby':
+            v = _vis(GfeValues.vsbyValue(arg))
         elif k == 'Tstm':
             v = _stripmsng(GfeValues.wxTstm(arg))
         elif k == 'Tint':
@@ -366,14 +353,16 @@ def _createRecord(dd, pdv):
             except KeyError:
                 pass
         
-    return dd            
+    return dd
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _setPop(config,prbStr,dt):
     if dt<=9*3600:
         return config['before9hr'][prbStr]
     else:
         return config['after9hr'][prbStr]
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _makePeriod(prbConfig,rec,itime):
     grp = {'time': {'from': rec['time'], 'to': rec['time']+3600.0}}
     dd = rec.get('WDir')
@@ -398,8 +387,8 @@ def _makePeriod(prbConfig,rec,itime):
             if rec[pstr]: 
                 pop = _setPop(prbConfig,rec[pstr],rec['time']-itime)
                 if pop > max_pop:
-		    max_pop = pop
-		    p_str = rec[istr]+rec[tstr]
+                    max_pop = pop
+                    p_str = rec[istr]+rec[tstr]
     
     grp['pcp'] = {'str': p_str, 'pop': max_pop, 'pot': pot}
 
@@ -409,7 +398,8 @@ def _makePeriod(prbConfig,rec,itime):
         cig = cig*100
     else:
         cig = 3000
-    if cig < 0: cig = Avn.UNLIMITED
+    if cig < 0:
+        cig = Avn.UNLIMITED
     if h is None or h == 999:
         h = 300
     else:
@@ -444,9 +434,9 @@ def _makePeriod(prbConfig,rec,itime):
             else:
                 obv = 'BR'
             grp['obv'] = {'str': obv}
-
     return grp
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def _readPrbConf():
     conf=ConfigParser.ConfigParser()
     conf.read(Avn.getTafPath('XXXX', 'grid_prob.cfg'))
@@ -457,11 +447,14 @@ def _readPrbConf():
         prb_conf['after9hr'][wx] = conf.getint('after9hr',wx)
     return prb_conf
 
+# This function is ported from AWIPS 1 AvnFPS to return the same
+# data structure as AWIPS 1 AvnFPS returned.
 def makeData(siteID, timeSeconds):
     data = retrieveData(siteID, timeSeconds)
     return formatData(siteID, timeSeconds, data)
 
-def formatData(siteID, timeSeconds, data):    
+# This function was extracted from AWIPS 1 AvnFPS' makeData(ident, text).
+def formatData(siteID, timeSeconds, data):
     if data is None or data['issuetime'] < time.time() - 86400:
         msg = 'Grid data is not available'
         _Logger.info(msg)
@@ -469,6 +462,7 @@ def formatData(siteID, timeSeconds, data):
     d = __formatData(data, siteID)
     return d
 
+# This function was extracted from AWIPS 1 AvnFPS' makeData(ident, text).
 def __formatData(data, siteID):
     if data is not None: 
         prbConfig=_readPrbConf()
@@ -479,6 +473,7 @@ def __formatData(data, siteID):
             for n in range(_NumHours)]
     return d
 
+# This function is unchanged from the AWIPS 1 AvnFPS function.
 def makeTable(siteID, timeSeconds):
     def _tostr(x):
         s = str(x)
@@ -487,8 +482,8 @@ def makeTable(siteID, timeSeconds):
         return s
     data = retrieveData(siteID, timeSeconds)
     if data is None or data.get('issuetime', 0.0) < time.time() - 86400:
-    	_Logger.info('Grid data for %s is not available', siteID)
         msg = 'Grid data for %s is not available', siteID
+        _Logger.info(msg)
         raise Avn.AvnError(msg)
     rpt = {'header': '', 'hours': [], 'element': [], 'data': []}
     itime = data['issuetime']
@@ -504,7 +499,7 @@ def makeTable(siteID, timeSeconds):
             rpt.append('%-5s' % k + '%+5s' * _NumHours % tuple(tok))
         return Avn.Bunch(data=__formatData(data, siteID), rpt=rpt)
     except KeyError:
-    	_Logger.info('Grid data for %s is not available', siteID)
+        _Logger.info('Grid data for %s is not available', siteID)
         msg = 'Grid data for %s is not available', siteID
         raise Avn.AvnError(msg)
 
@@ -520,6 +515,8 @@ def retrieveMapData(siteIDs, timeSeconds, parameters=Parameters):
     
     return JUtil.pyDictToJavaMap(results)
 
+# New function in AWIPS 2.  Determine the latitude and longitude of each site
+# in siteIDs and then makes a request to send to EDEX for GFE data.
 def _retrieveMapData(siteIDs, timeSeconds, parameters=Parameters):
     import JUtil
     from com.raytheon.uf.common.dataplugin.gfe.request import GetPointDataRequest
@@ -528,7 +525,7 @@ def _retrieveMapData(siteIDs, timeSeconds, parameters=Parameters):
     from com.raytheon.uf.viz.core.localization import LocalizationManager
     gfeSiteId = LocalizationManager.getInstance().getCurrentSite()
     task = GetPointDataRequest()
-    task.setSiteID(gfeSiteId);
+    task.setSiteID(gfeSiteId)
     db = gfeSiteId + '_GRID__Official_00000000_0000'
     task.setDatabaseID(db)
     for siteID in siteIDs:
@@ -548,10 +545,10 @@ def _retrieveMapData(siteIDs, timeSeconds, parameters=Parameters):
             _Logger.info('Data not available for %s', siteID)
             results[siteID] = None
         return results
-    
+
     for i, siteID in enumerate(siteIDs):
         data = None
-        if i < pdcs.getSize() :
+        if i < pdcs.getSize():
             pdc = pdcs.getContainer(i)
             data = _getData(pdc, timeSeconds * 1000)
             
@@ -561,16 +558,3 @@ def _retrieveMapData(siteIDs, timeSeconds, parameters=Parameters):
     return results
 
 ###############################################################################
-if __name__ == '__main__':
-    import sys
-    SITEID = sys.argv[1].upper()
-#    Path = 'data/grids/' + sys.argv[1].upper()
-    Path = 'data/grids/' + SITEID
-#    TopDir = os.environ['TOP_DIR']
-    os.chdir(os.environ['TOP_DIR'])
-    text = file(Path).read()
-    rpt = makeTable(SITEID, text)
-    print '\n'.join(rpt)
-    data = makeData(SITEID, text)
-    for g in data['group']:
-        print g

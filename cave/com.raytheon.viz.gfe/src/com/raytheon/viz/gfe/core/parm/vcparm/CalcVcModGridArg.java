@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,10 +22,6 @@ package com.raytheon.viz.gfe.core.parm.vcparm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import jep.Jep;
-import jep.JepException;
-import jep.NDArray;
 
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
@@ -39,50 +35,50 @@ import com.raytheon.viz.gfe.core.griddata.ScalarGridData;
 import com.raytheon.viz.gfe.core.griddata.VectorGridData;
 import com.raytheon.viz.gfe.core.griddata.WeatherGridData;
 
+import jep.Jep;
+import jep.JepException;
+import jep.NDArray;
+
 /**
- * TODO Add Description
- * 
+ * Simulates the AWIPS1 tuple used, which contained an encoded time range
+ * (long[]), the grid data (IGridData), and a bit mask of valid points in the
+ * grid data (Grid2DBit).
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 12, 2012            dgilling     Initial creation
- * Oct 29, 2013  2476       njensen     Renamed numeric methods to numpy
- * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
- * Apr 23, 2015 4259       njensen     Updated for new JEP API
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ------------------------------------------
+ * Jan 12, 2012           dgilling  Initial creation
+ * Oct 29, 2013  2476     njensen   Renamed numeric methods to numpy
+ * Oct 31, 2013  2508     randerso  Change to use DiscreteGridSlice.getKeys()
+ * Apr 23, 2015  4259     njensen   Updated for new JEP API
+ * Jan 04, 2018  7178     randerso  Changes to use IDataObject. Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author dgilling
- * @version 1.0
  */
 
 public class CalcVcModGridArg implements IVcModuleArgument {
 
-    // simulates the AWIPS1 tuple used, which contained an encoded time
-    // range (long[]), the grid data (IGridData), and a bit mask of valid
-    // points in the grid data (Grid2DBit).
     private List<Object[]> argTuples;
 
+    /**
+     * Constructor
+     *
+     * @param argTuples
+     */
     public CalcVcModGridArg(List<Object[]> argTuples) {
-        this.argTuples = new ArrayList<Object[]>(argTuples);
+        this.argTuples = new ArrayList<>(argTuples);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.parm.vcparm.IVcModuleArgument#evaluateArgument
-     * (jep.Jep)
-     */
     @Override
     public Collection<String> evaluateArgument(final Jep instance,
             String argName) throws JepException {
         StringBuilder sb = new StringBuilder(768);
-        Collection<String> tempNames = new ArrayList<String>(
-                (argTuples.size() * 2));
+        Collection<String> tempNames = new ArrayList<>((argTuples.size() * 2));
 
         sb.append(argName + " = [");
         for (int i = 0; i < argTuples.size(); i++) {
@@ -113,9 +109,9 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             int offset, StringBuilder sb, Jep jep) throws JepException {
         StringBuilder jepString = new StringBuilder(256);
         String prefix = gd.getParm().getParmID().getParmName()
-                + Integer.toHexString(gd.getParm().getParmID().hashCode())
-                + "_" + offset + "_";
-        Collection<String> tempGridNames = new ArrayList<String>(2);
+                + Integer.toHexString(gd.getParm().getParmID().hashCode()) + "_"
+                + offset + "_";
+        Collection<String> tempGridNames = new ArrayList<>(2);
 
         /*
          * FIXME We reverse the x and y dimensions because that's what AWIPS 1
@@ -126,7 +122,7 @@ public class CalcVcModGridArg implements IVcModuleArgument {
          */
         if (gd instanceof ScalarGridData) {
             ScalarGridData grid = (ScalarGridData) gd;
-            Grid2DFloat f = (grid.getScalarSlice()).getScalarGrid();
+            Grid2DFloat f = grid.getDataObject().getScalarGrid();
             String name = prefix + "grid";
             NDArray<float[]> arr = new NDArray<>(f.getFloats(), f.getYdim(),
                     f.getXdim());
@@ -136,8 +132,8 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             tempGridNames.add(name);
         } else if (gd instanceof VectorGridData) {
             VectorGridData grid = (VectorGridData) gd;
-            Grid2DFloat mag = (grid.getVectorSlice()).getMagGrid();
-            Grid2DFloat dir = (grid.getVectorSlice()).getDirGrid();
+            Grid2DFloat mag = grid.getDataObject().getMagGrid();
+            Grid2DFloat dir = grid.getDataObject().getDirGrid();
             String magName = prefix + "Mag";
             String dirName = prefix + "Dir";
             NDArray<float[]> mArr = new NDArray<>(mag.getFloats(),
@@ -155,7 +151,7 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             tempGridNames.add(dirName);
         } else if (gd instanceof WeatherGridData) {
             WeatherGridData grid = (WeatherGridData) gd;
-            Grid2DByte bytes = grid.getWeatherSlice().getWeatherGrid();
+            Grid2DByte bytes = grid.getDataObject().getWeatherGrid();
             String name = prefix + "grid";
             NDArray<byte[]> arr = new NDArray<>(bytes.getBytes(),
                     bytes.getYdim(), bytes.getXdim());
@@ -163,8 +159,8 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             jepString.append('(');
             jepString.append(name);
             jepString.append(',');
-            WeatherKey[] keys = grid.getWeatherSlice().getKeys();
-            ArrayList<String> stringKeys = new ArrayList<String>(keys.length);
+            WeatherKey[] keys = grid.getDataObject().getKeys();
+            ArrayList<String> stringKeys = new ArrayList<>(keys.length);
             for (WeatherKey k : keys) {
                 stringKeys.add(k.toString());
             }
@@ -173,7 +169,7 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             tempGridNames.add(name);
         } else if (gd instanceof DiscreteGridData) {
             DiscreteGridData grid = (DiscreteGridData) gd;
-            Grid2DByte bytes = grid.getDiscreteSlice().getDiscreteGrid();
+            Grid2DByte bytes = grid.getDataObject().getDiscreteGrid();
             String name = prefix + "grid";
             NDArray<byte[]> arr = new NDArray<>(bytes.getBytes(),
                     bytes.getYdim(), bytes.getXdim());
@@ -181,8 +177,8 @@ public class CalcVcModGridArg implements IVcModuleArgument {
             jepString.append('(');
             jepString.append(name);
             jepString.append(',');
-            DiscreteKey[] keys = grid.getDiscreteSlice().getKeys();
-            ArrayList<String> stringKeys = new ArrayList<String>(keys.length);
+            DiscreteKey[] keys = grid.getDataObject().getKeys();
+            ArrayList<String> stringKeys = new ArrayList<>(keys.length);
             for (DiscreteKey k : keys) {
                 stringKeys.add(k.toString());
             }

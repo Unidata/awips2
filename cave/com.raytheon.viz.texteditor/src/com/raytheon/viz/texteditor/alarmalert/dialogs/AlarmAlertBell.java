@@ -72,6 +72,7 @@ import com.raytheon.viz.ui.dialogs.DialogUtil;
  *                                        parent, significant code cleanup
  * Feb 14, 2017  6037     randerso        Fixed initial location to be in clientArea
  *                                        Fixed to not allow dragging outside clientArea
+ * Feb 02, 2018  7125     tgurney         Do not flash if dialog is disposed
  *
  * </pre>
  *
@@ -117,16 +118,6 @@ public class AlarmAlertBell implements MouseMoveListener, MouseListener {
     private Point dialogXY = null;
 
     /**
-     * Move label.
-     */
-    private Label moveLabel;
-
-    /**
-     * Font used for labels
-     */
-    private Font labelFont;
-
-    /**
      * @param parent
      */
     public AlarmAlertBell(Shell parent) {
@@ -141,11 +132,12 @@ public class AlarmAlertBell implements MouseMoveListener, MouseListener {
         GridLayout mainLayout = new GridLayout(1, true);
         shell.setLayout(mainLayout);
 
-        labelFont = new Font(shell.getDisplay(), "Monospace", 14, SWT.BOLD);
+        Font labelFont = new Font(shell.getDisplay(), "Monospace", 14,
+                SWT.BOLD);
 
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         gd.horizontalSpan = 3;
-        moveLabel = new Label(shell, SWT.CENTER | SWT.BORDER);
+        Label moveLabel = new Label(shell, SWT.CENTER | SWT.BORDER);
         moveLabel.setText("Alarm Bell");
         moveLabel.setLayoutData(gd);
         moveLabel.setFont(labelFont);
@@ -155,6 +147,9 @@ public class AlarmAlertBell implements MouseMoveListener, MouseListener {
                 display.getSystemColor(SWT.COLOR_TITLE_BACKGROUND));
         moveLabel.setForeground(
                 display.getSystemColor(SWT.COLOR_TITLE_FOREGROUND));
+        moveLabel.addDisposeListener((DisposeEvent e) -> {
+            labelFont.dispose();
+        });
 
         setInitialDialogLocation();
 
@@ -311,7 +306,9 @@ public class AlarmAlertBell implements MouseMoveListener, MouseListener {
      * Alternate between normal and reverse images.
      */
     public void flash() {
-        button.setImage(bellImage[phase]);
-        phase = (phase + 1) % bellImage.length;
+        if (!shell.isDisposed()) {
+            button.setImage(bellImage[phase]);
+            phase = (phase + 1) % bellImage.length;
+        }
     }
 }

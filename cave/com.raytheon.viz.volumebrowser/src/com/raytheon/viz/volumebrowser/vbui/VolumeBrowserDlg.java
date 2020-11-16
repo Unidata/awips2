@@ -79,7 +79,8 @@ import com.raytheon.viz.volumebrowser.vbui.VBMenuBarItemsMgr.SpaceTimeMenu;
  *                                      buttons in the title bar on thin client.
  * Jan 12, 2016 #5055      randerso    Changed toolbar menus to split when dialog is resized.
  *                                      Other general GUI cleanup
- * Dec 07, 2014 #6355      nabowle     Enable refreshing of menus.
+ * Dec 07, 2017 #6355      nabowle     Enable refreshing of menus.
+ * May 25, 2018 DR20566    kshresth    Adjusted toolbar menus                                     
  *
  * </pre>
  *
@@ -950,8 +951,6 @@ public class VolumeBrowserDlg extends CaveSWTDialog
     protected void updateToolbarMenus() {
         setText(DIALOG_TITLE);
         refreshMI.setEnabled(false);
-
-        shell.setMinimumSize(10, 10);
 
         ViewMenu setting = (ViewMenu) settingsMI.getData();
         SpaceTimeMenu spaceTime = null;

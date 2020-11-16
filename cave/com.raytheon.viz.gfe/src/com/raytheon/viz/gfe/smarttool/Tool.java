@@ -54,7 +54,7 @@ import com.raytheon.viz.gfe.core.parm.ParmState;
 import com.raytheon.viz.gfe.query.QueryScript;
 import com.raytheon.viz.gfe.query.QueryScriptExecutor;
 import com.raytheon.viz.gfe.smarttool.SmartToolException.ErrorType;
-import com.raytheon.viz.gfe.smarttool.script.SmartToolRunnerController;
+import com.raytheon.viz.gfe.smarttool.script.SmartToolController;
 
 import jep.JepException;
 
@@ -84,6 +84,7 @@ import jep.JepException;
  *                                  left parm immutable
  * May 05, 2017  6261     randerso  Moved handling of SmartScript.cancel() to
  *                                  SmartToolInterface
+ * Feb 13, 2018  6906     randerso  Updated for merged SmartToolController
  * Feb 19, 2018  7222     mapeters  Moved handling of SmartScript.cancel() back
  *                                  to here, fixed error message string check
  *
@@ -106,7 +107,7 @@ public class Tool {
 
     private Parm inputParm;
 
-    private final SmartToolRunnerController tool;
+    private final SmartToolController tool;
 
     private String toolName;
 
@@ -131,13 +132,15 @@ public class Tool {
      *            the name of the tool
      * @param anInputParm
      *            the parm to edit
+     * @param coordinator
+     *            the job coordinator
      * @param aTool
      *            the smart tool controller
      * @throws SmartToolException
      */
     public Tool(IParmManager aParmMgr, Parm anInputParm, String aToolName,
             PythonJobCoordinator<QueryScript> coordinator,
-            SmartToolRunnerController aTool) throws SmartToolException {
+            SmartToolController aTool) throws SmartToolException {
         this.parmMgr = aParmMgr;
         this.inputParm = anInputParm;
         this.toolName = aToolName;
@@ -150,7 +153,7 @@ public class Tool {
             }
         } catch (JepException e) {
             throw new SmartToolException("Error instantiating python tool "
-                    + this.toolName + ": " + e.getMessage());
+                    + this.toolName + ": " + e.getMessage(), e);
         }
     }
 
@@ -167,14 +170,14 @@ public class Tool {
      *            the mask of the data
      * @param dataMode
      *            the missing data mode
-     * @return
+     * @return the argument values
      * @throws SmartToolException
      */
     public Object[] getArgValues(List<String> args, TimeRange gridTimeRange,
             TimeRange toolTimeRange, ReferenceData editArea,
             MissingDataMode dataMode) throws SmartToolException {
 
-        ArrayList<Object> argValueList = new ArrayList<>();
+        List<Object> argValueList = new ArrayList<>();
         // For each argument in args, append a value to the argValueList
         for (String arg : args) {
             Object result = null;
@@ -212,7 +215,7 @@ public class Tool {
                     // skip this, it will be handled at execute
                     // result = self.__varDict;
                     result = null;
-                } else if (arg.equals("self")) {
+                } else if ("self".equals(arg)) {
                     result = null;
                 } else {
                     Parm parm = parmMgr.getParmInExpr(arg, true, inputParm);
@@ -244,7 +247,7 @@ public class Tool {
      *            the name of the parm
      * @param attrStr
      *            the attribute
-     * @return
+     * @return the parm attribute
      * @throws SmartToolException
      */
     public Object getParmAttr(String arg, String attrStr)
@@ -257,7 +260,7 @@ public class Tool {
             throw new SmartToolException(msg, ErrorType.NO_DATA);
         }
         ParmState state = parm.getParmState();
-        String s = "" + attrStr.charAt(0);
+        String s = attrStr.substring(0, 1);
         String capital = s.toUpperCase();
         attrStr = attrStr.replaceFirst(s, capital);
         Class<ParmState> c = ParmState.class;
@@ -283,7 +286,7 @@ public class Tool {
      *            the time range of the grid
      * @param dataMode
      *            the missing data mode
-     * @return
+     * @return the grid data
      * @throws SmartToolException
      * @throws GFEOperationFailedException
      */
@@ -328,7 +331,7 @@ public class Tool {
      *            the name of the parm
      * @param gridTimeRange
      *            the time range of the grid
-     * @return
+     * @return the grid history
      * @throws SmartToolException
      */
     public Object getGridHistory(String arg, TimeRange gridTimeRange)
@@ -340,24 +343,16 @@ public class Tool {
             throw new SmartToolException(msg, ErrorType.NO_DATA);
         }
         IGridData[] grids = parm.getGridInventory(gridTimeRange);
-        ArrayList<Object> historyList = new ArrayList<>();
+        List<Object> historyList = new ArrayList<>();
         for (IGridData grid : grids) {
-            ArrayList<GridDataHistory> gridHistList = new ArrayList<>();
+            List<GridDataHistory> gridHistList = new ArrayList<>();
             for (GridDataHistory gdh : grid.getHistory()) {
-                // GridDataHistory gridHistory = new GridDataHistory(gdh
-                // .getOrigin(), gdh.getOriginParm(), gdh
-                // .getOriginTimeRange(), gdh.getTimeModified(), gdh
-                // .getWhoModified(), gdh.getUpdateTime(), gdh
-                // .getPublishTime(), gdh.getLastSentTime());
                 GridDataHistory gridHistory = gdh;
                 gridHistList.add(gridHistory);
             }
             historyList.add(gridHistList);
         }
 
-        // if (historyList.size() == 1) {
-        // return historyList.get(0);
-        // }
         return historyList;
     }
 
@@ -368,7 +363,7 @@ public class Tool {
      *            the name of the parm
      * @param gridTimeRange
      *            the time range of the grid
-     * @return
+     * @return the grid info
      * @throws SmartToolException
      */
     public Object getGridInfo(String arg, TimeRange gridTimeRange)
@@ -406,7 +401,12 @@ public class Tool {
      *            the mask of the data to edit
      * @param timeRange
      *            the time range to execute over
+     * @param varDict
+     *            the variable dictionary
      * @param missingDataMode
+     *            the missing data mode
+     * @param monitor
+     *            the progress monitor
      * @throws SmartToolException
      */
     public void execute(String toolName, Parm inputParm,
@@ -437,7 +437,7 @@ public class Tool {
         String weToEdit = DataManagerUIFactory.getCurrentInstance()
                 .getSmartToolInterface().getWeatherElementEdited(toolName);
         Parm parmToEdit = null;
-        if ((weToEdit != null) && !weToEdit.equals("None")) {
+        if ((weToEdit != null) && !"None".equals(weToEdit)) {
             parmToEdit = this.inputParm;
         }
 
@@ -492,9 +492,9 @@ public class Tool {
                 }
 
                 if (!grid.isOkToEdit() && (parmToEdit != null)) {
-                    String message = "Smart Tool " + toolName
-                            + ": Encountered locked grid. ";
-                    message += "Grid skipped.";
+                    String message = String.format(
+                            "Smart Tool %s: Encountered locked grid. Grid skipped.",
+                            toolName);
                     throw new SmartToolException(message,
                             ErrorType.LOCKED_GRID);
                 }
@@ -512,7 +512,7 @@ public class Tool {
 
                 // Re-evaluate edit area if a query
                 if (editArea.isQuery()) {
-                    if (Display.getDefault().isDisposed() == false) {
+                    if (!Display.getDefault().isDisposed()) {
                         Map<String, Object> argMap = new HashMap<>();
                         argMap.put("expression", editArea.getQuery());
                         argMap.put("timeInfluence", timeInfluence);
@@ -565,7 +565,7 @@ public class Tool {
                         throw e;
                     }
                 }
-            } // end of grids for loop
+            }
 
             // PostProcess Tool
             handlePreAndPostProcess("postProcessTool", null, timeRange,
@@ -648,7 +648,7 @@ public class Tool {
         Object gridResult = null;
         Object[] argValues = getArgValues(executeArgs, gridTimeRange,
                 toolTimeRange, editArea, dataMode);
-        HashMap<String, Object> argMap = new HashMap<>();
+        Map<String, Object> argMap = new HashMap<>();
         for (int i = 0; i < executeArgs.size(); i++) {
             argMap.put(executeArgs.get(i), argValues[i]);
         }
@@ -700,19 +700,20 @@ public class Tool {
         parmMgr.deleteTemporaryParms();
 
         // Report Skipped or Created Grids
-        String msg = "Tool: " + toolname + " -- ";
+        StringBuilder msg = new StringBuilder();
+        msg.append("Tool: ").append(toolname).append(" -- ");
         List<String> missingData = GridCycler.getInstance().getMissingData();
-        if (missingData.size() > 0) {
+        if (!missingData.isEmpty()) {
             if (dataMode == MissingDataMode.SKIP) {
-                msg += "Grids Skipped due to Missing Data: \n";
+                msg.append("Grids Skipped due to Missing Data: \n");
             } else if (dataMode == MissingDataMode.CREATE) {
-                msg += "Grids Created or Skipped due to Missing Data: \n";
+                msg.append("Grids Created or Skipped due to Missing Data: \n");
             }
             for (String s : missingData) {
-                msg += " " + s + "\n";
+                msg.append(' ').append(s).append('\n');
             }
 
-            statusHandler.handle(Priority.PROBLEM, msg);
+            statusHandler.error(msg.toString());
             missingData.clear();
         }
     }
@@ -726,7 +727,7 @@ public class Tool {
                     methodName);
             Object[] prePostToolObjs = getArgValues(prePostToolArgs,
                     gridTimeRange, toolTimeRange, editArea, dataMode);
-            HashMap<String, Object> prePostToolMap = new HashMap<>();
+            Map<String, Object> prePostToolMap = new HashMap<>();
             for (int i = 0; i < prePostToolArgs.size(); i++) {
                 prePostToolMap.put(prePostToolArgs.get(i), prePostToolObjs[i]);
             }

@@ -19,18 +19,6 @@
  **/
 package com.raytheon.viz.xdat;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.TimeZone;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -44,11 +32,6 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Spinner;
 
-import com.raytheon.uf.common.status.IUFStatusHandler;
-import com.raytheon.uf.common.status.UFStatus;
-import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.time.util.TimeUtil;
-import com.raytheon.viz.hydrocommon.HydroConstants;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -62,6 +45,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10 Feb 2009             wkwock      Added functions.
  * 31 May 2015  4501       skorolev    Got rid of Vector.
  * 04 Aug 2016  5800       mduff       Cleanup
+ * 12 Mar 2018  DCS18260   astrakovsky Moved displayCoopPrecip and displayPrecipAccumulation
+ *                                     methods to XdatDlg to avoid repeating code.
  * 
  * </pre>
  * 
@@ -70,9 +55,6 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  */
 public class PrecipDataDlg extends CaveSWTDialog {
-
-    private final IUFStatusHandler statusHandler = UFStatus
-            .getHandler(getClass());
 
     /**
      * Hour spinner.
@@ -90,23 +72,16 @@ public class PrecipDataDlg extends CaveSWTDialog {
     ITextDisplay displayCB;
 
     /**
-     * database
-     */
-    XdatDB databaseMgr;
-
-    /**
      * Constructor.
      * 
      * @param parentShell
      *            Parent shell.
      */
-    public PrecipDataDlg(Shell parentShell, ITextDisplay displayCB,
-            XdatDB database) {
+    public PrecipDataDlg(Shell parentShell, ITextDisplay displayCB) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE);
         setText("Precipitation Data");
 
         this.displayCB = displayCB;
-        this.databaseMgr = database;
     }
 
     @Override
@@ -147,7 +122,7 @@ public class PrecipDataDlg extends CaveSWTDialog {
         coopPrecBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                displayCoopPrecip();
+                displayCB.displayCoopPrecip();
             }
         });
 
@@ -156,7 +131,7 @@ public class PrecipDataDlg extends CaveSWTDialog {
         pcPrecBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                displayPrecipAccumulation(12, 24);
+                displayCB.displayPrecipAccumulation(12, 24);
             }
         });
 
@@ -207,7 +182,7 @@ public class PrecipDataDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 int hour = hourSpnr.getSelection();
                 int duration = durationSpnr.getSelection();
-                displayPrecipAccumulation(hour, duration);
+                displayCB.displayPrecipAccumulation(hour, duration);
             }
         });
     }
@@ -234,124 +209,4 @@ public class PrecipDataDlg extends CaveSWTDialog {
         });
     }
 
-    private void displayCoopPrecip() {
-        String startDate = displayCB.getEndDate();
-        String header1 = "\t\t\t 24 Hour Precipitation Ending at "
-                + displayCB.getEndDate() + " 12Z";
-        String header2 = "  ID     PE  DUR  TS E       OBSTIME        PRODUCT       VALUE";
-        String dashLine = "-------------------------------------------------------------------";
-        String dataFmt = "%-8s %2s  %4s %2s %1s %19s %13s %6.2f";
-        List<String[]> coopPrecipData = databaseMgr
-                .getCoopPrecipData(startDate);
-
-        if (coopPrecipData == null) {
-            displayCB.setDisplayText("No data available.");
-        } else {
-            String[] displayText = new String[coopPrecipData.size() + 3];
-            displayText[0] = header1;
-            displayText[1] = header2;
-            displayText[2] = dashLine;
-
-            int i = 3;
-            for (String[] dataText : coopPrecipData) {
-                String productID = dataText[5];
-                if (productID == null) {
-                    productID = "";
-                }
-
-                double value = HydroConstants.MISSING_VALUE;
-                try {
-                    value = Double.parseDouble(dataText[6]);
-                } catch (NumberFormatException nfe) {
-                    value = HydroConstants.MISSING_VALUE;
-                    statusHandler.handle(Priority.ERROR, "Fail to parse "
-                            + dataText[6] + ".");
-                }
-                displayText[i] = String.format(dataFmt, dataText[0], "PP",
-                        dataText[1], dataText[2], dataText[3], dataText[4],
-                        productID, value);
-                i++;
-            }
-            displayCB.setDisplayText(displayText);
-        }
-    }
-
-    /**
-     * Display precipitation Accumulation
-     * 
-     */
-    private void displayPrecipAccumulation(int hour, int duration) {
-        SimpleDateFormat obsDate = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        Calendar date = null;
-        try {
-            Date sDate = obsDate.parse(displayCB.getEndDate());
-            date = TimeUtil.newGmtCalendar(sDate);
-        } catch (ParseException e) {
-            date = TimeUtil.newGmtCalendar();
-            statusHandler.handle(Priority.ERROR,
-                    "Fail to parse " + displayCB.getEndDate() + ".");
-        }
-
-        obsDate = new SimpleDateFormat("yyyy-MM-dd HH:00:00", Locale.US);
-        obsDate.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        String obsTimeStr = obsDate.format(date.getTime());
-        String displayTime = obsTimeStr;
-        Map<String, Double> precipLidAndValue = databaseMgr
-                .getPrecipLidAndValue(obsTimeStr);
-
-        date.add(Calendar.HOUR_OF_DAY, 0 - duration);
-        obsTimeStr = obsDate.format(date.getTime());
-
-        Map<String, Double> precipLidAndValue2 = databaseMgr
-                .getPrecipLidAndValue(obsTimeStr);
-
-        List<String> precipLidAndDiffBuf = new ArrayList<>(
-                precipLidAndValue.size());
-
-        if (precipLidAndValue.size() == 0) {
-            precipLidAndDiffBuf.add("No " + duration
-                    + " Hour Precipitation data found.");
-        } else {
-            precipLidAndDiffBuf.add("\t\t\t " + duration
-                    + " Hour PC Accumulation Ending at " + displayTime);
-            precipLidAndDiffBuf.add("  ID     VALUE");
-            precipLidAndDiffBuf.add("--------------");
-
-            Iterator<String> iter = precipLidAndValue.keySet().iterator();
-            String lid = null;
-            List<XdatPcData> dataList = new ArrayList<>();
-            while (iter.hasNext()) {
-                lid = iter.next();
-
-                double value = precipLidAndValue.get(lid);
-                double value2 = -999;
-                if (precipLidAndValue2.containsKey(lid)) {
-                    value2 = precipLidAndValue2.get(lid);
-                }
-                // TODO determine how A1 handles missing data
-                double valDiff = value - value2;
-                int valint = (int) (valDiff * 100);
-                valDiff = Math.floor(valint) / 100.0;
-
-                if (valDiff < 0) {
-                    valDiff = 0;
-                }
-
-                XdatPcData data = new XdatPcData(lid, valDiff);
-                dataList.add(data);
-            }
-
-            Collections.sort(dataList);
-            for (int i = 0; i < dataList.size(); i++) {
-                XdatPcData data = dataList.get(i);
-
-                precipLidAndDiffBuf.add(String.format("%-8s %4.2f",
-                        data.getLid(), data.getValue()));
-            }
-
-        }
-        displayCB.setDisplayText(precipLidAndDiffBuf
-                .toArray(new String[precipLidAndDiffBuf.size()]));
-    }
 }

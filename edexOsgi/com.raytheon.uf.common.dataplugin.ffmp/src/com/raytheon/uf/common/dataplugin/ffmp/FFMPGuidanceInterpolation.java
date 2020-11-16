@@ -84,7 +84,8 @@ public class FFMPGuidanceInterpolation {
         this.siteKey = siteKey;
         interpolationOffsets = new HashMap<String, Boolean>();
 
-        for (SourceXML source : productRun.getGuidanceSources(product, ffgName)) {
+        for (SourceXML source : productRun.getGuidanceSources(product,
+                ffgName)) {
             if (source.isInterpolatedGuidanceTransition()) {
                 if (true) {
                     interpolationOffsets.put(source.getSourceName(),
@@ -162,8 +163,8 @@ public class FFMPGuidanceInterpolation {
                     skip = true;
                     break;
                 } else {
-                    interpolationSources.add(getSource(orderedHours
-                            .get(index - 1)));
+                    interpolationSources
+                            .add(getSource(orderedHours.get(index - 1)));
                     interpolationSources
                             .add(getSource(orderedHours.get(index)));
                     double totaldiff = orderedHours.get(index)
@@ -240,7 +241,8 @@ public class FFMPGuidanceInterpolation {
         return isInterpolate;
     }
 
-    public Float interpolateSourcePoint(String source, FFMPGuidanceBasin basin) {
+    public Float interpolateSourcePoint(String source,
+            FFMPGuidanceBasin basin) {
         double hour = getHour(source);
         // System.err.println("interpolating for " + source);
 
@@ -255,12 +257,10 @@ public class FFMPGuidanceInterpolation {
 
         for (int index = 0; index < orderedHours.size(); ++index) {
             Double thisHour = orderedHours.get(index);
-            Float thisVal = basin
-                    .getValue(
-                            getSource(orderedHours.get(index)),
-                            null,
-                            manager.getSource(source).getExpirationMinutes(
-                                    siteKey) * TimeUtil.MILLIS_PER_MINUTE);
+            Float thisVal = basin.getValue(getSource(orderedHours.get(index)),
+                    null,
+                    manager.getSource(source).getExpirationMinutes(siteKey)
+                            * TimeUtil.MILLIS_PER_MINUTE);
             if (dman.isExpired() == false) {
 
                 thisVal = dman.adjustValue(thisVal,

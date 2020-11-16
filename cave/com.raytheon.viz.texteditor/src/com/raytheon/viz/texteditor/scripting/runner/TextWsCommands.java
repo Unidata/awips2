@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -25,39 +25,45 @@ import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import jep.JepException;
-
+import com.raytheon.uf.common.dataplugin.text.AfosWmoIdDataContainer;
+import com.raytheon.uf.common.dataplugin.text.request.GetPartialAfosIdRequest;
+import com.raytheon.uf.common.dataplugin.text.util.AWIPSParser;
+import com.raytheon.uf.common.site.SiteMap;
 import com.raytheon.uf.common.time.SimulatedTime;
+import com.raytheon.uf.viz.core.VizApp;
+import com.raytheon.uf.viz.core.localization.LocalizationManager;
+import com.raytheon.uf.viz.core.requests.ThriftClient;
 import com.raytheon.viz.core.mode.CAVEMode;
 import com.raytheon.viz.texteditor.msgs.IScriptRunnerObserver;
 import com.raytheon.viz.texteditor.scripting.dialogs.util.FileUtilities;
 import com.raytheon.viz.texteditor.scripting.dialogs.util.TextDBUtilities;
 import com.raytheon.viz.texteditor.scripting.dialogs.util.Utilities;
 
+import jep.JepException;
+
 /**
  * Class providing the top level implementations of the special Text WS
  * scripting commands.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 29, 2009            mfegan      Initial creation
  * Jul 13, 2010 2187       cjeanbap    Add operational mode functionality
  * Feb 04, 2015 4086       njensen     Resurrected class
- * 
+ * Jan 02, 2018 6804       tgurney     Run doEvents in separate UI thread task
+ * Apr 18, 2018 DCS 19952  dfriedman   Added AWIPS ID query support.
+ *
  * </pre>
- * 
+ *
  * @author mfegan
- * @version 1.0
  */
 
 public class TextWsCommands {
-    private final String TIME_FMT = "%1$tD %1$tT";
-
-    private String editor = "";
+    private static final String TIME_FMT = "%1$tD %1$tT";
 
     private IScriptRunnerObserver observer = null;
 
@@ -65,17 +71,10 @@ public class TextWsCommands {
 
     private boolean operationalMode = true;
 
-    /**
-     * 
-     */
     public TextWsCommands() {
         CAVEMode mode = CAVEMode.getMode();
         this.operationalMode = (CAVEMode.OPERATIONAL.equals(mode)
                 || CAVEMode.PRACTICE.equals(mode) ? true : false);
-    }
-
-    public void setEditor(String editor) {
-        this.editor = editor;
     }
 
     public void setObserver(Object observer) {
@@ -86,10 +85,10 @@ public class TextWsCommands {
      * Implements the Text Workstation script runner's {@code run(file)}
      * command. The file to execute must be in the current user's home
      * directory.
-     * 
+     *
      * @param file
      *            name of the script to execute
-     * 
+     *
      * @throws Exception
      *             if any problem occurs
      */
@@ -98,82 +97,85 @@ public class TextWsCommands {
         if (Utilities.isEmptyString(file)) {
             throw new JepException("no file specified -- unable to execute");
         }
-        if (file.indexOf("/") != -1) {
-            throw new JepException("expected local file but got \"" + file
-                    + "\"");
+        if (file.indexOf('/') != -1) {
+            throw new JepException(
+                    "expected local file but got \"" + file + "\"");
         }
 
         String script = homeDir + "/" + file;
-        // try {
-        // script = FileUtilities.loadFileToString(homeDir, file);
-        // } catch (IOException e) {
-        // throw new Exception("could not open \"" + file + "\"",e);
-        // }
-        System.out.println(script);
+        observer.writeText("Executing " + script);
         observer.executeTextScript(script);
     }
 
     /**
-     * Implements the Text Workstation script runner's {@code load(pid)}
-     * command. Reads the latest product matching the specified PID from the
-     * text database and sends it to the observer for display.
-     * 
-     * @param pil
-     *            the product ID (PID)
-     * 
+     * Implements the Text Workstation script runner's {@code load(pid)} and
+     * {@code loadawips(aid)} commands. Reads the latest product matching the
+     * specified PID (or AWIPS ID) from the text database and sends it to the
+     * observer for display.
+     *
+     * @param id
+     *            the product specifier (PIL or AWIPS ID)
+     * @param afos
+     *            perform an AFOS query if true or an AWIPS query if false
+     *
      * @throws Exception
      *             when any error occurs
      */
-    public void loadTextProduct(String pil) throws Exception {
-        if (Utilities.isEmptyString(pil)) {
+    public void loadTextProduct(String id, boolean afos) throws Exception {
+        if (Utilities.isEmptyString(id)) {
             throw new Exception(
                     "no product ID provided -- unable to load product");
         }
         if (observer.isEditMode()) {
-            throw new Exception("Cannot load product: text window in edit mode");
+            throw new Exception(
+                    "Cannot load product: text window in edit mode");
         }
-        if (pil.startsWith("E:") || pil.startsWith("M:")) {
+        if (id.startsWith("E:") || id.startsWith("M:")) {
             throw new Exception(
                     "Cannot load product: cannot edit products while script is running");
         }
-        observer.writeText("--- requesting " + pil
-                + " from text database ---\n");
-        String[] products;// = observer.getProductFromDatabase(pid);
+        observer.writeText(
+                "--- requesting " + id + " from text database ---\n");
+        String[] products;
         try {
-            products = TextDBUtilities.readProductFromDatabase(pil,
-                    TextDBUtilities.TYPE_PROD, this.operationalMode);
+            products = TextDBUtilities.readProductFromDatabase(id,
+                    TextDBUtilities.TYPE_PROD, this.operationalMode, afos);
         } catch (Exception e) {
-            observer.writeText("--- product \"" + pil
-                    + "\" not available ---\n");
+            observer.writeText(
+                    "--- product \"" + id + "\" not available ---\n");
             observer.showErrorMessage("failure reading from database.", e);
             return;
         }
         if (products == null || products.length == 0) {
-            observer.writeText("--- product \"" + pil
-                    + "\" not available ---\n");
-            observer.showScriptStatus("Requested product \"" + pil
-                    + "\" not found in data base");
+            observer.writeText(
+                    "--- product \"" + id + "\" not available ---\n");
+            observer.showScriptStatus(
+                    "Requested product \"" + id + "\" not found in data base");
             return;
         }
-        observer.postProductToEditor(products, new String[] { pil });
+        observer.postProductToEditor(products,
+                afos ? new String[] { id } : new String[] { });
+
     }
 
     /**
      * Implements the Text Workstation script runner's
-     * {@code readdb(pid,filename)} command. Reads the latest product matching
+     * {@code readdb(pid,filename)} and {@code readdbawips(pid,filename)} commands. Reads the latest product matching
      * the pid and writes the product to the specified file. Emulates the AWIPS
-     * I <em>textdb -rd PIL</em> retrieval.
-     * 
-     * @param pil
-     *            the AFOS PIL to retrieve
+     * I <em>textdb -rd PIL</em> (or <em>textdb -rkd AWIPSID</em>) retrieval.
+     *
+     * @param id
+     *            the AFOS PIL (or AWIPS ID) to retrieve
+     * @param afos
+     *            perform an AFOS query if true or an AWIPS query if false
      * @param filename
      *            path to the file to contain the results
-     * 
+     *
      * @throws Exception
      *             if an error occurs
      */
-    public void saveProductToFile(String pil, String filename) throws Exception {
-        if (Utilities.isEmptyString(pil)) {
+    public void saveProductToFile(String id, boolean afos, String filename) throws Exception {
+        if (Utilities.isEmptyString(id)) {
             throw new Exception(
                     "no product ID provided -- unable to read product");
         }
@@ -181,34 +183,34 @@ public class TextWsCommands {
             throw new Exception(
                     "no file name provided -- unable to read product");
         }
-        observer.writeText("--- requesting " + pil
-                + " from text database ---\n");
+        observer.writeText(
+                "--- requesting " + id + " from text database ---\n");
         String[] products = null;
         try {
-            products = TextDBUtilities.readProductFromDatabase(pil,
-                    TextDBUtilities.TYPE_INFO, this.operationalMode);
+            products = TextDBUtilities.readProductFromDatabase(id,
+                    TextDBUtilities.TYPE_INFO, this.operationalMode, afos);
         } catch (Exception e) {
-            observer.writeText("--- product \"" + pil
-                    + "\" not available ---\n");
+            observer.writeText(
+                    "--- product \"" + id + "\" not available ---\n");
             observer.showErrorMessage("failure reading from database.", e);
             return;
         }
         if (products == null || products.length == 0) {
-            observer.writeText("--- product \"" + pil
-                    + "\" not available ---\n");
-            observer.showScriptStatus("Requested product \"" + pil
-                    + "\" not found in data base");
+            observer.writeText(
+                    "--- product \"" + id + "\" not available ---\n");
+            observer.showScriptStatus(
+                    "Requested product \"" + id + "\" not found in data base");
             return;
         }
         int count = products.length;
         String ln = System.getProperty("line.separator", "\n");
-        observer.writeText("--- obtained " + count + " records for " + pil
-                + " ---\n");
-        StringBuffer sb = new StringBuffer();
+        observer.writeText(
+                "--- obtained " + count + " records for " + id + " ---\n");
+        StringBuilder sb = new StringBuilder();
         for (String product : products) {
             sb.append(product).append(ln);
         }
-        observer.writeText("--- writing results for " + pil + " to " + filename
+        observer.writeText("--- writing results for " + id + " to " + filename
                 + " ---\n");
         try {
             FileUtilities.writeStringToFile(filename, sb.toString());
@@ -220,21 +222,23 @@ public class TextWsCommands {
 
     /**
      * Implements the Text Workstation script runner's
-     * {@code writedb(pid,filename)} command. Reads the contents of the
+     * {@code writedb(pid,filename)} and {@code writedbawips(pid,filename)} commands. Reads the contents of the
      * specified file and posts the contents to the text database using the
      * specified product ID.
-     * 
-     * @param pil
-     *            the product ID
+     *
+     * @param id
+     *            the product ID (AFOS PIL or AWIPS ID)
+     * @param afos
+     *            perform an AFOS query if true or an AWIPS query if false
      * @param filename
      *            the path to the data file
-     * 
+     *
      * @throws Exception
      *             if any problem occurs
      */
-    public void readProductFromFile(String pil, String filename)
+    public void readProductFromFile(String id, boolean afos, String filename)
             throws Exception {
-        if (Utilities.isEmptyString(pil)) {
+        if (Utilities.isEmptyString(id)) {
             throw new Exception(
                     "no product ID provided -- unable to write product");
         }
@@ -247,8 +251,9 @@ public class TextWsCommands {
         try {
             contents = FileUtilities.loadFileToString(filename);
         } catch (Exception e) {
-            throw new Exception("cannot read from " + filename);
+            throw new Exception("cannot read from " + filename, e);
         }
+        String pil = afos ? id : mapAwipsIDtoAfos(id);
         try {
             String result = TextDBUtilities.writeProductToDatabase(pil,
                     contents, this.operationalMode);
@@ -259,9 +264,39 @@ public class TextWsCommands {
     }
 
     /**
+     * Map the given AWIPS ID to a unique AFOS PIL
+     *
+     * @param id
+     *            the AWIPS ID
+     *
+     * @throws Exception
+     *             if there is no (unique) mapping or any problem occurs
+     */
+    private String mapAwipsIDtoAfos(String id) throws Exception {
+        GetPartialAfosIdRequest req = new GetPartialAfosIdRequest();
+        AWIPSParser parser = new AWIPSParser(id, null);
+        if (!parser.isValidCommand()) {
+            throw new Exception(String.format("invalid AWIPS ID '%s'", id));
+        }
+        String site = parser.getSite();
+        if (site == null) {
+            site = SiteMap.getInstance().getSite4LetterId(LocalizationManager.getInstance().getCurrentSite());
+        }
+        req.setCccc(site);
+        req.setNnn(parser.getNnn());
+        req.setXxx(parser.getXxx());
+        AfosWmoIdDataContainer idResult = (AfosWmoIdDataContainer) ThriftClient.sendRequest(req);
+        if (idResult.getIdList().size() != 1) {
+            throw new Exception(
+                    String.format("failure writing to database: no (unique) mapping for AWIPS ID '%s'", id));
+        }
+        return idResult.getIdList().get(0).getAfosid();
+    }
+
+    /**
      * Puts the script runner into a "safe" wait state. This state can be
      * interrupted by the user in one of two ways; 'Continue' and 'Cancel'.
-     * 
+     *
      * @throws Exception
      *             if an error occurs
      */
@@ -291,10 +326,10 @@ public class TextWsCommands {
      * minutes must be between 0 and 59 inclusive. If the specified time is less
      * than the current minutes after the hour, the delay is scheduled into the
      * next hour.
-     * 
+     *
      * @param time
      *            time delay after the hour
-     * 
+     *
      * @throws Exception
      *             in case of any error
      */
@@ -323,10 +358,10 @@ public class TextWsCommands {
      * Waits for the specified amount of time. The format of the time
      * specification is <em>HH:MM:SS</em>; resulting of a delay of up to 23hrs
      * 59min 59sec.
-     * 
+     *
      * @param time
      *            the amount of time to delay
-     * 
+     *
      * @throws Exception
      *             in case of any error
      */
@@ -349,7 +384,8 @@ public class TextWsCommands {
         } catch (NumberFormatException e) {
             throw new Exception(
                     "Invalid argument: expected format HH:MM:SS but got \""
-                            + time + "\"", e);
+                            + time + "\"",
+                    e);
         }
         if (hrs < 0 || hrs > 23 || mins < 0 || mins > 59 || secs < 0
                 || secs > 59) {
@@ -370,10 +406,10 @@ public class TextWsCommands {
 
     /**
      * Safely sleeps the specified number of seconds.
-     * 
+     *
      * @param sleepToTime
      *            provides the end time of the sleep
-     * 
+     *
      * @throws Exception
      *             if an error occurs
      */
@@ -404,10 +440,10 @@ public class TextWsCommands {
 
     /**
      * Turns results accumulation on in the Text Editor Window.
-     * 
+     *
      * @param flag
      *            true to start accumulation, false to stop accumulation
-     * 
+     *
      * @throws Exception
      *             if an error occurs
      */
@@ -416,14 +452,14 @@ public class TextWsCommands {
             throw new Exception(
                     "Cannot set accumulate: text window in edit mode");
         }
-        observer.writeText("--- turning accumulation " + (flag ? "on" : "off")
-                + " ---\n");
+        observer.writeText(
+                "--- turning accumulation " + (flag ? "on" : "off") + " ---\n");
         observer.setAccumulation(flag);
     }
 
     /**
      * Clears the Text Editor Window
-     * 
+     *
      * @throws Exception
      *             if an error occurs
      */
@@ -439,7 +475,7 @@ public class TextWsCommands {
      * Sends the specified text to the observer for display. This method is used
      * to cause output from Python's print command to be redirected to the
      * observer.
-     * 
+     *
      * @param text
      *            the text to display
      */
@@ -451,7 +487,7 @@ public class TextWsCommands {
      * Sends the specified text to the observer for display. This method is used
      * to capture output from {@code stderr} in the a python script and redirect
      * it to the observer.
-     * 
+     *
      * @param errMsg
      *            the stderr text to display
      */
@@ -464,25 +500,12 @@ public class TextWsCommands {
     /**
      * allows the script to request a refresh of the GUI
      */
-    public void doEvents() {
-        while (observer.getDisplay().readAndDispatch()) {
-        }
+    public final void doEvents() {
+        VizApp.runSync(() -> {
+            while (observer.getDisplay().readAndDispatch()) {
+            }
+        });
     }
-
-    // /**
-    // *
-    // * @return
-    // */
-    // public boolean continueScript() {
-    // return observer.continueScript();
-    // }
-    // /**
-    // *
-    // * @return
-    // */
-    // public boolean skipWait() {
-    // return observer.skipWait();
-    // }
 
     /**
      * Returns {@code true} is the user has canceled the script via a user

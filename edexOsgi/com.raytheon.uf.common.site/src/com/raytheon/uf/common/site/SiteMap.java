@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,6 +26,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -38,11 +40,14 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import com.raytheon.uf.common.localization.ILocalizationFile;
+import com.raytheon.uf.common.localization.ILocalizationPathObserver;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.PathManagerFactory;
+import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.site.xml.NwsSitesXML;
 import com.raytheon.uf.common.site.xml.SiteIdXML;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -51,9 +56,9 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * TODO Add Description
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -64,15 +69,18 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
  * Mar 18, 2014 DR 17173   D. Friedmna Re-implement DR 14765.
  * Apr 06  2017 DR 19619   MPorricelli Have all edex servers made
  *                                     aware of ndm textdb file change
- * 
+ * Jan 26, 2018 6863       dgilling    Allow site-level overrides to
+ *                                     national_category_table.template, cleanup
+ *                                     localization code.
+ *
  * </pre>
- * 
+ *
  * @author bfarmer
  * @version 1.0
  */
 
-public class SiteMap {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+public class SiteMap implements ILocalizationPathObserver {
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(SiteMap.class);
 
     private static SiteMap instance = new SiteMap();
@@ -87,19 +95,19 @@ public class SiteMap {
 
     private static final String LOCATION_ID_FILENAME = "awips_site_list.xml";
 
-    private final List<String> rfcList = new ArrayList<String>();
+    private final List<String> rfcList = new ArrayList<>();
 
-    private final Map<String, String> siteToSiteMap = new HashMap<String, String>();
+    private final Map<String, String> siteToSiteMap = new HashMap<>();
 
-    private final Map<String, String> nationalCategoryMap = new HashMap<String, String>();
+    private final Map<String, String> nationalCategoryMap = new HashMap<>();
 
-    private final Map<String, String> siteTo4LetterSite = new HashMap<String, String>();
+    private final Map<String, String> siteTo4LetterSite = new HashMap<>();
 
-    private final Map<String, Set<String>> siteTo3LetterSite = new HashMap<String, Set<String>>();
+    private final Map<String, Set<String>> siteTo3LetterSite = new HashMap<>();
 
-    private final Set<String> site3to4LetterOverrides = new HashSet<String>();
+    private final Set<String> site3to4LetterOverrides = new HashSet<>();
 
-    private final Map<String, SiteData> siteMap = new TreeMap<String, SiteData>();
+    private final Map<String, SiteData> siteMap = new TreeMap<>();
 
     /** JAXB context */
     private JAXBContext jax;
@@ -109,7 +117,7 @@ public class SiteMap {
 
     /**
      * Get an instance.
-     * 
+     *
      * @return the instance
      */
     public static SiteMap getInstance() {
@@ -123,10 +131,16 @@ public class SiteMap {
             jax = JAXBContext.newInstance(classes);
             this.unmarshaller = jax.createUnmarshaller();
         } catch (JAXBException e) {
+            statusHandler.error("Error creating context for SiteMap", e);
             throw new ExceptionInInitializerError(
                     "Error creating context for SiteMap");
         }
         readFiles();
+
+        PathManagerFactory.getPathManager().addLocalizationPathObserver(
+                NATIONAL_CATEGORY_TABLE_FILENAME, this);
+        PathManagerFactory.getPathManager()
+                .addLocalizationPathObserver(AFOS_LOOKUP_FILENAME, this);
     }
 
     public synchronized String getCCCFromXXXCode(String xxx) {
@@ -152,9 +166,9 @@ public class SiteMap {
     }
 
     /**
-     * Attempt to map an xxxid to a cccid. Use the afos_lookup_table.dat data
-     * only.
-     * 
+     * Attempt to map a station id (icao?) to a cccid. Use the afos_lookup_table.dat 
+     * data only.
+     *
      * @param xxx
      *            An id to map.
      * @return
@@ -183,27 +197,44 @@ public class SiteMap {
         siteMap.clear();
     }
     public synchronized void readFiles() {
-        // load base afos lookup
         IPathManager pathMgr = PathManagerFactory.getPathManager();
-        LocalizationContext lc = pathMgr.getContext(
-                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
-        File file = pathMgr.getFile(lc, AFOS_LOOKUP_FILENAME);
-        loadAfosLookupFile(file, siteToSiteMap);
+        LocalizationContext[] searchOrder = pathMgr
+                .getLocalSearchHierarchy(LocalizationType.COMMON_STATIC);
 
-        file = pathMgr.getFile(lc, RFC_TABLE_FILENAME);
-        loadRFCLookupFile(file, rfcList);
-
-        // load site afos lookup
-        lc = pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.SITE);
-        file = pathMgr.getFile(lc, AFOS_LOOKUP_FILENAME);
-        loadAfosLookupFile(file, siteToSiteMap);
+        List<LocalizationContext> reverseOrder = Arrays
+                .asList(Arrays.copyOf(searchOrder, searchOrder.length));
+        Collections.reverse(reverseOrder);
+        for (LocalizationContext ctx : reverseOrder) {
+            ILocalizationFile file = pathMgr.getLocalizationFile(ctx,
+                    AFOS_LOOKUP_FILENAME);
+            loadAfosLookupFile(file, siteToSiteMap);
+        }
 
         // load national category
-        lc = pathMgr.getContext(LocalizationType.COMMON_STATIC,
-                LocalizationLevel.BASE);
-        file = pathMgr.getFile(lc, NATIONAL_CATEGORY_TABLE_FILENAME);
-        loadNationalCategoryFile(file, nationalCategoryMap);
+        ILocalizationFile locFile = null;
+        for (LocalizationContext ctx : searchOrder) {
+            ILocalizationFile file = pathMgr.getLocalizationFile(ctx,
+                    NATIONAL_CATEGORY_TABLE_FILENAME);
+            if ((file != null) && file.exists()) {
+                if (locFile == null) {
+                    locFile = file;
+                } else {
+                    if (file.getContext()
+                            .getLocalizationLevel() != LocalizationLevel.BASE) {
+                        String msg = String.format(
+                                "National Category Table override [%s] potentially conflicts with file [%s].",
+                                locFile, file);
+                        statusHandler.warn(msg);
+                    }
+                }
+            }
+        }
+        loadNationalCategoryFile(locFile, nationalCategoryMap);
+
+        LocalizationContext lc = pathMgr.getContext(
+                LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
+        File file = pathMgr.getFile(lc, RFC_TABLE_FILENAME);
+        loadRFCLookupFile(file, rfcList);
 
         // Load site list
         lc = pathMgr.getContext(LocalizationType.COMMON_STATIC,
@@ -213,7 +244,8 @@ public class SiteMap {
             lc = pathMgr.getContext(LocalizationType.COMMON_STATIC,
                     LocalizationLevel.BASE);
             file = pathMgr.getFile(lc, LOCATION_ID_FILENAME);
-            System.out.println(LOCATION_ID_FILENAME);
+            statusHandler.info(
+                    "Loaded location ID file [" + LOCATION_ID_FILENAME + "]");
         }
         loadSiteListFile(file);
 
@@ -226,14 +258,14 @@ public class SiteMap {
                 synchronized (siteTo4LetterSite) {
                     String foundId = siteTo4LetterSite.get(threeId);
                     // US contiguous prefix code "K" takes precedence
-                    if (foundId == null || prefixCode.equals("k")) {
+                    if (foundId == null || "k".equals(prefixCode)) {
                         siteTo4LetterSite.put(threeId, icao);
                     }
                 }
                 synchronized (siteTo3LetterSite) {
                     Set<String> reverse = siteTo3LetterSite.get(icao);
                     if (reverse == null) {
-                        reverse = new TreeSet<String>();
+                        reverse = new TreeSet<>();
                         siteTo3LetterSite.put(icao, reverse);
                     }
                     reverse.add(icao.substring(1));
@@ -249,59 +281,42 @@ public class SiteMap {
                 siteTo3LetterSite);
     }
 
-    private synchronized void loadAfosLookupFile(File file, Map<String, String> aliasMap) {
+    private synchronized void loadAfosLookupFile(ILocalizationFile file,
+            Map<String, String> aliasMap) {
         if ((file != null) && file.exists()) {
-            try {
-                BufferedReader fis = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(file)));
+            try (BufferedReader fis = new BufferedReader(
+                    new InputStreamReader(file.openInputStream()))) {
                 String line = null;
-                try {
-                    while ((line = fis.readLine()) != null) {
-                        String dataKey = line.substring(0, 4);
-                        String tblData = line.substring(5);
-                        aliasMap.put(dataKey, tblData);
-                    }
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Could not read AFOS Lookup File "
-                                    + AFOS_LOOKUP_FILENAME, e);
 
+                while ((line = fis.readLine()) != null) {
+                    String dataKey = line.substring(0, 4);
+                    String tblData = line.substring(5);
+                    aliasMap.put(dataKey, tblData);
                 }
-            } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Failed to find AFOS Lookup File "
-                                + AFOS_LOOKUP_FILENAME, e);
-
+            } catch (IOException | LocalizationException e) {
+                statusHandler.error("Could not read AFOS Lookup File "
+                        + file, e);
             }
         }
     }
 
-    private synchronized void loadNationalCategoryFile(File file,
+    private synchronized void loadNationalCategoryFile(ILocalizationFile file,
             Map<String, String> aliasMap) {
         if ((file != null) && file.exists()) {
-            try {
-                BufferedReader fis = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(file)));
+            try (BufferedReader fis = new BufferedReader(
+                    new InputStreamReader(file.openInputStream()))) {
                 String line = null;
-                try {
-                    while ((line = fis.readLine()) != null) {
-                        if (line.length() == 9) {
-                            String dataKey = line.substring(0, 4);
-                            String tblData = line.substring(6);
-                            aliasMap.put(dataKey, tblData);
-                        }
+
+                while ((line = fis.readLine()) != null) {
+                    if (line.length() == 9) {
+                        String dataKey = line.substring(0, 4);
+                        String tblData = line.substring(6);
+                        aliasMap.put(dataKey, tblData);
                     }
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Could not read National Category Table "
-                                    + NATIONAL_CATEGORY_TABLE_FILENAME, e);
-
                 }
-            } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Could not find National Category Table "
-                                + NATIONAL_CATEGORY_TABLE_FILENAME, e);
-
+            } catch (IOException | LocalizationException e) {
+                statusHandler.error(
+                        "Could not read National Category Table " + file, e);
             }
         }
     }
@@ -310,9 +325,8 @@ public class SiteMap {
             Map<String, String> site3To4LetterMap,
             Map<String, Set<String>> site4To3LetterMap) {
         if ((file != null) && file.exists()) {
-            try {
-                BufferedReader fis = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(file)));
+            try (BufferedReader fis = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(file)))) {
                 String line = null;
                 try {
                     while ((line = fis.readLine()) != null) {
@@ -343,7 +357,7 @@ public class SiteMap {
                             // Add the entry to the reverse lookup map
                             Set<String> site3s = site4To3LetterMap.get(site4);
                             if (site3s == null) {
-                                site3s = new TreeSet<String>();
+                                site3s = new TreeSet<>();
                                 site4To3LetterMap.put(site4, site3s);
                             }
                             site3s.add(site3);
@@ -360,15 +374,18 @@ public class SiteMap {
                         "Could not find Site 3 Letter To 4 Letter Override "
                                 + SITE_OVERRIDE_FILENAME, e);
 
+            } catch (IOException e) {
+                statusHandler
+                        .error("Could not close Site 3 Letter To 4 Letter Override "
+                                + SITE_OVERRIDE_FILENAME, e);
             }
         }
     }
 
     private synchronized void loadRFCLookupFile(File file, List<String> aliasList) {
         if ((file != null) && file.exists()) {
-            try {
-                BufferedReader fis = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(file)));
+            try (BufferedReader fis = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(file)))) {
                 String line = null;
                 try {
                     while ((line = fis.readLine()) != null) {
@@ -383,6 +400,11 @@ public class SiteMap {
             } catch (FileNotFoundException e) {
                 statusHandler.handle(Priority.PROBLEM,
                         "Failed to find RFC Lookup File " + RFC_TABLE_FILENAME,
+                        e);
+
+            } catch (IOException e) {
+                statusHandler.error(
+                        "Could not close RFC Lookup File " + RFC_TABLE_FILENAME,
                         e);
 
             }
@@ -409,7 +431,7 @@ public class SiteMap {
 
     /**
      * Converts a 3 letter site ID into a 4 letter ID, e.g. OAX to KOAX
-     * 
+     *
      * @param site3LetterId
      *            the 3 letter site id
      * @return
@@ -442,7 +464,7 @@ public class SiteMap {
      * Convert a 4 letter site ID into the 3 letter site IDs that convert to it,
      * e.g. KOAX to OAX. Some 3 letter sites convert to the same 4 letter site,
      * so this reverse lookup has to return a collection.
-     * 
+     *
      * @param site4LetterId
      * @return the 3 letter sites that map to the 4 letter site
      */
@@ -454,9 +476,9 @@ public class SiteMap {
         synchronized (siteTo3LetterSite) {
             site3LetterIds = siteTo3LetterSite.get(site4LetterId);
             if (site3LetterIds == null) {
-                site3LetterIds = new TreeSet<String>();
+                site3LetterIds = new TreeSet<>();
                 if (site4LetterId == null) {
-                    ; // return empty set
+                    // return empty set
                 } else if (site4LetterId.length() <= 3) {
                     site3LetterIds.add(site4LetterId);
                 } else {
@@ -476,7 +498,7 @@ public class SiteMap {
 
     /**
      * Get the site data objects.
-     * 
+     *
      * @return site data objects
      */
     public synchronized Map<String, SiteData> getSiteData() {
@@ -484,5 +506,10 @@ public class SiteMap {
             readFiles();
         }
         return siteMap;
+    }
+
+    @Override
+    public void fileChanged(ILocalizationFile file) {
+        setDirty();
     }
 }

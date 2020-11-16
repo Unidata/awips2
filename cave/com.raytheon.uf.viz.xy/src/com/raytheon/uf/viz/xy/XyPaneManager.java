@@ -67,17 +67,18 @@ import com.raytheon.viz.ui.panes.VizDisplayPane;
  * ------------- -------- --------- --------------------------------------------
  * Jan 13, 2011           mschenke  Initial creation
  * Jan 13, 2016  5246     bsteffen  instantiate resources when a pane is added.
+ * Feb 19, 2018  7060     njensen   getDisplayPanes() doesn't require UI thread
  * 
  * </pre>
  * 
  * @author mschenke
- * @version 1.0
  */
 
-public class XyPaneManager extends PaneManager implements
-        IInsetMapDisplayPaneContainer, IPropertyChangeListener,
+public class XyPaneManager extends PaneManager
+        implements IInsetMapDisplayPaneContainer, IPropertyChangeListener,
         IGlobalChangedListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(XyPaneManager.class);
 
     /**
@@ -107,8 +108,8 @@ public class XyPaneManager extends PaneManager implements
     protected double currentDensity;
 
     public XyPaneManager() {
-        insetMapPaneMap = new HashMap<IDisplayPane, IDisplayPane>();
-        graphPaneMap = new HashMap<IDisplayPane, IDisplayPane>();
+        insetMapPaneMap = new HashMap<>();
+        graphPaneMap = new HashMap<>();
         IPersistentPreferenceStore store = Activator.getDefault()
                 .getPreferenceStore();
         displayInsetWidth = store.getInt(Activator.MAP_DISPLAY_WIDTH);
@@ -122,7 +123,7 @@ public class XyPaneManager extends PaneManager implements
     @Override
     public IDisplayPane[] getDisplayPanes() {
         // Checks active pane to see if active pane is inset pane or graph
-        if (isInsetPane(getActiveDisplayPane())) {
+        if (isInsetPane(activatedPane)) {
             return getInsetPanes();
         } else {
             return getGraphPanes();
@@ -148,25 +149,12 @@ public class XyPaneManager extends PaneManager implements
         return super.getDisplayPanes();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.map.IInsetMapDisplayPaneContainer#getInsetPanes()
-     */
     @Override
     public IDisplayPane[] getInsetPanes() {
-        return insetMapPaneMap.keySet().toArray(
-                new IDisplayPane[insetMapPaneMap.size()]);
+        return insetMapPaneMap.keySet()
+                .toArray(new IDisplayPane[insetMapPaneMap.size()]);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.map.IInsetMapDisplayPaneContainer#getInsetPanes
-     * (com.raytheon.uf.viz.core.IDisplayPane)
-     */
     @Override
     public IDisplayPane[] getInsetPanes(IDisplayPane pane) {
         return new IDisplayPane[] { graphPaneMap.get(pane) };
@@ -201,9 +189,8 @@ public class XyPaneManager extends PaneManager implements
                 final Composite insetComp = new Composite(graphComposite,
                         SWT.NONE);
                 insetComp.setLayout(new FormLayout());
-                insetComp
-                        .setLayoutData(((IInsetMapContainer) renderableDisplay)
-                                .getInsetMapLocation());
+                insetComp.setLayoutData(((IInsetMapContainer) renderableDisplay)
+                        .getInsetMapLocation());
                 // TODO: Need to have inset map renderable displays share
                 // projection info somehow
                 InsetMapRenderableDisplay insetDisplay = (InsetMapRenderableDisplay) InsetMapUtil
@@ -217,8 +204,8 @@ public class XyPaneManager extends PaneManager implements
                         insetComp, insetDisplay, true);
                 insetMapPane.getCanvas().setLayoutData(getFullFormData());
 
-                insetMapPane.getCanvas().addMouseTrackListener(
-                        new MouseTrackAdapter() {
+                insetMapPane.getCanvas()
+                        .addMouseTrackListener(new MouseTrackAdapter() {
                             @Override
                             public void mouseEnter(MouseEvent e) {
                                 activatedPane = insetMapPane;
@@ -248,8 +235,8 @@ public class XyPaneManager extends PaneManager implements
             addPane(renderableDisplay, graphComposite);
             graphPane = displayPanes.get(displayPanes.size() - 1);
             graphComposite.setLayout(new FormLayout());
-            graphComposite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true,
-                    true));
+            graphComposite.setLayoutData(
+                    new GridData(SWT.FILL, SWT.FILL, true, true));
             graphPane.getCanvas().setLayoutData(getFullFormData());
             composite.layout();
 
@@ -293,8 +280,9 @@ public class XyPaneManager extends PaneManager implements
      * @return
      */
     public boolean isInsetMapDisplay(IRenderableDisplay display) {
-        return ((display instanceof IInsetMapContainer) && (((IInsetMapContainer) display)
-                .getInsetMapLocation() != null));
+        return ((display instanceof IInsetMapContainer)
+                && (((IInsetMapContainer) display)
+                        .getInsetMapLocation() != null));
     }
 
     /**
@@ -309,21 +297,14 @@ public class XyPaneManager extends PaneManager implements
         return fd;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse
-     * .jface.util.PropertyChangeEvent)
-     */
     @Override
     public void propertyChange(PropertyChangeEvent event) {
         if (Activator.MAP_DISPLAY_DENSITY.equals(event.getProperty())) {
-            displayInsetDensity = Double.parseDouble(String.valueOf(event
-                    .getNewValue()));
+            displayInsetDensity = Double
+                    .parseDouble(String.valueOf(event.getNewValue()));
         } else if (Activator.MAP_DISPLAY_WIDTH.equals(event.getProperty())) {
-            displayInsetWidth = Integer.parseInt(String.valueOf(event
-                    .getNewValue()));
+            displayInsetWidth = Integer
+                    .parseInt(String.valueOf(event.getNewValue()));
         }
         VizApp.runAsync(new Runnable() {
             @Override
@@ -336,13 +317,6 @@ public class XyPaneManager extends PaneManager implements
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.globals.IGlobalChangedListener#updateValue(org
-     * .eclipse.ui.IWorkbenchWindow, java.lang.Object)
-     */
     @Override
     public void updateValue(IWorkbenchWindow changedWindow, Object value) {
         if (paneContainer == EditorUtil.getActiveVizContainer(changedWindow)) {
@@ -357,7 +331,8 @@ public class XyPaneManager extends PaneManager implements
 
     protected void setVisibility(VizDisplayPane insetPane) {
         Composite insetComp = insetPane.getCanvas().getParent();
-        boolean shouldBeVisByWidth = insetComp.getBounds().width >= displayInsetWidth;
+        boolean shouldBeVisByWidth = insetComp
+                .getBounds().width >= displayInsetWidth;
         boolean shouldBeVisByDensity = currentDensity >= displayInsetDensity;
         boolean visible = shouldBeVisByDensity && shouldBeVisByWidth;
         insetComp.setVisible(visible);

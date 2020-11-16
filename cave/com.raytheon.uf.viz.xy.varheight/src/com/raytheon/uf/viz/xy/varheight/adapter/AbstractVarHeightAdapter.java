@@ -31,6 +31,8 @@ import javax.measure.unit.Unit;
 
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.topo.CachedTopoQuery;
+import com.raytheon.uf.common.wxmath.Hgt2Pres;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.xy.scales.HeightScale;
 import com.raytheon.uf.viz.xy.varheight.rsc.VarHeightResourceData;
@@ -38,19 +40,21 @@ import com.raytheon.viz.core.graphing.xy.XYData;
 import com.raytheon.viz.core.graphing.xy.XYWindImageData;
 
 /**
- * TODO Add Description
+ * Abstract base class for writing var height adapters
  * 
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 7, 2010            bsteffen     Initial creation
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 07, 2010           bsteffen  Initial creation
+ * Feb 06, 2018  6829     njensen   Added variable wind
+ * Feb 19, 2018  6666     bsteffen  Add trimBelowSurface and loadPreparedData.
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 
 public abstract class AbstractVarHeightAdapter<T extends PluginDataObject> {
@@ -59,20 +63,14 @@ public abstract class AbstractVarHeightAdapter<T extends PluginDataObject> {
 
     protected VarHeightResourceData resourceData;
 
-    protected Set<T> records = new HashSet<T>();
+    protected boolean wind;
 
-    /**
-     * @param heightScale
-     *            the heightScale to set
-     */
+    protected Set<T> records = new HashSet<>();
+
     public void setHeightScale(HeightScale heightScale) {
         this.heightScale = heightScale;
     }
 
-    /**
-     * @param resourceData
-     *            the resourceData to set
-     */
     public void setResourceData(VarHeightResourceData resourceData) {
         this.resourceData = resourceData;
     }
@@ -115,6 +113,70 @@ public abstract class AbstractVarHeightAdapter<T extends PluginDataObject> {
         });
     }
 
+    protected void trimBelowSurface(List<XYData> dataList) {
+        /*
+         * The value for surface, data will be removed above or below this
+         * value.
+         */
+        double cutoff = 0;
+        /*
+         * Normally remove values that are numerically lower than the cutoff,
+         * but for pressure higher values are physically lower so do the inverse
+         * and remove values that are numerically higher.
+         */
+        boolean inverse = false;
+        switch (heightScale.getHeightType()) {
+        case HEIGHT_MSL:
+            cutoff = CachedTopoQuery.getInstance()
+                    .getHeight(resourceData.getPoint());
+            break;
+        case HEIGHT_AGL:
+            break;
+        case PRESSURE:
+            double topo = CachedTopoQuery.getInstance()
+                    .getHeight(resourceData.getPoint());
+            cutoff = Hgt2Pres.hgt2pres((float) topo);
+            inverse = true;
+            break;
+        default:
+            return;
+        }
+
+        double aboveY = Double.POSITIVE_INFINITY;
+        XYData above = null;
+        double belowY = Double.NEGATIVE_INFINITY;
+        XYData below = null;
+        Iterator<XYData> iter = dataList.iterator();
+        while (iter.hasNext()) {
+            XYData data = iter.next();
+            double y = ((Number) data.getY()).doubleValue();
+            if (y > cutoff) {
+                if (inverse) {
+                    iter.remove();
+                }
+                if (y < aboveY) {
+                    aboveY = y;
+                    above = data;
+                }
+            } else if (y < cutoff) {
+                if (!inverse) {
+                    iter.remove();
+                }
+                if (y > belowY) {
+                    belowY = y;
+                    below = data;
+                }
+            }
+        }
+        if (!wind && above != null && below != null) {
+            double aboveX = ((Number) above.getX()).doubleValue();
+            double belowX = ((Number) below.getX()).doubleValue();
+            double interpX = belowX + (cutoff - belowY)
+                    * ((aboveX - belowX) / (aboveY - belowY));
+            dataList.add(new XYData((float) interpX, (float) cutoff));
+        }
+    }
+
     public void convertData(List<XYData> data, Unit<?> xDisplayUnit) {
         Unit<?> xDataUnit = getXUnit();
         Unit<?> yDataUnit = getYUnit();
@@ -141,6 +203,32 @@ public abstract class AbstractVarHeightAdapter<T extends PluginDataObject> {
             Number y = (Number) xy.getY();
             xy.setY(yConverter.convert(y.doubleValue()));
         }
+    }
+
+    public boolean isWind() {
+        return wind;
+    }
+
+    /**
+     * Similar to {@link #loadData(DataTime)}, but uses several of the utility
+     * methods of this class to prepare the data for display. The returned data
+     * will be sorted, converted to the units passed in and trimmed to remove
+     * data below the surface.
+     * 
+     * @param time
+     *            which time to load data for.
+     * @param xDisplayUnit
+     *            the units used to convert the data.
+     * @return a list of prepared data.
+     * @throws VizException
+     */
+    public List<XYData> loadPreparedData(DataTime time, Unit<?> xDisplayUnit)
+            throws VizException {
+        List<XYData> data = loadData(time);
+        trimBelowSurface(data);
+        sortData(data);
+        convertData(data, xDisplayUnit);
+        return data;
     }
 
 }

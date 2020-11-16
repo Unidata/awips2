@@ -21,7 +21,7 @@
 
 
 #
-# Methods ported from IFPS2AvnFPS
+# Methods ported from IFPS2AvnFPS.py
 #  
 #    
 #     SOFTWARE HISTORY
@@ -30,6 +30,7 @@
 #    ------------    ----------    -----------    --------------------------
 #    08/12/09                      njensen        Initial Creation.
 #    04/23/2-14       #3006        randerso       Fix Wx parsing
+#    02/23/18          7227        njensen        Add vsbyValue(), comments
 # 
 #
 
@@ -38,6 +39,7 @@
 ##
 
 
+# These variables are unchanged from AWIPS 1 IFVPS2AvnFPS.py
 _vsbyCodes = ['F','ZF','IF','IC','H','BS','BN','K','BD','Y','ZY','VA']
 
 _translateCode = { 'Iso' : 'IS', 'Sct' : 'SC', 'Num' : 'NM', 'Wide': 'WP', 'Ocnl': 'O', 'SChc': 'S',
@@ -47,11 +49,18 @@ _translateCode = { 'Iso' : 'IS', 'Sct' : 'SC', 'Num' : 'NM', 'Wide': 'WP', 'Ocnl
 
 
 def scalarValue(value):
+    """Method to return a simple scalar as a string without any processing"""
     try:
         return str(int(round(value)))
     except:
         return "999"
 
+def vsbyValue(value):
+    """Method to return a simple scalar as a string.  Value from grid is multiplied by 100.0"""
+    try:
+        return str(int(round(value*100.)))
+    except:
+        return "999"
 
 def skyValue(value):
     """Method to return a simple scalar as a string with minor processing"""
@@ -61,12 +70,14 @@ def skyValue(value):
         return "999"
 
 def windDirValue(value):
+    """Method to return a vector component direction as a string some processing"""
     try:                
         return str(int(round(value)/10.))
     except:
             return "999"
 
 def windMagValue(value):
+    """Method to return a vector component magnitude as a string some processing"""
     try:
         return str(int(round(value)))
     except:
@@ -91,7 +102,6 @@ def obvisValue(value):
                         wxType = 'BR'
                 break
     return wxType
-
 
 def wxVal(value, index):
     """Get the Nth weather type.  N is given in argList[0]"""
@@ -233,5 +243,3 @@ class FakeWxSubkey:
     def visibility(self):
         return self.vis
 
-
-    

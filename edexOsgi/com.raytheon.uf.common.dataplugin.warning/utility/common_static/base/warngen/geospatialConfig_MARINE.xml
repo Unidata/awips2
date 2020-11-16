@@ -130,7 +130,7 @@ Date     Ticket#    Engineer    Description
         </mapping>
         <!-- UNCOMMENT TO EXCLUDE LOCATIONS OUTSIDE THE CWA
             <mapping key="cwa">
-            <constraint constraintValue="$warngenCWAFilter" constraintType="LIKE" />
+            <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
             </mapping>
         -->
     </filter>
@@ -158,7 +158,7 @@ Date     Ticket#    Engineer    Description
         </mapping>
         <!-- UNCOMMENT TO EXCLUDE LOCATIONS OUTSIDE THE CWA
             <mapping key="cwa">
-            <constraint constraintValue="$warngenCWAFilter" constraintType="LIKE" />
+            <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
             </mapping>
         -->
     </filter>
@@ -182,7 +182,7 @@ Date     Ticket#    Engineer    Description
         </mapping>
         <!-- UNCOMMENT TO EXCLUDE LOCATIONS OUTSIDE THE CWA
             <mapping key="cwa">
-            <constraint constraintValue="$warngenCWAFilter" constraintType="LIKE" />
+            <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
             </mapping>
         -->
     </filter>

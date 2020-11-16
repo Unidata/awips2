@@ -102,8 +102,9 @@ import com.vividsolutions.jts.io.WKTWriter;
  * Aug 08, 2015  4722       dhladky     Added Grid coverage and parsing methods.
  * Sep 17, 2015  4756       dhladky     Multiple guidance source bugs.
  * Feb 12, 2016  5370       dhladky     Camel case for insertTime.
- * Apr 07, 2016  5491       tjensen     Fix NullPointerException from getRawGeometries 
+ * Apr 07, 2016  5491       tjensen     Fix NullPointerException from getRawGeometries
  * May 11, 2017  6266       nabowle     Use GetRadarSpatialRequest in getRadarCenter().
+ * Oct 18, 2018  DR 11861   mfontaine   FFMP use of QPF in Basin Table
  * </pre>
  *
  * @author dhladky
@@ -1301,13 +1302,18 @@ public class FFMPUtils {
      * Gets the ratio value
      *
      * @param qpe
+     * @param qpf
      * @param guid
      * @return
      */
-    public static float getRatioValue(float qpe, float guid) {
+    public static float getRatioValue(float qpe, float qpf, float guid) {
         float value = Float.NaN;
         if ((qpe >= 0.0f) && (guid >= 0.0f)) {
-            value = (float) ((qpe / guid) * 100.0);
+            value = qpe;
+            if ( !Float.isNaN(qpf)){
+                value += qpf;
+            }
+            value = (float) ((value / guid) * 100.0);
         }
 
 
@@ -1316,19 +1322,22 @@ public class FFMPUtils {
     /**
      * find max ratio in list
      *
-     * @param qpes     
+     * @param qpes
+     * @param qpfs
      * @param guids
      * @return
      */
-    public static float getMaxRatioValue(List<Float> qpes, List<Float> guids) {
+    public static float getMaxRatioValue(List<Float> qpes, List<Float> qpfs, List<Float> guids) {
         float ratio = Float.NaN;
 
+        boolean hasQpfs = qpfs != null && qpfs.size() == qpes.size();
         if ((qpes.size() == guids.size()) && (!qpes.isEmpty())
                 && (!guids.isEmpty())) {
             for (int i = 0; i < qpes.size(); i++) {
                 if (guids.get(i) > 0.0f) {
-                    float nratio = getRatioValue(qpes.get(i), guids.get(i));
-                    if (((nratio > ratio) && !Float.isNaN(nratio))
+                    float qpf = hasQpfs ? qpfs.get(i): Float.NaN;
+                    float nratio = getRatioValue(qpes.get(i), qpf, guids.get(i));
+                    if ((!Float.isNaN(nratio) &&(nratio > ratio))
                             || Float.isNaN(ratio)) {
                         if (!Float.isInfinite(nratio)) {
                             ratio = nratio;
@@ -1345,18 +1354,20 @@ public class FFMPUtils {
     /**
      * Gets the diff value
      *
-     * @param qpe     
+     * @param qpe
+     * @param qpf
      * @param guid
      * @return
      */
-    public static float getDiffValue(float qpe, float guid) {
+    public static float getDiffValue(float qpe, float qpf, float guid) {
         float value = Float.NaN;
         
         if ((qpe >= 0.0f) && (guid >= 0.0f)) {
-            float qpeRnd = Float.parseFloat(formatter.format(qpe));
-            float guidRnd = Float.parseFloat(formatter.format(guid));
-            value = new Float(qpeRnd - guidRnd);
-                           
+            value = qpe;
+            if ( !Float.isNaN(qpf)){
+                value += qpf;
+            }
+            value -= guid;
         }
 
 
@@ -1367,20 +1378,23 @@ public class FFMPUtils {
     /**
      * find max diff in the list
      *
-     * @param qpes     
+     * @param qpes
+     * @param qpfs
      * @param guids
      * @return
      */
-    public static float getMaxDiffValue(List<Float> qpes, List<Float> guids) {
+    public static float getMaxDiffValue(List<Float> qpes, List<Float> qpfs, List<Float> guids) {
         float diff = Float.NaN;
 
+        boolean hasQpfs = qpfs != null && qpfs.size() == qpes.size();
         if ((qpes.size() == guids.size()) && (!qpes.isEmpty())
                 && (!guids.isEmpty())) {
 
             for (int i = 0; i < qpes.size(); i++) {
                 if (guids.get(i) > 0.0f) {
-                    float ndiff = getDiffValue(qpes.get(i), guids.get(i));
-                    if ((((ndiff) > diff) && !Float.isNaN(ndiff))
+                    float qpf = hasQpfs ? qpfs.get(i): Float.NaN;
+                    float ndiff = getDiffValue(qpes.get(i), qpf, guids.get(i));
+                    if ((!Float.isNaN(ndiff) && (ndiff > diff))
                             || Float.isNaN(diff)) {
                         diff = ndiff;
                     }

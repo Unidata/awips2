@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -37,7 +37,6 @@ import com.raytheon.uf.common.time.TimeRange;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.GFEServerException;
-import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.DataManagerUIFactory;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
 import com.raytheon.viz.gfe.core.parm.Parm;
@@ -55,21 +54,22 @@ import com.raytheon.viz.gfe.temporaleditor.actions.SetDiscreteWxPickupTEAction;
 
 /**
  * MouseHandler to edit discrete data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * May 28, 2009  #2159     rjpeter       Initial creation
- * Feb 20, 2015  #4051     dgilling      Allow grids to be edited when there is
- *                                       no active edit area.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 28, 2009  2159     rjpeter   Initial creation
+ * Feb 20, 2015  4051     dgilling  Allow grids to be edited when there is no
+ *                                  active edit area.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author rjpeter
- * @version 1.0
  */
 public class EditorDiscreteMouseHandler extends MouseHandler {
     private static final transient IUFStatusHandler statusHandler = UFStatus
@@ -85,6 +85,11 @@ public class EditorDiscreteMouseHandler extends MouseHandler {
 
     private TemporalEditorDiscreteBar teBar;
 
+    /**
+     * Construct mouse handler for a TemporalEditorDiscreteBar
+     *
+     * @param teBar
+     */
     public EditorDiscreteMouseHandler(TemporalEditorDiscreteBar teBar) {
         this.teBar = teBar;
     }
@@ -102,21 +107,22 @@ public class EditorDiscreteMouseHandler extends MouseHandler {
                     Date date = teUtil.pixelToDate(e.x);
                     TimeRange tr = teUtil.dateToHour(date);
 
-                    if (parm.overlappingGrid(date) != null
+                    if ((parm.overlappingGrid(date) != null)
                             && parm.isOkToEdit(tr)) {
                         Grid2DBit gridArea = TemporalEditorUtil
                                 .determinePointsToUse(DataManagerUIFactory
                                         .getCurrentInstance().getRefManager()
                                         .getActiveRefSet());
-                        DataManager.getCurrentInstance().getParmOp()
+                        teBar.getDisplayedParm().getDataManager().getParmOp()
                                 .clearUndoParmList();
 
                         try {
                             IGridData gridData = parm.startParmEdit(date);
 
                             if (gridData != null) {
-                                gridData.setValue(parm.getParmState()
-                                        .getPickUpValue(), gridArea);
+                                gridData.setValue(
+                                        parm.getParmState().getPickUpValue(),
+                                        gridArea);
                                 parm.endParmEdit();
                             }
                         } catch (GFEOperationFailedException exc) {
@@ -136,7 +142,8 @@ public class EditorDiscreteMouseHandler extends MouseHandler {
 
                 if (key != null) {
                     if (key.isValid()) {
-                        DiscreteWxValue wxValue = new DiscreteWxValue(key, parm);
+                        DiscreteWxValue wxValue = new DiscreteWxValue(key,
+                                parm);
                         parm.getParmState().setPickUpValue(wxValue);
                     }
                 }
@@ -144,11 +151,6 @@ public class EditorDiscreteMouseHandler extends MouseHandler {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.gridmanager.MouseHandler#displayContextMenu ()
-     */
     @Override
     public void displayContextMenu(MouseEvent e) throws GFEServerException {
         super.displayContextMenu(e);
@@ -168,29 +170,33 @@ public class EditorDiscreteMouseHandler extends MouseHandler {
                 final Date date = teUtil.pixelToDate(e.x);
                 TimeRange tr = teUtil.dateToHour(date);
                 IGridData grid = parm.overlappingGrid(date);
-                if (grid != null && parm.isOkToEdit(tr)) {
+                if ((grid != null) && parm.isOkToEdit(tr)) {
                     menuMgr.add(new Separator());
                     ParmState parmState = parm.getParmState();
 
                     menuMgr.add(new SetDiscreteAction(parm, date));
 
-                    if (!parmState.getRecentPickupValues().isEmpty()) {
-                        menuMgr.add(new SetDiscreteWxPickupTEAction(
-                                SET_TO_RECENT_VALUES, parm, parmState
-                                        .getRecentPickupValues().toArray(
-                                                new WxValue[0]), date));
+                    if (!parmState.getRecentPickuUpValues().isEmpty()) {
+                        menuMgr.add(
+                                new SetDiscreteWxPickupTEAction(
+                                        SET_TO_RECENT_VALUES, parm,
+                                        parmState.getRecentPickuUpValues()
+                                                .toArray(new WxValue[0]),
+                                        date));
                     }
-                    if (!parmState.getSessionPickupValues().isEmpty()) {
-                        menuMgr.add(new SetDiscreteWxPickupTEAction(
-                                SET_TO_SESSION_VALUES, parm, parmState
-                                        .getSessionPickupValues().toArray(
-                                                new WxValue[0]), date));
+                    if (!parmState.getSessionPickUpValues().isEmpty()) {
+                        menuMgr.add(
+                                new SetDiscreteWxPickupTEAction(
+                                        SET_TO_SESSION_VALUES, parm,
+                                        parmState.getSessionPickUpValues()
+                                                .toArray(new WxValue[0]),
+                                        date));
                     }
 
                     String compName = parm.getParmID().compositeNameUI();
                     String[] commonItems = GFEPreference
-                            .getArrayPreference(compName + "_commonValues");
-                    if (commonItems != null && commonItems.length > 0) {
+                            .getStringArray(compName + "_commonValues");
+                    if ((commonItems != null) && (commonItems.length > 0)) {
                         menuMgr.add(new SetDiscretePickupAction(
                                 SET_TO_COMMON_VALUES, commonItems, parm, date));
                     }

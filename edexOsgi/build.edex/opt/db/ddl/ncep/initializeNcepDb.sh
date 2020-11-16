@@ -26,19 +26,25 @@ else
     PGPORT=${3}
 fi
 
-# in /awips2/database/sqlScripts/share/sql/ncep/shapefiles/
 for shp in `find ${4}/shapefiles -name "*.shp"` ; do
     base=`basename \`dirname $shp\``
+    echo Creating $base...
     SIMPLEV=
     if [[ $base == 'Adjcstlbnds' \
        || $base == 'Airmetcstlbnds' \
        || $base == 'Akpsabnds' \
+       || $base == 'Artccbnds' \
        || $base == 'Ascairways' \
        || $base == 'Ascarrfa' \
+       || $base == 'Ascartcc' \
+       || $base == 'Ascfaarea' \
+       || $base == 'Ascfaregion' \
+       || $base == 'Ascgulffa' \
        || $base == 'Aschifiwo' \
        || $base == 'Asctropfirs' \
        || $base == 'Asctweb' \
        || $base == 'Ascwrzones' \
+       || $base == 'Awcartcc' \
        || $base == 'Awcccfcan' \
        || $base == 'Atlbasin' \
        || $base == 'Bwus_bnd' \
@@ -55,6 +61,7 @@ for shp in `find ${4}/shapefiles -name "*.shp"` ; do
        || $base == 'Firbnds' \
        || $base == 'Firebnds' \
        || $base == 'FireWxAOR' \
+       || $base == 'FirKzoaAwc' \
        || $base == 'G2t_atl_bnd' \
        || $base == 'G2t_nwc' \
        || $base == 'G2t_pac_bnd' \
@@ -62,22 +69,33 @@ for shp in `find ${4}/shapefiles -name "*.shp"` ; do
        || $base == 'Gfa_conus' \
        || $base == 'Greatlakesbnds' \
        || $base == 'Hcnbnds' \
+       || $base == 'Hpc050_med' \
        || $base == 'Hpcsfc' \
        || $base == 'Lakesbnds' \
+       || $base == 'Locowobnds' \
+       || $base == 'Mwobnds' \
+       || $base == 'Mzbnds' \
        || $base == 'Mzcntybnds' \
        || $base == 'Npsabnds' \
+       || $base == 'OPC_Ssa' \
        || $base == 'Opcbnds' \
+       || $base == 'Opcbnds_nomex' \
        || $base == 'PacBasin' \
        || $base == 'Pfzbnds' \
        || $base == 'Rfcbnds' \
+       || $base == 'Sig_high' \
        || $base == 'SPC_outlook_area' \
+       || $base == 'Ssa_bnd' \
        || $base == 'Statebnds' \
+       || $base == 'Tpcbounds' \
        || $base == 'Tzbnds' \
+       || $base == 'Ua_bnd' \
        || $base == 'Us_ak' \
+       || $base == 'Vaacarbnds' \
        ]]
     then
         SIMPLEV='0.064,0.016,0.004,0.001'
-        ${PGHOME}/importNcepShapeFile.sh $shp bounds $base "$SIMPLEV" $PGUSER $PGPORT $1 $LOGFILE 2>&1
+        ${PGHOME}/importNcepShapeFile.sh $shp bounds $base "$SIMPLEV" $PGUSER $PGPORT $1 $LOGFILE
     fi
     
 done

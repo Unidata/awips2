@@ -37,19 +37,18 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
  * 
  * SOFTWARE HISTORY
  * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 31, 2013            bkowal     Initial creation
- * Feb 14, 2013 1614       bsteffen    Refactor data access framework to use
- *                                     single request.
- * Feb 19, 2013 1552       mpduff     Handle empty legend text.
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jan 31, 2013           bkowal    Initial creation
+ * Feb 14, 2013  1614     bsteffen  Refactor data access framework to use single
+ *                                  request.
+ * Feb 19, 2013  1552     mpduff    Handle empty legend text.
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author bkowal
- * @version 1.0
  */
-
 public abstract class AbstractDataAccessResource<T extends AbstractDataAccessResourceData<?>>
         extends AbstractVizResource<T, MapDescriptor> {
 
@@ -69,18 +68,14 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
      */
     protected AbstractDataAccessResource(T resourceData,
             LoadProperties loadProperties, String genericLegendText) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties,
+                resourceData.getDataTimes() == null);
         this.genericLegendText = genericLegendText;
-        if (resourceData.getDataTimes() == null) {
-            this.dataTimes = TIME_AGNOSTIC;
-        } else {
-            this.dataTimes = Arrays.asList(resourceData.getDataTimes());
+        if (!this.isTimeAgnostic()) {
+            this.dataTimes.addAll(Arrays.asList(resourceData.getDataTimes()));
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         DataTime[] timesToLoad = descriptor.getFramesInfo().getTimeMap()
@@ -96,20 +91,14 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void remove(DataTime dataTime) {
-        ;// for now never remove anything from dataTimes since there are no
-         // updates on redoTimeMatching
+        /*
+         * for now never remove anything from dataTimes since there are no
+         * updates on redoTimeMatching
+         */
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getName()
-     */
     @Override
     public String getName() {
         return buildLegendText(genericLegendText);
@@ -143,8 +132,8 @@ public abstract class AbstractDataAccessResource<T extends AbstractDataAccessRes
         if (genericLegendText != null) {
             stringBuilder.append(genericLegendText);
         }
-        stringBuilder.append(this.padWithSeparator(this
-                .buildLegendTextInternal()));
+        stringBuilder
+                .append(this.padWithSeparator(this.buildLegendTextInternal()));
         return stringBuilder.toString();
     }
 

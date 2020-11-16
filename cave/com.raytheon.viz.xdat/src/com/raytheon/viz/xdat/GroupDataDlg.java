@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.xdat;
 
-import java.io.File;
-import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -35,7 +33,7 @@ import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Shell;
 
-import com.raytheon.uf.common.ohd.AppsDefaults;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
 
 /**
@@ -48,6 +46,9 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10 Nov 2008             lvenable    Initial creation.
  * 10 Feb 2009             wkwock      Added functions.
  * 31 May 2015  4501       skorolev    Got rid of Vector.
+ * 13 Dec 2017  6778       mduff       Fixed the output of the group data.
+ * 12 Mar 2018  DCS18260   astrakovsky Moved retrieveAndDisplayGroupData and formatGroupData
+ *                                     methods to XdatDlg to avoid repeating code.
  * 
  * </pre>
  * 
@@ -57,6 +58,13 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  */
 
 public class GroupDataDlg extends CaveSWTDialog {
+    private static final String ID_DES_FORMAT = "\t\t\t %-10S  %S";
+
+    private static final String DATA_LINE_FORMAT = "%-9S  %2S  %4S %2S  %1S   %19S   %12S %6S   %7S";
+
+    private static final String HEADER_LINE = "  ID       PE  DUR  TS  E       OBSTIME               PRODUCT   VALUE    CHANGE";
+
+    private static final String DASHED_LINE = "-------------------------------------------------------------------------------";
 
     /**
      * Control font.
@@ -67,11 +75,6 @@ public class GroupDataDlg extends CaveSWTDialog {
      * Group list control.
      */
     private List groupList;
-
-    /**
-     * Database manager class.
-     */
-    private XdatDB databaseMgr;
 
     /**
      * Callback interface used to display the data on the screen.
@@ -88,12 +91,10 @@ public class GroupDataDlg extends CaveSWTDialog {
      * @param displayCB
      *            Display callback interface.
      */
-    public GroupDataDlg(Shell parentShell, XdatDB database,
-            ITextDisplay displayCB) {
+    public GroupDataDlg(Shell parentShell, ITextDisplay displayCB) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE);
         setText("Group Data");
 
-        this.databaseMgr = database;
         this.displayCB = displayCB;
     }
 
@@ -123,7 +124,7 @@ public class GroupDataDlg extends CaveSWTDialog {
         createCloseButton();
 
         ReadGroupList readgroups = new ReadGroupList();
-        ArrayList<String> groupNamesList = readgroups.getGroups();
+        java.util.List<String> groupNamesList = readgroups.getGroups();
         for (int i = 0; i < groupNamesList.size(); i++) {
             groupList.add(groupNamesList.get(i));
         }
@@ -145,7 +146,7 @@ public class GroupDataDlg extends CaveSWTDialog {
         groupList.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                retrieveAndDisplayGroupData();
+                displayCB.retrieveAndDisplayGroupData(groupList.getItem(groupList.getSelectionIndex()));
             }
         });
     }
@@ -167,88 +168,9 @@ public class GroupDataDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
 
-    /**
-     * Retrieve and display the group data.
-     */
-    private void retrieveAndDisplayGroupData() {
-        String selectedGroup = groupList.getItem(groupList.getSelectionIndex());
-
-        String groupsDir = AppsDefaults.getInstance().getToken(
-                "xdat_groups_dir");
-
-        File file = new File(groupsDir + File.separator + selectedGroup);
-
-        ReadIDsList IDsList = new ReadIDsList(file);
-        ArrayList<String[]> idList = IDsList.getIDsList();
-
-        StringBuilder strBld = new StringBuilder();
-        for (int i = 0; i < idList.size(); i++) {
-            java.util.List<String[]> results = databaseMgr.getGroupData(
-                    idList.get(i), displayCB.getStartDate(),
-                    displayCB.getEndDate());
-            if (results == null) {
-                return;
-            }
-
-            // Format the group data and display the data on the screen.
-            strBld.append(formatGroupData(results));
-            strBld.append("\n\n");
-        }
-        displayCB.setDisplayText(strBld.toString());
-    }
-
-    /**
-     * Format the group data.
-     * 
-     * @param results
-     *            Array of data to be formatted for the display.
-     * @return StringBuilder class containing the formatted data.
-     */
-    private StringBuilder formatGroupData(java.util.List<String[]> results) {
-
-        StringBuilder strBld = new StringBuilder();
-
-        boolean dataLine = false;
-
-        String idDesFmt = "\t\t\t %-10S  %S";
-
-        String dataLineFmt = "%-9S  %2S  %4S %2S  %1S   %19S   %12S %6S   %7S";
-
-        String hdr = "  ID       PE  DUR  TS  E       OBSTIME               PRODUCT   VALUE    CHANGE";
-        String dashLine = "-------------------------------------------------------------------------------";
-
-        for (String[] rowData : results) {
-
-            if (rowData.length == 2) {
-
-                if (dataLine == true) {
-                    dataLine = false;
-                    strBld.append(hdr).append("\n");
-                }
-
-                strBld.append(String.format(idDesFmt, rowData[0], rowData[1]))
-                        .append("\n\n");
-            } else {
-                if (dataLine == false) {
-                    strBld.append(hdr).append("\n");
-                    strBld.append(dashLine).append("\n");
-                }
-
-                dataLine = true;
-
-                strBld.append(
-                        String.format(dataLineFmt, rowData[0], rowData[1],
-                                rowData[2], rowData[3], rowData[4], rowData[5],
-                                rowData[6], rowData[7], rowData[8])).append(
-                        "\n");
-            }
-        }
-
-        return strBld;
-    }
 }

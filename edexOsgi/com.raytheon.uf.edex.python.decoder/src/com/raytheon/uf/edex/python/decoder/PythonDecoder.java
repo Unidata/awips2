@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -21,11 +21,11 @@ package com.raytheon.uf.edex.python.decoder;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import org.slf4j.Logger;
@@ -35,16 +35,16 @@ import com.raytheon.edex.exception.DecoderException;
 import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.python.PythonScript;
 import com.raytheon.uf.common.time.DataTime;
+import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
+import com.vividsolutions.jts.geom.GeometryFactory;
 
 import jep.JepException;
 import net.sf.cglib.beans.BeanMap;
 
 /**
  * Generic decoder for decoding in python
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
  * Date          Ticket#  Engineer    Description
@@ -54,16 +54,20 @@ import net.sf.cglib.beans.BeanMap;
  * Aug 30, 2013  2298     rjpeter     Make getPluginName abstract
  * Oct 03, 2013  2402     bsteffen    Make PythonDecoder more extendable.
  * Nov 21, 2016  5959     njensen     Cleanup
- * 
+ * Nov 08, 2017  6509     dgilling    Better support for RiverPro products,
+ *                                    improve error handling.
+ *
  * </pre>
- * 
+ *
  * @author njensen
  */
 
 public class PythonDecoder {
-    
+
     protected static final Logger logger = LoggerFactory
             .getLogger(PythonDecoder.class);
+
+    private static final String MISSING_LAT_LON = "Missing";
 
     private static Map<Long, PythonScript> cachedInterpreters = new HashMap<>();
 
@@ -109,7 +113,7 @@ public class PythonDecoder {
 
             decodedObjects = asPluginDataObjects(result);
         } catch (JepException e) {
-            throw new DecoderException(e.getMessage());
+            throw new DecoderException(e.getMessage(), e);
         } catch (ClassNotFoundException e) {
             throw new DecoderException("Unable to find record class"
                     + recordClass, e);
@@ -129,7 +133,7 @@ public class PythonDecoder {
 
     /**
      * Convert decoder result to a list of PluginDataObjects.
-     * 
+     *
      * @param result
      *            A list of PluginDataObjects, or a List of Maps
      * @return The input list converted to a list of PluginDataObjects
@@ -156,8 +160,9 @@ public class PythonDecoder {
                     record = (PluginDataObject) recordClass.newInstance();
                     bm.setBean(record);
                     try {
-                        for (String key : map.keySet()) {
-                            bm.put(key, transformValue(key, map.get(key), bm));
+                        for (Entry<String, Object> entry : map.entrySet()) {
+                            bm.put(entry.getKey(), transformValue(
+                                    entry.getKey(), entry.getValue(), bm));
                         }
                         decodedObjects.add((PluginDataObject) bm.getBean());
                     } catch (Exception e) {
@@ -195,47 +200,59 @@ public class PythonDecoder {
     /**
      * This method creates a Geometry object for storage in the database which
      * defines the polygon represented by a warning.
-     * 
+     *
      * @param tempPoly
      * @return
      */
     private Geometry buildGeometry(String tempPoly) {
-        StringBuffer buf = new StringBuffer();
-        StringBuffer tempbuf = new StringBuffer();
-        StringBuffer firstpt = new StringBuffer();
-        Geometry geo = null;
-        try {
-            List<String> coords = Arrays.asList(tempPoly.split("[\\r\\n ]+"));
+        tempPoly = tempPoly.trim();
 
-            buf.append("POLYGON((");
-
-            int counter = 0;
-            for (String coord : coords) {
-                counter++;
-                if ((counter % 2) == 0) {
-                    buf.append((Double.parseDouble(coord) / -100) + " "
-                            + tempbuf.toString() + ", ");
-                    if (counter == 2) {
-                        firstpt.append((Double.parseDouble(coord) / -100) + " "
-                                + tempbuf.toString() + ", ");
-                    }
-                    tempbuf.delete(0, tempbuf.length());
-                } else {
-                    tempbuf.append(Double.parseDouble(coord) / 100);
-                }
-            }
-            if (!buf.toString().endsWith(firstpt.toString())) {
-                buf.append(firstpt.toString());
-            }
-            buf.replace(buf.length() - 2, buf.length(), "))");
-
-            geo = new WKTReader().read(buf.toString());
-            // geo = PGgeometry.geomFromString(buf.toString());
-        } catch (ParseException e) {
-            logger.error("Could not build geometry", e);
+        /*
+         * Certain RiverPro-issued products do not contain a valid polygon in
+         * its LAT...LON line. They use the word "Missing" instead, so we'll
+         * just give the record a null Geometry to match.
+         */
+        if (MISSING_LAT_LON.equalsIgnoreCase(tempPoly)) {
+            return null;
         }
 
-        return geo;
+        String[] coords = tempPoly.split("[\\r\\n ]+");
+        if ((coords.length % 2) != 0) {
+            logger.error("Polygon string [" + tempPoly
+                    + "] must contain an even number of coordinates.");
+            return null;
+        } else if (coords.length < 6) {
+            logger.error("Polygon string [" + tempPoly
+                    + "] must have at least 3 coordinate pairs to make a complete polygon.");
+            return null;
+        }
+
+        List<Coordinate> latLonPairs = new ArrayList<>((coords.length / 2) + 1);
+        try {
+            for (int i = 0; i < coords.length; i += 2) {
+                double lat = Double.valueOf(coords[i]) / 100;
+                double lon = Double.valueOf(coords[i + 1]) / -100;
+                latLonPairs.add(new Coordinate(lon, lat));
+            }
+        } catch (NumberFormatException e) {
+            logger.error("Could not parse polygon string from decoder ["
+                    + tempPoly + "]", e);
+            return null;
+        }
+
+        if (!latLonPairs.get(0)
+                .equals2D(latLonPairs.get(latLonPairs.size() - 1))) {
+            latLonPairs.add(latLonPairs.get(0));
+        }
+        try {
+            return new GeometryFactory()
+                    .createPolygon(latLonPairs.toArray(new Coordinate[0]));
+        } catch (IllegalArgumentException e) {
+            logger.error("Could not build valid polygon from string ["
+                    + tempPoly + "].", e);
+        }
+
+        return null;
     }
 
     public String getPluginName() {

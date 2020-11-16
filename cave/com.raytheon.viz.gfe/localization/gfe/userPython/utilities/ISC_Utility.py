@@ -34,6 +34,8 @@
 #   which individual pairs violate their particular threshold.
 #
 # Author: barker
+#  2017-12-13 - dgilling - fix direction checking in _checkGridBorders. Fixes
+#               Show_ISC_Info tool.
 #  2008-11-19 - Barker - Version 3.05.  Added code to check for 'office type'
 #               of editAreas, so that it checks only ISC_xxxx areas for wfos -
 #               not rfcs.  Also added a check for ISC_xxxx editAreas without
@@ -53,6 +55,8 @@
 ##
 # This is a base file that is not intended to be overridden.
 ##
+
+from __future__ import print_function
 
 import numpy
 import SmartScript
@@ -240,9 +244,7 @@ class ISC_Utility(SmartScript.SmartScript):
         #
         eanames=self.editAreaList()
         
-        eaTime = time.time()
         for eaname in eanames:
-            iterationTime = time.time()
             if (len(eaname)==7)and(eaname[0:4]=="ISC_")and(eaname[4:]!=homeSite):
                 siteName=eaname[4:]
                 sType=self.officeType(siteName)
@@ -284,8 +286,8 @@ class ISC_Utility(SmartScript.SmartScript):
     #
     def _getCachedPairs(self, name, category, timeLimit):
           try:
-              object = self.getObject(name+"_"+self._dbss.getSiteID(), category)
-              pairInfo, timeWritten, geoInfo = object
+              cachedObject = self.getObject(name+"_"+self._dbss.getSiteID(), category)
+              pairInfo, timeWritten, geoInfo = cachedObject
               if timeLimit != 0 and time.time() - timeWritten > timeLimit:
                   return None        #too old
 
@@ -302,9 +304,8 @@ class ISC_Utility(SmartScript.SmartScript):
     #                grabbed quickly later without re-calculating
     #
     def _cachePairs(self, name, pairInfo, category):
-          #geo = self._dbss.getParmManager().compositeGridLocation()
-          object = pairInfo, time.time(), self._dbss.getSiteID()
-          self.saveObject(name+"_"+self._dbss.getSiteID(), object, category)
+          objectToSave = pairInfo, time.time(), self._dbss.getSiteID()
+          self.saveObject(name+"_"+self._dbss.getSiteID(), objectToSave, category)
     #=================================================================
     #  _getLandEditArea - get Land editArea grid, calculating from
     #                     cwa edit areas if not specified via
@@ -462,7 +463,7 @@ class ISC_Utility(SmartScript.SmartScript):
         totalwarning=0
         for (pname,grid,condgrid) in gridList:
             if self._debug>=10:
-                print "checking %s grid"%pname
+                print("checking {!s} grid".format(pname))
             if listing==1:
                 self.list=self.list+"For %s:\n"%pname
             (numchecked,violate,warning)=self._checkAllBorders(pname,grid,condgrid,bits,listing=listing)
@@ -496,7 +497,7 @@ class ISC_Utility(SmartScript.SmartScript):
         #
         thresholdInfo=self._getThresholdInfo(parmName)
         if self._debug>=10:
-            print "thresholdInfo=",thresholdInfo
+            print("thresholdInfo=", thresholdInfo)
         (thresholdType,thresholdValues,conditions,dirflag)=thresholdInfo
         #
         #  Loop over each neighbors border
@@ -506,18 +507,18 @@ class ISC_Utility(SmartScript.SmartScript):
         totalchecks=0
         for (label,pairList) in self.pairInfo:
             if self._debug>=5:
-                print "Checking borders with %s"%label
+                print("Checking borders with {!s}".format(label))
             results=self._checkOneBorder(grid,condgrid,bits,pairList,thresholdInfo)
             (returnvalue,totalnum,numchecked,numviolate,
              avgbias,avgdiff,avgthresh)=results
             if self._debug>=5:
-                print "  totalpoints  :%d"%totalnum
-                print "  numberchecked:%d"%numchecked
-                print "  numviolate   :%d"%numviolate
+                print("  totalpoints  :", totalnum)
+                print("  numberchecked:", numchecked)
+                print("  numviolate   :", numviolate)
                 if (numchecked>0):
-                    print "  bias         :%f"%(avgbias)
-                    print "  diff         :%f"%(avgdiff)
-                    print "  threshold    :%f"%(avgthresh)
+                    print("  bias         :", avgbias)
+                    print("  diff         :", avgdiff)
+                    print("  threshold    :", avgthresh)
             if listing==1:
                 self.list=self.list+"  Avg Diff for %s is %7.2f (limit %7.2f) [%4d pairs - %4d failed] - "%(label,avgdiff,avgthresh,numchecked,numviolate)
                 if avgdiff>avgthresh:
@@ -534,33 +535,35 @@ class ISC_Utility(SmartScript.SmartScript):
             if returnvalue==2:
                 violate=violate+1
         return (numchecked,violate,warning)
+
     #=================================================================
     #  _meetCondiditions - returns 1 if conditions for checking against
     #                      the threshold are met - or 0 if the conditions
     #                      are not met.
     #
-    def _meetConditions(self, conditions, x1,y1,x2,y2,condgrid):
-        (conditionType,conditionValue,bothFlag)=conditions
-        if conditionType=="none":
+    def _meetConditions(self, conditions, x1, y1, x2, y2, condgrid):
+        (conditionType, conditionValue, bothFlag) = conditions
+        if "none" == conditionType:
             return 1
-        value1=condgrid[y1,x1]
-        value2=condgrid[y2,x2]
-        if conditionType=="greater":
-            cond1=(value1>conditionValue)
-            cond2=(value2>conditionValue)
-        elif conditionType=="greater_equal":
-            cond1=(value1>=conditionValue)
-            cond2=(value2>=conditionValue)
-        elif conditionType=="less":
-            cond1=(value1<conditionValue)
-            cond2=(value2<conditionValue)
-        elif conditionType=="less_equal":
-            cond1=(value1<=conditionValue)
-            cond1=(value2<=conditionValue)
-        if bothFlag==1:
+        value1 = condgrid[y1,x1]
+        value2 = condgrid[y2,x2]
+        if "greater" == conditionType:
+            cond1 = (value1>conditionValue)
+            cond2 = (value2>conditionValue)
+        elif "greater_equal" == conditionType:
+            cond1 = (value1>=conditionValue)
+            cond2 = (value2>=conditionValue)
+        elif "less" == conditionType:
+            cond1 = (value1<conditionValue)
+            cond2 = (value2<conditionValue)
+        elif "less_equal" == conditionType:
+            cond1 = (value1<=conditionValue)
+            cond2 = (value2<=conditionValue)
+        if bothFlag:
             return (cond1 and cond2)
         else:
             return (cond1 or cond2)
+
     #=================================================================
     #  _getDiffGrid - check Borders for a single grid - and return
     #                 a grid with the max difference between the
@@ -626,18 +629,18 @@ class ISC_Utility(SmartScript.SmartScript):
         #
         thresholdInfo=self._getThresholdInfo(checkName)
         if self._debug>=10:
-            print "thresholdInfo=",thresholdInfo
+            print("thresholdInfo=", thresholdInfo)
         (thresholdType,thresholdValues,conditions,dirflag)=thresholdInfo
         #
         #  Loop over each neighbors border
         #
         for (label,pairList) in self.pairInfo:
             if self._debug>=5:
-                print "Checking borders with %s"%label
+                print("Checking borders with {!s}", label)
             for pair in pairList:
                 (x1,y1,x2,y2,topodiff,coast)=pair
                 if self._debug>=10:
-                    print "  point %3d,%3d-->%3d,%3d"%(x1,y1,x2,y2)
+                    print("  point {:3d},{:3d}-->{:3d},{:3d}".format(x1, y1, x2, y2))
                 #
                 #  get values across the border
                 #
@@ -679,7 +682,7 @@ class ISC_Utility(SmartScript.SmartScript):
                 else:
                     itPasses=0
                 if self._debug>=10:
-                    print "  %f %f diff:%f threshold:%f itPasses:%1d"%(value1,value2,diff,thresh,itPasses)
+                    print("  {:f} {:f} diff:{:f} threshold:{:f} itPasses:{:1d}".format(value1, value2, diff, thresh, itPasses))
                 #
                 #  If too big a topodiff - or a coast - then it passes anyway
                 #
@@ -751,13 +754,13 @@ class ISC_Utility(SmartScript.SmartScript):
         for pair in pairList:
             (x1,y1,x2,y2,topodiff,coast)=pair
             if self._debug>=10:
-                print "  point %3d,%3d-->%3d,%3d"%(x1,y1,x2,y2)
+                print("  point {:3d},{:3d}-->{:3d},{:3d}".format(x1, y1, x2, y2))
             #
             #  no tests if too big of topodiff, or if a coastline pair
             #
             if ((topodiff>self.MAXTOPODIFF) or (coast==1)):
                 if self._debug>=10:
-                    print "    skipped because of elevation or coastline"
+                    print("    skipped because of elevation or coastline")
                 continue
             #
             #  no tests if bits of outside point indicate it is NOT
@@ -765,7 +768,7 @@ class ISC_Utility(SmartScript.SmartScript):
             #
             if (bits[y2,x2]<0.5):
                 if self._debug>=10:
-                    print "    skipped because ISC data not available"
+                    print("    skipped because ISC data not available")
                 continue
             #
             #  get values across the border
@@ -777,7 +780,7 @@ class ISC_Utility(SmartScript.SmartScript):
             #
             if (not self._meetConditions(conditions,x1,y1,x2,y2,condgrid)):
                 if self._debug>=10:
-                    print "    skipped because %f and %f did not meet the conditions:%s"%(value1,value2,conditions)
+                    print("    skipped because {:f} and {:f} did not meet the conditions:{!s}".format(value1, value2, conditions))
                 continue
             numchecked=numchecked+1
             #
@@ -823,7 +826,7 @@ class ISC_Utility(SmartScript.SmartScript):
                 itPasses=0
                 numviolate=numviolate+1
             if self._debug>=10:
-                print "  %f %f diff:%f threshold:%f itPasses:%1d"%(value1,value2,diff,thresh,itPasses)
+                print("  {:f} {:f} diff:{:f} threshold:{:f} itPasses:{:1d}".format(value1, value2, diff, thresh, itPasses))
         #
         #  Calculate average bias, average abs difference, average threshold
         #
@@ -892,9 +895,7 @@ class ISC_Utility(SmartScript.SmartScript):
            return None
         for gridInfo in gridInfoList:
            wxType=gridInfo.type()
-           rateParm=gridInfo.rateParm()
            minlimit=gridInfo.minLimit()
-           maxlimit=gridInfo.maxLimit()
         #
         #  Make sure ISC grids exist for this parm
         #
@@ -913,14 +914,14 @@ class ISC_Utility(SmartScript.SmartScript):
             tr=info.gridTime()
             alltrs.append(tr)
         #
-        #  setup sum/counter for average
+        #  setup sumGrid/counter for average
         #
         if ((parmName=="MaxT")or(parmName=="PoP")):
-            sum=self.newGrid(-150.0)
+            sumGrid=self.newGrid(-150.0)
         elif (parmName=="MinT"):
-            sum=self.newGrid(150.0)
+            sumGrid=self.newGrid(150.0)
         else:
-            sum=self.empty()
+            sumGrid=self.empty()
             if GridType.VECTOR.equals(wxType):
                 sumv=self.empty()
         cnt = self.empty()
@@ -930,7 +931,7 @@ class ISC_Utility(SmartScript.SmartScript):
         #
         for tr in alltrs:
             comp=self.getComposite(parmName,tr)
-            if comp[0].shape!=sum.shape:
+            if comp[0].shape!=sumGrid.shape:
                 continue
             #
             #  Add to sums, or min/max
@@ -939,19 +940,19 @@ class ISC_Utility(SmartScript.SmartScript):
                 bits,isc=comp
                 #isc=self.getGrids("ISC",parmName,"SFC",tr)
                 if parmName in ["MaxT", "PoP"]:
-                    sum[bits] = numpy.maximum(isc,sum)[bits]
+                    sumGrid[bits] = numpy.maximum(isc,sumGrid)[bits]
                     cnt[bits] = 1
                 elif parmName=="MinT":
-                    sum[bits] = numpy.minimum(isc,sum)[bits]
+                    sumGrid[bits] = numpy.minimum(isc,sumGrid)[bits]
                     cnt[bits] = 1
                 else:
-                    sum[bits] += isc[bits]
+                    sumGrid[bits] += isc[bits]
                     cnt[bits] += 1
             if GridType.VECTOR.equals(wxType):
                 bits,mag,direc = comp
                 #(mag,direc)=self.getGrids("ISC",parmName,"SFC",tr)
                 (u,v)=self.MagDirToUV(mag,direc)
-                sum[bits] += u[bits]
+                sumGrid[bits] += u[bits]
                 sumv[bits] += v[bits]
                 cnt[bits] += 1
             if GridType.WEATHER.equals(wxType):
@@ -967,21 +968,21 @@ class ISC_Utility(SmartScript.SmartScript):
         if GridType.SCALAR.equals(wxType) or GridType.VECTOR.equals(wxType):
             cnt[numpy.less(cnt, 1)] = 1
             if GridType.VECTOR.equals(wxType):
-                sum /= cnt
-                sum[noISC]= minlimit
+                sumGrid /= cnt
+                sumGrid[noISC]= minlimit
                 
                 sumv /= cnt
                 sumv[noISC] = minlimit
 
-                (mag,direc)=self.UVToMagDir(sum,sumv)
+                (mag,direc)=self.UVToMagDir(sumGrid,sumv)
                 (baseMag,baseDir)=baseGrid
                 mag[noISC] = baseMag[noISC]
                 direc[noISC] = baseDir[noISC]
                 return bits,mag,direc
             else:
-                sum /= cnt
-                sum[noISC] = baseGrid[noISC]
-                return bits,sum
+                sumGrid /= cnt
+                sumGrid[noISC] = baseGrid[noISC]
+                return bits,sumGrid
         else:
             return bits,keys,strings
     #=================================================================
@@ -1017,7 +1018,6 @@ class ISC_Utility(SmartScript.SmartScript):
         parmList = self._dbss.getParmManager().getDisplayedParms()
         elementList = []
         for parm in parmList:
-            name = parm.expressionName()
             model = parm.getParmID().getDbId().getModelName()
             if model == mutableModel:
                 wxType = parm.getGridInfo().getGridType()
@@ -1066,14 +1066,14 @@ class ISC_Utility(SmartScript.SmartScript):
 
     def _getCachedGrid(self, name, category, timeLimit):
         try:
-            object = self.getObject(name, category)
-            grid, timeWritten, geoInfo = object
+            cachedObject = self.getObject(name, category)
+            grid, timeWritten, geoInfo = cachedObject
             if timeLimit != 0 and time.time() - timeWritten > timeLimit:
                 return None        #too old
             
             # validate geoinfo
             geo = self._dbss.getParmManager().compositeGridLocation()
-            if geoInfo != `geo`:
+            if geoInfo != repr(geo):
                 return None        #different geoinfo
             return grid
         except:
@@ -1081,8 +1081,8 @@ class ISC_Utility(SmartScript.SmartScript):
 
     def _cacheGrid(self, name, grid, category):
           geo = self._dbss.getParmManager().compositeGridLocation()
-          object = grid, time.time(), `geo`
-          self.saveObject(name, object, category)
+          objectToSave = grid, time.time(), repr(geo)
+          self.saveObject(name, objectToSave, category)
 
     #========================================================================
     #

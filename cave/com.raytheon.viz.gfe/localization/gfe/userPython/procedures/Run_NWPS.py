@@ -256,11 +256,15 @@ class Procedure (SmartScript.SmartScript):
                     f.write(inp_args) 
                 os.chmod('/tmp/nwps/'+GFEDomainname+'/inp_args',0o666)
                                   
-                os.system('mkdir -p /awips2/GFESuite/nwps/'+GFEDomainname+'_var')
-                os.system('chmod 775 /awips2/GFESuite/nwps/'+GFEDomainname+'_var')              
-                os.system('cp -rpq /tmp/nwps/'+GFEDomainname+'/inp_args /awips2/GFESuite/nwps/'+GFEDomainname+'_var/')   
+                os.system('ssh -q px2f mkdir -p /awips2/GFESuite/nwps/'+GFEDomainname+'_var')
+                os.system('ssh -q px2f chmod 775 /awips2/GFESuite/nwps/'+GFEDomainname+'_var')              
+                os.system('scp -rpq /tmp/nwps/'+GFEDomainname+'/inp_args px2f:/awips2/GFESuite/nwps/'+GFEDomainname+'_var/')   
                 if cron:
-                    os.system('/awips2/GFESuite/nwps/bin/runManualNWPS_OutsideAWIPS.sh '+GFEDomainname)                   
+                    os.system('ssh -q px2f /awips2/GFESuite/nwps/bin/runManualNWPS_OutsideAWIPS.sh '+GFEDomainname)                   
                 else:
-                    os.system('/awips2/GFESuite/nwps/bin/runManualNWPS_OutsideAWIPS.sh '+GFEDomainname+' &')
+                    os.system('nohup xterm -iconic -e ssh -q px2f /awips2/GFESuite/nwps/bin/runManualNWPS_OutsideAWIPS.sh '+GFEDomainname+' &')
+                    #ORIG#os.system('xterm -e ssh -q px2f /awips2/GFESuite/nwps/bin/runManualNWPS_OutsideAWIPS.sh '+GFEDomainname)
                 shutil.rmtree('/tmp/nwps/'+GFEDomainname)    
+
+# If you set up the ldad NWPS WCOSS Notification scripts from Paul Stanko, uncomment this line. Consult the 18.1.1 post install notes.  
+#                 os.system('ssh ldad@ls1 /ldad/bin/NWPSmessage/NWPSmessage.sh '+modelstarttime+' '+GFEDomainname+' &') # attempt to call NWPSmessage script on LDAD

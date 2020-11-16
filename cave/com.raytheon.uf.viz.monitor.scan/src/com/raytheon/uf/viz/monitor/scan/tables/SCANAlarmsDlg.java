@@ -47,10 +47,10 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Dec 2, 2010             mnash       Initial creation
- * 
- * 03/15/2012	13939	   Mike Duff   For a SCAN Alarms issue
- * 24 Jul 2013 #2143       skorolev    Changes for non-blocking dialog.
+ * Dec 02, 2010            mnash       Initial creation
+ * Mar 15, 2012 13939      mduff       For a SCAN Alarms issue
+ * Jul 24, 2013  2143      skorolev    Changes for non-blocking dialog.
+ * Jan 29, 2018  6665      mduff       Select the alarmed row that is being dismissed.
  * 
  * </pre>
  * 
@@ -100,16 +100,14 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
      * 
      * @param parentShell
      */
-    protected SCANAlarmsDlg(Shell parentShell, ScanTables scanTable, String site) {
+    protected SCANAlarmsDlg(Shell parentShell, ScanTables scanTable,
+            String site) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.DO_NOT_BLOCK);
         this.site = site;
         type = scanTable;
         mgr = SCANAlarmAlertManager.getInstance(site);
     }
 
-    /* (non-Javadoc)
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org.eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         if (type == ScanTables.CELL) {
@@ -157,7 +155,7 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
         btnComp.setLayoutData(gd);
 
         for (final AlertedAlarms alarm : mgr.getAlertedAlarms(site, type)) {
-            if (alarm.cleared == false) {
+            if (!alarm.cleared) {
                 gd = new GridData(buttonWidth, SWT.DEFAULT);
                 final Button btn = new Button(btnComp, SWT.PUSH);
                 btn.setText(alarm.ident + " --> " + alarm.colName + " "
@@ -165,33 +163,35 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
                 btn.setData("ident", alarm.ident);
                 btn.setData("attr", alarm.colName);
                 btn.setLayoutData(gd);
-                btn.setBackground(Display.getDefault()
-                        .getSystemColor(SWT.COLOR_RED));
+                btn.setBackground(
+                        Display.getDefault().getSystemColor(SWT.COLOR_RED));
                 btn.addSelectionListener(new SelectionAdapter() {
                     @Override
                     public void widgetSelected(SelectionEvent e) {
                         String ident = btn.getData("ident").toString();
                         String attr = btn.getData("attr").toString();
-                        // get instance of the table dialog to use for the functions
+
+                        // get instance of the table dialog to use
                         AbstractTableDlg tableDlg = ScanMonitor.getInstance()
                                 .getDialog(type, site);
-                        // display the trend graph dialogs
+                        // display the trend graph dialogs and highlight the row
                         if (tableDlg instanceof SCANCellTableDlg) {
                             ((SCANCellTableDlg) tableDlg).getScanTableComp()
                                     .displayTrendGraphDialog(ident, attr);
+                            ((SCANCellTableDlg) tableDlg).getScanTableComp()
+                                    .setTableSelection(ident);
                         } else if (tableDlg instanceof SCANDmdTableDlg) {
                             ((SCANDmdTableDlg) tableDlg).getScanTableComp()
                                     .displayTrendGraphDialog(ident, attr);
                         }
+
                         // recenter the map on the ident
                         tableDlg.fireRecenter(ident, type, site);
-                        // highlight the correct row
-                        // TODO highlight the row 
-                        
+
                         if (tableDlg instanceof SCANDmdTableDlg) {
                             ((SCANDmdTableDlg) tableDlg).alarmSelection(ident);
                         }
-    
+
                         tableDlg.mgr.clearAlarm(site, type, alarm);
                         clearAllBtn.setText("Clear All "
                                 + mgr.getAlertedAlarms(site, type).size()
@@ -232,14 +232,14 @@ public class SCANAlarmsDlg extends CaveSWTDialog {
         gd.widthHint = buttonWidth + 30;
         clearAllBtn = new Button(shell, SWT.PUSH);
         int numAlarms = 0;
-        for (AlertedAlarms alarm: mgr.getAlertedAlarms(site, type)) {
-            if (alarm.cleared == false) {
+        for (AlertedAlarms alarm : mgr.getAlertedAlarms(site, type)) {
+            if (!alarm.cleared) {
                 numAlarms++;
             }
         }
         clearAllBtn.setText("Clear All " + numAlarms + " Alarms");
-        clearAllBtn.setBackground(Display.getDefault().getSystemColor(
-                SWT.COLOR_RED));
+        clearAllBtn.setBackground(
+                Display.getDefault().getSystemColor(SWT.COLOR_RED));
         clearAllBtn.setLayoutData(gd);
         clearAllBtn.addSelectionListener(new SelectionAdapter() {
             @Override

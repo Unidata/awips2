@@ -38,6 +38,7 @@ import com.raytheon.uf.common.hydro.CommonHydroConstants;
  * 14 Sep, 2015 15102       wkwock      Implements preferred order for PE-D-TS-EXT list
  * 26 Oct, 2015 14217       jwu         Removed DAYS_MAX & MAX_TRACES
  * Jun 08, 2016 5571        njensen     Reuse some constants from CommonHydroConstants
+ * Apr 18, 2018 DCS19644    jwu         Add column 'ts' (Type-Source) in locdatalimits.
  * 
  * </pre>
  * 
@@ -123,6 +124,9 @@ public class HydroConstants {
 
     /** String constant ts */
     public static final String TS = "ts";
+
+    /** Default value for string constant ts */
+    public static final String DEFAULT_TS = "NA";
 
     /** String constant value */
     public static final String VALUE = "value";

@@ -22,7 +22,6 @@ package com.raytheon.uf.viz.aviation.advisory.rsc;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,27 +70,30 @@ import com.vividsolutions.jts.geom.Polygon;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 1, 2009            bsteffen     Initial creation
- * Jun 10, 2011 9744      cjeanbap     Added Magnification, Outline, and 
- *                                     Density capability.
- * Jun 13, 2011 9758      cjeanbap     Set colorString of AdvisoryResourceData.
- * Aug 14, 2014 3523      mapeters     Updated deprecated {@link DrawableString#textStyle} 
- *                                     assignments.
- * Jul 7, 2015  10352     byin         Added SymbolLoader to plot symbols
- * Nov 05, 2015 5070      randerso     Adjust font sizes for dpi scaling
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Oct 01, 2009           bsteffen  Initial creation
+ * Jun 10, 2011  9744     cjeanbap  Added Magnification, Outline, and Density
+ *                                  capability.
+ * Jun 13, 2011  9758     cjeanbap  Set colorString of AdvisoryResourceData.
+ * Aug 14, 2014  3523     mapeters  Updated deprecated {@link
+ *                                  DrawableString#textStyle} assignments.
+ * Jul 07, 2015  10352    byin      Added SymbolLoader to plot symbols
+ * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
+ * Feb 22, 2018  6629     njensen   Removed special color handling
+ * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-public class AdvisoryResource extends
-        AbstractVizResource<AdvisoryResourceData, MapDescriptor> {
+public class AdvisoryResource
+        extends AbstractVizResource<AdvisoryResourceData, MapDescriptor> {
 
     protected static final String NO_DATA = "No Data Available";
 
-    protected Map<DataTime, Collection<AdvisoryRecord>> records = new HashMap<DataTime, Collection<AdvisoryRecord>>();
+    protected Map<DataTime, Collection<AdvisoryRecord>> records = new HashMap<>();
 
     protected DataTime displayedDataTime;
 
@@ -105,11 +107,13 @@ public class AdvisoryResource extends
 
     private Coordinate nonStandardInspectCoordinate;
 
+    private float magnification;
+
     private SymbolLoader symbolLoader;
 
     protected AdvisoryResource(AdvisoryResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         resourceData.addChangeListener(new IResourceDataChanged() {
             @Override
             public void resourceChanged(ChangeType type, Object object) {
@@ -122,7 +126,6 @@ public class AdvisoryResource extends
                 issueRefresh();
             }
         });
-        this.dataTimes = new ArrayList<DataTime>();
     }
 
     @Override
@@ -136,9 +139,9 @@ public class AdvisoryResource extends
      * @param obj
      */
     protected void addRecord(PluginDataObject obj) {
-        Collection<AdvisoryRecord> parsedRecords = resourceData
-                .getDataAdapter().convertRecord(obj);
-        if (parsedRecords != null && parsedRecords.size() > 0) {
+        Collection<AdvisoryRecord> parsedRecords = resourceData.getDataAdapter()
+                .convertRecord(obj);
+        if (parsedRecords != null && !parsedRecords.isEmpty()) {
             clearShapes();
             DataTime dataTime = obj.getDataTime();
             if (this.resourceData.getBinOffset() != null) {
@@ -148,15 +151,14 @@ public class AdvisoryResource extends
                 // timeInMillis -=
                 // this.resourceData.getBinOffset().virtualOffset * 1000;
                 // dataTime = new DataTime(new Date(timeInMillis));
-                dataTime = this.resourceData.getBinOffset().getNormalizedTime(
-                        dataTime);
+                dataTime = this.resourceData.getBinOffset()
+                        .getNormalizedTime(dataTime);
 
             }
             Collection<AdvisoryRecord> oldParse = records.get(dataTime);
             if (oldParse == null) {
                 dataTimes.add(dataTime);
-                Collections.sort(this.dataTimes);
-                oldParse = new ArrayList<AdvisoryRecord>();
+                oldParse = new ArrayList<>();
                 records.put(dataTime, oldParse);
             }
             oldParse.addAll(parsedRecords);
@@ -193,7 +195,7 @@ public class AdvisoryResource extends
         if (font != null) {
             font.dispose();
         }
-        this.font = target.initializeFont("Monospace", 12, new Style[] {});
+        this.font = target.initializeFont("Monospace", 8, new Style[] {});
         this.symbolLoader = new SymbolLoader();
     }
 
@@ -201,9 +203,6 @@ public class AdvisoryResource extends
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
         RGB color = getCapability(ColorableCapability.class).getColor();
-        String colorString = getCapability(ColorableCapability.class)
-                .getColorAsString();
-        resourceData.setColorString(colorString);
         DataTime curDataTime = paintProps.getDataTime();
         if (curDataTime == null || records.get(curDataTime) == null) {
             this.displayedDataTime = null;
@@ -225,42 +224,40 @@ public class AdvisoryResource extends
             dashedShape = target.createWireframeShape(false, descriptor);
             for (AdvisoryRecord record : records.get(curDataTime)) {
                 if (record.getType() == AdvisoryResourceType.AREA) {
-                    mainShape.addLineSegment(record.getPolygon()
-                            .getCoordinates());
+                    mainShape.addLineSegment(
+                            record.getPolygon().getCoordinates());
                     if (record.getLabel() != null
                             || !record.getLabel().isEmpty()) {
-                        double[] pixelLoc = descriptor
-                                .worldToPixel(new double[] {
-                                        record.getLabelLoc().x,
+                        double[] pixelLoc = descriptor.worldToPixel(
+                                new double[] { record.getLabelLoc().x,
                                         record.getLabelLoc().y });
                         mainShape.addLabel(record.getLabel(), pixelLoc);
                     }
                 } else if (record.getType() == AdvisoryResourceType.LINE) {
                     mainShape.addLineSegment(record.getLine());
-                    dashedShape.addLineSegment(record.getPolygon()
-                            .getCoordinates());
+                    dashedShape.addLineSegment(
+                            record.getPolygon().getCoordinates());
                     if (record.getLabel() != null
                             || !record.getLabel().isEmpty()) {
-                        double[] pixelLoc = descriptor
-                                .worldToPixel(new double[] {
-                                        record.getLabelLoc().x,
+                        double[] pixelLoc = descriptor.worldToPixel(
+                                new double[] { record.getLabelLoc().x,
                                         record.getLabelLoc().y });
                         dashedShape.addLabel(record.getLabel(), pixelLoc);
                     }
                 } else if (record.getType() == AdvisoryResourceType.ISOL) {
-                    dottedShape.addLineSegment(record.getPolygon()
-                            .getCoordinates());
+                    dottedShape.addLineSegment(
+                            record.getPolygon().getCoordinates());
                     if (record.getLabel() != null
                             || !record.getLabel().isEmpty()) {
-                        double[] pixelLoc = descriptor
-                                .worldToPixel(new double[] {
-                                        record.getLabelLoc().x,
+                        double[] pixelLoc = descriptor.worldToPixel(
+                                new double[] { record.getLabelLoc().x,
                                         record.getLabelLoc().y });
                         dottedShape.addLabel(record.getLabel(), pixelLoc);
                     }
                 } else {
                     double[] pixelLoc = descriptor.worldToPixel(new double[] {
                             record.getLabelLoc().x, record.getLabelLoc().y });
+                    font.setMagnification(magnification);
 
                     DrawableString dStrings = new DrawableString(
                             record.getLabel(), color);
@@ -280,9 +277,10 @@ public class AdvisoryResource extends
             dashedShape.clearLabels();
             dottedShape.clearLabels();
 
-            List<DrawableString> strings = new ArrayList<DrawableString>();
+            List<DrawableString> strings = new ArrayList<>();
             for (AdvisoryRecord record : records.get(curDataTime)) {
                 if (record.getType() == AdvisoryResourceType.AREA) {
+                    font.setMagnification(magnification);
                     double[] pixelLoc = descriptor.worldToPixel(new double[] {
                             record.getLabelLoc().x, record.getLabelLoc().y });
                     String[] labels = record.getLabel().split("\n");
@@ -294,17 +292,19 @@ public class AdvisoryResource extends
 
                     if (record.getLabelSymbolId() != 0) {
                         IImage symbolImg = symbolLoader.getImage(target, color,
-                                (char) record.getLabelSymbolId());
+                                record.getLabelSymbolId());
 
                         Coordinate ul = new Coordinate(x, y);
                         Coordinate ur = new Coordinate(x + 12 * scale[0], y);
                         Coordinate lr = new Coordinate(ur.x, y + 12 * scale[1]);
                         Coordinate ll = new Coordinate(x, lr.y);
-                        PixelCoverage extent = new PixelCoverage(ul, ur, lr, ll);
+                        PixelCoverage extent = new PixelCoverage(ul, ur, lr,
+                                ll);
                         target.drawRaster(symbolImg, extent, paintProps);
                     }
 
-                    DrawableString dStrings = new DrawableString(labels, colors);
+                    DrawableString dStrings = new DrawableString(labels,
+                            colors);
                     dStrings.font = font;
                     dStrings.setCoordinates(pixelLoc[0], pixelLoc[1]);
                     dStrings.addTextStyle(TextStyle.DROP_SHADOW);
@@ -314,6 +314,7 @@ public class AdvisoryResource extends
                 } else if (record.getType() == AdvisoryResourceType.TEXT) {
                     double[] pixelLoc = descriptor.worldToPixel(new double[] {
                             record.getLabelLoc().x, record.getLabelLoc().y });
+                    font.setMagnification(magnification);
 
                     DrawableString dStrings = new DrawableString(
                             record.getLabel(), color);
@@ -339,6 +340,10 @@ public class AdvisoryResource extends
         target.drawWireframeShape(dashedShape, color, lineWidth,
                 LineStyle.DASHED);
 
+        magnification = (float) (1
+                * getCapability(MagnificationCapability.class)
+                        .getMagnification());
+
         // Questionable
         // double density = getCapability(DensityCapability.class).getDensity();
 
@@ -362,16 +367,13 @@ public class AdvisoryResource extends
             if (coords.length < 1) {
                 continue;
             }
-            double[] firstPixel = descriptor.worldToPixel(new double[] {
-                    coords[0].x, coords[0].y });
+            double[] firstPixel = descriptor
+                    .worldToPixel(new double[] { coords[0].x, coords[0].y });
             double dx = firstPixel[0] - nonStandardInspectCoordinate.x;
             double dy = firstPixel[1] - nonStandardInspectCoordinate.y;
             double distance = (dx * dx + dy * dy) / zoomLevel;
             if (distance < 500 && record.getInspectString() != null) {
                 RGB color = getCapability(ColorableCapability.class).getColor();
-                String colorString = getCapability(ColorableCapability.class)
-                        .getColorAsString();
-                resourceData.setColorString(colorString);
                 String[] nonStandardInspectStrings = record.getInspectString()
                         .split("\n");
                 IExtent extent = paintProps.getView().getExtent();
@@ -380,6 +382,7 @@ public class AdvisoryResource extends
                 Arrays.fill(colors, color);
                 double xLoc = extent.getMinX() + (50 * zoomLevel);
                 double yLoc = extent.getMinY() + (100 * zoomLevel);
+                font.setMagnification(magnification);
 
                 DrawableString dStrings = new DrawableString(
                         nonStandardInspectStrings, colors);
@@ -406,8 +409,8 @@ public class AdvisoryResource extends
         }
         try {
             if (resourceData.isEnableNonstandardInspect()) {
-                nonStandardInspectCoordinate = refCoord.asPixel(descriptor
-                        .getGridGeometry());
+                nonStandardInspectCoordinate = refCoord
+                        .asPixel(descriptor.getGridGeometry());
                 return "";
             }
             GeometryFactory factory = new GeometryFactory();
@@ -423,7 +426,8 @@ public class AdvisoryResource extends
                 }
             }
         } catch (Exception e) {
-            throw new VizException("Error inspecting aviation advisory data", e);
+            throw new VizException("Error inspecting aviation advisory data",
+                    e);
         }
         return "";
 

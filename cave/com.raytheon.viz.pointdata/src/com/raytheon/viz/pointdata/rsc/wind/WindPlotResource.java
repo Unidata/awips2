@@ -20,11 +20,9 @@
 package com.raytheon.viz.pointdata.rsc.wind;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -65,16 +63,16 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- -----------------
+ * ------------- -------- --------- -----------------------------------
  * Nov 13, 2015  4903     bsteffen  Initial creation
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-public class WindPlotResource extends
-        AbstractVizResource<WindPlotResourceData, IMapDescriptor> {
+public class WindPlotResource
+        extends AbstractVizResource<WindPlotResourceData, IMapDescriptor> {
 
     private JobPool primaryLoadPool;
 
@@ -86,14 +84,13 @@ public class WindPlotResource extends
 
     protected WindPlotResource(WindPlotResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
     }
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         synchronized (framesLock) {
-            dataTimes = new CopyOnWriteArrayList<>();
-            frames = new HashMap<DataTime, DataFrame>();
+            frames = new HashMap<>();
             primaryLoadPool = new JobPool("Loading Wind Data", 4, false);
             secondaryLoadJob = new SecondaryUpdateJob();
             secondaryLoadJob.setSystem(true);
@@ -139,11 +136,7 @@ public class WindPlotResource extends
             DataFrame frame = frames.get(dataTime);
             if (frame == null) {
                 frame = new DataFrame(dataTime);
-                int index = Collections.binarySearch(dataTimes, dataTime);
-                if (index < 0) {
-                    /* Keep the list sorted. */
-                    dataTimes.add(-1 * index - 1, dataTime);
-                }
+                dataTimes.add(dataTime);
                 frames.put(dataTime, frame);
             }
             return frame;
@@ -175,8 +168,8 @@ public class WindPlotResource extends
             return null;
         }
         try {
-            String text = frame.getRenderable().getText(
-                    coord.asPixel(descriptor.getGridGeometry()));
+            String text = frame.getRenderable()
+                    .getText(coord.asPixel(descriptor.getGridGeometry()));
             if (text == null) {
                 text = "NO DATA";
             }
@@ -221,9 +214,10 @@ public class WindPlotResource extends
                     new RequestConstraint(dataTime.toString()));
         } else {
             TimeRange range = binOffset.getTimeRange(dataTime);
-            constraints.put(PluginDataObject.REFTIME_ID, new RequestConstraint(
-                    new DataTime(range.getStart()).toString(), new DataTime(
-                            range.getEnd()).toString()));
+            constraints.put(PluginDataObject.REFTIME_ID,
+                    new RequestConstraint(
+                            new DataTime(range.getStart()).toString(),
+                            new DataTime(range.getEnd()).toString()));
         }
         PointDataServerRequest request = new PointDataServerRequest();
         request.setRcMap(constraints);
@@ -281,7 +275,6 @@ public class WindPlotResource extends
             }
         }
     }
-
 
     private class DataFrame implements Runnable {
 

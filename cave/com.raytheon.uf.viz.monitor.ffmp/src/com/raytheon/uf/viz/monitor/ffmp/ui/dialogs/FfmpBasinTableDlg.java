@@ -125,33 +125,36 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * Jan 09, 2014  DR16096   gzhang      Fix QPFSCAN not showing M issue for different radar source.
  * Feb 15, 2016  5378      randerso    Fix label spacing in TimeDurScale
  * Jun 27, 2017  DR19210   lshi        Fix UELE occurs sometimes when displaying basin trend plot
+ * Jan 22, 2017  6959      mduff       Prevent the table from resizing on update.
+ * Jun 28, 2018  6796      mduff       Code Cleanup.
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  */
-public class FfmpBasinTableDlg extends CaveSWTDialog implements
-        ITimeDurationAction, IAttributeDisplay, IThreshDisplay,
+public class FfmpBasinTableDlg extends CaveSWTDialog
+        implements ITimeDurationAction, IAttributeDisplay, IThreshDisplay,
         ITableSelection, IMonitorListener, ISourceUpdate {
 
     private final IUFStatusHandler statusHandler = UFStatus
             .getHandler(FfmpBasinTableDlg.class);
 
     /** Performance message prefix */
-    private final String prefix = "FFMP Basin Table:";
+    private static final String prefix = "FFMP Basin Table:";
 
     /** Performance logger */
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
             .getHandler(prefix);
 
-    private final String initialLoadKey = "FFMP Basin Table Initial Load";
+    private static final String INITIAL_LOAD_KEY = "FFMP Basin Table Initial Load";
+
+    private static final String TIME_DURATION_STRING = "Time Duration (hrs.)";
 
     private LoadSaveConfigDlg loadDlg;
 
     private LoadSaveConfigDlg saveDlg;
 
     /** Retrieval queue */
-    private final List<FFMPTableDataLoader> retrievalQueue = new ArrayList<FFMPTableDataLoader>();
+    private final List<FFMPTableDataLoader> retrievalQueue = new ArrayList<>();
 
     private MenuItem linkToFrameMI;
 
@@ -176,14 +179,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private MenuItem basinsInParentMI;
 
-    private MenuItem upDownStreamBasinTraceMI;
-
-    private MenuItem upStreamBasinTraceMI;
-
-    private MenuItem downStreamBasinTraceMI;
-
-    private MenuItem basinTrendMI;
-
     private Button refreshD2DBtn;
 
     private Label validTimeLbl;
@@ -194,23 +189,19 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private Label timeDurLbl;
 
-    private Label dataLoadingLbl;
-
     private TimeDurScale timeDurScale;
 
     private Label groupLbl;
 
-    private final List<MenuItem> cwaMenuItems = new ArrayList<MenuItem>();
+    private final List<MenuItem> cwaMenuItems = new ArrayList<>();
 
-    private final List<MenuItem> layerMenuItems = new ArrayList<MenuItem>();
+    private final List<MenuItem> layerMenuItems = new ArrayList<>();
 
-    private final List<MenuItem> d2dMenuItems = new ArrayList<MenuItem>();
+    private final List<MenuItem> d2dMenuItems = new ArrayList<>();
 
-    private final List<MenuItem> clickMenuItems = new ArrayList<MenuItem>();
+    private final List<MenuItem> clickMenuItems = new ArrayList<>();
 
-    private final List<FFMPListener> ffmpListeners = new ArrayList<FFMPListener>();
-
-    private final String timeDurationStr = "Time Duration (hrs.)";
+    private final List<FFMPListener> ffmpListeners = new ArrayList<>();
 
     private FFMPTableComp ffmpTable;
 
@@ -226,10 +217,10 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private boolean killDialog = false;
 
-    private final List<String> cwas = new ArrayList<String>();
+    private final List<String> cwas = new ArrayList<>();
 
     /** Source menu item list */
-    private final List<MenuItem> sourceMenuItems = new ArrayList<MenuItem>();
+    private final List<MenuItem> sourceMenuItems = new ArrayList<>();
 
     private Date date = null;
 
@@ -254,19 +245,15 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private AttributesDlgData attrData = null;
 
-    Composite dataLoadComp;
-
     private Color refreshColor;
 
     private boolean dialogInitialized = false;
-
-    private Composite tableComp;
 
     private FFMPTableDataLoader dataRetrieveThread = null;
 
     private boolean groupLabelFlag = true;
 
-    private String rowName = "";// DR 13228
+    private String rowName = "";
 
     /**
      * Statistics load event.
@@ -280,12 +267,12 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     public FfmpBasinTableDlg(Shell parent, FFMPTableData tData,
             FFMPResource resource) {
-        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE, CAVE.INDEPENDENT_SHELL
-                | CAVE.DO_NOT_BLOCK);
+        super(parent, SWT.DIALOG_TRIM | SWT.RESIZE,
+                CAVE.INDEPENDENT_SHELL | CAVE.DO_NOT_BLOCK);
 
         String siteName = resource.getSiteKey();
         if (resource.getPrimarySource().startsWith("B")
-                && siteName.equals("hpe")) {
+                && "hpe".equals(siteName)) {
             siteName = "Bias " + siteName;
 
         }
@@ -342,13 +329,13 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         loadEvent = new LoadEvent();
         loadEvent.setType("FFMP Initial Load");
         loadEvent.setMessage("FFMP Basin Table Initial Load");
-        StatsCollector.start(initialLoadKey, loadEvent);
+        StatsCollector.start(INITIAL_LOAD_KEY, loadEvent);
         perfLog.log("Launched");
 
         shell.addShellListener(new ShellAdapter() {
             @Override
             public void shellClosed(ShellEvent e) {
-                if (killDialog == false) {
+                if (!killDialog) {
                     e.doit = false;
                     displayCloseInstructions();
                 }
@@ -468,8 +455,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         linkToFrameMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ffmpConfig.getFFMPConfigData().setLinkToFrame(
-                        linkToFrameMI.getSelection());
+                ffmpConfig.getFFMPConfigData()
+                        .setLinkToFrame(linkToFrameMI.getSelection());
                 fireConfigUpdateEvent();
             }
         });
@@ -479,8 +466,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         worstCaseMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ffmpConfig.getFFMPConfigData().setWorstCase(
-                        worstCaseMI.getSelection());
+                ffmpConfig.getFFMPConfigData()
+                        .setWorstCase(worstCaseMI.getSelection());
                 updateD2DRefresh();
                 fireWorstCaseEvent(worstCaseMI.getSelection());
             }
@@ -491,8 +478,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         autoRefreshMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                ffmpConfig.getFFMPConfigData().setAutoRefresh(
-                        autoRefreshMI.getSelection());
+                ffmpConfig.getFFMPConfigData()
+                        .setAutoRefresh(autoRefreshMI.getSelection());
                 fireAutoRefreshEvent(autoRefreshMI.getSelection());
             }
         });
@@ -520,12 +507,12 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         qpeMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (qpeMI.getSelection() == true) {
+                if (qpeMI.getSelection()) {
                     // If 0 hrs is not selected then update the display
                     if (timeDurScale.getSelectedHoursValue() != 0) {
                         updateD2DRefresh();
-                        ffmpConfig.getFFMPConfigData().setD2dType(
-                                FFMPRecord.FIELDS.QPE.name());
+                        ffmpConfig.getFFMPConfigData()
+                                .setD2dType(FFMPRecord.FIELDS.QPE.name());
                         fireFieldChangedEvent(FFMPRecord.FIELDS.QPE, false);
                         clearMenuItems(sourceMenuItems);
                     }
@@ -543,19 +530,18 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent event) {
                 // If 0 hrs is not selected then update the display
                 if (timeDurScale.getSelectedHoursValue() != 0) {
-                    if (ratioMI.getSelection() == true) {
+                    if (ratioMI.getSelection()) {
                         updateD2DRefresh();
-                        ffmpConfig.getFFMPConfigData().setD2dType(
-                                FFMPRecord.FIELDS.RATIO.name());
+                        ffmpConfig.getFFMPConfigData()
+                                .setD2dType(FFMPRecord.FIELDS.RATIO.name());
 
                         if (FFMPSourceConfigurationManager.getInstance()
                                 .getSourceByDisplayName(
                                         ffmpConfig.getFFMPConfigData()
                                                 .getGuidSrc()) != null) {
                             for (MenuItem mi : sourceMenuItems) {
-                                if (mi.getText().equals(
-                                        ffmpConfig.getFFMPConfigData()
-                                                .getGuidSrc())) {
+                                if (mi.getText().equals(ffmpConfig
+                                        .getFFMPConfigData().getGuidSrc())) {
                                     mi.setSelection(true);
                                     break;
                                 }
@@ -581,19 +567,18 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             public void widgetSelected(SelectionEvent event) {
                 // If 0 hrs is not selected then update the display
                 if (timeDurScale.getSelectedHoursValue() != 0) {
-                    if (diffMI.getSelection() == true) {
+                    if (diffMI.getSelection()) {
                         updateD2DRefresh();
-                        ffmpConfig.getFFMPConfigData().setD2dType(
-                                FFMPRecord.FIELDS.DIFF.name());
+                        ffmpConfig.getFFMPConfigData()
+                                .setD2dType(FFMPRecord.FIELDS.DIFF.name());
 
                         if (FFMPSourceConfigurationManager.getInstance()
                                 .getSourceByDisplayName(
                                         ffmpConfig.getFFMPConfigData()
                                                 .getGuidSrc()) != null) {
                             for (MenuItem mi : sourceMenuItems) {
-                                if (mi.getText().equals(
-                                        ffmpConfig.getFFMPConfigData()
-                                                .getGuidSrc())) {
+                                if (mi.getText().equals(ffmpConfig
+                                        .getFFMPConfigData().getGuidSrc())) {
                                     mi.setSelection(true);
                                 }
                             }
@@ -620,13 +605,13 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                 public void widgetSelected(SelectionEvent e) {
                     MenuItem mi = (MenuItem) e.getSource();
 
-                    if (mi.getSelection() == true) {
+                    if (mi.getSelection()) {
                         String guidSrc = mi.getText();
                         for (int i = 0; i < sourceMenuItems.size(); i++) {
                             String rdo = sourceMenuItems.get(i).getText();
                             if (rdo.equals(guidSrc)) {
-                                ffmpConfig.getFFMPConfigData().setGuidSrc(
-                                        guidSrc);
+                                ffmpConfig.getFFMPConfigData()
+                                        .setGuidSrc(guidSrc);
                                 fireConfigUpdateEvent();
                                 break;
                             }
@@ -634,7 +619,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                     }
                 }
             });
-            if (sourceMenuItems.contains(guidMenu.getText()) == false) {
+            if (!sourceMenuItems.contains(guidMenu.getText())) {
                 sourceMenuItems.add(guidMenu);
                 // selects at least one as default
                 ffmpConfig.getFFMPConfigData().setGuidSrc(guidMenu.getText());
@@ -670,7 +655,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         allOnlySmallBasinsMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (allOnlySmallBasinsMI.getSelection() == true) {
+                if (allOnlySmallBasinsMI.getSelection()) {
                     updateLayer(event);
                 }
             }
@@ -683,7 +668,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         countyMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                if (countyMI.getSelection() == true) {
+                if (countyMI.getSelection()) {
                     groupLbl.setText("");
                     updateLayer(event);
                 }
@@ -715,7 +700,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                 public void widgetSelected(SelectionEvent event) {
                     MenuItem mi = (MenuItem) event.getSource();
 
-                    if (mi.getSelection() == true) {
+                    if (mi.getSelection()) {
                         updateLayer(event);
                     }
                 }
@@ -779,10 +764,10 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         try {
             templateManager.readConfigXml();
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.error("Error reading FFMP Templates.", e);
         }
 
-        List<String> cwaList = new ArrayList<String>();
+        List<String> cwaList = new ArrayList<>();
 
         String cwaName = LocalizationManager.getInstance().getCurrentSite()
                 .toUpperCase();
@@ -801,8 +786,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                 @Override
                 public void widgetSelected(SelectionEvent event) {
                     MenuItem mi = (MenuItem) event.getSource();
-                    perfLog.log("CWA " + mi.getText()
-                            + (mi.getSelection() ? " selected" : " unselected"));
+                    perfLog.log("CWA " + mi.getText() + (mi.getSelection()
+                            ? " selected" : " unselected"));
                     updateD2DRefresh();
                     updateCWA(event);
                 }
@@ -825,7 +810,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         // -------------------------------------------------
         // Create all the items in the dropdown menu
         // -------------------------------------------------
-        upDownStreamBasinTraceMI = new MenuItem(clickMenu, SWT.RADIO);
+        MenuItem upDownStreamBasinTraceMI = new MenuItem(clickMenu, SWT.RADIO);
         upDownStreamBasinTraceMI.setText("Up/Down-stream Basin Trace");
         upDownStreamBasinTraceMI.setSelection(true);
         upDownStreamBasinTraceMI.addSelectionListener(new SelectionAdapter() {
@@ -837,7 +822,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         });
         clickMenuItems.add(upDownStreamBasinTraceMI);
 
-        upStreamBasinTraceMI = new MenuItem(clickMenu, SWT.RADIO);
+        MenuItem upStreamBasinTraceMI = new MenuItem(clickMenu, SWT.RADIO);
         upStreamBasinTraceMI.setText("Upstream Basin Trace");
         upStreamBasinTraceMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -848,7 +833,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         });
         clickMenuItems.add(upStreamBasinTraceMI);
 
-        downStreamBasinTraceMI = new MenuItem(clickMenu, SWT.RADIO);
+        MenuItem downStreamBasinTraceMI = new MenuItem(clickMenu, SWT.RADIO);
         downStreamBasinTraceMI.setText("Downstream Basin Trace");
         downStreamBasinTraceMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -859,7 +844,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         });
         clickMenuItems.add(downStreamBasinTraceMI);
 
-        basinTrendMI = new MenuItem(clickMenu, SWT.RADIO);
+        MenuItem basinTrendMI = new MenuItem(clickMenu, SWT.RADIO);
         basinTrendMI.setText("Basin Trend");
         basinTrendMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -933,8 +918,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         gl.marginWidth = 2;
         gl.marginHeight = 1;
         controlComp.setLayout(gl);
-        controlComp.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true,
-                false));
+        controlComp.setLayoutData(
+                new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
         /*
          * Create Gap labels and Rate control
@@ -996,14 +981,15 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         gl.verticalSpacing = 0;
         gl.marginWidth = 0;
         gl.marginHeight = 0;
-        Composite timeLableDataUpdateComp = new Composite(timeDurComp, SWT.NONE);
+        Composite timeLableDataUpdateComp = new Composite(timeDurComp,
+                SWT.NONE);
         timeLableDataUpdateComp.setLayout(gl);
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         timeLableDataUpdateComp.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         timeDurLbl = new Label(timeLableDataUpdateComp, SWT.NONE);
-        timeDurLbl.setText(timeDurationStr);
+        timeDurLbl.setText(TIME_DURATION_STRING);
         timeDurLbl.setFont(timeDurFont);
         timeDurLbl.setLayoutData(gd);
 
@@ -1066,7 +1052,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     }
 
     private void createTable() {
-        tableComp = new Composite(shell, SWT.NONE);
+        Composite tableComp = new Composite(shell, SWT.NONE);
         tableComp.setLayout(new GridLayout(1, false));
         tableComp.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
@@ -1075,14 +1061,14 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     }
 
     private void createDataLoadLabel() {
-        dataLoadComp = new Composite(shell, SWT.NONE);
+        Composite dataLoadComp = new Composite(shell, SWT.NONE);
         GridLayout gl = new GridLayout(1, true);
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         dataLoadComp.setLayout(gl);
         dataLoadComp.setLayoutData(gd);
 
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
-        dataLoadingLbl = new Label(dataLoadComp, SWT.NONE);
+        Label dataLoadingLbl = new Label(dataLoadComp, SWT.NONE);
         dataLoadingLbl.setText("");
         dataLoadingLbl.setFont(dataLoadFont);
         dataLoadingLbl.setLayoutData(gd);
@@ -1096,7 +1082,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         // Loop over enum from config singleton to create menu items
         for (ThreshColNames colName : ThreshColNames.values()) {
-            if (ffmpConfig.isColorCell(colName)) {// DR 14907
+            if (ffmpConfig.isColorCell(colName)) {
                 // only add a menu item if colorCell is true
                 MenuItem mi = new MenuItem(popupMenu, SWT.NONE);
                 mi.setText(colName.name());
@@ -1117,11 +1103,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         thresholdsBtn.setMenu(popupMenu);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#opened()
-     */
     @Override
     protected void opened() {
         super.opened();
@@ -1141,14 +1122,14 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
         if (gapValueLbl != null) {
             if (gapVal > 0.75) {
-                gapValueLbl.setBackground(getDisplay().getSystemColor(
-                        SWT.COLOR_RED));
+                gapValueLbl.setBackground(
+                        getDisplay().getSystemColor(SWT.COLOR_RED));
             } else if (gapVal > 0.30) {
-                gapValueLbl.setBackground(getDisplay().getSystemColor(
-                        SWT.COLOR_YELLOW));
+                gapValueLbl.setBackground(
+                        getDisplay().getSystemColor(SWT.COLOR_YELLOW));
             } else {
-                gapValueLbl.setBackground(getDisplay().getSystemColor(
-                        SWT.COLOR_GREEN));
+                gapValueLbl.setBackground(
+                        getDisplay().getSystemColor(SWT.COLOR_GREEN));
             }
 
             String str = String.format("%2.2f ", gapVal);
@@ -1159,7 +1140,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     private void initTimeDuration() {
         double tf = ffmpConfig.getTimeFrame();
 
-        if (ffmpConfig.isSplit() == true) {
+        if (ffmpConfig.isSplit()) {
             timeDurScale.setSplit(ffmpConfig.isSplit());
 
             if (tf >= 1.00) {
@@ -1192,7 +1173,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private void rateAction() {
         // qpeMI.setSelection(true);
-        updateTimeDurationLabel(timeDurationStr + " Rate!");
+        updateTimeDurationLabel(TIME_DURATION_STRING + " Rate!");
         time = 0.0;
         timeDurScale.setTimeDuration(0.00);
         this.updateGapValueLabel(0.00);
@@ -1227,19 +1208,19 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
      */
     private ConfigSummaryData createSummaryData() {
         ConfigSummaryData cfgSumData;
-        List<String> includedCWAs = new ArrayList<String>();
+        List<String> includedCWAs = new ArrayList<>();
         String layer = "";
         String clickAction = "";
         String displayType = "";
 
         for (MenuItem mi : cwaMenuItems) {
-            if (mi.getSelection() == true) {
+            if (mi.getSelection()) {
                 includedCWAs.add(mi.getText());
             }
         }
 
         for (MenuItem mi : layerMenuItems) {
-            if (mi.getSelection() == true) {
+            if (mi.getSelection()) {
                 layer = mi.getText();
                 if (layer.contains("&&")) {
                     layer = layer.replaceAll("&&", "&");
@@ -1248,13 +1229,13 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         }
 
         for (MenuItem mi : clickMenuItems) {
-            if (mi.getSelection() == true) {
+            if (mi.getSelection()) {
                 clickAction = mi.getText();
             }
         }
 
         for (MenuItem mi : d2dMenuItems) {
-            if (mi.getSelection() == true) {
+            if (mi.getSelection()) {
                 displayType = mi.getText();
             }
         }
@@ -1280,7 +1261,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     }
 
     private void updateD2DRefresh() {
-        if ((autoRefreshMI.getSelection() == false) && dialogInitialized) {
+        if ((!autoRefreshMI.getSelection()) && dialogInitialized) {
             refreshD2DBtn.setEnabled(true);
             refreshD2DBtn.setBackground(refreshColor);
         }
@@ -1288,8 +1269,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
 
     private void updateTimeDurationLabel(double val, boolean split) {
 
-        if (split == true) {
-            StringBuilder sb = new StringBuilder(timeDurationStr);
+        if (split) {
+            StringBuilder sb = new StringBuilder(TIME_DURATION_STRING);
 
             sb.append(" : Split! ");
             sb.append(String.format("%1.2f ", (val - 1.00)));
@@ -1297,9 +1278,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             updateTimeDurationLabel(sb.toString());
         } else {
             if (val == 0.0) {
-                updateTimeDurationLabel(timeDurationStr + " Rate!");
+                updateTimeDurationLabel(TIME_DURATION_STRING + " Rate!");
             } else {
-                updateTimeDurationLabel(timeDurationStr);
+                updateTimeDurationLabel(TIME_DURATION_STRING);
             }
         }
 
@@ -1311,7 +1292,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     private void displayCloseInstructions() {
         MessageBox mb = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.OK);
         mb.setText("Information");
-        mb.setMessage("To remove the table window,\nyou must clear the D2D display.");
+        mb.setMessage(
+                "To remove the table window,\nyou must clear the D2D display.");
         mb.open();
     }
 
@@ -1351,7 +1333,10 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         // Update the data in the FFMPConfig with the selections
         this.ffmpConfig.setVisibleColumns(attrData);
         this.ffmpConfig.setAttrData(attrData);
-        if( ! updateData)    this.ffmpTable.showHideTableColumns(); // DR 16096
+        if (!updateData) {
+            this.ffmpTable.showHideTableColumns();
+        }
+
         boolean changeSplit = false;
 
         if (timeDurScale.isSplit() != ffmpConfig.isSplit()) {
@@ -1370,14 +1355,12 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             }
             resource.clearTables();
             resource.getDrawable(resource.getPaintTime()).setDirty(true);
-            FFMPMonitor.getInstance().fireMonitorEvent(
-                    this.getClass().getName());
+            FFMPMonitor.getInstance()
+                    .fireMonitorEvent(this.getClass().getName());
 
         }
 
         ffmpTable.calculateTableSize();
-        shell.pack();
-        shell.redraw();
         resetCursor();
         timer.stop();
         perfLog.logDuration("Column Add/Remove time", timer.getElapsedTime());
@@ -1388,7 +1371,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         ffmpTable.updateThresholds(colName);
 
         if ((basinTrendDlg != null)
-                && (basinTrendDlg.getCurrentShell().isDisposed() == false)) {
+                && (!basinTrendDlg.getCurrentShell().isDisposed())) {
             basinTrendDlg.thresholdChanged();
         }
     }
@@ -1418,13 +1401,13 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         ffmpListeners.remove(fl);
     }
 
-    public void fireTimeChangedEvent(double newTime, boolean split,
+    private void fireTimeChangedEvent(double newTime, boolean split,
             boolean override) {
 
         FFMPRecord.FIELDS field = FFMPRecord.FIELDS.QPE;
 
         for (MenuItem mi : d2dMenuItems) {
-            if (mi.getSelection() == true) {
+            if (mi.getSelection()) {
                 field = (FFMPRecord.FIELDS) mi.getData();
                 break;
             }
@@ -1451,7 +1434,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     /**
      * Fire whenever the huc changes.
      */
-    public void fireHucChangedEvent(String huc) {
+    private void fireHucChangedEvent(String huc) {
 
         FFMPHUCChangeEvent fhce = new FFMPHUCChangeEvent(huc);
         Iterator<FFMPListener> iter = ffmpListeners.iterator();
@@ -1467,7 +1450,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     private void fireFieldChangedEvent(FFMPRecord.FIELDS field,
             boolean waitCursor) {
 
-        if (waitCursor == true) {
+        if (waitCursor) {
             shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         }
 
@@ -1481,7 +1464,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                 statusHandler.handle(Priority.PROBLEM,
                         "Field Change failed in resource", e);
 
-                if (waitCursor == true) {
+                if (waitCursor) {
                     resetCursor();
                 }
             }
@@ -1491,7 +1474,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     /**
      * Fire whenever the trace changes.
      */
-    public void fireTraceChangedEvent(FFMPRecord.CLICK_TYPE trace) {
+    private void fireTraceChangedEvent(FFMPRecord.CLICK_TYPE trace) {
 
         FFMPStreamTraceEvent ffce = new FFMPStreamTraceEvent(trace);
         Iterator<FFMPListener> iter = ffmpListeners.iterator();
@@ -1504,7 +1487,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     /**
      * Fire whenever the CWA changes.
      */
-    public void fireCWAChangedEvent(String cwa, boolean selected) {
+    private void fireCWAChangedEvent(String cwa, boolean selected) {
 
         if (!selected) {
             cwas.remove(cwa);
@@ -1526,7 +1509,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     /**
      * Fire whenever the Worst case aggregate button changes.
      */
-    public void fireWorstCaseEvent(boolean worstCase) {
+    private void fireWorstCaseEvent(boolean worstCase) {
 
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
 
@@ -1541,7 +1524,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     /**
      * Fire for auto refresh control.
      */
-    public void fireAutoRefreshEvent(boolean isAutoRefresh) {
+    private void fireAutoRefreshEvent(boolean isAutoRefresh) {
 
         FFMPAutoRefreshEvent fare = new FFMPAutoRefreshEvent(isAutoRefresh);
         Iterator<FFMPListener> iter = ffmpListeners.iterator();
@@ -1551,7 +1534,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         }
     }
 
-    public void fireLinkToFrameUpdate(boolean linkToFrameFlag) {
+    private void fireLinkToFrameUpdate(boolean linkToFrameFlag) {
         Iterator<FFMPListener> iter = ffmpListeners.iterator();
 
         while (iter.hasNext()) {
@@ -1562,7 +1545,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     /**
      * Fire screen refresh.
      */
-    public void fireRefreshEvent() {
+    private void fireRefreshEvent() {
 
         Iterator<FFMPListener> iter = ffmpListeners.iterator();
 
@@ -1574,7 +1557,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
     /**
      * Fire screen recenter.
      */
-    public void fireScreenRecenterEvent(String pfaf, int factor) {
+    private void fireScreenRecenterEvent(String pfaf, int factor) {
 
         final String pfafs = pfaf;
         final int factors = factor;
@@ -1593,17 +1576,19 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                         try {
                             String newPfaf = pfafs.split("-")[0];
                             if (newPfaf != null) {
-                                fsce = new FFMPScreenCenterEvent(Long
-                                        .parseLong(newPfaf), factors);
+                                fsce = new FFMPScreenCenterEvent(
+                                        Long.parseLong(newPfaf), factors);
                             } else {
-                                if (ffmpConfig.getFFMPConfigData().getLayer()
-                                        .equals("COUNTY")) {
+                                if ("COUNTY".equals(ffmpConfig
+                                        .getFFMPConfigData().getLayer())) {
                                     Long l = monitor
                                             .getTemplates(resource.getSiteKey())
                                             .getVirtualGageBasinMetaData(
                                                     resource.getSiteKey(),
-                                                    pfafs).getParentPfaf();
-                                    fsce = new FFMPScreenCenterEvent(l, factors);
+                                                    pfafs)
+                                            .getParentPfaf();
+                                    fsce = new FFMPScreenCenterEvent(l,
+                                            factors);
                                 }
                             }
                         } catch (Exception ie) {
@@ -1760,19 +1745,14 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             ffmpTable.clearTableSelection();
             ffmpTable.setTableData(mainTableData);
             resetCursor();
-            shell.pack();
-            shell.redraw();
             if (loadEvent != null) {
-                StatsCollector.stop(initialLoadKey);
+                StatsCollector.stop(INITIAL_LOAD_KEY);
                 loadEvent = null;
             }
             perfLog.log("Table update complete");
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void tableSelection(String pfaf, String name) {
         if (groupLbl.getText().length() > 0) {
@@ -1785,25 +1765,19 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
                 || allOnlySmallBasinsMI.getSelection()) {
             groupLbl.setText(name);
         }
-        rowName = name;// DR 13228
+        rowName = name;
         shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
         fireScreenRecenterEvent(pfaf, 1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void displayBasinTrend(String pfaf) {
         if (pfaf != null) {
-            try {
+            if (!shell.isDisposed()) {
                 shell.setCursor(getDisplay().getSystemCursor(SWT.CURSOR_WAIT));
                 perfLog.log("Basin Trend Graph Launch");
                 fireGraphDataEvent(pfaf, true, this.date);
-            } catch (org.eclipse.swt.SWTException se) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Displaying Basin Trend failed, the widget is disposed.", se);
-            }  
+            }
         }
     }
 
@@ -1863,8 +1837,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         /*
          * Link to frame
          */
-        linkToFrameMI.setSelection(ffmpConfig.getFFMPConfigData()
-                .getLinkToFrame());
+        linkToFrameMI
+                .setSelection(ffmpConfig.getFFMPConfigData().getLinkToFrame());
         fireLinkToFrameUpdate(ffmpConfig.getFFMPConfigData().getLinkToFrame());
 
         /*
@@ -1876,22 +1850,22 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         /*
          * Maintain layer
          */
-        maintainLayerMI.setSelection(ffmpConfig.getFFMPConfigData()
-                .getMaintainLayer());
+        maintainLayerMI.setSelection(
+                ffmpConfig.getFFMPConfigData().getMaintainLayer());
         fireMaintainLayerEvent(maintainLayerMI.getSelection());
 
         /*
          * Only for parent
          */
-        basinsInParentMI.setSelection(ffmpConfig.getFFMPConfigData()
-                .getOnlyForParent());
+        basinsInParentMI.setSelection(
+                ffmpConfig.getFFMPConfigData().getOnlyForParent());
         fireParentBasinEvent(basinsInParentMI.getSelection());
 
         /*
          * Time duration
          */
-        timeDurScale.setTimeDurationAndUpdate(ffmpConfig.getFFMPConfigData()
-                .getTimeFrame());
+        timeDurScale.setTimeDurationAndUpdate(
+                ffmpConfig.getFFMPConfigData().getTimeFrame());
         fireTimeChangedEvent(ffmpConfig.getFFMPConfigData().getTimeFrame(),
                 false, false);
 
@@ -1958,8 +1932,8 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
             fireFieldChangedEvent(fieldCfg, false);
         } catch (IllegalArgumentException iae) {
             // Reset to county and select the county menu item.
-            ffmpConfig.getFFMPConfigData().setD2dType(
-                    FFMPRecord.FIELDS.QPE.name());
+            ffmpConfig.getFFMPConfigData()
+                    .setD2dType(FFMPRecord.FIELDS.QPE.name());
             d2dMenuItems.get(0).setSelection(true);
             fireFieldChangedEvent(FFMPRecord.FIELDS.QPE, false);
         }
@@ -1993,12 +1967,13 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         } else {
             // If this is the first time through and there are no selected CWAs
             // then select the current site.
-            if (firstTime == true) {
-                String site = LocalizationManager.getInstance()
-                        .getCurrentSite().trim().toUpperCase();
+            if (firstTime) {
+                String site = LocalizationManager.getInstance().getCurrentSite()
+                        .trim().toUpperCase();
 
                 for (MenuItem mi : cwaMenuItems) {
-                    if (site.compareTo(mi.getText().trim().toUpperCase()) == 0) {
+                    if (site.compareTo(
+                            mi.getText().trim().toUpperCase()) == 0) {
                         mi.setSelection(true);
                         updateCWA(mi);
                     }
@@ -2009,11 +1984,11 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         /*
          * Auto refresh (do this last)
          */
-        autoRefreshMI.setSelection(ffmpConfig.getFFMPConfigData()
-                .getAutoRefresh());
+        autoRefreshMI
+                .setSelection(ffmpConfig.getFFMPConfigData().getAutoRefresh());
         fireAutoRefreshEvent(autoRefreshMI.getSelection());
 
-        if (autoRefreshMI.getSelection() == false) {
+        if (!autoRefreshMI.getSelection()) {
             // Fire a refresh since the auto-refresh is turned off
             fireRefreshEvent();
         }
@@ -2030,9 +2005,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         Iterator<MenuItem> iter = cwaMenuItems.iterator();
 
         // Create a list of selected CWAs
-        while (iter.hasNext() == true) {
+        while (iter.hasNext()) {
             MenuItem mi = iter.next();
-            if (mi.getSelection() == true) {
+            if (mi.getSelection()) {
                 if (sb.length() != 0) {
                     sb.append(",");
                 }
@@ -2080,9 +2055,9 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         }
 
         if ((basinTrendDlg != null) && (!basinTrendDlg.isDisposed())
-                && (basinTrendDlg.getShell().isDisposed() == false)) {
+                && (!basinTrendDlg.getShell().isDisposed())) {
             // Create a new graph if the pfaf has changed
-            if (differentPfaf == true) {
+            if (differentPfaf) {
                 basinTrendDlg.removeListener(this);
                 basinTrendDlg.getShell().dispose();
                 basinTrendDlg = null;
@@ -2137,19 +2112,13 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
      */
     private FFMPTableDataLoader getLoader() {
         synchronized (retrievalQueue) {
-            FFMPTableDataLoader loader = retrievalQueue.get(retrievalQueue
-                    .size() - 1);
+            FFMPTableDataLoader loader = retrievalQueue
+                    .get(retrievalQueue.size() - 1);
             retrievalQueue.clear();
             return loader;
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.monitor.ffmp.ui.dialogs.ISourceUpdate#
-     * fireSourceUpdateEvent()
-     */
     @Override
     public void fireSourceUpdateEvent() {
         sourceUpdate = true;
@@ -2195,7 +2164,7 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         allowNewTableUpdate = fupdateData.isAllowNewTableUpdate();
         sourceUpdate = fupdateData.isSourceUpdate();
 
-        if (retrievalQueue.size() > 0) {
+        if (!retrievalQueue.isEmpty()) {
             dataRetrieveThread = getLoader();
             dataRetrieveThread.start();
             return;
@@ -2226,7 +2195,6 @@ public class FfmpBasinTableDlg extends CaveSWTDialog implements
         }
     }
 
-    // DR 13228
     public String getRowName() {
         return this.rowName;
     }

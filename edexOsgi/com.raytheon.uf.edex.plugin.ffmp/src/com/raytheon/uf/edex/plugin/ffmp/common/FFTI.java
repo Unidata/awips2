@@ -56,6 +56,8 @@ import com.raytheon.uf.edex.plugin.ffmp.FFMPGenerator;
  * 02/01/13  1569          D. Hladky    Added constants
  * 02/25/13  1660          D. Hladky    Moved FFTI processing to help with mosaic memory usage
  * 01/10/14     2359       njensen      Fix exception logging
+ * Oct 18, 2018  DR 11861   mfontaine   FFMP use of QPF in Basin Table
+ * 
  * 
  * </pre>
  * 
@@ -343,7 +345,7 @@ public class FFTI implements Runnable {
                             if (values.getGuids() != null
                                     && values.getQpes() != null) {
                                 tempVal = FFMPUtils.getMaxRatioValue(
-                                        values.getQpes(), values.getGuids());
+                                        values.getQpes(), null, values.getGuids());
                             }
                         } else if (attribute.getAttributeName().equals(
                                 FFTIAttributeXML.ATTRIBUTE.DIFF.getAttribute())) {
@@ -351,7 +353,7 @@ public class FFTI implements Runnable {
                             if (values.getGuids() != null
                                     && values.getQpes() != null) {
                                 tempVal = FFMPUtils.getMaxDiffValue(
-                                        values.getQpes(), values.getGuids());
+                                        values.getQpes(), null, values.getGuids());
                             }
                         }
 
@@ -401,7 +403,7 @@ public class FFTI implements Runnable {
 
                         if (values.getGuids() != null
                                 && values.getQpes() != null) {
-                            val = FFMPUtils.getMaxRatioValue(values.getQpes(), 
+                            val = FFMPUtils.getMaxRatioValue(values.getQpes(), null,
                                     values.getGuids());
                         }
 
@@ -410,7 +412,7 @@ public class FFTI implements Runnable {
 
                         if (values.getGuids() != null
                                 && values.getQpes() != null) {
-                            val = FFMPUtils.getMaxDiffValue(values.getQpes(),
+                            val = FFMPUtils.getMaxDiffValue(values.getQpes(), null,
                                     values.getGuids());
                         }
                     }

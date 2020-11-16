@@ -22,7 +22,6 @@ package com.raytheon.viz.redbookua.rsc;
 import java.awt.image.BufferedImage;
 import java.awt.image.RenderedImage;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -80,35 +79,36 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Mar 24, 2010 1029       dfriedma    Initial creation
- * Jul 24, 2013 2203       njensen     Synchronized init and dispose of frames
- * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
- *                                     edex redbook plugins
- * Jul 29, 2014 3465       mapeters    Updated deprecated drawString() calls.
- * Aug 11, 2014 3504       mapeters    Replaced deprecated IODataPreparer
- *                                     instances with IRenderedImageCallback.
- * Jun 26, 2015 4512       mapeters    Updated for RedbookWMOMap API changes.
- * Oct 27, 2015 4798       bsteffen    Handle VizException for missing svg.
- * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
- * Dec 03, 2015 5143       kbisanz     Remove unneeded setting of DataTime
- *                                     utility flag in getName() to prevent
- *                                     NPE in case of no data.
- * Nov 08, 2016 5976       bsteffen    Remove VizApp logging
  * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 24, 2010  1029     dfriedma  Initial creation
+ * Jul 24, 2013  2203     njensen   Synchronized init and dispose of frames
+ * Mar 13, 2014  2907     njensen   split edex.redbook plugin into common and
+ *                                  edex redbook plugins
+ * Jul 29, 2014  3465     mapeters  Updated deprecated drawString() calls.
+ * Aug 11, 2014  3504     mapeters  Replaced deprecated IODataPreparer instances
+ *                                  with IRenderedImageCallback.
+ * Jun 26, 2015  4512     mapeters  Updated for RedbookWMOMap API changes.
+ * Oct 27, 2015  4798     bsteffen  Handle VizException for missing svg.
+ * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
+ * Dec 03, 2015  5143     kbisanz   Remove unneeded setting of DataTime utility
+ *                                  flag in getName() to prevent NPE in case of
+ *                                  no data.
+ * Nov 08, 2016  5976     bsteffen  Remove VizApp logging
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author dfriedma
  */
-public class RedbookUpperAirResource extends
-        AbstractVizResource<RedbookUpperAirResourceData, MapDescriptor>
+public class RedbookUpperAirResource
+        extends AbstractVizResource<RedbookUpperAirResourceData, MapDescriptor>
         implements IResourceDataChanged {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(RedbookUpperAirResource.class);
 
-    private final Map<DataTime, UAFrame> frames = new HashMap<DataTime, UAFrame>();
+    private final Map<DataTime, UAFrame> frames = new HashMap<>();
 
     private DataTime displayedDataTime;
 
@@ -128,16 +128,10 @@ public class RedbookUpperAirResource extends
 
     protected RedbookUpperAirResource(RedbookUpperAirResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         resourceData.addChangeListener(this);
-        dataTimes = new ArrayList<DataTime>();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#dispose()
-     */
     @Override
     protected void disposeInternal() {
         for (UAFrame frame : this.frames.values()) {
@@ -149,11 +143,6 @@ public class RedbookUpperAirResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         if (this.humanReadableName == null) {
@@ -166,8 +155,8 @@ public class RedbookUpperAirResource extends
     private void buildHumanReadableName() {
         this.humanReadableName = "Redbook Resource";
 
-        RequestConstraint wmo = this.resourceData.getMetadataMap().get(
-                "wmoTTAAii");
+        RequestConstraint wmo = this.resourceData.getMetadataMap()
+                .get("wmoTTAAii");
         if (wmo != null) {
             RedbookWMOMap map;
             try {
@@ -183,18 +172,9 @@ public class RedbookUpperAirResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#setDescriptor(com.raytheon
-     * .uf.viz.core.drawables.IDescriptor)
-     */
     @Override
     public void setDescriptor(MapDescriptor descriptor) {
         super.setDescriptor(descriptor);
-        Validate.isTrue(descriptor instanceof MapDescriptor,
-                "Redbook resource can only be used on MapDescriptors");
         synchronized (job) {
             plotModelFactory = null;
             plotWidth = 0;
@@ -203,26 +183,14 @@ public class RedbookUpperAirResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#getDataTimes()
-     */
     @Override
     public DataTime[] getDataTimes() {
         Set<DataTime> dataTimeSet = frames.keySet();
-        DataTime[] dataTimes = dataTimeSet.toArray(new DataTime[dataTimeSet
-                .size()]);
+        DataTime[] dataTimes = dataTimeSet
+                .toArray(new DataTime[dataTimeSet.size()]);
         return dataTimes;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.capabilities.IUpdateableDataResource#remove
-     * (com.raytheon.uf.common.time.DataTime)
-     */
     @Override
     public void remove(DataTime dataTime) {
         dataTimes.remove(dataTime);
@@ -232,13 +200,6 @@ public class RedbookUpperAirResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#init(com.raytheon.uf
-     * .viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         this.font = target.initializeFont("Monospace", 8, null);
@@ -249,21 +210,13 @@ public class RedbookUpperAirResource extends
         if (plotModelFactory == null) {
             plotModelFactory = new PlotModelFactory(getDescriptor(),
                     "redbookuaDesign.svg");
-            plotModelFactory.setColor(getCapability(ColorableCapability.class)
-                    .getColor());
-            plotModelFactory.setUpperLimit(10000); // TODO: correct value
+            plotModelFactory.setColor(
+                    getCapability(ColorableCapability.class).getColor());
+            plotModelFactory.setUpperLimit(10_000);
         }
         return plotModelFactory;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IRenderable#paint(com.raytheon.uf.
-     * viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -292,27 +245,12 @@ public class RedbookUpperAirResource extends
         return this.font;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.capabilities.IProjectableResource#project(org
-     * .opengis.referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
         super.project(mapData);
         setDescriptor(getDescriptor());
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type == ChangeType.DATA_UPDATE) {
@@ -323,7 +261,8 @@ public class RedbookUpperAirResource extends
             for (PluginDataObject record : pdos) {
                 Validate.notNull(record, "PluginDataObject was null");
                 Validate.isTrue(record instanceof RedbookRecord,
-                        "RedbookResource expects RedbookRecords, got " + record);
+                        "RedbookResource expects RedbookRecords, got "
+                                + record);
 
                 addRecord((RedbookRecord) record);
             }
@@ -331,9 +270,8 @@ public class RedbookUpperAirResource extends
             if (object instanceof ColorableCapability) {
                 synchronized (job) {
                     if (plotModelFactory != null) {
-                        plotModelFactory
-                                .setColor(((ColorableCapability) object)
-                                        .getColor());
+                        plotModelFactory.setColor(
+                                ((ColorableCapability) object).getColor());
                     }
                     invalidateAll();
                     plotSettingsChanged = true;
@@ -350,22 +288,22 @@ public class RedbookUpperAirResource extends
 
     public void addRecord(RedbookRecord record) {
         DataTime dataTime = record.getDataTime();
-        frames.put(dataTime, new UAFrame(dataTime, record));
+        frames.put(dataTime, new UAFrame(record));
         dataTimes.add(record.getDataTime());
     }
 
     private class UAFrame {
         private RedbookRecord redbookRecord;
 
-        String dumpTime;
+        public String dumpTime;
 
-        PointDataContainer pointData;
+        public PointDataContainer pointData;
 
-        IImage[] images;
+        public IImage[] images;
 
         private boolean valid;
 
-        public UAFrame(DataTime dataTime, RedbookRecord record) {
+        public UAFrame(RedbookRecord record) {
             this.redbookRecord = record;
         }
 
@@ -414,12 +352,12 @@ public class RedbookUpperAirResource extends
                                 .getFloat(RedbookUpperAirDecoder.P_LONGITUDE);
                         PlotData pd = new PlotData();
                         pd.addData(pdv);
-                        final BufferedImage bImage = pmf.getStationPlot(pd,
-                                lat, lon);
+                        final BufferedImage bImage = pmf.getStationPlot(pd, lat,
+                                lon);
                         IImage image = null;
                         if (bImage != null) {
-                            image = target
-                                    .initializeRaster(new IRenderedImageCallback() {
+                            image = target.initializeRaster(
+                                    new IRenderedImageCallback() {
                                         @Override
                                         public RenderedImage getImage()
                                                 throws VizException {
@@ -473,8 +411,7 @@ public class RedbookUpperAirResource extends
             double density = getCapability(DensityCapability.class)
                     .getDensity();
             ;
-            double netZoom = (1 / paintZoomLevel)
-                    * density
+            double netZoom = (1 / paintZoomLevel) * density
                     / getCapability(MagnificationCapability.class)
                             .getMagnification();
 
@@ -529,10 +466,11 @@ public class RedbookUpperAirResource extends
                     continue;
                 }
 
-                PixelCoverage pc = new PixelCoverage(new Coordinate(ul[0],
-                        ul[1], ul[2]), new Coordinate(ur[0], ur[1], ur[2]),
-                        new Coordinate(lr[0], lr[1], lr[2]), new Coordinate(
-                                ll[0], ll[1], ll[2]));
+                PixelCoverage pc = new PixelCoverage(
+                        new Coordinate(ul[0], ul[1], ul[2]),
+                        new Coordinate(ur[0], ur[1], ur[2]),
+                        new Coordinate(lr[0], lr[1], lr[2]),
+                        new Coordinate(ll[0], ll[1], ll[2]));
 
                 target.drawRaster(images[i], pc, paintProps,
                         RasterMode.SYNCHRONOUS);
@@ -542,16 +480,16 @@ public class RedbookUpperAirResource extends
             if (dumpTime != null && dumpTime.length() > 0) {
                 target.clearClippingPlane();
 
-                DrawableString string = new DrawableString("Dump time: "
-                        + dumpTime, getCapability(ColorableCapability.class)
-                        .getColor());
+                DrawableString string = new DrawableString(
+                        "Dump time: " + dumpTime,
+                        getCapability(ColorableCapability.class).getColor());
                 string.font = font;
-                string.setCoordinates(pe.getMinX() + 2 * xRatio, pe.getMaxY()
-                        - 2 * yRatio);
+                string.setCoordinates(pe.getMinX() + 2 * xRatio,
+                        pe.getMaxY() - 2 * yRatio);
                 target.drawStrings(string);
 
-                target.setupClippingPlane(new PixelExtent(getDescriptor()
-                        .getGridGeometry().getGridRange()));
+                target.setupClippingPlane(new PixelExtent(
+                        getDescriptor().getGridGeometry().getGridRange()));
             }
         }
 
@@ -586,7 +524,8 @@ public class RedbookUpperAirResource extends
                 decoder.decode(((ByteDataRecord) dr).getByteData());
                 dumpTime = decoder.getDumpTime();
                 pointData = decoder.getPointData();
-                redbookRecord = null; // The record is no longer needed.
+                // The record is no longer needed.
+                redbookRecord = null;
             }
         }
     }

@@ -32,10 +32,12 @@ import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
 import com.raytheon.uf.common.dataplugin.level.Level;
 import com.raytheon.uf.common.dataplugin.level.mapping.LevelMappingFactory;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint;
 import com.raytheon.uf.common.dataquery.requests.RequestConstraint.ConstraintType;
+import com.raytheon.uf.common.pointdata.PointDataConstants;
 import com.raytheon.uf.common.menus.vb.ViewMenu;
 import com.raytheon.uf.common.pointdata.spatial.SurfaceObsLocation;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -63,25 +65,26 @@ import com.vividsolutions.jts.geom.LineString;
  * <pre>
  * 
  * SOFTWARE HISTORY
+ * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- --------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Dec 01, 2009           bsteffen  Initial creation
  * May 08, 2013  14824    mgamazay  Added alterProductParameters method
  * May 09, 2013  1869     bsteffen  Modified D2D time series of point data to
  *                                  work without dataURI.
- * Aug 15, 2013  2258     bsteffen  Convert profiler sounding to var height
- *                                  with hodo.
+ * Aug 15, 2013  2258     bsteffen  Convert profiler sounding to var height with
+ *                                  hodo.
  * Aug 15, 2013  2260     bsteffen  Switch poessounding to NSharp.
  * Jul 23, 2014  3410     bclement  location changed to floats
  * Sep 09, 2014  3356     njensen   Remove CommunicationException
  * Aug 03, 2015  3861     bsteffen  Move resource creation to ProductCreators
  * Oct 22, 2015  4970     bsteffen  Add ldadmesonet to supported plugins.
  * Sep 19, 2017  ----     mjames    Remove ldadmesonet, profiler.
+ * Nov 16, 2017  5697     bsteffen  Remove profiler plugin
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class PointDataCatalog extends AbstractInventoryDataCatalog {
     protected static final transient IUFStatusHandler statusHandler = UFStatus
@@ -96,7 +99,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 
     };
 
-    protected Map<String, SurfaceObsLocation[]> availableStations = new HashMap<String, SurfaceObsLocation[]>();
+    protected Map<String, SurfaceObsLocation[]> availableStations = new HashMap<>();
 
     @Override
     public void getAvailableData(AvailableDataRequest request) {
@@ -111,7 +114,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 
     @Override
     public List<String> getSupportedSources() {
-        List<String> supportedSources = new ArrayList<String>();
+        List<String> supportedSources = new ArrayList<>();
         for (String supportedSource : super.getSupportedSources()) {
             supportedSources.add(supportedSource);
             supportedSources.add(supportedSource + "OA");
@@ -123,14 +126,14 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
     protected void addProductParameters(IDataCatalogEntry catalogEntry,
             HashMap<String, RequestConstraint> productParameters) {
         String sourceKey = catalogEntry.getSelectedData().getSourcesKey();
-        productParameters.put("pluginName", new RequestConstraint(
-                getPlugin(sourceKey)));
+        productParameters.put(PluginDataObject.PLUGIN_NAME_ID,
+                new RequestConstraint(getPlugin(sourceKey)));
         addLineOrPointStationParameter(catalogEntry, productParameters,
                 "location.stationId");
         String type = getType(sourceKey);
         if ((type != null) && !type.isEmpty()) {
-            productParameters.put(getTypeKey(sourceKey), new RequestConstraint(
-                    type));
+            productParameters.put(getTypeKey(sourceKey),
+                    new RequestConstraint(type));
         }
     }
 
@@ -161,19 +164,18 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 List<Object[]> result = query.performQuery();
                 SurfaceObsLocation[] locs = new SurfaceObsLocation[result
                         .size()];
-                int i = 0;
-                for (Object row : result) {
-                    Object[] cols = (Object[]) row;
+                for (int i = 0; i < result.size(); i += 1) {
+                    Object[] cols = result.get(i);
                     SurfaceObsLocation loc = new SurfaceObsLocation();
                     loc.setStationId(cols[0].toString());
                     loc.setLatitude(((Number) cols[1]).floatValue());
                     loc.setLongitude(((Number) cols[2]).floatValue());
-                    locs[i++] = loc;
+                    locs[i] = loc;
                 }
                 availableStations.put(sourceKey, locs);
                 return locs;
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.warn("Error querying locations", e);
                 return null;
             }
         }
@@ -250,9 +252,10 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             IDataCatalogEntry catalogEntry,
             HashMap<String, RequestConstraint> productParameters,
             String constraintKey) {
-        if (!PointLineUtil.isPointLine(catalogEntry.getSelectedData()
-                .getPlanesKey())
-                && (catalogEntry.getDialogSettings().getViewSelection() != ViewMenu.TIMESERIES)) {
+        if (!PointLineUtil
+                .isPointLine(catalogEntry.getSelectedData().getPlanesKey())
+                && (catalogEntry.getDialogSettings()
+                        .getViewSelection() != ViewMenu.TIMESERIES)) {
             return;
         }
         if (catalogEntry.getSelectedData().getSourcesKey().endsWith("OA")) {
@@ -264,13 +267,13 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 
             RequestConstraint longitudeRequestConstraint = new RequestConstraint();
             longitudeRequestConstraint.setBetweenValueList(new String[] {
-                    lon0 + "", lon1 + "" });
+                    Double.toString(lon0), Double.toString(lon1) });
             longitudeRequestConstraint
                     .setConstraintType(ConstraintType.BETWEEN);
 
             RequestConstraint latitudeRequestConstraint = new RequestConstraint();
             latitudeRequestConstraint.setBetweenValueList(new String[] {
-                    lat0 + "", lat1 + "" });
+                    Double.toString(lat0), Double.toString(lat1) });
             latitudeRequestConstraint.setConstraintType(ConstraintType.BETWEEN);
 
             productParameters.put("location.latitude",
@@ -287,7 +290,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
             RequestConstraint stationRC = new RequestConstraint();
             stationRC.setConstraintType(RequestConstraint.ConstraintType.IN);
             String sourceKey = catalogEntry.getSelectedData().getSourcesKey();
-            Collection<String> closest = new ArrayList<String>();
+            Collection<String> closest = new ArrayList<>();
             for (Coordinate c : line.getCoordinates()) {
                 SurfaceObsLocation loc = getClosestStation(c, sourceKey,
                         closest);
@@ -312,8 +315,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                     productParameters.put(constraintKey, new RequestConstraint(
                             closestStation.getStationId()));
                 } else {
-                    productParameters.put(constraintKey, new RequestConstraint(
-                            null, ConstraintType.ISNULL));
+                    productParameters.put(constraintKey,
+                            new RequestConstraint(null, ConstraintType.ISNULL));
                 }
             }
         }
@@ -321,8 +324,8 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 
     @Override
     protected String[] getPlugins() {
-        return new String[] { "goessounding", "poessounding", "profiler",
-                "bufrua", "obs", "bufrmosLAMP" };
+        return new String[] { "goessounding", "poessounding", "bufrua", "obs",
+                "bufrmosLAMP", "profiler" };
         // njensen removed bufrmosAVN, bufrmosETA, bufrmosGFS, bufrmosHPC,
         // bufrmosMRF, bufrmosNGM
         // TODO ideally this list should not be in code, and should contain all
@@ -367,20 +370,10 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         return sourceKey;
     }
 
-    /**
-     * @return
-     */
     private AbstractPointDataInventory getPointDataInventory() {
         return (AbstractPointDataInventory) getInventory();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.volumebrowser.datacatalog.IDataCatalog#getCatalogEntry
-     * (com.raytheon.viz.volumebrowser.vbui.SelectedData)
-     */
     @Override
     public IDataCatalogEntry getCatalogEntry(SelectedData selData) {
         if (!isValidSelection(selData)) {
@@ -390,13 +383,6 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.volumebrowser.datacatalog.AbstractInventoryDataCatalog
-     * #get3DLevels()
-     */
     @Override
     protected Collection<? extends Level> get3DLevels() {
         return LevelMappingFactory
@@ -415,18 +401,18 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 return false;
             }
             List<String> params = Arrays.asList(selData.getFieldsKey());
-            if (selData.getFieldsKey().equals("Snd")) {
+            if ("Snd".equals(selData.getFieldsKey())) {
                 return true;
             }
-            BlockingQueue<String> returnQueue = new ArrayBlockingQueue<String>(
+            BlockingQueue<String> returnQueue = new ArrayBlockingQueue<>(
                     levels.size());
             String sourceKey = selData.getSourcesKey();
             if (sourceKey.endsWith("OA")) {
                 sourceKey = sourceKey.substring(0, sourceKey.length() - 2);
             }
 
-            getInventory().checkLevels(Arrays.asList(sourceKey), params,
-                    levels, returnQueue);
+            getInventory().checkLevels(Arrays.asList(sourceKey), params, levels,
+                    returnQueue);
 
             if (returnQueue.isEmpty()) {
                 return false;
@@ -441,10 +427,10 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
 
     @Override
     protected Collection<String> get3DSources(String[] planes) {
-        List<String> lineLetters = new ArrayList<String>();
-        List<Double> lats = new ArrayList<Double>();
-        List<Double> lons = new ArrayList<Double>();
-        List<String> pointLetters = new ArrayList<String>();
+        List<String> lineLetters = new ArrayList<>();
+        List<Double> lats = new ArrayList<>();
+        List<Double> lons = new ArrayList<>();
+        List<String> pointLetters = new ArrayList<>();
 
         ViewMenu viewSelection = VolumeBrowserAction.getVolumeBrowserDlg()
                 .getDialogSettings().getViewSelection();
@@ -459,7 +445,7 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 return null;
             }
             for (String plane : planes) {
-                if (plane.equals("LATS") || plane.equals("LONS")) {
+                if ("LATS".equals(plane) || "LONS".equals(plane)) {
                     return Collections.emptyList();
                 } else if (plane.startsWith("Lat")) {
                     lats.add(Double.parseDouble(plane.replace("Lat", "")));
@@ -476,23 +462,23 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 && lons.isEmpty()) {
             return null;
         }
-        Set<String> fileredSources = new HashSet<String>();
+        Set<String> fileredSources = new HashSet<>();
         for (String source : getSupportedSourcesInternal()) {
             if (source.endsWith("OA")) {
                 fileredSources.add(source);
                 continue;
             }
             for (String letter : pointLetters) {
-                Coordinate c = PointsDataManager.getInstance().getCoordinate(
-                        letter);
+                Coordinate c = PointsDataManager.getInstance()
+                        .getCoordinate(letter);
                 if (getClosestStation(c, source) != null) {
                     fileredSources.add(source);
                     break;
                 }
             }
             for (String letter : lineLetters) {
-                LineString ls = ToolsDataManager.getInstance().getBaseline(
-                        letter);
+                LineString ls = ToolsDataManager.getInstance()
+                        .getBaseline(letter);
                 boolean failed = false;
                 for (Coordinate c : ls.getCoordinates()) {
                     if (getClosestStation(c, source) == null) {
@@ -515,13 +501,13 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
         if ((sources == null) || sources.isEmpty()
                 || (viewSelection == ViewMenu.PLANVIEW)
                 || (viewSelection == ViewMenu.TIMESERIES)) {
-            Set<String> results = new HashSet<String>();
+            Set<String> results = new HashSet<>();
             results.addAll(PointLineUtil.getPointLineKeys());
             return results;
         }
         ToolsDataManager tdm = ToolsDataManager.getInstance();
         PointsDataManager pdm = PointsDataManager.getInstance();
-        Set<String> validPlanes = new HashSet<String>(sources.size());
+        Set<String> validPlanes = new HashSet<>(sources.size());
         for (String source : sources) {
             for (String letter : pdm.getPointNames()) {
                 Coordinate c = pdm.getCoordinate(letter);
@@ -553,17 +539,16 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
      * @param productParameters
      */
     @Override
-    public void alterProductParameters(String selectedKey,
-            String selectedValue,
+    public void alterProductParameters(String selectedKey, String selectedValue,
             HashMap<String, RequestConstraint> productParameters) {
-        if (selectedKey.equalsIgnoreCase("line")) {
-            LineString line = ToolsDataManager.getInstance().getBaseline(
-                    selectedValue);
+        if ("line".equalsIgnoreCase(selectedKey)) {
+            LineString line = ToolsDataManager.getInstance()
+                    .getBaseline(selectedValue);
             RequestConstraint stationRC = new RequestConstraint();
             stationRC.setConstraintType(RequestConstraint.ConstraintType.IN);
-            String sourceKey = productParameters.get("pluginName")
-                    .getConstraintValue();
-            Collection<String> closest = new ArrayList<String>();
+            String sourceKey = productParameters
+                    .get(PluginDataObject.PLUGIN_NAME_ID).getConstraintValue();
+            Collection<String> closest = new ArrayList<>();
             for (Coordinate c : line.getCoordinates()) {
                 SurfaceObsLocation loc = getClosestStation(c, sourceKey,
                         closest);
@@ -573,18 +558,18 @@ public class PointDataCatalog extends AbstractInventoryDataCatalog {
                 closest.add(loc.getStationId());
                 stationRC.addToConstraintValueList(loc.getStationId());
             }
-            productParameters.put("location.stationId", stationRC);
-        } else if (selectedKey.equalsIgnoreCase("point")) {
-            Coordinate point = PointsDataManager.getInstance().getCoordinate(
-                    selectedValue);
-            String sourceKey = productParameters.get("pluginName")
-                    .getConstraintValue();
+            productParameters.put(PointDataConstants.LOCATION_STATIONID,
+                    stationRC);
+        } else if ("point".equalsIgnoreCase(selectedKey)) {
+            Coordinate point = PointsDataManager.getInstance()
+                    .getCoordinate(selectedValue);
+            String sourceKey = productParameters
+                    .get(PluginDataObject.PLUGIN_NAME_ID).getConstraintValue();
 
             SurfaceObsLocation closestStation = getClosestStation(point,
                     sourceKey);
-            System.out.println();
-            productParameters.put("location.stationId", new RequestConstraint(
-                    closestStation.getStationId()));
+            productParameters.put(PointDataConstants.LOCATION_STATIONID,
+                    new RequestConstraint(closestStation.getStationId()));
             return;
         }
         return;

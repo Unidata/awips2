@@ -17,28 +17,30 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-
-##
-## Python interface to the Java runtime UI SWT component.
-## 
-## This interface provides a link between user created python scripts and the Java driven user interface.
-## This script is to be called from within Java through a jep interface.
-##
-## If an invalid widget type is encountered a Label widget is generated instead with a tooltip explaining what went wrong.
-##
-## <pre>
-## SOFTWARE HISTORY
-## Date            Ticket#        Engineer    Description
-## ------------    ----------    -----------    --------------------------
-## Jun 11, 2008    1164           jelkins    Initial creation
-## Jun 16, 2008    1164           jelkins    Implemented Callback Handling
-## Jun 23, 2008    1164           jelkins    Support 3 argument widget tuple
-## Nov 28, 2017    6540           randerso   Set default precision to 0 to 
-##                                           match default resolution
-## 
-## </pre>
-## 
-## @author jelkins
+#
+# Python interface to the Java runtime UI SWT component.
+# 
+# This interface provides a link between user created python scripts and the Java driven user interface.
+# This script is to be called from within Java through a jep interface.
+#
+# If an invalid widget type is encountered a Label widget is generated instead with a tooltip explaining what went wrong.
+#
+# <pre>
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- --------------------------------------------
+# Jun 11, 2008  1164     jelkins   Initial creation
+# Jun 16, 2008  1164     jelkins   Implemented Callback Handling
+# Jun 23, 2008  1164     jelkins   Support 3 argument widget tuple
+# Nov 28, 2017  6540     randerso  Set default precision to 0 to 
+#                                  match default resolution
+# Jan 15, 2018  6684     randerso  Code restructured for improved 
+#                                  maintainability/readability
+# 
+# </pre>
+# 
+# @author jelkins
 ##
 
 ##
@@ -47,12 +49,69 @@
 ##
 
 from com.raytheon.viz.gfe.ui.runtimeui import ValuesDialog
-from com.raytheon.uf.common.dataplugin.gfe.db.objects import DatabaseID, ParmID
-from com.raytheon.uf.common.time import TimeRange
 
 import JUtil, DatabaseID, ParmID, TimeRange
 
-import types
+from collections import namedtuple
+#
+# Field definition
+# 
+# name         name/description of field
+#              Required
+#
+# defaultValue default/initial value
+#              Required
+#
+# entType      type of field see Field Types below
+#              Required
+#
+# valueList    list of values for buttons or min/max for scales
+#              Default = []
+#
+# res          resolution/increment for scale fields
+#              Default = 1.0
+#
+# prec         precision (number of fractional digits) for scale fields
+#              Default = 0
+#
+# newRow       True if a new row should be started AFTER this field,
+#              Default = True for button fields, False for other field types
+#
+#
+# Field Types
+#
+# label
+# numeric
+# alphaNumeric
+# compactText
+# radio
+# check
+# scale
+# scrollbar
+# parm[Mutable]
+# parms[Mutable]
+# parm[Mutable]PlusVariable
+# parms[Mutable]PlusVariable
+# database
+# databases
+# D2D_model
+# D2D_models
+# model
+# models
+# refset
+# refsets
+# timeRange
+# timeRanges
+# map
+# maps
+# output file
+# output directory
+# startTime
+# endTime
+#
+##
+FieldDef = namedtuple("FieldDef", ['name', 'defaultValue','entType','valueList','res','prec','newRow'])
+FieldDef.__new__.__defaults__ = ([], 1.0, 0, None)
 
 class ProcessVariableList:
     
@@ -173,30 +232,25 @@ def buildWidgetList(pythonWidgetList):
     FieldType = FieldDefinition.FieldType
     widgetList = ArrayList()
     
-    for widget in pythonWidgetList:
+    for widgetDef in pythonWidgetList:
         
-        res = 1.0   # Default resolution
-        prec = 0    # Default precision
-        valueList = []
+        if not isinstance(widgetDef, FieldDef):
+            widgetDef = FieldDef(*(widgetDef))
         
-        # unpack the tuple
-        if len(widget) == 3:
-            name,defaultValue,entType = widget
-        if len(widget) == 4:        
-            name,defaultValue,entType,valueList = widget 
-        if len(widget) == 5:
-            name,defaultValue,entType,valueList,res = widget
-        if len(widget) == 6:
-            name,defaultValue,entType,valueList,res,prec = widget
         # Handle possibility of (label, variable) tuple
-        if type(name) is types.TupleType:
-            desc = name[0]
+        if isinstance(widgetDef.name, tuple):
+            desc = widgetDef.name[0] # label/description
         else:
-            desc = name
-                    
-        w = FieldDefinition(JUtil.pyValToJavaObj(name),desc,FieldType.convertPythonType(entType),
-                            JUtil.pyValToJavaObj(defaultValue),JUtil.pyValToJavaObj(valueList),
-                            float(res),int(prec))
+            desc = widgetDef.name
+
+        w = FieldDefinition(widgetDef.name, desc, 
+                            FieldType.convertPythonType(widgetDef.entType),
+                            widgetDef.defaultValue, 
+                            widgetDef.valueList, 
+                            float(widgetDef.res),int(widgetDef.prec),
+                            widgetDef.newRow)
+        
+        
         widgetList.add(w)
         
     

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -24,18 +24,19 @@ import java.util.List;
 
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DFloat;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DInteger;
+import com.raytheon.uf.common.time.util.ITimer;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.viz.gfe.contours.util.CLine;
 import com.raytheon.viz.gfe.contours.util.ContourValueDistance;
 import com.raytheon.viz.gfe.contours.util.SearchDir;
-import com.raytheon.viz.gfe.contours.util.StopWatch;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.LineString;
 
 /**
- * 
+ *
  * <P>
  * Legacy Documentation:
- * 
+ *
  * <PRE>
  * Recomputes grid point values in the vicinity of modified contours.
  * If all contours are modified (or new) all grid point values are computed
@@ -184,33 +185,34 @@ import com.vividsolutions.jts.geom.LineString;
  * do or do not show, so complex dtails in grid data will be retained
  * in areas that are not recomputed due to new contours nearby.
  * </PRE>
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 18Mar2008    968        MW Fegan    Initial implementation. Rehosted
- *                                      from legacy C++ SIRSGrid.H
- *                                      and SIRSGrid.C
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 18, 2008  968      MW Fegan  Initial implementation. Rehosted from legacy
+ *                                  C++ SIRSGrid.H and SIRSGrid.C
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Replaced clone() with copy()
+ *
  * </pre>
- * 
+ *
  * @author mfegan
- * @version 1.0
  */
 
 public class SIRSGrid extends AbstractGfeAnalyzer {
 
     /* various flags to control processing */
-    boolean doSmoothing;
+    private boolean doSmoothing;
 
     /**
      * Constructor. Creates {@code SIRSGrid} object and loads available
      * information for processing.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * Load all data about grid &amp; contours into the &quot;SIRSGrid&quot; data structure
      * used to support SIRS.
@@ -221,7 +223,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
      * Remove crossed-over contours.
      * Requires about 0.05 sec on the HP 750 for typical 73x73 grid and contours.
      * </PRE>
-     * 
+     *
      * @param dataGrid
      *            an original grid of float values.
      * @param contourLines
@@ -257,8 +259,8 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
             int xMin, int xMax, int yMin, int yMax, boolean smoothing,
             boolean clampOn, float max, float min) {
         super(dataGrid, xMin, xMax, yMin, yMax, clampOn, max, min);
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
 
         this.xDim = dataGrid.getXdim();
         this.yDim = dataGrid.getYdim();
@@ -304,24 +306,23 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
             readOldContours(contourLines, xOrigin, yOrigin, xGridRatio,
                     yGridRatio);
         }
-        stopWatch.stop();
-        this.timeUsed = stopWatch.getWallClockTime();
-        logger.info("    SIRSGrid cstr         " + stopWatch.getWallClockTime()
-                + " seconds");
+        timer.stop();
+        this.timeUsed = timer.getElapsedTime();
+        logger.info("    SIRSGrid cstr         " + this.timeUsed + " ms");
     }
 
     /**
      * Updates contours by integrating data from new or modified lines.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * read in data supplied by all new or modified contour lines.
      * implementation:&lt;BR&gt;
      * also fills gaps or holes in contours - very important
      * to advoid the SIRS search routine finding the wrong neighbor contour.
      * </PRE>
-     * 
+     *
      * @param contourLines
      *            collection of contours to apply to grid
      * @param xOrigin
@@ -357,7 +358,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
          * in grid. find and fill gaps in contours, if there are any. load
          * arrays needed. if contour lies exactly on a grid point, set values
          * accordingly.
-         * 
+         *
          * do not use old contours that have points at same position as new or
          * modified contours
          */
@@ -373,7 +374,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
 
             /*
              * construct list of input contour levels
-             * 
+             *
              * load first one
              */
             int clSize = this.contourLevels.size();
@@ -400,7 +401,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
 
             /*
              * check for gaps in contours.
-             * 
+             *
              * loop over every point on this contour line; compute subgrid point
              * indices; check for gaps in contours and set proper values in gap;
              * set proper values in subgrids at contour points.
@@ -416,12 +417,12 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                  */
                 if (z.x < xOrigin) {
                     z.x = xOrigin;
-                } else if (z.x > xOrigin + xWrldWidth) {
+                } else if (z.x > (xOrigin + xWrldWidth)) {
                     z.x = xOrigin + xWrldWidth;
                 }
                 if (z.y < yOrigin) {
                     z.y = yOrigin;
-                } else if (z.y > yOrigin + yWrldWidth) {
+                } else if (z.y > (yOrigin + yWrldWidth)) {
                     z.y = yOrigin + yWrldWidth;
                 }
 
@@ -438,9 +439,13 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                 }
                 /* Check for gaps in the contour line, and set values there. */
                 /* how big is the gap in x and y directions */
-                int numx = Math.abs(i - oldi); // typically 1 or 2
-                int numy = Math.abs(j - oldj); // typically 1 or 2
-                if (numx > 1 || numy > 1) {
+
+                // typically 1 or 2
+                int numx = Math.abs(i - oldi);
+
+                // typically 1 or 2
+                int numy = Math.abs(j - oldj);
+                if ((numx > 1) || (numy > 1)) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("     gap from " + oldi + "," + oldj
                                 + " to " + i + "," + j);
@@ -450,17 +455,19 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                     if (logger.isDebugEnabled()) {
                         logger.debug("     gap size " + maxStep);
                     }
-                    int signdi = (i - oldi > 0) ? 1 : -1;
-                    int signdj = (j - oldj > 0) ? 1 : -1;
+                    int signdi = ((i - oldi) > 0) ? 1 : -1;
+                    int signdj = ((j - oldj) > 0) ? 1 : -1;
 
-                    if (maxStep > 0) { // should ALWAYS be true if you reach
-                        // here
+                    /* should ALWAYS be true if you reach here */
+                    if (maxStep > 0) {
                         for (int nn = 1; nn < maxStep; nn++) {
-                            /* convert to x,y position in gap (nearest integer) */
-                            int m = oldi + signdi
-                                    * Math.round(nn * (float) numx / maxStep);
-                            int n = oldj + signdj
-                                    * Math.round(nn * (float) numy / maxStep);
+                            /*
+                             * convert to x,y position in gap (nearest integer)
+                             */
+                            int m = oldi + (signdi * Math
+                                    .round((nn * (float) numx) / maxStep));
+                            int n = oldj + (signdj * Math
+                                    .round((nn * (float) numy) / maxStep));
                             /* set SIRS search control values in gaps */
                             this.onContour.set(m, n, lineIndex + 1);
                             this.contourValue.set(m, n, contourLevel);
@@ -468,7 +475,8 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
 
                         }
                     }
-                }/* end if checking for gaps in contour */
+                    /* end if checking for gaps in contour */
+                }
                 oldi = i;
                 oldj = j;
 
@@ -489,18 +497,27 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                  * computed right on contours, and also speeds things, by a very
                  * small amount, roughly 5%.
                  */
-                if (i % this.subGridFactor == 0 && j % this.subGridFactor == 0) {
-                    i = i / this.subGridFactor; // main grid index i
-                    j = j / this.subGridFactor; // main grid index j
+                if (((i % this.subGridFactor) == 0)
+                        && ((j % this.subGridFactor) == 0)) {
+
+                    // main grid index i
+                    i = i / this.subGridFactor;
+
+                    // main grid index j
+                    j = j / this.subGridFactor;
                     this.finalResultData.set(i, j, contourLevel);
                     this.valueFound.set(i, j, 1);
-                    this.howFound.set(i, j, 9); // 9 = value copied new contour
-                    // level
+
+                    // 9 = value copied new contour level
+                    this.howFound.set(i, j, 9);
                 }
-            } /* end loop over one contour line's points */
+                /* end loop over one contour line's points */
+            }
             logger.debug("   modified cont line " + lineIndex + " at level "
                     + contourLevel);
-        } /* end loop over all contour lines */
+
+            /* end loop over all contour lines */
+        }
         if (logger.isDebugEnabled()) {
             logger.debug("  contour levels input = " + this.contourLevels);
         }
@@ -508,7 +525,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
 
     /**
      * Read in data from unchanged contours.
-     * 
+     *
      * @param contourLines
      *            collection of contours to apply to grid
      * @param xOrigin
@@ -528,8 +545,8 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
         int oldj = 0;
 
         /* keep list of added positions for each line (temporary) */
-        ArrayList<Integer> iList = new ArrayList<Integer>();
-        ArrayList<Integer> jList = new ArrayList<Integer>();
+        List<Integer> iList = new ArrayList<>();
+        List<Integer> jList = new ArrayList<>();
         /*
          * x and y width in world coordinates (often pixels) (distance across
          * xDim steps across the grid, not how many points) (result is basically
@@ -555,7 +572,9 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
             /* get complete information for this contour line */
             CLine cline = contourLines.get(lineIndex);
 
-            /* if this line is modified go try the next contour line in for loop */
+            /*
+             * if this line is modified go try the next contour line in for loop
+             */
             if (cline.isModified()) {
                 continue;
             }
@@ -585,12 +604,12 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                  */
                 if (z.x < xOrigin) {
                     z.x = xOrigin;
-                } else if (z.x > xOrigin + xWrldWidth) {
+                } else if (z.x > (xOrigin + xWrldWidth)) {
                     z.x = xOrigin + xWrldWidth;
                 }
                 if (z.y < yOrigin) {
                     z.y = yOrigin;
-                } else if (z.y > yOrigin + yWrldWidth) {
+                } else if (z.y > (yOrigin + yWrldWidth)) {
                     z.y = yOrigin + yWrldWidth;
                 }
 
@@ -611,8 +630,8 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                     if (logger.isDebugEnabled()) {
                         logger.debug("  crossing contour found, index"
                                 + lineIndex + ",  new level "
-                                + this.contourValue.get(i, j) + " position "
-                                + i + ", " + j);
+                                + this.contourValue.get(i, j) + " position " + i
+                                + ", " + j);
                     }
                     iList.add(i);
                     jList.add(j);
@@ -621,7 +640,9 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                      * SIRS data set
                      */
                     removePoints(iList, jList);
-                    break; /* break off point and go to next line. */
+
+                    /* break off point and go to next line. */
+                    break;
                 }
 
                 if (ptIndex == 0) {
@@ -631,9 +652,13 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
 
                 /* Check for gaps in the contour line, and set values there. */
                 /* how big is the gap is x and y directions */
-                int numx = Math.abs(i - oldi); // typically 1 or 2
-                int numy = Math.abs(j - oldj); // typically 1 or 2
-                if (numx > 1 || numy > 1) {
+
+                // typically 1 or 2
+                int numx = Math.abs(i - oldi);
+
+                // typically 1 or 2
+                int numy = Math.abs(j - oldj);
+                if ((numx > 1) || (numy > 1)) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("     gap from " + oldi + ", " + oldj
                                 + " to " + i + ", " + j);
@@ -644,24 +669,22 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                     }
 
                     /* set the signs of i & j */
-                    int signdi = (i - oldi > 0) ? 1 : -1;
-                    int signdj = (j - oldj > 0) ? 1 : -1;
+                    int signdi = ((i - oldi) > 0) ? 1 : -1;
+                    int signdj = ((j - oldj) > 0) ? 1 : -1;
 
-                    if (maxStep > 0) { /*
-                                        * should ALWAYS be true if you reach
-                                        * here
-                                        */
+                    /* should ALWAYS be true if you reach here */
+                    if (maxStep > 0) {
                         for (int nn = 1; nn < maxStep; nn++) {
                             /* convert to x,y position in gap */
-                            int m = oldi + signdi
-                                    * Math.round(nn * (float) numx / maxStep);
-                            int n = oldj + signdj
-                                    * Math.round(nn * (float) numy / maxStep);
+                            int m = oldi + (signdi * Math
+                                    .round((nn * (float) numx) / maxStep));
+                            int n = oldj + (signdj * Math
+                                    .round((nn * (float) numy) / maxStep));
 
                             if (logger.isDebugEnabled()) {
-                                logger
-                                        .debug("       fill in gap with new pt at "
-                                                + m + ", " + n);
+                                logger.debug(
+                                        "       fill in gap with new pt at " + m
+                                                + ", " + n);
                             }
                             /* check is this crosses another contour */
                             if (this.contourNew.get(m, n) == 1) {
@@ -687,7 +710,8 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
 
                         }
                     }
-                } /* end if checking for gaps in contour */
+                    /* end if checking for gaps in contour */
+                }
                 oldi = i;
                 oldj = j;
 
@@ -702,23 +726,21 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                 iList.add(i);
                 jList.add(j);
 
-            } /* end loop over one contour line's points */
+                /* end loop over one contour line's points */
+            }
+
             if (logger.isDebugEnabled()) {
                 logger.debug("   done with old cont line, index " + lineIndex
                         + ", level " + contourLevel);
             }
-        } /* end loop over all unmodified contour lines */
+            /* end loop over all unmodified contour lines */
+        }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.gfe.IGfeAnalyzer#recomputeGrid()
-     */
     @Override
     public Grid2DFloat recomputeGrid() {
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
 
         /*
          * if have trivial case of only one contour line input, set all grid
@@ -726,11 +748,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
          */
         if (this.oneLine) {
             this.finalResultData.setAllValues(this.oneValue);
-            try {
-                return this.finalResultData.clone();
-            } catch (CloneNotSupportedException e) {
-                return new Grid2DFloat();
-            }
+            return this.finalResultData.copy();
         }
         /* normal processing */
         /*
@@ -768,19 +786,15 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
          * valid arguments are 1, 2 or 3.
          */
         // makeAssessment(1);
-        stopWatch.stop();
 
         /* add recompute grid time used to cstr time used */
-        this.timeUsed += stopWatch.getWallClockTime();
+        timer.stop();
+        this.timeUsed += timer.getElapsedTime();
 
         logger.info("    FSL SIRSGrid recomputing grid used " + this.timeUsed
-                + " seconds");
+                + " ms");
 
-        try {
-            return this.finalResultData.clone();
-        } catch (CloneNotSupportedException e) {
-            return new Grid2DFloat();
-        }
+        return this.finalResultData.copy();
     }
 
     /**
@@ -788,7 +802,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
      * values.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * Step 1 in SIRS; see TDL Note for details.
      * For points on grid between contours of differing values and in sight of
@@ -811,35 +825,40 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
      * </PRE>
      */
     public void computeWeighedContourValues() {
-        boolean modContourFound; // was a modified contour seen in this
-        // direction
-        boolean modContourPoint; // was any modified contour seen in any dir
+        // was a modified contour seen in this direction
+        boolean modContourFound;
+
+        // was any modified contour seen in any dir
+        boolean modContourPoint;
         int numDiffValues;
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
 
         /* used for averaging all values seen in search: */
         double cPrevious;
         double top;
         double bottom;
 
-        int numStep1 = 0; /* counter of how many points solved here */
+        /* counter of how many points solved here */
+        int numStep1 = 0;
 
         /* check all main grid points */
         for (int i = 0; i < this.xDim; i++) {
             for (int j = 0; j < this.yDim; j++) {
-                if (this.valueFound.get(i, j) != 1) { /*
-                                                       * no value set for this
-                                                       * point yet
-                                                       */
+                if (this.valueFound.get(i, j) != 1) {
+                    /*
+                     * no value set for this point yet
+                     */
                     modContourPoint = false;
                     numDiffValues = 0;
                     top = 0.0;
                     bottom = 0.0;
                     cPrevious = -9999.0;
 
-                    /* search in all eight directions from this main grid point */
+                    /*
+                     * search in all eight directions from this main grid point
+                     */
                     for (SearchDir dir : SearchDir.values()) {
 
                         /*
@@ -850,7 +869,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                         modContourFound = findNearestContour(i, j, dir, cvd);
 
                         /* if a modified contour was seen */
-                        if (modContourFound && cvd.distance != 0.0) {
+                        if (modContourFound && (cvd.distance != 0.0)) {
                             modContourPoint = true;
                         }
 
@@ -859,7 +878,8 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                         /* compute average value using ALL "seen" values */
                         if (cvd.distance != 0.0) {
                             /* count how many different contour values seen */
-                            if (numDiffValues == 0 || cvd.value != cPrevious) {
+                            if ((numDiffValues == 0)
+                                    || (cvd.value != cPrevious)) {
                                 numDiffValues++;
                             }
                             top += cvd.value / cvd.distance;
@@ -867,7 +887,9 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                             cPrevious = cvd.value;
 
                         }
-                    } /* end of search in all 8 directions from this point */
+                        /* end of search in all 8 directions from this point */
+                    }
+
                     /*
                      * possible cases now: IF a modified contour seen, and 2 or
                      * more different contours were seen, step 1 applies, so
@@ -875,14 +897,17 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                      */
 
                     /* compute average using all values seen */
-                    if (modContourPoint && numDiffValues > 1 && bottom != 0.0) {
+                    if (modContourPoint && (numDiffValues > 1)
+                            && (bottom != 0.0)) {
                         /*
                          * compute the distance-weighted average of all contour
                          * values.
                          */
                         this.finalResultData.set(i, j, (float) (top / bottom));
                         this.valueFound.set(i, j, 1);
-                        this.howFound.set(i, j, 1); /* found by step 1 */
+
+                        /* found by step 1 */
+                        this.howFound.set(i, j, 1);
                         /* add up how many data points determined by step 1; */
                         numStep1++;
                     } else if (!modContourPoint) {
@@ -892,24 +917,27 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                          */
                         this.finalResultData.set(i, j, this.oldData.get(i, j));
                         this.valueFound.set(i, j, 1);
-                        this.howFound.set(1, j, -1); /* means old data copied */
+
+                        /* means old data copied */
+                        this.howFound.set(1, j, -1);
                     }
-                } /* end if no value set for this point yet */
-            } /* end loop on all grid (i,j) points - j loop */
-        } /* end loop on all grid (i,j) points - i loop */
+                    /* end if no value set for this point yet */
+                }
+                /* end loop on all grid (i,j) points - j loop */
+            }
+            /* end loop on all grid (i,j) points - i loop */
+        }
         if (logger.isDebugEnabled()) {
-            logger
-                    .debug("SIRS: Number of grid point values found by step 1 is "
-                            + numStep1);
+            logger.debug("SIRS: Number of grid point values found by step 1 is "
+                    + numStep1);
         }
         /*
          * By now the only points in the grid which do not have values should be
          * done by step 2 or 3.
          */
-        stopWatch.stop();
+        timer.stop();
         if (logger.isDebugEnabled()) {
-            logger.debug("    SIRS step 1 " + stopWatch.getWallClockTime()
-                    + " seconds");
+            logger.debug("    SIRS step 1 " + timer.getElapsedTime() + " ms");
         }
     }
 
@@ -918,7 +946,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
      * direction from the value.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * Step 2 in SIRS; see TDL Note for details.
      * Implementation:
@@ -945,32 +973,40 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
      * </PRE>
      */
     public void computeDirectionalGradients() {
-        double[] c1 = new double[8]; // nearest contour values found in each
-        // direction
-        double[] d1 = new double[8]; // distance to a contour found in each
-        // direction
-        double[] grad = new double[8]; // gradient in each direction
-        double[] v = new double[8]; // first estimate of value, from TDL Note
-        // eq. 2b.
-        double[] r = new double[8]; // "range limit"
-        double[] vp = new double[8]; // "constrained value" for some v[]
+        // nearest contour values found in each direction
+        double[] c1 = new double[8];
+
+        // distance to a contour found in each direction
+        double[] d1 = new double[8];
+
+        // gradient in each direction
+        double[] grad = new double[8];
+
+        // first estimate of value, from TDL Note eq. 2b.
+        double[] v = new double[8];
+
+        // "range limit"
+        double[] r = new double[8];
+
+        // "constrained value" for some v[]
+        double[] vp = new double[8];
 
         int numcavg;
         int numStep2 = 0;
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        ITimer timer = TimeUtil.getTimer();
+        timer.start();
 
         if (logger.isDebugEnabled()) {
-            logger.debug(" do step 2 "
-                    + ((!this.clampOn) ? "" : " clamp is on"));
+            logger.debug(
+                    " do step 2 " + ((!this.clampOn) ? "" : " clamp is on"));
         }
 
         /*
          * first extend the upper and lower contour level limits by one step to
          * provide contour level limiting value at the ends, if desired
          */
-        if (this.clampOn && this.contourLevels.size() > 1) {
+        if (this.clampOn && (this.contourLevels.size() > 1)) {
             if (logger.isDebugEnabled()) {
                 logger.debug(" clamp is on ; extend level");
             }
@@ -1023,7 +1059,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                         int numFound = findDistantContours(i, j, dir, cvda,
                                 cvdb);
                         /* if contours were found */
-                        if (numFound == 1 || numFound == 2) {
+                        if ((numFound == 1) || (numFound == 2)) {
                             double ca = cvda.value;
                             double da = cvda.distance;
                             c1[k] = ca;
@@ -1043,12 +1079,19 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                              * that would mean two contours at the same point.)
                              */
 
-                            /* if saw TWO DIFFERENT contours in this direction */
-                            if (cvdb.value != cvda.value
-                                    && cvda.distance != cvdb.distance) {
-                                grad[k] = cvdb.gradient(cvda); // TDL eq 2a.
-                                v[k] = ca - grad[k] * da; // TDL eq 2b.
-                                r[k] = (2.0 * ca) - cvdb.value; // TDL eq 2c.
+                            /*
+                             * if saw TWO DIFFERENT contours in this direction
+                             */
+                            if ((cvdb.value != cvda.value)
+                                    && (cvda.distance != cvdb.distance)) {
+                                // TDL eq 2a.
+                                grad[k] = cvdb.gradient(cvda);
+
+                                // TDL eq 2b.
+                                v[k] = ca - (grad[k] * da);
+
+                                // TDL eq 2c.
+                                r[k] = (2.0 * ca) - cvdb.value;
 
                                 /*
                                  * create the "constrained value" vp (eq. 2d)
@@ -1056,7 +1099,8 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                                  * 2e)
                                  */
                                 if (Math.abs(ca - v[k]) > Math.abs(ca - r[k])) {
-                                    vp[k] = r[k]; // TDL eq. 2d.
+                                    // TDL eq. 2d.
+                                    vp[k] = r[k];
                                     /*
                                      * Copied from the C++: Dave Ruth says this
                                      * next line is not used in SIRS as he does
@@ -1066,15 +1110,20 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                                      */
                                     v[k] = r[k];
                                 } else {
-                                    vp[k] = v[k]; // TDL eq. 2d.
+                                    // TDL eq. 2d.
+                                    vp[k] = v[k];
                                 }
                             }
-                        } /* end if contours were found */
-                    } /* end of search in all directions - first search */
+                            /* end if contours were found */
+                        }
+                        /* end of search in all directions - first search */
+                    }
                     double top = 0.0;
                     double bottom = 0.0;
 
-                    /* loop in all directions for eq. 2e, 2f, and terms for 2g. */
+                    /*
+                     * loop in all directions for eq. 2e, 2f, and terms for 2g.
+                     */
                     for (SearchDir dir : SearchDir.values()) {
                         int k = dir.ord;
                         /*
@@ -1088,34 +1137,38 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                              */
                             ContourValueDistance cvda = new ContourValueDistance();
                             ContourValueDistance cvdb = new ContourValueDistance();
-                            int numFound = findDistantContours(i, j, dir
-                                    .reverse(), cvda, cvdb);
+                            int numFound = findDistantContours(i, j,
+                                    dir.reverse(), cvda, cvdb);
                             if (numFound == 0) {
                                 /*
                                  * no contour seen in opposite direction, so do
                                  * 2e
                                  */
-                                double vpp = (0.5 * vp[k])
-                                        + 0.5
-                                        * (c1[k] - (d1[k] / (d1[k] + cvda.distance))
-                                                * (c1[k] - r[k]));
-                                if (Math.abs(c1[k] - vpp) < Math.abs(c1[k]
-                                        - v[k])) {
-                                    v[k] = vpp; // TDL eq. 2f.
+                                double vpp = (0.5 * vp[k]) + (0.5 * (c1[k]
+                                        - ((d1[k] / (d1[k] + cvda.distance))
+                                                * (c1[k] - r[k]))));
+                                if (Math.abs(c1[k] - vpp) < Math
+                                        .abs(c1[k] - v[k])) {
+
+                                    // TDL eq. 2f.
+                                    v[k] = vpp;
                                 }
                             }
                         }
                         /* compute terms for final weighed average */
-                        if (grad[k] != 0.0 && d1[k] != 0.0) {
+                        if ((grad[k] != 0.0) && (d1[k] != 0.0)) {
                             top += v[k] / d1[k];
                             bottom += 1.0 / d1[k];
                         }
-                    } /* end of second loop in all directions */
+                        /* end of second loop in all directions */
+                    }
+
                     /*
                      * compute weighed directional average; restrict by range
                      * limits as needed;
                      */
-                    cavg /= numcavg; // contour value near this point
+                    // contour value near this point
+                    cavg /= numcavg;
                     if (bottom != 0.0) {
                         /* make the average of weighed directional gradients */
                         double avgVal = top / bottom;
@@ -1125,7 +1178,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                          * constrained so as not to exceed the LEAST restrictive
                          * range limit in any direction computed in Equation
                          * 2c."
-                         * 
+                         *
                          * In some rare cases have range limits above and below
                          * cavg. Have to handle all possibilities.
                          */
@@ -1150,13 +1203,13 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                          * avgVal is between rMin and cavg it is ok; else
                          * restrict to appropriate range limit.
                          */
-                        if (avgVal <= rMax && avgVal >= rMin) {
+                        if ((avgVal <= rMax) && (avgVal >= rMin)) {
                             this.finalResultData.set(i, j, (float) avgVal);
-                        } else if (cavg < rMin
-                                && (avgVal <= rMin && avgVal >= cavg)) {
+                        } else if ((cavg < rMin)
+                                && ((avgVal <= rMin) && (avgVal >= cavg))) {
                             this.finalResultData.set(i, j, (float) avgVal);
-                        } else if (cavg > rMax
-                                && (avgVal <= cavg && avgVal >= rMax)) {
+                        } else if ((cavg > rMax)
+                                && ((avgVal <= cavg) && (avgVal >= rMax))) {
                             this.finalResultData.set(i, j, (float) avgVal);
                         } else if (avgVal < rMin) {
                             this.finalResultData.set(i, j, (float) rMin);
@@ -1170,39 +1223,43 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                          * contour levels that limit cavg; cavg should be the
                          * value of the surrounding level
                          */
-                        if (this.clampOn && this.contourLevels.size() > 1) {
+                        if (this.clampOn && (this.contourLevels.size() > 1)) {
                             /* loop through the contour levels */
-                            for (int ii = 1; ii < this.contourLevels.size() - 1; ii++) {
-                                if (cavg > this.contourLevels.get(ii - 1)
-                                        && cavg < this.contourLevels
-                                                .get(ii + 1)) {
+                            for (int ii = 1; ii < (this.contourLevels.size()
+                                    - 1); ii++) {
+                                if ((cavg > this.contourLevels.get(ii - 1))
+                                        && (cavg < this.contourLevels
+                                                .get(ii + 1))) {
                                     /* case of increasing levels */
-                                    if (this.finalResultData.get(i, j) <= this.contourLevels
-                                            .get(ii - 1)) {
-                                        this.finalResultData
-                                                .set(i, j, this.contourLevels
-                                                        .get(ii - 1) + 0.001f);
-                                    } else if (this.finalResultData.get(i, j) >= this.contourLevels
-                                            .get(ii + 1)) {
-                                        this.finalResultData
-                                                .set(i, j, this.contourLevels
-                                                        .get(ii + 1) - 0.001f);
+                                    if (this.finalResultData.get(i,
+                                            j) <= this.contourLevels
+                                                    .get(ii - 1)) {
+                                        this.finalResultData.set(i, j,
+                                                this.contourLevels.get(ii - 1)
+                                                        + 0.001f);
+                                    } else if (this.finalResultData.get(i,
+                                            j) >= this.contourLevels
+                                                    .get(ii + 1)) {
+                                        this.finalResultData.set(i, j,
+                                                this.contourLevels.get(ii + 1)
+                                                        - 0.001f);
                                     }
-                                } else if (cavg < this.contourLevels
-                                        .get(ii - 1)
-                                        && cavg >= this.contourLevels
-                                                .get(ii + 1)) {
+                                } else if ((cavg < this.contourLevels
+                                        .get(ii - 1))
+                                        && (cavg >= this.contourLevels
+                                                .get(ii + 1))) {
                                     /* case of decreasing levels */
-                                    if (this.finalResultData.get(i, j) >= this.contourLevels
-                                            .get(ii - 1)) {
-                                        this.finalResultData
-                                                .set(i, j, this.contourLevels
-                                                        .get(ii - 1) - 0.001f);
-                                    } else if (this.finalResultData.get(i, j) <= contourLevels
-                                            .get(ii + 1)) {
-                                        this.finalResultData
-                                                .set(i, j, this.contourLevels
-                                                        .get(ii + 1) + 0.001f);
+                                    if (this.finalResultData.get(i,
+                                            j) >= this.contourLevels
+                                                    .get(ii - 1)) {
+                                        this.finalResultData.set(i, j,
+                                                this.contourLevels.get(ii - 1)
+                                                        - 0.001f);
+                                    } else if (this.finalResultData.get(i,
+                                            j) <= contourLevels.get(ii + 1)) {
+                                        this.finalResultData.set(i, j,
+                                                this.contourLevels.get(ii + 1)
+                                                        + 0.001f);
                                     }
                                 }
                             }
@@ -1210,28 +1267,31 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                                 logger.debug("     end clamp with fr = "
                                         + this.finalResultData.get(i, j));
                             }
-                        } /* end of clamp */
+                            /* end of clamp */
+                        }
                         this.valueFound.set(i, j, 1);
-                        this.howFound.set(i, j, 2); // the value was found by
-                        // step 2
+
+                        // the value was found by step 2
+                        this.howFound.set(i, j, 2);
                         numStep2++;
-                    }/* end if bottom != 0 */
-                } /* end if value not yet found for this point */
 
-            } /* end check all the main grid points - j loop */
-
-        } /* end check all the main grid points - i loop */
+                        /* end if bottom != 0 */
+                    }
+                    /* end if value not yet found for this point */
+                }
+                /* end check all the main grid points - j loop */
+            }
+            /* end check all the main grid points - i loop */
+        }
         if (logger.isDebugEnabled()) {
-            logger
-                    .debug("SIRS: Number of grid point values found by step w is "
-                            + numStep2);
+            logger.debug("SIRS: Number of grid point values found by step w is "
+                    + numStep2);
             logger.debug("  extended contour levels "
                     + this.contourLevels.toString());
         }
-        stopWatch.stop();
+        timer.stop();
         if (logger.isDebugEnabled()) {
-            logger.debug("    SIRS step 2 " + stopWatch.getWallClockTime()
-                    + " seconds");
+            logger.debug("    SIRS step 2 " + timer.getElapsedTime() + " ms");
         }
 
     }
@@ -1241,7 +1301,7 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
      * and {@link #computeWeighedContourValues()}.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * SIRS step 3. See TDL Note.
      * Fills in spots not done by steps 1 and 2,
@@ -1270,18 +1330,24 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                             sumValues += cvd.value;
                             na++;
                         }
-                    } /* end search in all directions */
+                        /* end search in all directions */
+                    }
+
                     if (na != 0) {
-                        this.finalResultData
-                                .set(i, j, (float) (sumValues / na));
+                        this.finalResultData.set(i, j,
+                                (float) (sumValues / na));
                         this.valueFound.set(i, j, 1);
-                        this.howFound.set(i, j, 3); // the value was found by
-                        // step 3
+
+                        // the value was found by step 3
+                        this.howFound.set(i, j, 3);
                         numStep3++;
                     }
-                } /* end if value not yet computed */
-            } /* end of loop on all main grid points - j indexed loop */
-        } /* end of loop on all main grid points - i indexed loop */
+                    /* end if value not yet computed */
+                }
+                /* end of loop on all main grid points - j indexed loop */
+            }
+            /* end of loop on all main grid points - i indexed loop */
+        }
         if (logger.isDebugEnabled()) {
             logger.debug("SIRS: Number of grid point values found by step 3 is"
                     + numStep3);
@@ -1292,22 +1358,18 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
      * Performs a smoothing of grid values in the change area.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
-     * smooth recomputed values in change area.
-     * Not a big influence; but does really help avoid single erratic data
-     * points that can lead to complex contours over small areas (mainly a
-     * problem if you make three or more successive contour steps on
-     * the same change area.)
-     * NOTE PHENOMENON: averaging moves contours away from the steeper
-     * gradient. Usual effect is that a new grid's contour is not
-     * exactly under the modified contour used to make it - it is offset
-     * on the side ways from a steeper gradient. Often &quot;behind&quot;
-     * a moved contour.
-     * Implementation:
-     * simple idea but
-     * much of the code is concerned with dont-go-beyond-grid-edge checking.
-     * 
+     * smooth recomputed values in change area. Not a big influence; but does
+     * really help avoid single erratic data points that can lead to complex
+     * contours over small areas (mainly a problem if you make three or more
+     * successive contour steps on the same change area.) NOTE PHENOMENON:
+     * averaging moves contours away from the steeper gradient. Usual effect is
+     * that a new grid's contour is not exactly under the modified contour used
+     * to make it - it is offset on the side ways from a steeper gradient. Often
+     * &quot;behind&quot; a moved contour. Implementation: simple idea but much
+     * of the code is concerned with dont-go-beyond-grid-edge checking.
+     *
      * <PRE>
      */
     public void smoothSIRSData() {
@@ -1338,14 +1400,13 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
             for (int j = newYMin + 1; j < newYMax; j++) {
                 int ii = i - newXMin;
                 int jj = j - newYMin;
-                double temp = orig.get(ii, jj)
-                        / 4
-                        + (orig.get(ii - 1, jj + 1) + orig.get(ii, jj + 1)
+                double temp = (orig.get(ii, jj) / 4)
+                        + ((orig.get(ii - 1, jj + 1) + orig.get(ii, jj + 1)
                                 + orig.get(ii + 1, jj + 1)
                                 + orig.get(ii - 1, jj) + orig.get(ii + 1, jj)
                                 + orig.get(ii - 1, jj - 1)
-                                + orig.get(ii, jj - 1) + orig.get(ii + 1,
-                                jj - 1)) / 10.667;
+                                + orig.get(ii, jj - 1)
+                                + orig.get(ii + 1, jj - 1)) / 10.667);
                 this.finalResultData.set(i, j, (float) temp);
             }
         }
@@ -1355,29 +1416,29 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
      * Computes measure of error for newly computed grid points.
      * <P>
      * Legacy Documentation:
-     * 
+     *
      * <PRE>
      * computes measures of error of new grid point values computed
      * by SIRS and prints them; not used operationally.
      * Not an assessment of entire grid.
      * </PRE>
-     * 
+     *
      * @param step
      *            the SIRS step to assess (1, 2, or 3)
      */
     public void makeAssessment(int step) {
-        int numFilled = 0; // counter of how many grid points were computed by
-        // SIRS
+        // counter of how many grid points were computed by SIRS
+        int numFilled = 0;
         for (int i = 1; i < this.xDim; i++) {
             for (int j = 1; j < this.yDim; j++) {
                 int how = this.howFound.get(i, j);
-                if (how > 0 && how < 4) {
+                if ((how > 0) && (how < 4)) {
                     numFilled++;
                 }
             }
         }
         logger.info("SIRS: percent of whole grid recomputed by SIRS = "
-                + (100.0 * numFilled / (this.xDim * this.yDim)) + "%");
+                + ((100.0 * numFilled) / (this.xDim * this.yDim)) + "%");
 
         double diff = 0.0;
         double avgDiff = 0.0;
@@ -1413,8 +1474,10 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
                 if (this.howFound.get(i, j) == step) {
                     error = this.oldData.get(i, j)
                             - this.finalResultData.get(i, j);
-                    /* difference from true value as a percent of avg grid value */
-                    diff = 100.0 * Math.abs(error) / avgValue;
+                    /*
+                     * difference from true value as a percent of avg grid value
+                     */
+                    diff = (100.0 * Math.abs(error)) / avgValue;
                     avgDiff += error;
                     nSum++;
                     if (diff > maxDiff) {
@@ -1442,8 +1505,8 @@ public class SIRSGrid extends AbstractGfeAnalyzer {
         logger.info("SIRS: min grid value is " + minValue);
         logger.info("SIRS: data range is " + (range));
         logger.info("      max SIRS error this step is "
-                + (maxDiff * avgValue / range) + "%");
+                + ((maxDiff * avgValue) / range) + "%");
         logger.info("      avg SIRS error this step is "
-                + (avgDiff * avgValue / range) + "%");
+                + ((avgDiff * avgValue) / range) + "%");
     }
 }

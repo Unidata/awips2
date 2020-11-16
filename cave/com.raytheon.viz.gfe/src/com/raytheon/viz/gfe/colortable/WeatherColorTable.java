@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -30,32 +30,37 @@ import com.raytheon.uf.common.dataplugin.gfe.weather.WxComposite;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.wxvalue.WeatherWxValue;
 import com.raytheon.viz.gfe.core.wxvalue.WxValue;
 
 /**
- * TODO Add Description
- * 
+ * Weather Color Table
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 18, 2010            randerso     Initial creation
- * Jan 27, 2016 14453      yteng        Make color for same weather type
- *                                      consistent in different grids
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 18, 2010           randerso  Initial creation
+ * Jan 27, 2016  14453    yteng     Make color for same weather type consistent
+ *                                  in different grids
+ * Jan 16, 2018  6886     dgilling  Set default fill pattern when coverage is
+ *                                  not defined in GFE config.
+ * Jan 25, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
  *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class WeatherColorTable extends ColorTable {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(WeatherColorTable.class);
 
-    private static final List<String> grayColors = new ArrayList<String>(
+    private static final List<String> grayColors = new ArrayList<>(
             Arrays.asList("grey85", "gray75", "gray60", "gray40", "grey90",
                     "grey50"));
 
@@ -65,11 +70,13 @@ public class WeatherColorTable extends ColorTable {
 
     private Map<String, String> typeIntenNamesToColors;
 
-    private Map<String, String> genericNamesToColors = new HashMap<String, String>();
+    private Map<String, String> genericNamesToColors = new HashMap<>();
 
+    /**
+     * Constructor
+     */
     public WeatherColorTable() {
         super();
-
         covNamesToPatterns = loadMap("WeatherCoverage_names",
                 "WeatherCoverage_fillPatterns");
 
@@ -80,29 +87,22 @@ public class WeatherColorTable extends ColorTable {
     }
 
     private Map<String, String> loadMap(String keyKey, String valueKey) {
-        Map<String, String> map = new HashMap<String, String>();
+        Map<String, String> map = new HashMap<>();
 
-        String[] keys = prefs.getStringArray(keyKey);
-        String[] values = prefs.getStringArray(valueKey);
+        String[] keys = GFEPreference.getStringArray(keyKey);
+        String[] values = GFEPreference.getStringArray(valueKey);
         if (keys.length == values.length) {
             for (int i = 0; i < keys.length; i++) {
                 map.put(keys[i], values[i]);
             }
         } else {
-            statusHandler.handle(Priority.PROBLEM, keyKey + " and " + valueKey
-                    + " not parallel.");
+            statusHandler.handle(Priority.PROBLEM,
+                    keyKey + " and " + valueKey + " not parallel.");
         }
 
         return map;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.colortable.ColorTable#map(com.raytheon.viz.gfe.core
-     * .wxvalue.WxValue)
-     */
     @Override
     public List<ImageAttr> map(WxValue wxValue) {
         List<ImageAttr> result = mapWeatherValue(wxValue);
@@ -119,27 +119,33 @@ public class WeatherColorTable extends ColorTable {
     private void allocateWeatherCTEntry(WxValue wxValue) {
         WeatherKey wxkey = ((WeatherWxValue) wxValue).getWeatherKey();
         if (!wxkey.isValid()) {
+            // if invalid, then return and do nothing
             statusHandler.handle(Priority.VERBOSE,
                     "Attempt to allocate color entry for invalid wxkey:"
                             + wxkey);
-            return; // if invalid, then return and do nothing
+            return;
         }
 
         // decompose the weather key into composite types
         List<WxComposite> comps = wxkey.getCompositeTypes();
 
-        List<ImageAttr> imageAttr = new ArrayList<ImageAttr>();
+        List<ImageAttr> imageAttr = new ArrayList<>();
 
         // not complex weather
         if (comps.size() < 3) {
             for (WxComposite comp : comps) {
                 // find a fill pattern based upon the coverage.
+                String fillForCoverage = (comp.coverage().isEmpty())
+                        ? covNamesToPatterns.get("<NoCov>")
+                        : covNamesToPatterns.get(comp.coverage());
+
                 String fillName = "WHOLE";
-                // special case for empty coverage or <NoCov>
-                if (comp.coverage().isEmpty()) {
-                    fillName = covNamesToPatterns.get("<NoCov>");
+                if (fillForCoverage != null) {
+                    fillName = fillForCoverage;
                 } else {
-                    fillName = covNamesToPatterns.get(comp.coverage());
+                    statusHandler.error("WeatherColorTable coverage "
+                            + comp.coverage()
+                            + " not defined in WeatherCoverage.names from Config");
                 }
 
                 // find a color
@@ -174,7 +180,7 @@ public class WeatherColorTable extends ColorTable {
 
     private String getUniqueColor() {
         // List<String> userColors, usedColors, possibleColors, ctUsedColors;
-        List<String> ctUsedColors = new ArrayList<String>();
+        List<String> ctUsedColors = new ArrayList<>();
 
         // all of the used colors in color table
         for (List<ImageAttr> imageAttrs : getEntries().values()) {
@@ -184,14 +190,15 @@ public class WeatherColorTable extends ColorTable {
         }
 
         // get a list of colors the user would like us to try.
-        String[] userColors = prefs.getStringArray("WeatherGeneric_colors");
+        String[] userColors = GFEPreference
+                .getStringArray("WeatherGeneric_colors");
 
         // these are possible choices for the new color.
-        List<String> possibleColors = new ArrayList<String>(
+        List<String> possibleColors = new ArrayList<>(
                 Arrays.asList(userColors));
 
         // these can not be used for the new color.
-        List<String> usedColors = new ArrayList<String>();
+        List<String> usedColors = new ArrayList<>();
         usedColors.addAll(typeNamesToColors.values());
         usedColors.addAll(typeIntenNamesToColors.values());
         usedColors.addAll(ctUsedColors);
@@ -199,7 +206,7 @@ public class WeatherColorTable extends ColorTable {
         String newColor = firstFreeColor(usedColors, possibleColors);
 
         // if we couldn't find any available colors, then use grays
-        if (newColor.equals("<None>")) {
+        if ("<None>".equals(newColor)) {
             // pick a shade of gray
             possibleColors.clear();
             possibleColors.addAll(grayColors);
@@ -208,10 +215,9 @@ public class WeatherColorTable extends ColorTable {
         }
 
         // all of the grays are used, so use white
-        if (newColor.equals("<None>")) {
-            statusHandler
-                    .handle(Priority.EVENTB,
-                            "WeatherColorTable::getUniqueColor() : out of colors using 'White'");
+        if ("<None>".equals(newColor)) {
+            statusHandler.handle(Priority.EVENTB,
+                    "WeatherColorTable::getUniqueColor() : out of colors using 'White'");
             newColor = "White";
         }
 

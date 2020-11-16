@@ -21,6 +21,10 @@ package com.raytheon.viz.xdat;
 
 import java.util.List;
 
+import org.eclipse.swt.graphics.Point;
+
+import com.raytheon.viz.xdat.XdatDlg.UpdateType;
+
 /**
  * 
  * Interface defining the callbacks used for displaying information on the
@@ -34,6 +38,8 @@ import java.util.List;
  * Jan 15, 2009 1883       lvenable     Initial creation
  * 10 Feb 2009             wkwock      Added functions.
  * 04 Aug 2016  5800       mduff       Changed getSelectedText to return the List Interface
+ * 12 Mar 2018  DCS18260   astrakovsky Changed rows to be selected in one click and
+ *                                     fixed GUI not updating.
  * 
  * </pre>
  * 
@@ -41,6 +47,16 @@ import java.util.List;
  * @version 1.0
  */
 public interface ITextDisplay {
+
+    /**
+     * Save the current text area selection.
+     */
+    public void saveSelection();
+
+    /**
+     * Restore the last saved text area selection.
+     */
+    public void restoreSelection();
 
     /**
      * Set the text on the display.
@@ -59,6 +75,91 @@ public interface ITextDisplay {
     void setDisplayText(String text);
 
     /**
+     * Get the text on the display.
+     * 
+     * @return the text area content.
+     */
+    public String getDisplayText();
+
+    /**
+     * Get the currently selected line.
+     * 
+     * @return the line number.
+     */
+    int getCurrentLineNumber();
+
+    /**
+     * Get the offset at line.
+     * 
+     * @return the offset.
+     */
+    public int getOffsetAtLine(int line);
+
+    /**
+     * Get the line indicated
+     */
+    String getLine(int line);
+
+    /**
+     * Get the line count
+     */
+    int getLineCount();
+
+    /**
+     * Set the top index
+     * 
+     * @param int
+     *            the top index to set.
+     */
+    void setTopIndex(int index);
+
+    /**
+     * Get the top index
+     */
+    int getTopIndex();
+
+    /**
+     * Set the text selection
+     * 
+     * @param point
+     *            the selection point to set.
+     */
+    void setSelection(Point point);
+
+    /**
+     * Set the text selection
+     * 
+     * @param int
+     *            the selection coordinates to set.
+     */
+    void setSelection(int x, int y);
+
+    /**
+     * Get the text selection
+     */
+    Point getSelection();
+
+    /**
+     * Get the last update
+     * 
+     * @return
+     */
+    public UpdateType getLastUpdate();
+
+    /**
+     * Set the last update
+     * 
+     * @param lastUpdate
+     */
+    public void setLastUpdate(UpdateType lastUpdate);
+
+    /**
+     * Refresh the contents of the text area.
+     * 
+     */
+    public void refreshTextArea();
+
+    /**
      * Get the starting date in a string format.
      * 
      * @return start date
@@ -71,6 +172,31 @@ public interface ITextDisplay {
      * @return end date
      */
     String getEndDate();
+
+    /**
+     * Display the data associated with the selected ID.
+     */
+    public void displayIdSelection(String selectedId);
+
+    /**
+     * Update the GUI with the new value and changes without reloading from DB.
+     */
+    public void updateTextAreaValue(String newValue);
+
+    /**
+     * Display COOP Precipitation
+     */
+    public void displayCoopPrecip();
+
+    /**
+     * Display Precipitation Accumulation
+     */
+    public void displayPrecipAccumulation(int hour, int duration);
+
+    /**
+     * Retrieve and display the group data.
+     */
+    public void retrieveAndDisplayGroupData(String selectedGroup);
 
     /**
      * Get the entered PE or the selected PE.

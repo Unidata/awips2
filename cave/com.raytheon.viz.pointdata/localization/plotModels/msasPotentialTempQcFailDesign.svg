@@ -23,6 +23,7 @@
         version of the file will completely replace a lower priority version
         of the file.
     -->
+<?xml-stylesheet type="text/css" href="plots.css"?>
 <svg width="80" height="80" viewBox="0 0 80 80" overflow="visible"
     contentScriptType="text/python" xmlns="http://www.w3.org/2000/svg"
     xmlns:xlink="http://www.w3.org/1999/xlink" style="stroke: rgb(255,255,255);">
@@ -51,20 +52,6 @@ class MsasPotentialTempQcFailPlotDelegate(PlotDelegate):
 
 plotDelegate = MsasPotentialTempQcFailPlotDelegate()
         </script>
-        <style type="text/css">
-            <![CDATA[
-                @font-face { font-family: "StandardFont";
-                        src: url(Standard.svg#Standard); }
-                text.text
-                    {
-                        fill: none;
-                        font-size: 1em;
-                        stroke-width: 1px;
-                        font-family: StandardFont;
-                        font-size: 1em;
-                    }
-            ]]>
-        </style>
         <symbol overflow="visible" id="plotData" class="info">
             <text id="extraParams" plotMode="null" class="text"
                 plotParam="stationName,potentialTemp,potentialTempQCA,potentialTempQCR,potentialTempDD"

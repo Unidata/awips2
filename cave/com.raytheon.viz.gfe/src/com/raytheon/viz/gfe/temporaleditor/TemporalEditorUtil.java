@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -39,27 +39,36 @@ import com.raytheon.viz.gfe.gridmanager.GridManagerUtil;
 
 /**
  * Displays the Temporal Editor Data
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 30, 2009 2159       rjpeter     Initial creation.
- * Feb 20, 2015 4051       dgilling    Added determinePointsToUse() to
- *                                     allow TemporalEditor to edit with
- *                                     no active edit area.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 30, 2009  2159     rjpeter   Initial creation.
+ * Feb 20, 2015  4051     dgilling  Added determinePointsToUse() to allow
+ *                                  TemporalEditor to edit with no active edit
+ *                                  area.
+ * Feb 07, 2018  6882     randerso  Changed to use ReferenceData.isEmpty()
+ *
  * </pre>
- * 
+ *
  * @author rjpeter
- * @version 1.0
  */
 
 public class TemporalEditorUtil extends GridManagerUtil {
+
+    /** Text Justification */
+    @SuppressWarnings("javadoc")
     public enum TextJustify {
         TOP, BOTTOM, LEFT, RIGHT, CENTER
     }
 
+    /**
+     * Constructor
+     *
+     * @param gridManager
+     */
     public TemporalEditorUtil(GridManager gridManager) {
         super(gridManager);
     }
@@ -69,6 +78,16 @@ public class TemporalEditorUtil extends GridManagerUtil {
         return gridManager.getTemporalEditorVisibleTimeRange();
     }
 
+    /**
+     * Draw justified text
+     *
+     * @param gc
+     * @param txt
+     * @param x
+     * @param y
+     * @param vertTxtJust
+     * @param horzTxtJust
+     */
     public static void drawJustifiedText(GC gc, String txt, int x, int y,
             TextJustify vertTxtJust, TextJustify horzTxtJust) {
         Point txtSize = gc.textExtent(txt);
@@ -98,12 +117,12 @@ public class TemporalEditorUtil extends GridManagerUtil {
     }
 
     /**
-     * 
+     *
      * @param colorList
      * @param min
      * @param max
      * @param value
-     * @return
+     * @return color from color list to be used for value
      */
     public static Color getColorForValue(List<Color> colorList, float min,
             float max, float value) {
@@ -114,9 +133,8 @@ public class TemporalEditorUtil extends GridManagerUtil {
     }
 
     /**
-     * 
      * @param parm
-     * @return
+     * @return the title bar text for parm
      */
     public static String getTitleBarText(Parm parm) {
         ParmID pId = parm.getGridInfo().getParmID();
@@ -125,10 +143,14 @@ public class TemporalEditorUtil extends GridManagerUtil {
                 + dbId.getModelName() + " (" + dbId.getSiteId() + ")";
     }
 
+    /**
+     * @param refSet
+     * @return the edit area mask based on refset
+     */
     public static Grid2DBit determinePointsToUse(final ReferenceData refSet) {
         Grid2DBit pointsToUse;
 
-        if (!refSet.isQuery() && !refSet.getGrid().isAnyBitsSet()) {
+        if (refSet.isEmpty()) {
             IReferenceSetManager refMgr = DataManagerUIFactory
                     .getCurrentInstance().getRefManager();
             pointsToUse = refMgr.fullRefSet().getGrid();

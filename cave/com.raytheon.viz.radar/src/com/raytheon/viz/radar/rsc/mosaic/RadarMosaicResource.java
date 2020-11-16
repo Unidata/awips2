@@ -22,7 +22,6 @@ package com.raytheon.viz.radar.rsc.mosaic;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -65,9 +64,9 @@ import com.raytheon.uf.viz.core.rsc.capabilities.AbstractCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.extratext.IExtraTextGeneratingResource;
+import com.raytheon.uf.viz.core.rsc.groups.BestResResource;
 import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
 import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
-import com.raytheon.uf.viz.core.rsc.groups.BestResResource;
 import com.raytheon.viz.radar.VizRadarRecord;
 import com.raytheon.viz.radar.rsc.AbstractRadarResource;
 import com.raytheon.viz.radar.rsc.MosaicPaintProperties;
@@ -93,6 +92,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     all resources/listeners.
  * May 19, 2016  3253     bsteffen     Refactor of extra text.
  * Sep 13, 2016  3239     nabowle      Use the Interrogatable API.
+ * Nov 28, 2017  5863     bsteffen     Change dataTimes to a NavigableSet
  *
  * </pre>
  *
@@ -133,7 +133,7 @@ public class RadarMosaicResource extends
 
     protected RadarMosaicResource(RadarMosaicResourceData rrd,
             LoadProperties loadProps) {
-        super(rrd, loadProps);
+        super(rrd, loadProps, false);
         timeUpdateJob.setSystem(true);
         rrd.addChangeListener(this);
 
@@ -142,18 +142,12 @@ public class RadarMosaicResource extends
                     .setColor(DEFAULT_COLOR);
         }
 
-        dataTimes = Collections.synchronizedList(new ArrayList<DataTime>());
         // add listener for underlying resources
         for (ResourcePair rp : getResourceList()) {
             if (rp.getResourceData() != null) {
                 rp.getResourceData().addChangeListener(this);
             }
         }
-    }
-
-    @Override
-    public DataTime[] getDataTimes() {
-        return dataTimes.toArray(new DataTime[0]);
     }
 
     @Override
@@ -236,7 +230,7 @@ public class RadarMosaicResource extends
             redoTimeMatching(frameTimes);
         }
         List<RadarRecord> recordsToMosaic = constructRecordsToMosaic();
-        if (recordsToMosaic.isEmpty() == false) {
+        if (!recordsToMosaic.isEmpty()) {
             DataTime curTime = getTimeForResource(this);
             synchronized (this) {
                 boolean forceIt = force || !curTime.equals(lastTime);
@@ -585,9 +579,7 @@ public class RadarMosaicResource extends
                     time = resourceData.getBinOffset().getNormalizedTime(time);
                 }
                 synchronized (dataTimes) {
-                    if (!dataTimes.contains(time)) {
-                        dataTimes.add(time);
-                    }
+                    dataTimes.add(time);
                 }
                 if (!Arrays.equals(timeMatchingMap.get(this),
                         descriptor.getFramesInfo().getTimeMap().get(this))) {
@@ -700,19 +692,20 @@ public class RadarMosaicResource extends
                 }
                 // Determine any shared characters making a
                 // prefix
-                String prefix = "";
+                StringBuilder prefixBuilder = new StringBuilder();
                 while (s2.startsWith(s1.substring(0, 1))
                         && !Character.isDigit(s1.charAt(0))) {
-                    prefix += s1.charAt(0);
+                    prefixBuilder.append(s1.charAt(0));
                     s1 = s1.substring(1);
                     s2 = s2.substring(1);
                 }
+                String prefix = prefixBuilder.toString();
                 // Determine any shared characters making a
-                // sufix
-                String suffix = "";
+                // suffix
+                StringBuilder suffix = new StringBuilder();
                 while (s2.endsWith(s1.substring(s1.length() - 1))
                         && !Character.isDigit(s1.charAt(s1.length() - 1))) {
-                    suffix = s1.charAt(s1.length() - 1) + suffix;
+                    suffix.insert(0, s1.charAt(s1.length() - 1));
                     s1 = s1.substring(0, s1.length() - 1);
                     s2 = s2.substring(0, s2.length() - 1);
 

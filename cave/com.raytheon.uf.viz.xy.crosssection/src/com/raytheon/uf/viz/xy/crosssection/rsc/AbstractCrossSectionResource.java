@@ -20,9 +20,7 @@
 package com.raytheon.uf.viz.xy.crosssection.rsc;
 
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -88,26 +86,24 @@ import com.vividsolutions.jts.geom.LineString;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Dec 4, 2007             njensen     Initial creation
- * 02/17/09                njensen     Refactored to new rsc architecture
- * 02/27/12	    14490      kshresth    Fixed cross sections not loading as images
- * 02/19/2014    2819      randerso    Removed unnecessary .clone() call
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- -------------------------------------------
+ * Dec 04, 2007           njensen   Initial creation
+ * Feb 17, 2009           njensen   Refactored to new rsc architecture
+ * Feb 27, 2012  14490    kshresth  Fixed cross sections not loading as images
+ * Feb 19, 2014  2819     randerso  Removed unnecessary .clone() call
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
-
 public abstract class AbstractCrossSectionResource extends
         AbstractVizResource<CrossSectionResourceData, CrossSectionDescriptor>
         implements IInsetMapResource, IGraphableResource<Double, Double> {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(AbstractCrossSectionResource.class);
-
-    private static final long serialVersionUID = 1L;
 
     protected static final int GRID_SIZE = 100;
 
@@ -118,19 +114,18 @@ public abstract class AbstractCrossSectionResource extends
 
     protected AbstractCrossSectionAdapter<?> adapter;
 
-    protected Map<DataTime, List<float[]>> sliceMap = new HashMap<DataTime, List<float[]>>(
-            64);
+    protected Map<DataTime, List<float[]>> sliceMap = new HashMap<>(64);
 
     protected AbstractStylePreferences prefs;
 
-    protected Map<LineString, IWireframeShape> lines = new HashMap<LineString, IWireframeShape>();
+    protected Map<LineString, IWireframeShape> lines = new HashMap<>();
 
     protected DataRetrievalJob dataRetrievalJob = new DataRetrievalJob(
             "Loading Cross Section Data");
 
     public AbstractCrossSectionResource(CrossSectionResourceData data,
             LoadProperties props, AbstractCrossSectionAdapter<?> adapter) {
-        super(data, props);
+        super(data, props, false);
         this.adapter = adapter;
 
         data.addChangeListener(new IResourceDataChanged() {
@@ -169,33 +164,24 @@ public abstract class AbstractCrossSectionResource extends
     protected void initInternal(IGraphicsTarget target) throws VizException {
         if (prefs == null) {
             try {
-                prefs = GraphPrefsFactory.buildPreferences(
-                        resourceData.getParameter(), null);
+                prefs = GraphPrefsFactory
+                        .buildPreferences(resourceData.getParameter(), null);
             } catch (StyleException e) {
                 throw new VizException(e.getLocalizedMessage(), e);
             }
         }
         int numTimes = dataTimes.size();
         if (numTimes > 0) {
-            DataTime time = dataTimes.get(numTimes - 1);
-            sliceMap.put(time, null);
-            dataRetrievalJob.times.add(time);
-            for (int i = 0; i < (numTimes - 1); i++) {
-                time = dataTimes.get(i);
+            DataTime lastTime = dataTimes.last();
+            sliceMap.put(lastTime, null);
+            dataRetrievalJob.times.add(lastTime);
+            for (DataTime time : dataTimes.headSet(lastTime)) {
                 sliceMap.put(time, null);
                 dataRetrievalJob.times.add(time);
             }
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#paintInternal(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -207,13 +193,14 @@ public abstract class AbstractCrossSectionResource extends
             // To be numerically accurate the grid geometry should be 1 grid
             // cell larger than the graph
             extent.scale(1.0 + (1.0 / GRID_SIZE));
-            GeneralEnvelope env = new GeneralEnvelope(new double[] {
-                    extent.getMinX(), extent.getMinY() }, new double[] {
-                    extent.getMaxX(), extent.getMaxY() });
+            GeneralEnvelope env = new GeneralEnvelope(
+                    new double[] { extent.getMinX(), extent.getMinY() },
+                    new double[] { extent.getMaxX(), extent.getMaxY() });
             env.setCoordinateReferenceSystem(descriptor.getGridGeometry()
                     .getCoordinateReferenceSystem());
-            GeneralGridEnvelope range = new GeneralGridEnvelope(new int[] { 0,
-                    0 }, new int[] { GRID_SIZE, GRID_SIZE }, false);
+            GeneralGridEnvelope range = new GeneralGridEnvelope(
+                    new int[] { 0, 0 }, new int[] { GRID_SIZE, GRID_SIZE },
+                    false);
             geometry = new GridGeometry2D(range, env);
             dataRetrievalJob.schedule();
         }
@@ -223,15 +210,10 @@ public abstract class AbstractCrossSectionResource extends
     }
 
     @Override
-    public DataTime[] getDataTimes() {
-        return dataTimes.toArray(new DataTime[dataTimes.size()]);
-    }
-
-    @Override
     public void setDescriptor(CrossSectionDescriptor descriptor) {
         adapter.setDescriptor(descriptor);
         this.descriptor = descriptor;
-        Set<DataTime> times = new HashSet<DataTime>();
+        Set<DataTime> times = new HashSet<>();
         for (DataTime time : dataTimes) {
             for (int i = 0; i < descriptor.getLines().size(); i++) {
                 time = time.clone();
@@ -241,8 +223,8 @@ public abstract class AbstractCrossSectionResource extends
                 dataRetrievalJob.times.add(time);
             }
         }
-        dataTimes = new ArrayList<DataTime>(times);
-        Collections.sort(dataTimes);
+        dataTimes.retainAll(times);
+        dataTimes.addAll(times);
         dataRetrievalJob.schedule();
     }
 
@@ -260,17 +242,17 @@ public abstract class AbstractCrossSectionResource extends
                 issueRefresh();
                 return;
             }
-            Coordinate[] lineData = GeoUtil.splitLine(GRID_SIZE, descriptor
-                    .getLine(time).getCoordinates());
-            int lineLengthInMeters = (int) graph.getVirtualLocation(graph
-                    .getExtent().getMaxX(), 0)[0];
+            Coordinate[] lineData = GeoUtil.splitLine(GRID_SIZE,
+                    descriptor.getLine(time).getCoordinates());
+            int lineLengthInMeters = (int) graph
+                    .getVirtualLocation(graph.getExtent().getMaxX(), 0)[0];
             floatData = CrossSectionRotation.rotateVector(
                     resourceData.getParameter(), Arrays.asList(lineData),
                     floatData, lineLengthInMeters, descriptor.getHeightScale(),
                     adapter.getDataCoordinateReferenceSystem());
             if (adapter.getUnit().isCompatible(getUnit())) {
-                UnitConverter converter = adapter.getUnit().getConverterTo(
-                        getUnit());
+                UnitConverter converter = adapter.getUnit()
+                        .getConverterTo(getUnit());
                 for (float[] floatArr : floatData) {
                     for (int i = 0; i < floatArr.length; i++) {
                         if (floatArr[i] > -9998) {
@@ -284,11 +266,12 @@ public abstract class AbstractCrossSectionResource extends
                     GRID_SIZE);
             // filter below topo
             for (int i = 0; i < GRID_SIZE; i++) {
-                double height = (GRID_SIZE * (graph.getExtent().getMaxY() - topoData[i]))
+                double height = (GRID_SIZE
+                        * (graph.getExtent().getMaxY() - topoData[i]))
                         / graph.getExtent().getHeight();
                 for (int j = 0; j < height; j++) {
                     for (float[] floatArr : floatData) {
-                        floatArr[(j * GRID_SIZE) + i] = -999999;
+                        floatArr[(j * GRID_SIZE) + i] = -999_999;
                     }
                 }
             }
@@ -306,7 +289,8 @@ public abstract class AbstractCrossSectionResource extends
             maxVal = tmp;
         }
         int inc = scale.getIncrement();
-        SingleLevel[] levels = new SingleLevel[(int) ((maxVal - minVal) / inc) + 1];
+        SingleLevel[] levels = new SingleLevel[(int) ((maxVal - minVal) / inc)
+                + 1];
         int i = 0;
         for (float val = minVal; val <= maxVal; val += inc, ++i) {
             levels[i] = new SingleLevel(scale.getHeightType());
@@ -324,18 +308,12 @@ public abstract class AbstractCrossSectionResource extends
             pdoTime = resourceData.getBinOffset().getNormalizedTime(pdoTime);
         }
 
-        if ((dataTimes == null) || dataTimes.isEmpty()) {
-            dataTimes = new ArrayList<DataTime>();
-        }
         adapter.addRecord(pdo);
         if (descriptor != null) {
             for (int i = 0; i < descriptor.getLines().size(); i++) {
                 pdoTime = pdoTime.clone();
                 pdoTime.setLevelValue((double) i);
-                if (!dataTimes.contains(pdoTime)) {
-                    dataTimes.add(pdoTime);
-                    Collections.sort(dataTimes);
-                } else {
+                if (!dataTimes.add(pdoTime)) {
                     // We are adding a record for a time we have, dispose of
                     // existing time data and add to retrieval job
                     disposeTimeData(pdoTime);
@@ -343,10 +321,7 @@ public abstract class AbstractCrossSectionResource extends
                 }
             }
         } else {
-            if (!dataTimes.contains(pdoTime)) {
-                dataTimes.add(pdoTime);
-                Collections.sort(dataTimes);
-            }
+            dataTimes.add(pdoTime);
         }
     }
 
@@ -419,16 +394,15 @@ public abstract class AbstractCrossSectionResource extends
             shape.compile();
             lines.put(line, shape);
         }
-        if (shape != null) {
-            target.drawWireframeShape(shape,
-                    getCapability(ColorableCapability.class).getColor(), 2.0f);
-        }
+        target.drawWireframeShape(shape,
+                getCapability(ColorableCapability.class).getColor(), 2.0f);
     }
 
     @Override
     public String getName() {
-        String completeName = resourceData.getSource();
-        completeName += " " + descriptor.getLineID();
+        StringBuilder completeName = new StringBuilder(
+                resourceData.getSource());
+        completeName.append(" ").append(descriptor.getLineID());
 
         // If this is point data, get the station ID
 
@@ -441,27 +415,28 @@ public abstract class AbstractCrossSectionResource extends
                 stnID = "";
             }
         }
-        if (stnID != "") {
-            if (stnID.contains(",")) { // ID may be formatted point1,point2 to
-                // define a line
-                String stn = stnID.replace(",", "-"); // For display, need
-                // point1-point2
-                completeName += " " + stn;
+        if (!stnID.isEmpty()) {
+            if (stnID.contains(",")) {
+                // ID may be formatted point1,point2 to define a line
+                String stn = stnID.replace(",", "-");
+                // For display, need point1-point2
+                completeName.append(" ").append(stn);
             } else {
-                completeName += " " + stnID;
+                completeName.append(" ").append(stnID);
             }
         }
         String parameterName = resourceData.getParameterName();
-        completeName += " " + parameterName;
-        if (getCapability(DisplayTypeCapability.class).getDisplayType() == DisplayType.IMAGE) {
-            completeName += " Img";
+        completeName.append(" ").append(parameterName);
+        if (getCapability(DisplayTypeCapability.class)
+                .getDisplayType() == DisplayType.IMAGE) {
+            completeName.append(" Img");
         }
-        completeName += " ( ";
+        completeName.append(" ( ");
 
-        completeName += getUnitString();
-        completeName += " ) ";
+        completeName.append(getUnitString());
+        completeName.append(" ) ");
 
-        return completeName;
+        return completeName.toString();
     }
 
     public String getUnitString() {
@@ -532,13 +507,10 @@ public abstract class AbstractCrossSectionResource extends
     }
 
     private class DataRetrievalJob extends Job {
-        protected ConcurrentLinkedQueue<DataTime> times = new ConcurrentLinkedQueue<DataTime>();
+        protected ConcurrentLinkedQueue<DataTime> times = new ConcurrentLinkedQueue<>();
 
         protected boolean run = true;
 
-        /**
-         * @param name
-         */
         public DataRetrievalJob(String name) {
             super(name);
         }

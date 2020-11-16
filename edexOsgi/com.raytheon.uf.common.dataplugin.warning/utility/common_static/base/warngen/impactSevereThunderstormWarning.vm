@@ -1,7 +1,7 @@
 #####################################################################################
 ## SEVERE THUNDERSTORM WARNING TEMPLATE                                            ##
 ## FOR CR IMPACT BASED SVR INITIATIVE                                              ## 
-## CREATED BY PHIL KURIMSKI - WFO DTX                                              ##
+## CREATED BY PHIL KURIMSKI - WFO GRB                                              ##
 ##        BOOKBINDER    9-18-2013 Implement global config.vm                       ##
 ##        BOOKBINDER    2-18-2014 Wind/hail order matrix                           ##
 ##        BOOKBINDER    9-16-2014 2015 IBW Tags                                    ##
@@ -12,6 +12,7 @@
 ##        Bookbinder     4-14-2016 Accounted for case where someone inadvertantly  ##
 ##                                 de-selected required source                     ##
 ##        Bookbinder     1/30/2017 SVR/TOR watch capitalization DR 19649           ##
+##        Bookbinder     3/19/2018 DR 19650 TOR Watch phrasing/location            ##
 #####################################################################################
 ## Impact Statements for IBW templates are contained in impactStatements.vm
 ################################################################
@@ -459,9 +460,14 @@ Those attending !**EVENT/VENUE NAME OR LOCATION*! are in the path of this storm 
 ##################################
 ##Check to see if we've selected any calls to action. In our .xml file
 ##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#set($torWatchPhrase = "#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})")
+#if(${list.contains(${includedWatches}, "TO.A")} && ${torWatchPhrase.length()} > 10)
+#set($ctaSelected = "YES")
+#else
 #foreach (${bullet} in ${bullets})
 #if(${bullet.endsWith("CTA")})
 #set($ctaSelected = "YES")
+#end
 #end
 #end
 ##
@@ -470,6 +476,10 @@ PRECAUTIONARY/PREPAREDNESS ACTIONS...
 
 #end
 ##
+#if(${list.contains(${includedWatches}, "TO.A")})
+${torWatchPhrase}
+
+#end
 #if(${list.contains(${bullets}, "torWatchRemainsInEffectCTA")})
 #if(${list.contains(${bullets}, "svrTorTag")})
 Remain alert for a possible tornado! Tornadoes can develop quickly from severe thunderstorms. If you spot a tornado go at once into the basement or small central room in a sturdy structure.
@@ -639,26 +649,12 @@ Torrential rainfall is occurring with this storm, and may lead to flash flooding
 &&
 
 #end
-##
-#############
-## WATCHES ##
-#############
 
-#if(${list.contains(${includedWatches}, "TO.A")})
-#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
-
-#end
-#* NO NEED TO INCLUDE SVR T-STM WATCHES IN A SVR WARNING!!!!
-#if(${list.contains(${includedWatches}, "SV.A")})
-#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
-#
-#end
-*#
-##
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
 #end
+
 #printcoords(${areaPoly}, ${list})
 
 #tml(${TMLtime}, ${timeFormat}, ${movementDirection}, ${movementInKnots}, ${eventLocation})
@@ -672,7 +668,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 ${torTag}
 <L>HAIL...${hailTag}</L>
 <L>WIND...${windTag}</L>
-### POTENTIAL 2016 IBW ENHANCEMENT
+### POTENTIAL 2019 IBW ENHANCEMENT
 #* REMOVE THIS COMMENT LINE WHEN DIRECTION BY YOUR REGION
 #if ((${hailSize} >= $svrHailConsiderableThreshold) || (${windSpeed} >= $svrWindConsiderableThreshold))
 <L>$svrDamageThreat</L>

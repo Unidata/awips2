@@ -23,7 +23,7 @@
         <constructor-arg ref="gfeSiteActivation"/>
     </bean>
 
-    <bean id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv" depends-on="gfeDbRegistered, gfeSitesActiveIngest">
+    <bean id="smartInitSrv" class="com.raytheon.edex.plugin.gfe.smartinit.SmartInitSrv" factory-method="createServer" depends-on="gfeDbRegistered, gfeSitesActiveIngest">
         <property name="pendingInitMinTimeMillis" value="120000"/>
         <property name="runningInitTimeOutMillis" value="600000"/>
         <property name="threadSleepInterval" value="30000"/>

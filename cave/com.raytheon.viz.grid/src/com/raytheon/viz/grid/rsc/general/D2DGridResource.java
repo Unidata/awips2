@@ -19,6 +19,8 @@
  **/
 package com.raytheon.viz.grid.rsc.general;
 
+import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.measure.unit.Unit;
@@ -52,6 +54,7 @@ import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.style.AbstractStylePreferences.DisplayFlags;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.exception.VizException;
@@ -63,6 +66,7 @@ import com.raytheon.uf.viz.core.rsc.LoadProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.DisplayTypeCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.ImagingCapability;
 import com.raytheon.uf.viz.core.rsc.interrogation.InterrogateMap;
+import com.raytheon.uf.viz.core.rsc.interrogation.InterrogationKey;
 import com.raytheon.uf.viz.core.rsc.interrogation.Interrogator;
 import com.raytheon.uf.viz.datacube.DataCubeContainer;
 import com.raytheon.viz.grid.GridExtensionManager;
@@ -107,6 +111,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 20, 2017  6046     bsteffen     Ensure dataModified is updated before
  *                                     starting a subgrid request.
  * Aug 15, 2017  6332     bsteffen     Move radar specific logic to extension
+ * Feb 14, 2018  6676     bsteffen     Sample Contours and barbs with less precision.
+ * Feb 15, 2018  6902     njensen      Support sampling arrow direction
  * 
  * </pre>
  * 
@@ -114,7 +120,8 @@ import com.vividsolutions.jts.geom.Coordinate;
  */
 public class D2DGridResource extends GridResource<GridResourceData>
         implements IGridNameResource {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(D2DGridResource.class);
 
     /*
@@ -155,6 +162,18 @@ public class D2DGridResource extends GridResource<GridResourceData>
                             .getInstance().getDisplayTypes(paramAbbrev));
         }
         super.initInternal(target);
+    }
+
+    @Override
+    protected void initSampling() {
+        DisplayType displayType = getDisplayType();
+        if (displayType == DisplayType.CONTOUR
+                || displayType == DisplayType.BARB) {
+            /* Used by Std Env Sampling */
+            sampleFormat = new DecimalFormat("0");
+        } else {
+            super.initSampling();
+        }
     }
 
     @Override
@@ -312,7 +331,6 @@ public class D2DGridResource extends GridResource<GridResourceData>
             }
         }
         LegendParameters legendParams = new LegendParameters();
-        
         legendParams.model = record.getDatasetId();
         legendParams.level = record.getLevel();
         legendParams.parameter = record.getParameter().getName();
@@ -358,11 +376,42 @@ public class D2DGridResource extends GridResource<GridResourceData>
     public String inspect(ReferencedCoordinate coord) throws VizException {
         if (resourceData.isSampling()) {
             if (getDisplayType() == DisplayType.ARROW) {
+                List<InterrogationKey<?>> keys = new ArrayList<>();
+
+                /*
+                 * if there's a style rule specifying Direction, sample the
+                 * direction of the arrows, else the value/magnitude
+                 */
+                boolean isDir = false;
+                if (this.stylePreferences != null) {
+                    DisplayFlags flags = this.stylePreferences
+                            .getDisplayFlags();
+                    if (flags != null && flags.hasFlag("Direction")) {
+                        isDir = true;
+                    }
+                }
+                if (isDir) {
+                    keys.add(DIRECTION_TO_INTERROGATE_KEY);
+                } else {
+                    keys.add(Interrogator.VALUE);
+                    keys.add(UNIT_STRING_INTERROGATE_KEY);
+                }
                 InterrogateMap map = interrogate(coord, getTimeForResource(),
-                        Interrogator.VALUE, UNIT_STRING_INTERROGATE_KEY);
+                        keys.toArray(new InterrogationKey[0]));
                 if (map == null || map.isEmpty()) {
                     return "NO DATA";
                 }
+                if (isDir) {
+                    double dir = map.get(DIRECTION_TO_INTERROGATE_KEY)
+                            .doubleValue();
+                    if (dir < 0) {
+                        dir += 360;
+                    }
+                    DecimalFormat format = new DecimalFormat("0");
+                    String sample = format.format(dir);
+                    return sample + "\u00B0";
+                }
+
                 double value = map.get(Interrogator.VALUE).getValue()
                         .doubleValue();
                 return sampleFormat.format(value)
@@ -378,6 +427,17 @@ public class D2DGridResource extends GridResource<GridResourceData>
             return null;
         }
         return super.inspect(coord);
+    }
+
+    @Override
+    protected Interpolation getInspectInterpolation() {
+        DisplayType t = getDisplayType();
+        if (t == DisplayType.ARROW || t == DisplayType.BARB
+                || t == DisplayType.DUALARROW) {
+            return new NearestNeighborInterpolation();
+        }
+
+        return super.getInspectInterpolation();
     }
 
     @Override

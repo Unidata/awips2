@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -33,19 +33,21 @@ import com.raytheon.viz.texteditor.command.ICommand;
 import com.raytheon.viz.texteditor.dialogs.TextEditorDialog;
 
 /**
- * Launch a python related tool script.
- * 
+ * Execute an AFOS command.
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date       	Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
+ *
+ * Date         Ticket#     Engineer    Description
+ * ------------ ---------- ----------- --------------------------
  * 08/12/2009   2191        rjpeter     Initial creation.
+ * 02/14/2018   6960        dgilling    Fix NullPointerException when command
+ *                                      is triggered from a sub-menu.
  * </pre>
- * 
+ *
  * @author rjpeter
- * 
+ *
  */
 public class AfosProductAction extends AbstractHandler {
 
@@ -58,17 +60,34 @@ public class AfosProductAction extends AbstractHandler {
         if (trigger != null && trigger instanceof Event) {
             Event e = (Event) trigger;
             Widget w = e.widget;
+
+            Object dialog = null;
             if (w instanceof MenuItem) {
                 MenuItem item = (MenuItem) w;
+                Menu menu = item.getParent();
+                dialog = menu.getData("Dialog");
 
-                // issue with nested menu items btw
-                Menu toolsMenu = item.getParent();
-                TextEditorDialog dialog = (TextEditorDialog) toolsMenu
-                        .getData("Dialog");
+                // recurse back up tree in case we were multiple levels deep
+                while (dialog == null) {
+                    item = menu.getParentItem();
+                    if (item != null) {
+                        menu = item.getParent();
+                        if (menu != null) {
+                            dialog = menu.getData("Dialog");
+                        } else {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
 
-                dialog.setAfosCmdField(afosCommand);
+            if ((dialog != null) && (dialog instanceof TextEditorDialog)) {
+                TextEditorDialog editorDlg = (TextEditorDialog) dialog;
+                editorDlg.setAfosCmdField(afosCommand);
                 ICommand cmd = CommandFactory.getAfosCommand(afosCommand);
-                dialog.executeCommand(cmd);
+                editorDlg.executeCommand(cmd);
             }
         }
         return null;

@@ -46,7 +46,8 @@
 #    02/01/17         6107         dgilling       Ensure backups are written outside of localization.
 #    06/09/17         6312         dgilling       Check issue times when overwriting events.
 #    07/31/17        20212         bhunderm       Fix issue with activetable sharing.
-#
+#    03/28/18        20496         ryu            Fix VTEC table change computation so clients 
+#                                                 are not unduly notified.
 ##
 
 ##
@@ -145,6 +146,22 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
         self._log.info("Updated Active Table squeeze size: %d", 
           len(updatedTable))
         del vts
+
+        if atChangeLog is not None:
+            atChangeLog.info("Entries tossed after merge: " +
+                  self.printActiveTable(tossRecordsMerged, 1))
+
+        # determine final changes
+        finalChanges = []
+        for rec in updatedTable:
+            if rec['state'] != 'Existing':
+                item = (rec['officeid'], rec['pil'], rec['phensig'], rec['xxxid'])
+                if item not in finalChanges:
+                    finalChanges.append(item)
+
+        changes = finalChanges
+        if atChangeLog is not None:
+            atChangeLog.info("Table Changes: " + str(changes))
 
         self._updatedTable = []
         self._purgedTable = []
@@ -402,6 +419,7 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                     
         # log the changes
         if atChangeLog is not None:
+            atChangeLog.info("\n" + "*" * 80)
             if len(missingEntriesAct):
                 atChangeLog.info("Active Missing entries added: " +
                   self.printActiveTable(missingEntriesAct, 1))
@@ -425,7 +443,6 @@ class MergeVTEC(VTECTableUtil.VTECTableUtil):
                   self.printActiveTable(ignoredNewReplaceAct, 1))
                 atChangeLog.info("Ignored Different Year Issuance (old): " +
                   self.printActiveTable(ignoredOldReplaceAct, 1))
-            atChangeLog.info("Table Changes: " + str(changes))
         
         return activeTable, purges, changes
     
@@ -472,11 +489,13 @@ def merge(activeTable, activeTableMode, newRecords, drt=0.0, makeBackups=True,
       logger=None, atChangeLog=None):
     pyActive = []
     for i in range(activeTable.size()):
-        pyActive.append(ActiveTableRecord.ActiveTableRecord(activeTable.get(i)))
+        rec = ActiveTableRecord.ActiveTableRecord(activeTable.get(i), "Existing")
+        pyActive.append(rec)
     
     pyNew = []
     for i in range(newRecords.size()):
-        pyNew.append(ActiveTableRecord.ActiveTableRecord(newRecords.get(i)))
+        rec = ActiveTableRecord.ActiveTableRecord(newRecords.get(i), "Incoming")
+        pyNew.append(rec)
     
     decoder = MergeVTEC(pyActive, activeTableMode, pyNew, drt, makeBackups, logger, atChangeLog)
     mergeResults = decoder.getMergeResults()

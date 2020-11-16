@@ -30,7 +30,9 @@ import java.util.regex.Pattern;
 
 import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.GetNextEtnRequest;
+import com.raytheon.uf.common.activetable.RestoreLastEtnRequest;
 import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
+import com.raytheon.uf.common.activetable.response.RestoreLastEtnResponse;
 import com.raytheon.uf.common.time.SimulatedTime;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.requests.ThriftClient;
@@ -56,6 +58,7 @@ import com.raytheon.viz.core.mode.CAVEMode;
  * Nov 03, 2016  5934     randerso  Moved VtecObject and VtecUtil to a separate
  *                                  plugin.
  * May 18, 2017  6252     dgilling  Add parseMessageForAllVtec.
+ * Oct 04, 2018  20557    ryu       Add methods to restore ETN.
  *
  * </pre>
  *
@@ -250,6 +253,89 @@ public class VtecUtil {
         GetNextEtnResponse rval = (resp != null) ? resp
                 : new GetNextEtnResponse(1, phensig);
         return rval;
+    }
+
+    /**
+     * Restores the last used ETN for a specific product and office.
+     *
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param performISC
+     *            Whether or not to collaborate with neighboring sites to
+     *            determine the next ETN. See
+     *            {@link GetNextEtnUtil#getNextEtnFromPartners(String,
+     *            ActiveTableMode, String, Calendar, List<IRequestRouter>)} for
+     *            more information.
+     * @param reportOnlyConflict
+     *            Affects which kinds of errors get reported back to the
+     *            requestor. If true, only cases where the value of
+     *            <code>etnOverride</code> is less than or equal to the last ETN
+     *            used by this site or any of its partners will be reported.
+     *            Else, all significant errors will be reported back.
+     * @param etnOverride
+     *            Allows the user to influence the next ETN assigned by using
+     *            this value unless it is less than or equal to the last ETN
+     *            used by this site or one of its partners.
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurs while submitting or processing the remote
+     *             request.
+     */
+    public static RestoreLastEtnResponse restoreLastEtn(String office, 
+            String phensig, boolean performISC, boolean reportOnlyConflict,
+            Integer etnOverride) throws VizException {
+        ActiveTableMode mode = (CAVEMode.getMode().equals(CAVEMode.PRACTICE))
+                ? ActiveTableMode.PRACTICE : ActiveTableMode.OPERATIONAL;
+
+        return restoreLastEtn(office, phensig, performISC,
+                reportOnlyConflict, etnOverride, mode);
+    }
+
+    /**
+     * Restores the last used ETN for a specific product and office.
+     *
+     * @param office
+     *            The 4-character site ID of the office.
+     * @param phensig
+     *            The phenomenon and significance of the hazard concatenated
+     *            with a '.' (e.g., TO.W or DU.Y)
+     * @param performISC
+     *            Whether or not to collaborate with neighboring sites to
+     *            determine the next ETN. See
+     *            {@link GetNextEtnUtil#getNextEtnFromPartners(String,
+     *            ActiveTableMode, String, Calendar, List<IRequestRouter>)} for
+     *            more information.
+     * @param reportOnlyConflict
+     *            Affects which kinds of errors get reported back to the
+     *            requestor. If true, only cases where the value of
+     *            <code>etnOverride</code> is less than or equal to the last ETN
+     *            used by this site or any of its partners will be reported.
+     *            Else, all significant errors will be reported back.
+     * @param etnOverride
+     *            Allows the user to influence the next ETN assigned by using
+     *            this value unless it is less than or equal to the last ETN
+     *            used by this site or one of its partners.
+     * @param mode
+     *            Indicates which active table to query
+     * @return The next ETN in sequence, given the office and phensig.
+     * @throws VizException
+     *             If an error occurs while submitting or processing the remote
+     *             request.
+     */
+    public static RestoreLastEtnResponse restoreLastEtn(String office, 
+            String phensig, boolean performISC, boolean reportOnlyConflict,
+            Integer etnOverride, ActiveTableMode mode) throws VizException {
+        Date currentTime = SimulatedTime.getSystemTime().getTime();
+        RestoreLastEtnRequest req = new RestoreLastEtnRequest(office, mode, 
+                phensig, currentTime, performISC, reportOnlyConflict,
+                etnOverride);
+
+        RestoreLastEtnResponse resp = (RestoreLastEtnResponse) ThriftClient
+                .sendRequest(req);
+        return resp;
     }
 
     /**

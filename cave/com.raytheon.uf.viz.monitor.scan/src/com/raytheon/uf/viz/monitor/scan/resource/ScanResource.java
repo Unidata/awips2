@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.PlatformUI;
@@ -45,6 +46,7 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
 import com.raytheon.uf.viz.core.IGraphicsTarget.HorizontalAlignment;
@@ -73,14 +75,14 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Resource overrider for SCAN of RadarResource
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 13, 2009            dhladky     Initial creation
- * 
+ *
  * Jul 24  2012  12996     Xiaochuan   Compare with MidVal()
  * Feb 28, 2013 1731       bsteffen    Allow ScanResource to work better with
  *                                     D2DTimeMatcher.
@@ -88,25 +90,37 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Apr 22, 2013   1926       njensen     Faster rendering
  * Mar  3, 2014 2804       mschenke    Set back up clipping pane
  * May 09, 2014   3145     mpduff      Dispose the ScanDrawer font
- * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle} 
+ * Aug 14, 2014 3523       mapeters    Updated deprecated {@link DrawableString#textStyle}
  *                                     assignments.
  * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
+ * Jan 22, 2018 6854       mduff       Don't filter the D2D display based on cwa filter selection.
+ * Jan 30, 2018 6575       mduff       Click on the ident column to unzoom after it's been zoomed.
+ * Jan 31, 2018 5863       mapeters    Change dataTimes to a NavigableSet
  * 
  * </pre>
- * 
+ *
  * @author dhladky
- * @version 1.0
  */
 
-public class ScanResource extends
-        AbstractVizResource<ScanResourceData, MapDescriptor> implements
+public class ScanResource
+        extends AbstractVizResource<ScanResourceData, MapDescriptor> implements
         IScanRadarListener, IMiddleClickCapableResource, IResourceDataChanged {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ScanResource.class);
 
-    private final String SPACE = "  ";
+    private static final String TVS = "tvs";
 
-    private final String NL = "\n";
+    private static final String RANK = "rank";
+
+    private static final String IDENT = "ident";
+
+    private static final String SPACE = "  ";
+
+    /** offsets **/
+    private static final int titleOffset = 50;
+
+    private static final int titleXOffset = 50;
 
     /** class that draws the scan hexagons and such **/
     private ScanDrawer drawer = null;
@@ -120,11 +134,6 @@ public class ScanResource extends
     /** mouse handler **/
     private ScanMouseAdapter inspectAdapter = null;
 
-    /** offsets **/
-    private static final int titleOffset = 50;
-
-    private static final int titleXOffset = 50;
-
     /** trends graphs **/
     private boolean isTrend = false;
 
@@ -135,10 +144,6 @@ public class ScanResource extends
     private DataTime previousTime = null;
 
     private double tilt = 0.0;
-
-    private boolean draw = false;
-
-    private boolean isCwa = false;
 
     private boolean isOverlap = true;
 
@@ -154,11 +159,13 @@ public class ScanResource extends
 
     private String cellId = null;
 
-    protected Map<String, PixelCoverage> drawables = new HashMap<String, PixelCoverage>();
+    protected Map<String, PixelCoverage> drawables = new HashMap<>();
+
+    private boolean zoomed;
 
     protected ScanResource(ScanResourceData srd, LoadProperties loadProps)
             throws VizException {
-        super(srd, loadProps);
+        super(srd, loadProps, false);
         this.setTable(srd.tableType);
         srd.addChangeListener(this);
     }
@@ -169,9 +176,9 @@ public class ScanResource extends
             @Override
             public void run() {
                 if (gc != null && getScanDrawer().font != null) {
-                    getScanDrawer().font.setMagnification(getCapability(
-                            MagnificationCapability.class).getMagnification()
-                            .floatValue());
+                    getScanDrawer().font.setMagnification(
+                            getCapability(MagnificationCapability.class)
+                                    .getMagnification().floatValue());
                 }
             }
         });
@@ -196,18 +203,16 @@ public class ScanResource extends
                     }
                 }
                 // Handle link-to-frame for DMD, CELL, TVS, and MESO tables.
-                if (getScan().getDialog(getTable(), resourceData.icao) != null) {
-                    if ((getScan().getDialog(getTable(), resourceData.icao)
-                            .getLinkToFrame(getTable().name()) == false)
+                if (getScan().getDialog(getTable(),
+                        resourceData.icao) != null) {
+                    if ((!getScan().getDialog(getTable(), resourceData.icao)
+                            .getLinkToFrame(getTable().name()))
                             && (scan != null)) {
-                        getScan()
-                                .updateDialog(
-                                        getTable(),
-                                        resourceData.icao,
-                                        getScan().getDialogTime(getTable(),
-                                                resourceData.icao),
-                                        scan.getDataTime().getRefTime(),
-                                        scan.getTilt());
+                        getScan().updateDialog(getTable(), resourceData.icao,
+                                getScan().getDialogTime(getTable(),
+                                        resourceData.icao),
+                                scan.getDataTime().getRefTime(),
+                                scan.getTilt());
                     }
                 }
             }
@@ -248,19 +253,18 @@ public class ScanResource extends
         addScanRadarListener(this);
         gc = new GeodeticCalculator(descriptor.getCRS());
         initialCenter(getScan().getStationCoordinate(resourceData.icao));
-        
+
         final ScanMonitor scan = ScanMonitor.getInstance();
         final String icao = resourceData.icao;
         // Open the Monitor for this resource just before we've completed the
         // resource initialization. That is, when
-        //     status = ResourceStatus.INITIALIZED in AbstractVizResource.java
+        // status = ResourceStatus.INITIALIZED in AbstractVizResource.java
         VizApp.runAsync(new Runnable() {
-            
+
             @Override
             public void run() {
                 Shell shell = PlatformUI.getWorkbench()
-                                        .getActiveWorkbenchWindow()
-                                        .getShell();
+                        .getActiveWorkbenchWindow().getShell();
                 scan.launchDialog(shell, icao, table);
             }
         });
@@ -275,8 +279,8 @@ public class ScanResource extends
 
         if (paintTime != null) {
             if (getTable().equals(ScanTables.CELL)) {
-                this.std = getScan().getTableData(getTable(),
-                        resourceData.icao, paintTime.getRefTime());
+                this.std = getScan().getTableData(getTable(), resourceData.icao,
+                        paintTime.getRefTime());
                 if (std != null) {
                     setTilt(getTableData().getTrueAngle());
                 }
@@ -293,7 +297,8 @@ public class ScanResource extends
         }
 
         if ((previousTime == null) || (paintTime == null)
-                || !paintTime.equals(previousTime) || getScan().isDataUpdated()) {
+                || !paintTime.equals(previousTime)
+                || getScan().isDataUpdated()) {
             getScan().setDataUpdated(false);
 
             drawables.clear();
@@ -313,9 +318,8 @@ public class ScanResource extends
             if ((getScan().getDialog(getTable(), resourceData.icao) != null)
                     && !getScan().getDialog(getTable(), resourceData.icao)
                             .getCurrentShell().isDisposed()) {
-                getScanDrawer().setResourceColor(
-                        this.getCapability(ColorableCapability.class)
-                                .getColor());
+                getScanDrawer().setResourceColor(this
+                        .getCapability(ColorableCapability.class).getColor());
 
                 // allow changing of width
                 getScanDrawer().setOutlineWidth(
@@ -328,8 +332,8 @@ public class ScanResource extends
                                 / paintProps.getView().getExtent().getWidth());
 
                 if (getScanDrawer().font == null) {
-                    getScanDrawer().setFont(
-                            target.initializeFont("Dialog", 9, null));
+                    getScanDrawer()
+                            .setFont(target.initializeFont("Dialog", 9, null));
                 }
 
                 if (getScan().getTableKeys(getTable(), resourceData.icao,
@@ -339,25 +343,11 @@ public class ScanResource extends
                         if (getTable().equals(ScanTables.CELL)) {
                             CellTableDataRow ctdr = (CellTableDataRow) std
                                     .getRow(id);
-                            if (getScan().getScanConfig().getCWAFilter(
-                                    ScanTables.CELL)) {
-                                if (ctdr.getCwa().equals(
-                                        getScan().getCwa(resourceData.icao))) {
-                                    isCwa = true;
-                                }
-                            } else {
-                                isCwa = true;
-                            }
-
-                            if (isCwa) {
-                                draw = true;
-                            }
-
-                            if (draw && (ctdr != null)) {
+                            if (ctdr != null) {
                                 getScanDrawer().drawHexagon(ctdr, descriptor,
                                         target);
-                                drawables.put(id, getScanDrawer()
-                                        .getPixelCoverage());
+                                drawables.put(id,
+                                        getScanDrawer().getPixelCoverage());
                             }
                         } else if (getTable().equals(ScanTables.DMD)) {
                             // draw the DMD circles and stuff
@@ -365,15 +355,6 @@ public class ScanResource extends
                                     .getRow(id);
                             if (dtdr == null) {
                                 continue;
-                            }
-                            if (getScan().getScanConfig().getCWAFilter(
-                                    ScanTables.DMD)) {
-                                if (dtdr.getCwa().equals(
-                                        getScan().getCwa(resourceData.icao))) {
-                                    isCwa = true;
-                                }
-                            } else {
-                                isCwa = true;
                             }
 
                             String rank = dtdr.getRank();
@@ -384,29 +365,23 @@ public class ScanResource extends
 
                             if (d >= getScanDrawer().ddfc.getMidVal()) {
                                 if (!getScanDrawer().ddfc.isOverlap()) {
-                                    if ((dtdr != null) && !dtdr.getOverlap()) {
+                                    if (!dtdr.getOverlap()) {
                                         isOverlap = false;
                                     }
                                 } else {
                                     isOverlap = false;
                                 }
 
-                                if (isCwa && !isOverlap) {
-                                    draw = true;
-                                }
-
-                                if (draw && (dtdr != null)) {
+                                if (!isOverlap) {
                                     getScanDrawer().drawDMD(dtdr, descriptor,
                                             target);
-                                    drawables.put(id, getScanDrawer()
-                                            .getPixelCoverage());
+                                    drawables.put(id,
+                                            getScanDrawer().getPixelCoverage());
                                 }
                             }
 
                         }
 
-                        draw = false;
-                        isCwa = false;
                         isOverlap = true;
                     }
                 }
@@ -426,7 +401,7 @@ public class ScanResource extends
 
     /**
      * Draws the field text string
-     * 
+     *
      * @param target
      * @param paintProps
      * @throws VizException
@@ -446,23 +421,26 @@ public class ScanResource extends
 
         double[] pixel1 = paintProps.getView().getDisplayCoords(
                 new double[] { titleOffset * 2 * mag, titleOffset }, target);
-        strings[1] = new DrawableString(String.valueOf(getScanDrawer().sdc
-                .getUpperVal()), ScanDrawer.red);
+        strings[1] = new DrawableString(
+                String.valueOf(getScanDrawer().sdc.getUpperVal()),
+                ScanDrawer.red);
         strings[1].basics.x = pixel1[0];
         strings[1].basics.y = pixel1[1];
 
         double[] pixel2 = paintProps.getView().getDisplayCoords(
                 new double[] { titleOffset * 3 * mag, titleOffset }, target);
-        strings[2] = new DrawableString(String.valueOf(getScanDrawer().sdc
-                .getMidVal()), ScanDrawer.yellow);
+        strings[2] = new DrawableString(
+                String.valueOf(getScanDrawer().sdc.getMidVal()),
+                ScanDrawer.yellow);
         strings[2].basics.x = pixel2[0];
         strings[2].basics.y = pixel2[1];
 
         double[] pixel3 = paintProps.getView().getDisplayCoords(
                 new double[] { titleOffset * 4 * mag, titleOffset }, target);
 
-        strings[3] = new DrawableString(String.valueOf(getScanDrawer().sdc
-                .getLowerVal()), ScanDrawer.white);
+        strings[3] = new DrawableString(
+                String.valueOf(getScanDrawer().sdc.getLowerVal()),
+                ScanDrawer.white);
         strings[3].basics.x = pixel3[0];
         strings[3].basics.y = pixel3[1];
 
@@ -478,20 +456,19 @@ public class ScanResource extends
     private void paintElevationAngle(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
 
-        if (getScan().getTableData(getTable(), resourceData.icao, volScanTime) != null) {
+        if (getScan().getTableData(getTable(), resourceData.icao,
+                volScanTime) != null) {
             double[] pixel = paintProps.getView()
-                    .getDisplayCoords(
-                            new double[] {
-                                    titleXOffset,
-                                    paintProps.getCanvasBounds().height
-                                            - titleOffset }, target);
-            DrawableString string = new DrawableString("DMD's at Elevation:  "
-                    + String.format(
-                            "%3.1f",
+                    .getDisplayCoords(new double[] { titleXOffset,
+                            paintProps.getCanvasBounds().height - titleOffset },
+                            target);
+            DrawableString string = new DrawableString(
+                    "DMD's at Elevation:  " + String.format("%3.1f",
                             getScan().getTableData(getTable(),
                                     resourceData.icao, volScanTime)
-                                    .getTrueAngle()) + " deg", getCapability(
-                    ColorableCapability.class).getColor());
+                                    .getTrueAngle())
+                            + " deg",
+                    getCapability(ColorableCapability.class).getColor());
             string.font = getScanDrawer().font;
             string.horizontalAlignment = HorizontalAlignment.LEFT;
             string.verticalAlignment = VerticalAlignment.MIDDLE;
@@ -504,7 +481,7 @@ public class ScanResource extends
 
     /**
      * Register this resource with scan
-     * 
+     *
      * @param rrd
      */
     private void addScanRadarListener(ScanResource sr) {
@@ -513,7 +490,7 @@ public class ScanResource extends
 
     /**
      * Register this resource with scan
-     * 
+     *
      * @param rrd
      */
     private void removeScanRadarListener(ScanResource sr) {
@@ -537,21 +514,29 @@ public class ScanResource extends
     public void recenter(Coordinate coor) {
         if (!getScan().getDialog(getTable(), resourceData.icao)
                 .getCurrentShell().isDisposed()) {
+            // Reset the display
             getDescriptor().getRenderableDisplay().getExtent().reset();
-            int mapWidth = getDescriptor().getMapWidth() / 1000;
 
-            // Force the recenter and zoom to zoom to 137 km
-            double zoomLevel = (double) 137 / mapWidth;
-            getDescriptor().getRenderableDisplay().zoom(zoomLevel);
-            getDescriptor().getRenderableDisplay().recenter(
-                    new double[] { coor.x, coor.y });
+            // If not zoomed then zoom and recenter on the cell.
+            if (!zoomed) {
+                getDescriptor().getRenderableDisplay().getExtent().reset();
+                int mapWidth = getDescriptor().getMapWidth() / 1000;
+
+                // Force the recenter and zoom to zoom to 137 km
+                double zoomLevel = (double) 137 / mapWidth;
+                getDescriptor().getRenderableDisplay().zoom(zoomLevel);
+                getDescriptor().getRenderableDisplay()
+                        .recenter(new double[] { coor.x, coor.y });
+            }
+
+            zoomed = !zoomed;
             paintScan();
         }
     }
 
     /**
      * Sets the initial center point
-     * 
+     *
      * @param center
      */
     public void initialCenter(Coordinate center) {
@@ -565,17 +550,18 @@ public class ScanResource extends
 
     /**
      * get the ScanDrawer
-     * 
+     *
      * @return
      */
     public ScanDrawer getScanDrawer() {
         if (drawer == null && gc != null) {
             if (getTable().equals(ScanTables.CELL)) {
-                drawer = new ScanDrawer(SCANConfig.getInstance()
-                        .getStormCellConfig(), gc);
+                drawer = new ScanDrawer(
+                        SCANConfig.getInstance().getStormCellConfig(), gc);
             } else if (getTable().equals(ScanTables.DMD)) {
-                drawer = new ScanDrawer(SCANConfig.getInstance()
-                        .getDmdDisplayFilterConfig(), gc);
+                drawer = new ScanDrawer(
+                        SCANConfig.getInstance().getDmdDisplayFilterConfig(),
+                        gc);
             }
         }
         return drawer;
@@ -605,9 +591,8 @@ public class ScanResource extends
 
     /**
      * Gets the type from the bundle called
-     * 
-     * @param type
-     * @return
+     *
+     * @param stype
      */
     public void setTable(String stype) {
         if (stype.equals(ScanTables.CELL.name())) {
@@ -619,7 +604,7 @@ public class ScanResource extends
 
     /**
      * get the type
-     * 
+     *
      * @return
      */
     public ScanTables getTable() {
@@ -628,6 +613,10 @@ public class ScanResource extends
 
     @Override
     public String getName() {
+        if (paintTime == null) {
+            return "No Data Available";
+        }
+
         StringBuilder prefix = new StringBuilder();
         prefix = new StringBuilder();
         prefix.append(resourceData.icao);
@@ -637,46 +626,33 @@ public class ScanResource extends
             prefix.append(" ");
             prefix.append("(Editable) ");
         }
-        prefix.append(" ");
-
-        if (paintTime != null) {
-            prefix.append(paintTime.getLegendString());
-        } else {
-            return "No Data Available";
-        }
         return prefix.toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.capabilities.IInspectableResource#inspect(com
-     * .vividsolutions.jts.geom.Coordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate latLon) throws VizException {
-        StringBuffer inspect = new StringBuffer();
+        StringBuilder inspect = new StringBuilder();
         String idToUse = null;
         int maxStRank = 0;
 
         if ((drawables.size() > 0) && (getScan() != null)) {
-
-            for (String id : drawables.keySet()) {
+            for (Entry<String, PixelCoverage> entry : drawables.entrySet()) {
+                // for (String id : drawables.keySet()) {
                 try {
-                    if (contains(drawables.get(id), latLon.asLatLon())) {
-                        ScanTableDataRow stdr = getScan().getTableData(
-                                getTable(), resourceData.icao, volScanTime)
-                                .getRow(id);
+                    if (contains(entry.getValue(), latLon.asLatLon())) {
+                        ScanTableDataRow stdr = getScan()
+                                .getTableData(getTable(), resourceData.icao,
+                                        volScanTime)
+                                .getRow(entry.getKey());
 
                         if (stdr != null) {
                             if (stdr instanceof CellTableDataRow) {
-                                inspect.append(getCellSampleString((CellTableDataRow) stdr));
+                                inspect.append(getCellSampleString(
+                                        (CellTableDataRow) stdr));
                                 return inspect.toString();
                             } else {
-                                int rank = Integer
-                                        .parseInt(((DMDTableDataRow) stdr)
-                                                .getRank());
+                                int rank = Integer.parseInt(
+                                        ((DMDTableDataRow) stdr).getRank());
                                 if (rank > maxStRank) {
                                     maxStRank = rank;
                                     idToUse = stdr.getIdent();
@@ -684,19 +660,17 @@ public class ScanResource extends
                             }
                         }
                     }
-                } catch (TransformException e) {
-                    e.printStackTrace();
-                } catch (FactoryException e) {
-                    e.printStackTrace();
-                } catch (Exception e) {
-                    e.printStackTrace();
+                } catch (TransformException | FactoryException e) {
+                    statusHandler.warn("Error transforming coordinates for "
+                            + entry.getKey(), e);
                 }
             }
         }
 
         if (idToUse != null) {
-            ScanTableDataRow dataRow = getScan().getTableData(getTable(),
-                    resourceData.icao, volScanTime).getRow(idToUse);
+            ScanTableDataRow dataRow = getScan()
+                    .getTableData(getTable(), resourceData.icao, volScanTime)
+                    .getRow(idToUse);
             inspect.append(getDmdSampleString((DMDTableDataRow) dataRow));
         }
 
@@ -705,7 +679,7 @@ public class ScanResource extends
 
     /**
      * Generate the Cell Sample Text
-     * 
+     *
      * @param data
      *            CellTableDataRow
      * @return the sample text
@@ -719,7 +693,7 @@ public class ScanResource extends
 
         cellId = data.getIdent();
 
-        List<String> sampleLines = new ArrayList<String>();
+        List<String> sampleLines = new ArrayList<>();
         DecimalFormat format = new DecimalFormat();
         format.setMaximumFractionDigits(1);
         int line = -999;
@@ -728,14 +702,14 @@ public class ScanResource extends
         ArrayList<ParameterXML> paramList = config.getParameterList();
 
         for (ParameterXML parm : paramList) {
-            if (parm.getDisplay().equalsIgnoreCase("true")) {
+            if ("true".equalsIgnoreCase(parm.getDisplay())) {
                 if (parm.getLine() != null) {
                     try {
                         line = Integer.parseInt(parm.getLine());
                     } catch (NumberFormatException e) {
-                        System.err
-                                .println("Error parsing line in Scan Sample Config for "
-                                        + parm.getName());
+                        statusHandler
+                                .error("Error parsing line in Scan Sample Config for "
+                                        + parm.getName(), e);
                     }
                 } else {
                     // Reset the line
@@ -743,80 +717,80 @@ public class ScanResource extends
                 }
 
                 String text = null;
-                if (parm.getKey().equalsIgnoreCase("ident")) {
+                if (parm.getKey().equalsIgnoreCase(IDENT)) {
                     text = parm.getName() + ": " + data.getIdent() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("rank")) {
+                } else if (parm.getKey().equalsIgnoreCase(RANK)) {
                     text = parm.getName() + ": " + data.getRank() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("tvs")) {
+                } else if (parm.getKey().equalsIgnoreCase(TVS)) {
                     text = parm.getName() + ": " + data.getTvs() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("mdaSr")) {
+                } else if ("mdaSr".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getMdaSR() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("posh")) {
+                } else if ("posh".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getPosh() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("poh")) {
+                } else if ("poh".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getPoh() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("polh")) {
+                } else if ("polh".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getPolh() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("hsize")) {
+                } else if ("hsize".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getHsize()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("dbz")) {
+                } else if ("dbz".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + format.format(data.getDbz())
                             + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("dbzHt")) {
+                } else if ("dbzHt".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getDbzHt()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("top")) {
+                } else if ("top".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + format.format(data.getTop())
                             + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("azm15")) {
+                } else if ("azm15".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getAzm15()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("rng15")) {
+                } else if ("rng15".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getRng15()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("azm30")) {
+                } else if ("azm30".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getAzm30()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("rng30")) {
+                } else if ("rng30".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getRng30()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("azm45")) {
+                } else if ("azm45".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getAzm45()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("rng45")) {
+                } else if ("rng45".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getRng45()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("azm60")) {
+                } else if ("azm60".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getAzm60()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("rng60")) {
+                } else if ("rng60".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getRng60()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("mvtErr")) {
+                } else if ("mvtErr".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getMvtErr()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("mvtMn")) {
+                } else if ("mvtMn".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getMvtMn()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("svrwx")) {
+                } else if ("svrwx".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getSvrwx() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("heavyPr")) {
+                } else if ("heavyPr".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getHvyPr() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("pPos")) {
+                } else if ("pPos".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + format.format(data.getPos())
                             + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("cgRate")) {
+                } else if ("cgRate".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getCgRate()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("vcp")) {
+                } else if ("vcp".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getVcp() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("cape")) {
-                    text = parm.getName() + ": "
-                            + format.format(data.getCape()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("sreh")) {
-                    text = parm.getName() + ": "
-                            + format.format(data.getSreh()) + SPACE;
+                } else if ("cape".equalsIgnoreCase(parm.getKey())) {
+                    text = parm.getName() + ": " + format.format(data.getCape())
+                            + SPACE;
+                } else if ("sreh".equalsIgnoreCase(parm.getKey())) {
+                    text = parm.getName() + ": " + format.format(data.getSreh())
+                            + SPACE;
                 }
 
                 if (line > 0) {
@@ -836,7 +810,7 @@ public class ScanResource extends
 
         StringBuilder sb = new StringBuilder();
         for (String s : sampleLines) {
-            sb.append(s + NL);
+            sb.append(s).append(StringUtil.NEWLINE);
         }
 
         cellSampleText = sb.toString();
@@ -846,7 +820,7 @@ public class ScanResource extends
 
     /**
      * Generate the sample text
-     * 
+     *
      * @param data
      * @return
      */
@@ -858,7 +832,7 @@ public class ScanResource extends
 
         dmdId = data.getIdent();
 
-        List<String> sampleLines = new ArrayList<String>();
+        List<String> sampleLines = new ArrayList<>();
         DecimalFormat format = new DecimalFormat();
         format.setMaximumFractionDigits(1);
         int line = -999;
@@ -867,14 +841,14 @@ public class ScanResource extends
         ArrayList<ParameterXML> paramList = config.getParameterList();
 
         for (ParameterXML parm : paramList) {
-            if (parm.getDisplay().equalsIgnoreCase("true")) {
+            if ("true".equalsIgnoreCase(parm.getDisplay())) {
                 if (parm.getLine() != null) {
                     try {
                         line = Integer.parseInt(parm.getLine());
                     } catch (NumberFormatException e) {
-                        System.err
-                                .println("Error parsing line in Scan Sample Config for "
-                                        + parm.getName());
+                        statusHandler
+                                .error("Error parsing line in Scan Sample Config for "
+                                        + parm.getName(), e);
                     }
                 } else {
                     // Reset line number
@@ -882,60 +856,56 @@ public class ScanResource extends
                 }
 
                 String text = null;
-                if (parm.getKey().equalsIgnoreCase("ident")) {
+                if (parm.getKey().equalsIgnoreCase(IDENT)) {
                     text = parm.getName() + ": " + data.getIdent() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("strmID")) {
+                } else if ("strmID".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getStrmID() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("status")) {
+                } else if ("status".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getStatus() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("base")) {
-                    text = parm.getName() + ": "
-                            + format.format(data.getBase()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("depth")) {
+                } else if ("base".equalsIgnoreCase(parm.getKey())) {
+                    text = parm.getName() + ": " + format.format(data.getBase())
+                            + SPACE;
+                } else if ("depth".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getDepth()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("rank")) {
+                } else if (parm.getKey().equalsIgnoreCase(RANK)) {
                     text = parm.getName() + ": " + data.getRank() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("msi")) {
+                } else if ("msi".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getMsi() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("llVr")) {
-                    text = parm.getName() + ": "
-                            + format.format(data.getLlVr()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("llgtg")) {
+                } else if ("llVr".equalsIgnoreCase(parm.getKey())) {
+                    text = parm.getName() + ": " + format.format(data.getLlVr())
+                            + SPACE;
+                } else if ("llgtg".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getLlgtg()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("llConv")) {
+                } else if ("llConv".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getLlConv()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("llShear")) {
+                } else if ("llShear".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getLlShear()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("mlConv")) {
+                } else if ("mlConv".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getMlConv()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("llDiam")) {
+                } else if ("llDiam".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getLlDiam()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("relDepth")) {
+                } else if ("relDepth".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getRelDepth()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("maxVr")) {
+                } else if ("maxVr".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getMaxVr()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("htMxVr")) {
+                } else if ("htMxVr".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": "
                             + format.format(data.getHtMxVr()) + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("tvs")) {
+                } else if (parm.getKey().equalsIgnoreCase(TVS)) {
                     text = parm.getName() + ": " + data.getTvs() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("msi")) {
-                    text = parm.getName() + ": " + data.getMsi() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("age")) {
+                } else if ("age".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getAge() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("elev0")) {
+                } else if ("elev0".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getElev0() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("status")) {
-                    text = parm.getName() + ": " + data.getStatus() + SPACE;
-                } else if (parm.getKey().equalsIgnoreCase("rankType")) {
+                } else if ("rankType".equalsIgnoreCase(parm.getKey())) {
                     text = parm.getName() + ": " + data.getRankType() + SPACE;
                 }
 
@@ -957,7 +927,7 @@ public class ScanResource extends
 
         StringBuilder sb = new StringBuilder();
         for (String s : sampleLines) {
-            sb.append(s + NL);
+            sb.append(s).append(StringUtil.NEWLINE);
         }
 
         dmdSampleText = sb.toString();
@@ -985,7 +955,7 @@ public class ScanResource extends
 
     /**
      * Sets the tilt angle
-     * 
+     *
      * @param tilt
      */
     public void setTilt(double tilt) {
@@ -994,7 +964,7 @@ public class ScanResource extends
 
     /**
      * get tilted
-     * 
+     *
      * @return
      */
     public double getTilt() {
@@ -1011,7 +981,7 @@ public class ScanResource extends
 
     /**
      * See if you are in the coverage of this feature
-     * 
+     *
      * @param c
      * @return
      */
@@ -1038,7 +1008,7 @@ public class ScanResource extends
 
     /**
      * Sort of misnomer, not really "editable" in this case
-     * 
+     *
      */
     @Override
     public void middleClicked() throws VizException {
@@ -1052,7 +1022,7 @@ public class ScanResource extends
 
     /**
      * Set trend select
-     * 
+     *
      * @param isTrend
      */
     public void setTrend(boolean isTrend) {
@@ -1061,7 +1031,7 @@ public class ScanResource extends
 
     /**
      * get trend on/off
-     * 
+     *
      * @return
      */
     public boolean isTrend() {
@@ -1070,18 +1040,19 @@ public class ScanResource extends
 
     /**
      * Fires a trend graph when requested
-     * 
+     *
      * @param mouseCoords
      * @return boolean
      */
     protected boolean trendClick(double[] mouseCoord) {
         boolean trend = false;
         if ((drawables.size() > 0) && (getScan() != null)) {
-            for (String id : drawables.keySet()) {
-                if (contains(drawables.get(id), getResourceContainer()
-                        .translateClick(mouseCoord[0], mouseCoord[1]))) {
+            for (Entry<String, PixelCoverage> entry : drawables.entrySet()) {
+                if (contains(drawables.get(entry.getKey()),
+                        getResourceContainer().translateClick(mouseCoord[0],
+                                mouseCoord[1]))) {
                     getScan().launchTrendGraphs(getTable(), resourceData.icao,
-                            id);
+                            entry.getKey());
                     trend = true;
                 }
             }
@@ -1091,9 +1062,9 @@ public class ScanResource extends
 
     /**
      * Sort by Date
-     * 
+     *
      * @author dhladky
-     * 
+     *
      */
     public class SortDates implements Comparator<Date> {
 
@@ -1106,21 +1077,22 @@ public class ScanResource extends
 
     /**
      * set and populate the record to the monitor
-     * 
-     * @param record
+     *
+     * @param newrecord
      */
     public void addRecord(ScanRecord newrecord) {
         try {
-            if (!getScan().getTimeOrderedKeys(getScan(), newrecord.getType(),
-                    resourceData.icao).contains(
-                    newrecord.getDataTime().getRefTime())
-                    || newrecord.getType().equals("DMD")) {
+            if (!getScan()
+                    .getTimeOrderedKeys(getScan(), newrecord.getType(),
+                            resourceData.icao)
+                    .contains(newrecord.getDataTime().getRefTime())
+                    || "DMD".equals(newrecord.getType())) {
 
                 newrecord = resourceData.populateRecord(newrecord);
 
                 if ((newrecord.getTableData() != null)
-                        && (newrecord.getDataTime() != null)
-                        && (newrecord.getTableData().getVolScanTime() != null)) {
+                        && (newrecord.getDataTime() != null) && (newrecord
+                                .getTableData().getVolScanTime() != null)) {
 
                     getScan().setTableData(resourceData.icao,
                             newrecord.getTableData(),
@@ -1144,13 +1116,13 @@ public class ScanResource extends
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            statusHandler.warn("Error adding record: " + newrecord.getId(), e);
         }
     }
 
     /**
      * table data object
-     * 
+     *
      * @return
      */
     public ScanTableData<?> getTableData() {
@@ -1159,7 +1131,7 @@ public class ScanResource extends
 
     /**
      * Gets the oldest available date
-     * 
+     *
      * @return
      * @throws VizException
      */
@@ -1177,8 +1149,8 @@ public class ScanResource extends
     @Override
     public DataTime[] getDataTimes() {
         ScanMonitor scan = getScan();
-        List<Date> dates = scan.getTimeOrderedKeys(scan,
-                resourceData.tableType, resourceData.icao);
+        List<Date> dates = scan.getTimeOrderedKeys(scan, resourceData.tableType,
+                resourceData.icao);
         DataTime[] dataTimes = new DataTime[dates.size()];
         for (int i = 0; i < dataTimes.length; i += 1) {
             dataTimes[i] = new DataTime(dates.get(i));

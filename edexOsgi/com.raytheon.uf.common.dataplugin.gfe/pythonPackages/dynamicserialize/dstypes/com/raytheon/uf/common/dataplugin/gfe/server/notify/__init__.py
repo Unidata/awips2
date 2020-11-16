@@ -31,12 +31,12 @@ __all__ = [
             'UserMessageNotification'
           ]
 
-from .CombinationsFileChangedNotification import CombinationsFileChangedNotification
-from .DBInvChangeNotification import DBInvChangeNotification
-from .GfeNotification import GfeNotification
-from .GridHistoryUpdateNotification import GridHistoryUpdateNotification
-from .GridUpdateNotification import GridUpdateNotification
-from .LockNotification import LockNotification
-from .ServiceBackupJobStatusNotification import ServiceBackupJobStatusNotification
-from .UserMessageNotification import UserMessageNotification
+from CombinationsFileChangedNotification import CombinationsFileChangedNotification
+from DBInvChangeNotification import DBInvChangeNotification
+from GfeNotification import GfeNotification
+from GridHistoryUpdateNotification import GridHistoryUpdateNotification
+from GridUpdateNotification import GridUpdateNotification
+from LockNotification import LockNotification
+from ServiceBackupJobStatusNotification import ServiceBackupJobStatusNotification
+from UserMessageNotification import UserMessageNotification
 

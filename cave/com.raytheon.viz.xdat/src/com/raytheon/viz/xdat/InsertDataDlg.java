@@ -48,6 +48,7 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 10 Nov 2008             lvenable    Initial creation.
  * 10 Feb 2009             wkwock      Added functions.
  * 22 May 2015             skorolev    Corrected shefParamCode. Got rid of Vector.
+ * 12 Mar 2018  DCS18260   astrakovsky Added refresh to GUI after insert.
  * 
  * </pre>
  * 
@@ -138,8 +139,7 @@ public class InsertDataDlg extends CaveSWTDialog {
      * @param parentShell
      *            Parent shell.
      */
-    public InsertDataDlg(Shell parentShell, String peType, XdatDB database,
-            ITextDisplay displayCB) {
+    public InsertDataDlg(Shell parentShell, String peType, XdatDB database, ITextDisplay displayCB) {
         super(parentShell, SWT.DIALOG_TRIM | SWT.RESIZE);
         setText("Insert Data");
 
@@ -230,8 +230,7 @@ public class InsertDataDlg extends CaveSWTDialog {
             public void widgetSelected(SelectionEvent event) {
                 String ID = idTF.getText().trim();
                 if (ID.compareTo("") == 0) {
-                    MessageBox mb = new MessageBox(getParent(),
-                            SWT.ICON_WARNING | SWT.OK);
+                    MessageBox mb = new MessageBox(getParent(), SWT.ICON_WARNING | SWT.OK);
                     mb.setMessage("Please enter a ID.");
                     mb.open();
                     return;
@@ -239,15 +238,13 @@ public class InsertDataDlg extends CaveSWTDialog {
 
                 String PE = peTypeTF.getText().trim();
                 if (PE.compareTo("") == 0) {
-                    MessageBox mb = new MessageBox(getParent(),
-                            SWT.ICON_WARNING | SWT.OK);
+                    MessageBox mb = new MessageBox(getParent(), SWT.ICON_WARNING | SWT.OK);
                     mb.setMessage("Please enter a PE Type.");
                     mb.open();
                     return;
                 }
 
-                java.util.List<String> shefParamCode = databaseMgr
-                        .getShefParamCode(ID, PE);
+                java.util.List<String> shefParamCode = databaseMgr.getShefParamCode(ID, PE);
                 if (shefParamCode != null) {
                     for (int i = 0; i < shefParamCode.size(); i++) {
                         shefParamList.add(shefParamCode.get(i));
@@ -278,8 +275,7 @@ public class InsertDataDlg extends CaveSWTDialog {
         gd.widthHint = 300;
         gd.heightHint = 200;
         gd.horizontalSpan = 2;
-        shefParamList = new List(bottomCtrlComp, SWT.BORDER | SWT.SINGLE
-                | SWT.V_SCROLL);
+        shefParamList = new List(bottomCtrlComp, SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
         shefParamList.setLayoutData(gd);
         shefParamList.setFont(controlFont);
 
@@ -406,9 +402,10 @@ public class InsertDataDlg extends CaveSWTDialog {
         int minute = minuteSpnr.getSelection();
 
         XdatShefUtil shefUtil = new XdatShefUtil();
-        shefUtil.createInsertFile(id, pe, value, hour, minute,
-                displayCB.getStartDate());
+        shefUtil.createInsertFile(id, pe, value, hour, minute, displayCB.getStartDate());
         shefUtil.sendFile();
+
+        displayCB.refreshTextArea();
 
         shell.dispose();
     }

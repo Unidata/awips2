@@ -47,6 +47,7 @@ import com.raytheon.uf.common.activetable.ActiveTableMode;
 import com.raytheon.uf.common.activetable.request.LockAndGetNextEtnRequest;
 import com.raytheon.uf.common.activetable.request.UnlockAndSetNextEtnRequest;
 import com.raytheon.uf.common.activetable.response.GetNextEtnResponse;
+import com.raytheon.uf.common.activetable.response.RestoreLastEtnResponse;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
@@ -79,6 +80,7 @@ import com.raytheon.uf.edex.requestsrv.router.RemoteServerRequestRouter;
  * Dec 18, 2013  #2641     dgilling     Fix ClusterTask locking.
  * Apr 28, 2015  #4027     randerso     Expunged Calendar from ActiveTableRecord
  * Aug 03, 2016  5747      dgilling     Move edex_static to common_static.
+ * Oct 09, 2018  20557     ryu          Added methods to restore ETN.
  * 
  * </pre>
  * 
@@ -500,6 +502,218 @@ public final class GetNextEtnUtil {
         return new GetNextEtnResponse(nextEtn, phensig, resultsByHost, errors);
     }
 
+    /**
+     * Restores the last used ETN for an office, phensig, and active
+     * table. The last used ETN will be determined by using the maximum of the last
+     * ETN found for the given office and phensig in the appropriate active
+     * table and in the cluster task for the same office, phensig, and active
+     * table combination.
+     * <p>
+     * If the <code>performISC</code> flag is set then we will also query a list
+     * of configured remote ETN partners. This configuration is stored in the
+     * file edex_static/site/${AW_SITE_IDENTIFIER}/vtec/remote-etn-partners.
+     * properties.
+     * 
+     * @param siteId
+     *            The 4-character site identifier.
+     * @param mode
+     *            The active table to use.
+     * @param phensig
+     *            The phenomenon and significance combination (e.g., TO.W or
+     *            DU.Y).
+     * @param currentTime
+     *            <code>Date</code> representing time (needed for DRT mode).
+     * @param performISC
+     *            Whether or not to collaborate with neighboring sites to
+     *            determine the next ETN. If this is true, but
+     *            <code>isLock</code> is false, this flag is effectively false
+     *            and your configured remote partners will not be contacted to
+     *            determine the next ETN.
+     * @param reportConflictOnly
+     *            Affects which kinds of errors get reported back to the
+     *            requestor. If true, only cases where the value of
+     *            <code>etnOverride</code> is less than or equal to the last ETN
+     *            used by this site or any of its partners will be reported.
+     *            Else, all significant errors will be reported back.
+     * @param etnOverride
+     *            Use this as the last used ETN if its value is greater than 
+     *            the last ETN issued by this site or at one of its partners.
+     * @return A <code>GetNextEtnResponse</code> containing the next ETN to use
+     *         and any hosts that couldn't be contacted during this process.
+     */
+    public static RestoreLastEtnResponse restoreLastEtn(String siteId,
+            ActiveTableMode mode, String phensig, Date currentTime,
+            boolean performISC, boolean reportConflictOnly,
+            Integer etnOverride) {
+        SortedMap<String, IRequestRouter> hostsToQuery = new TreeMap<>();
+        List<String> readEtnSourcesErrors = Collections.emptyList();
+        if (performISC) {
+            try {
+                hostsToQuery = GetNextEtnUtil.getRemoteEtnSources(siteId);
+            } catch (UnknownHostException e) {
+                readEtnSourcesErrors = Arrays.asList(
+                        "Falling back to local ETN calculation: ",
+                        "Could not perform reverse lookup for localhost: "
+                                + e.getLocalizedMessage());
+            } catch (IOException e) {
+                readEtnSourcesErrors = Arrays.asList(
+                        "Falling back to local ETN calculation: ",
+                        "Could not read configuration file " + CONFIG_FILE_NAME
+                                + ": " + e.getLocalizedMessage());
+            }
+        }
+
+        RestoreLastEtnResponse response;
+        if (performISC && (!hostsToQuery.isEmpty())
+                && (readEtnSourcesErrors.isEmpty())) {
+            response = GetNextEtnUtil.restoreLastEtnFromPartners(siteId, mode,
+                    phensig, currentTime, hostsToQuery, reportConflictOnly,
+                    etnOverride);
+        } else {
+            int nextEtn = GetNextEtnUtil.restoreLastEtnFromLocal(siteId, mode,
+                    phensig, currentTime, etnOverride);
+            response = new RestoreLastEtnResponse(nextEtn, phensig);
+            response.setErrorMessages(readEtnSourcesErrors);
+        }
+
+        return response;
+    }
+
+    /**
+     * Will retrieve the ETN in sequence for the given site, phensig, and active
+     * table combination by only checking the internal active table and cluster
+     * lock metadata. No remote partners will be contacted.
+     * 
+     * @param siteId
+     *            The 4-character site identifier.
+     * @param mode
+     *            The active table to use.
+     * @param phensig
+     *            The phenomenon and significance combination (e.g., TO.W or
+     *            DU.Y).
+     * @param currentTime
+     *            <code>Date</code> representing time (needed for DRT mode).
+     * @param isLock
+     *            Whether or not to return a unique ETN--one that has not and
+     *            cannot be used by any other requestor.
+     * @param etnOverride
+     *            Allows the user to influence the last used ETN by using
+     *            this value unless it is less than the last ETN
+     *            used by this site.
+     * @return The next ETN to be used in sequence.
+     */
+    public static Integer restoreLastEtnFromLocal(String siteId,
+            ActiveTableMode mode, String phensig, Date currentTime,
+            Integer etnOverride) {
+        int nextEtn = etnOverride + 1;
+        nextEtn = GetNextEtnUtil.lockAndGetNextEtn(siteId, mode, phensig, 
+                currentTime, true, nextEtn);
+        int lastEtn = nextEtn - 1;
+        GetNextEtnUtil.setNextEtnAndUnlock(siteId, mode, phensig, 
+                currentTime, lastEtn);
+        
+        return lastEtn;
+    }
+
+    /**
+     * Will retrieve the ETN in sequence for the given site, phensig, and active
+     * table combination by contacting the EDEX hosts defined in the file
+     * edex_static
+     * /site/${AW_SITE_IDENTIFIER}/vtec/remote-etn-partners.properties.
+     * <p>
+     * It is expected that configuration file will list a number of remote
+     * servers to check, but the host name of the primary EDEX server hosting
+     * the site being queried for should also be listed.
+     * 
+     * @param siteId
+     *            The 4-character site identifier.
+     * @param mode
+     *            The active table to use.
+     * @param phensig
+     *            The phenomenon and significance combination (e.g., TO.W or
+     *            DU.Y).
+     * @param currentTime
+     *            <code>Date</code> representing time (needed for DRT mode).
+     * @param hostsToQuery
+     *            The remote hosts to query. This should also include the local
+     *            EDEX instance initiating this operation.
+     * @param reportConflictOnly
+     *            Affects which kinds of errors get reported back to the
+     *            requestor. If true, only cases where the value of
+     *            <code>etnOverride</code> is less than or equal to the last ETN
+     *            used by this site or any of its partners will be reported.
+     *            Else, all significant errors will be reported back.
+     * @param etnOverride
+     *            Allows the user to influence the next ETN assigned by using
+     *            this value unless it is less than or equal to the last ETN
+     *            used by this site or one of its partners.
+     * @return A <code>GetNextEtnResponse</code> containing the next ETN to use
+     *         and any hosts that couldn't be contacted during this process.
+     * @throws UnknownHostException
+     */
+    public static RestoreLastEtnResponse restoreLastEtnFromPartners(String siteId,
+            ActiveTableMode mode, String phensig, Date currentTime,
+            SortedMap<String, IRequestRouter> hostsToQuery,
+            boolean reportConflictOnly, Integer etnOverride) {
+        Queue<Entry<String, IRequestRouter>> unlockQueue = Collections
+                .asLifoQueue(new ArrayDeque<Entry<String, IRequestRouter>>(
+                        hostsToQuery.size()));
+
+        Map<String, Integer> resultsByHost = new HashMap<>(hostsToQuery.size(),
+                1f);
+        List<String> errors = new ArrayList<>();
+
+        String mySiteId = SiteUtil.getSite();
+
+        IServerRequest getAndLockReq = new LockAndGetNextEtnRequest(siteId,
+                mySiteId, mode, phensig, currentTime, etnOverride + 1);
+        for (Entry<String, IRequestRouter> host : hostsToQuery.entrySet()) {
+            IRequestRouter router = host.getValue();
+            String hostName = host.getKey();
+            Integer partnersNextEtn = null;
+            try {
+                partnersNextEtn = (Integer) GetNextEtnUtil.sendThriftRequest(
+                        router, getAndLockReq);
+                unlockQueue.add(host);
+            } catch (RemoteException e) {
+                String message = "Error occurred contacting remote ETN partner ["
+                        + hostName + "]: " + e.getLocalizedMessage();
+                if (!reportConflictOnly) {
+                    errors.add(message);
+                }
+                statusHandler.handle(Priority.WARN, message, e);
+            }
+            resultsByHost.put(hostName, partnersNextEtn);
+        }
+
+        int nextEtn = 1;
+        for (Entry<String, Integer> entry : resultsByHost.entrySet()) {
+            int partnerEtn = (entry.getValue() != null) ? entry.getValue() : -1;
+            nextEtn = Math.max(nextEtn, partnerEtn);
+        }
+        
+        int lastEtn = nextEtn - 1;
+        lastEtn = Math.max(lastEtn, etnOverride);
+        
+        IServerRequest unlockReq = new UnlockAndSetNextEtnRequest(siteId,
+                mySiteId, mode, currentTime, phensig, lastEtn);
+        for (Entry<String, IRequestRouter> host : unlockQueue) {
+            IRequestRouter router = host.getValue();
+            try {
+                GetNextEtnUtil.sendThriftRequest(router, unlockReq);
+            } catch (RemoteException e) {
+                String message = "Error occurred unlocking remote ETN partner ["
+                        + host.getKey() + "]: " + e.getLocalizedMessage();
+                if (!reportConflictOnly) {
+                    errors.add(message);
+                }
+                statusHandler.handle(Priority.WARN, message, e);
+            }
+        }
+
+        return new RestoreLastEtnResponse(lastEtn, phensig, resultsByHost, errors);
+    }
+    
     private static Object sendThriftRequest(final IRequestRouter router,
             final IServerRequest request) throws RemoteException {
         Object retVal = null;

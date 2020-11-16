@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -69,32 +69,32 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 /**
  * This class is used for some of the calculation work used in the alarm/alert
  * functionality
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 18, 2009            mnash       Initial creation
  * 03/19/2012              D. Friedman Fix determination of "Alarm" entries.
- * 12/07/2012   15555  m.gamazaychikov Added methods and constants for 
+ * 12/07/2012   15555  m.gamazaychikov Added methods and constants for
  *                                     the implementation of proximity alarm
  * 07/24/2014    3423      randerso    Ensure ringBell is called on UI thread
  * 09/09/2014    3580      mapeters    Removed IQueryTransport usage (no longer exists).
  * 12/03/2014   16829      D. Friedman Lazy initialization of alarmAlertBell
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
- * 11/29/2015   14995  m.gamazaychikov Made sure that non-standard latlons in 
+ * 11/29/2015   14995  m.gamazaychikov Made sure that non-standard latlons in
  *                                     LAT...LON string did not result in error.
  * 15/01/2016    5054      randerso    Use proper parent shell
  * 03/30/2016    5513      randerso    Fixed AlarmAlertBell to display on same monitor as parent
  *                                     code cleanup
  * 07/05/2016   19153   mgamazaychikov Fix disappearance of AlarmAlert Bell after initial close
- * 
- * 
+ * Jan 24, 2018  7132      tgurney     Add destroyAlarmAlertBell()
+ *
+ *
  * </pre>
- * 
+ *
  * @author mnash
- * @version 1.0
  */
 public class AlarmAlertFunctions {
 
@@ -125,8 +125,14 @@ public class AlarmAlertFunctions {
 
     private static final String HYPHEN = Pattern.quote("-");
 
-    public static final Pattern UGC = Pattern
-            .compile("(^(\\w{2}[CZ]\\d{3}\\S*-\\d{6}-)$|((\\d{3}-)*\\d{6}-)$|((\\d{3}-)+))");
+    public static final Pattern UGC = Pattern.compile(
+            "(^(\\w{2}[CZ]\\d{3}\\S*-\\d{6}-)$|((\\d{3}-)*\\d{6}-)$|((\\d{3}-)+))");
+
+    private static final Pattern LAT_LON_PATTERN = Pattern
+            .compile("LAT...LON+(\\s\\d{3,4}\\s\\d{3,5}){1,}");
+
+    private static final Pattern SUB_LAT_LON_PATTERN = Pattern
+            .compile("\\s(\\d{3,4})\\s(\\d{3,5})");
 
     private static final double ONE_DEGREE_MI = 69.09;
 
@@ -134,7 +140,7 @@ public class AlarmAlertFunctions {
 
     /**
      * Create the string for distance in the dialog
-     * 
+     *
      * @param prod
      * @return
      */
@@ -165,7 +171,7 @@ public class AlarmAlertFunctions {
         return string.toString();
     }
 
-    protected static void ringBell(boolean sound) {
+    private static synchronized void ringBell(boolean sound) {
         if (alarmAlertBell != null) {
             alarmAlertBell.open(sound);
         }
@@ -174,7 +180,7 @@ public class AlarmAlertFunctions {
     /**
      * Decides if the product is in the filtered alarm list and then tells the
      * application to notify or not
-     * 
+     *
      * @param prod
      */
     public static void isInAlarmList(AlarmAlertProduct prod) {
@@ -185,14 +191,14 @@ public class AlarmAlertFunctions {
         List<AlarmAlertProduct> prods = findMatches(prod.getProductId(),
                 currentAlarms);
         // did we match anything?
-        boolean alertAlarm = prods.size() > 0;
+        boolean alertAlarm = !prods.isEmpty();
         if (alertAlarm) {
             String pId = prods.get(0).getProductId();
             // first go get the product. All of the matching product identifiers
             // are the same so just get the first.
             List<StdTextProduct> prodList = getProduct(pId);
             AlarmAlertProduct productFound = null;
-            if (prodList.size() > 0) {
+            if (!prodList.isEmpty()) {
                 String s = prodList.get(0).getProduct();
                 for (AlarmAlertProduct p : prods) {
                     String search = p.getSearchString();
@@ -238,13 +244,9 @@ public class AlarmAlertFunctions {
         }
     }
 
-    public static void main(String[] args) {
-        ringBell(true);
-    }
-
     /**
      * Retrieve a text product from the text database based on its productId.
-     * 
+     *
      * @param productId
      *            AFOS ProductId to retrieve from the text database.
      * @return A list of text products. Will always return a not null reference.
@@ -259,21 +261,21 @@ public class AlarmAlertFunctions {
             statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
         }
         if (productList == null) {
-            productList = new ArrayList<StdTextProduct>();
+            productList = new ArrayList<>();
         }
         return productList;
     }
 
     /**
      * Return a list of all alarms that match the incoming product identifier.
-     * 
+     *
      * @param productId
      * @param currentAlarms
      * @return
      */
     private static List<AlarmAlertProduct> findMatches(String productId,
             List<AlarmAlertProduct> currentAlarms) {
-        List<AlarmAlertProduct> prods = new ArrayList<AlarmAlertProduct>();
+        List<AlarmAlertProduct> prods = new ArrayList<>();
         if (productId != null) {
             productId = productId.trim().toUpperCase();
             for (AlarmAlertProduct a : currentAlarms) {
@@ -301,12 +303,13 @@ public class AlarmAlertFunctions {
                     if (s != null) {
                         s = s.trim().toUpperCase();
                         if (s.equals(productId)) {
-                            List<StdTextProduct> productList = getProduct(a
-                                    .getProductId());
-                            if (productList.size() > 0) {
+                            List<StdTextProduct> productList = getProduct(
+                                    a.getProductId());
+                            if (!productList.isEmpty()) {
                                 StdTextProduct stp = productList.get(0);
                                 if (stp != null) {
-                                    Geometry messagePolygon = getMessagePolygon(stp);
+                                    Geometry messagePolygon = getMessagePolygon(
+                                            stp);
                                     if (a.isAor()) {
                                         /*
                                          * Check if polygon in the message is
@@ -333,10 +336,11 @@ public class AlarmAlertFunctions {
                                          * Check if UGCs in the message match
                                          * the UGCs in the alarm
                                          */
-                                        String messageUGCs = getMessageUGCs(stp
-                                                .getProduct());
+                                        String messageUGCs = getMessageUGCs(
+                                                stp.getProduct());
                                         String alarmUGCs = a.getUgcList();
-                                        if (matchUGCList(alarmUGCs, messageUGCs)) {
+                                        if (matchUGCList(alarmUGCs,
+                                                messageUGCs)) {
                                             prods.add(a);
                                         }
                                     }
@@ -352,37 +356,33 @@ public class AlarmAlertFunctions {
 
     /**
      * Return a String containing UGCs specified in the message
-     * 
+     *
      * @param productText
      * @return
      */
     private static String getMessageUGCs(String productText) {
-        String ugcLine = "";
-        for (String line : productText.replaceAll("\r", "").trim().split("\n")) {
+        StringBuilder ugcLine = new StringBuilder();
+        for (String line : productText.replaceAll("\r", "").trim()
+                .split("\n")) {
             Matcher m = UGC.matcher(line);
             if (m.find()) {
-                ugcLine += line;
+                ugcLine.append(line);
                 continue;
             } else if (ugcLine.length() > 0) {
                 break;
             }
         }
-        return ugcLine;
+        return ugcLine.toString();
     }
 
-    /**
-     * Returns true if the polygon intersects the CWA
-     * 
-     * @param polygon
-     * @return
-     */
+    /** @return true if the polygon intersects the CWA */
     private static boolean matchAOR(Geometry polygon) {
         Geometry cwa = null;
         String site = LocalizationManager.getInstance().getCurrentSite();
         try {
             cwa = readCountyWarningArea(site);
         } catch (SpatialException e) {
-            e.printStackTrace();
+            statusHandler.warn("Failed to get the CWA for site " + site, e);
         }
         if (cwa != null) {
             if (polygon.intersects(cwa)) {
@@ -395,7 +395,7 @@ public class AlarmAlertFunctions {
     /**
      * Returns true if a UGC specified in the alarmUGCs is present in the
      * messageUGCs
-     * 
+     *
      * @param alarmUGCs
      * @param messageUGCs
      * @return
@@ -412,7 +412,7 @@ public class AlarmAlertFunctions {
 
     /**
      * Return a List of strings of UGCs
-     * 
+     *
      * @param ugcString
      * @return
      */
@@ -420,7 +420,7 @@ public class AlarmAlertFunctions {
         String[] ugcList = ugcString.split(HYPHEN);
         // Process the list of UGC lines into a list of UGCs in full form
         // matching edit area names
-        List<String> finalUGCList = new ArrayList<String>(ugcList.length);
+        List<String> finalUGCList = new ArrayList<>(ugcList.length);
         String state = null;
         for (String ugc : ugcList) {
             Matcher newGroup = UGC_NEW_PATTERN.matcher(ugc);
@@ -439,14 +439,14 @@ public class AlarmAlertFunctions {
 
     /**
      * Return Geometry representing the site's CWA
-     * 
+     *
      * @param site
      * @return
      * @throws SpatialException
      */
     private static Geometry readCountyWarningArea(String site)
             throws SpatialException {
-        Map<String, RequestConstraint> map = new HashMap<String, RequestConstraint>();
+        Map<String, RequestConstraint> map = new HashMap<>();
         map.put("cwa", new RequestConstraint(site));
         SpatialQueryResult[] result = SpatialQueryFactory.create().query("cwa",
                 null, null, map, null);
@@ -458,7 +458,7 @@ public class AlarmAlertFunctions {
 
     /**
      * Returns true if the polygon intersects the CWA+distance
-     * 
+     *
      * @param distanceStr
      * @param distanceUnits
      * @param polygon
@@ -471,8 +471,8 @@ public class AlarmAlertFunctions {
         try {
             cwa = readCountyWarningArea(site);
         } catch (SpatialException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.error("Failed to get the CWA for site " + site, e);
+            return false;
         }
         Geometry CWAConvex = cwa.convexHull();
 
@@ -498,7 +498,7 @@ public class AlarmAlertFunctions {
 
     /**
      * Return expanded by deltaX-deltaY geometry
-     * 
+     *
      * @param CWAConvex
      * @param deltaX
      * @param deltaY
@@ -535,7 +535,7 @@ public class AlarmAlertFunctions {
 
     /**
      * Return the polygon contained in message
-     * 
+     *
      * @param stp
      * @return
      */
@@ -554,36 +554,33 @@ public class AlarmAlertFunctions {
 
     /**
      * Return an array of Coordinate[] contained in the message
-     * 
+     *
      * @param body
      * @return
      */
     private static Coordinate[] getLatLonCoords(String body) {
-        String latLon = "";
+        StringBuilder latLon = new StringBuilder();
         boolean insideLatLon = false;
-        ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
-        Pattern latLonPtrn = Pattern
-                .compile("LAT...LON+(\\s\\d{3,4}\\s\\d{3,5}){1,}");
-        Pattern subLatLonPtrn = Pattern.compile("\\s(\\d{3,4})\\s(\\d{3,5})");
+        List<Coordinate> coordinates = new ArrayList<>();
         String[] separatedLines = body.split("\n");
         for (String line : separatedLines) {
-            Matcher m = latLonPtrn.matcher(line);
+            Matcher m = LAT_LON_PATTERN.matcher(line);
             if (m.find()) {
-                latLon = line;
+                latLon = new StringBuilder(line);
                 insideLatLon = true;
                 continue;
             }
             if (insideLatLon) {
-                m = subLatLonPtrn.matcher(line);
+                m = SUB_LAT_LON_PATTERN.matcher(line);
                 if (!line.startsWith("TIME...") && m.find()) {
-                    latLon += " " + line.trim();
+                    latLon.append(" ").append(line.trim());
                     continue;
                 } else {
                     insideLatLon = false;
                 }
             }
         }
-        coordinates = processLatlons(latLon);
+        coordinates = processLatlons(latLon.toString());
         Coordinate[] coords = new Coordinate[coordinates.size()];
         coords = coordinates.toArray(coords);
         return coords;
@@ -591,12 +588,12 @@ public class AlarmAlertFunctions {
 
     /**
      * Process the extracted from the message latlon coordinates
-     * 
+     *
      * @param latLon
      * @return
      */
     private static ArrayList<Coordinate> processLatlons(String latLon) {
-        ArrayList<Coordinate> coordinates = new ArrayList<Coordinate>();
+        ArrayList<Coordinate> coordinates = new ArrayList<>();
         String currentToken = null;
         String latlon = "LAT...LON";
         String latitude = null;
@@ -616,7 +613,8 @@ public class AlarmAlertFunctions {
                     pair = false;
 
                     dlat = (double) (Integer.parseInt(latitude) / 100.0);
-                    dlong = (double) (Integer.parseInt(longitude) / 100.0 * -1.0);
+                    dlong = (double) (Integer.parseInt(longitude) / 100.0
+                            * -1.0);
                     coordinates.add(new Coordinate(dlong, dlat));
                 } else {
                     latitude = currentToken;
@@ -632,7 +630,7 @@ public class AlarmAlertFunctions {
 
     /**
      * initialize the localization for user with the save/load functions
-     * 
+     *
      * @return the initialized localization
      */
     public static LocalizationContext initUserLocalization() {
@@ -641,7 +639,7 @@ public class AlarmAlertFunctions {
 
     /**
      * initialize the localization for site with the save/load functions
-     * 
+     *
      * @return the initialized localization
      */
     public static LocalizationContext initSiteLocalization() {
@@ -650,43 +648,68 @@ public class AlarmAlertFunctions {
 
     /**
      * Initialize a LocalizationContext for the given LocalizationLevel.
-     * 
+     *
      * @return the initialized localization
      */
-    public static LocalizationContext initLocalization(LocalizationLevel level) {
+    public static LocalizationContext initLocalization(
+            LocalizationLevel level) {
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationContext localization = pm.getContext(
-                LocalizationType.COMMON_STATIC, level);
+        LocalizationContext localization = pm
+                .getContext(LocalizationType.COMMON_STATIC, level);
         return localization;
     }
 
-    public static LocalizationFile getFile(LocalizationContext lc, String name) {
+    public static LocalizationFile getFile(LocalizationContext lc,
+            String name) {
         LocalizationFile loc = PathManagerFactory.getPathManager()
                 .getLocalizationFile(lc, ALARM_ALERT_PATH + name);
         return loc;
     }
 
     /*
-     * Try to load the site file.
+     * Try to load the workstation file. If there is no workstation file then
+     * try to load the site file and create a new workstation file from it. If
+     * there is no site file, then create a new default workstation file.
      */
-    public static AAPACombined loadSiteAlarms(ILocalizationFileObserver listener) {
+    public static AAPACombined loadSiteAlarms(
+            ILocalizationFileObserver listener) {
+        LocalizationFile workstationFile = getFile(
+                initLocalization(LocalizationLevel.SITE), SITE_FILE);
         AAPACombined aapaCombined = null;
 
-        LocalizationFile siteFile = getFile(initSiteLocalization(), SITE_FILE);
-        if (siteFile == null) {
-            aapaCombined = createDefaultAAPACombined();
+        if (workstationFile == null || !workstationFile.exists()) {
+            // no workstation file found. try the site file
+            LocalizationFile siteFile = getFile(initSiteLocalization(),
+                    SITE_FILE);
+            if (siteFile == null) {
+                aapaCombined = createDefaultAAPACombined();
+            } else {
+                try {
+                    aapaCombined = loadFile(siteFile.getFile());
+                } catch (FileNotFoundException e) {
+                    aapaCombined = createDefaultAAPACombined();
+                }
+            }
+            // save work file
+            if (workstationFile != null) {
+                saveAlarms(aapaCombined, workstationFile);
+            }
         } else {
             try {
-                aapaCombined = loadFile(siteFile.getFile());
+                aapaCombined = loadFile(workstationFile.getFile());
             } catch (FileNotFoundException e) {
                 aapaCombined = createDefaultAAPACombined();
             }
         }
 
+        if (workstationFile != null) {
+            workstationFile.addFileUpdatedObserver(listener);
+        }
         return aapaCombined;
     }
 
-    public static AAPACombined loadFile(File file) throws FileNotFoundException {
+    public static AAPACombined loadFile(File file)
+            throws FileNotFoundException {
         AAPACombined rval = null;
         try {
             if (file.exists()) {
@@ -770,12 +793,10 @@ public class AlarmAlertFunctions {
             LocalizationFile lFile = AlarmAlertFunctions.getFile(lc, filename);
             try {
                 if (lFile != null && lFile.getFile().exists()) {
-
-                    BufferedReader reader = null;
-                    FileReader r = new FileReader(lFile.getFile());
-                    reader = new BufferedReader(r);
-                    filename = reader.readLine();
-                    reader.close();
+                    try (FileReader r = new FileReader(lFile.getFile());
+                            BufferedReader reader = new BufferedReader(r)) {
+                        filename = reader.readLine();
+                    }
 
                 } else if (lFile != null) {
                     lFile.getFile().createNewFile();
@@ -790,13 +811,9 @@ public class AlarmAlertFunctions {
                     filename = null;
                 }
 
-            } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.CRITICAL,
-                        e.getLocalizedMessage(), e);
-                filename = null;
             } catch (IOException e) {
-                statusHandler.handle(Priority.CRITICAL,
-                        e.getLocalizedMessage(), e);
+                statusHandler.handle(Priority.CRITICAL, e.getLocalizedMessage(),
+                        e);
                 filename = null;
             }
             if (filename != null) {
@@ -816,9 +833,9 @@ public class AlarmAlertFunctions {
                     File cfgFile = lFile.getFile();
                     cfgFile.delete();
                     cfgFile.createNewFile();
-                    FileWriter w = new FileWriter(cfgFile);
-                    w.write(fname);
-                    w.close();
+                    try (FileWriter w = new FileWriter(cfgFile)) {
+                        w.write(fname);
+                    }
                     try {
                         lFile.save();
                     } catch (LocalizationException e) {
@@ -833,7 +850,7 @@ public class AlarmAlertFunctions {
     }
 
     public static List<AlarmAlertProduct> loadAllAlarms() {
-        List<AlarmAlertProduct> alarms = new ArrayList<AlarmAlertProduct>();
+        List<AlarmAlertProduct> alarms = new ArrayList<>();
         AAPACombined combined = loadUserAlarmsFromConfig();
         alarms.addAll(combined.getAaList());
         alarms.addAll(combined.getPaList());
@@ -843,21 +860,30 @@ public class AlarmAlertFunctions {
     /**
      * @param parent
      *            parent shell for alarm alert bell
-     * @return the alarmAlertBell
      */
-    public static AlarmAlertBell getAlarmAlertBell(Shell parent) {
+    public static synchronized void initAlarmAlertBell(Shell parent) {
         if (alarmAlertBell == null) {
             alarmAlertBell = new AlarmAlertBell(parent);
         }
-        return alarmAlertBell;
     }
 
     /**
      * Close the alarm alert bell
      */
-    public static void closeAlarmAlertBell() {
+    public static synchronized void closeAlarmAlertBell() {
         if (alarmAlertBell != null) {
             alarmAlertBell.close();
+        }
+    }
+
+    /**
+     * Close alarm alert bell and set to null, so that a new one must be
+     * instantiated next time
+     */
+    public static synchronized void destroyAlarmAlertBell() {
+        if (alarmAlertBell != null) {
+            alarmAlertBell.close();
+            alarmAlertBell = null;
         }
     }
 }

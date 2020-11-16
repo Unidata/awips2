@@ -34,7 +34,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -201,8 +200,7 @@ import oasis.names.tc.ebxml.regrep.xsd.rs.v4.RegistryRequestType;
  * Sep 01, 2016  5810     tjensen   Added improved logging messages
  * Sep 22, 2016  5762     tjensen   Harden replication code
  * Oct 04, 2016  5762     tjensen   Fix connection check
- * Aug 08, 2018           mjames    Standalone Registry Configuration
- *
+ * Nov 20, 2018  7634     rjpeter   Fix threading and add replication threshold logs
  * </pre>
  *
  * @author bphillip
@@ -254,8 +252,11 @@ public class RegistryFederationManager
     /** primary replication directory **/
     public static final String REPLICATION_PATH = "/awips2/edex/data/replication/";
 
-    /** Count down latch object for gather **/
-    private final LinkedList<String> gatherServers = new LinkedList<>();
+    /**
+     * List of servers currently being replicated to. Access must be
+     * synchronized
+     **/
+    private final Set<String> gatherServers = new HashSet<>();
 
     private static Map<String, Integer> gatherFails = new HashMap<>();
 
@@ -316,6 +317,22 @@ public class RegistryFederationManager
      */
     private static final long MAX_DOWN_TIME_DURATION = TimeUtil.MILLIS_PER_HOUR
             * 48;
+
+    /**
+     * When replication for a registry is older than this threshold log a
+     * warning.
+     */
+    private static final long REPLICATION_TIME_WARN_THRESHOLD = Long
+            .getLong("ebxml-federation-warning-threshold", 30)
+            * TimeUtil.MILLIS_PER_MINUTE;
+
+    /**
+     * When replication for a registry is older than this threshold log an
+     * error.
+     */
+    private static final long REPLICATION_TIME_ERROR_THRESHOLD = Long
+            .getLong("ebxml-federation-error-threshold", 60)
+            * TimeUtil.MILLIS_PER_MINUTE;
 
     public static final AtomicBoolean SYNC_IN_PROGRESS = new AtomicBoolean(
             false);
@@ -1181,17 +1198,20 @@ public class RegistryFederationManager
     public void gatherReplicationEvents(Set<String> replicateToSet) {
         if (federationEnabled && DbInit.isDbInitialized() && initialized.get()
                 && !SYNC_IN_PROGRESS.get()) {
+            Set<String> newServers = new HashSet<>(replicateToSet);
+            synchronized (gatherServers) {
+                newServers.removeAll(gatherServers);
+                gatherServers.addAll(newServers);
+            }
 
-            for (String remoteRegistryId : replicateToSet) {
-                if (!gatherServers.contains(remoteRegistryId)) {
-                    gatherServers.add(remoteRegistryId);
-                    try {
-                        gatherThreadPool
-                                .execute(new GatherTask(remoteRegistryId));
+            for (String remoteRegistryId : newServers) {
+                try {
+                    gatherThreadPool.execute(new GatherTask(remoteRegistryId));
 
-                    } catch (Exception e) {
-                        statusHandler.error("Unable to create Gather Task. ID: "
-                                + remoteRegistryId, e);
+                } catch (Exception e) {
+                    statusHandler.error("Unable to create Gather Task. ID: "
+                            + remoteRegistryId, e);
+                    synchronized (gatherServers) {
                         gatherServers.remove(remoteRegistryId);
                     }
                 }
@@ -1299,9 +1319,33 @@ public class RegistryFederationManager
             long t1 = TimeUtil.currentTimeMillis();
             eventsGathered = events.size();
 
-            statusHandler.info("Gathered {} events for {} in {}",
+            ReplicationEvent firstEvent = events.get(0);
+            long latency = 0;
+
+            // events ordered by time so only need to check event the first
+            // time.
+            if (firstEvent != null) {
+                latency = System.currentTimeMillis()
+                        - firstEvent.getEventTime();
+            }
+
+            statusHandler.info(
+                    "Gathered {} events for {} in {}. Site Latency: {}",
                     eventsGathered, remoteRegistryId,
-                    TimeUtil.prettyDuration(t1 - t0));
+                    TimeUtil.prettyDuration(t1 - t0),
+                    TimeUtil.prettyDuration(latency));
+
+            if (latency > REPLICATION_TIME_ERROR_THRESHOLD) {
+                statusHandler.error(
+                        "Registry {} is over {} behind in replication events. Investigation necessary if site has not been down for an extended period",
+                        remoteRegistryId, TimeUtil.prettyDuration(
+                                REPLICATION_TIME_ERROR_THRESHOLD));
+            } else if (latency > REPLICATION_TIME_WARN_THRESHOLD) {
+                statusHandler.warn(
+                        "Registry {} is over {} behind in replication events. Investigation may be necessary if site has not been down for an extended period",
+                        remoteRegistryId, TimeUtil.prettyDuration(
+                                REPLICATION_TIME_WARN_THRESHOLD));
+            }
 
             List<List<ReplicationEvent>> orderedBatchedEvents = new ArrayList<>();
             List<ReplicationEvent> currentList = null;

@@ -21,8 +21,9 @@
                                         Added floodSeverity bullets
     Modified Mike Rega       10-27-2014 fixed EMER floodSeverity=3 error
     Mike Dangelo             10-21-2015 added SM-only option
-    Bookbinder/Kurimski      02-21-2017 Uncommented all presetInfoBullet.xml 
+    Bookbinder/Kurimski      02-21-2017 Uncommented all damInfoBullet.xml 
                                         include statements (DCS20237)
+    Phil Kurimski            03-21-2018 Fixed FFW Emergency CTA Parse String DR 20671
 -->
 
 <warngenConfig>
@@ -80,7 +81,7 @@
     <enableRestart>false</enableRestart>
 
     <!-- Enables/disables the 'Dam Break Threat Area' button -->
-    <enablePresetThreat>true</enablePresetThreat>
+    <enableDamBreakThreat>true</enableDamBreakThreat>
 
     <!-- Enable/disables the system to lock text based on various patterns -->
     <autoLockText>true</autoLockText>
@@ -167,7 +168,7 @@
                 <!-- The following are examples on how to include site specific dams in your template
                     You can choose to do this by editing the template and listing each dam in the
                     template or listing the dams in a separate file and using the include command -->
-                <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include presetInfoBullets coding. -->
+                <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
                 <!-- Note that Dam Names NEED to be in the CAN section to produce correct headline wording in the vm file -->
                 <bullet bulletText="****** DAM NAME ******"
                     bulletType="title"
@@ -176,21 +177,21 @@
             <!-- The following are examples on how to include site specific dams in your template
                 You can choose to do this by editing the template and listing each dam in the
                 template or listing the dams in a separate file and using the include command -->
-            <include file="presetInfoBullet.xml" />
-            <!-- <presetInfoBullets>
-                <presetInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam" parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam" parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
-                </presetInfoBullets> -->
+            <include file="damInfoBullet.xml" />
+            <!-- <damInfoBullets>
+                <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam" parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam" parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
+                </damInfoBullets> -->
         </bulletActionGroup>
         <bulletActionGroup action="EXP" phen="FF" sig="W">
             <bullets>
@@ -253,7 +254,7 @@
                 <!-- The following are examples on how to include site specific dams in your template
                     You can choose to do this by editing the template and listing each dam in the
                     template or listing the dams in a separate file and using the include command -->
-                <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include presetInfoBullets coding. -->
+                <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
                 <!-- Note that Dam Names NEED to be in the EXP section to produce correct headline wording in the vm file -->
                 <bullet bulletText="****** DAM and DAM BREAK SCENARIOS ******"
                     bulletType="title"
@@ -262,21 +263,21 @@
             <!-- The following are examples on how to include site specific dams in your template
                 You can choose to do this by editing the template and listing each dam in the
                 template or listing the dams in a separate file and using the include command -->
-            <include file="presetInfoBullet.xml" />
-            <!-- <presetInfoBullets>
-                <presetInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam" parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam" parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
-                </presetInfoBullets> -->
+            <include file="damInfoBullet.xml" />
+            <!-- <damInfoBullets>
+                <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam" parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam" parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
+                </damInfoBullets> -->
         </bulletActionGroup>
         <bulletActionGroup action="CON" phen="FF" sig="W">
             <bullets>
@@ -373,7 +374,7 @@
                     bulletText="****** CALLS TO ACTION (choose 1 or more) ******"
                     bulletType="title" />
                 <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY"
-                    parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER" />
+                    parseString="AREA SUBJECT TO FLOODING OR UNDER AN EVACUATION ORDER" />
                 <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown"
                     parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;" />
                 <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly"
@@ -422,7 +423,7 @@
                 <!-- The following are examples on how to include site specific dams in your template
                     You can choose to do this by editing the template and listing each dam in the
                     template or listing the dams in a separate file and using the include command -->
-                <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include presetInfoBullets coding. -->
+                <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
                 <bullet
                     bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******"
                     bulletType="title"
@@ -431,21 +432,21 @@
             <!-- The following are examples on how to include site specific dams in your template
                 You can choose to do this by editing the template and listing each dam in the
                 template or listing the dams in a separate file and using the include command -->
-            <include file="presetInfoBullet.xml" />
-            <!-- <presetInfoBullets>
-                <presetInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam" parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam" parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
-                </presetInfoBullets> -->
+            <include file="damInfoBullet.xml" />
+            <!-- <damInfoBullets>
+                <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam" parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam" parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
+                </damInfoBullets> -->
         </bulletActionGroup>
         <bulletActionGroup action="COR" phen="FF" sig="W">
             <bullets>
@@ -545,7 +546,7 @@
                     bulletText="****** CALLS TO ACTION (choose 1 or more) ******"
                     bulletType="title" />
                 <bullet bulletName="ffwEmergencyCTA" bulletText="FLASH FLOOD EMERGENCY"
-                    parseString=" DO NOT ATTEMPT TO TRAVEL UNLESS YOU ARE FLEEING AN AREA SUBJECT TO FLOODING OR ARE UNDER AN EVACUATION ORDER" />
+                    parseString="AREA SUBJECT TO FLOODING OR UNDER AN EVACUATION ORDER" />
                 <bullet bulletName="TADD_CTA" bulletText="Turn around, don't drown"
                     parseString="&quot;TURN AROUND&quot;,&quot;DON'T DROWN&quot;" />
                 <bullet bulletName="actQuicklyCTA" bulletText="Act Quickly"
@@ -594,7 +595,7 @@
                 <!-- The following are examples on how to include site specific dams in your template
                     You can choose to do this by editing the template and listing each dam in the
                     template or listing the dams in a separate file and using the include command -->
-                <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include presetInfoBullets coding. -->
+                <!-- The bullet names may need to be edited once AWIPS 2 is fixed to include damInfoBullets coding. -->
                 <bullet
                     bulletText="****** DAM and DAM BREAK SCENARIOS (choose 1) ******"
                     bulletType="title"
@@ -603,21 +604,21 @@
             <!-- The following are examples on how to include site specific dams in your template
                 You can choose to do this by editing the template and listing each dam in the
                 template or listing the dams in a separate file and using the include command -->
-            <include file="presetInfoBullet.xml" />
-            <!-- <presetInfoBullets>
-                <presetInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam" parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
-                <presetInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam" parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
-                <presetInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
-                </presetInfoBullets> -->
+            <include file="damInfoBullet.xml" />
+            <!-- <damInfoBullets>
+                <damInfoBullet bulletGroup="dam" bulletText="Big Rock Dam (Fairfield County)" bulletName="BigRockDam" parseString="BIG ROCK" showString="BIG ROCK DAM" coords="LAT...LON 4109 7338 4116 7311 4116 7320"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BigRockhighfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BigRockhighnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BigRockmediumfast" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BigRockmediumnormal" parseString="COMPLETE FAILURE OF BIG ROCK" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BigRockruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BIG ROCK DAM"/>
+                <damInfoBullet bulletGroup="dam" bulletText="Branched Oak Dam (Westchester County)" bulletName="BranchedOakDam" parseString="BRANCHED OAK" showString="BRANCHED OAK DAM" coords="LAT...LON 4106 7373 4097 7366 4090 7376 4102 7382"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high fast" bulletName="BranchedOakhighfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - high normal" bulletName="BranchedOakhighnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium fast" bulletName="BranchedOakmediumfast" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="scenario" bulletText="scenario - medium normal" bulletName="BranchedOakmediumnormal" parseString="COMPLETE FAILURE OF BRANCHED OAK" showString="BRANCHED OAK DAM"/>
+                <damInfoBullet bulletGroup="ruleofthumb" bulletText="rule of thumb" bulletName="BranchedOakruleofthumb" parseString="FLOOD WAVE ESTIMATE" showString="BRANCHED OAK DAM"/>
+                </damInfoBullets> -->
         </bulletActionGroup>
     </bulletActionGroups>
 
@@ -629,8 +630,7 @@
         <pointField>streamname</pointField>
         <filter>
             <mapping key="cwa">
-                <constraint constraintValue="$warngenCWAFilter"
-                    constraintType="EQUALS" />
+                <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
             </mapping>
         </filter>
         <withinPolygon>true</withinPolygon>

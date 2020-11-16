@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -38,20 +38,19 @@ import com.raytheon.uf.common.localization.exception.LocalizationException;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
-import com.raytheon.uf.common.util.StringUtil;
 import com.raytheon.uf.viz.core.localization.HierarchicalPreferenceStore;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.DataSource;
 import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
 
 /**
  * Contains the configuration for AVNFPS monitoring rules.
- * 
+ *
  * A "master copy" of the configuration is kept in memory for performance
  * reasons for dispatching alerts. This copy is read only...and is reloaded when
  * a non-master copy performs a save.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -62,14 +61,15 @@ import com.raytheon.viz.avnconfig.AvnConfigConstants.RuleType;
  * Sep 27, 2011 10958      rferrel     Added checks for required fields in
  *                                     configuration files.
  * Aug 07, 2014 3502       bclement     changes to StringUtil.split()
- * Jun 02, 2015 17533      yteng       changes to getRules() to retrieve 
+ * Jun 02, 2015 17533      yteng       changes to getRules() to retrieve
  *                                     all rules
  * Nov 12, 2015 4834       njensen     Changed LocalizationOpFailedException to LocalizationException
  * Feb 11, 2016 5242       dgilling    Remove calls to deprecated Localization APIs.
  * Mar 21, 2017 6183       tgurney     Move config to common_static
- * 
+ * Jan 23, 2017 7067       tgurney     Fix loading of rules with comma-separated wx elements
+ *
  * </pre>
- * 
+ *
  */
 
 public class AvnConfiguration {
@@ -78,7 +78,7 @@ public class AvnConfiguration {
      * To maintain compatibility with AWIPS I in the rules configuration files
      * the severity value must be at least 2.
      */
-    private final static int MINIMUM_SEVERITY = 2;
+    private static final int MINIMUM_SEVERITY = 2;
 
     /**
      * The master-copy instance
@@ -102,7 +102,7 @@ public class AvnConfiguration {
 
     /**
      * Get a list of available rules for a given data source
-     * 
+     *
      * @param source
      *            DataSource
      * @return ArrayList of available rules
@@ -128,7 +128,7 @@ public class AvnConfiguration {
 
     /**
      * Set the list of available rules for a given source
-     * 
+     *
      * @param source
      *            DataSource
      * @param rules
@@ -160,7 +160,7 @@ public class AvnConfiguration {
     /**
      * Get the key's string array from store and combine into a comma separated
      * list.
-     * 
+     *
      * @param store
      * @param key
      * @return value
@@ -168,7 +168,7 @@ public class AvnConfiguration {
     private String getString(HierarchicalPreferenceStore store, String key) {
         String[] array = store.getStringArray(key);
         String prefix = "";
-        StringBuffer value = new StringBuffer();
+        StringBuilder value = new StringBuilder();
         for (String s : array) {
             value.append(prefix).append(s);
             prefix = ", ";
@@ -198,9 +198,9 @@ public class AvnConfiguration {
                 String msg = getString(store, keyBase + ".msg");
                 String comment = getString(store, keyBase + ".comment");
                 MethodData newMethod = new MethodData(method, comment, msg,
-                        RuleType.valueOf(type), unique.equals("1"));
-                String[] argValues = store.getStringArray(keyBase
-                        + ".defaultValues");
+                        RuleType.valueOf(type), "1".equals(unique));
+                String[] argValues = store
+                        .getStringArray(keyBase + ".defaultValues");
                 ArrayList<MethodArgData> methodArgsArray = new ArrayList<>();
 
                 if (args.length == argValues.length) {
@@ -209,7 +209,7 @@ public class AvnConfiguration {
                                 argValues[i].replace(';', ',')));
                     }
                 } else {
-                    System.err.println("Error in " + keyBase
+                    statusHandler.debug("Error in " + keyBase
                             + ": args array does not match argValues array.");
                 }
 
@@ -223,7 +223,7 @@ public class AvnConfiguration {
 
     /**
      * Load from preferences
-     * 
+     *
      * @param isMasterCopy
      *            true if master copy (read only, automatically updated)
      * @return the configuration
@@ -237,7 +237,9 @@ public class AvnConfiguration {
         configuration.reload();
 
         if (isMasterCopy) {
-            masterCopy = configuration;
+            synchronized (AvnConfiguration.class) {
+                masterCopy = configuration;
+            }
         }
 
         return configuration;
@@ -245,7 +247,7 @@ public class AvnConfiguration {
 
     /**
      * Save the monitoring rules to a localized SITE configuration file.
-     * 
+     *
      * @param site
      *            - site ID rules are for.
      * @param source
@@ -257,8 +259,8 @@ public class AvnConfiguration {
      * @throws LocalizationException
      */
     public void setRules(String site, DataSource source,
-            ArrayList<MethodData> data) throws ConfigurationException,
-            IOException, LocalizationException {
+            ArrayList<MethodData> data)
+            throws ConfigurationException, IOException, LocalizationException {
         String filepath = "aviation/config/tafs/" + site + "/"
                 + source.getFilename();
         IPathManager pm = PathManagerFactory.getPathManager();
@@ -286,7 +288,8 @@ public class AvnConfiguration {
                     Integer.toString(method.getSeverity()));
 
             if (method.getMsgFromFile()) {
-                config.setProperty(key + ".msgfromfile", Boolean.toString(true));
+                config.setProperty(key + ".msgfromfile",
+                        Boolean.toString(true));
             }
 
             List<MethodArgData> args = method.getMethodArgsArray();
@@ -299,16 +302,16 @@ public class AvnConfiguration {
             numActiveRules++;
         }
 
-        String activeRules = "";
+        StringBuilder activeRules = new StringBuilder();
         for (int i = 0; i < numActiveRules; i++) {
-            activeRules += i;
+            activeRules.append(i);
 
             if (i != (numActiveRules - 1)) {
-                activeRules += ",";
+                activeRules.append(",");
             }
         }
 
-        config.setProperty("rules.active", activeRules);
+        config.setProperty("rules.active", activeRules.toString());
 
         try (SaveableOutputStream outStream = lFile.openOutputStream()) {
             config.save(outStream);
@@ -318,7 +321,7 @@ public class AvnConfiguration {
 
     /**
      * Get an array of monitoring rules from the localize SITE file.
-     * 
+     *
      * @param site
      *            - site ID rules are for.
      * @param source
@@ -331,8 +334,8 @@ public class AvnConfiguration {
      * @throws LocalizationException
      */
     public ArrayList<MethodData> getRules(String site, DataSource source,
-            final int maxSeverity) throws ConfigurationException, IOException,
-            LocalizationException {
+            final int maxSeverity)
+            throws ConfigurationException, IOException, LocalizationException {
         ArrayList<MethodData> rules = new ArrayList<>();
         String filepath = "aviation/config/tafs/" + site + "/"
                 + source.getFilename();
@@ -340,7 +343,7 @@ public class AvnConfiguration {
         ILocalizationFile lFile = pm.getStaticLocalizationFile(filepath);
 
         if (lFile == null) {
-            if (site.equals("XXXX")) {
+            if ("XXXX".equals(site)) {
                 throw new IOException(
                         "Error: default monitoring rules not found.");
             } else {
@@ -361,20 +364,20 @@ public class AvnConfiguration {
 
             String[] activeRules = config.getStringArray("rules.active");
             if (activeRules == null || activeRules.length == 0) {
-                throw new ConfigurationException(lFile.getPath()
-                        + ", no list of active rules");
+                throw new ConfigurationException(
+                        lFile.getPath() + ", no list of active rules");
             }
 
             for (String activeRule : activeRules) {
-                if (activeRule.trim().equals("")) {
+                if (activeRule.trim().isEmpty()) {
                     continue;
                 }
                 String key = "rule_" + activeRule.trim();
                 String method = config.getString(key + ".method");
 
                 if (method == null) {
-                    throw new ConfigurationException(lFile.getPath()
-                            + " unable to find [" + key + "]");
+                    throw new ConfigurationException(
+                            lFile.getPath() + " unable to find [" + key + "]");
                 }
 
                 for (MethodData aMethod : defaultRules) {
@@ -393,7 +396,7 @@ public class AvnConfiguration {
 
                 if (unique == null) {
                     unique = Boolean.toString(defaultRule.getUnique());
-                } else if (unique.equals("0") || unique.startsWith("F")
+                } else if ("0".equals(unique) || unique.startsWith("F")
                         || unique.startsWith("f")) {
                     unique = "False";
                 } else {
@@ -414,46 +417,45 @@ public class AvnConfiguration {
                 if (severity == null) {
                     sevIndex = defaultRule.getSeverity();
                     if (sevIndex < MINIMUM_SEVERITY) {
-                        errMsg = String
-                                .format("File \"%s\" missing severity in rule %s and default is bad value %d; using %d.",
-                                        lFile.getPath(), key, sevIndex,
-                                        MINIMUM_SEVERITY);
+                        errMsg = String.format(
+                                "File \"%s\" missing severity in rule %s and default is bad value %d; using %d.",
+                                lFile.getPath(), key, sevIndex,
+                                MINIMUM_SEVERITY);
                         sevIndex = MINIMUM_SEVERITY;
                     } else if (sevIndex > maxSeverity) {
-                        errMsg = String
-                                .format("File \"%s\" missing severity in rule %s and default is bad value %d; using %d."
+                        errMsg = String.format(
+                                "File \"%s\" missing severity in rule %s and default is bad value %d; using %d."
                                         + "\nThis may be caused by SyntaxMonitorCfg.xml not having enough colors listed in the tag <MonitorColors>",
-                                        lFile.getPath(), key, sevIndex,
-                                        maxSeverity);
+                                lFile.getPath(), key, sevIndex, maxSeverity);
                         sevIndex = maxSeverity;
                     } else {
                         priority = Priority.INFO;
-                        errMsg = String
-                                .format("File \"%s\" missing severity in rule %s using default %d",
-                                        lFile.getPath(), key, sevIndex);
+                        errMsg = String.format(
+                                "File \"%s\" missing severity in rule %s using default %d",
+                                lFile.getPath(), key, sevIndex);
                     }
                 } else {
                     try {
                         sevIndex = Integer.valueOf(severity);
                         if (sevIndex < MINIMUM_SEVERITY) {
-                            errMsg = String
-                                    .format("File \"%s\" in rule %s bad severity value %d; using %d.",
-                                            lFile.getPath(), key, sevIndex,
-                                            MINIMUM_SEVERITY);
+                            errMsg = String.format(
+                                    "File \"%s\" in rule %s bad severity value %d; using %d.",
+                                    lFile.getPath(), key, sevIndex,
+                                    MINIMUM_SEVERITY);
                             sevIndex = MINIMUM_SEVERITY;
                         } else if (sevIndex > maxSeverity) {
-                            errMsg = String
-                                    .format("File \"%s\" in rule %s bad severity value %d; using %d."
+                            errMsg = String.format(
+                                    "File \"%s\" in rule %s bad severity value %d; using %d."
                                             + "\nThis may be caused by SyntaxMonitorCfg.xml not having enough colors listed in the tag <MonitorColors>",
-                                            lFile.getPath(), key, sevIndex,
-                                            maxSeverity);
+                                    lFile.getPath(), key, sevIndex,
+                                    maxSeverity);
                             sevIndex = maxSeverity;
                         }
                     } catch (NumberFormatException ex) {
-                        errMsg = String
-                                .format("File \"%s\" in rule %s bad severity value %s; using %d.",
-                                        lFile.getPath(), key, severity,
-                                        MINIMUM_SEVERITY);
+                        errMsg = String.format(
+                                "File \"%s\" in rule %s bad severity value %s; using %d.",
+                                lFile.getPath(), key, severity,
+                                MINIMUM_SEVERITY);
                         sevIndex = MINIMUM_SEVERITY;
                     }
                 }
@@ -477,17 +479,19 @@ public class AvnConfiguration {
                     String argKey = key + "." + arg;
                     String argValue = "";
 
-                    if (arg.equalsIgnoreCase("wx")) {
-                        String[] argValues = StringUtil.split(
-                                config.getString(argKey), ',');
+                    if ("wx".equalsIgnoreCase(arg)) {
+                        String[] argValues = config.getStringArray(argKey);
 
-                        StringBuffer argBuffer = new StringBuffer();
-                        for (int j = 0; j < argValues.length; j++) {
-                            if (argValues[j] == null || argValues[j].equals("")) {
+                        StringBuilder argBuffer = new StringBuilder();
+                        for (String argValue2 : argValues) {
+                            if (argValue2 == null || argValue2.isEmpty()) {
                                 continue;
                             }
 
-                            argBuffer.append(argValues[j]).append(",");
+                            if (argBuffer.length() != 0) {
+                                argBuffer.append(",");
+                            }
+                            argBuffer.append(argValue2);
                         }
                         argValue = argBuffer.toString();
                     } else {

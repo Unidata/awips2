@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,31 +22,47 @@ package com.raytheon.viz.gfe.core.parm;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
+import com.raytheon.viz.gfe.IConfigurationChangeListener;
 import com.raytheon.viz.gfe.PreferenceConstants;
 
 /**
  * Provides a preferred order of displayed parms
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Jun 11, 2008				chammack	Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 11, 2008           chammack  Initial creation
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 
 public class ParmSortPreference {
 
-    private static final char[] DFT_SORT_CODES = { 'm', 'N', 'M', 't', 'o', 'l' };
+    private static final char[] DFT_SORT_CODES = { 'm', 'N', 'M', 't', 'o',
+            'l' };
 
     private static char[] parmDisplayAlgorithm;
 
     private static String[] parmDisplayOrder;
+
+    static {
+        GFEPreference.addConfigurationChangeListener(
+                new IConfigurationChangeListener() {
+
+                    @Override
+                    public void configurationChanged(String config) {
+                        parmDisplayAlgorithm = null;
+                        parmDisplayOrder = null;
+                    }
+                });
+    }
 
     // No instantiation
     private ParmSortPreference() {
@@ -56,22 +72,13 @@ public class ParmSortPreference {
     /**
      * Parm.compareTo() uses two settings to control the comparison. This
      * setting is used as part of the by-name comparison.
-     * 
-     * @return
+     *
+     * @return the parmDisplayOrder
      */
-    public synchronized static String[] getParmSortPreference() {
+    public static synchronized String[] getParmSortPreference() {
         if (parmDisplayOrder == null) {
-
-            parmDisplayOrder = Activator
-                    .getDefault()
-                    .getPreferenceStore()
-                    .getStringArray(
-                            PreferenceConstants.GFE_GRIDMANAGER_SORT_ORDER);
-
-            if (parmDisplayOrder == null) {
-                parmDisplayOrder = new String[0];
-            }
-
+            parmDisplayOrder = GFEPreference.getStringArray(
+                    PreferenceConstants.GFE_GRIDMANAGER_SORT_ORDER);
         }
         return parmDisplayOrder;
     }
@@ -81,15 +88,14 @@ public class ParmSortPreference {
      * setting controls the order of "columns" in the comparison. If the setting
      * isn't in the preference store, comparison order is as defined in
      * DFT_SORT_CODES.
-     * 
-     * @return
+     *
+     * @return the parm sort algorithm
      */
-    public synchronized static char[] getParmSortAlgorithm() {
+    public static synchronized char[] getParmSortAlgorithm() {
         if (parmDisplayAlgorithm == null) {
-            String sortAlg = Activator.getDefault().getPreferenceStore()
+            String sortAlg = GFEPreference
                     .getString("GridManagerSortAlgorithm");
-            List<Character> sortOrder = new ArrayList<Character>(
-                    DFT_SORT_CODES.length);
+            List<Character> sortOrder = new ArrayList<>(DFT_SORT_CODES.length);
             // Validate the setting.
             // Only keep chars in DFT_SORT_CODES, no duplicates.
             for (char chr : sortAlg.toCharArray()) {
@@ -97,7 +103,7 @@ public class ParmSortPreference {
                     if (chr == DFT_SORT_CODES[i]) {
                         Character cvChr = Character.valueOf(chr);
                         if (!sortOrder.contains(cvChr)) {
-                            sortOrder.add(cvChr);
+                            sortOrder.add(chr);
                         }
                         break;
                     }
@@ -116,7 +122,8 @@ public class ParmSortPreference {
             parmDisplayAlgorithm = new char[DFT_SORT_CODES.length];
             int j = 0;
             for (Character chr : sortOrder) {
-                parmDisplayAlgorithm[j++] = chr.charValue();
+                parmDisplayAlgorithm[j] = chr.charValue();
+                j++;
             }
         }
         return parmDisplayAlgorithm;

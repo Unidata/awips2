@@ -3,17 +3,18 @@
 ## WRITTEN BY:                                                                      ##
 ## TOM BIRCHARD WFO HFO/EVAN BOOKBINDER WFO PBZ                                     ##
 ## Modified by:                                                                     ##
-##    Phil Kurimski 9/16/2013  OB13.5.2-4 MAJOR RELEASE                             ## 
+##    Phil Kurimski   9/16/2013 OB13.5.2-4 MAJOR RELEASE                            ## 
 ##    Evan Bookbinder 9/18/2013 Implemented config.vm                               ##
-##    Mike Dangelo   6/24/2014  Made inclusion of both watches dependent on GUI     ##
+##    Mike Dangelo    6/24/2014 Made inclusion of both watches dependent on GUI     ##
 ##                              bullet choices                                      ##
-##             Mike Dangelo 26 Mar 2015 Mixed Case edits                            ##
+##    Mike Dangelo    3/26/2015 Mixed Case edits                                    ##
 ##    Evan Bookbinder 6/15/15   Fixed horrible grammar on line-based selections     ##
 ##    Evan Bookbinder 9/4/15    Replaced flash flooding with localized flooding in  ##
 ##                              torrentainRain CTA so as not to imply need for FFW  ##
-##    Phil Kurimski 10/20/2015  Fixed line of storms wording/added campers CTA      ##
+##    Phil Kurimski  10/20/2015 Fixed line of storms wording/added campers CTA      ##
 ##    Evan Bookbinder 4/29/2016 Fixed storm intensify to a CTA DR 18958             ##
-##    Evan Bookbinder 1/30/2017  Stationary phrase first character capitalization DR 19186 ##
+##    Evan Bookbinder 1/30/2017 Stationary phrase first character capitalization DR 19186 ##
+##   Phil Kurimski 03/19/2018 Changed Dime to Penny size hail to match SVR DR 20616 ##
 ######################################################################################
 ##
 ##SET SOME INITIAL VARIABLES
@@ -97,9 +98,9 @@
   #set($hailThreat = "Half inch") 
   #set($hailTrail = " hail") 
 #end
-#if(${list.contains(${bullets}, "dimeHail")})
+#if(${list.contains(${bullets}, "pennyHail")})
   #set($hailSize = 0.75)
-  #set($hailThreat = "Dime size") 
+  #set($hailThreat = "Penny size") 
   #set($hailTrail = " hail") 
 #end
 #if(${list.contains(${bullets}, "nickelHail")})

@@ -18,6 +18,7 @@ Require-Bundle: org.eclipse.core.runtime,
  com.raytheon.uf.viz.app.launcher;bundle-version="1.11.4",
  com.raytheon.uf.common.hydro;bundle-version="1.11.13",
  com.raytheon.uf.common.dataplugin.grid,
+ com.raytheon.uf.common.dissemination;bundle-version="1.0.0",
  com.raytheon.uf.viz.core.maps;bundle-version="1.12.1174",
  com.raytheon.uf.viz.core.rsc;bundle-version="1.0.0",
  com.raytheon.viz.ui.personalities.awips;bundle-version="1.12.1174",
@@ -35,7 +36,6 @@ Export-Package: com.raytheon.viz.hydro,
  com.raytheon.viz.hydro.timeseries,
  com.raytheon.viz.hydro.ui
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
-Import-Package: com.raytheon.uf.common.dissemination,
- com.raytheon.uf.common.mpe.util,
+Import-Package: com.raytheon.uf.common.mpe.util,
  com.raytheon.uf.common.ohd
 Bundle-ClassPath: com.raytheon.viz.hydro.jar

@@ -66,24 +66,24 @@ import com.vividsolutions.jts.geom.Coordinate;
  * 
  * <pre>
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Feb 18, 2009  2032     jsanchez    Initial Creation.
- *                                    Updated inspect to display a single value.
- * Mar 17, 2009  800      jsanchez    Avoided displaying unnecessary 0.0.
- * Jul 31, 2013  2190     mschenke    Removed arbitrary check for 0.0 and instead 
- *                                    only check for NaN.  SatResource handles fill
- *                                    values and returns NaN now
- * Nov 18, 2013  2544     bsteffen    Override recycleInternal
- * Nov 20, 2013  2492     bsteffen    Update inspect to use Measure objects
- * Oct 27, 2014  3681     bsteffen    Implement Interrogatable
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 18, 2009  2032     jsanchez  Initial Creation. Updated inspect to display
+ *                                  a single value.
+ * Mar 17, 2009  800      jsanchez  Avoided displaying unnecessary 0.0.
+ * Jul 31, 2013  2190     mschenke  Removed arbitrary check for 0.0 and instead
+ *                                  only check for NaN.  SatResource handles
+ *                                  fill values and returns NaN now
+ * Nov 18, 2013  2544     bsteffen  Override recycleInternal
+ * Nov 20, 2013  2492     bsteffen  Update inspect to use Measure objects
+ * Oct 27, 2014  3681     bsteffen  Implement Interrogatable
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author jsanchez
- * @version 1.0
  */
-
 public class SatBlendedResource extends
         AbstractVizResource<SatBlendedResourceData, MapDescriptor> implements
         IResourceGroup, IRefreshListener, IResourceDataChanged, Interrogatable {
@@ -96,16 +96,11 @@ public class SatBlendedResource extends
 
     private PixelCoverage imageCoverage = null;
 
-    public SatBlendedResource(SatBlendedResourceData data, LoadProperties props) {
-        super(data, props);
-        dataTimes = new ArrayList<DataTime>();
+    public SatBlendedResource(SatBlendedResourceData data,
+            LoadProperties props) {
+        super(data, props, false);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#dispose()
-     */
     @Override
     protected void disposeInternal() {
         for (ResourcePair rp : this.resourceData.getResourceList()) {
@@ -123,13 +118,6 @@ public class SatBlendedResource extends
         disposeImage();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#init(com.raytheon.uf
-     * .viz.core.IGraphicsTarget)
-     */
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         resourceData.addChangeListener(this);
@@ -148,13 +136,6 @@ public class SatBlendedResource extends
         this.registerListener(this);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#setDescriptor(com.raytheon
-     * .uf.viz.core.drawables.IDescriptor)
-     */
     @SuppressWarnings("unchecked")
     @Override
     public void setDescriptor(MapDescriptor descriptor) {
@@ -165,14 +146,6 @@ public class SatBlendedResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.drawables.IRenderable#paint(com.raytheon.uf.
-     * viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -182,16 +155,15 @@ public class SatBlendedResource extends
         // If first paint, initialize and wait for next paint
         if (mosaicImage == null) {
             initImage(target, paintProps, params);
-        } else if (Arrays.equals(
-                new int[] { mosaicImage.getWidth(), mosaicImage.getHeight() },
-                new int[] { paintProps.getCanvasBounds().width,
-                        paintProps.getCanvasBounds().height }) == false) {
+        } else if (mosaicImage.getWidth() != paintProps.getCanvasBounds().width
+                || mosaicImage
+                        .getHeight() != paintProps.getCanvasBounds().height) {
             // If Window size changed, recreate the off screen buffer
             disposeImage();
             initImage(target, paintProps, params);
         }
 
-        List<DataTime> rscTimes = new ArrayList<DataTime>();
+        List<DataTime> rscTimes = new ArrayList<>();
         for (ResourcePair rp : getResourceList()) {
             AbstractVizResource<?, ?> rsc = rp.getResource();
             if (rsc != null) {
@@ -200,16 +172,15 @@ public class SatBlendedResource extends
         }
 
         IExtent extent = paintProps.getView().getExtent().clone();
-        if (extent.equals(lastExtent) == false
-                || rscTimes.equals(lastTimes) == false) {
+        if (!extent.equals(lastExtent) || !rscTimes.equals(lastTimes)) {
             lastTimes = rscTimes;
             lastExtent = extent;
-            List<DrawableImage> images = new ArrayList<DrawableImage>();
+            List<DrawableImage> images = new ArrayList<>();
 
             for (ResourcePair rp : getResourceList()) {
                 AbstractVizResource<?, ?> rsc = rp.getResource();
-                DataTime time = paintProps.getFramesInfo().getTimeForResource(
-                        rsc);
+                DataTime time = paintProps.getFramesInfo()
+                        .getTimeForResource(rsc);
                 if (rsc != null && time != null) {
                     SatResource sr = (SatResource) rsc;
                     DataTime timeForRsc = paintProps.getFramesInfo()
@@ -230,8 +201,8 @@ public class SatBlendedResource extends
                 }
             }
 
-            mosaicImage.setImagesToMosaic(images
-                    .toArray(new DrawableImage[images.size()]));
+            mosaicImage.setImagesToMosaic(
+                    images.toArray(new DrawableImage[images.size()]));
             mosaicImage.setImageExtent(extent);
 
             Coordinate ul = new Coordinate(extent.getMinX(), extent.getMaxY());
@@ -242,10 +213,10 @@ public class SatBlendedResource extends
             imageCoverage = new PixelCoverage(ul, ur, lr, ll);
         }
 
-        mosaicImage.setContrast(getCapability(ImagingCapability.class)
-                .getContrast());
-        mosaicImage.setBrightness(getCapability(ImagingCapability.class)
-                .getBrightness());
+        mosaicImage.setContrast(
+                getCapability(ImagingCapability.class).getContrast());
+        mosaicImage.setBrightness(
+                getCapability(ImagingCapability.class).getBrightness());
 
         target.drawRaster(mosaicImage, imageCoverage, paintProps);
     }
@@ -262,8 +233,8 @@ public class SatBlendedResource extends
         // Construct texture for mosaicing
         mosaicImage = ext.initializeRaster(
                 new int[] { paintProps.getCanvasBounds().width,
-                        paintProps.getCanvasBounds().height }, paintProps
-                        .getView().getExtent(), params);
+                        paintProps.getCanvasBounds().height },
+                paintProps.getView().getExtent(), params);
     }
 
     private void disposeImage() {
@@ -274,13 +245,6 @@ public class SatBlendedResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#project(org.opengis.
-     * referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
         for (ResourcePair rp : this.resourceData.resourceList) {
@@ -290,13 +254,6 @@ public class SatBlendedResource extends
         refresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.capabilities.IInspectableResource#inspect(com
-     * .vividsolutions.jts.geom.Coordinate)
-     */
     @Override
     public String inspect(ReferencedCoordinate coord) throws VizException {
         String inspectString = "NO DATA";
@@ -309,7 +266,7 @@ public class SatBlendedResource extends
             if (value != null && value.getValue() instanceof Number) {
                 double measuredValue = ((Number) value.getValue())
                         .doubleValue();
-                if (Double.isNaN(measuredValue) == false) {
+                if (!Double.isNaN(measuredValue)) {
                     // use this resource
                     inspectString = rsc.inspect(coord);
                     break;
@@ -352,13 +309,12 @@ public class SatBlendedResource extends
             keys = Arrays.copyOf(keys, keys.length + 1);
             keys[keys.length - 1] = Interrogator.VALUE;
         }
-        List<Interrogatable> list = getResourceList().getResourcesByTypeAsType(
-                Interrogatable.class);
+        List<Interrogatable> list = getResourceList()
+                .getResourcesByTypeAsType(Interrogatable.class);
         Collections.reverse(list);
         for (Interrogatable resource : list) {
-            InterrogateMap result = resource
-                    .interrogate(
-                    coordinate, time, keys);
+            InterrogateMap result = resource.interrogate(coordinate, time,
+                    keys);
             Measure<? extends Number, ?> value = result.get(Interrogator.VALUE);
             if (value != null) {
                 double quantity = value.getValue().doubleValue();

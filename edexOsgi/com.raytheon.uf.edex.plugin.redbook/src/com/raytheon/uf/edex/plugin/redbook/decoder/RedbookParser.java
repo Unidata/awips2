@@ -34,6 +34,7 @@ import com.raytheon.uf.common.dataplugin.redbook.blocks.RedbookBlockBuilder;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.wmo.WMOHeader;
 
 /**
@@ -54,21 +55,18 @@ import com.raytheon.uf.common.wmo.WMOHeader;
  * Mar 13, 2014 2907       njensen     split edex.redbook plugin into common and
  *                                     edex redbook plugins
  * May 14, 2014 2536       bclement    moved WMO Header to common, removed TimeTools usage
+ * Jan 18, 2018 7194       njensen     Prevent infinite loop in internalParse()
+ * 
  * </pre>
  * 
  * @author jkorman
- * @version 1.0
  */
 public class RedbookParser {
-
-    private static final RedbookBlockBuilder blockBuilder = new RedbookBlockBuilder();
 
     private static final IUFStatusHandler logger = UFStatus
             .getHandler(RedbookParser.class);
 
-    // private Calendar issueDate = null;
-
-    private List<RedbookBlock> redbookDocument;
+    private static final RedbookBlockBuilder blockBuilder = new RedbookBlockBuilder();
 
     private RedbookRecord rRecord;
 
@@ -107,10 +105,11 @@ public class RedbookParser {
 
             DataTime dt = null;
 
-            if (fcstTime > 0)
+            if (fcstTime > 0) {
                 dt = new DataTime(new Date(binnedTime), fcstTime);
-            else
+            } else {
                 dt = new DataTime(new Date(binnedTime));
+            }
 
             rRecord.setDataTime(dt);
 
@@ -145,9 +144,17 @@ public class RedbookParser {
 
         ProductIdBlock productId = null;
 
-        redbookDocument = new ArrayList<RedbookBlock>();
+        List<RedbookBlock> redbookDocument = new ArrayList<>();
 
+        int previousPosition = -1;
         while (dataBuf.hasRemaining()) {
+
+            if (dataBuf.position() == previousPosition) {
+                // received bad data, we don't want to infinite loop
+                logger.warn("File is not a valid redbook file: " + traceId);
+                return null;
+            }
+            previousPosition = dataBuf.position();
 
             RedbookBlock currBlock = null;
 
@@ -169,7 +176,7 @@ public class RedbookParser {
                      * handling to extract the data. If we get this far, it is
                      * enough.
                      */
-                    if (hdr.getTtaaii().substring(0, 4).equals("PYMA")) {
+                    if ("PYMA".equals(hdr.getTtaaii().substring(0, 4))) {
                         record = new RedbookRecord();
                         record.setRedBookData(redbookMsg);
                         break;
@@ -199,7 +206,7 @@ public class RedbookParser {
                 record.setOriginatorId(productId.getOriginatorId());
 
                 /* record.setFcstHours(id.getFcstHours()); */
-                record.setFcstHours(getForecastTime(traceId, hdr));
+                record.setFcstHours(getForecastTime(hdr));
 
                 record.setTraceId(traceId);
             }
@@ -211,7 +218,7 @@ public class RedbookParser {
         return record;
     }
 
-    public int getForecastTime(String traceId, WMOHeader hdr) {
+    public int getForecastTime(WMOHeader hdr) {
         RedbookFcstMap.MapFcstHr xmlInfo = redbookFcstMap.get(hdr.getTtaaii());
 
         if (xmlInfo != null && xmlInfo.fcstHR != null
@@ -223,20 +230,25 @@ public class RedbookParser {
 
     public long getBinnedTime(String traceId, WMOHeader hdr, long timeMillis) {
         try {
-            long period = 43200 * 1000; // default period is 12 hours
+            // default period is 12 hours
+            long period = 12 * TimeUtil.MILLIS_PER_HOUR;
             long offset = 0;
-            RedbookFcstMap.MapFcstHr xmlInfo = redbookFcstMap.get(hdr
-                    .getTtaaii());
+            RedbookFcstMap.MapFcstHr xmlInfo = redbookFcstMap
+                    .get(hdr.getTtaaii());
 
             if (xmlInfo != null) {
                 /*
                  * Does not support AWIPS 1 semantics of "period < 0 means apply
                  * offset first".
                  */
-                if (xmlInfo.binPeriod != null && xmlInfo.binPeriod > 0)
-                    period = (long) xmlInfo.binPeriod * 1000;
-                if (xmlInfo.binOffset != null)
-                    offset = (long) xmlInfo.binOffset * 1000;
+                if (xmlInfo.binPeriod != null && xmlInfo.binPeriod > 0) {
+                    period = (long) xmlInfo.binPeriod
+                            * TimeUtil.MILLIS_PER_SECOND;
+                }
+                if (xmlInfo.binOffset != null) {
+                    offset = (long) xmlInfo.binOffset
+                            * TimeUtil.MILLIS_PER_SECOND;
+                }
             }
 
             timeMillis = (timeMillis / period) * period + offset;

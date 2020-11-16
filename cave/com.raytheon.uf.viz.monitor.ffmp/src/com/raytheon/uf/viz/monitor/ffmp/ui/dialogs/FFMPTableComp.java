@@ -68,14 +68,14 @@ public class FFMPTableComp extends FFMPTable {
 
     @Override
     protected ColumnAttribData getColumnAttributeData(String colName) {
-        return tableConfig.getTableConfigData(siteKey).getTableColumnAttr(
-                colName);
+        return tableConfig.getTableConfigData(siteKey)
+                .getTableColumnAttr(colName);
     }
 
     @Override
     protected int getColumnIndex(String sortCol) {
-        return tableConfig.getTableConfigData(siteKey).getTableColumnIndex(
-                sortCol);
+        return tableConfig.getTableConfigData(siteKey)
+                .getTableColumnIndex(sortCol);
     }
 
     @Override

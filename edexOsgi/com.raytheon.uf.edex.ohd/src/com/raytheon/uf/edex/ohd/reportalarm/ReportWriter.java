@@ -25,8 +25,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.lang.reflect.Method;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -42,16 +40,15 @@ import com.raytheon.uf.common.dataplugin.shef.tables.Counties;
 import com.raytheon.uf.common.dataplugin.shef.tables.CountiesId;
 import com.raytheon.uf.common.dataplugin.shef.tables.Datalimits;
 import com.raytheon.uf.common.dataplugin.shef.tables.DatalimitsId;
-import com.raytheon.uf.common.dataplugin.shef.tables.Descrip;
 import com.raytheon.uf.common.dataplugin.shef.tables.Hsa;
 import com.raytheon.uf.common.dataplugin.shef.tables.Location;
 import com.raytheon.uf.common.dataplugin.shef.tables.Network;
 import com.raytheon.uf.common.dataplugin.shef.tables.Rfc;
+import com.raytheon.uf.common.dataplugin.shef.tables.Riverstat;
+import com.raytheon.uf.common.dataplugin.shef.tables.Shefpe;
 import com.raytheon.uf.common.dataplugin.shef.tables.State;
 import com.raytheon.uf.common.dataplugin.shef.tables.Timezone;
 import com.raytheon.uf.common.dataplugin.shef.tables.Wfo;
-import com.raytheon.uf.common.dataplugin.shef.tables.Riverstat;
-import com.raytheon.uf.common.dataplugin.shef.tables.Shefpe;
 import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
@@ -75,6 +72,8 @@ import com.raytheon.uf.edex.database.dao.DaoConfig;
  *                                      of an EDEX service.
  * Oct 20, 2014  DIM#16799 deng         missing forecast report for FRESH mode
  * Oct 20, 2014  DIM#17605 deng         mismatch report format between A1 and A2
+ * Apr 18, 2018  DCS19644  jwu          Add column 'ts' (Type-Source) in table locdatalimits.
+ * Dec 13, 2018  DR21004   jwu          Move 'ts' in locdatalimits to the end.
  * 
  * </pre>
  * 
@@ -1162,8 +1161,22 @@ class ReportWriter {
         Short dur = grpData.get(0).getId().getDur();
         Date validtime = grpData.get(0).getId().getValidtime();
 
-        String query = "SELECT * FROM locdatalimits WHERE lid='" + lid
-                + "' AND pe='" + pe + "' AND dur=" + dur;
+        /*
+         * DCS 19644 - "ts" (Type-Source) is added as a new column after "dur"
+         * in location data limit. It only applies to gross/reasonable range QC
+         * checks and the upper/lower limit alert/alarm checks in PostShef. It
+         * should not be applied to anything else. So the queries listed below
+         * will only include entries for "ts" is "NA" (default) and the index is
+         * increased by 1 whenever the query result is used (copyThresholds()).
+         * 
+         * DR 21004 - moved column ts to the end of locdatalimits so the query
+         * should be done with column names to ensure proper order.
+         */
+        String query = "SELECT lid, pe, dur, ts, monthdaystart, monthdayend, gross_range_min, "
+                + "gross_range_max, reason_range_min, reason_range_max, roc_max, alert_upper_limit, "
+                + "alert_roc_limit, alarm_upper_limit, alarm_roc_limit, alert_lower_limit, "
+                + "alarm_lower_limit, alert_diff_limit, alarm_diff_limit FROM locdatalimits WHERE lid='"
+                + lid + "' AND pe='" + pe + "' AND dur=" + dur + " AND ts='NA'";
 
         try {
             dao = new CoreDao(DaoConfig.forDatabase(opt.getDbname()));
@@ -1172,8 +1185,8 @@ class ReportWriter {
             if (limData != null && limData.length > 0) {
                 for (Object lr : limData) {
                     limRow = (Object[]) lr;
-                    String mds = (String) limRow[3];
-                    String mde = (String) limRow[4];
+                    String mds = (String) limRow[4];
+                    String mde = (String) limRow[5];
                     limits = new Datalimits();
                     limitsId = new DatalimitsId(pe, dur, mds);
                     limits.setId(limitsId);
@@ -1209,7 +1222,6 @@ class ReportWriter {
                     }
                 }
             }
-
         } catch (Exception e) {
             statusHandler.error("- PostgresSQL error executing Query = ["
                     + query + "]");
@@ -1248,38 +1260,32 @@ class ReportWriter {
             }
         }
 
-        if (locRangeFound) { // copy from locdatalimits resultset
-
-            grmin = (Double) limitsRow[5];
-            grmax = (Double) limitsRow[6];
-            rrmin = (Double) limitsRow[7];
-            rrmax = (Double) limitsRow[8];
-            rocmax = (Double) limitsRow[9];
-            alertul = (Double) limitsRow[10];
-            alertrl = (Double) limitsRow[11];
-            alarmul = (Double) limitsRow[12];
-            alarmrl = (Double) limitsRow[13];
-            alertll = (Double) limitsRow[14];
-            alarmll = (Double) limitsRow[15];
-            alertdl = (Double) limitsRow[16];
-            alarmdl = (Double) limitsRow[17];
-
+        int startIndex;
+        if (locRangeFound) {
+            /*
+             * copy from locdatalimits resultset
+             * 
+             * DCS 19644 - "a new column is added after "dur" so the starting
+             * index increases from 5 to 6.
+             */
+            startIndex = 6;
         } else { // copy from datalimits resultset
-
-            grmin = (Double) limitsRow[4];
-            grmax = (Double) limitsRow[5];
-            rrmin = (Double) limitsRow[6];
-            rrmax = (Double) limitsRow[7];
-            rocmax = (Double) limitsRow[8];
-            alertul = (Double) limitsRow[9];
-            alertrl = (Double) limitsRow[10];
-            alarmul = (Double) limitsRow[11];
-            alarmrl = (Double) limitsRow[12];
-            alertll = (Double) limitsRow[13];
-            alarmll = (Double) limitsRow[14];
-            alertdl = (Double) limitsRow[15];
-            alarmdl = (Double) limitsRow[16];
+            startIndex = 4;
         }
+
+        grmin = (Double) limitsRow[startIndex];
+        grmax = (Double) limitsRow[startIndex + 1];
+        rrmin = (Double) limitsRow[startIndex + 2];
+        rrmax = (Double) limitsRow[startIndex + 3];
+        rocmax = (Double) limitsRow[startIndex + 4];
+        alertul = (Double) limitsRow[startIndex + 5];
+        alertrl = (Double) limitsRow[startIndex + 6];
+        alarmul = (Double) limitsRow[startIndex + 7];
+        alarmrl = (Double) limitsRow[startIndex + 8];
+        alertll = (Double) limitsRow[startIndex + 9];
+        alarmll = (Double) limitsRow[startIndex + 10];
+        alertdl = (Double) limitsRow[startIndex + 11];
+        alarmdl = (Double) limitsRow[startIndex + 12];
 
         if (isNotNull(grmin)) {
             limits.setGrossRangeMin(grmin);

@@ -46,17 +46,17 @@ turned on unless the corresponding .vm file is turned on in a given template's .
  <unitSpeed>mph</unitSpeed>
 
  <!-- Maps to load on template selection. Refer to 'Maps' menu in CAVE. 
- 	The various menu items are also the different maps
- 	that can be loaded with each template. -->
+    The various menu items are also the different maps
+    that can be loaded with each template. -->
  <maps>
   <map>County Names</map>
   <map>County Warning Areas</map>
-  <!-- 	<map>FFMP Small Stream Basin Links</map> -->
-  <!-- 	<map>Major Rivers</map> --> 
+  <!--  <map>FFMP Small Stream Basin Links</map> -->
+  <!--  <map>Major Rivers</map> --> 
  </maps>
  
  <!-- Followups: VTEC actions of allowable followups when this template is selected 
-	Each followup will become available when the appropriate time range permits.
+  Each followup will become available when the appropriate time range permits.
  -->
  <followups>
   <followup>NEW</followup>
@@ -108,17 +108,17 @@ Must be paired with proper vm code (which are commented out in arealFloodAdvisor
  </durations>
  
    <!-- UNCOMMENT IF YOU HAVE YOUR RIVER DRAINAGE BASINS SETUP 
- <pointSource variable="riverdrainages">
- 	<pointSource>ffmp_basins</pointSource>
-    <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
- 	<pointField>streamname</pointField>
- 	<filter>
- 		<mapping key="cwa">
- 			<constraint constraintValue="$warngenCWAFilter" constraintType="EQUALS" />
- 		</mapping>
- 	</filter>
- 	<withinPolygon>true</withinPolygon>
- </pointSource>
+<pointSource variable="riverdrainages">
+  <pointSource>ffmp_basins</pointSource>
+  <geometryDecimationTolerance>0.064</geometryDecimationTolerance>
+  <pointField>streamname</pointField>
+  <filter>
+     <mapping key="cwa">
+      <constraint constraintValue="%$warngenCWAFilter%" constraintType="LIKE" />
+    </mapping>
+  </filter>
+  <withinPolygon>true</withinPolygon>
+</pointSource>
 -->
  
 <lockedGroupsOnFollowup>ic,advType,optType</lockedGroupsOnFollowup>

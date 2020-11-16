@@ -27,7 +27,8 @@ import com.raytheon.viz.mpe.ui.Activator;
  *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Oct 30, 2017  17911     wkwock     Initial creation
+ * Oct 30, 2017  17911     wkwock      Initial creation
+ * Jun 06, 2018  20731     wkwock      Make code more robust
  * Jul 31, 2018  20677     wkwock     Use FileLocator to open input stream.
  *
  * </pre>
@@ -41,13 +42,17 @@ public class RfcMask {
     /**
      * get this RFC mask
      * 
-     * @return XMRGFile
+     * @return XMRGFile or null if it's not a RFC
      */
     public static XmrgFile getRFCMask(String rfcSite) throws IOException {
-        String rfcName = RFCSiteLookup.RFCMAP.get(rfcSite).toLowerCase();
+        String rfcName = RFCSiteLookup.RFCMAP.get(rfcSite);
+        if (rfcName == null) {
+            return null;
+        }
+
         XmrgFile xmrgFile = new XmrgFile();
         Bundle bundle = Activator.getDefault().getBundle();
-        IPath path = new Path("/res/RFCmask/xmrg_" + rfcName + "mask");
+        IPath path = new Path("/res/RFCmask/xmrg_" + rfcName.toLowerCase() + "mask");
         try (InputStream is = FileLocator.openStream(bundle, path, false)) {
             xmrgFile.load(is);
         } catch (Exception e) {

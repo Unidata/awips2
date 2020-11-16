@@ -39,15 +39,13 @@ import com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID;
 import com.raytheon.uf.common.dataplugin.gfe.discrete.DiscreteKey;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DBit;
 import com.raytheon.uf.common.dataplugin.gfe.grid.Grid2DByte;
-import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -63,7 +61,7 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.map.IMapDescriptor;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorMapCapability;
-import com.raytheon.viz.gfe.Activator;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.colortable.ColorEntry;
 import com.raytheon.viz.gfe.colortable.ColorTable.ImageAttr;
 import com.raytheon.viz.gfe.core.DataManager;
@@ -83,47 +81,52 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * Implements a colorbar for continuous (scalar and vector) elements
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 05/23/2008              dfitch      Initial Creation.
- * Aug 20, 2008            dglazesk    Updated for the new ColorMap interface
- * Aug 20, 2012      1079  randerso    Changed to display all discrete values for
- *                                     non-overlapping discretes
- * Jan  9, 2013     15661  ryu         Set font for drawing regular Wx/discrete parm labels.
- * Jan 10, 2013     15548  ryu         Update colorbar when new discrete colormap is selected
- * Jan 23, 2013     #1524  randerso    Fix missing discrete color bar and error when clicking 
- *                                     on discrete color bar when no grid exists
- * Feb 12, 2013     15719  jdynina     Fixed out of bounds error in calcGridColorTable  
- * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
- * Jul 23, 2014     #3429  mapeters    Updated deprecated drawLine() calls
- * Aug 14, 2014     #3523  mapeters    Updated deprecated {@link DrawableString#textStyle} 
- *                                     assignments.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * May 23, 2008           dfitch    Initial Creation.
+ * Aug 20, 2008           dglazesk  Updated for the new ColorMap interface
+ * Aug 20, 2012  1079     randerso  Changed to display all discrete values for
+ *                                  non-overlapping discretes
+ * Jan 09, 2013  15661    ryu       Set font for drawing regular Wx/discrete
+ *                                  parm labels.
+ * Jan 10, 2013  15548    ryu       Update colorbar when new discrete colormap
+ *                                  is selected
+ * Jan 23, 2013  1524     randerso  Fix missing discrete color bar and error
+ *                                  when clicking on discrete color bar when no
+ *                                  grid exists
+ * Feb 12, 2013  15719    jdynina   Fixed out of bounds error in
+ *                                  calcGridColorTable
+ * Oct 31, 2013  2508     randerso  Change to use DiscreteGridSlice.getKeys()
+ * Jul 23, 2014  3429     mapeters  Updated deprecated drawLine() calls
+ * Aug 14, 2014  3523     mapeters  Updated deprecated {@link
+ *                                  DrawableString#textStyle} assignments.
+ * Jan 04, 2018  7178     randerso  Changes to use IDataObject. Code cleanup
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 public class DiscreteColorbar implements IColorBarDisplay,
         IGridDataChangedListener, IColorMapParametersListener {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(DiscreteColorbar.class);
+
+    private static final RGB COLORBAR_GRAY = new RGB(192, 192, 192);
 
     private final Parm parm;
 
     private final GFEColorbarResource colorbarResource;
 
-    private static float red[] = { 255, 200, 100, 0, 0, 0, 0, 0, 0 };
-
-    private static float green[] = { 0, 0, 0, 100, 200, 255, 0, 0, 0 };
-
-    private static float blue[] = { 0, 0, 0, 0, 0, 0, 100, 200, 255 };
-
-    private static ColorMap fallbackColorMap = new ColorMap("Discrete", red,
-            green, blue);
+    private static final ColorMap fallbackColorMap = new ColorMap("Discrete",
+            /* red */ new float[] { 255, 200, 100, 0, 0, 0, 0, 0, 0 },
+            /* green */ new float[] { 0, 0, 0, 100, 200, 255, 0, 0, 0 },
+            /* blue */ new float[] { 0, 0, 0, 0, 0, 0, 100, 200, 255 });
 
     private DataTime lastTime;
 
@@ -147,7 +150,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /**
      * Constructor for the Discrete Color Bar
-     * 
+     *
      * @param parm
      *            The parm
      * @param colorbarResource
@@ -158,7 +161,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
         this.colorbarResource = colorbarResource;
 
         this.colorTable = Collections.emptyList();
-        this.gridKeys = new ArrayList<WxValue>();
+        this.gridKeys = new ArrayList<>();
         this.lastIscMode = parm.getDataManager().getParmManager().iscMode();
 
         parm.getListeners().addGridChangedListener(this);
@@ -172,16 +175,12 @@ public class DiscreteColorbar implements IColorBarDisplay,
                 .getSpatialDisplayManager();
         ResourcePair resourcePair = spatialDisplayManager.getResourcePair(parm);
         AbstractVizResource<?, ?> resource = resourcePair.getResource();
-        ColorMapParameters params = resource.getCapability(
-                ColorMapCapability.class).getColorMapParameters();
+        ColorMapParameters params = resource
+                .getCapability(ColorMapCapability.class)
+                .getColorMapParameters();
         return params;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.rsc.colorbar.IColorBarDisplay#dispose()
-     */
     @Override
     public void dispose() {
         parm.getListeners().removeGridChangedListener(this);
@@ -200,20 +199,13 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /**
      * Gets the Discrete Color map.
-     * 
+     *
      * @return Returns the color map used for the discrete data.
      */
     public static ColorMap getFallbackColorMap() {
         return fallbackColorMap;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
-     * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-     */
     @Override
     public void paint(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
@@ -226,7 +218,8 @@ public class DiscreteColorbar implements IColorBarDisplay,
         boolean currentIscMode = parm.getDataManager().getParmManager()
                 .iscMode();
 
-        if ((!currentTime.equals(lastTime)) || (lastIscMode != currentIscMode)) {
+        if ((!currentTime.equals(lastTime))
+                || (lastIscMode != currentIscMode)) {
             lastTime = currentTime;
             lastIscMode = currentIscMode;
 
@@ -234,22 +227,20 @@ public class DiscreteColorbar implements IColorBarDisplay,
             if (parm.getDataManager().getParmManager().iscMode()) {
                 GridID gid = new GridID(parm, currentTime.getRefTime());
                 if (parm.getGridInfo().getGridType().equals(GridType.WEATHER)) {
-                    WeatherGridSlice slice = new WeatherGridSlice();
-                    parm.getDataManager().getIscDataAccess()
-                            .getCompositeGrid(gid, true, slice);
-                    if (slice.getKeys().length == 0) {
+                    Pair<Grid2DBit, IGridData> p = parm.getDataManager().getIscDataAccess()
+                            .getCompositeGrid(gid, true);
+                    iscGridData = (WeatherGridData)p.getSecond();
+                    if (iscGridData == null) {
                         return;
                     }
-                    iscGridData = new WeatherGridData(this.parm, slice);
                 } else if (parm.getGridInfo().getGridType()
                         .equals(GridType.DISCRETE)) {
-                    DiscreteGridSlice slice = new DiscreteGridSlice();
-                    parm.getDataManager().getIscDataAccess()
-                            .getCompositeGrid(gid, true, slice);
-                    if (slice.getKeys().length == 0) {
+                    Pair<Grid2DBit, IGridData> p = parm.getDataManager().getIscDataAccess()
+                            .getCompositeGrid(gid, true);
+                    iscGridData = p.getSecond();
+                    if (iscGridData == null) {
                         return;
                     }
-                    iscGridData = new DiscreteGridData(this.parm, slice);
                 } else {
                     return;
                 }
@@ -296,15 +287,15 @@ public class DiscreteColorbar implements IColorBarDisplay,
                 }
             }
             if (!found) {
-                primaryValues.add(new ColorEntry(key, iscValues.get(i)
-                        .getAttributes()));
+                primaryValues.add(
+                        new ColorEntry(key, iscValues.get(i).getAttributes()));
             }
         }
         return primaryValues;
     }
 
     private List<ColorEntry> calcGridColorTable(IGridData gridData) {
-        List<ColorEntry> cEntries = new ArrayList<ColorEntry>();
+        List<ColorEntry> cEntries = new ArrayList<>();
         if (gridData == null) {
             return cEntries;
         }
@@ -329,12 +320,11 @@ public class DiscreteColorbar implements IColorBarDisplay,
             return cEntries;
         }
 
-        // get the grid slice for the grid data
-        IGridSlice gs = gridData.getGridSlice();
-
         // get the grid for this gridSlice
-        Grid2DByte grid = (gridType.equals(GridType.WEATHER) ? ((WeatherGridSlice) gs)
-                .getWeatherGrid() : ((DiscreteGridSlice) gs).getDiscreteGrid());
+        Grid2DByte grid = (gridType.equals(GridType.WEATHER)
+                ? ((WeatherGridData) gridData).getDataObject().getWeatherGrid()
+                : ((DiscreteGridData) gridData).getDataObject()
+                        .getDiscreteGrid());
 
         // go through the Grid2D and make a byte array[256] to indicate which
         // point are on
@@ -353,11 +343,12 @@ public class DiscreteColorbar implements IColorBarDisplay,
         }
 
         // make a seq of WxValue using the values set as on
-        List<WxValue> gridWValues = new ArrayList<WxValue>();
+        List<WxValue> gridWValues = new ArrayList<>();
 
         // for WEATHER
         if (gridType.equals(GridType.WEATHER)) {
-            WeatherKey[] wKeys = ((WeatherGridSlice) gs).getKeys();
+            WeatherKey[] wKeys = ((WeatherGridData) gridData).getDataObject()
+                    .getKeys();
             for (int i = 0; i < 256; i++) {
                 // extract the WxValue corresponding to the bytes which are on
                 // (this extraction is done since not all the keys for a
@@ -370,7 +361,8 @@ public class DiscreteColorbar implements IColorBarDisplay,
         }
         // for DISCRETE
         else {
-            DiscreteKey[] dKeys = ((DiscreteGridSlice) gs).getKeys();
+            DiscreteKey[] dKeys = ((DiscreteGridData) gridData).getDataObject()
+                    .getKeys();
             for (int i = 0; i < 256; i++) {
                 if (cArray[i]) {
                     gridWValues.add(new DiscreteWxValue(dKeys[i], parm));
@@ -386,27 +378,24 @@ public class DiscreteColorbar implements IColorBarDisplay,
         }
 
         // add in any additional required color bar values, format of config
-        // entry is parmNameAndLevel_AdditionalColorBatLabels.
+        // entry is parmNameAndLevel_AdditionalColorBarLabels.
         String cn = parmId.compositeNameUI() + "_AdditionalColorBarLabels";
-        String[] additional = Activator.getDefault().getPreferenceStore()
-                .getStringArray(cn);
-        for (int i = 0; i < additional.length; i++) {
+        String[] additional = GFEPreference.getStringArray(cn);
+        for (String label : additional) {
             WxValue wx;
             if (gridType.equals(GridType.WEATHER)) {
-                WeatherKey key = new WeatherKey(siteId, additional[i]);
+                WeatherKey key = new WeatherKey(siteId, label);
                 if (!key.isValid()) {
-                    statusHandler.handle(Priority.PROBLEM, "Key ["
-                            + additional[i] + "] not valid in " + cn
-                            + " configuration");
+                    statusHandler.handle(Priority.PROBLEM, "Key [" + label
+                            + "] not valid in " + cn + " configuration");
                     continue;
                 }
                 wx = new WeatherWxValue(key, parm);
             } else {
-                DiscreteKey key = new DiscreteKey(siteId, additional[i], parmId);
+                DiscreteKey key = new DiscreteKey(siteId, label, parmId);
                 if (!key.isValid()) {
-                    statusHandler.handle(Priority.PROBLEM, "Key ["
-                            + additional[i] + "] not valid in " + cn
-                            + " configuration");
+                    statusHandler.handle(Priority.PROBLEM, "Key [" + label
+                            + "] not valid in " + cn + " configuration");
                     continue;
                 }
                 wx = new DiscreteWxValue(key, parm);
@@ -433,7 +422,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
      * Labels that do not fit their designated band on the bar will be
      * truncated. Pickup value text will always be displayed in full, so any
      * text it overlaps will not be drawn.
-     * 
+     *
      * @param target
      *            The graphics target on which to draw
      * @param colorTable
@@ -490,8 +479,8 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
             double pickupLabelSize = target.getStringsBounds(dstring)
                     .getWidth();
-            double pickupLabelDrawPoint = (minX + (pickupIndex * keywidth) + (keywidth / 2))
-                    * xScaleFactor;
+            double pickupLabelDrawPoint = (minX + (pickupIndex * keywidth)
+                    + (keywidth / 2)) * xScaleFactor;
             pickupLabelMinX = pickupLabelDrawPoint - (pickupLabelSize / 2);
             pickupLabelMaxX = pickupLabelDrawPoint + (pickupLabelSize / 2);
             HorizontalAlignment pickupValueAlignment = HorizontalAlignment.CENTER;
@@ -505,8 +494,8 @@ public class DiscreteColorbar implements IColorBarDisplay,
                 pickupLabelMaxX = pickupLabelDrawPoint + pickupLabelSize;
                 pickupValueAlignment = HorizontalAlignment.LEFT;
             } else if (pickupLabelMaxX > (maxX * xScaleFactor)) {
-                pickupLabelDrawPoint = (minX + (pickupIndex * keywidth) + keywidth)
-                        * xScaleFactor;
+                pickupLabelDrawPoint = (minX + (pickupIndex * keywidth)
+                        + keywidth) * xScaleFactor;
                 pickupLabelMinX = pickupLabelDrawPoint - pickupLabelSize;
                 pickupLabelMaxX = pickupLabelDrawPoint;
                 pickupValueAlignment = HorizontalAlignment.RIGHT;
@@ -526,7 +515,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
         }
 
         DrawableLine[] lines = new DrawableLine[colorTable.size()];
-        List<DrawableString> strings = new ArrayList<DrawableString>();
+        List<DrawableString> strings = new ArrayList<>();
         i = 0;
         for (ColorEntry colorEntry : colorTable) {
             double ikeywidth = i * keywidth;
@@ -544,10 +533,9 @@ public class DiscreteColorbar implements IColorBarDisplay,
             if (i != pickupIndex) {
                 if (!GFEColorbarResource.isWithin(boxMinXCoord, boxMaxXCoord,
                         pickupLabelMinX, pickupLabelMaxX)) {
-                    String truncatedLabel = GfeUiUtil.truncateLabelToFit(
-                            target, colorbarResource.getColorbarWxLabelFont(),
-                            keyName, (int) Math.floor(keywidth * xScaleFactor),
-                            true);
+                    String truncatedLabel = GfeUiUtil.truncateLabelToFit(target,
+                            colorbarResource.getColorbarWxLabelFont(), keyName,
+                            (int) Math.floor(keywidth * xScaleFactor), true);
                     DrawableString dstring = new DrawableString(truncatedLabel,
                             seColorBarTextColor);
                     dstring.setCoordinates(labelLoc, center);
@@ -565,7 +553,7 @@ public class DiscreteColorbar implements IColorBarDisplay,
 
     /**
      * Draws the colorbar once colors and patterns have been decided.
-     * 
+     *
      * @param target
      *            The graphics target on which to draw.
      * @param pixelExtent
@@ -597,8 +585,8 @@ public class DiscreteColorbar implements IColorBarDisplay,
         int x = 0;
         for (ColorEntry colorEntry : colorTable) {
             // calculate the bounding box from x
-            PixelExtent pe = new PixelExtent(x1 + (x * keywidth), x1
-                    + ((x + 1) * keywidth), y1, y2);
+            PixelExtent pe = new PixelExtent(x1 + (x * keywidth),
+                    x1 + ((x + 1) * keywidth), y1, y2);
 
             Coordinate[] coordinates = new Coordinate[5];
             coordinates[0] = new Coordinate(x1 + (x * keywidth), y1);
@@ -612,13 +600,13 @@ public class DiscreteColorbar implements IColorBarDisplay,
             List<ImageAttr> attrs = colorEntry.getAttributes();
             for (ImageAttr attr : attrs) {
                 RGB color = RGBColors.getRGBColor(attr.getColorName());
-                byte[] pattern = FillPatterns.getGLPattern(attr
-                        .getFillPatternName());
+                byte[] pattern = FillPatterns
+                        .getGLPattern(attr.getFillPatternName());
                 target.drawShadedRect(pe, color, 1.0, pattern);
             }
 
             // draw the outline
-            target.drawRect(pe, GFEColorbarResource.COLORBAR_GRAY, 1, 1.0);
+            target.drawRect(pe, COLORBAR_GRAY, 1, 1.0);
             x++;
         }
     }
@@ -663,20 +651,13 @@ public class DiscreteColorbar implements IColorBarDisplay,
         this.seColorBarBgWxPickupColor = seColorBarBgWxPickupColor;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.rsc.colorbar.IColorBarDisplay#getValueAt(double[],
-     * int)
-     */
     @Override
     public WxValue getValueAt(double[] coord, int mouseButton) {
         WxValue retVal = null;
         if (!gridKeys.isEmpty()) {
             PixelExtent lastExtent = colorbarResource.getExtent();
-            float fractionX = (float) ((coord[0] - lastExtent.getMinX()) / (lastExtent
-                    .getMaxX() - lastExtent.getMinX()));
+            float fractionX = (float) ((coord[0] - lastExtent.getMinX())
+                    / (lastExtent.getMaxX() - lastExtent.getMinX()));
             int index = (int) (gridKeys.size() * fractionX);
             if (index >= gridKeys.size()) {
                 index = gridKeys.size() - 1;

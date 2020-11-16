@@ -32,25 +32,25 @@ import com.raytheon.uf.common.dataplugin.shef.util.ShefConstants;
  * 
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
- * Feb 13, 2014  #2378     dgilling     Removed unused constants.
+ * Feb 13, 2014  #2378     dgilling    Removed unused constants.
+ * Jan 23, 2018   6784     mduff       Refactored shef missing var names.
  * 
  * </pre>
  * 
  * @author xxxxxxxx
- * @version 1.0
  */
-class Constants {
+public class Constants {
 
     public static final SimpleDateFormat REPORT_TIME_PATTERN = new SimpleDateFormat(
             "HH:mm:ss z, yyyy.MM.dd ");
 
-    public static final int MISSING_VALUE_INT = ShefConstants.SHEF_MISSING_INT;
+    public static final int MISSING_VALUE_INT = ShefConstants.SHEF_MISSING;
 
     public static final double MISSING_VALUE_DOUBLE = -9999999.87654321;
 
     public static final String NEWLINE = System.getProperty("line.separator");
 
-    public final static String EOL = NEWLINE;
+    public static final String EOL = NEWLINE;
 
     public static final String SPACE = " ";
 

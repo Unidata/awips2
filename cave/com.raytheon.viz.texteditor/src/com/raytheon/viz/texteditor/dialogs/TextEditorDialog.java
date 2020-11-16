@@ -73,8 +73,8 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
+import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
@@ -118,6 +118,10 @@ import com.raytheon.uf.common.dataplugin.text.request.RemoteRetrievalRequest;
 import com.raytheon.uf.common.dataplugin.text.request.StdTextProductServerRequest;
 import com.raytheon.uf.common.dataplugin.text.request.TextProductInfoCreateRequest;
 import com.raytheon.uf.common.dataplugin.text.util.AFOSParser;
+import com.raytheon.uf.common.dissemination.OUPRequest;
+import com.raytheon.uf.common.dissemination.OUPResponse;
+import com.raytheon.uf.common.dissemination.OUPTestRequest;
+import com.raytheon.uf.common.dissemination.OfficialUserProduct;
 import com.raytheon.uf.common.jms.notification.INotificationObserver;
 import com.raytheon.uf.common.jms.notification.NotificationException;
 import com.raytheon.uf.common.jms.notification.NotificationMessage;
@@ -174,7 +178,9 @@ import com.raytheon.viz.texteditor.scripting.dialogs.IScriptEditor;
 import com.raytheon.viz.texteditor.scripting.dialogs.IScriptEditorObserver;
 import com.raytheon.viz.texteditor.scripting.dialogs.ScriptEditorDialog;
 import com.raytheon.viz.texteditor.scripting.dialogs.ScriptOutputDlg;
-import com.raytheon.viz.texteditor.scripting.runner.TextWsScriptRunner;
+import com.raytheon.viz.texteditor.scripting.runner.ITextWsScriptController;
+import com.raytheon.viz.texteditor.scripting.runner.TextEditorScriptRunnerObserver;
+import com.raytheon.viz.texteditor.scripting.runner.TextWsScriptThreadManager;
 import com.raytheon.viz.texteditor.util.SiteAbbreviationUtil;
 import com.raytheon.viz.texteditor.util.TextEditorUtil;
 import com.raytheon.viz.ui.dialogs.CaveJFACEDialog;
@@ -367,7 +373,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  *                                      save/cancel cycling.
  * 16Feb2106   5391         randerso    Fixed button layouts so text is not cut off with larger fonts/higher DPI
  * 12Feb2016   4716         rferrel     Changes to use new Awips Browser Dialog.
- *                                       Localization File depreication clean up.
+ *                                       Localization File deprecation clean up.
  * 01Mar2016   DR 17614     arickert    Updated MND, WMO, and VTEC should be reflected in text editor
  *                                      after warngen is submitted
  * 01Mar2016   RM13214   mgamazaychikov Added verifyLineWidth method.
@@ -388,7 +394,7 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Apr 15, 2016 RM 18870    D. Friedman Replace commas with ellipses only at start of edit and then word-wrap.
  * Jun 14, 2016 RM 17614 mgamazaychikov Fix loading of product on exit from edit mode.
  * Jun 22, 2016 5710        rferrel     Keep Version menu enabled when WIP of TTAAII CCCC text fields gain focus.
- * Aug 17, 2016 RM 13824 mgamazaychikov Fix regex for updating METARs from geograqphic regions other than CONUS.
+ * Aug 17, 2016 RM 13824 mgamazaychikov Fix regex for updating METARs from geographic regions other than CONUS.
  * Aug 24, 2016 RM 19246 mgamazaychikov Disallow editing/sending of products with WarnGen PILs.
  * Aug 25, 2016 19250       Qinglu Lin  Log several pieces of information regarding Save, Send, Cancel buttons, etc.
  * Aug 28, 2016 5839        rferrel     Use IParser and changes to display ALL: products in editor.
@@ -403,11 +409,18 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
  * Aug 04, 2017 6364        tgurney     Disable Save for WarnGen products
  * Sep  7, 2017 20284      Qinglu Lin   Updated isProductForbiddenToEdit() for GFE PILs.
  * Sep 27, 2017 19428      Qinglu Lin   Updated isProductForbiddenToEdit() for GFE PILs.
+ * Dec 12, 2017 6225        randerso    Fix deletion of auto save files
+ * Jan 03, 2018 6804        tgurney     Implement script multithreading
  * Jan 17, 2018 7193       bkowal       Prevent missing characters when backspacing by only removing
  *                                      characters equivalent to padding when padding is matched exactly.
+ * Jan 24, 2018 6850        tgurney     Stop unchecking Update Obs on clear
  * Jan 18, 2018 7197       bkowal       No longer specify single product when retrieving the AWIPS command.
  *                                      The single product flag causes all of the text from multiple products
  *                                      to be merged into the first product.
+ * Feb 02, 2018 7057        tgurney     Left/Right arrow fix to work for both AFOS and AWIPS commands
+ * Feb 07, 2018 7104        dgilling    Prevent MND header time from being changed
+ * Aug 15, 2018 7197       randerso     Set singleProduct to true for ALL commands
+ * Nov  5, 2018 6804       tgurney      executeTextScript return the script controller
  *
  * </pre>
  *
@@ -416,8 +429,8 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 public class TextEditorDialog extends CaveSWTDialog
         implements VerifyListener, IAfosBrowserCallback, IAwipsBrowserCallback,
         IWmoBrowserCallback, IRecoverEditSessionCallback, ITextCharWrapCallback,
-        IScriptRunnerObserver, IScriptEditorObserver, INotificationObserver,
-        IProductQueryCallback, ISimulatedTimeChangeListener {
+        IScriptEditorObserver, INotificationObserver, IProductQueryCallback,
+        ISimulatedTimeChangeListener {
 
     /**
      * Handler used for messages.
@@ -477,16 +490,24 @@ public class TextEditorDialog extends CaveSWTDialog
     private static final int UPDATE_FG = SWT.COLOR_WHITE;
 
     /**
+     * Lockable text begin element tag
+     */
+    private static final String BEGIN_ELEMENT_TAG = "<L>";
+
+    /**
+     * Lockable text end element tag
+     */
+    private static final String END_ELEMENT_TAG = "</L>";
+
+    /**
      * The length of BEGIN_ELEMENT_TAG.
      */
-    private static final int BEGIN_ELEMENT_TAG_LEN = TextWarningConstants.BEGIN_ELEMENT_TAG
-            .length();
+    private static final int BEGIN_ELEMENT_TAG_LEN = BEGIN_ELEMENT_TAG.length();
 
     /**
      * The length of the END_ELEMENT_TAG.
      */
-    private static final int END_ELEMENT_TAG_LEN = TextWarningConstants.END_ELEMENT_TAG
-            .length();
+    private static final int END_ELEMENT_TAG_LEN = END_ELEMENT_TAG.length();
 
     /**
      * The expression for find the start of an obs.
@@ -963,7 +984,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Flag indicating if the editor is in edit mode.
      */
-    private boolean inEditMode = false;
+    private volatile boolean inEditMode = false;
 
     /**
      * Search and replace dialog.
@@ -1107,29 +1128,24 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * The script runner.
      */
-    private TextWsScriptRunner scriptRunner = null;
+    private ITextWsScriptController scriptController = null;
 
     /**
      * Error in script flag
      */
-    private boolean scriptHasError = false;
+    private volatile boolean scriptHasError = false;
 
     private StringBuilder scriptErrorBfr = null;
 
     /**
      * the continue flag
      */
-    private boolean scriptContinue = true;
-
-    /**
-     * the cancel script flag
-     */
-    private boolean cancelScript = false;
+    private volatile boolean scriptContinue = true;
 
     /**
      * the skip wait flag
      */
-    private boolean skipWait = false;
+    private volatile boolean skipWait = false;
 
     /**
      * auto save task
@@ -1223,7 +1239,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Listner to update the status of obs.
      */
-    private MouseListener updateObsListener = null;
+    private MouseAdapter updateObsListener = null;
 
     /** Text character wrap dialog */
     private TextCharWrapDlg textCharWrapDlg;
@@ -1516,7 +1532,7 @@ public class TextEditorDialog extends CaveSWTDialog
                 printSelectedText();
             }
         });
-
+        
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
         enterEditorItem = new MenuItem(fileMenu, SWT.NONE);
@@ -1585,7 +1601,6 @@ public class TextEditorDialog extends CaveSWTDialog
                 recoveryDlg.open();
             }
         });
-
 
         new MenuItem(fileMenu, SWT.SEPARATOR);
 
@@ -1796,8 +1811,7 @@ public class TextEditorDialog extends CaveSWTDialog
     /**
      * Implements the clear command on the text editor.
      */
-    private void clearTextEditor() {
-        clearUpdateObs();
+    public void clearTextEditor() {
         clearTextFields();
         clearButtonology();
         TextDisplayModel.getInstance().clearStdTextProduct(token);
@@ -3128,11 +3142,13 @@ public class TextEditorDialog extends CaveSWTDialog
                 String pastVersion = null;
                 String site = null;
                 boolean error = false;
+                boolean singleProduct = false;
 
                 if (cmd.startsWith("ALL:")) {
                     site = "0000";
                     cmd = cmd.substring(4);
                     hdrTime = "000000";
+                    singleProduct = true;
                 } else if (cmd.startsWith("-")) {
                     int end = cmd.indexOf(':');
                     if (end == -1) {
@@ -3171,7 +3187,7 @@ public class TextEditorDialog extends CaveSWTDialog
                  * the Awips ID and possibly restrict to a site.
                  */
                 ICommand command = CommandFactory.getAwipsCommand(cmd, null,
-                        site, hdrTime, pastVersion, null, false);
+                        site, hdrTime, pastVersion, null, singleProduct);
                 executeCommand(command);
             }
 
@@ -3218,7 +3234,7 @@ public class TextEditorDialog extends CaveSWTDialog
     private void handleUpdateObsChkBtn(boolean checked) {
         if (checked) {
             if (updateObsListener == null) {
-                updateObsListener = new MouseListener() {
+                updateObsListener = new MouseAdapter() {
 
                     @Override
                     public void mouseUp(MouseEvent e) {
@@ -3229,16 +3245,6 @@ public class TextEditorDialog extends CaveSWTDialog
                         } catch (IllegalArgumentException ex) {
                             // bad mouse location ignore
                         }
-                    }
-
-                    @Override
-                    public void mouseDown(MouseEvent e) {
-                        // Ignore
-                    }
-
-                    @Override
-                    public void mouseDoubleClick(MouseEvent e) {
-                        // Ignore
                     }
                 };
                 textEditor.addMouseListener(updateObsListener);
@@ -3411,7 +3417,6 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-
         // Add the Cancel button.
         gd = new GridData(SWT.DEFAULT, SWT.DEFAULT);
         Button editorCancelBtn = new Button(editorBtnRowComp, SWT.PUSH);
@@ -3526,9 +3531,8 @@ public class TextEditorDialog extends CaveSWTDialog
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.keyCode == SWT.ARROW_LEFT && !textEditor.getEditable()) {
-                    commandHistory.resetIndex(CommandType.AFOS);
-                    ICommand command = commandHistory
-                            .getPreviousCommand(CommandType.AFOS);
+                    CommandType type = prepareHistory();
+                    ICommand command = commandHistory.getPreviousCommand(type);
                     if (command != null) {
                         ICommand cmd = CommandFactory
                                 .getPreviousForCommand(command);
@@ -3538,9 +3542,8 @@ public class TextEditorDialog extends CaveSWTDialog
                     }
                 } else if (e.keyCode == SWT.ARROW_RIGHT
                         && !textEditor.getEditable()) {
-                    commandHistory.resetIndex(CommandType.AFOS);
-                    ICommand command = commandHistory
-                            .getPreviousCommand(CommandType.AFOS);
+                    CommandType type = prepareHistory();
+                    ICommand command = commandHistory.getPreviousCommand(type);
                     if (command != null) {
                         ICommand cmd = CommandFactory
                                 .getNextForCommand(command);
@@ -3717,11 +3720,7 @@ public class TextEditorDialog extends CaveSWTDialog
             }
         });
 
-        textEditor.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseDoubleClick(MouseEvent e) {
-            }
-
+        textEditor.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseDown(org.eclipse.swt.events.MouseEvent e) {
                 if (e.button == 2) {
@@ -4724,6 +4723,8 @@ public class TextEditorDialog extends CaveSWTDialog
     private String combineOriginalMessage() {
         if (headerTF.getCharCount() == 0) {
             return textEditor.getText();
+        } else if (textEditor.getCharCount() == 0) {
+            return headerTF.getText();
         }
         StringBuilder body = new StringBuilder();
         body.append(headerTF.getText()).append("\n");
@@ -5098,21 +5099,17 @@ public class TextEditorDialog extends CaveSWTDialog
         int endIndex = 0;
         boolean markedTextUndeditable = false;
         try {
-            while (sb.indexOf(TextWarningConstants.BEGIN_ELEMENT_TAG, 0) >= 0) {
+            while (sb.indexOf(BEGIN_ELEMENT_TAG, 0) >= 0) {
                 currentIndex = 0;
                 startIndex = 0;
                 endIndex = 0;
 
                 // Looks for the most inner <L></L> tags
                 do {
-                    startIndex = sb.indexOf(
-                            TextWarningConstants.BEGIN_ELEMENT_TAG,
-                            currentIndex);
-                    endIndex = sb.indexOf(TextWarningConstants.END_ELEMENT_TAG,
-                            currentIndex);
+                    startIndex = sb.indexOf(BEGIN_ELEMENT_TAG, currentIndex);
+                    endIndex = sb.indexOf(END_ELEMENT_TAG, currentIndex);
                 } while (startIndex > 0 && endIndex > 0
-                        && (currentIndex = sb.indexOf(
-                                TextWarningConstants.BEGIN_ELEMENT_TAG,
+                        && (currentIndex = sb.indexOf(BEGIN_ELEMENT_TAG,
                                 startIndex + BEGIN_ELEMENT_TAG_LEN)) > 0
                         && currentIndex < endIndex);
 
@@ -5471,8 +5468,7 @@ public class TextEditorDialog extends CaveSWTDialog
                     .get(m.group(5));
             if (tz != null) {
                 headerFormat.setTimeZone(tz);
-                product = product.replace(m.group(1),
-                        headerFormat.format(now).toUpperCase());
+                product = product.replace(m.group(1), headerFormat.format(now));
             } else {
                 statusHandler.warn(
                         "Could not sync MND header time because the time zone could not be determined.  Will proceed with save/send.");
@@ -6087,11 +6083,6 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     @Override
-    public void clearTextDisplay() {
-        clearTextEditor();
-    }
-
-    @Override
     public void manageScriptOutputWindow(boolean visible) {
         if (visible) {
             // need to set state of menu item to true
@@ -6144,23 +6135,15 @@ public class TextEditorDialog extends CaveSWTDialog
         }
     }
 
-    @Override
     public void setAccumulation(boolean flag) {
         this.accumChkBtn.setSelection(flag);
     }
 
-    @Override
-    public void showErrorMessage(String errorMsg, Throwable cause) {
-        statusHandler.handle(Priority.PROBLEM, errorMsg, cause);
-    }
-
-    @Override
     public void showScriptStatus(String statusMsg) {
         statusBarLabel.setText(statusMsg);
         statusHandler.handle(Priority.EVENTA, statusMsg);
     }
 
-    @Override
     public void writeText(String text) {
         if (scriptOutput != null) {
             scriptOutput.addMessage(text);
@@ -6186,7 +6169,6 @@ public class TextEditorDialog extends CaveSWTDialog
         scriptsCancelItem.setEnabled(flag);
         scriptCancelBtn.setVisible(flag);
         scriptCancelBtn.setEnabled(flag);
-        cancelScript = false;
 
         scriptsSkipWaitItem.setEnabled(false);
         scriptSkipWaitBtn.setVisible(flag);
@@ -6197,26 +6179,25 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     @Override
-    public void executeTextScript(String script) {
+    public ITextWsScriptController executeTextScript(String script) {
         // This need to implement execution of script runner -- basically, the
         // script runner needs to live in this class
-        if (scriptRunner == null) {
-            scriptRunner = new TextWsScriptRunner(this, this.token);
-        }
+        setScriptMenuControls(false);
+        setScriptControls(true);
         try {
-            setScriptMenuControls(false);
-            setScriptControls(true);
-            scriptRunner.executeScript(script);
+            IScriptRunnerObserver observer = new TextEditorScriptRunnerObserver(
+                    this);
+            scriptController = TextWsScriptThreadManager.getInstance()
+                    .runScript(script, observer, token);
+            return scriptController;
         } catch (Exception e) {
             setScriptMenuControls(true);
             statusHandler.handle(Priority.PROBLEM,
                     "Unable to execute script (SCRP)", e);
-        } finally {
-            // intentionally empty
+            return null;
         }
     }
 
-    @Override
     public void postProductToEditor(final String[] products,
             final String[] pils) {
         versionMenuItem.setEnabled(false);
@@ -6305,21 +6286,12 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     @Override
-    public void onCancelScript() {
-        cancelScript = true;
-    }
-
-    @Override
     public void onSkipWait() {
         skipWait = true;
     }
 
-    @Override
     public void scriptComplete() {
-        if (scriptRunner != null) {
-            scriptRunner.dispose();
-        }
-        scriptRunner = null;
+        scriptController = null;
         setScriptControls(false);
         if (scriptEditor != null) {
             scriptEditor.scriptComplete();
@@ -6329,24 +6301,17 @@ public class TextEditorDialog extends CaveSWTDialog
         statusBarLabel.setText("");
     }
 
-    @Override
-    public boolean cancelScript() {
-        return cancelScript;
-    }
-
-    @Override
     public boolean skipWait() {
         return skipWait;
     }
 
-    @Override
     public boolean continueScript() {
         return scriptContinue;
     }
 
     @Override
     public void windowClosing() {
-        if (scriptRunner == null) {
+        if (scriptController == null) {
             setScriptMenuControls(true);
         }
         scriptEditor = null;
@@ -6363,7 +6328,6 @@ public class TextEditorDialog extends CaveSWTDialog
         scriptsRunItem.setEnabled(state);
     }
 
-    @Override
     public void activateControls(boolean skipWait, boolean canContinue) {
         scriptsContinueItem.setEnabled(canContinue);
         scriptContinueBtn.setEnabled(canContinue);
@@ -6377,7 +6341,6 @@ public class TextEditorDialog extends CaveSWTDialog
         }
     }
 
-    @Override
     public boolean isEditMode() {
         boolean result = false;
         if (inEditMode && isOpen()) {
@@ -6695,20 +6658,6 @@ public class TextEditorDialog extends CaveSWTDialog
         return resend;
     }
 
-    private void removeOptionalFields() {
-        String text = textEditor.getText();
-        int startIndex = text.indexOf("!--");
-        int endIndex = text.indexOf("--!", startIndex);
-        while (startIndex >= 0 && endIndex >= startIndex) {
-            String part1 = text.substring(0, startIndex).trim();
-            String part2 = text.substring(endIndex + 3).trim();
-            text = part1 + "\n\n" + part2;
-            startIndex = text.indexOf("!--");
-            endIndex = text.indexOf("--!", startIndex);
-        }
-        textEditor.setText(text);
-    }
-
     /*
      * This class handles a timer to auto save a product to a file.
      */
@@ -6724,7 +6673,7 @@ public class TextEditorDialog extends CaveSWTDialog
         private final LocalizationContext lc = pathManager.getContext(
                 LocalizationType.CAVE_STATIC, LocalizationLevel.USER);
 
-        private LocalizationFile file = null;
+        private String filename = null;
 
         public AutoSaveTask(String ttaaii, String cccc) {
             this.filenameIdentifier = ttaaii + "_" + cccc;
@@ -6733,7 +6682,7 @@ public class TextEditorDialog extends CaveSWTDialog
 
         public AutoSaveTask(String filename) {
             if (filename != null) {
-                this.file = getFile(filename);
+                this.filename = filename;
             }
 
             StdTextProduct prod = retrieveProduct();
@@ -6749,19 +6698,24 @@ public class TextEditorDialog extends CaveSWTDialog
         }
 
         public void saveProduct(StdTextProduct stdTextProduct) {
-            String filename = "window_" + token
-                    + "_" + filenameIdentifier + "_" + AUTOSAVE_DATE_FORMAT
-                            .format(TimeUtil.newGmtCalendar().getTime())
-                    + ".txt";
             try {
                 // delete and write new file, rename didn't always work
                 // rename would end up writing a new file every time and
                 // kept the original in sync
+                LocalizationFile file = null;
+                if (this.filename != null) {
+                    file = getFile(this.filename);
+                }
+
                 if (file != null && file.exists()) {
                     file.delete();
                 }
 
-                file = getFile(filename);
+                this.filename = "window_" + token + "_"
+                        + filenameIdentifier + "_" + AUTOSAVE_DATE_FORMAT
+                                .format(TimeUtil.newGmtCalendar().getTime())
+                        + ".txt";
+                file = getFile(this.filename);
 
                 if (file == null) {
                     statusHandler.warn(
@@ -6787,7 +6741,8 @@ public class TextEditorDialog extends CaveSWTDialog
         public StdTextProduct retrieveProduct() {
             StdTextProduct rval = null;
 
-            if (file != null) {
+            if (this.filename != null) {
+                LocalizationFile file = getFile(this.filename);
                 synchronized (this) {
                     try (InputStream in = file.openInputStream();
                             BufferedInputStream bufStream = new BufferedInputStream(
@@ -6809,9 +6764,9 @@ public class TextEditorDialog extends CaveSWTDialog
         public boolean stop() {
             boolean success = false;
             try {
-                if (file != null) {
-                    file.delete();
-                    file = null;
+                if (filename != null) {
+                    getFile(filename).delete();
+                    filename = null;
                 }
 
                 success = true;
@@ -6982,12 +6937,10 @@ public class TextEditorDialog extends CaveSWTDialog
 
     }
 
-    @Override
     public void scriptError() {
         scriptHasError = true;
     }
 
-    @Override
     public void addStdErrMsg(String errMsg) {
         if (scriptErrorBfr == null) {
             scriptErrorBfr = new StringBuilder();
@@ -6996,12 +6949,10 @@ public class TextEditorDialog extends CaveSWTDialog
 
     }
 
-    @Override
     public boolean isScriptError() {
         return scriptHasError;
     }
 
-    @Override
     public void writeErrMsg(String errMsg) {
         StringBuilder msg = new StringBuilder(errMsg);
         if (scriptHasError) {
@@ -7010,11 +6961,10 @@ public class TextEditorDialog extends CaveSWTDialog
                 msg.append("\n");
                 msg.append(scriptErrorBfr);
             }
-            showErrorMessage(msg.toString(), null);
+            statusHandler.warn(msg.toString());
         }
     }
 
-    @Override
     public void clearErrBuffer() {
         scriptHasError = false;
         scriptErrorBfr = null;
@@ -7072,11 +7022,74 @@ public class TextEditorDialog extends CaveSWTDialog
         }
     }
 
+    /*
+     * This class handles sending a request to a Thrift Client.
+     */
+    private class ThriftClientRunnable implements Runnable {
+
+        private final OUPRequest request;
+
+        public ThriftClientRunnable(OUPRequest request) {
+            this.request = request;
+        }
+
+        @Override
+        public void run() {
+            try {
+                final OUPResponse response = (OUPResponse) ThriftClient
+                        .sendRequest(request);
+
+                // if (response.isAcknowledged()) {
+                if (response.hasFailure()) {
+                    Priority p = Priority.EVENTA;
+                    if (!response.isAttempted()) {
+                        // if was never attempted to send or store even locally
+                        p = Priority.CRITICAL;
+                    } else if (!response.isSendLocalSuccess()) {
+                        // if send/store locally failed
+                        p = Priority.CRITICAL;
+                    } else if (!response.isSendWANSuccess()) {
+                        // if send to WAN failed
+                        if (response.getNeedAcknowledgment()) {
+                            // if ack was needed, if it never sent then no ack
+                            // was recieved
+                            p = Priority.CRITICAL;
+                        } else {
+                            // if no ack was needed
+                            p = Priority.EVENTA;
+                        }
+                    } else if (response.getNeedAcknowledgment()
+                            && !response.isAcknowledged()) {
+                        // if sent but not acknowledged when acknowledgement is
+                        // needed
+                        p = Priority.CRITICAL;
+                    }
+
+                    statusHandler.handle(p, response.getMessage());
+                } else {
+                    // no failure
+                    // As of DR 15418, nothing is done with
+                    // response.getChangedBBB()
+                }
+
+                Thread.interrupted();
+            } catch (VizException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "Error transmitting text product", e);
+
+            }
+        }
+    }
 
     @Override
     protected void disposed() {
         textEditor.setFont(shell.getFont());
         headerTF.setFont(shell.getFont());
+
+        if (scriptController != null) {
+            scriptController.cancel();
+            scriptController = null;
+        }
 
         if (dftFont != null) {
             dftFont.dispose();
@@ -7948,6 +7961,32 @@ public class TextEditorDialog extends CaveSWTDialog
     }
 
     /**
+     * Retrieve a product from a remote site instead of the local server.
+     *
+     * @param req
+     */
+    private void sendRemoteRetrievalRequest(final RemoteRetrievalRequest req) {
+        Job job = new Job("Remote Product Request") {
+            @Override
+            protected IStatus run(IProgressMonitor monitor) {
+                try {
+                    RemoteRetrievalResponse response = (RemoteRetrievalResponse) ThriftClient
+                            .sendRequest(req);
+                    statusHandler.handle(
+                            response.isOk() ? Priority.INFO : Priority.ERROR,
+                            response.getStatusMessage());
+                } catch (VizException e) {
+                    statusHandler.error("Remote request failed", e);
+                }
+                return Status.OK_STATUS;
+            }
+        };
+        job.setPriority(Job.LONG);
+        job.setSystem(true);
+        job.schedule();
+    }
+
+    /**
      * Check of the bbb string to make it the empty string when it is for a
      * normal product.
      *
@@ -8137,35 +8176,6 @@ public class TextEditorDialog extends CaveSWTDialog
         return paddingPatternList;
     }
 
-    private boolean verifyLineWidth(final boolean resend) {
-        int lineToWrap = findLineToWrap();
-        if (lineToWrap == -1) {
-            return true;
-        }
-        LineWrapCheckConfirmationMsg lineWrapCheckConfirmationMsg = new LineWrapCheckConfirmationMsg(
-                shell);
-        lineWrapCheckConfirmationMsg.addCloseCallback(new ICloseCallback() {
-
-            @Override
-            public void dialogClosed(Object returnValue) {
-                if (AnswerChoices.EDIT.equals(returnValue)) {
-                    // do nothing
-                } else if (AnswerChoices.FIX.equals(returnValue)) {
-                    while (findLineToWrap() > -1) {
-                        int lineToWrap = findLineToWrap();
-                        // recompileRegex might not have been called
-                        if (standardWrapRegex == null) {
-                            recompileRegex();
-                        }
-                        rewrapInternal(lineToWrap);
-                    }
-                }
-            }
-        });
-        lineWrapCheckConfirmationMsg.open();
-        return false;
-    }
-
     private int findLineToWrap() {
         int rval = -1;
         for (int i = 0; i < textEditor.getLineCount(); ++i) {
@@ -8200,5 +8210,12 @@ public class TextEditorDialog extends CaveSWTDialog
 
     public boolean isWarnGen() {
         return warnGenFlag;
+    }
+
+    @Override
+    public void onCancelScript() {
+        if (this.scriptController != null) {
+            this.scriptController.cancel();
+        }
     }
 }

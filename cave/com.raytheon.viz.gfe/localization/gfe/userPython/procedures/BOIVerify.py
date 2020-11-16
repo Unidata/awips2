@@ -60,6 +60,8 @@
 # Apr 16, 2015  17390    ryu       Replacing string.atoi with int for string/integer to integer conversion
 #                                  (ListBox.curselection() now returns ints instead of strings.)
 # Feb 06, 2017  5959     randerso  Removed Java .toString() calls 
+# Jan 23, 2018  7153     randerso  Changes to allow new GFE config file to be
+#                                  selected when perspective is re-opened.
 # ----------------------------------------------------------------------------
 #
 
@@ -96,7 +98,7 @@ def getFloatPref(key, dflt):
        print "no config value for", key
        return dflt
 
-    val = GFEPreference.getFloatPreference(key)
+    val = GFEPreference.getFloat(key)
     print "preference for %s:" % key, val
     return val
 

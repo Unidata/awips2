@@ -187,7 +187,7 @@ public class MetarTempResource extends AbstractVizResource<MetarTempResourceData
 
     protected MetarTempResource(MetarTempResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
 
     }
 
@@ -257,7 +257,6 @@ public class MetarTempResource extends AbstractVizResource<MetarTempResourceData
 
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
-        dataTimes = new ArrayList<DataTime>();
         dataProcessJob.schedule();
         ColorMapParameters params = new ColorMapParameters();
 
@@ -658,13 +657,12 @@ public class MetarTempResource extends AbstractVizResource<MetarTempResourceData
 
     private void addData(DataTime time, List<TempData> temps) {
         if (temps.isEmpty()) {
-            if (!dataTimes.contains(time)) {
+            if (dataTimes.add(time)) {
                 GenericProgressiveDisclosure<RenderableTempData> disclosure = 
                 		new GenericProgressiveDisclosure<RenderableTempData>();
                 synchronized (data) {
                     data.put(time, disclosure);
                 }
-                dataTimes.add(time);
             }
         }
         if (data.containsKey(time)) {
@@ -711,9 +709,7 @@ public class MetarTempResource extends AbstractVizResource<MetarTempResourceData
         }
         synchronized (data) {
             data.put(time, newTemps);
-            if (!dataTimes.contains(time)) {
-                dataTimes.add(time);
-            }
+            dataTimes.add(time);
         }
         issueRefresh();
     }

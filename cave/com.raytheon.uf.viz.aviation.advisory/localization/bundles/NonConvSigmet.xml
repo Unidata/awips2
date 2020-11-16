@@ -30,12 +30,14 @@
             <descriptor xsi:type="mapDescriptor">
                 <resource>
                     <loadProperties loadWithoutData="false">
-                        <capabilities/>
+                        <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="${color}" />
+                        </capabilities>
                     </loadProperties>
                     <resourceData xsi:type="advisoryResourceData"
                         isUpdatingOnMetadataOnly="false"
-                        isRequeryNecessaryOnTimeMatch="true" name="${name}"
-                        colorString="${color}">
+                        isRequeryNecessaryOnTimeMatch="true" name="${name}">
                         <dataAdapter xsi:type="nonConvSigmetDataAdapter"
                             hazardType="${hazardType}" />
                         <binOffset posOffset="2700" negOffset="900"

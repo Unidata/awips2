@@ -15,6 +15,8 @@
      Phil Kurimski   09-19-2013 added geospatialConfig.xml
      Evan Bookbinder  2-18-2014 corrected supercell CTA typo & added DSS Events
      Evan Bookbinder  6-15-2015 corrected grapefruit and softball hail sizes
+     Phil Kurimski   03-19-2018 corrected parse strings in CTAs so (B) and (E)
+        were not selected at the same time when only one was selected DR 20132
 -->
 <warngenConfig>
 
@@ -140,15 +142,15 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
   <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
-  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" bulletDefault="true" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" bulletDefault="true" parseString="&quot;PROTECTION MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING&quot;,&quot;-TORNADO LIKE WIND SPEEDS&quot;"/>
   <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
   <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
   <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
-  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="PRODUCING WIDESPREAD WIND DAMAGE ACROSS"/>
+  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="&quot;-EXTREMELY DANGEROUS SITUATION&quot;,&quot;PRODUCING WIDESPREAD WIND DAMAGE ACROSS&quot;"/>
   <bullet bulletName="veryLargeHailCTA" bulletText="(E) This is a dangerous storm (Large DESTRUCTIVE Hail)" parseString="LARGE DESTRUCTIVE HAIL CAPABLE OF PRODUCING SIGNIFICANT DAMAGE"/>
   <bullet bulletName="extremeWindsCTA" bulletText="(E) Winds in excess of 80 mph (Tor-like wind speeds)" parseString="TORNADO LIKE WIND SPEEDS"/>
   <bullet bulletName="deadlyStormCTA" bulletText="(E) This is a potentially deadly storm" parseString="POTENTIALLY DEADLY STORM"/>
-  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="EXTREMELY DANGEROUS SITUATION"/>
+  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="&quot;EXTREMELY DANGEROUS SITUATION&quot;,&quot;-TORNADO LIKE WIND SPEEDS&quot;"/>
   <bullet bulletName="historyWindHailCTA" bulletText="(E) This storm is producing destructive winds/large hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>
@@ -205,15 +207,15 @@ turned on unless the corresponding .vm file is turned on in a given template's .
   <bullet bulletText="******** CALLS TO ACTION (CHOOSE 1 OR MORE) *********" bulletType="title"/>
   <bullet bulletText="******* (B) = Base (E) = Elevated CTA Statements *******" bulletType="title"/>
   <bullet bulletName="torWatchRemainsInEffectCTA" bulletText="Tor Watch In Effect or TOR...POSSIBLE Tag" parseString="TORNADOES CAN DEVELOP QUICKLY FROM SEVERE THUNDERSTORMS"/>
-  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" parseString="MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING"/>
+  <bullet bulletName="genericCTA" bulletText="(B) Generic threat - standard CTA" parseString="&quot;PROTECTION MOVE TO AN INTERIOR ROOM ON THE LOWEST FLOOR OF A BUILDING&quot;,&quot;-TORNADO LIKE WIND SPEEDS&quot;"/>
   <bullet bulletName="largeHailCTA" bulletText="(B) Large Hail and Deadly Lightning" parseString="LARGE HAIL AND DEADLY CLOUD TO GROUND LIGHTNING"/>
   <bullet bulletName="largeHailWindCTA" bulletText="(B) Large Hail and Damaging Wind" parseString="PREPARE IMMEDIATELY FOR LARGE HAIL AND DAMAGING WINDS"/>
   <bullet bulletName="historyHailCTA" bulletText="(B) This storm is producing large hail" parseString="PRODUCING LARGE HAIL. SEEK SHELTER"/>
-  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="PRODUCING WIDESPREAD WIND DAMAGE ACROSS"/>
+  <bullet bulletName="historyWindCTA" bulletText="(B) This storm is producing widespread wind damage" parseString="&quot;-EXTREMELY DANGEROUS SITUATION&quot;,&quot;PRODUCING WIDESPREAD WIND DAMAGE ACROSS&quot;"/>
   <bullet bulletName="veryLargeHailCTA" bulletText="(E) This is a dangerous storm (Large DESTRUCTIVE Hail)" parseString="LARGE DESTRUCTIVE HAIL CAPABLE OF PRODUCING SIGNIFICANT DAMAGE"/>
   <bullet bulletName="extremeWindsCTA" bulletText="(E) Winds in excess of 80 mph (Tor-like wind speeds)" parseString="TORNADO LIKE WIND SPEEDS"/>
   <bullet bulletName="deadlyStormCTA" bulletText="(E) This is a potentially deadly storm" parseString="POTENTIALLY DEADLY STORM"/>
-  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="EXTREMELY DANGEROUS SITUATION"/>
+  <bullet bulletName="widespreadWindCTA" bulletText="(E) This storm is producing widespread wind damage" parseString="&quot;EXTREMELY DANGEROUS SITUATION&quot;,&quot;-TORNADO LIKE WIND SPEEDS&quot;"/>
   <bullet bulletName="historyWindHailCTA" bulletText="(E) This storm is producing destructive winds/large hail" parseString="PRODUCING DESTRUCTIVE WINDS AND LARGE DAMAGING HAIL"/>
   <bullet bulletName="lawEnforcementCTA" bulletText="Report Svr Wx to Law Enforcement Agency" parseString="CONTACT YOUR NEAREST LAW ENFORCEMENT"/>
   <bullet bulletText="" bulletType="title"/>

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -22,7 +22,6 @@ package com.raytheon.viz.gfe.core.parm;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -53,49 +52,45 @@ import com.raytheon.viz.gfe.core.parm.vcparm.VCModule.VCInventory;
 /**
  * A VC (virtual calculated) parm is virtual (non-database ifpServer) and is
  * automatically defined by a calculation written in Python.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Oct 17, 2011            dgilling     Initial creation
- * Feb 22, 2012  #346      dgilling     Convert registeredParms to 
- *                                      RWLArrayList to improve thread 
- *                                      safety and fix disappearing ISC 
- *                                      data. Also, remove overridden 
- *                                      finalize function.
- * Feb 23, 2012  #346      dgilling     Implement a dispose method.
- * Mar 02, 2012  #346      dgilling     Use Parm's new disposed flag to
- *                                      prevent leaks through
- *                                      ListenerLists.
- * Jun 25, 2012  #766      dgilling     Cleanup error logging so we
- *                                      don't spam alertViz in practice
- *                                      mode.
- * Jan 22, 2013  #1515     dgilling     Handle Parm notifications on 
- *                                      separate thread to prevent backup
- *                                      in ParmListener's notification job 
- *                                      pool.
- * Feb 13, 2013  #1515     dgilling     Handle RejectedExecutionExceptions
- *                                      if notification is received after
- *                                      Parm disposal.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Oct 17, 2011           dgilling  Initial creation
+ * Feb 22, 2012  346      dgilling  Convert registeredParms to RWLArrayList to
+ *                                  improve thread safety and fix disappearing
+ *                                  ISC data. Also, remove overridden finalize
+ *                                  function.
+ * Feb 23, 2012  346      dgilling  Implement a dispose method.
+ * Mar 02, 2012  346      dgilling  Use Parm's new disposed flag to prevent
+ *                                  leaks through ListenerLists.
+ * Jun 25, 2012  766      dgilling  Cleanup error logging so we don't spam
+ *                                  alertViz in practice mode.
+ * Jan 22, 2013  1515     dgilling  Handle Parm notifications on separate thread
+ *                                  to prevent backup in ParmListener's
+ *                                  notification job pool.
+ * Feb 13, 2013  1515     dgilling  Handle RejectedExecutionExceptions if
+ *                                  notification is received after Parm
+ *                                  disposal.
+ * Jan 04, 2018  7178     randerso  Changes to support IDataObject. Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author dgilling
- * @version 1.0
  */
 
 public class VCParm extends VParm implements IParmListChangedListener,
         IParmInventoryChangedListener, IGridDataChangedListener {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(VCParm.class);
 
     private VCModule mod;
 
-    private RWLArrayList<Parm> registeredParms = new RWLArrayList<Parm>();
+    private RWLArrayList<Parm> registeredParms = new RWLArrayList<>();
 
     private List<VCInventory> vcInventory;
 
@@ -103,7 +98,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
 
     /**
      * Constructor for Virtual Calculated Parm.
-     * 
+     *
      * @param dataMgr
      *            <code>DataManager</code> reference
      * @param displayable
@@ -122,9 +117,6 @@ public class VCParm extends VParm implements IParmListChangedListener,
             statusHandler.handle(Priority.EVENTB, "Can't get GPI: ",
                     this.mod.getErrorString());
         }
-
-        // set the parm type
-        // setParmType(Parm::VCPARM);
 
         notificationWorkers = Executors.newSingleThreadExecutor();
 
@@ -150,16 +142,9 @@ public class VCParm extends VParm implements IParmListChangedListener,
         notificationWorkers.shutdownNow();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.IGridDataChangedListener#gridDataChanged
-     * (com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID,
-     * com.raytheon.uf.common.time.TimeRange)
-     */
     @Override
-    public void gridDataChanged(final ParmID parmId, final TimeRange validTime) {
+    public void gridDataChanged(final ParmID parmId,
+            final TimeRange validTime) {
         synchronized (this) {
             if (disposed) {
                 return;
@@ -184,15 +169,14 @@ public class VCParm extends VParm implements IParmListChangedListener,
                     for (DepParmInv dpi : inv.getDepParmInv()) {
                         if (dpi.getParmID().equals(parmId)) {
                             for (TimeRange tr : dpi.getTimes()) {
-                                if (tr.getStart().equals(validTime.getStart())) {
+                                if (tr.getStart()
+                                        .equals(validTime.getStart())) {
                                     grids.acquireReadLock();
                                     try {
                                         for (IGridData grid : grids) {
                                             if (inv.getGridTimeRange().equals(
                                                     grid.getGridTime())) {
-                                                grid.depopulate();
-                                                gridDataHasChanged(
-                                                        grid,
+                                                gridDataHasChanged(grid,
                                                         getDisplayAttributes()
                                                                 .getDisplayMask(),
                                                         false);
@@ -215,22 +199,12 @@ public class VCParm extends VParm implements IParmListChangedListener,
         } catch (RejectedExecutionException e) {
             // received a notification after thread pool shutdown
             // do nothing, but log
-            String message = "Parm "
-                    + toString()
+            String message = "Parm " + toString()
                     + " received GridDataChange notification after VCParm.dispose().";
             statusHandler.handle(Priority.EVENTB, message, e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.IParmListChangedListener#parmListChanged
-     * (com.raytheon.viz.gfe.core.parm.Parm[],
-     * com.raytheon.viz.gfe.core.parm.Parm[],
-     * com.raytheon.viz.gfe.core.parm.Parm[])
-     */
     @Override
     public void parmListChanged(final Parm[] parms, Parm[] deletions,
             Parm[] additions) {
@@ -244,21 +218,20 @@ public class VCParm extends VParm implements IParmListChangedListener,
 
             @Override
             public void run() {
-                // forcing access to the disposed variable and subsequent
-                // registration/unregistation of listeners through this
-                // synchronized
-                // block seems to prevent VCParm objects being leaked through
-                // outdated
-                // listener list copies
+                /*
+                 * forcing access to the disposed variable and subsequent
+                 * registration/unregistation of listeners through this
+                 * synchronized block seems to prevent VCParm objects being
+                 * leaked through outdated listener list copies
+                 */
                 synchronized (VCParm.this) {
                     if (disposed) {
                         return;
                     }
 
                     // statusHandler.handle(Priority.DEBUG,
-                    // "ParmListChangedMsg received: ");
-                    // System.out.println("ParmListChangedMsg received: "
-                    // + getParmID().toString());
+                    // "ParmListChangedMsg received: " +
+                    // getParmID().toString());
                     registerParmClients(parms, true);
                 }
             }
@@ -269,20 +242,12 @@ public class VCParm extends VParm implements IParmListChangedListener,
         } catch (RejectedExecutionException e) {
             // received a notification after thread pool shutdown
             // do nothing, but log
-            String message = "Parm "
-                    + toString()
+            String message = "Parm " + toString()
                     + " received ParmListChange notification after VCParm.dispose().";
             statusHandler.handle(Priority.EVENTB, message, e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.msgs.IParmInventoryChangedListener#
-     * parmInventoryChanged(com.raytheon.viz.gfe.core.parm.Parm,
-     * com.raytheon.uf.common.time.TimeRange)
-     */
     @Override
     public void parmInventoryChanged(Parm parm, TimeRange timeRange) {
         synchronized (this) {
@@ -291,15 +256,15 @@ public class VCParm extends VParm implements IParmListChangedListener,
             }
         }
 
-        // It would be better to only update those griddata objects
-        // that needed it. But... that is much more difficult
-        // than this simple brute force method. This seems to be
-        // fast enough for now. So, unless there is some other
-        // reason, we will to with the simplest thing that works
-        // approach.
+        /*
+         * It would be better to only update those griddata objects that needed
+         * it. But... that is much more difficult than this simple brute force
+         * method. This seems to be fast enough for now. So, unless there is
+         * some other reason, we will go with the simplest thing that works
+         * approach.
+         */
+
         // statusHandler.debug("ParmInventoryChanged notification for: "
-        // + getParmID().toString());
-        // System.out.println("ParmInventoryChanged notification for: "
         // + getParmID().toString());
         Runnable onNotificationTask = new Runnable() {
 
@@ -320,20 +285,12 @@ public class VCParm extends VParm implements IParmListChangedListener,
         } catch (RejectedExecutionException e) {
             // received a notification after thread pool shutdown
             // do nothing, but log
-            String message = "Parm "
-                    + toString()
+            String message = "Parm " + toString()
                     + " received ParmInventoryChange notification after VCParm.dispose().";
             statusHandler.handle(Priority.EVENTB, message, e);
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.parm.VParm#populateGrid(com.raytheon.viz.gfe
-     * .core.griddata.IGridData)
-     */
     @Override
     public void populateGrid(IGridData grid) {
         for (VCInventory vcInvEntry : vcInventory) {
@@ -345,17 +302,12 @@ public class VCParm extends VParm implements IParmListChangedListener,
                     statusHandler.handle(Priority.PROBLEM,
                             "Error calculating grid: ", mod.getErrorString());
                 }
-                IGridData gd = AbstractGridData.makeGridData(this, gs);
+                IGridData gd = AbstractGridData.makeGridData(this, gs, false);
                 grid.replace(gd);
             }
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.parm.VParm#populateGrids(java.util.List)
-     */
     @Override
     public void populateGrids(List<IGridData> grids) {
         for (IGridData grid : grids) {
@@ -363,56 +315,10 @@ public class VCParm extends VParm implements IParmListChangedListener,
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.gfe.core.parm.VParm#deallocateUnusedGrids(int)
-     */
-    @Override
-    public void deallocateUnusedGrids(int seconds) {
-        Date time = this.dataManager.getSpatialDisplayManager()
-                .getSpatialEditorTime();
-        IGridData se = null;
-
-        if (time != null) {
-            se = overlappingGrid(time);
-        }
-        long milliseconds = 1000L * seconds;
-
-        // go through each grid in existence
-        long now = System.currentTimeMillis();
-        this.grids.acquireReadLock();
-        try {
-            for (IGridData grid : this.grids) {
-                if (!grid.isPopulated()) {
-                    continue;
-                }
-
-                if (grid.equals(se)) {
-                    continue;
-                } // grid overlaps spatial editor time -- skip it
-
-                long lastAccess = grid.getLastAccessTime();
-
-                long delta = now - lastAccess;
-                if (delta < milliseconds) {
-                    continue; // recently accessed
-                }
-
-                // deallocate
-                // statusHandler.debug("Deallocating " + getParmID() + " tr="
-                // + grid.getGridTime());
-                grid.depopulate();
-            }
-        } finally {
-            this.grids.releaseReadLock();
-        }
-    }
-
     /**
      * Routine to create a set of "empty" (unpopulated) grids for the given
      * <code>VCInventory</code> and replacement time range.
-     * 
+     *
      * @param replacementTimeRange
      *            the <code>TimeRange</code> for which to create unpopulated
      *            grids.
@@ -424,10 +330,10 @@ public class VCParm extends VParm implements IParmListChangedListener,
     private void createEmptyGrids(TimeRange replacementTimeRange,
             Collection<VCInventory> vcInventory, boolean sendNotification) {
         // create the grids
-        List<IGridData> grids = new ArrayList<IGridData>();
+        List<IGridData> grids = new ArrayList<>();
         for (VCInventory inv : this.vcInventory) {
             IGridData gd = AbstractGridData.makeGridData(this,
-                    getEmptyGridSlice(inv));
+                    getEmptyGridSlice(inv), false);
             if (gd != null) {
                 grids.add(gd);
             }
@@ -446,7 +352,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
     /**
      * Creates and returns an <code>IGridSlice</code> without data
      * (unpopulated), given the VCInventory entry.
-     * 
+     *
      * @param vcInv
      *            The <code>VCInvenoty</code> entry
      * @return An appropriate <code>IGridSlice</code> that corresponds to the
@@ -459,9 +365,11 @@ public class VCParm extends VParm implements IParmListChangedListener,
         // If there is an error in calcHistory() it
         // will still give us one to use. So, we can just logProblem
         if (!mod.isValid()) {
-            statusHandler.handle(Priority.EVENTB,
-                    "Error in history calculation for "
-                            + getParmID().toString(), mod.getErrorString());
+            statusHandler
+                    .handle(Priority.EVENTB,
+                            "Error in history calculation for "
+                                    + getParmID().toString(),
+                            mod.getErrorString());
         }
 
         IGridSlice gs = null;
@@ -470,7 +378,8 @@ public class VCParm extends VParm implements IParmListChangedListener,
             gs = new ScalarGridSlice(timeRange, getGridInfo(), hist, null);
             break;
         case VECTOR:
-            gs = new VectorGridSlice(timeRange, getGridInfo(), hist, null, null);
+            gs = new VectorGridSlice(timeRange, getGridInfo(), hist, null,
+                    null);
             break;
         case WEATHER:
             gs = new WeatherGridSlice(timeRange, getGridInfo(), hist, null,
@@ -480,6 +389,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
             gs = new DiscreteGridSlice(timeRange, getGridInfo(), hist, null,
                     null);
             break;
+        default:
         }
         return gs;
     }
@@ -487,23 +397,23 @@ public class VCParm extends VParm implements IParmListChangedListener,
     /**
      * Recalculates the inventory, creates empty grids appropriately,
      * depopulates. Optionally sends out notification of inventory changes.
-     * 
+     *
      * @param sendNotification
      *            Whether or not to notify listeners of the inventory change.
      */
     private void recalcInventory(boolean sendNotification) {
-        // statusHandler.debug("recalcInventory.   sendNot=" +
+        // statusHandler.debug("recalcInventory. sendNot=" +
         // sendNotification);
 
         // ensure we have parms* for all of the dependent parms
-        List<ParmID> args = new ArrayList<ParmID>(mod.dependentParms());
+        List<ParmID> args = new ArrayList<>(mod.dependentParms());
         if (!mod.isValid()) {
             statusHandler.handle(Priority.EVENTB,
                     "Error getting dependent WeatherElements: ",
                     mod.getErrorString());
         }
-        Parm[] parms = this.dataManager.getParmManager().getParms(
-                args.toArray(new ParmID[args.size()]));
+        Parm[] parms = this.dataManager.getParmManager()
+                .getParms(args.toArray(new ParmID[args.size()]));
         boolean okay = true;
         for (Parm parm : parms) {
             if (parm == null) {
@@ -521,7 +431,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
                         "Error getting inventory: ", mod.getErrorString());
             }
         } else {
-            this.vcInventory = new ArrayList<VCInventory>();
+            this.vcInventory = new ArrayList<>();
         }
 
         createEmptyGrids(TimeRange.allTimes(), this.vcInventory,
@@ -532,7 +442,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
      * Sets up the parm client register/unregister based on the new list of
      * parms. Optionally will send out a notification of inventory changes (if
      * they occur).
-     * 
+     *
      * @param parms
      *            A list of <code>Parms</code> that can be potentially
      *            registered to.
@@ -541,17 +451,11 @@ public class VCParm extends VParm implements IParmListChangedListener,
      */
     private void registerParmClients(Parm[] parms, boolean sendNotification) {
         // get list of dependent parms
-        List<ParmID> args = new ArrayList<ParmID>(mod.dependentParms());
+        List<ParmID> args = new ArrayList<>(mod.dependentParms());
         if (!mod.isValid()) {
             statusHandler.handle(Priority.EVENTB,
                     "Error getting dependent WeatherElements: ",
                     mod.getErrorString());
-            // Activator
-            // .getDefault()
-            // .getLog()
-            // .log(new Status(IStatus.INFO, Activator.PLUGIN_ID,
-            // "Error getting dependent WeatherElements: "
-            // + this.mod.getErrorString()));
         }
 
         // get list of currently registered parms
@@ -559,7 +463,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
 
         // get list of parms to unregister
         boolean changed = false;
-        List<Parm> unreg = new ArrayList<Parm>(currRegistered);
+        List<Parm> unreg = new ArrayList<>(currRegistered);
         unreg.removeAll(Arrays.asList(parms));
         for (Parm parm : unreg) {
             unregisterPC(parm);
@@ -567,7 +471,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
         }
 
         // get list of parms to register
-        List<Parm> maybeReg = new ArrayList<Parm>(Arrays.asList(parms));
+        List<Parm> maybeReg = new ArrayList<>(Arrays.asList(parms));
         maybeReg.removeAll(currRegistered);
         for (Parm parm : maybeReg) {
             if (args.contains(parm.getParmID())) {
@@ -607,7 +511,7 @@ public class VCParm extends VParm implements IParmListChangedListener,
     }
 
     private List<Parm> registeredParms() {
-        List<Parm> retVal = new ArrayList<Parm>();
+        List<Parm> retVal = new ArrayList<>();
 
         registeredParms.acquireReadLock();
         try {

@@ -49,12 +49,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Oct 17, 2008                        Initial generation by hbm2java
- * Aug 19, 2011      10672     jkorman Move refactor to new project
- * Oct 07, 2013       2361     njensen Removed XML annotations
- * May 23, 2016       5590     bkowal  Cleanup.
- * Jun 24, 2016       5699     bkowal  Added {@link #SELECT_ALL_LOCDATALIMITS_RECORDS}.
- * Sep 13, 2016  5631      bkowal      Added {@link #SELECT_MAX_LOCDATALIMITS_PRECIP}.
- * Nov 10, 2016       5999     bkowal  Added {@link #SELECT_OBS_LIMITS_FROM_LOCDATALIMITS}.
+ * Aug 19, 2011 10672      jkorman     Move refactor to new project
+ * Oct 07, 2013 2361       njensen     Removed XML annotations
+ * May 23, 2016 5590       bkowal      Cleanup.
+ * Jun 24, 2016 5699       bkowal      Added {@link #SELECT_ALL_LOCDATALIMITS_RECORDS}.
+ * Sep 13, 2016 5631       bkowal      Added {@link #SELECT_MAX_LOCDATALIMITS_PRECIP}.
+ * Nov 10, 2016 5999       bkowal      Added {@link #SELECT_OBS_LIMITS_FROM_LOCDATALIMITS}.
+ * Apr 18, 2018 DCS19644   jwu         Add column 'ts' (Type-Source) & updated queries.
  * 
  * </pre>
  * 
@@ -72,6 +73,13 @@ import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 public class Locdatalimits extends PersistableDataObject<LocdatalimitsId>
         implements Serializable {
 
+    /*
+     * DCS 19644 - "ts" (Type-Source) is added as a new column after "dur" in
+     * location data limit. It only applies to gross/reasonable range QC checks
+     * and the upper/lower limit alert/alarm checks in PostShef. It should not
+     * be applied to anything else. So the queries listed below will only
+     * include entries for "ts" is "NA" (default).
+     */
     public static final String SELECT_ALL_LOCDATALIMITS_RECORDS = "selectAllLocDataLimitsRecords";
 
     protected static final String SELECT_ALL_LOCDATALIMITS_RECORDS_HQL = "FROM Locdatalimits ldl";
@@ -82,15 +90,15 @@ public class Locdatalimits extends PersistableDataObject<LocdatalimitsId>
 
     public static final String SELECT_PE_LOCDATALIMITS_RECORDS = "selectPeFromLocdatalimitsRecords";
 
-    protected static final String SELECT_PE_LOCDATALIMITS_RECORDS_HQL = "FROM Locdatalimits ldl WHERE ldl.id.pe = 'TA' ORDER BY monthdaystart ASC, dur ASC";
+    protected static final String SELECT_PE_LOCDATALIMITS_RECORDS_HQL = "FROM Locdatalimits ldl WHERE ldl.id.pe = 'TA' AND ldl.id.ts = 'NA' ORDER BY monthdaystart ASC, dur ASC";
 
     public static final String SELECT_MAX_LOCDATALIMITS_PRECIP = "selectMaxLocdatalimitsPrecip";
 
     public static final String SELECT_OBS_LIMITS_FROM_LOCDATALIMITS = "selectObsLimitsFromLocDataLimits";
 
-    protected static final String SELECT_MAX_LOCDATALIMITS_PRECIP_HQL = "FROM Locdatalimits ldl WHERE ldl.id.pe = 'PP' AND ldl.id.dur = 1001 AND ldl.id.lid = :lid ORDER BY monthdaystart";
+    protected static final String SELECT_MAX_LOCDATALIMITS_PRECIP_HQL = "FROM Locdatalimits ldl WHERE ldl.id.pe = 'PP' AND ldl.id.ts = 'NA' AND ldl.id.dur = 1001 AND ldl.id.lid = :lid ORDER BY monthdaystart";
 
-    protected static final String SELECT_OBS_LIMITS_FROM_LOCDATALIMITS_HQL = "SELECT id, monthdayend, rocMax, alarmRocLimit, alertRocLimit FROM Locdatalimits ldl";
+    protected static final String SELECT_OBS_LIMITS_FROM_LOCDATALIMITS_HQL = "SELECT id, monthdayend, rocMax, alarmRocLimit, alertRocLimit FROM Locdatalimits ldl WHERE ldl.id.ts = 'NA' ";
 
     private static final long serialVersionUID = 1L;
 
@@ -102,6 +110,9 @@ public class Locdatalimits extends PersistableDataObject<LocdatalimitsId>
 
     @DynamicSerializeElement
     private Shefdur shefdur;
+
+    @DynamicSerializeElement
+    private Shefts shefts;
 
     @DynamicSerializeElement
     private String monthdayend;
@@ -149,14 +160,17 @@ public class Locdatalimits extends PersistableDataObject<LocdatalimitsId>
     }
 
     public Locdatalimits(LocdatalimitsId id, Shefpe shefpe, Shefdur shefdur,
+            Shefts shefts,
             String monthdayend) {
         this.id = id;
         this.shefpe = shefpe;
         this.shefdur = shefdur;
+        this.shefts = shefts;
         this.monthdayend = monthdayend;
     }
 
     public Locdatalimits(LocdatalimitsId id, Shefpe shefpe, Shefdur shefdur,
+            Shefts shefts,
             String monthdayend, Double grossRangeMin, Double grossRangeMax,
             Double reasonRangeMin, Double reasonRangeMax, Double rocMax,
             Double alertUpperLimit, Double alertRocLimit,
@@ -166,6 +180,7 @@ public class Locdatalimits extends PersistableDataObject<LocdatalimitsId>
         this.id = id;
         this.shefpe = shefpe;
         this.shefdur = shefdur;
+        this.shefts = shefts;
         this.monthdayend = monthdayend;
         this.grossRangeMin = grossRangeMin;
         this.grossRangeMax = grossRangeMax;
@@ -187,6 +202,7 @@ public class Locdatalimits extends PersistableDataObject<LocdatalimitsId>
             @AttributeOverride(name = "lid", column = @Column(name = "lid", nullable = false, length = 8)),
             @AttributeOverride(name = "pe", column = @Column(name = "pe", nullable = false, length = 2)),
             @AttributeOverride(name = "dur", column = @Column(name = "dur", nullable = false)),
+            @AttributeOverride(name = "ts", column = @Column(name = "ts", nullable = false, length = 2)),
             @AttributeOverride(name = "monthdaystart", column = @Column(name = "monthdaystart", nullable = false, length = 5)) })
     public LocdatalimitsId getId() {
         return this.id;
@@ -214,6 +230,16 @@ public class Locdatalimits extends PersistableDataObject<LocdatalimitsId>
 
     public void setShefdur(Shefdur shefdur) {
         this.shefdur = shefdur;
+    }
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "ts", nullable = false, insertable = false, updatable = false)
+    public Shefts getShefts() {
+        return this.shefts;
+    }
+
+    public void setShefts(Shefts shefts) {
+        this.shefts = shefts;
     }
 
     @Column(name = "monthdayend", nullable = false, length = 5)

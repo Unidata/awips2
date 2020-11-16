@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -31,31 +31,31 @@ import javax.persistence.Enumerated;
 import javax.persistence.Transient;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
-import com.raytheon.uf.common.serialization.ISerializableObject;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 
 /**
- * Primary key for a smart init record.
- * 
+ * Primary key for a SmartInit record.
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Sep 23, 2010 #7277      rjpeter     Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Sep 23, 2010  7277     rjpeter   Initial creation
+ * Feb 20, 2018  6928     randerso  Update toString() to include state and work
+ *                                  better with SmartInitRecord.toString()
+ *
  * </pre>
- * 
+ *
  * this
- * 
+ *
  * @author rjpeter
- * @version 1.0
  */
 @Embeddable
 @DynamicSerialize
-public class SmartInitRecordPK implements ISerializableObject, Serializable,
-        Cloneable {
+public class SmartInitRecordPK implements Serializable, Cloneable {
 
     private static final long serialVersionUID = 1L;
 
@@ -71,8 +71,13 @@ public class SmartInitRecordPK implements ISerializableObject, Serializable,
 
     };
 
+    /** SmartInit state */
     public enum State {
-        PENDING, RUNNING
+        /** SmartInit is waiting to run */
+        PENDING,
+
+        /** SmartInit is running */
+        RUNNING
     };
 
     @DynamicSerializeElement
@@ -190,15 +195,18 @@ public class SmartInitRecordPK implements ISerializableObject, Serializable,
 
     @Override
     public String toString() {
-        StringBuilder tmp = new StringBuilder(120);
-        tmp.append(initName);
-        tmp.append(" ValidTime: ");
+        StringBuilder builder = new StringBuilder();
+        builder.append("initName=");
+        builder.append(initName);
+        builder.append(", state=");
+        builder.append(state);
+        builder.append(", validTime=");
         if (validTime != null) {
-            tmp.append(dateFormat.get().format(validTime));
+            builder.append(dateFormat.get().format(validTime));
         } else {
-            tmp.append("null");
+            builder.append("null");
         }
-        return tmp.toString();
+        return builder.toString();
     }
 
     @Override

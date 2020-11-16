@@ -25,6 +25,7 @@ import java.util.List;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -46,6 +47,7 @@ import org.eclipse.swt.widgets.Scale;
  *                                        or Integer.
  * Nov 28, 2017  6540     randerso        Change Float references to Double for
  *                                        compatibility with Jep 3.6
+ * Jan 15, 2018  6684     randerso        Added support for deltaScale
  *
  * </pre>
  *
@@ -54,13 +56,11 @@ import org.eclipse.swt.widgets.Scale;
 
 public class ScaleWidget extends Widget {
 
-    private Label label;
-
     private Scale scale;
 
-    private double minValue;
+    private Label deltaLabel;
 
-    private double maxValue;
+    private double minValue;
 
     private long range;
 
@@ -68,26 +68,28 @@ public class ScaleWidget extends Widget {
 
     private int precision;
 
-    private DecimalFormat format;
-
     private boolean isFloat = false;
+
+    private double initialValue;
+
+    private boolean delta;
 
     /**
      * Class constructor specifying this scale's label.
      *
      * @param label
      *            the label to assign to this scale.
+     * @param delta
+     *            true if scale should display delta value
      */
-    public ScaleWidget(String label) {
+    public ScaleWidget(String label, boolean delta) {
         this();
         setLabel(label);
+        this.delta = delta;
     }
 
     /**
-     * Class constructor
-     * <p>
-     * This scale is
-     * </p>
+     * Default constructor
      */
     protected ScaleWidget() {
         super();
@@ -95,6 +97,7 @@ public class ScaleWidget extends Widget {
         range = 100;
         resolution = 1;
         precision = 0;
+        delta = false;
     }
 
     @Override
@@ -103,27 +106,57 @@ public class ScaleWidget extends Widget {
         Group group = new Group(parent, SWT.NONE);
         group.setText(makeGuiLabel(getLabel()));
 
-        group.setLayout(new GridLayout());
+        GridLayout layout = new GridLayout(1, false);
+        layout.numColumns = (delta ? 2 : 1);
+        group.setLayout(layout);
         group.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
 
-        label = new Label(group, SWT.CENTER);
-        label.setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+        Label label = new Label(group, SWT.CENTER);
+        GridData layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        label.setLayoutData(layoutData);
+
+        // dummy label to keep label centered over scale
+        if (delta) {
+            new Label(group, SWT.CENTER);
+        }
+
         scale = new Scale(group, SWT.HORIZONTAL);
-        GridData layoutData = new GridData(300, SWT.DEFAULT);
+        layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        layoutData.widthHint = (delta ? 200 : 300);
         scale.setLayoutData(layoutData);
 
-        minValue = ((Number) (getOptions().get(0))).floatValue();
-        maxValue = ((Number) (getOptions().get(1))).floatValue();
+        if (delta) {
+            deltaLabel = new Label(group, SWT.RIGHT);
+        }
+
+        minValue = ((Number) (getOptions().get(0))).doubleValue();
+        double maxValue = ((Number) (getOptions().get(1))).doubleValue();
 
         range = Math.round((maxValue - minValue) / getResolution());
 
-        format = new DecimalFormat();
+        DecimalFormat format = new DecimalFormat();
         int p = (int) Math.ceil(-Math.log10(resolution));
         if (precision < p) {
             precision = p;
         }
         format.setMaximumFractionDigits(precision);
         format.setMinimumFractionDigits(precision);
+
+        DecimalFormat deltaFormat = (delta ? (DecimalFormat) format.clone()
+                : null);
+        if (delta) {
+            deltaFormat.setPositivePrefix("(+");
+            deltaFormat.setPositiveSuffix(")");
+            deltaFormat.setNegativePrefix("(-");
+            deltaFormat.setNegativeSuffix(")");
+
+            layoutData = new GridData(SWT.RIGHT, SWT.CENTER, false, false);
+            GC gc = new GC(deltaLabel);
+            layoutData.widthHint = gc
+                    .textExtent(deltaFormat.format(maxValue - minValue)).x;
+            gc.dispose();
+            deltaLabel.setLayoutData(layoutData);
+        }
 
         scale.setMinimum(0);
         scale.setMaximum((int) range);
@@ -133,15 +166,18 @@ public class ScaleWidget extends Widget {
         if (getValue() == null) {
             if (isFloat()) {
                 setValue(new Float(minValue));
-            }
-            else {
-                setValue(new Integer((int)minValue));
+            } else {
+                setValue(new Integer((int) minValue));
             }
         }
 
-        setInitialScaleValue(((Number) (getValue())).floatValue());
-
+        double value = ((Number) getValue()).doubleValue();
+        setInitialScaleValue(value);
         label.setText(format.format(getScaleValue()));
+
+        if (delta) {
+            deltaLabel.setText(deltaFormat.format(value - initialValue));
+        }
 
         scale.addSelectionListener(new SelectionAdapter() {
 
@@ -149,12 +185,16 @@ public class ScaleWidget extends Widget {
             public void widgetSelected(SelectionEvent e) {
                 double value = getScaleValue();
 
-                label.setText(format.format(value));
                 if (isFloat()) {
                     setValue(new Double(value));
+                } else {
+                    setValue(new Integer((int) value));
                 }
-                else {
-                    setValue(new Integer((int)value));
+
+                label.setText(format.format(value));
+                if (delta) {
+                    deltaLabel
+                            .setText(deltaFormat.format(value - initialValue));
                 }
             }
         });
@@ -167,7 +207,7 @@ public class ScaleWidget extends Widget {
      * @return the scaleValue
      */
     private double getScaleValue() {
-        return scale.getSelection() * resolution + minValue;
+        return (scale.getSelection() * resolution) + minValue;
     }
 
     /**
@@ -179,7 +219,8 @@ public class ScaleWidget extends Widget {
      * @param scaleValue
      *            the scaleValue to set
      */
-    private void setInitialScaleValue(float scaleValue) {
+    private void setInitialScaleValue(double scaleValue) {
+        this.initialValue = scaleValue;
 
         long position = Math.round((scaleValue - minValue) / resolution);
         scale.setSelection((int) position);

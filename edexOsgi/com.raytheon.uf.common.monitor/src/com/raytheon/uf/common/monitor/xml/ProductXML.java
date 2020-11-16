@@ -110,8 +110,8 @@ public class ProductXML {
         ArrayList<String> sources = new ArrayList<String>();
         for (String guidance : getGuidList()) {
             String[] splits = guidance.split(",");
-            for (int i = 0; i < splits.length; i++) {
-                sources.add(splits[i].trim());
+            for (String split : splits) {
+                sources.add(split.trim());
             }
         }
         return sources;
@@ -190,7 +190,7 @@ public class ProductXML {
                 }
             }
         }
-        
+
         Collections.sort(guidanceTypes);
 
         return guidanceTypes;

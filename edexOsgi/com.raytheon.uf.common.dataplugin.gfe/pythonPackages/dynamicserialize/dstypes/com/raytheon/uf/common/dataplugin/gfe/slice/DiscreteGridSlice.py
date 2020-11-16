@@ -17,7 +17,13 @@
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
 ##
-
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- --------------------------------------------
+# Jan 04, 2018  7178     randerso  Changed getKey() and setKey() to getKeys()
+#                                  and setKeys()
+#
 # File auto-generated against equivalent DynamicSerialize Java class
 
 from dynamicserialize.dstypes.com.raytheon.uf.common.dataplugin.gfe.slice import AbstractGridSlice
@@ -28,7 +34,7 @@ class DiscreteGridSlice(AbstractGridSlice):
     def __init__(self):
         super(DiscreteGridSlice, self).__init__()
         self.discreteGrid = None
-        self.key = []
+        self.keys = []
 
     def getDiscreteGrid(self):
         return self.discreteGrid
@@ -39,8 +45,8 @@ class DiscreteGridSlice(AbstractGridSlice):
     def getNumPyGrid(self):
         return (self.discreteGrid.getNumPyGrid(), self.key)
 
-    def getKey(self):
-        return self.key
+    def getKeys(self):
+        return self.keys
 
-    def setKey(self, key):
-        self.key = key
+    def setKeys(self, keys):
+        self.keys = keys

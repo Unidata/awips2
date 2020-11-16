@@ -40,6 +40,7 @@ import com.raytheon.viz.hydrocommon.util.HydroDataUtils;
  * Apr 18,2013 1790        rferrel     Cleanup method interfaces; 
  *                                      part of non-blocking dialogs.
  * Jul 21, 2015 4500       rjpeter     Use Number in blind cast.
+ * Apr 18, 2018 DCS19644   jwu         Add column 'ts' (Type-Source) in locdatalimits.
  * </pre>
  * 
  * @author askripsky
@@ -103,6 +104,31 @@ public class QcAlertAlarmLimitsDataManager {
         return rval;
     }
 
+    /**
+     * Retrieves the Shef type-sources from the DB
+     * 
+     * @return The type-sources from the DB
+     * @throws VizException
+     */
+    public List<String> getShefTs() throws VizException {
+        List<String> rval = new ArrayList<String>();
+
+        String tsQuery = "SELECT ts FROM shefts ORDER BY ts";
+
+        QueryResult data = HydroDBDataManager.getInstance()
+                .runMappedQuery(tsQuery);
+
+        if (data != null) {
+            for (QueryResultRow currNet : data.getRows()) {
+                String ts = (String) currNet
+                        .getColumn(data.getColumnNames().get("ts"));
+                rval.add(ts);
+            }
+        }
+
+        return rval;
+    }
+
     public List<DataLimitData> getDefaultLimits(boolean filterByPE,
             List<String> selectedPE) throws VizException {
         return getDefaultLimits(filterByPE, selectedPE, false);
@@ -135,8 +161,9 @@ public class QcAlertAlarmLimitsDataManager {
         StringBuffer defaultString = new StringBuffer();
 
         // PE Dur MonthStart MonthEnd
-        defaultString.append(String.format("%13s%7s%7s%8s  ", currData.getPe(),
-                currData.getDur(), currData.getMonthDayStart(),
+        defaultString
+                .append(String.format("%13s%7s%5s%7s%8s  ", currData.getPe(),
+                        currData.getDur(), "  ", currData.getMonthDayStart(),
                 currData.getMonthDayEnd()));
 
         // Gross Min/Max
@@ -225,12 +252,48 @@ public class QcAlertAlarmLimitsDataManager {
         return locationDataFiltered;
     }
 
+    public List<LocationDataLimitData> getLocationLimits(boolean filterByLID,
+            String lidFilter, boolean filterByPE, List<String> selectedPE,
+            boolean filterByTS, List<String> selectedTS, boolean forceLoad)
+            throws VizException {
+        if ((locationData == null) || forceLoad) {
+            locationData = HydroDBDataManager.getInstance()
+                    .getData(LocationDataLimitData.class);
+        }
+
+        // Copy locationData to locationDataFiltered and then filter and return
+        // locationDataFiltered
+        if (locationDataFiltered == null) {
+            locationDataFiltered = new ArrayList<LocationDataLimitData>();
+        }
+        locationDataFiltered.clear();
+
+        for (LocationDataLimitData currData : locationData) {
+            locationDataFiltered.add(currData);
+        }
+
+        if (filterByPE) {
+            filterLocationByPE(selectedPE);
+        }
+
+        if (filterByLID) {
+            filterLocationByLID(lidFilter);
+        }
+
+        if (filterByTS) {
+            filterLocationByTS(selectedTS);
+        }
+
+        return locationDataFiltered;
+    }
+
     public String getLocationLimitString(LocationDataLimitData currData) {
         StringBuffer defaultString = new StringBuffer();
 
         // PE Dur MonthStart MonthEnd
-        defaultString.append(String.format("%-10s%3s%7s%7s%8s  ",
+        defaultString.append(String.format("%-10s%3s%7s%5s%7s%8s  ",
                 currData.getLid(), currData.getPe(), currData.getDur(),
+                currData.getTs(),
                 currData.getMonthDayStart(), currData.getMonthDayEnd()));
 
         // Gross Min/Max
@@ -264,19 +327,19 @@ public class QcAlertAlarmLimitsDataManager {
                 currData.getAlertDiffLimit()));
 
         // Alert Upper Limit
-        defaultString.append(HydroDataUtils.getDisplayString("%7s", "%6.1f",
+        defaultString.append(HydroDataUtils.getDisplayString("%8s", "%7.1f",
                 currData.getAlarmUpperLimit()));
 
         // Alarm Lower Limit
-        defaultString.append(HydroDataUtils.getDisplayString("%7s", "%5.1f",
+        defaultString.append(HydroDataUtils.getDisplayString("%7s", "%7.1f",
                 currData.getAlarmLowerLimit()));
 
         // Alarm ROC limit
-        defaultString.append(HydroDataUtils.getDisplayString("%7s", "%6.1f",
+        defaultString.append(HydroDataUtils.getDisplayString("%8s", "%6.1f",
                 currData.getAlarmRocLimit()));
 
         // Alarm Diff Limit
-        defaultString.append(HydroDataUtils.getDisplayString("%7s", "%6.1f",
+        defaultString.append(HydroDataUtils.getDisplayString("%5s", "%5.1f",
                 currData.getAlarmDiffLimit()));
 
         return defaultString.toString();
@@ -327,6 +390,21 @@ public class QcAlertAlarmLimitsDataManager {
         locationDataFiltered = temp;
     }
 
+    private void filterLocationByTS(List<String> selectedTS) {
+        // Temp array to hold values that will stay
+        List<LocationDataLimitData> temp = new ArrayList<LocationDataLimitData>();
+
+        for (String tsFilter : selectedTS) {
+            for (LocationDataLimitData currData : locationDataFiltered) {
+                if (tsFilter.contains(currData.getTs().toUpperCase())) {
+                    temp.add(currData);
+                }
+            }
+        }
+
+        locationDataFiltered = temp;
+    }
+
     public LocationDataLimitData getSelectedLocationData(int selectedIndex) {
         return locationDataFiltered.get(selectedIndex);
     }
@@ -334,4 +412,5 @@ public class QcAlertAlarmLimitsDataManager {
     public DataLimitData getSelectedDefaultData(int selectedIndex) {
         return defaultDataFiltered.get(selectedIndex);
     }
+
 }

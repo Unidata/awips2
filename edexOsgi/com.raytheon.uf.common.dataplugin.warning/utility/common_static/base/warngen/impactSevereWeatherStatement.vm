@@ -31,6 +31,7 @@
 ##     Evan Bookbinder 1/30/2017 SVR/TOR watch capitalization DR 19649     ##
 ##     Mike Dangelo 1/30/2017 fix to make "Therefore," baseline format     ##
 ##                               this fell under part of DR18880           ##
+##     Evan Bookbinder 3/19/2018 DR 19650 Watch phrasing/location          ##
 #############################################################################
 ## Impact Statements for IBW templates are contained in impactStatements.vm
 ###########################################################################
@@ -318,20 +319,12 @@ ${expcanPhrase} ${addthreat}
 ## WATCHES ##
 #############
 #if(${list.contains(${includedWatches}, "TO.A")})
-#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})
 #end
 #if(${list.contains(${includedWatches}, "SV.A")})
-#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
+#insertsvrwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})
 #end
 
-#if(${list.contains(${bullets}, "svrboxactive")})
-${watchlead}, and a Severe Thunderstorm Watch remains in effect until !** enter time here **!
-
-#end
-#if(${list.contains(${bullets}, "torboxactive")})
-${watchlead}, and a Tornado Watch remains in effect until !** enter time here **!
-
-#end
 #if(${list.contains(${bullets}, "reporttolaw")})
 To report severe weather, contact your nearest law enforcement agency. They will relay your report to the National Weather Service ${officeLoc}.
 
@@ -1007,9 +1000,14 @@ Those attending the !**EVENT/VENUE NAME OR LOCATION**! are in the path of this s
 ##################################
 ##Check to see if we've selected any calls to action. In our .xml file
 ##we ended each CTA bullet ID with "CTA" for this reason as a 'trip'
+#set($torWatchPhrase = "#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat}, ${watchPhrase})")
+#if(${list.contains(${includedWatches}, "TO.A")} && ${phenomena}=="SV" && ${torWatchPhrase.length()} > 10)
+#set($ctaSelected = "YES")
+#else
 #foreach (${bullet} in ${bullets})
 #if(${bullet.endsWith("CTA")})
 #set($ctaSelected = "YES")
+#end
 #end
 #end
 ##
@@ -1038,6 +1036,10 @@ ${preAmbleTOR}Move to a basement or an interior room on the lowest floor of a st
 ${preAmbleTOR}Move to a basement or an interior room on the lowest floor of a sturdy building. Avoid windows. If you are outdoors or in a vehicle, move to the closest substantial shelter and protect yourself from flying debris.
 
 #end
+#end
+#if(${list.contains(${includedWatches}, "TO.A")} && ${phenomena}=="SV")
+${torWatchPhrase}
+
 #end
 #if(${list.contains(${bullets}, "motoristsCTA")})
 Motorists should not take shelter under highway overpasses. If you cannot safely drive away from the tornado, as a last resort, either park your vehicle and stay put, or abandon your vehicle and lie down in a low lying area and protect yourself from flying debris.
@@ -1248,14 +1250,7 @@ Torrential rainfall is occurring with this storm, and may lead to flash flooding
 &&
 
 #end
-#############
-## WATCHES ##
-#############
 
-#if(${list.contains(${includedWatches}, "TO.A")} && ${phenomena}=="SV")
-#inserttorwatches(${watches}, ${list}, ${secondtimezone}, ${dateUtil}, ${timeFormat})
-
-#end
 #if(${productClass}=="T")
 THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 
@@ -1273,7 +1268,7 @@ THIS IS A TEST MESSAGE. DO NOT TAKE ACTION BASED ON THIS MESSAGE.
 ${svrTorTag}
 <L>${hailTag}</L>
 <L>${windTag}</L>
-### 2016 POTENTIAL IBW ENHANCEMENT
+### 2019 POTENTIAL IBW ENHANCEMENT
 #* REMOVE THIS COMMENT LINE WHEN DIRECTION BY YOUR REGION
 #if ((${hailSize} >= $svrHailConsiderableThreshold) || (${windSpeed} >= $svrWindConsiderableThreshold))
 <L>$svrDamageThreat</L>

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -46,18 +46,18 @@ import com.raytheon.viz.gfe.Activator;
  * Derived from the Interp ABC. Computes new grids of &quot;discrete&quot; given
  * two known (&quot;base&quot;) grids of weather before and after time when
  * interpolation is desired.
- * 
+ *
  * Works by moving each area of each weather type from the first
  * known grid to the last grid, along a line connecting the center points
  * of the areas on the first and last grids, and taking into account changing
  * shape of weather area, and degree to which it adjoins or is embedded
  * in another area of differing type.
- * 
+ *
  * Discrete interpolation deals with areas, each of a single weather type,
  * and with discrete boundary. This is exactly the opposite of
  * interpolation of a field of continuous scalars. The weather areas appear
  * to move from one place to another, and to change shape.
- * 
+ *
  * The components of successful weather interpolation are:
  * determining motion or path from first to final known area;
  * (here done by determining a &quot;center&quot; for each known area, with simple
@@ -65,7 +65,7 @@ import com.raytheon.viz.gfe.Activator;
  * change of shape as each area moves to intermediate postions.
  * Note the motion may be zero allowing for just change in shape.
  * This is all you need if there is only one weather description.
- * 
+ *
  * If there is more than one weather description, you also need:
  * 1. recognizing differing wx areas which share a contiguous boundary
  * in both first and final known grids, and keeping that boundary contiguous
@@ -75,13 +75,13 @@ import com.raytheon.viz.gfe.Activator;
  * 3. allowing overlaps between areas which dont touch in first and final grid.
  *    (allowing overlaps of related crossing weather areas is a
  *     arbitrary choice).
- *     
- *     
+ *
+ *
  * private data includes
  * _wxTypeList1 and _wxTypeList2:
  * these are info objects about &quot;weather&quot; on the first and last grids:
  * see GridWxInfo.H file for the structure.
- * 
+ *
  * Array containing control info for _growArea growth:
  * float _gaControl[N][2]; N = number of sectors in a circle = _numSectors
  * _gaControl[i][0] = min distance in sector i
@@ -89,19 +89,19 @@ import com.raytheon.viz.gfe.Activator;
  * _gaControl[i][1] = max distance to edge of grow area
  *    in same sector i.
  * similar for _fadeArea and _faControl.
- * 
+ *
  * _allKeys a list of all DiscreteKeys found in two base or input grids
- * 
+ *
  * In AFPS &quot;weather data&quot; for one &quot;GridSlice&quot; contains a grid of bytes,
  * and a list (List) of DiscreteSubkeys. The values in the
  * grid (bytes) are indices into the subkey list. So each point in the AFPS
  * grid can have one weather descriptor associated with it.
  * In AFPS the items in the byte grid have no name, but the items in the
  * list, or the list itself, is called a &quot;DiscreteKey.&quot;
- * 
+ *
  * This interpolation scheme works entirely on grids of integers, which are
  * based on the byte grid of indices to the key.
- * 
+ *
  * Interpolation could work directly on the byte grid (swapping some ints
  * to bytes), but for the fact that every weather data gridSlice has in principle
  * a DIFFERENT list of keys. So two grids representing IDENTICAL weather
@@ -111,26 +111,27 @@ import com.raytheon.viz.gfe.Activator;
  * are constructed, each referring to a new list of weatherkey descriptors
  * called &quot;_allKeys.&quot; With this consistent set of indices interpolation
  * can proceed.
- * 
+ *
  * The sequence &quot;baseDataIndices&quot; contains the indices to the GridSlices
  * in the Interp &quot;_data&quot; that contain the base (known or input) data,
  * unchanging, which controls interpolation.
  * The sequence of data slices should contain a mix of &quot;NONE-type&quot;
  * and valid GridSlices.
  * </pre>
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun  2, 2008  #1161     randerso    Initial creation
- * Oct 31, 2013  #2508     randerso    Change to use DiscreteGridSlice.getKeys()
- * Apr 04, 2016  #5539     randerso    Fix unsigned byte issues
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ------------------------------------------
+ * Jun 02, 2008  1161     randerso  Initial creation
+ * Oct 31, 2013  2508     randerso  Change to use DiscreteGridSlice.getKeys()
+ * Apr 04, 2016  5539     randerso  Fix unsigned byte issues
+ * Feb 23, 2018  7178     randerso  Code cleanup.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class DiscreteInterp extends Interp {
@@ -164,8 +165,8 @@ public class DiscreteInterp extends Interp {
     // displacement vector components
     private int _dx, _dy;
 
-    // x,y positions of center of original and final area
-    private Point center1, center2;
+    // x,y position of center of original area
+    private Point center1;
 
     // sector controls for growArea and fadeArea
     private Grid2DFloat _gaControl;
@@ -178,6 +179,8 @@ public class DiscreteInterp extends Interp {
     private List<DiscreteKey> _allKeys;
 
     /**
+     * Constructor
+     *
      * @param dataslices
      * @param baseDataIndices
      * @param parmid
@@ -185,12 +188,13 @@ public class DiscreteInterp extends Interp {
      * @param gridTimes
      */
     public DiscreteInterp(List<IGridSlice> dataslices, int[] baseDataIndices,
-            ParmID parmid, GridParmInfo gridparminfo, List<TimeRange> gridTimes) {
+            ParmID parmid, GridParmInfo gridparminfo,
+            List<TimeRange> gridTimes) {
         super(dataslices, baseDataIndices, parmid, gridparminfo, gridTimes);
 
-        _allKeys = new ArrayList<DiscreteKey>();
-        _wxTypeList1 = new ArrayList<GridWxInfo>();
-        _wxTypeList2 = new ArrayList<GridWxInfo>();
+        _allKeys = new ArrayList<>();
+        _wxTypeList1 = new ArrayList<>();
+        _wxTypeList2 = new ArrayList<>();
 
         // get size of our grid
         Point size = gridParmInfo.getGridLoc().gridSize();
@@ -221,9 +225,7 @@ public class DiscreteInterp extends Interp {
         // make sure _numSectors is > 0; if not, assign a reasonable value.
         // oops constant, can't do this.
         if (_numSectors < 8) {
-            Activator
-                    .getDefault()
-                    .getLog()
+            Activator.getDefault().getLog()
                     .log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
                             "  Numsectors is too small: " + _numSectors));
         }
@@ -237,16 +239,16 @@ public class DiscreteInterp extends Interp {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.viz.gfe.interpolation.Interp#interpolate(int)
-     * 
+     *
      * Get the data gridSlice to be interpolated. Determine the time for
      * interpolated data gridSlice. Find indexes to data slices and times for
      * the interpolated gridSlice and for the neighboring known slices.
      * Determine the the fractional distance in time ("fraction") the
      * interpolated gridSlice is in the time interval from the preceding known
      * data to the following known data gridSlice.
-     * 
+     *
      * Use the END time of the preceding known data gridSlice, and the START
      * time of the the following known data gridSlice. This prevents skewed
      * interpolation results if the known data slices are not of equal length.
@@ -325,12 +327,12 @@ public class DiscreteInterp extends Interp {
         // what if afterTime = beforeTime ?
         // Very unlikely. Should never have gotten this far!
         if (beforeTime == afterTime) {
-            Activator
-                    .getDefault()
-                    .getLog()
-                    .log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-                            "Two identical times for base gridslices in the request"));
-            return null; // no interpolation done
+            Activator.getDefault().getLog().log(new Status(IStatus.ERROR,
+                    Activator.PLUGIN_ID,
+                    "Two identical times for base gridslices in the request"));
+
+            // no interpolation done
+            return null;
         }
 
         // make a relative time of the interp time, double type
@@ -338,7 +340,8 @@ public class DiscreteInterp extends Interp {
         double itime = ritime;
 
         // now we can find the time fraction
-        float fraction = (float) ((itime - beforeTime) / (afterTime - beforeTime));
+        float fraction = (float) ((itime - beforeTime)
+                / (afterTime - beforeTime));
 
         // get the base gridSlices used to control interpolation
         DiscreteGridSlice baseData1 = (DiscreteGridSlice) getGridSlice(before);
@@ -368,8 +371,8 @@ public class DiscreteInterp extends Interp {
 
         // arrays to list weather descriptions, identified by number,
         // to interpolate jointly and singly
-        List<Integer> joint = new ArrayList<Integer>();
-        List<Integer> single = new ArrayList<Integer>();
+        List<Integer> joint = new ArrayList<>();
+        List<Integer> single = new ArrayList<>();
 
         // Do local private functions to create information structures
         // about groupings of weather descriptions
@@ -382,7 +385,7 @@ public class DiscreteInterp extends Interp {
         findWxTypeGroups(joint, single);
 
         // do joint interpolation if needed.
-        if ((joint.size() > 0) && (joint.get(0) != 0) && (joint.get(1) != 0)) {
+        if ((!joint.isEmpty()) && (joint.get(0) != 0) && (joint.get(1) != 0)) {
             jointInterpControl(joint, workGrid1, workGrid2, groupGrid1,
                     groupGrid2, newGrid, fraction, interpResult);
         }
@@ -390,9 +393,9 @@ public class DiscreteInterp extends Interp {
         // if there are wx descriptions for independent interpolation,
         // do all of them singly (without reference to other weather descrip.),
         // and accumulate the results, making combinations if necessary
-        if (single.size() > 0) {
-            singleInterpControl(single, workGrid1, workGrid2, newGrid,
-                    fraction, interpResult);
+        if (!single.isEmpty()) {
+            singleInterpControl(single, workGrid1, workGrid2, newGrid, fraction,
+                    interpResult);
         }
 
         // test output only:
@@ -425,11 +428,11 @@ public class DiscreteInterp extends Interp {
     /**
      * Create list of all weather types in both input grids. Create two working
      * grids to control interpolation, based on the input grids.
-     * 
+     *
      * Interpolation works on the grids of bytes or integers; so their values
      * must both consistently point to the same set of weather text descriptors.
      * That's why we can't use the input grids' byte Arrays directly.
-     * 
+     *
      * @param baseData1
      * @param baseData2
      * @param workGrid1
@@ -530,14 +533,14 @@ public class DiscreteInterp extends Interp {
      * <pre>
      * Load the weather type information arrays _wxTypeList1 and _wxTypeList2,
      * for the two input grids.
-     * 
+     *
      * Called once per pair of input wx grids used for interpolation.
-     * 
+     *
      * Input: two grids of integer weather values,
      * assumes input grid points of value==0 are &quot;no weather&quot;.
-     * 
+     *
      * Output: makes class data _wxTypeList1 and _wxTypeList2.
-     * 
+     *
      * for each weather type in each grid, creates a struct of form GridWxInfo
      * (see the GridWxInfo.H file). Includes:
      *   the wx type value (non-zero) found in grid;
@@ -547,7 +550,7 @@ public class DiscreteInterp extends Interp {
      *   list of other wx types this one is contiguous to.
      * These are appended to the wxTypeLists
      * </pre>
-     * 
+     *
      * @param grid0
      * @param grid1
      */
@@ -573,16 +576,20 @@ public class DiscreteInterp extends Interp {
 
                             // reset max and min limits, if needed:
                             if (i > gwx.maxX) {
-                                gwx.maxX = i; // reset max x value
+                                // reset max x value
+                                gwx.maxX = i;
                             }
                             if (j > gwx.maxY) {
-                                gwx.maxY = j; // reset max y value
+                                // reset max y value
+                                gwx.maxY = j;
                             }
                             if (i < gwx.minX) {
-                                gwx.minX = i; // reset min x value
+                                // reset min x value
+                                gwx.minX = i;
                             }
                             if (j < gwx.minY) {
-                                gwx.minY = j; // reset min y value
+                                // reset min y value
+                                gwx.minY = j;
                             }
 
                             // search for contiguous points of other types:
@@ -595,22 +602,29 @@ public class DiscreteInterp extends Interp {
                     if (!match) {
                         wxCount++;
                         // add this type to a grid wx info struct
-                        GridWxInfo tempGWI = new GridWxInfo(); // working
-                        // struct;
-                        tempGWI.wxType = grid0.get(i, j); // set wx type
-                        tempGWI.howMany = 1; // 1 point with this type found
-                        // so
-                        // far
+
+                        // working struct
+                        GridWxInfo tempGWI = new GridWxInfo();
+
+                        // set wx type
+                        tempGWI.wxType = grid0.get(i, j);
+
+                        // 1 point with this type found so far
+                        tempGWI.howMany = 1;
+
                         tempGWI.maxX = i;
                         tempGWI.maxY = j;
                         tempGWI.minX = i;
                         tempGWI.minY = j;
-                        tempGWI.isContig = false; // none yet contiguous
+
+                        // none yet contiguous
+                        tempGWI.isContig = false;
 
                         _wxTypeList1.add(tempGWI);
 
                         // find any contiguous points of other types:
-                        findContiguousWX(grid0, i, j, wxCount - 1, _wxTypeList1);
+                        findContiguousWX(grid0, i, j, wxCount - 1,
+                                _wxTypeList1);
                     }
                 }
             }
@@ -636,16 +650,20 @@ public class DiscreteInterp extends Interp {
 
                             // reset max and min limits, if needed:
                             if (i > gwx.maxX) {
-                                gwx.maxX = i; // reset max x value
+                                // reset max x value
+                                gwx.maxX = i;
                             }
                             if (j > gwx.maxY) {
-                                gwx.maxY = j; // reset max y value
+                                // reset max y value
+                                gwx.maxY = j;
                             }
                             if (i < gwx.minX) {
-                                gwx.minX = i; // reset min x value
+                                // reset min x value
+                                gwx.minX = i;
                             }
                             if (j < gwx.minY) {
-                                gwx.minY = j; // reset min y value
+                                // reset min y value
+                                gwx.minY = j;
                             }
 
                             // search for contiguous points of other types:
@@ -658,22 +676,29 @@ public class DiscreteInterp extends Interp {
                     if (!match) {
                         wxCount++;
                         // add this type to a grid wx info struct
-                        GridWxInfo tempGWI = new GridWxInfo(); // working
-                        // struct;
-                        tempGWI.wxType = grid1.get(i, j); // set wx type
-                        tempGWI.howMany = 1; // 1 point with this type found
-                        // so
-                        // far
+
+                        // working struct
+                        GridWxInfo tempGWI = new GridWxInfo();
+
+                        // set wx type
+                        tempGWI.wxType = grid1.get(i, j);
+
+                        // 1 point with this type found so far
+                        tempGWI.howMany = 1;
+
                         tempGWI.maxX = i;
                         tempGWI.maxY = j;
                         tempGWI.minX = i;
                         tempGWI.minY = j;
-                        tempGWI.isContig = false; // none yet contiguous
+
+                        // none yet contiguous
+                        tempGWI.isContig = false;
 
                         _wxTypeList2.add(tempGWI);
 
                         // find any contiguous points of other types:
-                        findContiguousWX(grid1, i, j, wxCount - 1, _wxTypeList2);
+                        findContiguousWX(grid1, i, j, wxCount - 1,
+                                _wxTypeList2);
                     }
                 }
             }
@@ -684,21 +709,21 @@ public class DiscreteInterp extends Interp {
     /**
      * Seek and note grid points next to another grid point of differing wx
      * type.
-     * 
+     *
      * Check all 9 neighboring points to grid point (oj,oi). If they have index
      * (x,y) values in the grid "grid", and if they have a weather value which
      * is non-zero, and if the value is NOT the same as the value at (oi,oj).
      * Then set flag for contiguous different wx point existence, (a neighbor
      * point with different weather value), and add its value to the list.
-     * 
+     *
      * @param grid
      * @param oi
      * @param oj
      * @param index
      * @param wxList
      */
-    private void findContiguousWX(Grid2DInteger grid, int oi, int oj,
-            int index, List<GridWxInfo> wxList) {
+    private void findContiguousWX(Grid2DInteger grid, int oi, int oj, int index,
+            List<GridWxInfo> wxList) {
         int k, l, m, x, y;
         int wxValue = grid.get(oi, oj);
         boolean match = false;
@@ -739,9 +764,10 @@ public class DiscreteInterp extends Interp {
 
                     // check all values of contiguous points stored so far
                     // if this value is already stored; note that fact
-                    for (m = 0; m < wxList.get(index).contigWxType.size(); m++) {
-                        if (wxList.get(index).contigWxType.get(m).intValue() == grid
-                                .get(x, y)) {
+                    for (m = 0; m < wxList.get(index).contigWxType
+                            .size(); m++) {
+                        if (wxList.get(index).contigWxType.get(m)
+                                .intValue() == grid.get(x, y)) {
                             match = true;
                             break;
                         }
@@ -760,13 +786,13 @@ public class DiscreteInterp extends Interp {
      * <pre>
      * Determine the matrix used to indicate which weather types share
      * a boundary with which other types, in both first and last base grids.
-     * 
+     *
      * Construct the &quot;wxTypeInfoMatix&quot; matrix which indicates
      * 1. all weather type (bytes) appearing in the two grids;
      * 2. which ones are contiguous to each other in the two input grids,
-     * 
+     *
      * Example (size not important for example)
-     * 
+     *
      * 0 a b c d e 0
      * a 0 1 1 0 1 0
      * b 1 0 0 0 0 0
@@ -774,7 +800,7 @@ public class DiscreteInterp extends Interp {
      * d 0 0 1 0 1 0
      * e 1 0 0 0 0 0
      * 0 0 0 0 0 0 0
-     * 
+     *
      * where a,b,c,d,e are (non-0) integer weather types of any value and order;
      * (Diagonal values are all 0 and serve no function.)
      * Off-diagonal elements =1 means contiguity between the types indicated
@@ -783,17 +809,17 @@ public class DiscreteInterp extends Interp {
      * lower left side indicates contiguity in second input grid.
      * It is not necessarily symmetrical but may be so.
      * The order of a,b,c, etc. is the same in first row and column.
-     * 
+     *
      * Called once per pair of input wx grids used for interpolation
      * (may be used for several interpolations between those same grids).
      * </pre>
-     * 
+     *
      */
     private void composeWxTypeInfoMatrix() {
         int i, j, k, m;
 
         // make a list of weather type indices from list 1
-        List<Integer> types = new ArrayList<Integer>();
+        List<Integer> types = new ArrayList<>();
         // first load types from first list
         for (i = 0; i < _wxTypeList1.size(); i++) {
             types.add(_wxTypeList1.get(i).wxType);
@@ -847,7 +873,7 @@ public class DiscreteInterp extends Interp {
             if (_wxTypeList1.get(i).wxType != 0) {
                 // for every position in the info matrix first column (except
                 // (0,0)
-                for (j = 1; j < _wxTypeInfoMatrix.getYDim(); j++) {
+                for (j = 1; j < _wxTypeInfoMatrix.getYdim(); j++) {
                     // if types match, and
                     // if it contiguous to other types
                     if ((_wxTypeList1.get(i).wxType == _wxTypeInfoMatrix.get(0,
@@ -855,15 +881,15 @@ public class DiscreteInterp extends Interp {
                         // now there is a list of the types this one
                         // is contiguous to, but they may not be in
                         // same order as first column in matrix.
-                        for (k = 0; k < _wxTypeList1.get(i).contigWxType.size(); k++) {
+                        for (k = 0; k < _wxTypeList1.get(i).contigWxType
+                                .size(); k++) {
                             // check types in first row of matrix;
                             // when find it, flag in matrix, but only in
                             // upper left half: where j>m
-                            for (m = 1; m < _wxTypeInfoMatrix.getXDim(); m++) {
-                                if ((j > m)
-                                        && (_wxTypeInfoMatrix.get(m, 0) == _wxTypeList1
-                                                .get(i).contigWxType.get(k)
-                                                .intValue())) {
+                            for (m = 1; m < _wxTypeInfoMatrix.getXdim(); m++) {
+                                if ((j > m) && (_wxTypeInfoMatrix.get(m,
+                                        0) == _wxTypeList1.get(i).contigWxType
+                                                .get(k).intValue())) {
                                     _wxTypeInfoMatrix.set(m, j, 1); // done!
                                 }
                             }
@@ -877,15 +903,15 @@ public class DiscreteInterp extends Interp {
         // (exact same logic as previous block)
         for (i = 0; i < _wxTypeList2.size(); i++) {
             if (_wxTypeList2.get(i).wxType != 0) {
-                for (m = 1; m < _wxTypeInfoMatrix.getXDim(); m++) {
+                for (m = 1; m < _wxTypeInfoMatrix.getXdim(); m++) {
                     if ((_wxTypeList2.get(i).wxType == _wxTypeInfoMatrix.get(m,
                             0)) && _wxTypeList2.get(i).isContig) {
-                        for (k = 0; k < _wxTypeList2.get(i).contigWxType.size(); k++) {
-                            for (j = 1; j < _wxTypeInfoMatrix.getXDim(); j++) {
-                                if ((m > j)
-                                        && (_wxTypeInfoMatrix.get(0, j) == _wxTypeList2
-                                                .get(i).contigWxType.get(k)
-                                                .intValue())) {
+                        for (k = 0; k < _wxTypeList2.get(i).contigWxType
+                                .size(); k++) {
+                            for (j = 1; j < _wxTypeInfoMatrix.getXdim(); j++) {
+                                if ((m > j) && (_wxTypeInfoMatrix.get(0,
+                                        j) == _wxTypeList2.get(i).contigWxType
+                                                .get(k).intValue())) {
                                     _wxTypeInfoMatrix.set(m, j, 1); // done!
                                 }
                             }
@@ -908,7 +934,7 @@ public class DiscreteInterp extends Interp {
      * <pre>
      * Determine the weather types to be interpolated independently, and
      * those sharing boundary hence interpolated as one area.
-     * 
+     *
      * Construct another device, arrays, to be control mechanisms for
      *    interpolation.
      * INPUT is data from:
@@ -921,21 +947,22 @@ public class DiscreteInterp extends Interp {
      *  joint[], a list of weather types all to be interpolated as one
      *    area. These types have contiguous edges in both the first and
      *    second grids.
-     *    
+     *
      *  To sort the components in joint[], the weather types
      *  in joint are listed in order of decreasing number of points
      *  (wx type with biggest areas is listed first).
      * </pre>
-     * 
+     *
      * @param joint
      * @param single
      */
     private void findWxTypeGroups(List<Integer> joint, List<Integer> single) {
-        int i, j, k, m, n; // loop indices
+        // loop indices
+        int i, j, k, m, n;
         boolean jointInterp, match, matchFound;
 
         // check each weather type (use entries in first row of matrix)
-        for (m = 1; m < _wxTypeInfoMatrix.getXDim(); m++) {
+        for (m = 1; m < _wxTypeInfoMatrix.getXdim(); m++) {
             if (_wxTypeInfoMatrix.get(m, 0) != 0) {
                 jointInterp = false;
 
@@ -946,9 +973,8 @@ public class DiscreteInterp extends Interp {
                 // SECOND INPUT GRIDS=symmetrical positions in matrix.
 
                 // loop over left col
-                for (n = 1; n < _wxTypeInfoMatrix.getYDim(); n++) {
-                    if ((n != m // not on diagonal
-                    )
+                for (n = 1; n < _wxTypeInfoMatrix.getYdim(); n++) {
+                    if ((n != m /* not on diagonal */ )
                             && (_wxTypeInfoMatrix.get(m, n) == 1)
                             && (_wxTypeInfoMatrix.get(n, m) == 1)) {
                         jointInterp = true;
@@ -993,8 +1019,9 @@ public class DiscreteInterp extends Interp {
                         if (_wxTypeList1.get(i).wxType == _wxTypeInfoMatrix
                                 .get(m, 0)) {
                             for (j = 0; j < _wxTypeList2.size(); j++) {
-                                if (_wxTypeList2.get(j).wxType == _wxTypeInfoMatrix
-                                        .get(m, 0)) {
+                                if (_wxTypeList2
+                                        .get(j).wxType == _wxTypeInfoMatrix
+                                                .get(m, 0)) {
                                     single.add(_wxTypeInfoMatrix.get(m, 0));
                                 }
                             }
@@ -1010,8 +1037,9 @@ public class DiscreteInterp extends Interp {
                                 .get(m, 0)) {
                             matchFound = false;
                             for (j = 0; j < _wxTypeList2.size(); j++) {
-                                if (_wxTypeList2.get(j).wxType == _wxTypeInfoMatrix
-                                        .get(m, 0)) {
+                                if (_wxTypeList2
+                                        .get(j).wxType == _wxTypeInfoMatrix
+                                                .get(m, 0)) {
                                     matchFound = true;
                                 }
                             }
@@ -1025,8 +1053,9 @@ public class DiscreteInterp extends Interp {
                                 .get(m, 0)) {
                             matchFound = false;
                             for (j = 0; j < _wxTypeList1.size(); j++) {
-                                if (_wxTypeList1.get(j).wxType == _wxTypeInfoMatrix
-                                        .get(m, 0)) {
+                                if (_wxTypeList1
+                                        .get(j).wxType == _wxTypeInfoMatrix
+                                                .get(m, 0)) {
                                     matchFound = true;
                                 }
                             }
@@ -1115,11 +1144,11 @@ public class DiscreteInterp extends Interp {
 
     /**
      * run this immediately before doing interpolation
-     * 
+     *
      * Creates the _growArea and the _fadeArea area components used to change
      * shape, and the _gaControl and _faControl arrays of distances which depend
      * on angle from the center of a weather type area.
-     * 
+     *
      * @param grid0
      * @param grid1
      * @param wxValue
@@ -1175,7 +1204,7 @@ public class DiscreteInterp extends Interp {
         // B. Find center and displacement of areas with this weather value.
 
         center1 = computeAreaCenter(_featureStart, wxValue);
-        center2 = computeAreaCenter(_featureEnd, wxValue);
+        Point center2 = computeAreaCenter(_featureEnd, wxValue);
 
         // if one center x,y pair is 0,0 that means no points of that
         // kind of weather wxValue were found in that grid. Reset the
@@ -1253,12 +1282,11 @@ public class DiscreteInterp extends Interp {
                 // for original grid points which land
                 // outside data grid when projected:
                 // keep 'em as _fadeArea points.
-                if ((_featureStart.get(i, j) == wxValue)
-                        && ((x < 0) || (x >= _xDim) || (y < 0) || (y >= _yDim))) {
+                if ((_featureStart.get(i, j) == wxValue) && ((x < 0)
+                        || (x >= _xDim) || (y < 0) || (y >= _yDim))) {
                     _fadeArea.set(i + (_xDim / 2), j + (_yDim / 2), 1);
-                    dist = (float) Math
-                            .sqrt(((i - center1.x) * (i - center1.x))
-                                    + ((j - center1.y) * (j - center1.y)));
+                    dist = (float) Math.sqrt(((i - center1.x) * (i - center1.x))
+                            + ((j - center1.y) * (j - center1.y)));
 
                     // compute which angle sector this point lies in
                     deltax = i - center1.x;
@@ -1352,7 +1380,7 @@ public class DiscreteInterp extends Interp {
     /**
      * Find angle sector number (numbers 0 to numSectors for 0 to 360 degrees)
      * that this x,y pair lies in.
-     * 
+     *
      * @param x
      * @param y
      * @return
@@ -1396,16 +1424,17 @@ public class DiscreteInterp extends Interp {
      * Compute center of gravity of points in a 2D grid "featureLocation" whose
      * grid point int values == testValue. Ignores other weather values. Used in
      * interpolation of a moving feature between two grids.
-     * 
+     *
      * This method of finding the "center" of the moving feature uses the mean x
      * and y locations of points in the feature location grids with value
      * "testValue."
-     * 
+     *
      * @param featureLocation
      * @param testValue
      * @return
      */
-    private Point computeAreaCenter(Grid2DInteger featureLocation, int testValue) {
+    private Point computeAreaCenter(Grid2DInteger featureLocation,
+            int testValue) {
         int i, j, num = 0;
         float sumX = 0.0f, sumY = 0.0f;
 
@@ -1439,22 +1468,22 @@ public class DiscreteInterp extends Interp {
      * by interpolation between two given grids.
      * This really does all the interpolation; it puts together
      * all the pieces that were prepared by other functions of this class.
-     * 
+     *
      * This function is called by the public function &quot;interpolate()&quot;
-     * 
+     *
      * INPUT:
      *         wxValue = int value indicating kind of weather (wx key)
      *         zeta is time fraction for desired interpolation from
      *           original grid0 to final grid1,
      *           as 3/4 = 0.75 for 3rd step in 3 interpolated steps.
-     * 
+     *
      * OUTPUT: is grid &quot;newGrid&quot; - a grid of zeros and the interpolated
      * grid points of value &quot;wxValue&quot;.
-     * 
+     *
      * Uses concept of a &quot;center&quot; for the area of this weather value;
      * and a displacement (_dx, _dy) which shows how the center of the original
      * area moves to arrive at the center of the final area.
-     * 
+     *
      * Breaks the whole area for this weather value into three parts:
      * 1. the core which moves from start to final area without changing,
      *    following the displacement;
@@ -1464,19 +1493,19 @@ public class DiscreteInterp extends Interp {
      *    point in the grow area);
      * 3. the &quot;fade area&quot; which has points in the original area which when
      *    translated with (dx,dy) do not appear in the final area.
-     * 
+     *
      * Interpolation is linear in the sense that the grow area grows
      * linearly from inital shape to final shape
      * (but independently along each radius out from center of area),
      * and fade area points drop out similarly.
      * Grow area points are controlled by distance values in _gaControl.
      * Fade area points controlled by _faControl.
-     * 
+     *
      * Interpolates one weather value, &quot;wxValue&quot;,
      * even if input grids have several values.
      * This is used repetitive times to interpolate for several weather areas.
      * </pre>
-     * 
+     *
      * @param wxValue
      * @param newGrid
      * @param zeta
@@ -1573,9 +1602,8 @@ public class DiscreteInterp extends Interp {
                     // from center of moving area, addthis point to the weather
                     // area.
                     // (also make sure it's on the main grid!)
-                    if ((dist < testGAdist) && (tmainy >= 0)
-                            && (tmainx < _xDim) && (tmainx >= 0)
-                            && (tmainy < _yDim)) {
+                    if ((dist < testGAdist) && (tmainy >= 0) && (tmainx < _xDim)
+                            && (tmainx >= 0) && (tmainy < _yDim)) {
                         newGrid.set(tmainx, tmainy, wxValue);
                     }
 
@@ -1615,9 +1643,8 @@ public class DiscreteInterp extends Interp {
                     // only keep a _fadeArea point inside the
                     // limiting distance
                     // (also make sure it's on the main grid!)
-                    if ((dist < testFAdist) && (tmainy >= 0)
-                            && (tmainy < _yDim) && (tmainx >= 0)
-                            && (tmainx < _xDim)) {
+                    if ((dist < testFAdist) && (tmainy >= 0) && (tmainy < _yDim)
+                            && (tmainx >= 0) && (tmainx < _xDim)) {
                         newGrid.set(tmainx, tmainy, wxValue);
                     }
                 }
@@ -1631,11 +1658,11 @@ public class DiscreteInterp extends Interp {
      * interpolate successively areas which touch in both the first and second
      * base or input grids, so that no gaps or overlaps appear in groups of
      * weather types which should move as one unit.
-     * 
+     *
      * starts with the outside one, then next inner one, etc., so that each one
      * includes its own area and the enclosed types' areas. No combination types
      * are made here.
-     * 
+     *
      * @param joint
      * @param workGrid1
      * @param workGrid2
@@ -1707,11 +1734,11 @@ public class DiscreteInterp extends Interp {
     /**
      * Interpolate wx areas which do not touch other areas in both the first and
      * second base input grids. Combinations are generated where overlaps occur.
-     * 
+     *
      * If there are wx types for independent interpolation, do all of them
      * singly (without reference to other weather types), and accumulate the
      * results, making combination wx types if necessary.
-     * 
+     *
      * @param single
      * @param workGrid1
      * @param workGrid2
@@ -1725,8 +1752,8 @@ public class DiscreteInterp extends Interp {
         int m, i, j, wxValue;
 
         for (m = 0; m < single.size(); m++) {
-            if (single.get(m) != 0) // don't do no-weather case
-            {
+            // don't do no-weather case
+            if (single.get(m) != 0) {
                 // do independent interpolation for this type
                 wxValue = single.get(m);
 
@@ -1740,9 +1767,8 @@ public class DiscreteInterp extends Interp {
                 // check for combinations and make them if needed.
                 for (i = 0; i < _xDim; i++) {
                     for (j = 0; j < _yDim; j++) {
-                        if (newGrid.get(i, j) != 0) // interpResult starts with
-                        // 0
-                        {
+                        // interpResult starts with 0
+                        if (newGrid.get(i, j) != 0) {
                             if (interpResult.get(i, j) == 0) {
                                 // combination
                                 // need

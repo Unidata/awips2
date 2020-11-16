@@ -111,6 +111,20 @@ public class RegistryWebServer implements RegistryInitializedListener {
                 }
             }
             statusHandler.info("Registry web server configured!");
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                public void run() {
+                    statusHandler.info("Stopping Registry web server...");
+                    try {
+                        if (jettyServer != null && jettyServer.isRunning()) {
+                            jettyServer.stop();
+                        }
+                    } catch (Exception e) {
+                        statusHandler.error(
+                                "Error shutting down Registry Web Server!", e);
+                    }
+                    statusHandler.info("Registry web server stopped.");
+                }
+            });
         } catch (Exception e) {
             throw new EbxmlRegistryException(
                     "Error starting registry web server!", e);

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,41 +34,70 @@ import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationType;
 import com.raytheon.uf.common.localization.LocalizationUtil;
 import com.raytheon.uf.common.localization.PathManagerFactory;
-import com.raytheon.uf.edex.core.EDEXUtil;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.edex.core.EdexTimerBasedThread;
 
 import jep.JepException;
 
 /**
  * Service that runs smart inits
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#     Engineer    Description
- * ------------ ----------  ----------- --------------------------
- * Apr 22, 2008             njensen     Initial creation
- * Jul 17, 2009   #2590     njensen     Multiple site support
- * Jul 28, 2010   #6725     jdynina     Manual init support
- * Aug 27, 2010   #3688     wkwock      Find model class for a model
- * Aug 24, 2013   #1949     rjpeter     Updated start up logic
- * Jun 13, 2013   #2044     randerso    Refactored to use IFPServer, 
- *                                      added support to run init for all valid times
- * Mar 14, 2014   2726      rjpeter     Implement graceful shutdown.
- * Jul 12, 2016   5747      dgilling    Move edex_static to common_static.
- * Mar 30, 2017   5937      rjpeter     Use EdexTimerBasedThread logger.
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Apr 22, 2008           njensen   Initial creation
+ * Jul 17, 2009  2590     njensen   Multiple site support
+ * Jul 28, 2010  6725     jdynina   Manual init support
+ * Aug 27, 2010  3688     wkwock    Find model class for a model
+ * Aug 24, 2013  1949     rjpeter   Updated start up logic
+ * Jun 13, 2013  2044     randerso  Refactored to use IFPServer, added support
+ *                                  to run init for all valid times
+ * Mar 14, 2014  2726     rjpeter   Implement graceful shutdown.
+ * Jul 12, 2016  5747     dgilling  Move edex_static to common_static.
+ * Mar 30, 2017  5937     rjpeter   Use EdexTimerBasedThread logger.
+ * Feb 20, 2018  6928     randerso  Added runNow() method.
+ *
  * </pre>
- * 
+ *
  * @author njensen
  */
 
 public class SmartInitSrv extends EdexTimerBasedThread {
+    private static SmartInitSrv server;
+
+    /**
+     * Create the single instance of the server. Should only be used by spring.
+     *
+     * @return the smartInit server
+     */
+    public static synchronized SmartInitSrv createServer() {
+        if (server == null) {
+            server = new SmartInitSrv();
+        }
+        return server;
+    }
+
+    /**
+     * get single instance of the server if it exists
+     *
+     * @return the singleton instance or null
+     */
+    public static SmartInitSrv getServer() {
+        return server;
+    }
+
     private final Map<Long, SmartInitScript> cachedInterpreters = new HashMap<>();
 
-    protected int pendingInitMinTimeMillis = 120000;
+    protected int pendingInitMinTimeMillis = (int) (2
+            * TimeUtil.MILLIS_PER_MINUTE);
 
-    protected int runningInitTimeOutMillis = 600000;
+    protected int runningInitTimeOutMillis = (int) (10
+            * TimeUtil.MILLIS_PER_MINUTE);
 
-    public SmartInitSrv() {
+    private SmartInitSrv() {
+        super();
     }
 
     @Override
@@ -85,7 +114,7 @@ public class SmartInitSrv extends EdexTimerBasedThread {
             if (record != null) {
                 runSmartInit(record);
             }
-        } while ((record != null) && !EDEXUtil.isShuttingDown());
+        } while (running && (record != null));
     }
 
     @Override
@@ -100,6 +129,12 @@ public class SmartInitSrv extends EdexTimerBasedThread {
         }
     }
 
+    /**
+     * Run a SmartInit
+     *
+     * @param record
+     *            the SmartInit to run
+     */
     public void runSmartInit(SmartInitRecord record) {
         try {
             SmartInitScript initScript = null;
@@ -152,7 +187,7 @@ public class SmartInitSrv extends EdexTimerBasedThread {
                         sitePathsAdded.add(file.getPath());
                     }
 
-                    HashMap<String, Object> argMap = new HashMap<>();
+                    Map<String, Object> argMap = new HashMap<>();
                     argMap.put("dbName", dbName);
                     argMap.put("model", init);
                     argMap.put("validTime", validTime);
@@ -190,19 +225,43 @@ public class SmartInitSrv extends EdexTimerBasedThread {
         super.postStop();
     }
 
+    /**
+     * Check for SmartInits to run now
+     */
+    public void runNow() {
+        synchronized (threads) {
+            threads.notifyAll();
+        }
+    }
+
+    /**
+     * @return the pendingInitMinTimeMillis
+     */
     public int getPendingInitMinTimeMillis() {
         return pendingInitMinTimeMillis;
     }
 
+    /**
+     * @param pendingInitMinTimeMillis
+     *            the pendingInitMinTimeMillis to set
+     */
     public void setPendingInitMinTimeMillis(int pendingInitMinTimeMillis) {
         this.pendingInitMinTimeMillis = pendingInitMinTimeMillis;
     }
 
+    /**
+     * @return the runningInitTimeOutMillis
+     */
     public int getRunningInitTimeOutMillis() {
         return runningInitTimeOutMillis;
     }
 
+    /**
+     * @param runningInitTimeOutMillis
+     *            the runningInitTimeOutMillis to set
+     */
     public void setRunningInitTimeOutMillis(int runningInitTimeOutMillis) {
         this.runningInitTimeOutMillis = runningInitTimeOutMillis;
     }
+
 }

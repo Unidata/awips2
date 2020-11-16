@@ -23,7 +23,7 @@
         at different localization levels will be combined. 
     -->
 <DerivedParameter abbreviation="TxSM" name="Filtered-500km Temp" unit="C">
-    <Method models="SREF40" name="Filter">
+    <Method models="SREF212" name="Filter">
         <Field abbreviation="Tmean" />
         <ConstantField value="250.0" />
         <Field abbreviation="dx" />

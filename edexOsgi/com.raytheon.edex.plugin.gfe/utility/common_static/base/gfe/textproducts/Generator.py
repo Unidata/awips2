@@ -64,7 +64,6 @@ import errno
 import os
 from os.path import basename
 from os.path import join
-from os.path import dirname
 from com.raytheon.uf.common.localization import PathManagerFactory
 from com.raytheon.uf.common.localization import LocalizationContext
 from com.raytheon.uf.common.protectedfiles import ProtectedFileLookup
@@ -87,10 +86,6 @@ path.append(join(PREFERENCE_DIR,"../"))
 
 from preferences.configureTextProducts import NWSProducts as NWS_PRODUCTS
 
-from os.path import basename
-from os.path import dirname
-from os.path import abspath
-from os.path import join
 
 # ---- Setup Logging ----------------------------------------------------------
 import logging
@@ -98,15 +93,10 @@ from time import strftime, gmtime
 timeStamp = strftime("%Y%m%d", gmtime())
 logFile = '/awips2/edex/logs/configureTextProducts-'+timeStamp+'.log'
 
+logging.basicConfig(format="%(levelname)-5s %(asctime)s [%(process)d:%(thread)d] %(filename)s: %(message)s",
+                    filename=logFile, 
+                    level=logging.DEBUG)
 LOG = logging.getLogger("configureTextProducts")
-LOG.setLevel(logging.DEBUG)
-handler = logging.FileHandler(logFile)
-handler.setLevel(logging.DEBUG)
-formatter = logging.Formatter("%(levelname)-5s %(asctime)s [%(process)d:%(thread)d] %(filename)s: %(message)s")
-handler.setFormatter(formatter)
-for h in LOG.handlers:
-    LOG.removeHandler(h)
-LOG.addHandler(handler)
 
 
 # List of protected files
@@ -121,7 +111,7 @@ ProcessDirectories = [
   },
   {
      'src': "gfe/textproducts/templates/utility",
-     'dest': "textUtilities/regular"
+     'dest': "textUtilities"
   },
   ]
 
@@ -195,9 +185,9 @@ class Generator():
         
         try:
             os.makedirs(value, 0755)
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.EEXIST:
-                LOG.warn("%s: '%s'" % (e.strerror,e.filename))
+                LOG.warn("%s: '%s'", e.strerror, e.filename)
             
         self.__destination = value
 
@@ -220,12 +210,12 @@ class Generator():
         
     def create(self, siteId, destinationDir):
         """Create text products"""
-        LOG.debug("Configuring Text Products for %s........" % siteId)
+        LOG.debug("Configuring Text Products for %s........", siteId)
         
         try:
             self.setSiteId(siteId)
         except LookupError:
-            LOG.warning(siteId + "is not a known WFO. Skipping text formatter configuration.")
+            LOG.warning("%s is not a known WFO. Skipping text formatter configuration.", siteId)
             return
             
         self.setDestination(destinationDir)
@@ -236,8 +226,8 @@ class Generator():
         created = 0
         for dirInfo in ProcessDirectories:
             created += self.__create(dirInfo['src'], dirInfo['dest'])
-        LOG.info("%d text products created" % created)
-        LOG.debug("Configuration of Text Products for %s finished" % siteId)
+        LOG.info("%d text products created", created)
+        LOG.debug("Configuration of Text Products for %s finished", siteId)
         
         return self.getProtectedFiles()
     
@@ -247,28 +237,27 @@ class Generator():
         LOG.debug("Deleting Text Products Begin........")
         deleted = self.__delete()
         
-        LOG.info("%d text products deleted" % deleted)
+        LOG.info("%d text products deleted", deleted)
         
         # ---- Delete Empty Directory -----------------------------------------
         
         for dirInfo in ProcessDirectories:
             try:
                 os.rmdir(os.path.join(self.getDestination(), dirInfo['dest']))
-            except OSError, description: 
-                LOG.warn("unable to remove directory (%s)" % description)
-                pass
+            except OSError as description: 
+                LOG.warn("unable to remove directory (%s)", description)
         
     def info(self):
         """Text product information for this site"""
         
-        LOG.debug("PIL Information for %s Begin......" % self.__siteId)
+        LOG.debug("PIL Information for %s Begin......", self.__siteId)
         pils = self.__createPilDictionary(self.__siteId)
         
         self.__printPilDictionary(pils)
         
-        LOG.info("%d total PILs found" % len(pils))
+        LOG.info("%d total PILs found", len(pils))
         
-        LOG.debug("PIL Information for %s End" % self.__siteId)
+        LOG.debug("PIL Information for %s End", self.__siteId)
         
     def allinfo(self):
         """Text product information for all sites in this generator's a2a file
@@ -279,14 +268,14 @@ class Generator():
         
         for site in SiteInfo.keys():
             LOG.info("--------------------------------------------")
-            LOG.info("%s %s %s" % (site, 
-                                   SiteInfo[site]['fullStationID'], 
-                                   SiteInfo[site]['wfoCityState']))
+            LOG.info("%s %s %s", site, 
+                                 SiteInfo[site]['fullStationID'], 
+                                 SiteInfo[site]['wfoCityState'])
             pils = self.__createPilDictionary(site)
             self.__printPilDictionary(pils)
             found += len(pils)
         
-        LOG.info("%d total PILs found" % found)
+        LOG.info("%d total PILs found", found)
         LOG.debug("PIL Information for all sites End")
 
     # ---- Private Methods --------------------------------------------------
@@ -449,7 +438,7 @@ class Generator():
         pils.sort()
         LOG.info("PIL List: (product) (pil, wmoid, site)")
         for p in pils:
-            LOG.info("%s %s" % (p,pillist[p]))
+            LOG.info("%s %s", p, pillist[p])
     
     def __createPilDictionary(self, siteid):
         """Update the SiteInfo with a PIL dictionary
@@ -493,7 +482,6 @@ class Generator():
         # get the pil list for each product
         pillist = {}
         for nnn in NWS_PRODUCTS:
-            found = 0
             pilEntries = []
             for pil, wmoid, site4 in siteTable:
                 if pil[3:6] == nnn:
@@ -558,7 +546,7 @@ class Generator():
                 return [sec]
     
         #got here, don't know what this product is
-        LOG.error("Unknown Product: %s" % regularNameBase)
+        LOG.error("Unknown Product: %s", regularNameBase)
         return None
 
     def __create(self, srcDir, destDir):
@@ -576,9 +564,9 @@ class Generator():
         
         try:
             os.makedirs(join(self.getDestination(), destDir))
-        except OSError, e:
+        except OSError as e:
             if e.errno != errno.EEXIST:
-                LOG.error("%s: '%s'" % (e.strerror,e.filename))
+                LOG.error("%s: '%s'", e.strerror, e.filename)
                 return 0
         
         isTextProduct = (destDir == "textProducts")
@@ -618,8 +606,8 @@ class Generator():
                 fileContents = fd.read()
                 fd.close()
             except IOError, (num,info):
-                LOG.warn("Unable to read template (%s): %s" % (info,
-                                                               basename(fileName)))
+                LOG.warn("Unable to read template (%s): %s", info,
+                                                             basename(fileName))
                 continue
         
             #get source permissions
@@ -627,23 +615,23 @@ class Generator():
         
             LOG.debug("=========================================" + \
               "=======================")
-            LOG.debug("file: %s" % fileName[len(SCRIPT_DIR):])
-            LOG.debug("regularNameBase: %s" % regNameBase)
-            LOG.debug("RegNameExt: %s" % regNameExt)
+            LOG.debug("file: %s", fileName[len(SCRIPT_DIR):])
+            LOG.debug("regularNameBase: %s", regNameBase)
+            LOG.debug("RegNameExt: %s", regNameExt)
             #determine products, for templated could be more than 1
             products = self.__getProductFromFilename(regNameBase)
             if products is None:
                 continue
-            LOG.debug("PRODUCTS: %s" % products)
+            LOG.debug("PRODUCTS: %s", products)
             # ---- Process the products ------------------------------------
         
             for product in products:
                 LOG.debug("     --------------")
-                LOG.debug("     PRODUCT: %s" % product)
+                LOG.debug("     PRODUCT: %s", product)
         
                 # get the pil information
                 pilNames = self.__getProductFromFilename(product)  #indirect
-                LOG.debug("     PRODUCT PIL: %s" % pilNames)
+                LOG.debug("     PRODUCT PIL: %s", pilNames)
 
                 if pilNames is None or len(pilNames) == 0:
                     continue
@@ -656,7 +644,7 @@ class Generator():
                     pils = [{'awipsWANPil': 'kssscccnnn',
                              'textdbPil': 'cccnnnxxx',
                              'pil': 'nnnxxx', 'wmoID': 'wmoidd'}]
-                LOG.debug("     PILS: %s" % pils)
+                LOG.debug("     PILS: %s", pils)
         
                 # ---- Process each PIL ---------------------------------------
         
@@ -681,7 +669,7 @@ class Generator():
                     # ---- Output to File -----------------------------------
                     
                     destFilename = join(self.getDestination(), destDir, destName) + regNameExt
-                    LOG.debug("       ---> %s" % destFilename)
+                    LOG.debug("       ---> %s", destFilename)
         
                     try:
                         os.chmod(destFilename, 0644)
@@ -696,7 +684,7 @@ class Generator():
                         2. Multiple Products exist but the template filename
                            does not have 'Product' in its name.
                         3. The destination directory was not previously cleared.
-                        """ % destName)
+                        """, destName)
                         productsWritten = productsWritten - 1
                     except:
                         pass
@@ -708,14 +696,11 @@ class Generator():
                         os.chmod(destFilename, perms)
                         productsWritten = productsWritten + 1
                         
-                        # Set protected if file is read only
-                        isWritable = os.access(destFilename, os.W_OK)
-                        
                         if isProtected:
                             self.addProtection(destFilename)
                         
                     except IOError, (number, description):
-                        LOG.warn("       %s" % description)
+                        LOG.warn("       %s", description)
         
         # write out the protected file
         
@@ -743,7 +728,6 @@ class Generator():
         
         import string
         import glob
-        import os
         
         LOG.debug("     Deleting Existing Baseline Templates Begin........")
     
@@ -763,7 +747,7 @@ class Generator():
             for lf in templateFiles:
                 tf = str(lf.getFile().getAbsolutePath())
     
-                LOG.debug("Template= %s" % basename(tf))
+                LOG.debug("Template= %s", basename(tf))
                 mname = basename(tf)
                 globExpressions = []
     
@@ -804,7 +788,7 @@ class Generator():
                         try:
                             os.chmod(fn, 0644)
                             os.remove(fn)
-                            LOG.debug("   DEL---> %s" % fn)
+                            LOG.debug("   DEL---> %s", fn)
                             productsRemoved += 1
                         except:
                             pass

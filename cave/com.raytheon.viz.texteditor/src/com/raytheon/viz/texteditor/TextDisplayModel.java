@@ -488,41 +488,45 @@ public final class TextDisplayModel {
     }
 
     /**
-     * Method to retrieve the site node associated with the specified xxx or the
-     * specified warning. This method handles the case in which the xxx does not
-     * follow the standard template model of product id followed by site id. If
-     * the xxx does not turn out to be a site id, the site is retrieved from the
-     * vtec string within the warning text.
+     * Method to retrieve the site node associated with the xxx and the product 
+     * text
      * 
-     * @param warning
-     *            the specified warning
+     * <pre>
+     * This method will attempt the lookup node based on the following:
+     * 
+     * 1. the provided xxx
+     * 2. the site parsed from a vtec line if one is found in the product
+     * 3. the site from the WMO header
+     * 
+     * Each of these methods is tried in succession until one succeeds. If none are 
+     * successful, "" is returned.
+     * </pre>
+     * 
+     * @param product
      * @param xxx
-     *            the specified xxx
      * @return the associates site node, if found, or empty string if not.
      */
-    public static String getSiteNode(final String warning, final String xxx) {
+    public static String getSiteNode(final String product, final String xxx) {
+        /* Lookup by xxx id */
         String potentialSiteNode = SiteAbbreviationUtil.getSiteNode(xxx);
         if (potentialSiteNode.isEmpty()) {
-            /*
-             * This case will either rarely be reached or it will be executed
-             * all the time at certain sites.
-             */
-            Matcher m = warningPattern.matcher(warning);
+            /* Find a vtec line */
+            Matcher m = warningPattern.matcher(product);
             if (m.find()) {
-                final Set<String> siteSet = SiteMap.getInstance()
-                        .getSite3LetterIds(m.group(1));
-                if (siteSet.isEmpty() == false) {
-                    /*
-                     * We are already at the 3-character site identifier at this
-                     * point. However, it is probably better to ensure that we
-                     * match the afoslookup information.
-                     */
-                    potentialSiteNode = SiteAbbreviationUtil
-                            .getSiteNode(siteSet.iterator().next());
-                }
+                /* vtec found, lookup by vtec site */
+                potentialSiteNode = SiteMap.getInstance()
+                        .getAFOSTableMap(m.group(1));
             }
         }
-
+        /* potentialSiteNode can still be empty at this point (discovered in DR#197450)
+        if still empty, lookup by site from WMO header if possible */
+        if (potentialSiteNode.isEmpty()) {
+            WMOHeader header = new WMOHeader(product.getBytes());
+            if (header.isValid() && header.getCccc() != null) {
+                potentialSiteNode = SiteMap.getInstance()
+                        .getAFOSTableMap(header.getCccc());
+            }
+        }
         return potentialSiteNode;
     }
 }

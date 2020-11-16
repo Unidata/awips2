@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -40,27 +40,29 @@ import com.raytheon.viz.gfe.sampler.HistSample;
 import com.vividsolutions.jts.geom.Envelope;
 
 /**
- * 
- * 
+ * TimeSeries contains a time-series representation at a grid point.
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Apr 30, 2009 2159       rjpeter      Initial creation
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- ------------------------------------
+ * Apr 30, 2009  2159     rjpeter   Initial creation
+ * Jan 04, 2018  7178     randerso  Remove populate calls. Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author rjpeter
- * @version 1.0
  */
 public class TimeSeries {
     private ReferenceSetChangedListener refSetListener = new ReferenceSetChangedListener();
 
     private GridDataChangedListener gridDataListener = new GridDataChangedListener();
 
-    private SortedMap<TimeRange, HistSample> timeRangeToSampleMapping = new TreeMap<TimeRange, HistSample>();
+    private SortedMap<TimeRange, HistSample> timeRangeToSampleMapping = new TreeMap<>();
 
-    private List<ITimeSeriesChangedListener> listeners = new ArrayList<ITimeSeriesChangedListener>();
+    private List<ITimeSeriesChangedListener> listeners = new ArrayList<>();
 
     private Parm parm;
 
@@ -73,8 +75,8 @@ public class TimeSeries {
         this.parm.getListeners().addGridChangedListener(gridDataListener);
         IReferenceSetManager refSetMgr = parm.getDataManager().getRefManager();
         refSetMgr.addReferenceSetChangedListener(refSetListener);
-        sampleArea = TemporalEditorUtil.determinePointsToUse(refSetMgr
-                .getActiveRefSet());
+        sampleArea = TemporalEditorUtil
+                .determinePointsToUse(refSetMgr.getActiveRefSet());
         generateSamples();
     }
 
@@ -83,7 +85,7 @@ public class TimeSeries {
     }
 
     public void checkRemoveListeners() {
-        if (listeners.size() < 1) {
+        if (listeners.isEmpty()) {
             IReferenceSetManager refSetMgr = parm.getDataManager()
                     .getRefManager();
             refSetMgr.removeReferenceSetChangedListener(refSetListener);
@@ -94,11 +96,10 @@ public class TimeSeries {
     public void generateSamples() {
         timeRangeToSampleMapping.clear();
 
-        if (sampleArea != null && sampleArea.isAnyBitsSet()) {
+        if ((sampleArea != null) && sampleArea.isAnyBitsSet()) {
             IGridData[] gridDataArray = parm.getGridInventory();
 
             for (IGridData gridData : gridDataArray) {
-                gridData.populate();
                 if (gridData.isValid()) {
                     IGridSlice gridSlice = gridData.getGridSlice();
                     TimeRange validTime = gridSlice.getValidTime();
@@ -115,7 +116,7 @@ public class TimeSeries {
 
     public void generateSamples(TimeRange tr) {
         // clear sample for the given range
-        ArrayList<TimeRange> samplesToRemove = new ArrayList<TimeRange>();
+        List<TimeRange> samplesToRemove = new ArrayList<>();
         for (TimeRange trSamples : timeRangeToSampleMapping.keySet()) {
             if (trSamples.overlaps(tr)) {
                 samplesToRemove.add(trSamples);
@@ -126,11 +127,10 @@ public class TimeSeries {
             timeRangeToSampleMapping.remove(trToRemove);
         }
 
-        if (sampleArea != null && sampleArea.isAnyBitsSet()) {
+        if ((sampleArea != null) && sampleArea.isAnyBitsSet()) {
             IGridData[] gridDataArray = parm.getGridInventory(tr);
 
             for (IGridData gridData : gridDataArray) {
-                gridData.populate();
                 if (gridData.isValid()) {
                     IGridSlice gridSlice = gridData.getGridSlice();
                     TimeRange validTime = gridSlice.getValidTime();
@@ -157,12 +157,12 @@ public class TimeSeries {
 
     /**
      * Samples returned sorted by time range
-     * 
+     *
      * @param tr
      * @return
      */
     public List<HistSample> getSamplesForTimeRange(TimeRange tr) {
-        List<HistSample> samples = new ArrayList<HistSample>();
+        List<HistSample> samples = new ArrayList<>();
         for (TimeRange timeRange : timeRangeToSampleMapping.keySet()) {
             if (timeRange.overlaps(tr)) {
                 samples.add(timeRangeToSampleMapping.get(timeRange));
@@ -176,7 +176,8 @@ public class TimeSeries {
         return resolution;
     }
 
-    public void addTimeSeriesChangeListener(ITimeSeriesChangedListener listener) {
+    public void addTimeSeriesChangeListener(
+            ITimeSeriesChangedListener listener) {
         if (listener != null) {
             listeners.add(listener);
         }
@@ -195,11 +196,11 @@ public class TimeSeries {
         }
     }
 
-    private class ReferenceSetChangedListener implements
-            IReferenceSetChangedListener {
+    private class ReferenceSetChangedListener
+            implements IReferenceSetChangedListener {
         @Override
         public void referenceSetChanged(ReferenceData refSet,
-                ArrayList<Envelope> domains) {
+                List<Envelope> domains) {
             sampleArea = TemporalEditorUtil.determinePointsToUse(refSet);
 
             VizApp.runAsync(new Runnable() {

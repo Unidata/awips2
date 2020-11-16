@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -87,9 +87,9 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
  * The MPE Legend Resource
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
@@ -104,9 +104,10 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  * Mar 20, 2017 6157       bkowal      No longer cast the temperature value to an Integer.
  * Mar 21, 2017 6157       bkowal      Always display the filtering menu items even if there
  *                                     are other items in the context menu.
- * 
+ * Dec 13, 2018 6790       dgilling    Display all loaded resources in the legend.
+ *
  * </pre>
- * 
+ *
  * @author randerso
  */
 public class MPELegendResource
@@ -478,17 +479,27 @@ public class MPELegendResource
                 strings.setCoordinates(xLoc, y1);
                 target.drawStrings(strings);
             }
+
+            /*
+             * we draw "DailyQC" legned text above the colorbar and other
+             * associated text, so move the height pointer in the opposite
+             * direction.
+             */
+            y1 -= textSpace * 2;
+            y1 -= cmapHeight;
         } else {
             // No xmrg resource has been loaded, point data only.
             y1 += textSpace;
             y1 += cmapHeight;
-            strings.setText(DrawDQCStations.qcmode, textColor);
-            double xLoc = xMin + padding;
-            strings.horizontalAlignment = HorizontalAlignment.LEFT;
-            strings.verticalAlignment = VerticalAlignment.TOP;
-            strings.setCoordinates(xLoc, y1);
-            target.drawStrings(strings);
         }
+
+
+        strings.setText(DrawDQCStations.qcmode, textColor);
+        double xLoc = xMin + padding;
+        strings.horizontalAlignment = HorizontalAlignment.LEFT;
+        strings.verticalAlignment = VerticalAlignment.TOP;
+        strings.setCoordinates(xLoc, y1);
+        target.drawStrings(strings);
 
         return yMax - legendHeight;
     }
@@ -636,7 +647,7 @@ public class MPELegendResource
     public Map<String, Object> interrogate(ReferencedCoordinate coord)
             throws VizException {
         try {
-            Map<String, Object> values = new HashMap<String, Object>();
+            Map<String, Object> values = new HashMap<>();
             Coordinate latLon = coord.asLatLon();
 
             // Get hrap grid cell
@@ -709,7 +720,7 @@ public class MPELegendResource
 
     /**
      * Get the extent
-     * 
+     *
      * @return the extent
      */
     public PixelExtent getExtent() {
@@ -718,7 +729,7 @@ public class MPELegendResource
 
     /**
      * Get the value at a certain coordinate
-     * 
+     *
      * @param coord
      * @return
      */
@@ -821,7 +832,7 @@ public class MPELegendResource
     @Override
     public LegendEntry[] getLegendData(IDescriptor descriptor) {
         FramesInfo frameInfo = descriptor.getFramesInfo();
-        List<LegendData> labels = new ArrayList<LegendData>();
+        List<LegendData> labels = new ArrayList<>();
         ResourceList resourceList = descriptor.getResourceList();
         if (resourceList != null) {
             for (int i = 0; i < resourceList.size(); i++) {

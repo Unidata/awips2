@@ -1,6 +1,6 @@
 /*****************************************************************************************
  * COPYRIGHT (c), 2007, RAYTHEON COMPANY
- * ALL RIGHTS RESERVED, An Unpublished Work 
+ * ALL RIGHTS RESERVED, An Unpublished Work
  *
  * RAYTHEON PROPRIETARY
  * If the end user is not the U.S. Government or any agency thereof, use
@@ -81,11 +81,11 @@ import com.vividsolutions.jts.geom.LineString;
  * Layer which contains a configurable storm track as well as a Time Of
  * Arrival/Lead Time point. The primary purpose is to display the distance and
  * time it would take to reach the lead point following the storm track.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer   Description
  * ------------- -------- ---------- -------------------------------------------
  * Jun 28, 2010  6513     bkowal     Switching the mode of the Time of Arrival /
@@ -108,9 +108,10 @@ import com.vividsolutions.jts.geom.LineString;
  * Aug 14, 2014  3523     mapeters   Updated deprecated DrawableString.textStyle
  *                                   assignments.
  * Dec 02, 2015  5150     bsteffen   Calculate correct lead time for Polylines.
- * 
+ * Feb 09, 2018  6873     tgurney    Remove "Unrealistic Point of Arrival" for Point mode
+ *
  * </pre>
- * 
+ *
  * @author mschenke
  */
 public class TimeOfArrivalLayer extends AbstractStormTrackResource {
@@ -132,7 +133,7 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
 
     /*
      * Thread Dangerous: Must only be used on the "paint" thread.
-     * 
+     *
      * The time zone should be set based off the end time before each use.
      */
     private final DateFormat localTimeFormat = new SimpleDateFormat("HH:mmz");
@@ -145,7 +146,7 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
 
     private static final int LEAD_TIME_SIZE = 80;
 
-    private static final int PD_MAX_WIDTH = 1999000;
+    private static final int PD_MAX_WIDTH = 1_999_000;
 
     private static final UnitConverter metersToMiles = SI.METRE
             .getConverterTo(NonSI.MILE);
@@ -196,7 +197,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         }
 
         @Override
-        public boolean handleMouseDownMove(int arg_x, int arg_y, int mouseButton) {
+        public boolean handleMouseDownMove(int arg_x, int arg_y,
+                int mouseButton) {
             double x = arg_x;
             double y = arg_y;
             if (mouseButton == 1 && hovering) {
@@ -211,7 +213,7 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
                 IExtent extent = new PixelExtent(ge);
                 if (world == null) {
                     return true;
-                } else if (extent.contains(world) == false) {
+                } else if (!extent.contains(world)) {
                     // snap x coord to closest edge if out of bounds
                     if (world[0] > extent.getMaxX()) {
                         world[0] = extent.getMaxX();
@@ -301,13 +303,14 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
             double desiredPixelWidth = widthInPixels / 6;
             double distanceThreshold = (paintProps.getView().getExtent()
                     .getWidth() / paintProps.getCanvasBounds().width) * 10;
-            displayState.lineOfStormsLength = (zoomLevel * desiredPixelWidth * metersPerPixel)
-                    / (distanceThreshold * 2);
+            displayState.lineOfStormsLength = (zoomLevel * desiredPixelWidth
+                    * metersPerPixel) / (distanceThreshold * 2);
         }
 
         // If geometry changed, reconstruct line
         boolean recreate = displayState.geomChanged
-                || (jazzyExtras == null && displayState.displayType == DisplayType.CIRCULAR)
+                || (jazzyExtras == null
+                        && displayState.displayType == DisplayType.CIRCULAR)
                 || leadState.changed;
         super.paintInternal(target, paintProps);
 
@@ -337,7 +340,7 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
 
     /**
      * Paints the lead time point and text
-     * 
+     *
      * @param target
      * @param paintProps
      * @throws VizException
@@ -357,8 +360,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         RGB color = leadState.mouseLoc == null ? displayState.color
                 : StormTrackDisplay.LIGHT_GRAY;
 
-        double[] p1 = descriptor.worldToPixel(new double[] { leadState.loc.x,
-                leadState.loc.y });
+        double[] p1 = descriptor.worldToPixel(
+                new double[] { leadState.loc.x, leadState.loc.y });
 
         double size = paintProps.getZoomLevel() * LEAD_TIME_SIZE;
 
@@ -397,16 +400,16 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         /*
          * Assume the text will be left-aligned ...
          */
-        double[] labelLoc = target.getPointOnCircle(p1[0], p1[1], 0.0,
-                size * 3, 15);
+        double[] labelLoc = target.getPointOnCircle(p1[0], p1[1], 0.0, size * 3,
+                15);
         HorizontalAlignment alignment = HorizontalAlignment.LEFT;
         /*
          * If we want to place the text on the right side of the point, we need
          * to get a starting coordinate for the text on the right side of the
          * circle which requires a different polar angle.
          */
-        double[] labelLocRightAlign = target.getPointOnCircle(p1[0], p1[1],
-                0.0, size * 3, 165);
+        double[] labelLocRightAlign = target.getPointOnCircle(p1[0], p1[1], 0.0,
+                size * 3, 165);
 
         if (!this.willLeadStateTextFitOnLeft(target, paintProps, labelLoc[0])) {
             labelLoc = labelLocRightAlign;
@@ -420,7 +423,7 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         ds.horizontalAlignment = alignment;
         ds.font = null;
         ds.magnification = getCapability(MagnificationCapability.class)
-        .getMagnification().floatValue();
+                .getMagnification().floatValue();
         target.drawStrings(ds);
     }
 
@@ -437,8 +440,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         // IExtent extent = paintProps.getView().getExtent();
 
         // Get the width of the text.
-        DrawableString ds = new DrawableString(this.leadState.text, new RGB(
-                100, 100, 100));
+        DrawableString ds = new DrawableString(this.leadState.text,
+                new RGB(100, 100, 100));
         double width = target.getStringsBounds(ds).getWidth();
         // Get the width in gl space
         double widthInGl = width / ratio;
@@ -476,38 +479,39 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
 
         jazzyExtras = target.createWireframeShape(false, descriptor);
         Coordinate startLonLat = getLeadDragMePoint();
-        if(startLonLat == null){
+        if (startLonLat == null) {
             return;
         }
         Coordinate endLonLat = leadState.loc;
-        
-        double[] startPixel = descriptor.worldToPixel(new double[] {
-                startLonLat.x, startLonLat.y });
-        double[] endPixel = descriptor.worldToPixel(new double[] {
-                endLonLat.x, endLonLat.y });
-        
+
+        double[] startPixel = descriptor
+                .worldToPixel(new double[] { startLonLat.x, startLonLat.y });
+        double[] endPixel = descriptor
+                .worldToPixel(new double[] { endLonLat.x, endLonLat.y });
+
         double dx = endPixel[0] - startPixel[0];
         double dy = endPixel[1] - startPixel[1];
-        
+
         LineString fullLine = displayState.dragMeLine;
         double[][] pixels = new double[fullLine.getNumPoints()][];
         for (int i = 0; i < fullLine.getNumPoints(); i += 1) {
             Coordinate c = fullLine.getCoordinateN(i);
-            pixels[i] = descriptor.worldToPixel(new double[] {
-                    c.x, c.y });
+            pixels[i] = descriptor.worldToPixel(new double[] { c.x, c.y });
             pixels[i][0] += dx;
-            pixels[i][1] += dy; 
+            pixels[i][1] += dy;
         }
         jazzyExtras.addLineSegment(pixels);
-        
+
     }
 
     private void constructCircularStuff(IGraphicsTarget target)
             throws VizException {
 
         StormCoord start = displayState.timePoints[0];
-        StormCoord end1 = displayState.timePoints[displayState.timePoints.length - 1];
-        StormCoord end2 = displayState.futurePoints[displayState.futurePoints.length - 1];
+        StormCoord end1 = displayState.timePoints[displayState.timePoints.length
+                - 1];
+        StormCoord end2 = displayState.futurePoints[displayState.futurePoints.length
+                - 1];
         StormCoord end3 = new StormCoord(leadState.loc, null);
 
         // reconstruct the shape using points
@@ -573,27 +577,11 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         compiler.handle(new GeometryFactory().createLineString(coords));
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource
-     * #getResourceName()
-     */
     @Override
     protected String getResourceName() {
-        // TODO Auto-generated method stub
         return NAME;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.awipstools.common.stormtrack.AbstractStormTrackResource
-     * #initializeState
-     * (com.raytheon.viz.awipstools.common.stormtrack.StormTrackState)
-     */
     @Override
     protected void initializeState(StormTrackState state) {
         FramesInfo info = descriptor.getFramesInfo();
@@ -610,8 +598,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         state.mode = StormTrackState.Mode.DRAG_ME;
         state.numDragMePoints = 1;
         state.pivotIndex = trackUtil.getCurrentFrame(info);
-        state.otherPivotIndex = displayState.pivotIndex > 0 ? 0 : trackUtil
-                .getFrameCount(info) - 1;
+        state.otherPivotIndex = displayState.pivotIndex > 0 ? 0
+                : trackUtil.getFrameCount(info) - 1;
         state.thingToDragTo = "feature";
     }
 
@@ -651,14 +639,15 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
          * projection related problems.
          */
         Coordinate startLonLat = displayState.timePoints[0].coord;
-        Coordinate endLonLat = displayState.timePoints[displayState.timePoints.length - 1].coord;
+        Coordinate endLonLat = displayState.timePoints[displayState.timePoints.length
+                - 1].coord;
 
-        double[] startPixel = descriptor.worldToPixel(new double[] {
-                startLonLat.x, startLonLat.y });
-        double[] endPixel = descriptor.worldToPixel(new double[] { endLonLat.x,
-                endLonLat.y });
-        double[] leadPixel = descriptor.worldToPixel(new double[] {
-                leadState.loc.x, leadState.loc.y });
+        double[] startPixel = descriptor
+                .worldToPixel(new double[] { startLonLat.x, startLonLat.y });
+        double[] endPixel = descriptor
+                .worldToPixel(new double[] { endLonLat.x, endLonLat.y });
+        double[] leadPixel = descriptor.worldToPixel(
+                new double[] { leadState.loc.x, leadState.loc.y });
 
         double dx = leadPixel[0] - endPixel[0];
         double dy = leadPixel[1] - endPixel[1];
@@ -678,8 +667,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         Coordinate bestIntersection = null;
         for (int i = 1; i < fullLine.getNumPoints(); i += 1) {
             c = fullLine.getCoordinateN(i);
-            double[] currPixel = descriptor.worldToPixel(new double[] { c.x,
-                    c.y });
+            double[] currPixel = descriptor
+                    .worldToPixel(new double[] { c.x, c.y });
             LineSegment segment = new LineSegment(prevPixel[0], prevPixel[1],
                     currPixel[0], currPixel[1]);
             /*
@@ -701,8 +690,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
                 if (bestIntersection == null) {
                     bestIntersection = intersection;
                 } else if (bestIntersection.distance(new Coordinate(
-                        leadPixel[0], leadPixel[1])) > intersection
-                        .distance(new Coordinate(leadPixel[0], leadPixel[1]))) {
+                        leadPixel[0], leadPixel[1])) > intersection.distance(
+                                new Coordinate(leadPixel[0], leadPixel[1]))) {
                     bestIntersection = intersection;
 
                 }
@@ -710,8 +699,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
             prevPixel = currPixel;
         }
         if (bestIntersection != null) {
-            double[] intersectionLonLat = descriptor.pixelToWorld(new double[] {
-                    bestIntersection.x, bestIntersection.y });
+            double[] intersectionLonLat = descriptor.pixelToWorld(
+                    new double[] { bestIntersection.x, bestIntersection.y });
             return new Coordinate(intersectionLonLat[0], intersectionLonLat[1]);
         }
         return bestIntersection;
@@ -735,30 +724,28 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
             double distance = gc.getOrthodromicDistance();
             double angle = unadjustAngle(gc.getAzimuth());
             double stateAngle = unadjustAngle(displayState.angle);
-            if(Math.abs(angle - stateAngle) > 180){
-                distance = -1*distance;
+            if (Math.abs(angle - stateAngle) > 180) {
+                distance = -1 * distance;
             }
             return distance;
-        }else{
+        } else {
             StormCoord start = displayState.timePoints[0];
-            Coordinate end = displayState.timePoints[displayState.timePoints.length - 1].coord;
+            Coordinate end = displayState.timePoints[displayState.timePoints.length
+                    - 1].coord;
 
             gc.setStartingGeographicPoint(start.coord.x, start.coord.y);
             gc.setDestinationGeographicPoint(end.x, end.y);
             double distFromStartEnd = gc.getOrthodromicDistance();
-            
+
             end = leadState.loc;
             gc.setDestinationGeographicPoint(end.x, end.y);
             double angle = unadjustAngle(gc.getAzimuth());
             double stateAngle = unadjustAngle(displayState.angle);
             double distance = gc.getOrthodromicDistance();
-
-            if (Math.abs(angle - stateAngle) >= 22.5) {
-                return Double.NaN;
-            }else{
-                return distance
-                        - distFromStartEnd;
+            if (Math.abs(angle - stateAngle) > 180) {
+                distance = -1 * distance;
             }
+            return distance - distFromStartEnd;
         }
     }
 
@@ -777,7 +764,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
             leadState.text = "Unrealistic Point of Arrival";
             return;
         }
-        StormCoord endStormCoord = displayState.timePoints[displayState.timePoints.length - 1];
+        StormCoord endStormCoord = displayState.timePoints[displayState.timePoints.length
+                - 1];
 
         Date refDate = endStormCoord.time.getValidTimeAsDate();
         long timeInSec = (long) (distance / displayState.speed);
@@ -809,7 +797,8 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
 
         hoursMinutesFormat += "%02d minutes";
 
-        miles += (int) metersToMiles.convert(Math.abs(distance));
+        miles += Integer
+                .toString((int) metersToMiles.convert(Math.abs(distance)));
 
         String time = this.timeFormat.format(date);
         int currentDisplayWidth = ((IMapDescriptor) this.descriptor)
@@ -822,13 +811,14 @@ public class TimeOfArrivalLayer extends AbstractStormTrackResource {
         } else {
             // Include Local time
             String localTime = "";
+            Coordinate end = endStormCoord.coord;
             try {
-                Coordinate end = endStormCoord.coord;
                 localTimeFormat
                         .setTimeZone(LocalTimeZone.getLocalTimeZone(end));
                 localTime = localTimeFormat.format(date);
             } catch (SpatialException e) {
-                e.printStackTrace();
+                statusHandler.warn("Failed to retrieve time zone for " + end,
+                        e);
             }
 
             leadState.text = String.format(

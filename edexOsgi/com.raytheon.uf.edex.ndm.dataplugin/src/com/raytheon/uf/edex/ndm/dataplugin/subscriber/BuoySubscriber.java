@@ -52,14 +52,15 @@ import com.raytheon.uf.edex.ndm.dataplugin.ingest.INationalDatasetSubscriber;
  * Jan 28, 2011            bfarmer     Initial creation
  * Mar 06, 2014   2876     mpduff      New NDM plugin.
  * Mar 02, 2016   5434     bkowal      Relocated to ndm dataplugin.
+ * Jan 16, 2018   6976     njensen     Skip and continue past bad lines
  * 
  * </pre>
  * 
  * @author bfarmer
- * @version 1.0
  */
 
 public class BuoySubscriber implements INationalDatasetSubscriber {
+
     private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(BuoySubscriber.class);
 
@@ -135,10 +136,10 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
                 try {
                     spiFile.createNewFile();
                 } catch (IOException e) {
-                    statusHandler.handle(
-                            Priority.PROBLEM,
+                    statusHandler.handle(Priority.PROBLEM,
                             "Could not create primary file: "
-                                    + spiFile.getName(), e);
+                                    + spiFile.getName(),
+                            e);
                 }
             }
 
@@ -152,95 +153,72 @@ public class BuoySubscriber implements INationalDatasetSubscriber {
     private void generateSPI(File file, File goodnessFile) {
         String line;
         String[] splitLine;
-        BufferedReader fis = null;
-        BufferedWriter fos = null;
-        try {
-            fis = new BufferedReader(new InputStreamReader(new FileInputStream(
-                    file)));
+        try (BufferedReader fis = new BufferedReader(
+                new InputStreamReader(new FileInputStream(file)))) {
             if (!goodnessFile.exists()) {
                 goodnessFile.createNewFile();
             }
-            fos = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream(goodnessFile)));
-            for (line = fis.readLine(); line != null; line = fis.readLine()) {
-                splitLine = line.split("\\|");
-                Integer elevation;
-                try {
-                    elevation = Integer.parseInt(splitLine[4].trim());
-                } catch (Exception e) {
-                    continue;
+            try (BufferedWriter fos = new BufferedWriter(new OutputStreamWriter(
+                    new FileOutputStream(goodnessFile)))) {
+                for (line = fis.readLine(); line != null; line = fis
+                        .readLine()) {
+                    splitLine = line.split("\\|");
+                    Integer elevation;
+                    try {
+                        elevation = Integer.parseInt(splitLine[4].trim());
+                    } catch (Exception e) {
+                        statusHandler.warn(
+                                "Error determining elevation from line " + line
+                                        + "in file " + file.getName(),
+                                e);
+                        continue;
+                    }
+                    Double latitude = null;
+                    Double longitude = null;
+                    try {
+                        latitude = Double.parseDouble(splitLine[2].trim());
+                        longitude = Double.parseDouble(splitLine[3].trim());
+                    } catch (NumberFormatException e) {
+                        statusHandler.error(
+                                "Error processing line " + line + " in file "
+                                        + file.getPath() + ", skipping line",
+                                e);
+                        continue;
+                    }
+                    String stationName = splitLine[1].trim();
+                    fos.write("0 ");
+                    fos.write(stationName);
+                    fos.write(String.format(" %8.4f %9.4f %5d %9d", latitude,
+                            longitude, elevation, 0));
+                    fos.newLine();
                 }
-                Double latitude = Double.parseDouble(splitLine[2].trim());
-                Double longitude = Double.parseDouble(splitLine[3].trim());
-                String stationName = splitLine[1].trim();
-                fos.write("0 ");
-                fos.write(stationName);
-                fos.write(String.format(" %8.4f %9.4f %5d %9d", latitude,
-                        longitude, elevation, 0));
-                fos.newLine();
             }
         } catch (FileNotFoundException e) {
-            statusHandler.handle(Priority.PROBLEM, "Could not read file: "
-                    + file.getName(), e);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Could not read file: " + file.getName(), e);
         } catch (IOException e) {
             statusHandler.handle(Priority.PROBLEM,
                     "Error with file: " + file.getName(), e);
-        } finally {
-            if (fos != null) {
-                try {
-                    fos.close();
-                } catch (IOException e) {
-                    // Ignore
-                }
-            }
-            if (fis != null) {
-                try {
-                    fis.close();
-                } catch (IOException e) {
-                    // Ignore
-                }
-            }
         }
     }
 
     private void saveFile(File file, File outFile) {
         if ((file != null) && file.exists()) {
-            BufferedReader fis = null;
-            BufferedWriter fos = null;
-            try {
-                fis = new BufferedReader(new InputStreamReader(
-                        new FileInputStream(file)));
-                fos = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream(outFile)));
+            try (BufferedReader fis = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(file)));
+                    BufferedWriter fos = new BufferedWriter(
+                            new OutputStreamWriter(
+                                    new FileOutputStream(outFile)))) {
                 String line = null;
-                try {
-                    while ((line = fis.readLine()) != null) {
-                        fos.write(line);
-                        fos.newLine();
-                    }
-                } catch (IOException e) {
-                    statusHandler.handle(Priority.PROBLEM,
-                            "Could not read file: " + file.getName(), e);
-
+                while ((line = fis.readLine()) != null) {
+                    fos.write(line);
+                    fos.newLine();
                 }
-            } catch (FileNotFoundException e) {
-                statusHandler.handle(Priority.PROBLEM, "Failed to find file: "
-                        + file.getName(), e);
-            } finally {
-                if (fis != null) {
-                    try {
-                        fis.close();
-                    } catch (IOException e) {
-                        // ignore
-                    }
-                }
-                if (fos != null) {
-                    try {
-                        fos.close();
-                    } catch (IOException e) {
-                        // ignore
-                    }
-                }
+            } catch (IOException e) {
+                statusHandler.handle(Priority.PROBLEM,
+                        "IOError reading file  " + file.getName()
+                                + " or writing file " + outFile.getName(),
+                        e);
             }
         }
     }

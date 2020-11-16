@@ -22,6 +22,7 @@ package com.raytheon.viz.hydrocommon.data;
 import java.util.Map;
 
 import com.raytheon.uf.common.dataquery.db.QueryResultRow;
+import com.raytheon.viz.hydrocommon.HydroConstants;
 
 /**
  * This class contains data for the locdatalimits tables.
@@ -31,6 +32,7 @@ import com.raytheon.uf.common.dataquery.db.QueryResultRow;
  * Date			Ticket#		Engineer	Description
  * ------------	----------	-----------	--------------------------
  * Dec 9, 2008  1744        askripsk    Initial Creation
+ * Apr 18, 2018 DCS19644    jwu         Add column 'ts' (Type-Source) in locdatalimits.
  * 
  * </pre>
  * 
@@ -38,6 +40,9 @@ import com.raytheon.uf.common.dataquery.db.QueryResultRow;
  * @version 1.0
  */
 public class LocationDataLimitData extends DataLimitData {
+
+    protected String ts;
+
     public LocationDataLimitData() {
     }
 
@@ -45,7 +50,24 @@ public class LocationDataLimitData extends DataLimitData {
             Map<String, Integer> dataMap) {
 
         super(data, dataMap);
-        setLid(getDBValue("lid", data, dataMap, ""));
+        setLid(getDBValue(HydroConstants.LID, data, dataMap, ""));
+        setTs(getDBValue(HydroConstants.TS, data, dataMap,
+                HydroConstants.DEFAULT_TS));
+    }
+
+    /**
+     * @return the ts
+     */
+    public String getTs() {
+        return ts;
+    }
+
+    /**
+     * @param ts
+     *            the ts to set
+     */
+    public void setTs(String ts) {
+        this.ts = ts;
     }
 
     @Override
@@ -61,7 +83,7 @@ public class LocationDataLimitData extends DataLimitData {
 
     @Override
     public String getExistsStatement() {
-        String selectQuery = "SELECT lid, pe, dur, monthdaystart, monthdayend, gross_range_min, "
+        String selectQuery = "SELECT lid, pe, dur, ts, monthdaystart, monthdayend, gross_range_min, "
                 + "gross_range_max, reason_range_min, reason_range_max, roc_max, alert_upper_limit, "
                 + "alert_roc_limit, alarm_upper_limit, alarm_roc_limit, alert_lower_limit, "
                 + "alarm_lower_limit, alert_diff_limit, alarm_diff_limit FROM locdatalimits WHERE %s";
@@ -74,9 +96,9 @@ public class LocationDataLimitData extends DataLimitData {
         String rval = "INSERT INTO locdatalimits ( lid, pe, dur, monthdaystart, monthdayend, gross_range_min, "
                 + "gross_range_max, reason_range_min, reason_range_max, roc_max, alert_upper_limit, "
                 + "alert_roc_limit, alarm_upper_limit, alarm_roc_limit, alert_lower_limit, "
-                + "alarm_lower_limit, alert_diff_limit, alarm_diff_limit )"
+                + "alarm_lower_limit, alert_diff_limit, alarm_diff_limit, ts )"
                 + " VALUES ( '%s', '%s', %s, '%s', '%s', %s, %s, %s, %s, %s, "
-                + "%s, %s, %s, %s, %s, %s, %s, %s)";
+                + "%s, %s, %s, %s, %s, %s, %s, %s, %s)";
 
         rval = String.format(rval, lid, pe, getDBString(dur), monthDayStart,
                 monthDayEnd, getDBString(grossRangeMin),
@@ -85,26 +107,27 @@ public class LocationDataLimitData extends DataLimitData {
                 getDBString(alertUpperLimit), getDBString(alertRocLimit),
                 getDBString(alarmUpperLimit), getDBString(alarmRocLimit),
                 getDBString(alertLowerLimit), getDBString(alarmLowerLimit),
-                getDBString(alertDiffLimit), getDBString(alarmDiffLimit));
+                getDBString(alertDiffLimit), getDBString(alarmDiffLimit),
+                getDBString(ts));
 
         return rval;
     }
 
     @Override
     public String getPKStatement() {
-        String pkString = "lid='%s' AND pe='%s' AND dur=%s AND monthdaystart='%s'";
+        String pkString = "lid='%s' AND pe='%s' AND dur=%s AND monthdaystart='%s' AND ts='%s'";
         return String
-                .format(pkString, lid, pe, getDBString(dur), monthDayStart);
+                .format(pkString, lid, pe, getDBString(dur), monthDayStart, ts);
     }
 
     @Override
     public String getSelectStatement() {
-        String selectQuery = "SELECT lid, pe, dur, monthdaystart, monthdayend, gross_range_min, "
+        String selectQuery = "SELECT lid, pe, dur, ts, monthdaystart, monthdayend, gross_range_min, "
                 + "gross_range_max, reason_range_min, reason_range_max, roc_max, alert_upper_limit, "
                 + "alert_roc_limit, alarm_upper_limit, alarm_roc_limit, alert_lower_limit, "
                 + "alarm_lower_limit, alert_diff_limit, alarm_diff_limit FROM locdatalimits";
 
-        selectQuery += " ORDER BY lid, pe, dur, monthdaystart, monthdayend, gross_range_min, gross_range_max";
+        selectQuery += " ORDER BY lid, pe, dur, ts, monthdaystart, monthdayend, gross_range_min, gross_range_max";
 
         return selectQuery;
     }
@@ -115,7 +138,7 @@ public class LocationDataLimitData extends DataLimitData {
         String rval = "UPDATE locdatalimits SET monthdayend='%s', gross_range_min=%s, "
                 + "gross_range_max=%s, reason_range_min=%s, reason_range_max=%s, roc_max=%s, alert_upper_limit=%s, "
                 + "alert_roc_limit=%s, alarm_upper_limit=%s, alarm_roc_limit=%s, alert_lower_limit=%s, "
-                + "alarm_lower_limit=%s, alert_diff_limit=%s, alarm_diff_limit=%s"
+                + "alarm_lower_limit=%s, alert_diff_limit=%s, alarm_diff_limit=%s, ts=%s"
                 + " WHERE %s";
 
         // Populate the values
@@ -126,6 +149,7 @@ public class LocationDataLimitData extends DataLimitData {
                 getDBString(alarmUpperLimit), getDBString(alarmRocLimit),
                 getDBString(alertLowerLimit), getDBString(alarmLowerLimit),
                 getDBString(alertDiffLimit), getDBString(alarmDiffLimit),
+                getDBString(ts),
                 getPKStatement());
 
         return rval;

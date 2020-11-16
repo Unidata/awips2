@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -52,38 +52,53 @@ import com.raytheon.uf.common.status.UFStatus.Priority;
 
 /**
  * GridParmInfo
- * 
+ *
  * Contains static information about a grid parameter
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 02/05/2008              chammack    Separated static attributes from GFERecord
- * 02/27/2008   879        rbell       Added constructors and equals(Object)
- * 03/20/2013     #1774    randerso    Removed unnecessary XML annotations,
- *                                     added isValid method to match A1
- * 04/02/2013     #1774    randerso    Improved error message in validCheck
- * 08/06/13       #1571    randerso    Added hibernate annotations, javadoc cleanup
- * 10/22/2013     #2361    njensen     Remove ISerializableObject
- * 05/06/2014     #3118    randerso    Changed clone() to also clone gridLoc
- * 01/13/2015     #3955    randerso    Moved GridType enum to GridParmInfo where it belongs
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 05, 2008           chammack  Separated static attributes from GFERecord
+ * Feb 27, 2008  879      rbell     Added constructors and equals(Object)
+ * Mar 20, 2013  1774     randerso  Removed unnecessary XML annotations, added
+ *                                  isValid method to match A1
+ * Apr 02, 2013  1774     randerso  Improved error message in validCheck
+ * Aug 06, 2013  1571     randerso  Added hibernate annotations, javadoc cleanup
+ * Oct 22, 2013  2361     njensen   Remove ISerializableObject
+ * May 06, 2014  3118     randerso  Changed clone() to also clone gridLoc
+ * Jan 13, 2015  3955     randerso  Moved GridType enum to GridParmInfo where it
+ *                                  belongs
+ * Jan 04, 2018  7178     randerso  Change clone() to copy(). Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 
 @Embeddable
 @DynamicSerialize
-public class GridParmInfo implements Cloneable {
+public class GridParmInfo {
     /** Grid type enumeration */
     public enum GridType {
-        NONE, SCALAR, VECTOR, WEATHER, DISCRETE
+        /** None or unknown */
+        NONE,
+
+        /** scalar quantities */
+        SCALAR,
+
+        /** vector quantities with magnitude and direction */
+        VECTOR,
+
+        /** weather, contains weather key values */
+        WEATHER,
+
+        /** discrete, contains discrete key values */
+        DISCRETE
     }
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GridParmInfo.class);
 
     static {
@@ -196,12 +211,12 @@ public class GridParmInfo implements Cloneable {
 
     /**
      * Copy constructor
-     * 
+     *
      * @param orig
      */
     public GridParmInfo(GridParmInfo orig) {
         this.parmID = orig.parmID;
-        this.gridLoc = orig.gridLoc.clone();
+        this.gridLoc = orig.gridLoc.copy();
         this.gridType = orig.gridType;
         this.unitString = orig.unitString;
         this.descriptiveName = orig.descriptiveName;
@@ -215,7 +230,7 @@ public class GridParmInfo implements Cloneable {
 
     /**
      * Constructor using all fields
-     * 
+     *
      * @param id
      * @param gridLoc
      * @param gridType
@@ -229,8 +244,8 @@ public class GridParmInfo implements Cloneable {
      * @param rateParm
      */
     public GridParmInfo(ParmID id, GridLocation gridLoc, GridType gridType,
-            String unit, String descriptiveName, float minValue,
-            float maxValue, int precision, boolean timeIndependentParm,
+            String unit, String descriptiveName, float minValue, float maxValue,
+            int precision, boolean timeIndependentParm,
             TimeConstraints timeConstraints, boolean rateParm) {
         super();
         this.parmID = id;
@@ -253,7 +268,7 @@ public class GridParmInfo implements Cloneable {
 
     /**
      * Constructor with rateParm defaulted to false
-     * 
+     *
      * @param id
      * @param gridLoc
      * @param gridType
@@ -266,8 +281,8 @@ public class GridParmInfo implements Cloneable {
      * @param timeConstraints
      */
     public GridParmInfo(ParmID id, GridLocation gridLoc, GridType gridType,
-            String unit, String descriptiveName, float minValue,
-            float maxValue, int precision, boolean timeIndependentParm,
+            String unit, String descriptiveName, float minValue, float maxValue,
+            int precision, boolean timeIndependentParm,
             TimeConstraints timeConstraints) {
         this(id, gridLoc, gridType, unit, descriptiveName, minValue, maxValue,
                 precision, timeIndependentParm, timeConstraints, false);
@@ -276,7 +291,7 @@ public class GridParmInfo implements Cloneable {
     /**
      * GridParmInfo::setDefaultValues() Sets default values in private data.
      * Sets values to 0 or their default construction. Grid type is set to NONE.
-     * 
+     *
      */
     private void setDefaultValues() {
         this.parmID = new ParmID();
@@ -389,9 +404,9 @@ public class GridParmInfo implements Cloneable {
                 unitObject = UnitFormat.getUCUMInstance().parseProductUnit(
                         this.unitString, new ParsePosition(0));
             } catch (ParseException e) {
-                statusHandler
-                        .handle(Priority.EVENTB, "Error parsing unit string \""
-                                + this.unitString + "\"", e);
+                statusHandler.handle(Priority.EVENTB,
+                        "Error parsing unit string \"" + this.unitString + "\"",
+                        e);
 
                 unitObject = Unit.ONE;
             }
@@ -434,13 +449,10 @@ public class GridParmInfo implements Cloneable {
         return timeConstraints;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#clone()
+    /**
+     * @return a copy of this object
      */
-    @Override
-    public GridParmInfo clone() {
+    public GridParmInfo copy() {
         return new GridParmInfo(this);
     }
 
@@ -451,11 +463,6 @@ public class GridParmInfo implements Cloneable {
         return parmID;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -479,11 +486,6 @@ public class GridParmInfo implements Cloneable {
         return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -574,7 +576,7 @@ public class GridParmInfo implements Cloneable {
 
     /**
      * Reset the parmId
-     * 
+     *
      * @param parmId
      */
     public void resetParmID(ParmID parmId) {
@@ -587,8 +589,8 @@ public class GridParmInfo implements Cloneable {
                 + " GridLoc: " + gridLoc + " Units: " + unitString + " Name: "
                 + descriptiveName + " Min/Max AllowedValues: " + minValue + ','
                 + maxValue + " Precision: " + precision + " TimeIndependent: "
-                + timeIndependentParm + " RateParm: " + rateParm
-                + " GridType: " + gridType;
+                + timeIndependentParm + " RateParm: " + rateParm + " GridType: "
+                + gridType;
     }
 
     /**
@@ -689,7 +691,7 @@ public class GridParmInfo implements Cloneable {
 
     /**
      * Returns the list of discrete keys for DISCRETE elements.
-     * 
+     *
      * @return If a discrete parameter, gets the available keys from the
      *         discrete definitions.
      */
@@ -699,7 +701,7 @@ public class GridParmInfo implements Cloneable {
             String site = parmID.getDbId().getSiteId();
             return DiscreteKey.discreteDefinition(site).symbols(id);
         } else {
-            return new ArrayList<String>(0);
+            return new ArrayList<>(0);
         }
     }
 

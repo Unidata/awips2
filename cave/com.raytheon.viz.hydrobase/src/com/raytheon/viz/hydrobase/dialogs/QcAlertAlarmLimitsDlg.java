@@ -19,10 +19,8 @@
  **/
 package com.raytheon.viz.hydrobase.dialogs;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,19 +70,20 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date			Ticket#		Engineer	Description
- * ------------	----------	-----------	--------------------------
- * Sep 5, 2008				lvenable	Initial creation.
+ * Date         Ticket#     Engineer    Description
+ * -----------------------------------------------------------
+ * Sep 5, 2008              lvenable    Initial creation.
  * Dec 8, 2008  1744        askripsk    Connect to DB.
  * May 5, 2009  2181        mpduff      Keep selection upon submit.
  * Jun 16,2010  5526        lbousaidi   Start/End date not correct
  * Oct 27,2011  11305       lbousaidi   change some logic to have physical
- * 										elements matches the selection of default limits
+ *                                      elements matches the selection of default limits
  * Apr 19, 2013 1790        rferrel     Make dialog non-blocking.
  * Nov 26, 2013 15800       wkwock      Fix unhandled event loop 
  * Jan 07, 2013 16643       snaples     Fixed changeFormat to use string formatting instead of converting to Date.
- * Mar 31, 2014 #2970       lvenable    Put dispose checks in the runAsync calls.
+ * Mar 31, 2014 2970        lvenable    Put dispose checks in the runAsync calls.
  * Mar 10, 2017 28419       gvalenzuela Fixed UELE when entering search text that dosn't match an existing station.
+ * Apr 18, 2018 DCS19644    jwu         Add column 'ts' (Type-Source) in locdatalimits.
  * </pre>
  * 
  * @author lvenable
@@ -125,6 +124,16 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
     private List physElemList;
 
     /**
+     * Type-source check box.
+     */
+    private Button typeSrcChk;
+
+    /**
+     * Type-source list control.
+     */
+    private List typeSrcList;
+
+    /**
      * Limits list control.
      */
     private List limitsList;
@@ -153,6 +162,11 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
      * Physical element selected item list.
      */
     private List physElemSelItemList;
+
+    /**
+     * Type-Source selected item list.
+     */
+    private List typeSrcSelItemList;
 
     /**
      * Gross range minimum text control.
@@ -344,7 +358,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         // ------------------------------------------------
         gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         Composite topComp = new Composite(limitGroup, SWT.NONE);
-        topComp.setLayout(new GridLayout(7, false));
+        topComp.setLayout(new GridLayout(9, false));
         topComp.setLayoutData(gd);
 
         Label listLabel = new Label(topComp, SWT.NONE);
@@ -374,7 +388,8 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
             }
         });
 
-        gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
+        gd = new GridData();
+        gd.horizontalIndent = 120;
         Label filterByLabel = new Label(topComp, SWT.RIGHT);
         filterByLabel.setText("Filter By:");
         filterByLabel.setLayoutData(gd);
@@ -414,7 +429,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         });
 
         gd = new GridData();
-        gd.horizontalIndent = 5;
+        gd.horizontalIndent = 10;
         physElemChk = new Button(topComp, SWT.CHECK);
         physElemChk.setText("PhysElem");
         physElemChk.setLayoutData(gd);
@@ -426,7 +441,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
         });
 
-        gd = new GridData(300, 125);
+        gd = new GridData(225, 125);
         gd.verticalSpan = 2;
         physElemList = new List(topComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
         physElemList.setLayoutData(gd);
@@ -437,6 +452,38 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                 // Only filter display on change if currently selected as a
                 // filter option
                 if (physElemChk.getSelection()) {
+                    loadData();
+                }
+            }
+
+        });
+
+        // Create a new filter list for type-source
+        gd = new GridData();
+        gd.horizontalIndent = 10;
+        typeSrcChk = new Button(topComp, SWT.CHECK);
+        typeSrcChk.setText("Type Source:");
+        typeSrcChk.setLayoutData(gd);
+        typeSrcChk.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                loadData();
+            }
+
+        });
+
+        gd = new GridData(60, 125);
+        gd.verticalSpan = 2;
+        typeSrcList = new List(topComp, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+        typeSrcList.setLayoutData(gd);
+        typeSrcList.setFont(controlFont);
+        typeSrcList.add(HydroConstants.DEFAULT_TS);
+        typeSrcList.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent event) {
+                // Only filter display on change if currently selected as a
+                // filter option
+                if (typeSrcChk.getSelection()) {
                     loadData();
                 }
             }
@@ -467,7 +514,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         bottomListLbl.setFont(controlFont);
         bottomListLbl.setLayoutData(gd);
 
-        gd = new GridData(1100, 125);
+        gd = new GridData(1150, 125);
         limitsList = new List(limitGroup, SWT.BORDER | SWT.SINGLE
                 | SWT.V_SCROLL);
         limitsList.setLayoutData(gd);
@@ -486,7 +533,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
     private void createLimitsSelectedGroup() {
         GridData gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
         limitSelectedGroup = new Group(shell, SWT.NONE);
-        limitSelectedGroup.setLayout(new GridLayout(3, false));
+        limitSelectedGroup.setLayout(new GridLayout(4, false));
         limitSelectedGroup.setLayoutData(gd);
         limitSelectedGroup.setText("Limits For Selected Item ");
 
@@ -558,6 +605,25 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                 | SWT.V_SCROLL);
         physElemSelItemList.setLayoutData(gd);
         physElemSelItemList.setFont(controlFont);
+
+        // -----------------------------------------------------
+        // Create the type source controls
+        // -----------------------------------------------------
+        gd = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
+        gd.horizontalAlignment = SWT.CENTER;
+        Composite tsComp = new Composite(limitSelectedGroup, SWT.NONE);
+        tsComp.setLayout(new GridLayout(1, false));
+        tsComp.setLayoutData(gd);
+
+        Label tsLbl = new Label(tsComp, SWT.NONE);
+        tsLbl.setText("Type Source:");
+
+        gd = new GridData(70, 220);
+        typeSrcSelItemList = new List(tsComp,
+                SWT.BORDER | SWT.SINGLE | SWT.V_SCROLL);
+        typeSrcSelItemList.setLayoutData(gd);
+        typeSrcSelItemList.setFont(controlFont);
+        typeSrcSelItemList.add(HydroConstants.DEFAULT_TS);
 
         // -----------------------------------------------------
         // Create the QC and Alarm/Alert controls
@@ -795,7 +861,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
      * @return The label text.
      */
     private String getListLabelTopText() {
-        String fmt = "                                               %S           %S    %S"
+        String fmt = "                                                    %S           %S    %S"
                 + "       %S              %S";
 
         String text = String.format(fmt, "Gross", "Reasonable", "Rate of",
@@ -810,9 +876,9 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
      * @return The label text.
      */
     private String getListLabelBottomText() {
-        String fmt = "%S   %S    %S   %S    %S        %S        %S     %S      %S   "
+        String fmt = "%S   %S    %S   %S  %S     %S        %S        %S     %S      %S   "
                 + "%S  %S   %S   %S  %S  %S  %S   %S   %S";
-        String text = String.format(fmt, "Location", "PE", "Dur", "Start",
+        String text = String.format(fmt, "Location", "PE", "Dur", "TS", "Start",
                 "End", "Min", "Max", "Min", "Max", "Change", "Upper", "Lower",
                 "ROC", "Diff", "Upper", "Lower", "ROC", "Diff");
 
@@ -845,6 +911,28 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                                 physElemList.add(currPE);
                                 physElemSelItemList.add(currPE);
 
+                            }
+                        }
+                    });
+
+                    // Populate type-source
+                    final java.util.List<String> tsList = QcAlertAlarmLimitsDataManager
+                            .getInstance().getShefTs();
+
+                    VizApp.runAsync(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            if (isDisposed()) {
+                                return;
+                            }
+
+                            for (String currTS : tsList) {
+                                if (!currTS.equals(HydroConstants.DEFAULT_TS)) {
+                                    // "NA" has been added as the first item in the list.
+                                    typeSrcList.add(currTS);
+                                    typeSrcSelItemList.add(currTS);
+                                }
                             }
                         }
                     });
@@ -905,8 +993,10 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         String dayStartChange, dayEndChange;
         try {
             if (currentlyDisplayingDefaultLimits()) {
+
                 QcAlertAlarmLimitsDataManager man = QcAlertAlarmLimitsDataManager
                         .getInstance();
+
                 for (DataLimitData currData : man
                         .getDefaultLimits(physElemChk.getSelection(),
                                 getSelectedPEs(), forceLoad)) {
@@ -933,17 +1023,20 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                     updateDefaultInformationDisplay(currData);
 
                 }
+
                 if (!physElemChk.getSelection()) {
                     limitsList.setSelection(0);
                     getSelectedLimit();
                 }
             } else {
+
                 QcAlertAlarmLimitsDataManager man = QcAlertAlarmLimitsDataManager
                         .getInstance();
                 for (LocationDataLimitData currData : man
                         .getLocationLimits(locationChk.getSelection(),
                                 locationLimitTF.getText(),
                                 physElemChk.getSelection(), getSelectedPEs(),
+                                typeSrcChk.getSelection(), getSelectedTSs(),
                                 forceLoad)) {
                     dayStartChange = changeFormat(currData.getMonthDayStart(),
                             dateFormat2, dateFormat1);
@@ -992,6 +1085,22 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         return peFilter;
     }
 
+    /**
+     * Returns the selected TSs to filter by
+     * 
+     * @return
+     */
+    private java.util.List<String> getSelectedTSs() {
+        int[] selectedInd = typeSrcList.getSelectionIndices();
+        java.util.List<String> tsFilter = new ArrayList<>();
+
+        for (int i : selectedInd) {
+            tsFilter.add(typeSrcList.getItem(i).toUpperCase());
+        }
+
+        return tsFilter;
+    }
+
     private void newEntry() {
         // Clear selection in main list
         limitsList.deselectAll();
@@ -1018,6 +1127,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
             limitSelectedGroup.setEnabled(true);
             physElemSelItemList.setEnabled(true);
+            typeSrcSelItemList.setEnabled(true);
             deleteBtn.setEnabled(false);
             break;
         case NEW_DEFAULT_ENTRY:
@@ -1032,27 +1142,40 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
 
             limitSelectedGroup.setEnabled(true);
             physElemSelItemList.setEnabled(true);
+            typeSrcSelItemList.setEnabled(false);
             deleteBtn.setEnabled(false);
             break;
         case NORMAL_MODE:
             deleteBtn.setEnabled(true);
             limitSelectedGroup.setEnabled(true);
             physElemSelItemList.setEnabled(true);
+            if (!currentlyDisplayingDefaultLimits()) {
+                typeSrcSelItemList.setEnabled(true);
+            }
             break;
         case NO_ENTRIES:
             deleteBtn.setEnabled(false);
             limitSelectedGroup.setEnabled(false);
             physElemSelItemList.setEnabled(false);
+            typeSrcSelItemList.setEnabled(false);
             break;
         case DEFAULT_LIMITS:
             locationChk.setEnabled(false);
             locationLimitTF.setEnabled(false);
             locationSelItemTF.setEnabled(false);
+
+            typeSrcChk.setEnabled(false);
+            typeSrcList.setEnabled(false);
+            typeSrcSelItemList.setEnabled(false);
             break;
         case LOCATION_LIMITS:
             locationChk.setEnabled(true);
             locationLimitTF.setEnabled(true);
             locationSelItemTF.setEnabled(true);
+
+            typeSrcChk.setEnabled(true);
+            typeSrcList.setEnabled(true);
+            typeSrcSelItemList.setEnabled(true);
             break;
         default:
             break;
@@ -1147,7 +1270,6 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
                 physElemSelItemList.setSelection(i);
                 break;
             }
-
         }
 
         grossRangeMinTF.setText(HydroDataUtils.getDisplayString(currData
@@ -1206,7 +1328,6 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
          * 
          * only for the display.
          */
-
         try {
 
             dateSringStart = changeFormat(currData.getMonthDayStart(),
@@ -1239,6 +1360,16 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         for (int i = 0; i < physElemSelItemList.getItemCount(); i++) {
             if (physElemSelItemList.getItem(i).contains(currPE)) {
                 physElemSelItemList.setSelection(i);
+                break;
+            }
+        }
+
+        // Get the TS
+        String currTS = currData.getTs();
+
+        for (int i = 0; i < typeSrcSelItemList.getItemCount(); i++) {
+            if (typeSrcSelItemList.getItem(i).contains(currTS)) {
+                typeSrcSelItemList.setSelection(i);
                 break;
             }
         }
@@ -1280,6 +1411,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         endDateTF.setText("");
 
         physElemSelItemList.deselectAll();
+        typeSrcSelItemList.deselectAll();
 
         grossRangeMinTF.setText("");
         grossRangeMaxTF.setText("");
@@ -1404,6 +1536,7 @@ public class QcAlertAlarmLimitsDlg extends CaveSWTDialog {
         LocationDataLimitData dataToSave = new LocationDataLimitData();
 
         dataToSave.setLid(locationSelItemTF.getText());
+        dataToSave.setTs(typeSrcSelItemList.getSelection()[0]);
         boolean saveSuccessful = setSaveValues(dataToSave);
         boolean rval = false;
 

@@ -71,6 +71,7 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     data array for anything below 300MB for 
  *                                     RAP40.
  * Oct 02, 2012  15259    M.Porricelli Allow plotting when 3 levels available
+ *                                     (DGEX)
  * Sep 09, 2013  2277     mschenke     Got rid of ScriptCreator references
  * Feb 17, 2014  2661     bsteffen     Remove unnecessary output.
  * 

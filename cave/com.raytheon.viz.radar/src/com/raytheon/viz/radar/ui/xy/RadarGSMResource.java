@@ -63,6 +63,7 @@ import com.raytheon.viz.radar.rsc.RadarResourceData;
  * 07/24/2014   #3429      mapeters  Updated deprecated drawLine() calls.
  * 07/29/2014   #3465      mapeters  Updated deprecated drawString() calls.
  * 06/09/2016   DR 17748   jdynina   Ignore SAILS cuts for super-res display
+ * 11/28/2017   DR 16763   jdynina   Acknowledge SPG for OP Mode
  * 
  * </pre>
  * 
@@ -153,9 +154,19 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
                 break;
             case 1:
                 temp = "Clear Air Mode";
+                if (vcp == 80) {
+                    temp = "Hazardous Mode (clear air)";
+                } else if (vcp ==90) {
+                    temp = "Monitor Mode (clear air)";
+                }
                 break;
             case 2:
                 temp = "Precipitation/Severe Weather Mode";
+                if (vcp == 80) {
+                    temp = "Hazardous Mode";
+                } else if (vcp ==90) {
+                    temp = "Monitor Mode";
+                }
                 break;
             }
             drawNexradString(
@@ -306,7 +317,7 @@ public class RadarGSMResource extends AbstractRadarResource<RadarXYDescriptor> {
             }
 
             ElevCompare elevCompare = new ElevCompare();
-            TreeSet<Pair<Double, Boolean>> flaggedElevations = new TreeSet<Pair<Double, Boolean>>(elevCompare);
+            TreeSet<Pair<Double, Boolean>> flaggedElevations = new TreeSet<>(elevCompare);
 
             for (int i = 0; i < elev.length; ++i) {
                 if (elev[i] != 0 && (i == 0 || elev[i] != elev[0])) {

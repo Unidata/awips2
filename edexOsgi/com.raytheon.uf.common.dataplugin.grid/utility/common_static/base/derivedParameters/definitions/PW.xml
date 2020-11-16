@@ -23,7 +23,7 @@
         at different localization levels will be combined. 
     -->
 <DerivedParameter unit="in" name="Preciptable H2O" abbreviation="PW">
-    <Method models="SREF40" name="Alias">
+    <Method models="SREF212" name="Alias">
         <Field abbreviation="PWmean" />
     </Method>
     <Method name="Alias" levels="Layer">

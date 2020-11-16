@@ -1,45 +1,47 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
 package com.raytheon.viz.gfe.core.msgs;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.viz.core.RGBColors;
-import com.raytheon.viz.gfe.Activator;
-import com.raytheon.viz.gfe.PreferenceInitializer;
+import com.raytheon.viz.gfe.GFEPreference;
 
 /**
- * TODO Add Description
- * 
+ * Reference Set Appearance Changed Message
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 24, 2009            randerso     Initial creation
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 24, 2009           randerso  Initial creation
+ * Jan 05, 2018  7178     randerso  Added default constructor for
+ *                                  Message.InquireLastMessage
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
 public class RefSetAppearanceChangedMsg extends Message {
@@ -48,28 +50,27 @@ public class RefSetAppearanceChangedMsg extends Message {
 
     private final int lineWidth;
 
-    static {
-        new PreferenceInitializer() {     
-            @Override
-            public void init() {
-                IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
-        
-                String colorStr;
-                if ((colorStr = prefs.getString("ReferenceSet_color")).isEmpty()) {
-                    colorStr = "Gray80";
-                }
-                RGB color = RGBColors.getRGBColor(colorStr);
-        
-                int lineWidth = prefs.getInt("ReferenceSet_width");
-                if (lineWidth == 0) {
-                    lineWidth = 1;
-                }
-        
-                new RefSetAppearanceChangedMsg(color, lineWidth).send();
-            }
-        }.run();
+    /**
+     * Default constructor for use in {@link Message#inquireLastMessage(Class)}
+     */
+    public RefSetAppearanceChangedMsg() {
+        String colorStr = GFEPreference.getString("ReferenceSet_color",
+                "Gray80");
+        this.color = RGBColors.getRGBColor(colorStr);
+
+        int lineWidth = GFEPreference.getInt("ReferenceSet_width", 1);
+        if (lineWidth < 1) {
+            lineWidth = 1;
+        }
+        this.lineWidth = lineWidth;
     }
 
+    /**
+     * Constructor
+     *
+     * @param color
+     * @param lineWidth
+     */
     public RefSetAppearanceChangedMsg(RGB color, int lineWidth) {
         super();
         this.color = color;

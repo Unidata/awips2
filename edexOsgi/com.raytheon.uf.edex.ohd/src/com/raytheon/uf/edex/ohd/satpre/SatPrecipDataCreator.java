@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -23,21 +23,34 @@ import java.awt.Rectangle;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import javax.measure.converter.UnitConverter;
+import javax.measure.unit.NonSI;
+import javax.measure.unit.SI;
+import javax.measure.unit.Unit;
+
 import org.geotools.coverage.grid.GeneralGridGeometry;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
+import com.raytheon.uf.common.dataaccess.util.DataWrapperUtil;
+import com.raytheon.uf.common.dataplugin.PluginDataObject;
+import com.raytheon.uf.common.dataplugin.PluginException;
+import com.raytheon.uf.common.dataplugin.mpe.PrecipRecord;
 import com.raytheon.uf.common.dataplugin.satellite.SatMapCoverage;
 import com.raytheon.uf.common.dataplugin.satellite.SatelliteRecord;
+import com.raytheon.uf.common.dataplugin.satellite.units.SatelliteUnitsUtil;
 import com.raytheon.uf.common.datastorage.IDataStore;
 import com.raytheon.uf.common.datastorage.Request;
 import com.raytheon.uf.common.datastorage.StorageException;
 import com.raytheon.uf.common.datastorage.records.IDataRecord;
 import com.raytheon.uf.common.datastorage.records.ShortDataRecord;
+import com.raytheon.uf.common.geospatial.data.UnitConvertingDataFilter;
 import com.raytheon.uf.common.geospatial.interpolation.GridReprojection;
 import com.raytheon.uf.common.geospatial.interpolation.NearestNeighborInterpolation;
 import com.raytheon.uf.common.mpe.fieldgen.PrecipField;
 import com.raytheon.uf.common.numeric.buffer.BufferWrapper;
+import com.raytheon.uf.common.numeric.buffer.ShortBufferWrapper;
+import com.raytheon.uf.common.numeric.source.DataSource;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.time.DataTime;
@@ -51,17 +64,13 @@ import com.raytheon.uf.edex.database.plugin.PluginDao;
 import com.raytheon.uf.edex.database.plugin.PluginFactory;
 import com.raytheon.uf.edex.ohd.pproc.IPrecipDataCreator;
 import com.raytheon.uf.edex.ohd.pproc.PrecipCreationException;
-import com.raytheon.uf.common.dataplugin.PluginDataObject;
-import com.raytheon.uf.common.dataplugin.PluginException;
-import com.raytheon.uf.common.dataplugin.mpe.PrecipRecord;
 
 /**
  * Creates an alternate version of the SATPRE hrap precip grid based on GOES-R
- * RRQPE data. The data acquired from GOES-R already uses the expected unit of
- * measurement, so this precip data creator extracts the GOES-R data within the
- * extents of the hrap grid and uses {@link GridReprojection} to reproject it
- * into the hrap grid space.
- * 
+ * RRQPE data. The data acquired from GOES-R is converted to the expected unit
+ * of measurement and reprojected into the hrap grid space via
+ * {@link GridReprojection}.
+ *
  * <pre>
  *
  * SOFTWARE HISTORY
@@ -70,6 +79,7 @@ import com.raytheon.uf.common.dataplugin.mpe.PrecipRecord;
  * ------------ ---------- ----------- --------------------------
  * Sep 13, 2017 6407       bkowal      Initial creation
  * Oct 06, 2017 6407       bkowal      Added logging.
+ * Aug 15, 2018 7434       mapeters    Add necessary unit conversion
  *
  * </pre>
  *
@@ -157,16 +167,36 @@ public class SatPrecipDataCreator
                     "Failed to retrieve the satellite data.", e);
         }
 
+        /*
+         * The dataUnit is the current unit of the data, accounting for
+         * offset/scale values in the satellite record.
+         */
+        Unit<?> dataUnit = SatelliteUnitsUtil
+                .getDataUnit(SatelliteUnitsUtil.getRecordUnit(pdo), dataRec);
+        /*
+         * The other precip data creator (GridPrecipDataCreator) converts to
+         * hundredths of millimeters, so match that (and CAVE is set to expect
+         * that unit in MPEFieldResourceData.getDataUnitsForField()). It looks
+         * like it does this so that the data can be stored as shorts (instead
+         * of floats) while still maintaining decent precision. Ideally we
+         * should actually store as floats, but all of the code expects short
+         * data, so we do this for simplicity for now.
+         */
+        Unit<?> targetUnit = SI.MILLIMETER.divide(NonSI.HOUR).divide(100);
+        UnitConverter converter = dataUnit.getConverterTo(targetUnit);
+
+        // Construct unit-converting data source
+        DataSource dataSource = DataWrapperUtil.constructArrayWrapper(dataRec,
+                false);
+        dataSource = UnitConvertingDataFilter.apply(dataSource, converter);
+
         GridReprojection reprojection = new GridReprojection(
                 coverage.getGridGeometry(), gridGeometry);
-        final short[] sourceData = ((ShortDataRecord) dataRec).getShortData();
-        BufferWrapper source = BufferWrapper.wrapArray(sourceData,
-                coverage.getNx(), coverage.getNy());
-        BufferWrapper dest = BufferWrapper.create(source.getPrimitiveType(),
-                (int) extent.getWidth(), (int) extent.getHeight());
+        BufferWrapper dest = new ShortBufferWrapper((int) extent.getWidth(),
+                (int) extent.getHeight());
         try {
             dest = reprojection.reprojectedGrid(
-                    new NearestNeighborInterpolation(), source, dest);
+                    new NearestNeighborInterpolation(), dataSource, dest);
         } catch (FactoryException | TransformException e) {
             throw new PrecipCreationException(
                     "Failed to reproject the satellite data into the hrap sub-grid.",
@@ -176,8 +206,7 @@ public class SatPrecipDataCreator
         return new SatelliteData(pdo, dest);
     }
 
-    private PrecipRecord buildPrecipRecord(final SatelliteData satelliteData)
-            throws PrecipCreationException {
+    private PrecipRecord buildPrecipRecord(final SatelliteData satelliteData) {
         final DataTime dataTime = satelliteData.getDataRecord().getDataTime();
         PrecipRecord precipRecord = new PrecipRecord();
         precipRecord.setPrecipField(PrecipField.SATPRE);

@@ -19,8 +19,6 @@
  **/
 package com.raytheon.uf.viz.xy.timeheight.rsc;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.measure.unit.Unit;
@@ -91,6 +89,8 @@ import com.vividsolutions.jts.geom.Geometry;
  * Aug 12, 2016  5822     bsteffen  add disposeRenderables for handling data
  *                                  refresh.
  * May 02, 2017  6048     bsteffen  Fix NullPointerException
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
+ * Feb 19, 2018  6666     bsteffen  Get data from adapter using loadPreparedData
  * 
  * </pre>
  * 
@@ -187,7 +187,7 @@ public abstract class AbstractTimeHeightResource extends
 
     protected AbstractTimeHeightResource(TimeHeightResourceData data,
             LoadProperties props, AbstractVarHeightAdapter<?> adapter) {
-        super(data, props);
+        super(data, props, false);
         this.adapter = adapter;
         ICombinedResourceData combinedResourceData = getResourceData();
 
@@ -213,8 +213,6 @@ public abstract class AbstractTimeHeightResource extends
             }
 
         });
-
-        this.dataTimes = new ArrayList<DataTime>();
     }
 
     @Override
@@ -267,9 +265,8 @@ public abstract class AbstractTimeHeightResource extends
                     : myDataTimes.length - 1 - i);
             DataTime myDataTime = myDataTimes[dataTimesIndex];
             try {
-                List<XYData> dataList = adapter.loadData(myDataTime);
-                adapter.sortData(dataList);
-                adapter.convertData(dataList, getUnit());
+                List<XYData> dataList = adapter.loadPreparedData(myDataTime,
+                        getUnit());
                 columns[i] = InterpUtils.makeColumn(dataList,
                         (int) geometry.getGridRange2D().getHeight(), graph,
                         descriptor.getHeightScale().getMinVal() < descriptor
@@ -427,9 +424,7 @@ public abstract class AbstractTimeHeightResource extends
         DataTime pdoTime = pdo.getDataTime().clone();
         pdoTime.setLevelValue(null);
         synchronized (dataTimes) {
-            if (!dataTimes.contains(pdoTime)) {
-                dataTimes.add(pdoTime);
-                Collections.sort(dataTimes);
+            if (dataTimes.add(pdoTime)) {
                 if (descriptor != null) {
                     IGraph graph = descriptor.getGraph(this);
                     if (graph != null) {

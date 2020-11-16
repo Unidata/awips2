@@ -18,6 +18,7 @@
 # further licensing information.
 ##
 
+from __future__ import print_function
 
 import sys, os, pwd, string, getopt, logging
 import numpy
@@ -36,8 +37,6 @@ from dynamicserialize.dstypes.com.raytheon.uf.common.localization.msgs import Pr
 from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import LocalizationStreamGetRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.localization.stream import LocalizationStreamPutRequest
 from dynamicserialize.dstypes.com.raytheon.uf.common.message import WsId
-from dynamicserialize.dstypes.com.raytheon.uf.common.auth.user import User
-from dynamicserialize.dstypes.com.raytheon.uf.common.auth.user import UserId
 from dynamicserialize.dstypes.com.raytheon.uf.common.site.requests import GetActiveSitesRequest
 from awips import ThriftClient
 
@@ -52,6 +51,8 @@ from awips import ThriftClient
 #    12/17/10                      dgilling       Initial Creation.
 #    11/17/15         #5129        dgilling       Support changes to GetSiteTimeZoneInfoRequest.
 #    07/17/17         #6285        randerso       Change to use new Roles/Permissions framework.
+#    02/19/18         #6602        dgilling       Update for new text utility 
+#                                                 location.
 #
 #
 
@@ -117,7 +118,7 @@ class ifpServerText:
                        "Tool": ("CAVE_STATIC", "gfe/userPython/smartTools"),
                        "Procedure": ("CAVE_STATIC", "gfe/userPython/procedures"),
                        "TextProduct": ("CAVE_STATIC", "gfe/userPython/textProducts"),
-                       "TextUtility": ("CAVE_STATIC", "gfe/userPython/textUtilities/regular"),
+                       "TextUtility": ("CAVE_STATIC", "gfe/userPython/textUtilities"),
                        "Utility": ("CAVE_STATIC", "gfe/userPython/utilities"),
                        "Combinations": ("CAVE_STATIC", "gfe/combinations"),
                        "ISCUtility": ("COMMON_STATIC", "isc/utilities")
@@ -339,7 +340,7 @@ class ifpServerText:
 
 
     def __usage(self):
-        print """
+        print("""
 Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
    [-s -n name -f filename -c class] 
    [-d -n name [-c class]]
@@ -384,7 +385,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
        domain (for the database grid location, domain)
        -f filename to store under, or if not specified stdout
 
-"""
+""")
 
     def __buildInventory(self):
         invTuple = self.LOCALIZATION_DICT[self.__classType]
@@ -407,8 +408,8 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             cmd.setLocalizedSite(self.__siteID)
             ctx = LocalizationContext()
             ll = LocalizationLevel(level)
-            type = LocalizationType(invTuple[0])
-            ctx.setLocalizationType(type)
+            locType = LocalizationType(invTuple[0])
+            ctx.setLocalizationType(locType)
             ctx.setLocalizationLevel(ll)
             if level in ["CONFIGURED", "SITE"]:
                 ctx.setContextName(self.__siteID)
@@ -454,8 +455,8 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
         # Store the main file
         # need to convert python bytearray type (which is just a list of ints)
         # to numpy.int8 type to ensure this data is serialized as bytes
-        bytes = numpy.asarray(bytearray(txt, 'utf8'), dtype=numpy.int8)
-        totalSize = len(bytes)
+        fileBytes = numpy.asarray(bytearray(txt, 'utf8'), dtype=numpy.int8)
+        totalSize = len(fileBytes)
         request = LocalizationStreamPutRequest()
         request.setOffset(0)
 
@@ -466,8 +467,8 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             levelName = self.__user
         ctx = LocalizationContext()
         ll = LocalizationLevel(levelName)
-        type = LocalizationType(localizationInfo[0])
-        ctx.setLocalizationType(type)
+        locType = LocalizationType(localizationInfo[0])
+        ctx.setLocalizationType(locType)
         ctx.setLocalizationLevel(ll)
         if self.__user != "SITE":
             ctx.setContextName(self.__user)
@@ -481,8 +482,8 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
         finished = False
         while (not finished):
             request.setOffset(totalSent)
-            sendBuffer = bytes[:self.BUFFER_SIZE]
-            bytes = bytes[self.BUFFER_SIZE:]
+            sendBuffer = fileBytes[:self.BUFFER_SIZE]
+            fileBytes = fileBytes[self.BUFFER_SIZE:]
             totalSent += len(sendBuffer)
             request.setBytes(sendBuffer)
             request.setEnd(totalSent == totalSize)
@@ -577,13 +578,13 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             # object. we'll use its methods to read back the serialized file
             # data.
             # bytes get returned to us as an numpy.ndarray
-            bytes = serverResponse.getBytes()
-            txt += bytes.tostring()
-            request.setOffset(request.getOffset() + len(bytes))
+            fileBytes = serverResponse.getBytes()
+            txt += fileBytes.tostring()
+            request.setOffset(request.getOffset() + len(fileBytes))
             finished = serverResponse.getEnd()
 
         if self.__filename is None:
-            print txt
+            print(txt)
         else:
             f = open(self.__filename, 'w', 0644)
             f.write(txt)
@@ -594,8 +595,8 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
         #Returns the inventory
         keys = self.__db.keys()
 
-        print "%-40s" % "Name", "%-15s" % "Access", "Protect"
-        print "%-40s" % "----", "%-15s" % "------", "-------"
+        print("%-40s" % "Name", "%-15s" % "Access", "Protect")
+        print("%-40s" % "----", "%-15s" % "------", "-------")
         keys.sort()
         for k in keys:
             a = self.__db[k]
@@ -603,7 +604,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
                 pro = 'Read-Only'
             else:
                 pro = 'Read-Write'
-            print "%-40s" % k, "%-15s" % a.localCtx.getLocalizationLevel(), pro
+            print("%-40s" % k, "%-15s" % a.localCtx.getLocalizationLevel(), pro)
 
     def __verifyClass(self, txt, searchString):
         lines = string.split(txt, '\n')
@@ -612,8 +613,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             if index != -1:
                 return 1
         s = "Input file is not written in class format or contains improper type"
-        raise Exception, s
-        return 0
+        raise Exception(s)
 
     def __saveSamples(self):
         #Saves a sample set  format: #points, lon/lat, lon/lat, .....
@@ -745,8 +745,8 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
                 domain = serverResponse.getPayload()
                 proj = domain.getProjection()
                 txt = "ProjectionID: " + proj.getProjectionID() + "\n"
-                txt = txt + "Grid Size: " + `(domain.getNx(), domain.getNy())` + "\n"
-                txt = txt + "Grid Domain: " + `(domain.getOrigin(), domain.getExtent())` + "\n"
+                txt = txt + "Grid Size: " + repr((domain.getNx(), domain.getNy())) + "\n"
+                txt = txt + "Grid Domain: " + repr((domain.getOrigin(), domain.getExtent())) + "\n"
 
                 keys = proj.keys()
                 for k in keys:
@@ -754,7 +754,7 @@ Usage: ifpServerText -h hostname -p rpcPortNumber -o siteID [-u user]
             else:
                 raise Exception, serverResponse.message()
         if self.__filename is None:
-            print txt
+            print(txt)
         else:
             f = open(self.__filename, 'w', 0644)
             f.write(txt)

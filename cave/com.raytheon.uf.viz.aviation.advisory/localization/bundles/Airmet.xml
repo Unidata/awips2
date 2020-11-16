@@ -31,12 +31,13 @@
                 <resource>
                     <loadProperties loadWithoutData="false">
                         <capabilities>
+                            <capability xsi:type="colorableCapability"
+                                colorAsString="${color}" />
                         </capabilities>
                     </loadProperties>
                     <resourceData xsi:type="advisoryResourceData"
                         isUpdatingOnMetadataOnly="false"
-                        isRequeryNecessaryOnTimeMatch="true" name="${name}"
-                        colorString="${color}">
+                        isRequeryNecessaryOnTimeMatch="true" name="${name}">
                         <dataAdapter xsi:type="airmetDataAdapter"
                             hazardType="${hazardType}" />
                         <binOffset posOffset="20400"

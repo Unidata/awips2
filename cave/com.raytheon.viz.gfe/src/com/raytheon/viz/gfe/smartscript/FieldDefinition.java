@@ -30,9 +30,13 @@ import java.util.List;
  * SOFTWARE HISTORY
  *
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- -----------------------------
+ * ------------- -------- --------- --------------------------------------------
  * Oct 29, 2010           dgilling  Initial creation
  * Nov 28, 2017  6540     randerso  Changed resolution to double
+ * Jan 15, 2018  6684     randerso  Added new FieldTypes DELTASCALE and
+ *                                  COMPACTTEXT to support Serp tool.
+ *                                  Restructured to improve
+ *                                  maintainability/readability of code.
  *
  * </pre>
  *
@@ -42,43 +46,48 @@ import java.util.List;
 public class FieldDefinition {
 
     public static enum FieldType {
-        LABEL("label"),
-        NUMERIC("numeric"),
-        ALPHANUMERIC("alphaNumeric"),
-        RADIO("radio"),
-        CHECK("check"),
-        SCALE("scale"),
-        SCROLLBAR("scrollbar"),
-        PARM("parm"),
-        PARMS("parms"),
-        PARMPLUSVARIABLE("parmPlusVariable"),
-        PARMSPLUSVARIABLE("parmsPlusVariable"),
-        PARMMUTABLE("parmMutable"),
-        PARMSMUTABLE("parmsMutable"),
-        PARMMUTABLEPLUSVARIABLE("parmMutablePlusVariable"),
-        PARMSMUTABLEPLUSVARIABLE("parmsMutablePlusVariable"),
-        DATABASE("database"),
-        DATABASES("databases"),
-        D2DMODEL("D2D_model"),
-        D2DMODELS("D2D_models"),
-        MODEL("model"),
-        MODELS("models"),
-        REFSET("refset"),
-        REFSETS("refsets"),
-        TIMERANGE("timeRange"),
-        TIMERANGES("timeRanges"),
-        MAP("map"),
-        MAPS("maps"),
-        OUTPUT_FILE("output file"),
-        OUTPUT_DIRECTORY("output directory"),
-        STARTTIME("startTime"),
-        ENDTIME("endTime"),
-        UNKNOWN("");
+        LABEL("label", "label"),
+        NUMERIC("numeric", "entry"),
+        ALPHANUMERIC("alphaNumeric", "entry"),
+        COMPACTTEXT("compactText", "entry"),
+        RADIO("radio", "button"),
+        CHECK("check", "button"),
+        SCALE("scale", "entry"),
+        DELTASCALE("deltascale", "entry"),
+        SCROLLBAR("scrollbar", ""),
+        PARM("parm", "button"),
+        PARMS("parms", "button"),
+        PARMPLUSVARIABLE("parmPlusVariable", "button"),
+        PARMSPLUSVARIABLE("parmsPlusVariable", "button"),
+        PARMMUTABLE("parmMutable", "button"),
+        PARMSMUTABLE("parmsMutable", "button"),
+        PARMMUTABLEPLUSVARIABLE("parmMutablePlusVariable", "button"),
+        PARMSMUTABLEPLUSVARIABLE("parmsMutablePlusVariable", "button"),
+        DATABASE("database", "button"),
+        DATABASES("databases", "button"),
+        D2DMODEL("D2D_model", "button"),
+        D2DMODELS("D2D_models", "button"),
+        MODEL("model", "button"),
+        MODELS("models", "button"),
+        REFSET("refset", "button"),
+        REFSETS("refsets", "button"),
+        TIMERANGE("timeRange", "button"),
+        TIMERANGES("timeRanges", "button"),
+        MAP("map", "button"),
+        MAPS("maps", "button"),
+        OUTPUT_FILE("output file", "entry"),
+        OUTPUT_DIRECTORY("output directory", "entry"),
+        STARTTIME("startTime", "entry"),
+        ENDTIME("endTime", "entry"),
+        UNKNOWN("", "");
 
         private String pythonWidgetName;
 
-        private FieldType(String pythonWidgetName) {
+        private String packType;
+
+        private FieldType(String pythonWidgetName, String packType) {
             this.pythonWidgetName = pythonWidgetName;
+            this.packType = packType;
         }
 
         public String getPythonWidgetName() {
@@ -87,6 +96,10 @@ public class FieldDefinition {
 
         private void setPythonWidgetName(String pythonWidgetName) {
             this.pythonWidgetName = pythonWidgetName;
+        }
+
+        public String getPackType() {
+            return packType;
         }
 
         public static FieldType convertPythonType(String pythonType) {
@@ -122,6 +135,8 @@ public class FieldDefinition {
 
     private int precision;
 
+    private Boolean newRow;
+
     public FieldDefinition() {
         valueList = new ArrayList<>();
     }
@@ -138,6 +153,23 @@ public class FieldDefinition {
     public FieldDefinition(Object name, String description, FieldType type,
             Object defaultValue, List<Object> valueList, double resolution,
             int precision) {
+        this(name, description, type, defaultValue, valueList, resolution,
+                precision, true);
+    }
+
+    /**
+     * @param name
+     * @param description
+     * @param type
+     * @param defaultValue
+     * @param valueList
+     * @param resolution
+     * @param precision
+     * @param newRow
+     */
+    public FieldDefinition(Object name, String description, FieldType type,
+            Object defaultValue, List<Object> valueList, double resolution,
+            int precision, Boolean newRow) {
         this.name = name;
         this.description = description;
         this.type = type;
@@ -145,14 +177,11 @@ public class FieldDefinition {
         this.valueList = valueList;
         this.resolution = resolution;
         this.precision = precision;
+        this.newRow = newRow;
     }
 
     public Object getName() {
         return name;
-    }
-
-    public void setName(Object name) {
-        this.name = name;
     }
 
     public String getDescription() {
@@ -167,40 +196,31 @@ public class FieldDefinition {
         return type;
     }
 
-    public void setType(FieldType type) {
-        this.type = type;
-    }
-
     public Object getDefaultValue() {
         return defaultValue;
-    }
-
-    public void setDefaultValue(Object defaultValue) {
-        this.defaultValue = defaultValue;
     }
 
     public List<? extends Object> getValueList() {
         return valueList;
     }
 
-    public void setValueList(List<? extends Object> valueList) {
-        this.valueList = valueList;
-    }
-
     public double getResolution() {
         return resolution;
     }
 
-    public void setResolution(double resolution) {
-        this.resolution = resolution;
-    }
-
-    public void setPrecision(int precision) {
-        this.precision = precision;
-    }
-
     public int getPrecision() {
         return precision;
+    }
+
+    public Boolean getNewRow() {
+        return newRow;
+    }
+
+    public String getPackType() {
+        if ((type == FieldType.LABEL) && description.isEmpty()) {
+            return "";
+        }
+        return getType().getPackType();
     }
 
 }

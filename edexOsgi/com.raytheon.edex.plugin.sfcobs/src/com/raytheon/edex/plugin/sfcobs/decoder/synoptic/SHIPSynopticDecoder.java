@@ -158,6 +158,8 @@ public class SHIPSynopticDecoder extends AbstractSynopticDecoder {
                 clearSectionDecoders();
                 return;
             }
+            logger.info("<-------" + getReportIdentifier()
+                    + "---------------->");
             decodeLatitude();
             decodeLongitude();
             if (isFixedBuoy) {

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -46,23 +46,25 @@ import com.raytheon.viz.gfe.core.wxvalue.DiscreteWxValue;
 
 /**
  * Provides UI to set a discrete wx value for the set value dialog
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jun 22, 2009 #1318      randerso    Initial creation
- * Aug 20, 2014 #1664      randerso    Fixed invalid thread access
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Jun 22, 2009  1318     randerso  Initial creation
+ * Aug 20, 2014  1664     randerso  Fixed invalid thread access
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author randerso
- * @version 1.0
  */
 
-public class DiscreteSetValue extends AbstractSetValue implements
-        ICombineModeChangedListener {
+public class DiscreteSetValue extends AbstractSetValue
+        implements ICombineModeChangedListener {
 
     private DiscreteKey discreteKey;
 
@@ -82,11 +84,14 @@ public class DiscreteSetValue extends AbstractSetValue implements
 
     /**
      * Constructor
-     * 
+     *
      * @param parent
      *            composite to contain the controls
      * @param parm
      *            the parm to be acted on
+     * @param showCombine
+     * @param showAddToSession
+     * @param setPickupValueEachTime
      */
     public DiscreteSetValue(Composite parent, Parm parm, boolean showCombine,
             boolean showAddToSession, boolean setPickupValueEachTime) {
@@ -144,7 +149,7 @@ public class DiscreteSetValue extends AbstractSetValue implements
         layout.marginHeight = 0;
         layout.horizontalSpacing = 0;
         frame.setLayout(layout);
-        subKeyUI = new ArrayList<SubKey>();
+        subKeyUI = new ArrayList<>();
 
         subKeyFrame = new Composite(frame, SWT.NONE);
         layoutData = new GridData(SWT.FILL, SWT.DEFAULT, true, false);
@@ -195,11 +200,6 @@ public class DiscreteSetValue extends AbstractSetValue implements
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.swt.widgets.Widget#dispose()
-     */
     @Override
     public void dispose() {
         parm.getListeners().removeCombineModeChangedListener(this);
@@ -217,14 +217,6 @@ public class DiscreteSetValue extends AbstractSetValue implements
         dataManager.getParmOp().setCombineMode(state);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.ICombineModeChangedListener#combineModeChanged
-     * (com.raytheon.viz.gfe.core.parm.Parm,
-     * com.raytheon.viz.gfe.core.parm.ParmState.CombineMode)
-     */
     @Override
     public void combineModeChanged(Parm parm, final CombineMode mode) {
         // Parm Client notification
@@ -239,8 +231,8 @@ public class DiscreteSetValue extends AbstractSetValue implements
 
     protected void addToSession() {
         // LogStream.logUse("Add to session")
-        parm.getParmState().addSessionPickupValue(
-                new DiscreteWxValue(discreteKey, parm));
+        parm.getParmState()
+                .addSessionPickUpValue(new DiscreteWxValue(discreteKey, parm));
     }
 
     protected void addSubKey() {
@@ -290,7 +282,8 @@ public class DiscreteSetValue extends AbstractSetValue implements
             // make the subkey
             ((GridLayout) subKeyFrame.getLayout()).numColumns++;
             SubKey subk = new SubKey(subKeyFrame, sk);
-            subk.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false, true));
+            subk.setLayoutData(
+                    new GridData(SWT.DEFAULT, SWT.FILL, false, true));
             subKeyUI.add(subk);
         }
         subKeyFrame.layout();
@@ -305,21 +298,19 @@ public class DiscreteSetValue extends AbstractSetValue implements
      * by this control
      */
     public void setWxPickup() {
-        parm.getParmState().setPickUpValue(
-                new DiscreteWxValue(discreteKey, parm));
+        parm.getParmState()
+                .setPickUpValue(new DiscreteWxValue(discreteKey, parm));
     }
 
     /**
-     * Returns the DiscreteWxValue defined by this UI
-     * 
-     * @return
+     * @return the DiscreteWxValue defined by this UI
      */
     public DiscreteWxValue getWxPickup() {
         return new DiscreteWxValue(discreteKey, parm);
     }
 
     private void subKeyChanged() {
-        ArrayList<String> wxsubkeys = new ArrayList<String>();
+        List<String> wxsubkeys = new ArrayList<>();
         for (SubKey key : subKeyUI) {
             wxsubkeys.add(key.getSubKey());
         }
@@ -446,7 +437,8 @@ public class DiscreteSetValue extends AbstractSetValue implements
             return s;
         }
 
-        private void updateCombo(Combo combo, List<? extends DiscreteTerm> list) {
+        private void updateCombo(Combo combo,
+                List<? extends DiscreteTerm> list) {
             combo.removeAll();
 
             for (DiscreteTerm term : list) {

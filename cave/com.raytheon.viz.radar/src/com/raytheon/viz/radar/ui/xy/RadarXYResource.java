@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.swt.graphics.RGB;
 
@@ -43,7 +44,6 @@ import com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedVector;
 import com.raytheon.uf.common.dataplugin.radar.level3.UnlinkedVectorPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket;
 import com.raytheon.uf.common.dataplugin.radar.level3.WindBarbPacket.WindBarbPoint;
-import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.viz.core.DrawableLine;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -76,21 +76,21 @@ import com.vividsolutions.jts.geom.Coordinate;
  * <pre>
  * 
  * SOFTWARE HISTORY
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Mar 16, 2009           askripsk    Initial creation
- * Jul 26, 2010  3723     bkowal      Now implements the magnification
- *                                    capability.
- * Mar 19, 2013  1804     bsteffen    Remove empty data structures from radar
- *                                    hdf5.
- * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
- * Jul 23, 2014  3429     mapeters    Updated deprecated drawLine() calls.
- * Nov 05, 2015 5070      randerso    Adjust font sizes for dpi scaling
+ * 
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 16, 2009           askripsk  Initial creation
+ * Jul 26, 2010  3723     bkowal    Now implements the magnification capability.
+ * Mar 19, 2013  1804     bsteffen  Remove empty data structures from radar
+ *                                  hdf5.
+ * Sep 23, 2013  2363     bsteffen  Add more vector configuration options.
+ * Jul 23, 2014  3429     mapeters  Updated deprecated drawLine() calls.
+ * Nov 05, 2015  5070     randerso  Adjust font sizes for dpi scaling
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author askripsk
- * @version 1.0
  */
 
 public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
@@ -104,28 +104,26 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
 
     protected static final double SCALAR = 1.6;
 
-    protected HashMap<Coordinate, String> screenStringMap = new HashMap<Coordinate, String>();
+    protected Map<Coordinate, String> screenStringMap = new HashMap<>();
 
-    protected List<UnlinkedVector> unlinkedLines = new ArrayList<UnlinkedVector>();
+    protected List<UnlinkedVector> unlinkedLines = new ArrayList<>();
 
-    protected List<LinkedVector> linkedLines = new ArrayList<LinkedVector>();
+    protected List<LinkedVector> linkedLines = new ArrayList<>();
 
-    protected List<WindBarbPoint> points = new ArrayList<WindBarbPoint>();
+    protected List<WindBarbPoint> points = new ArrayList<>();
 
     protected IFont font;
 
     protected boolean initPlotObjects = true;
 
     public RadarXYResource(RadarResourceData resourceData,
-            LoadProperties loadProperties, IRadarInterrogator interrogator)
-            throws VizException {
+            LoadProperties loadProperties, IRadarInterrogator interrogator) {
         super(resourceData, loadProperties, interrogator);
         getCapability(MagnificationCapability.class);
 
         getCapabilities().removeCapability(ImagingCapability.class);
         getCapabilities().removeCapability(RangeRingsOverlayCapability.class);
 
-        this.dataTimes = new ArrayList<DataTime>();
     }
 
     @Override
@@ -161,7 +159,8 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
             return;
         }
 
-        if (initPlotObjects || !paintProps.getDataTime().equals(displayedDate)) {
+        if (initPlotObjects
+                || !paintProps.getDataTime().equals(displayedDate)) {
             displayedDate = paintProps.getDataTime();
             populatePlotObjects(radarRecord, target);
             getColorMapParameters(target, radarRecord);
@@ -178,19 +177,9 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
         paintLines(target);
         paintText(target);
         paintPoints(target, paintProps);
-        // target.drawRect(new PixelExtent(left, right, upper, lower),
-        // getCapability(ColorableCapability.class).getColor(), 1.0f, 1.0);
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.rsc.RadarImageResource#buildCoverage(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.viz.radar.RadarTimeRecord.RadarTiltRecord)
-     */
     @Override
     public PixelCoverage buildCoverage(IGraphicsTarget target,
             VizRadarRecord radarRecord) throws VizException {
@@ -212,9 +201,9 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
         double left = (X_OFFSET_NWP + iStart) * SCALAR;
         double right = left + width;
 
-        return new PixelCoverage(new Coordinate(left, upper), new Coordinate(
-                left, lower), new Coordinate(right, lower), new Coordinate(
-                right, upper));
+        return new PixelCoverage(new Coordinate(left, upper),
+                new Coordinate(left, lower), new Coordinate(right, lower),
+                new Coordinate(right, upper));
     }
 
     private void paintLines(IGraphicsTarget target) throws VizException {
@@ -233,7 +222,8 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
             lines[i].addPoint((currVec.i2 + X_OFFSET_NWP) * SCALAR,
                     (currVec.j2 + Y_OFFSET_NWP) * SCALAR);
             lines[i].basics.color = getVectorColor(currVec);
-            lines[i++].width = 1 * magnification;
+            lines[i].width = 1 * magnification;
+            i += 1;
         }
 
         // Paint linked lines
@@ -244,7 +234,8 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
             lines[i].addPoint((currVec.i2 + X_OFFSET_NWP) * SCALAR,
                     (currVec.j2 + Y_OFFSET_NWP) * SCALAR);
             lines[i].basics.color = getVectorColor(currVec);
-            lines[i++].width = 1 * magnification;
+            lines[i].width = 1 * magnification;
+            i += 1;
         }
         target.drawLine(lines);
     }
@@ -254,8 +245,8 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
         float magnification = getCapability(MagnificationCapability.class)
                 .getMagnification().floatValue();
 
-        double ratio = (paintProps.getView().getExtent().getWidth() / paintProps
-                .getCanvasBounds().width) * magnification;
+        double ratio = (paintProps.getView().getExtent().getWidth()
+                / paintProps.getCanvasBounds().width) * magnification;
 
         VectorGraphicsRenderable[] renderables = new VectorGraphicsRenderable[6];
         VectorGraphicsConfig config = new VectorGraphicsConfig();
@@ -295,7 +286,7 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
 
     private void paintText(IGraphicsTarget target) throws VizException {
         // Paint Text
-        List<DrawableString> strings = new ArrayList<DrawableString>();
+        List<DrawableString> strings = new ArrayList<>();
         for (Coordinate c : this.screenStringMap.keySet()) {
             DrawableString string = new DrawableString(
                     this.screenStringMap.get(c), null);
@@ -330,8 +321,7 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
 
             colorNumber = (Integer) getTheColor.invoke(currVec);
         } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            statusHandler.debug("Error getting vector color.", e);
         }
 
         IColorMap colorMap = this.getCapability(ColorMapCapability.class)
@@ -385,14 +375,6 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
         initPlotObjects = false;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         super.resourceChanged(type, object);
@@ -400,15 +382,6 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
         super.issueRefresh();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.radar.rsc.RadarImageResource#toImageData(com.raytheon
-     * .uf.viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.ColorMapParameters,
-     * com.raytheon.uf.common.dataplugin.radar.RadarRecord, java.awt.Rectangle)
-     */
     @Override
     protected IImage createImage(IGraphicsTarget target,
             ColorMapParameters params, RadarRecord record, Rectangle rect)
@@ -420,8 +393,8 @@ public class RadarXYResource extends RadarImageResource<RadarXYDescriptor> {
                         params);
     }
 
-    protected static class RadarXYDataRetrievalAdapter extends
-            RadarImageDataRetrievalAdapter {
+    protected static class RadarXYDataRetrievalAdapter
+            extends RadarImageDataRetrievalAdapter {
 
         public RadarXYDataRetrievalAdapter(RadarRecord record, byte[] table,
                 Rectangle rect) {

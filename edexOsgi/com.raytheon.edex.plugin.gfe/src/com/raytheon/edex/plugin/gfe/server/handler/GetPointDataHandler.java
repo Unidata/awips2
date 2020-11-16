@@ -57,7 +57,14 @@ import com.raytheon.uf.common.time.util.TimeUtil;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
- * Generates results for Point(s) on requested grid database.
+ * Generates results for Point(s) on requested grid database. Used by AvnFPS to
+ * directly retrieve GFE grid data at the closest points to the airports in
+ * AvnFPS. This data is then used by the NDFD column on the monitor GUI or the
+ * NDFD tab on the guidance GUI.
+ * 
+ * This replaces the AWIPS 1 approach of running a GFE text formatter to
+ * generate rows of data, storing it to a file, and then parsing that data.
+ * AWIPS 2 goes direct to GFE.
  * 
  * <pre>
  * 
@@ -71,29 +78,24 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Oct 31, 2013     #2508  randerso    Change to use DiscreteGridSlice.getKeys()
  * Apr 23, 2014     #3006  randerso    Restructured code to work with multi-hour grids
  * Apr 04, 2016     #5539  randerso    Fixed unsigned byte issues
+ * Feb 22, 2018      6937  njensen     Use null for data outside bounds instead of error
+ * Feb 23, 2018      7227  njensen     Continue past missing parms
  * 
  * </pre>
  * 
  * @author njensen
- * @version 1.0
  */
 
 public class GetPointDataHandler extends BaseGfeRequestHandler implements
         IRequestHandler<GetPointDataRequest> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(GetPointDataHandler.class);
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.common.serialization.comm.IRequestHandler#handleRequest
-     * (com.raytheon.uf.common.serialization.comm.IServerRequest)
-     */
     @Override
     public ServerResponse<GFEPointDataContainers> handleRequest(
             GetPointDataRequest request) throws Exception {
-        ServerResponse<GFEPointDataContainers> resp = new ServerResponse<GFEPointDataContainers>();
+        ServerResponse<GFEPointDataContainers> resp = new ServerResponse<>();
 
         IFPServer ifpServer = getIfpServer(request);
         DatabaseID dbID = new DatabaseID(request.getDatabaseID());
@@ -101,7 +103,7 @@ public class GetPointDataHandler extends BaseGfeRequestHandler implements
         GridLocation loc = ifpServer.getConfig().dbDomain();
 
         List<String> parameters = request.getParameters();
-        List<ParmID> parmIds = new ArrayList<ParmID>(parameters.size());
+        List<ParmID> parmIds = new ArrayList<>(parameters.size());
         for (String p : parameters) {
             parmIds.add(new ParmID(p, dbID));
         }
@@ -113,29 +115,34 @@ public class GetPointDataHandler extends BaseGfeRequestHandler implements
 
         List<Coordinate> coordinates = request.getCoordinates();
 
-        Map<Coordinate, CoordinateInfo> infoMap = new HashMap<Coordinate, CoordinateInfo>();
+        Map<Coordinate, CoordinateInfo> infoMap = new HashMap<>();
 
         // See if any of the coordinates need the grid slices and set up info
         // map.
         for (Coordinate coordinate : coordinates) {
-            CoordinateInfo info = new CoordinateInfo(numHours, coordinate, loc);
+            CoordinateInfo info = new CoordinateInfo(coordinate, loc);
             infoMap.put(coordinate, info);
 
             if (!info.containsCoord) {
-                // coordinate is outside this GFE domain
-                resp.addMessage(coordinate + " is outside the "
-                        + request.getSiteID()
-                        + " GFE domain, no data will be returned.");
+                /*
+                 * Coordinate is outside GFE domain. Use null to signify missing
+                 * data.
+                 */
+                infoMap.put(coordinate, null);
             }
         }
         for (ParmID parmId : parmIds) {
             ServerResponse<List<TimeRange>> invSr = db.getGridInventory(parmId,
                     overallTr);
             if (!invSr.isOkay()) {
-                String msg = "Error retrieving inventory for " + parmId + "\n"
+                /*
+                 * Log as info but continue on, getting the parms we can. The
+                 * AvnFPS NDFD code handles missing parms/data.
+                 */
+                String msg = "AvnFPS NDFD error retrieving inventory for "
+                        + parmId
                         + invSr.message();
-                statusHandler.error(msg);
-                resp.addMessage(msg);
+                statusHandler.info(msg);
                 continue;
             }
 
@@ -159,6 +166,10 @@ public class GetPointDataHandler extends BaseGfeRequestHandler implements
                 try {
                     for (Coordinate coordinate : coordinates) {
                         CoordinateInfo info = infoMap.get(coordinate);
+                        if (info == null) {
+                            // null signifies missing data
+                            continue;
+                        }
                         boolean containsCoord = info.containsCoord;
                         GFEPointDataView view = info.getView(time);
                         int x = info.x;
@@ -238,20 +249,29 @@ public class GetPointDataHandler extends BaseGfeRequestHandler implements
                     }
                 } catch (Exception e) {
                     resp.addMessage(e.getMessage());
+                    statusHandler.error(
+                            "Error transforming GFE NDFD grids for AvnFPS", e);
                 }
             }
         }
 
         GFEPointDataContainers gfeContainers = new GFEPointDataContainers();
-        List<GFEPointDataContainer> containers = new ArrayList<GFEPointDataContainer>(
+        List<GFEPointDataContainer> containers = new ArrayList<>(
                 coordinates.size());
 
-        // Keep the results list in the same order as the request's
-        // coordinate list.
+        /*
+         * Keep the results list in the same order as the request's coordinate
+         * list.
+         */
         for (Coordinate coordinate : coordinates) {
             CoordinateInfo info = infoMap.get(coordinate);
+            if (info == null) {
+                // use null to signify missing data for this coordinate
+                containers.add(null);
+                continue;
+            }
 
-            List<GFEPointDataView> views = new ArrayList<GFEPointDataView>(
+            List<GFEPointDataView> views = new ArrayList<>(
                     info.viewMap.values());
 
             GFEPointDataContainer container = new GFEPointDataContainer();
@@ -267,19 +287,19 @@ public class GetPointDataHandler extends BaseGfeRequestHandler implements
      * Information for a coordinate.
      */
     private class CoordinateInfo {
-        Map<Date, GFEPointDataView> viewMap;
+        private Map<Date, GFEPointDataView> viewMap;
 
-        boolean containsCoord;
+        private boolean containsCoord;
 
-        int x;
+        private int x;
 
-        int y;
+        private int y;
 
-        Coordinate coordinate;
+        private Coordinate coordinate;
 
-        public CoordinateInfo(int numHours, Coordinate coordinate,
+        public CoordinateInfo(Coordinate coordinate,
                 GridLocation gloc) {
-            viewMap = new TreeMap<Date, GFEPointDataView>();
+            viewMap = new TreeMap<>();
             this.coordinate = coordinate;
 
             Point gridCell = gloc.gridCoordinate(coordinate);

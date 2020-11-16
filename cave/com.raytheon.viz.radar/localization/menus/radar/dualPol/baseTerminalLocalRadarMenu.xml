@@ -18,25 +18,28 @@
         See_the_AWIPS_II_Master_Rights_File_("Master_Rights_File.pdf")_for
         further_licensing_information.
     -->
+    <!-- 
+        This is an absolute override file, indicating that a higher priority 
+        version of the file will completely replace a lower priority version
+        of the file. 
+    -->
 <menuTemplate xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-	<contribute xsi:type="subMenu" menuText="${icao}">
-		<contribute xsi:type="subinclude"
-			fileName="menus/radar/dualPol/terminal/baseRadarTerminalCombo.xml" />
-		<contribute xsi:type="subinclude"
-			fileName="menus/radar/dualPol/terminal/baseRadarTerminalBestResBaseProducts.xml" />
-		<contribute xsi:type="subinclude"
-			fileName="menus/radar/dualPol/terminal/baseRadarTerminalPrecip.xml" />
-		<contribute xsi:type="subinclude"
-			fileName="menus/radar/dualPol/terminal/baseRadarTerminalDerivedProducts.xml" />
-		<contribute xsi:type="subinclude"
-			fileName="menus/radar/dualPol/terminal/baseRadarTerminalAlgorithmOverlays.xml" />
-		<contribute xsi:type="subinclude"
-			fileName="menus/radar/dualPol/terminal/baseRadarTerminalFourPanel.xml" />
-		<contribute xsi:type="subinclude"
-			fileName="menus/radar/dualPol/terminal/baseRadarTerminalDataQuality.xml" />
-		<contribute xsi:type="subinclude"
-			fileName="menus/radar/dualPol/terminal/baseRadarTerminalLegacyProds.xml" />
-		<contribute xsi:type="subinclude"
-			fileName="menus/radar/dualPol/terminal/baseRadarTerminalApplications.xml" />
-	</contribute>
-</menuTemplate> 
+    <contribute xsi:type="subMenu" menuText="${icao}">
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/dualPol/terminal/baseRadarTerminalCombo.xml" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/dualPol/terminal/baseRadarTerminalBestResBaseProducts.xml" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/dualPol/terminal/baseRadarTerminalPrecip.xml" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/dualPol/terminal/baseRadarTerminalDerivedProducts.xml" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/dualPol/terminal/baseRadarTerminalAlgorithmOverlays.xml" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/dualPol/terminal/baseRadarTerminalFourPanel.xml" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/dualPol/terminal/baseRadarTerminalDataQuality.xml" />
+        <contribute xsi:type="subinclude"
+            fileName="menus/radar/dualPol/terminal/baseRadarTerminalLegacyProds.xml" />
+    </contribute>
+</menuTemplate>

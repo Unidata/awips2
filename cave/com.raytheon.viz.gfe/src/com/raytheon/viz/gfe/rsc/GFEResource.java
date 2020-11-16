@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,13 +34,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
@@ -78,6 +78,7 @@ import com.raytheon.uf.common.style.LabelingPreferences;
 import com.raytheon.uf.common.style.contour.ContourPreferences;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.DrawableString;
 import com.raytheon.uf.viz.core.IDisplayPane;
 import com.raytheon.uf.viz.core.IExtent;
@@ -114,15 +115,21 @@ import com.raytheon.uf.viz.core.rsc.capabilities.MagnificationCapability;
 import com.raytheon.uf.viz.core.rsc.capabilities.OutlineCapability;
 import com.raytheon.uf.viz.core.time.TimeMatchingJob;
 import com.raytheon.viz.core.contours.rsc.displays.GriddedContourDisplay;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.actions.ChangeCombineMode;
 import com.raytheon.viz.gfe.actions.VectorEditModeAction;
 import com.raytheon.viz.gfe.colortable.ColorTable.ImageAttr;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.IReferenceSetManager.RefSetMode;
+import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
+import com.raytheon.viz.gfe.core.griddata.DiscreteDataObject;
 import com.raytheon.viz.gfe.core.griddata.DiscreteGridData;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
+import com.raytheon.viz.gfe.core.griddata.ScalarDataObject;
+import com.raytheon.viz.gfe.core.griddata.ScalarGridData;
+import com.raytheon.viz.gfe.core.griddata.VectorDataObject;
+import com.raytheon.viz.gfe.core.griddata.VectorGridData;
+import com.raytheon.viz.gfe.core.griddata.WeatherDataObject;
 import com.raytheon.viz.gfe.core.griddata.WeatherGridData;
 import com.raytheon.viz.gfe.core.internal.OffscreenSpatialDisplayManager;
 import com.raytheon.viz.gfe.core.msgs.IGridDataChangedListener;
@@ -150,41 +157,49 @@ import com.vividsolutions.jts.geom.Envelope;
 
 /**
  * Resource for displaying renderables for a particular Parm.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
- * Date          Ticket#  Engineer    Description
- * ------------- -------- ----------- --------------------------
- * Mar 01, 2008           chammack    Initial Creation.
- * Aug 20, 2008           dglazesk    Update for the ColorMap interface change
- * Nov 23, 2011           mli         set vector lineStyle
- * May 11, 2012           njensen     Allow rsc to be recycled
- * Nov 08, 2012  1298     rferrel     Changes for non-blocking FuzzValueDialog.
- * Mar 04, 2013  1637     randerso    Fix time matching for ISC grids
- * Aug 27, 2013  2287     randerso    Fixed scaling and direction of wind arrows
- * Sep 23, 2013  2363     bsteffen    Add more vector configuration options.
- * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
- * Dec 11, 2013  2621     randerso    Removed conditional from getParm so it never returns null
- * Jan 23, 2014  2703     bsteffen    Allow construction using a resourceData,
- *                                    paint using the time in paintProps and
- *                                    remove dead code in paintInternal
- * Apr 03, 2014  2737     randerso    Uncommented out listers for iscParm inventory changed
- * May 20, 2014  15814    zhao        Make image display for model Parm not affected by ISC mode
- * Jan 13, 2015  3995     randerso    Correctly fixed display of model Parms in ISC mode so ISC
- *                                    will work when editting Topo.
- * Sep 14, 2016  3241     bsteffen    Update deprecated JTSCompiler method calls
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 01, 2008           chammack  Initial Creation.
+ * Aug 20, 2008           dglazesk  Update for the ColorMap interface change
+ * Nov 23, 2011           mli       set vector lineStyle
+ * May 11, 2012           njensen   Allow rsc to be recycled
+ * Nov 08, 2012  1298     rferrel   Changes for non-blocking FuzzValueDialog.
+ * Mar 04, 2013  1637     randerso  Fix time matching for ISC grids
+ * Aug 27, 2013  2287     randerso  Fixed scaling and direction of wind arrows
+ * Sep 23, 2013  2363     bsteffen  Add more vector configuration options.
+ * Oct 31, 2013  2508     randerso  Change to use DiscreteGridSlice.getKeys()
+ * Dec 11, 2013  2621     randerso  Removed conditional from getParm so it never
+ *                                  returns null
+ * Jan 23, 2014  2703     bsteffen  Allow construction using a resourceData,
+ *                                  paint using the time in paintProps and
+ *                                  remove dead code in paintInternal
+ * Apr 03, 2014  2737     randerso  Uncommented out listers for iscParm
+ *                                  inventory changed
+ * May 20, 2014  15814    zhao      Make image display for model Parm not
+ *                                  affected by ISC mode
+ * Jan 13, 2015  3995     randerso  Correctly fixed display of model Parms in
+ *                                  ISC mode so ISC will work when editing Topo.
+ * Sep 14, 2016  3241     bsteffen  Update deprecated JTSCompiler method calls
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
+ * Jan 03, 2018  7178     randerso  Changes to support IDataObject
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
- * 
- * 
+ *
  * @author chammack
  */
-public class GFEResource extends
-        AbstractVizResource<GFEResourceData, MapDescriptor> implements
+public class GFEResource
+        extends AbstractVizResource<GFEResourceData, MapDescriptor> implements
         IResourceDataChanged, IContextMenuContributor, IMessageClient {
+
+    private static final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(GFEResource.class);
 
     /* arbitrary value chosen to most closely match A1 */
     private static final double VECTOR_DENSITY_FACTOR = 1.36;
@@ -195,18 +210,11 @@ public class GFEResource extends
     /* Unknown source, provides acceptable sized arrows heads. */
     private static final double ARROW_HEAD_RATIO = 1.0 / 7.0;
 
-    private final transient IUFStatusHandler statusHandler = UFStatus
-            .getHandler(GFEResource.class);
-
     /** maximum label size in pixels */
-    private final int maxLabelLength = 100;
-
-    /** maximum label height in pixels */
-    @SuppressWarnings("unused")
-    private final int maxLabelHeight = 40;
+    private static final int maxLabelLength = 100;
 
     /** distance between labels */
-    private final int pixelDistance = 125;
+    private static final int pixelDistance = 125;
 
     private final Set<VisualizationType> OUTLINE_TYPES = EnumSet.of(
             VisualizationType.CONTOUR, VisualizationType.WIND_ARROW,
@@ -251,15 +259,6 @@ public class GFEResource extends
     private IFont gfeFont = null;
 
     protected IGridDataChangedListener gridChanged = new IGridDataChangedListener() {
-
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.viz.gfe.core.msgs.IGridDataChangedListener#gridDataChanged
-         * (com.raytheon.edex.plugin.gfe.db.objects.ParmID,
-         * com.raytheon.uf.common.time.TimeRange)
-         */
         @Override
         public void gridDataChanged(ParmID incomingParm, TimeRange validTime) {
             resetFrame(validTime);
@@ -268,13 +267,6 @@ public class GFEResource extends
 
     protected IParmInventoryChangedListener parmInventoryChanged = new IParmInventoryChangedListener() {
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @seecom.raytheon.viz.gfe.core.msgs.IParmInventoryChangedListener#
-         * parmInventoryChanged(com.raytheon.viz.gfe.core.parm.Parm,
-         * com.raytheon.uf.common.time.TimeRange)
-         */
         @Override
         public void parmInventoryChanged(Parm parm, TimeRange timeRange) {
             resetFrame(timeRange);
@@ -285,14 +277,6 @@ public class GFEResource extends
 
     protected IParmIDChangedListener parmIdChanged = new IParmIDChangedListener() {
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see
-         * com.raytheon.viz.gfe.core.msgs.IParmIDChangedListener#parmIDChanged
-         * (com.raytheon.viz.gfe.core.parm.Parm,
-         * com.raytheon.uf.common.dataplugin.gfe.db.objects.ParmID)
-         */
         @Override
         public void parmIDChanged(Parm parm, ParmID newParmID) {
             resetFrame(TimeRange.allTimes());
@@ -302,7 +286,7 @@ public class GFEResource extends
 
     /**
      * Construct a resource that is capable of displaying a particular parm
-     * 
+     *
      * @param parm
      *            the parm
      * @param dataManager
@@ -316,7 +300,7 @@ public class GFEResource extends
     /**
      * Same functionality as {@link #GFEResource(Parm, DataManager)} but uses a
      * predefined resourceData.
-     * 
+     *
      * @param resourceData
      *            the resourceData
      * @param loadProps
@@ -328,7 +312,7 @@ public class GFEResource extends
      */
     public GFEResource(GFEResourceData resourceData, LoadProperties loadProps,
             Parm parm, DataManager dataManager) {
-        super(resourceData, loadProps);
+        super(resourceData, loadProps, false);
         this.resourceData.addChangeListener(this);
         this.parm = parm;
         this.dataManager = dataManager;
@@ -340,8 +324,8 @@ public class GFEResource extends
         ColorMapParameters colorMapParameters = DiscreteDisplayUtil
                 .buildColorMapParameters(parm);
 
-        getCapability(ColorMapCapability.class).setColorMapParameters(
-                colorMapParameters);
+        getCapability(ColorMapCapability.class)
+                .setColorMapParameters(colorMapParameters);
 
         int lineWidth = parm.getDisplayAttributes().getLineWidth();
         LineStyle style = parm.getDisplayAttributes().getLineStyle();
@@ -356,6 +340,9 @@ public class GFEResource extends
         updateRightClickMenu();
     }
 
+    /**
+     * Reset the resource
+     */
     public void reset() {
         if (this.curTime != null) {
             resetFrame(new TimeRange(curTime.getRefTime(), 1));
@@ -378,19 +365,13 @@ public class GFEResource extends
 
     /**
      * Gets the parm associated with the GFE Resource.
-     * 
+     *
      * @return Returns the parm associated with the GFE Resource
      */
     public Parm getParm() {
         return this.parm;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#dispose()
-     */
-    @SuppressWarnings("unchecked")
     @Override
     protected void disposeInternal() {
         if (gfeFont != null) {
@@ -415,8 +396,8 @@ public class GFEResource extends
         }
 
         parm.getListeners().removeGridChangedListener(gridChanged);
-        parm.getListeners().removeParmInventoryChangedListener(
-                parmInventoryChanged);
+        parm.getListeners()
+                .removeParmInventoryChangedListener(parmInventoryChanged);
         parm.getListeners().removeParmIDChangedListener(parmIdChanged);
         Message.unregisterInterest(this, ShowISCGridsMsg.class);
 
@@ -443,28 +424,16 @@ public class GFEResource extends
         vectorDisplay.clear();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.core.rsc.IVizResource#getName()
-     */
     @Override
     public String getName() {
         return "Parm Resource " + this.parm.getParmID().toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @seecom.raytheon.viz.core.rsc.IVizResource#init(com.raytheon.viz.core.
-     * IGraphicsTarget)
-     */
-    @SuppressWarnings("unchecked")
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         parm.getListeners().addGridChangedListener(this.gridChanged);
-        parm.getListeners().addParmInventoryChangedListener(
-                this.parmInventoryChanged);
+        parm.getListeners()
+                .addParmInventoryChangedListener(this.parmInventoryChanged);
         parm.getListeners().addParmIDChangedListener(this.parmIdChanged);
 
         Message.registerInterest(this, ShowISCGridsMsg.class);
@@ -482,13 +451,6 @@ public class GFEResource extends
         gfeFont = GFEFonts.makeGFEIFont(target, fontPrefName, 2);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.drawables.IRenderable#paint(com.raytheon.viz.core
-     * .IGraphicsTarget, com.raytheon.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintInternal(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -501,12 +463,10 @@ public class GFEResource extends
             return;
         }
 
-        IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
-
         // translate GFE style mag/density to D2D style
         // -3 to 3 -> 0.5 to 2
-        double magnification = Math.pow(1.26, parm.getDisplayAttributes()
-                .getFontOffset());
+        double magnification = Math.pow(1.26,
+                parm.getDisplayAttributes().getFontOffset());
         gfeFont.setMagnification((float) magnification);
 
         // hack to get around target.getDefaultFont()-centeredness in
@@ -519,8 +479,8 @@ public class GFEResource extends
 
         this.lastGraphicsTarget = target;
 
-        IGridData[] gd = this.parm.getGridInventory(this.curTime
-                .getValidPeriod());
+        IGridData[] gd = this.parm
+                .getGridInventory(this.curTime.getValidPeriod());
 
         boolean iscParm = this.parm.isIscParm();
         GridID gid = new GridID(this.parm, this.curTime.getRefTime());
@@ -536,7 +496,8 @@ public class GFEResource extends
 
         if (!this.curTime.equals(this.lastDisplayedTime)
                 || !visMode.equals(this.lastVisMode)
-                || (this.lastIscMode != dataManager.getParmManager().iscMode())) {
+                || (this.lastIscMode != dataManager.getParmManager()
+                        .iscMode())) {
 
             this.lastDisplayedTime = this.curTime;
             this.lastVisMode = visMode;
@@ -552,37 +513,37 @@ public class GFEResource extends
                     .setRenderingOrder(renderingOrder);
             descriptor.getResourceList().sort();
 
-            IGridSlice gs = null;
+            IGridData gridData = null;
             if (dataManager.getParmManager().iscMode() && (gd.length == 0)) {
                 GridParmInfo gpi = this.parm.getGridInfo();
                 GridType gridType = gpi.getGridType();
 
                 IGrid2D dummyGrid = null;
+                IGridSlice gs = null;
                 switch (gridType) {
                 case SCALAR:
-                    dummyGrid = new Grid2DFloat(gpi.getGridLoc().getNx(), gpi
-                            .getGridLoc().getNy(), Float.NaN);
-                    gs = new ScalarGridSlice(this.curTime.getValidPeriod(),
-                            gpi, new GridDataHistory[] {},
-                            (Grid2DFloat) dummyGrid);
+                    dummyGrid = new Grid2DFloat(gpi.getGridLoc().getNx(),
+                            gpi.getGridLoc().getNy(), Float.NaN);
+                    gs = new ScalarGridSlice(this.curTime.getValidPeriod(), gpi,
+                            new GridDataHistory[] {}, (Grid2DFloat) dummyGrid);
                     break;
                 case VECTOR:
-                    dummyGrid = new Grid2DFloat(gpi.getGridLoc().getNx(), gpi
-                            .getGridLoc().getNy(), Float.NaN);
-                    gs = new VectorGridSlice(this.curTime.getValidPeriod(),
-                            gpi, new GridDataHistory[] {},
-                            (Grid2DFloat) dummyGrid, (Grid2DFloat) dummyGrid);
+                    dummyGrid = new Grid2DFloat(gpi.getGridLoc().getNx(),
+                            gpi.getGridLoc().getNy(), Float.NaN);
+                    gs = new VectorGridSlice(this.curTime.getValidPeriod(), gpi,
+                            new GridDataHistory[] {}, (Grid2DFloat) dummyGrid,
+                            (Grid2DFloat) dummyGrid);
                     break;
                 case WEATHER:
-                    dummyGrid = new Grid2DByte(gpi.getGridLoc().getNx(), gpi
-                            .getGridLoc().getNy());
+                    dummyGrid = new Grid2DByte(gpi.getGridLoc().getNx(),
+                            gpi.getGridLoc().getNy());
                     gs = new WeatherGridSlice(this.curTime.getValidPeriod(),
                             gpi, new GridDataHistory[] {},
                             (Grid2DByte) dummyGrid, new WeatherKey[] {});
                     break;
                 case DISCRETE:
-                    dummyGrid = new Grid2DByte(gpi.getGridLoc().getNx(), gpi
-                            .getGridLoc().getNy());
+                    dummyGrid = new Grid2DByte(gpi.getGridLoc().getNx(),
+                            gpi.getGridLoc().getNy());
                     gs = new DiscreteGridSlice(this.curTime.getValidPeriod(),
                             gpi, new GridDataHistory[] {},
                             (Grid2DByte) dummyGrid, new DiscreteKey[] {});
@@ -590,11 +551,13 @@ public class GFEResource extends
                 default:
                     return;
                 }
+                gridData = AbstractGridData.makeGridData(this.parm, gs, false);
             } else {
-                gs = gd[0].getGridSlice();
+                gridData = gd[0];
             }
-            if ((gs instanceof VectorGridSlice)
-                    || (gs instanceof ScalarGridSlice)) {
+
+            if ((gridData instanceof VectorGridData)
+                    || (gridData instanceof ScalarGridData)) {
 
                 if (this.gridDisplay != null) {
                     this.gridDisplay.dispose();
@@ -608,27 +571,29 @@ public class GFEResource extends
                 this.contourDisplay = null;
             }
 
-            if (gs instanceof VectorGridSlice) {
-                VectorGridSlice vectorSlice = (VectorGridSlice) gs;
+            if (gridData instanceof VectorGridData) {
+                VectorDataObject dataObject = ((VectorGridData) gridData)
+                        .getDataObject();
                 Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
                 if ((dataManager.getParmManager().iscMode() || iscParm)
                         && (iscGid != null)) {
-                    vectorSlice = new VectorGridSlice();
-                    mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
-                            true, vectorSlice);
+                     Pair<Grid2DBit, IGridData> p = dataManager.getIscDataAccess().getCompositeGrid(gid,
+                            true);
+                    mask = p.getFirst();
+                    dataObject = (VectorDataObject) p.getSecond().getDataObject();
                 }
 
-                Grid2DFloat maskedGrid = new Grid2DFloat(vectorSlice
-                        .getMagGrid().getXdim(), vectorSlice.getMagGrid()
-                        .getYdim(), Float.NaN);
-                maskedGrid.copyWithMask(vectorSlice.getMagGrid(), mask);
+                Grid2DFloat magGrid = dataObject.getMagGrid();
+
+                Grid2DFloat maskedGrid = new Grid2DFloat(magGrid.getXdim(),
+                        magGrid.getYdim(), Float.NaN);
+                maskedGrid.copyWithMask(dataObject.getMagGrid(), mask);
                 FloatBuffer mag = maskedGrid.getBuffer();
 
-                Grid2DFloat dirGrid = new Grid2DFloat(vectorSlice.getMagGrid()
-                        .getXdim(), vectorSlice.getDirGrid().getYdim(),
-                        Float.NaN);
-                dirGrid.copyWithMask(vectorSlice.getDirGrid(), mask);
+                Grid2DFloat dirGrid = new Grid2DFloat(magGrid.getXdim(),
+                        magGrid.getYdim(), Float.NaN);
+                dirGrid.copyWithMask(dataObject.getDirGrid(), mask);
                 FloatBuffer dir = dirGrid.getBuffer();
 
                 if (visTypes.contains(VisualizationType.IMAGE)) {
@@ -644,69 +609,72 @@ public class GFEResource extends
                         vectorConfig = new VectorGraphicsConfig();
                         double size = getVectorSize("WindArrowDefaultSize");
                         vectorConfig.setBaseSize(size);
-                        vectorConfig.setCalmCircleSizeRatio(vectorConfig
-                                .getCalmCircleSizeRatio() * BARB_SCALE_FACTOR);
+                        vectorConfig.setCalmCircleSizeRatio(
+                                vectorConfig.getCalmCircleSizeRatio()
+                                        * BARB_SCALE_FACTOR);
                         vectorConfig.setArrowHeadStaffRatio(ARROW_HEAD_RATIO);
                         vectorConfig.alwaysIncludeCalmCircle();
                         vectorConfig.alwaysIncludeVector();
                         // get the logFactor
-                        double logFactor = prefs.getDouble(parm.getParmID()
-                                .compositeNameUI() + "_arrowScaling");
+                        double logFactor = GFEPreference
+                                .getDouble(parm.getParmID().compositeNameUI()
+                                        + "_arrowScaling");
                         double maxVal = parm.getGridInfo().getMaxValue();
                         if (logFactor <= 0.0) {
-                            vectorConfig.setLinearArrowScaleFactor(size
-                                    / maxVal);
+                            vectorConfig
+                                    .setLinearArrowScaleFactor(size / maxVal);
                         } else {
-                            vectorConfig.setArrowScaler(new LogArrowScalar(
-                                    size, logFactor, maxVal));
+                            vectorConfig.setArrowScaler(new LogArrowScalar(size,
+                                    logFactor, maxVal));
                         }
 
                         this.vectorDisplay.add(new GriddedVectorDisplay(mag,
-                                dir, descriptor, MapUtil.getGridGeometry(gs
-                                        .getGridInfo().getGridLoc()),
+                                dir, descriptor,
+                                MapUtil.getGridGeometry(
+                                        gridData.getGridInfo().getGridLoc()),
                                 VECTOR_DENSITY_FACTOR, false,
                                 visTypeToDisplayType(type), vectorConfig));
                         break;
 
                     case WIND_BARB:
                         vectorConfig = new VectorGraphicsConfig();
-                        vectorConfig
-                                .setBaseSize(getVectorSize("WindBarbDefaultSize")
+                        vectorConfig.setBaseSize(
+                                getVectorSize("WindBarbDefaultSize")
                                         * BARB_SCALE_FACTOR);
                         vectorConfig.alwaysIncludeCalmCircle();
                         vectorConfig.alwaysIncludeVector();
-                        this.vectorDisplay
-                                .add(new GriddedVectorDisplay(mag, dir,
-                                        descriptor, MapUtil.getGridGeometry(gs
-                                                .getGridInfo().getGridLoc()),
-                                        VECTOR_DENSITY_FACTOR
-                                                / BARB_SCALE_FACTOR, false,
-                                        visTypeToDisplayType(type),
-                                        vectorConfig));
+                        this.vectorDisplay.add(new GriddedVectorDisplay(mag,
+                                dir, descriptor,
+                                MapUtil.getGridGeometry(
+                                        gridData.getGridInfo().getGridLoc()),
+                                VECTOR_DENSITY_FACTOR / BARB_SCALE_FACTOR,
+                                false, visTypeToDisplayType(type),
+                                vectorConfig));
                         break;
 
                     case IMAGE:
                         break;
 
                     default:
-                        statusHandler.handle(
-                                Priority.PROBLEM,
+                        statusHandler.handle(Priority.PROBLEM,
                                 "Unsupported Visualization Type: "
                                         + type.toString());
                     }
                 }
-            } else if (gs instanceof ScalarGridSlice) {
-                ScalarGridSlice scalarSlice = (ScalarGridSlice) gs;
+            } else if (gridData instanceof ScalarGridData) {
+                ScalarDataObject dataObject = ((ScalarGridData) gridData)
+                        .getDataObject();
                 Grid2DBit mask = parm.getDisplayAttributes().getDisplayMask();
 
                 if ((dataManager.getParmManager().iscMode() || iscParm)
                         && (iscGid != null)) {
-                    scalarSlice = new ScalarGridSlice();
-                    mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
-                            true, scalarSlice);
-
+                    dataObject = dataObject.copy();
+                    Pair<Grid2DBit, IGridData> p = dataManager.getIscDataAccess().getCompositeGrid(gid,
+                            true);
+                    mask = p.getFirst();
+                    dataObject =  (ScalarDataObject) p.getSecond().getDataObject();
                 }
-                Grid2DFloat scalarGrid = scalarSlice.getScalarGrid();
+                Grid2DFloat scalarGrid = dataObject.getScalarGrid();
                 if (scalarGrid != null) {
                     Grid2DFloat maskedGrid = new Grid2DFloat(
                             scalarGrid.getXdim(), scalarGrid.getYdim(),
@@ -724,8 +692,9 @@ public class GFEResource extends
                                 descriptor, this.gridGeometry, fb);
                     }
                 }
-            } else if (gs instanceof DiscreteGridSlice) {
-                DiscreteGridSlice slice = (DiscreteGridSlice) gs;
+            } else if (gridData instanceof DiscreteGridData) {
+                DiscreteDataObject dataObject = ((DiscreteGridData) gridData)
+                        .getDataObject();
 
                 // Dispose all of the outlineShapes and shadedShapes
                 for (IWireframeShape shape : outlineShapes.values()) {
@@ -733,7 +702,8 @@ public class GFEResource extends
                 }
                 outlineShapes.clear();
 
-                for (Collection<IShadedShape> shapeList : shadedShapes.values()) {
+                for (Collection<IShadedShape> shapeList : shadedShapes
+                        .values()) {
                     for (IShadedShape shadedShape : shapeList) {
                         shadedShape.dispose();
                     }
@@ -745,12 +715,13 @@ public class GFEResource extends
 
                 if ((dataManager.getParmManager().iscMode() || iscParm)
                         && (iscGid != null)) {
-                    slice = new DiscreteGridSlice();
-                    mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
-                            true, slice);
+                    Pair<Grid2DBit, IGridData> p = dataManager.getIscDataAccess().getCompositeGrid(gid,
+                            true);
+                    mask = p.getFirst();
+                    dataObject = (DiscreteDataObject) p.getSecond().getDataObject();
                 }
 
-                for (DiscreteKey discreteKey : slice.getKeys()) {
+                for (DiscreteKey discreteKey : dataObject.getKeys()) {
 
                     if (discreteKey.isValid()) {
                         outlineShapes.put(discreteKey, target
@@ -759,37 +730,39 @@ public class GFEResource extends
                         Collection<IShadedShape> shapeList = new ArrayList<>();
                         shadedShapes.put(discreteKey, shapeList);
 
-                        WxValue wxValue = new DiscreteWxValue(discreteKey, parm);
+                        WxValue wxValue = new DiscreteWxValue(discreteKey,
+                                parm);
 
                         List<ImageAttr> fillAttrs = DiscreteDisplayUtil
                                 .getFillAttributes(wxValue);
 
                         boolean first = true;
                         for (ImageAttr attr : fillAttrs) {
-                            IShadedShape shadedShape = target
-                                    .createShadedShape(false, this.descriptor.getGridGeometry());
+                            IShadedShape shadedShape = target.createShadedShape(
+                                    false, this.descriptor.getGridGeometry());
                             shapeList.add(shadedShape);
 
-                            IWireframeShape outlineShape = first ? outlineShapes
-                                    .get(discreteKey) : null;
+                            IWireframeShape outlineShape = first
+                                    ? outlineShapes.get(discreteKey) : null;
                             first = false;
 
                             JTSCompiler jtsCompiler = new JTSCompiler(
                                     shadedShape, outlineShape, this.descriptor);
 
-                            byte[] fillPattern = FillPatterns.getGLPattern(attr
-                                    .getFillPatternName());
+                            byte[] fillPattern = FillPatterns
+                                    .getGLPattern(attr.getFillPatternName());
 
-                            RGB fillColor = RGBColors.getRGBColor(attr
-                                    .getColorName());
+                            RGB fillColor = RGBColors
+                                    .getRGBColor(attr.getColorName());
                             JTSGeometryData jtsData = jtsCompiler
                                     .createGeometryData();
                             jtsData.setGeometryColor(fillColor);
 
-                            Grid2DBit tmpBit = slice.eq(discreteKey).and(mask);
+                            Grid2DBit tmpBit = dataObject.eq(discreteKey)
+                                    .and(mask);
 
-                            ReferenceData refData = new ReferenceData(gs
-                                    .getGridInfo().getGridLoc(),
+                            ReferenceData refData = new ReferenceData(
+                                    gridData.getGridInfo().getGridLoc(),
                                     new ReferenceID("temp"), tmpBit);
 
                             jtsCompiler.handle(
@@ -802,8 +775,9 @@ public class GFEResource extends
                         outlineShapes.get(discreteKey).compile();
                     }
                 }
-            } else if (gs instanceof WeatherGridSlice) {
-                WeatherGridSlice slice = (WeatherGridSlice) gs;
+            } else if (gridData instanceof WeatherGridData) {
+                WeatherDataObject dataObject = ((WeatherGridData) gridData)
+                        .getDataObject();
 
                 // Dispose all of the outlineShapes and shadedShapes
                 for (IWireframeShape shape : outlineShapes.values()) {
@@ -811,7 +785,8 @@ public class GFEResource extends
                 }
                 outlineShapes.clear();
 
-                for (Collection<IShadedShape> shapeList : shadedShapes.values()) {
+                for (Collection<IShadedShape> shapeList : shadedShapes
+                        .values()) {
                     for (IShadedShape shadedShape : shapeList) {
                         shadedShape.dispose();
                     }
@@ -823,12 +798,13 @@ public class GFEResource extends
 
                 if ((dataManager.getParmManager().iscMode() || iscParm)
                         && (iscGid != null)) {
-                    slice = new WeatherGridSlice();
-                    mask = dataManager.getIscDataAccess().getCompositeGrid(gid,
-                            true, slice);
+                    Pair<Grid2DBit, IGridData> p = dataManager.getIscDataAccess().getCompositeGrid(gid,
+                            true);
+                    mask = p.getFirst();
+                    dataObject = (WeatherDataObject) p.getSecond().getDataObject();
                 }
 
-                for (WeatherKey weatherKey : slice.getKeys()) {
+                for (WeatherKey weatherKey : dataObject.getKeys()) {
 
                     if (weatherKey.isValid()) {
                         outlineShapes.put(weatherKey, target
@@ -844,30 +820,31 @@ public class GFEResource extends
 
                         boolean first = true;
                         for (ImageAttr attr : fillAttrs) {
-                            IShadedShape shadedShape = target
-                                    .createShadedShape(false, this.descriptor.getGridGeometry());
+                            IShadedShape shadedShape = target.createShadedShape(
+                                    false, this.descriptor.getGridGeometry());
                             shapeList.add(shadedShape);
 
-                            IWireframeShape outlineShape = first ? outlineShapes
-                                    .get(weatherKey) : null;
+                            IWireframeShape outlineShape = first
+                                    ? outlineShapes.get(weatherKey) : null;
                             first = false;
 
                             JTSCompiler jtsCompiler = new JTSCompiler(
                                     shadedShape, outlineShape, this.descriptor);
 
-                            byte[] fillPattern = FillPatterns.getGLPattern(attr
-                                    .getFillPatternName());
+                            byte[] fillPattern = FillPatterns
+                                    .getGLPattern(attr.getFillPatternName());
 
-                            RGB fillColor = RGBColors.getRGBColor(attr
-                                    .getColorName());
+                            RGB fillColor = RGBColors
+                                    .getRGBColor(attr.getColorName());
                             JTSGeometryData jtsData = jtsCompiler
                                     .createGeometryData();
                             jtsData.setGeometryColor(fillColor);
 
-                            Grid2DBit tmpBit = slice.eq(weatherKey).and(mask);
+                            Grid2DBit tmpBit = dataObject.eq(weatherKey)
+                                    .and(mask);
 
-                            ReferenceData refData = new ReferenceData(gs
-                                    .getGridInfo().getGridLoc(),
+                            ReferenceData refData = new ReferenceData(
+                                    gridData.getGridInfo().getGridLoc(),
                                     new ReferenceID("temp"), tmpBit);
 
                             jtsCompiler.handle(
@@ -875,7 +852,7 @@ public class GFEResource extends
                                     jtsData);
                             shadedShape.compile();
                             shadedShape.setFillPattern(fillPattern);
-                        } // next diIdx
+                        }
 
                         outlineShapes.get(weatherKey).compile();
                     }
@@ -885,15 +862,16 @@ public class GFEResource extends
 
         float brightness = 1.0f;
         if (hasCapability(ImagingCapability.class)) {
-            ImagingCapability imagingCapability = getCapability(ImagingCapability.class);
+            ImagingCapability imagingCapability = getCapability(
+                    ImagingCapability.class);
             brightness = imagingCapability.getBrightness();
         }
 
         if (visTypes.contains(VisualizationType.IMAGE)) {
-            for (Object key : shadedShapes.keySet()) {
-                for (IShadedShape shadedShape : shadedShapes.get(key)) {
-                    target.drawShadedShape(shadedShape,
-                            myPaintProps.getAlpha(), brightness);
+            for (Collection<IShadedShape> shapes : shadedShapes.values()) {
+                for (IShadedShape shadedShape : shapes) {
+                    target.drawShadedShape(shadedShape, myPaintProps.getAlpha(),
+                            brightness);
                 }
             }
         }
@@ -917,30 +895,27 @@ public class GFEResource extends
             MapUtil.latLonToGridCoordinate(coords, PixelOrientation.CENTER,
                     gridLoc);
             Rectangle screenRect = new Rectangle((int) Math.floor(coords[0].x),
-                    (int) Math.floor(coords[1].y), (int) Math.ceil(coords[1].x
-                            - coords[0].x), (int) Math.ceil(coords[0].y
-                            - coords[1].y));
+                    (int) Math.floor(coords[1].y),
+                    (int) Math.ceil(coords[1].x - coords[0].x),
+                    (int) Math.ceil(coords[0].y - coords[1].y));
 
-            boolean boundedAreaLabels = true;
-            if (prefs.contains("BoundedArea_Labels")) {
-                boundedAreaLabels = prefs.getBoolean("BoundedArea_Labels");
-            }
+            boolean boundedAreaLabels = GFEPreference
+                    .getBoolean("BoundedArea_Labels", true);
             if (boundedAreaLabels && !dataManager.getParmManager().iscMode()) {
-                Coordinate scale = new Coordinate(env.getWidth()
-                        / screenBounds.width / 1000, env.getHeight()
-                        / screenBounds.height / 1000);
+                Coordinate scale = new Coordinate(
+                        env.getWidth() / screenBounds.width / 1000,
+                        env.getHeight() / screenBounds.height / 1000);
                 Coordinate cellSize = gridLoc.gridCellSize();
                 float multiplier = (float) (scale.x / cellSize.x);
 
                 paintLabels(target, gfeFont, gd[0], multiplier, screenRect);
             }
 
-            boolean boundedAreaBounds = true;
-            if (prefs.contains("BoundedArea_Boundary")) {
-                boundedAreaBounds = prefs.getBoolean("BoundedArea_Boundary");
-            }
+            boolean boundedAreaBounds = GFEPreference
+                    .getBoolean("BoundedArea_Boundary", true);
             if (boundedAreaBounds) {
-                for (Object key : outlineShapes.keySet()) {
+                for (Entry<Object, IWireframeShape> entry : outlineShapes
+                        .entrySet()) {
                     Object defaultKey = null;
                     if (parm.getGridInfo().getGridType()
                             .equals(GridType.WEATHER)) {
@@ -950,9 +925,8 @@ public class GFEResource extends
                         defaultKey = DiscreteWxValue.defaultValue(parm)
                                 .getDiscreteKey();
                     }
-                    if (!key.equals(defaultKey)) {
-                        target.drawWireframeShape(
-                                outlineShapes.get(key),
+                    if (!entry.getKey().equals(defaultKey)) {
+                        target.drawWireframeShape(entry.getValue(),
                                 this.parm.getDisplayAttributes().getBaseColor(),
                                 lineWidth, lineStyle);
                     }
@@ -965,26 +939,28 @@ public class GFEResource extends
             ColorMapParameters colorMapParameters = getCapability(
                     ColorMapCapability.class).getColorMapParameters();
 
-            ImagingCapability imagingCap = getCapability(ImagingCapability.class);
+            ImagingCapability imagingCap = getCapability(
+                    ImagingCapability.class);
             GriddedImagePaintProperties giProps = new GriddedImagePaintProperties(
                     myPaintProps, imagingCap.getBrightness(),
-                    imagingCap.getContrast(), imagingCap.isInterpolationState());
+                    imagingCap.getContrast(),
+                    imagingCap.isInterpolationState());
 
             this.gridDisplay.setColorMapParameters(colorMapParameters);
             this.gridDisplay.paint(target, giProps);
         }
 
         if (this.contourDisplay != null) {
-            this.contourDisplay.setColor(this.parm.getDisplayAttributes()
-                    .getBaseColor());
+            this.contourDisplay
+                    .setColor(this.parm.getDisplayAttributes().getBaseColor());
             this.contourDisplay.setLineStyle(lineStyle);
             this.contourDisplay.setOutlineWidth(lineWidth);
             this.contourDisplay.setDensity(density);
             this.contourDisplay.setMagnification(contourMagnification);
             ContourPreferences contourPrefs = new ContourPreferences();
             LabelingPreferences labelingPrefs = new LabelingPreferences();
-            labelingPrefs.setValues(parm.getDisplayAttributes()
-                    .getContourValues());
+            labelingPrefs
+                    .setValues(parm.getDisplayAttributes().getContourValues());
             contourPrefs.setContourLabeling(labelingPrefs);
             this.contourDisplay.setPreferences(contourPrefs);
             this.contourDisplay.paint(target, myPaintProps);
@@ -992,7 +968,8 @@ public class GFEResource extends
 
         if (this.vectorDisplay != null) {
             for (GriddedVectorDisplay v : this.vectorDisplay) {
-                v.setASync(!(dataManager.getSpatialDisplayManager() instanceof OffscreenSpatialDisplayManager));
+                v.setASync(!(dataManager
+                        .getSpatialDisplayManager() instanceof OffscreenSpatialDisplayManager));
                 v.setColor(this.parm.getDisplayAttributes().getBaseColor());
                 v.setLineWidth(lineWidth);
                 v.setLineStyle(lineStyle);
@@ -1008,18 +985,17 @@ public class GFEResource extends
      */
     private int getVectorSize(String key) {
         String suffix = ("_" + key.charAt(0)).toLowerCase() + key.substring(1);
-        int size = Activator.getDefault().getPreferenceStore()
+        int size = GFEPreference
                 .getInt(parm.getParmID().compositeNameUI() + suffix);
         if (size == 0) {
-            size = Activator.getDefault().getPreferenceStore().getInt(key);
+            size = GFEPreference.getInt(key);
         }
         if (size == 0) {
             size = 60;
         }
 
         int offset = parm.getDisplayAttributes().getFontOffset()
-                + Activator.getDefault().getPreferenceStore()
-                        .getInt("Contour_font");
+                + GFEPreference.getInt("Contour_font");
         size = (int) (size * (1.00 + (0.33 * offset)));
 
         size = Math.max(size, 10);
@@ -1038,7 +1014,7 @@ public class GFEResource extends
     }
 
     /**
-     * 
+     *
      */
     private void updateRightClickMenu() {
         // suppress/display capability menu items as appropriate
@@ -1050,50 +1026,41 @@ public class GFEResource extends
                         .getVisualizationType(EditorType.SPATIAL, visMode));
 
         getCapability(ColorMapCapability.class).setSuppressingMenuItems(
-                !visTypes.contains(VisualizationType.IMAGE)
-                        || parm.getGridInfo().getGridType()
-                                .equals(GridType.WEATHER));
+                !visTypes.contains(VisualizationType.IMAGE) || parm
+                        .getGridInfo().getGridType().equals(GridType.WEATHER));
 
         getCapability(ImagingCapability.class).setSuppressingMenuItems(
                 !visTypes.contains(VisualizationType.IMAGE));
         if (CollectionUtils.containsAny(visTypes, DENSITY_TYPES)) {
-            getCapabilities().addCapability(
-                    new DensityCapability((double) parm.getDisplayAttributes()
-                            .getDensity(), new double[] { -3, -2, -1, 0, 1, 2,
-                            3 }));
+            getCapabilities().addCapability(new DensityCapability(
+                    (double) parm.getDisplayAttributes().getDensity(),
+                    new double[] { -3, -2, -1, 0, 1, 2, 3 }));
         } else {
             getCapabilities().removeCapability(DensityCapability.class);
         }
         if (CollectionUtils.containsAny(visTypes, MAG_TYPES)) {
-            getCapabilities().addCapability(
-                    new MagnificationCapability((double) parm
-                            .getDisplayAttributes().getFontOffset(),
-                            new double[] { -2, -1, 0, 1, 2, 3 }));
+            getCapabilities().addCapability(new MagnificationCapability(
+                    (double) parm.getDisplayAttributes().getFontOffset(),
+                    new double[] { -2, -1, 0, 1, 2, 3 }));
         } else {
             getCapabilities().removeCapability(MagnificationCapability.class);
         }
         // NOTE: retainAll modifies visTypes so we do these last
         visTypes.retainAll(OUTLINE_TYPES);
 
-        getCapability(OutlineCapability.class).setSuppressingMenuItems(
-                visTypes.isEmpty());
+        getCapability(OutlineCapability.class)
+                .setSuppressingMenuItems(visTypes.isEmpty());
 
-        getCapability(ColorableCapability.class).setSuppressingMenuItems(
-                visTypes.isEmpty());
+        getCapability(ColorableCapability.class)
+                .setSuppressingMenuItems(visTypes.isEmpty());
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.capabilities.ITimeSeqResource#getDataTimes()
-     */
     @Override
     public DataTime[] getDataTimes() {
         IGridData[] data = parm.getGridInventory();
 
-        this.dataTimes = new ArrayList<>();
+        this.dataTimes.clear();
         for (IGridData d : data) {
             TimeRange tr = d.getGridTime();
             Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -1104,26 +1071,11 @@ public class GFEResource extends
         return this.dataTimes.toArray(new DataTime[this.dataTimes.size()]);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.rsc.capabilities.IProjectableResource#project(org
-     * .opengis.referencing.crs.CoordinateReferenceSystem)
-     */
     @Override
     public void project(CoordinateReferenceSystem mapData) throws VizException {
         this.pixelCoverage = null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.IResourceDataChanged#resourceChanged(com
-     * .raytheon.uf.viz.core.rsc.IResourceDataChanged.ChangeType,
-     * java.lang.Object)
-     */
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         if (type == ChangeType.CAPABILITY) {
@@ -1142,8 +1094,8 @@ public class GFEResource extends
                 dspAttr.setLineWidth(outline.getOutlineWidth());
                 dspAttr.setLineStyle(outline.getLineStyle());
                 if (this.contourDisplay != null) {
-                    this.contourDisplay.setOutlineWidth(outline
-                            .getOutlineWidth());
+                    this.contourDisplay
+                            .setOutlineWidth(outline.getOutlineWidth());
                     this.contourDisplay.setLineStyle(outline.getLineStyle());
                 }
 
@@ -1166,13 +1118,6 @@ public class GFEResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.cmenu.IRightClickCapableResource#addContextMenuItems
-     * (org.eclipse.jface.action.IMenuManager)
-     */
     @Override
     public void addContextMenuItems(IMenuManager menuManager, int x, int y) {
 
@@ -1184,12 +1129,10 @@ public class GFEResource extends
         }
 
         String[] tools = dataManager.getSmartToolInterface().listTools(parm);
-        if (GFEPreference.contains("AllEditActionsOnPopUp")
-                && !GFEPreference.getBooleanPreference("AllEditActionsOnPopUp")) {
+        if (!GFEPreference.getBoolean("AllEditActionsOnPopUp", true)) {
             // Offer the user the tools in PopUpEditActions
             // But don't offer tools that aren't OK for the parm
-            String[] putools = Activator.getDefault().getPreferenceStore()
-                    .getStringArray("PopUpEditActions");
+            String[] putools = GFEPreference.getStringArray("PopUpEditActions");
             List<String> toolList = new ArrayList<>(Arrays.asList(tools));
             List<String> puToolList = Arrays.asList(putools);
             toolList.retainAll(puToolList);
@@ -1223,8 +1166,13 @@ public class GFEResource extends
 
         case VECTOR:
             menuManager.add(new VectorEditModeAction());
+            menuManager.add(new FuzzValueAction());
+            break;
+
         case SCALAR:
             menuManager.add(new FuzzValueAction());
+            break;
+        default:
         }
     }
 
@@ -1243,7 +1191,7 @@ public class GFEResource extends
     /**
      * Provides the select homogeneous and deselect contiguous right click
      * actions for gfe resources
-     * 
+     *
      */
     private class SelectContiguousAction extends AbstractRightClickAction {
 
@@ -1253,11 +1201,6 @@ public class GFEResource extends
             this.select = select;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.eclipse.jface.action.Action#getText()
-         */
         @Override
         public String getText() {
             if (select) {
@@ -1267,11 +1210,6 @@ public class GFEResource extends
             return "Deselect Contiguous Area";
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.eclipse.jface.action.Action#run()
-         */
         @Override
         public void run() {
             IDisplayPane pane = getResourceContainer().getActiveDisplayPane();
@@ -1327,15 +1265,16 @@ public class GFEResource extends
                 public void run() {
                     if (select) {
 
-                        Grid2DBit gridCells = grid.getContiguousArea(curTime
-                                .getValidPeriod().getStart(), pt);
+                        Grid2DBit gridCells = grid.getContiguousArea(
+                                curTime.getValidPeriod().getStart(), pt);
                         ReferenceData refData = new ReferenceData(gridLocation,
                                 new ReferenceID("contiguous"), gridCells);
                         dataManager.getRefManager().incomingRefSet(refData,
                                 RefSetMode.USE_CURRENT);
 
-                    } else // deselect
-                    {
+                    } else {
+                        // deselect
+
                         // Get the refSet and the contiguous area for this
                         // intCoord
                         final Grid2DBit refSet = dataManager.getRefManager()
@@ -1343,8 +1282,7 @@ public class GFEResource extends
                         Grid2DBit editInfluence = refSet.contiguousBitArray(pt);
                         if (editInfluence.isAnyBitsSet()) {
                             ReferenceData refData = new ReferenceData(
-                                    gridLocation,
-                                    new ReferenceID("contiguous"),
+                                    gridLocation, new ReferenceID("contiguous"),
                                     editInfluence);
                             // Send the message that changes the current
                             // reference set
@@ -1359,11 +1297,6 @@ public class GFEResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.core.rsc.AbstractVizResource#okToUnload()
-     */
     @Override
     public boolean okToUnload() {
         if (parm.isModified()) {
@@ -1373,13 +1306,6 @@ public class GFEResource extends
         return super.okToUnload();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.core.rsc.AbstractVizResource#unload(com.raytheon.
-     * uf.viz.core.rsc.ResourceList)
-     */
     @Override
     public void unload(ResourceList list) {
         dataManager.getParmManager().deleteParm(parm);
@@ -1401,18 +1327,18 @@ public class GFEResource extends
     // if all of them have the same data as the label's originating grid cell,
     // then the label will be drawn.
     // ---------------------------------------------------------------------------
-    private void paintLabels(IGraphicsTarget target, IFont font,
-            IGridData grid, float multiplier, Rectangle screenRect) {
+    private void paintLabels(IGraphicsTarget target, IFont font, IGridData grid,
+            float multiplier, Rectangle screenRect) {
         // Calculate the positions of where labels should go.
         // get a Point[] and we'll try to put a label at each
         // point returned.
 
         Grid2DByte byteData = null;
         if (grid instanceof DiscreteGridData) {
-            byteData = ((DiscreteGridData) grid).getDiscreteSlice()
+            byteData = ((DiscreteGridData) grid).getDataObject()
                     .getDiscreteGrid();
         } else if (grid instanceof WeatherGridData) {
-            byteData = ((WeatherGridData) grid).getWeatherSlice()
+            byteData = ((WeatherGridData) grid).getDataObject()
                     .getWeatherGrid();
         }
         if (byteData == null) {
@@ -1443,13 +1369,15 @@ public class GFEResource extends
 
                 // now, using this string's size in pixels, figure out how
                 // many grid cells it needs.
-                DrawableString ds = new DrawableString(label, parm
-                        .getDisplayAttributes().getBaseColor());
+                DrawableString ds = new DrawableString(label,
+                        parm.getDisplayAttributes().getBaseColor());
                 ds.font = font;
                 Rectangle2D labelExtent = target.getStringsBounds(ds);
 
-                int xLabelGrid = (int) (labelExtent.getWidth() * multiplier) + 1;
-                int yLabelGrid = (int) (labelExtent.getHeight() * multiplier) + 1;
+                int xLabelGrid = (int) (labelExtent.getWidth() * multiplier)
+                        + 1;
+                int yLabelGrid = (int) (labelExtent.getHeight() * multiplier)
+                        + 1;
 
                 // now see if adjacent grid cells exist containing the
                 // same data.
@@ -1476,8 +1404,9 @@ public class GFEResource extends
                 if (printLabel) {
                     ReferencedCoordinate c = new ReferencedCoordinate(
                             new Coordinate(xGrid, yGrid),
-                            MapUtil.getGridGeometry(parm.getGridInfo()
-                                    .getGridLoc()), Type.GRID_CENTER);
+                            MapUtil.getGridGeometry(
+                                    parm.getGridInfo().getGridLoc()),
+                            Type.GRID_CENTER);
                     Coordinate coord = c.asPixel(descriptor.getGridGeometry());
                     ds.setCoordinates(coord.x, coord.y);
                     ds.horizontalAlignment = HorizontalAlignment.CENTER;
@@ -1487,8 +1416,8 @@ public class GFEResource extends
                 }
                 printLabel = true;
             } catch (Exception e) {
-                statusHandler.handle(Priority.PROBLEM,
-                        "Error displaying label", e);
+                statusHandler.handle(Priority.PROBLEM, "Error displaying label",
+                        e);
             }
         }
     }
@@ -1526,13 +1455,15 @@ public class GFEResource extends
             gridOffset = gridInterval / 4;
         }
 
-        int xpos, ypos; // grid cell indices where labels are attempted
+        // grid cell indices where labels are attempted
+        int xpos, ypos;
         int yCounter = 0;
 
         for (xpos = gridOffset; xpos < gridDim.x; xpos += gridInterval) {
             yCounter++;
             int xCounter = 0;
-            for (ypos = (yCounter % 4) + 1; ypos < (gridDim.y - gridOffset); ypos += gridInterval) {
+            for (ypos = (yCounter % 4) + 1; ypos < (gridDim.y
+                    - gridOffset); ypos += gridInterval) {
                 xCounter++;
                 int xGrid = xpos + ((xCounter % 4) * gridOffset);
                 if (xGrid > gridDim.x) {
@@ -1559,13 +1490,6 @@ public class GFEResource extends
         return this.parm.getParmID().toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.Message.IMessageClient#receiveMessage(
-     * com.raytheon.viz.gfe.core.msgs.Message)
-     */
     @Override
     public void receiveMessage(Message message) {
         if (message instanceof ShowISCGridsMsg) {
@@ -1573,9 +1497,6 @@ public class GFEResource extends
         }
     }
 
-    /**
-     * @param message
-     */
     private void showIScGrid(ShowISCGridsMsg message) {
         Date date = this.dataManager.getSpatialDisplayManager()
                 .getSpatialEditorTime();
@@ -1595,8 +1516,8 @@ public class GFEResource extends
             } else {
                 iscParm.getListeners().removeParmInventoryChangedListener(
                         this.parmInventoryChanged);
-                iscParm.getListeners().removeGridChangedListener(
-                        this.gridChanged);
+                iscParm.getListeners()
+                        .removeGridChangedListener(this.gridChanged);
             }
         }
     }

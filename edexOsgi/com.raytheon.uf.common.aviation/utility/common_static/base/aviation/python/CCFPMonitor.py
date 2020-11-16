@@ -54,16 +54,18 @@
 #
 #    Change Document History:
 #       1:
-#       	Change Document:   GFS1-NHD_SPR_7428
-#       	Action Date:       31-AUG-2009 16:40:04
-#       	Relationship Type: In Response to
-#       	Status:           TEST
-#       	Title:             AvnFPS: tpo indicator not monitoring properly
+#           Change Document:   GFS1-NHD_SPR_7428
+#           Action Date:       31-AUG-2009 16:40:04
+#           Relationship Type: In Response to
+#           Status:           TEST
+#           Title:             AvnFPS: tpo indicator not monitoring properly
 #    
 #    Date             Ticket#       Engineer       Description
 #    -------------    ----------    -----------    --------------------------
-#    Feb. 21, 2013    15834         zhao           Modified for CCFP 8hr data
-#    Jan. 14  2014    16289         zhao           Modified time format in _makeData() to match A1
+#    Feb. 21,2013     15834         zhao           Modified for CCFP 8hr data
+#    Jan. 14 2014     16289         zhao           Modified time format in _makeData() to match A1
+#    Feb 13, 2018     6860          njensen        Use ints for time keys in __makeData()
+#                                                  update _Code to match 9.2 codes
 #
 
 ##
@@ -72,28 +74,32 @@
 
 
 import logging, time
-import Avn, AvnLib, Globals, MonitorP
+import Avn, MonitorP
 import CCFPData
 
 _Logger = logging.getLogger(__name__)
 
 _Code = { \
-    'tops': {1: '400+   ', 2: '350-390', 3: '300-340', 4: '250-290'}, \
-    'gwth': {1: '+ ', 2: 'NC', 3: '- '}, \
+    'tops': {1: '370+   ', 2: '310-370', 3: '250-310'}, \
+    'gwth': {1: '++', 2: '+ ', 3: 'NC', 4: '- '}, \
     'conf': {1: 'HIGH', 3: 'LOW'}, \
-    'cvrg': {1: '75-100%', 2: ' 40-74%', 3: ' 25-39%'}, \
+    'cvrg': {1: '75-100%', 2: ' 50-74%', 3: ' 25-49%'}, \
     }
+
 
 ##############################################################################
 class Monitor(MonitorP.Monitor):
     Source = 'ccfp'
     Namespace = globals()
     
-    def __makeData(self, data):
+    def __makeData(self, data):        
+        # vtime is validtime, in the product "CCFP issueTime validTime", and
+        # will always be on an hour, therefore use ints to represent time in
+        # seconds.  Also floats as dictionary keys is just a bad idea.
         # 6 hour forecast
-        tstart = (time.time()//3600.0 + 1) * 3600.0
-        tend = tstart + 9*3600.0 - 10.0
-        seq = [{'time': t} for t in Avn.frange(tstart, tend, 3600.0)]
+        tstart = (int(time.time()/3600) + 1) * 3600
+        tend = tstart + (7 * 3600)
+        seq = [{'time': t} for t in Avn.frange(tstart, tend, 3600)]
         fcst, text = {}, []
         try:
             for line in [d.text for d in data]:
@@ -115,7 +121,7 @@ class Monitor(MonitorP.Monitor):
             return None
 
     def __compare(self, taf):
-        now = time.time()
+        #now = time.time()
         # data is a sequence of up to 3 forecasts
         #data = Globals.DRC.getCCFP(self.info['ident'], now-18000.0)
         data = CCFPData.retrieve(self.info['ident'])        

@@ -16,5 +16,5 @@
     <bean id="ingestATHandler" class="com.raytheon.uf.edex.activetable.handler.MergeActiveTableHandler"/>
     <bean id="lockAndGetEtnHandler" class="com.raytheon.uf.edex.activetable.handler.LockAndGetNextEtnHandler"/>
     <bean id="setAndUnlockEtnHandler" class="com.raytheon.uf.edex.activetable.handler.UnlockActiveTablePhenSigHandler"/>
-
+    <bean id="restoreLastEtnHandler" class="com.raytheon.uf.edex.activetable.RestoreLastEtnHandler"/>
 </beans>

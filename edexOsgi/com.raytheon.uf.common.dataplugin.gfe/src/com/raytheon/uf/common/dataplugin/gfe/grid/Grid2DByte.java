@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -24,33 +24,39 @@ import java.awt.Point;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import jep.NDArray;
-
 import com.raytheon.uf.common.serialization.annotations.DynamicSerialize;
 import com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import jep.NDArray;
+
 /**
- * 
+ *
  * Implementation of the Byte version of Grid2D.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Jan 30, 2008 879        rbell       Initial Creation.
- * Oct 22, 2008 1624       wdougherty  Speed up translate method
- * Sep 01, 2014 3572       randerso    Changed getNumpy to use getBytes()
- * Apr 23, 2015 4259       njensen     Updated for new JEP API
- * Apr 04, 2016 5539       randerso    Fixed toString method to handle unsigned bytes
- * 
+ *
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- ------------------------------------------
+ * Jan 30, 2008  879      rbell       Initial Creation.
+ * Oct 22, 2008  1624     wdougherty  Speed up translate method
+ * Sep 01, 2014  3572     randerso    Changed getNumpy to use getBytes()
+ * Apr 23, 2015  4259     njensen     Updated for new JEP API
+ * Apr 04, 2016  5539     randerso    Fixed toString method to handle unsigned
+ *                                    bytes
+ * Dec 13, 2017  7178     randerso    Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso    Change clone() to copy(). Regenerated
+ *                                    equals and hashCode
+ * Feb 23, 2018  7178     randerso    Fix hashCode and equals to not depend on
+ *                                    Buffer.array()
+ *
  * </pre>
- * 
+ *
  * @author rbell
- * @version 1.0
  */
 @DynamicSerialize
-public class Grid2DByte implements IGrid2D, Cloneable {
+public class Grid2DByte implements IGrid2D {
 
     /**
      * The data buffer, holding the grid's contents
@@ -70,6 +76,12 @@ public class Grid2DByte implements IGrid2D, Cloneable {
     @DynamicSerializeElement
     protected int ydim;
 
+    /**
+     * @param xDim
+     * @param yDim
+     * @param data
+     * @return the created grid
+     */
     public static Grid2DByte createGrid(int xDim, int yDim, byte[] data) {
         return new Grid2DByte(xDim, yDim, data);
     }
@@ -84,7 +96,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
     /**
      * Constructor for creating a two-dimension grid containing bytes. xDim and
      * yDim specify the size of the grid.
-     * 
+     *
      * @param xDim
      * @param yDim
      */
@@ -96,7 +108,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
      * Constructor for creating a two-dimension grid containing bytes. xDim and
      * yDim specify the size of the grid. data is an array of initialization
      * data.
-     * 
+     *
      * @param xDim
      * @param yDim
      * @param data
@@ -116,7 +128,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
      * Constructor for creating a two-dimension grid containing bytes. xDim and
      * yDim specify the size of the grid. data is a ByteBuffer containing
      * initialization data.
-     * 
+     *
      * @param xDim
      * @param yDim
      * @param data
@@ -134,9 +146,9 @@ public class Grid2DByte implements IGrid2D, Cloneable {
     }
 
     /**
-     * 
+     *
      * Copy constructor
-     * 
+     *
      * @param rhs
      *            Grid2DByte to copy
      */
@@ -170,6 +182,8 @@ public class Grid2DByte implements IGrid2D, Cloneable {
     }
 
     /**
+     * Set element to byte value
+     *
      * @param xDim
      *            x coordinate of byte to set
      * @param yDim
@@ -184,14 +198,24 @@ public class Grid2DByte implements IGrid2D, Cloneable {
         buffer.put((yDim * this.xdim) + xDim, aValue);
     }
 
+    /**
+     * Set element to integer value
+     *
+     * @param xDim
+     *            x coordinate of byte to set
+     * @param yDim
+     *            y coordinate of byte to set
+     * @param aValue
+     *            value of byte to set, will be truncated to 8 bits
+     */
     public void set(int xDim, int yDim, int aValue) {
         set(xDim, yDim, (byte) aValue);
     }
 
     /**
-     * 
+     *
      * Sets all bytes to the given value.
-     * 
+     *
      * @param aValue
      *            value to set all bytes to.
      */
@@ -218,7 +242,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
 
     /**
      * Set a particular coordinate to 0
-     * 
+     *
      * @param x
      *            x coordinate to clear
      * @param y
@@ -229,10 +253,10 @@ public class Grid2DByte implements IGrid2D, Cloneable {
     }
 
     /**
-     * 
+     *
      * Translates the set bytes in this object by the amount specified in
      * deltaCoord and returns a new Grid2DByte.
-     * 
+     *
      * @param deltaCoord
      *            coordinate representing the translation from each byte's
      *            origin
@@ -242,7 +266,8 @@ public class Grid2DByte implements IGrid2D, Cloneable {
         // make another Grid2DByte
         Grid2DByte rVal = new Grid2DByte(this.xdim, this.ydim, (byte) 0);
 
-        if ((Math.abs(deltaCoord.x) < xdim) && (Math.abs(deltaCoord.y) < ydim)) {
+        if ((Math.abs(deltaCoord.x) < xdim)
+                && (Math.abs(deltaCoord.y) < ydim)) {
             // Find iteration limits for X
             int fromXStart;
             int toXStart;
@@ -290,13 +315,13 @@ public class Grid2DByte implements IGrid2D, Cloneable {
     }
 
     /**
-     * 
+     *
      * Translates this Grid2DByte by the amount specified. Returns a reference
      * to this object.
-     * 
+     *
      * Uses translate() to translate the bytes, and then assigns the result to
      * this object using the assignment operator.
-     * 
+     *
      * @param deltaCoord
      *            coordinate representing the translation from each byte's
      *            origin
@@ -308,8 +333,15 @@ public class Grid2DByte implements IGrid2D, Cloneable {
         return this;
     }
 
+    /**
+     * @return backing data buffer
+     */
     public ByteBuffer getBuffer() {
-        return buffer;
+        if (buffer == null) {
+            return null;
+        }
+
+        return (ByteBuffer) buffer.duplicate().rewind();
     }
 
     @Override
@@ -339,30 +371,47 @@ public class Grid2DByte implements IGrid2D, Cloneable {
     }
 
     @Override
-    public boolean equals(Object rhs) {
-        if (!(rhs instanceof Grid2DByte)) {
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result
+                + ((buffer == null) ? 0 : getBuffer().hashCode());
+        result = prime * result + xdim;
+        result = prime * result + ydim;
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Grid2DByte other = (Grid2DByte) obj;
+        if (xdim != other.xdim) {
+            return false;
+        }
+        if (ydim != other.ydim) {
             return false;
         }
 
-        Grid2DByte rhsGrid2DByte = (Grid2DByte) rhs;
-
-        if ((this.xdim != rhsGrid2DByte.xdim)
-                || (this.ydim != rhsGrid2DByte.ydim)) {
-            return false;
-        }
-
-        byte[] data = this.buffer.array();
-        byte[] rhsData = rhsGrid2DByte.buffer.array();
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] != rhsData[i]) {
+        if (buffer == null) {
+            if (other.buffer != null) {
                 return false;
             }
+        } else if (!getBuffer().equals(other.getBuffer())) {
+            return false;
         }
         return true;
     }
 
     @Override
-    public Grid2DByte clone() {
+    public Grid2DByte copy() {
         Grid2DByte rVal = new Grid2DByte(this);
         return rVal;
     }
@@ -371,18 +420,25 @@ public class Grid2DByte implements IGrid2D, Cloneable {
     public void copyWithMask(IGrid2D sourceGrid, Grid2DBit maskGrid) {
         if (!(sourceGrid instanceof Grid2DByte)) {
             throw new IllegalArgumentException(
-                    "The input source grid must be of type Grid2DByte");
+                    "The input source grid must be of type Grid2DByte, received "
+                            + sourceGrid.getClass().getName());
+        }
+
+        if ((this.xdim != sourceGrid.getXdim())
+                || (this.ydim != sourceGrid.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "Mismatched dimensions: this grid[%d,%d], sourceGrid[%d,%d]",
+                    this.xdim, this.ydim, sourceGrid.getXdim(),
+                    sourceGrid.getYdim()));
+        }
+
+        if ((this.xdim != maskGrid.xdim) || (this.ydim != maskGrid.ydim)) {
+            throw new IllegalArgumentException(String.format(
+                    "Mismatched dimensions: this grid[%d,%d], sourceGrid[%d,%d]",
+                    this.xdim, this.ydim, maskGrid.xdim, maskGrid.ydim));
         }
 
         Grid2DByte sourceGrid2DByte = (Grid2DByte) sourceGrid;
-
-        if ((this.xdim != sourceGrid2DByte.xdim)
-                || (this.xdim != maskGrid.xdim)
-                || (this.ydim != sourceGrid2DByte.ydim)
-                || (this.ydim != maskGrid.ydim)) {
-            throw new IllegalArgumentException(
-                    "This grid, the input grid, and the input mask grid must have equal dimensions");
-        }
 
         byte[] data = this.buffer.array();
         byte[] sourceData = sourceGrid2DByte.buffer.array();
@@ -394,6 +450,12 @@ public class Grid2DByte implements IGrid2D, Cloneable {
         }
     }
 
+    /**
+     * Replace all instances of oldValue with newValue
+     *
+     * @param oldValue
+     * @param newValue
+     */
     public void setAllOfValue(byte oldValue, byte newValue) {
         byte[] data = this.buffer.array();
         for (int i = 0; i < data.length; i++) {
@@ -405,20 +467,24 @@ public class Grid2DByte implements IGrid2D, Cloneable {
 
     @Override
     public String toString() {
-        String rVal = "";
+        StringBuilder sb = new StringBuilder();
 
-        rVal += xdim + "X" + ydim + "\n[\n";
+        sb.append(xdim).append('X').append(ydim).append("\n[\n");
         for (int y = 0; y < ydim; y++) {
             for (int x = 0; x < xdim; x++) {
-                rVal += (0xFF & this.get(x, y)) + ((x + 1) == xdim ? "" : ",");
+                sb.append(0xFF & this.get(x, y))
+                        .append((x + 1) == xdim ? "" : ",");
             }
-            rVal += "\n";
+            sb.append('\n');
         }
-        rVal += "]";
+        sb.append(']');
 
-        return rVal;
+        return sb.toString();
     }
 
+    /**
+     * @return numpy NDArray
+     */
     public NDArray<byte[]> getNDArray() {
         /*
          * FIXME We reverse the x and y dimensions because that's what AWIPS 1
@@ -426,7 +492,7 @@ public class Grid2DByte implements IGrid2D, Cloneable {
          * it's confusing and questionable at best so someday someone should
          * correct all that. Good luck.
          */
-        return new NDArray<byte[]>(getBytes(), ydim, xdim);
+        return new NDArray<>(getBytes(), ydim, xdim);
     }
 
     /**
@@ -453,12 +519,20 @@ public class Grid2DByte implements IGrid2D, Cloneable {
         this.ydim = ydim;
     }
 
+    /**
+     * Assign this grid to value of another
+     *
+     * @param other
+     */
     public void assign(Grid2DByte other) {
         this.xdim = other.xdim;
         this.ydim = other.ydim;
         this.buffer.put(other.getBuffer());
     }
 
+    /**
+     * @return this grid's data as a 1-dimensional array
+     */
     public byte[] getBytes() {
         byte[] b;
         if (this.buffer.hasArray()) {

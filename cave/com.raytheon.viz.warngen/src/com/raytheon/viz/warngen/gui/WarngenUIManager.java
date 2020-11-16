@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -34,6 +34,8 @@ import org.geotools.math.Line;
 
 import com.raytheon.uf.common.dataplugin.warning.WarningRecord.WarningAction;
 import com.raytheon.uf.common.dataplugin.warning.util.GeometryUtil;
+import com.raytheon.uf.common.status.IUFStatusHandler;
+import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.viz.awipstools.common.stormtrack.StormTrackState.Mode;
@@ -52,30 +54,35 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * TODO Add Description
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * May 7, 2010            mschenke     Initial creation
- * Jan 29, 2013  15723    Qinglu Lin   Called warngenLayer.initRemovedGids() in move() and in run() of 
+ * Jan 29, 2013  15723    Qinglu Lin   Called warngenLayer.initRemovedGids() in move() and in run() of
  *                                     AddVertexAction, DeleteVertextAction and MoveElementAction inner classes.
  * Jan 30, 2013  15439    Qinglu Lin   Code were added to prevent nullPointException from occurring
- *                                     when c2 is null for "case SINGLE_POINT" in move().                                  
+ *                                     when c2 is null for "case SINGLE_POINT" in move().
  * Mar 28, 2013  DR 15974 D. Friedman  Do not track removed GIDs.
  * Jun 25, 2013  DR 16013 Qinglu Lin   Called setUniqueFip() in handleMouseUp().
  * Aug 15, 2013  DR 16418 D. Friedman  Only raise dialog if editable.  Don't call featureEdit if not editable.
  * Sep 24, 2013  #2403     lvenable    Fixed cursor memory leak.
  * Nov 25, 2015  DR 17464 Qinglu Lin   Updated handleMouseUp(), DeleteVertexAction(), and AddVertexAction class.
- * 
+ * Dec 13, 2017  #6917    dgilling     Prevent NullPointerException when right-
+ *                                     clicking outside bounds of the map.
+ *
  * </pre>
- * 
+ *
  * @author mschenke
  * @version 1.0
  */
 
 public class WarngenUIManager extends InputAdapter {
+
+    private final IUFStatusHandler statusHandler = UFStatus
+            .getHandler(getClass());
 
     private enum MoveType {
         SINGLE_POINT, ALL_POINTS;
@@ -123,7 +130,7 @@ public class WarngenUIManager extends InputAdapter {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.raytheon.uf.viz.core.ui.IInputHandler#handleMouseDown(int, int,
      * int)
      */
@@ -134,13 +141,13 @@ public class WarngenUIManager extends InputAdapter {
         }
         lastMouseX = x;
         lastMouseY = y;
-        if (!handleInput || warngenLayer.isBoxEditable() == false) {
+        if (!handleInput || !warngenLayer.isBoxEditable()) {
             return super.handleMouseDown(x, y, button);
         }
         boolean rval = false;
         if (button == 1 && moveType != null) {
             return true;
-        } else if (button == 2 && menuMove == false) {
+        } else if (button == 2 && !menuMove) {
             /** Try to add vertex */
             new AddVertexAction().run();
             if (pointCreated) {
@@ -176,7 +183,7 @@ public class WarngenUIManager extends InputAdapter {
             return true;
         }
 
-        if (warngenLayer.isBoxEditable() == false) {
+        if (!warngenLayer.isBoxEditable()) {
             return super.handleMouseDownMove(x, y, mouseButton);
         }
         if (mouseButton == 1 && moveType != null) {
@@ -207,22 +214,30 @@ public class WarngenUIManager extends InputAdapter {
             return super.handleMouseUp(x, y, mouseButton);
         }
 
-        if (mouseButton == 3 && menuMove == false && warngenLayer.isEditable()) {
+        if (mouseButton == 3 && !menuMove && warngenLayer.isEditable()) {
             Coordinate c = container.translateClick(x, y);
+            if (c == null) {
+                return false;
+            }
+
             WarngenUIState state = warngenLayer.getWarngenState();
             boolean geomsEqual = true;
             if (state.getWarningArea() == null) {
-                if (state.getOldWarningArea() != null)
+                if (state.getOldWarningArea() != null) {
                     geomsEqual = false;
+                }
             } else if (!GeometryUtil.equals(state.getWarningArea(),
-                    state.getOldWarningArea()))
+                    state.getOldWarningArea())) {
                 geomsEqual = false;
+            }
             if (state.getWarningPolygon() == null) {
-                if (state.getOldWarningPolygon() != null)
+                if (state.getOldWarningPolygon() != null) {
                     geomsEqual = false;
+                }
             } else if (!GeometryUtil.equals(state.getWarningPolygon(),
-                    state.getOldWarningPolygon()))
+                    state.getOldWarningPolygon())) {
                 geomsEqual = false;
+            }
 
             // if state.rightClickSelected is true, always try
             // warngenLayer.featureProduct()
@@ -237,7 +252,7 @@ public class WarngenUIManager extends InputAdapter {
                     && warngenLayer.featureProduct(c)) {
                 warngenLayer.state.rightClickSelected = true;
                 return true;
-            } else if (warngenLayer.isPolygonLocked() == false
+            } else if (!warngenLayer.isPolygonLocked()
                     && warngenLayer.getStormTrackState().mode == Mode.TRACK) {
                 // Add or remove county right-clicked on.
                 warngenLayer.addOrRemoveCounty(c);
@@ -263,7 +278,7 @@ public class WarngenUIManager extends InputAdapter {
                 }
                 warngenLayer.updateWarnedAreas();
             } catch (VizException e) {
-                e.printStackTrace();
+                statusHandler.error("Error updating WarnGen warned areas.", e);
             }
             warngenLayer.issueRefresh();
             rval = true;
@@ -290,7 +305,7 @@ public class WarngenUIManager extends InputAdapter {
         pointCreated = false;
 
         // TODO: Figure out if we are handling input
-        if (warngenLayer.isBoxEditable() == false || !handleInput) {
+        if (!warngenLayer.isBoxEditable() || !handleInput) {
             return super.handleMouseMove(x, y);
         }
 
@@ -406,7 +421,7 @@ public class WarngenUIManager extends InputAdapter {
     private class DeleteVertexAction extends AbstractRightClickAction {
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.action.Action#run()
          */
         @Override
@@ -430,8 +445,8 @@ public class WarngenUIManager extends InputAdapter {
                 pointDeleted = true;
                 Coordinate toRemove = (Coordinate) coords[idx].clone();
                 GeometryFactory gf = new GeometryFactory();
-                List<Coordinate> coordList = new ArrayList<Coordinate>();
-                List<Coordinate> alreadyRemoved = new ArrayList<Coordinate>();
+                List<Coordinate> coordList = new ArrayList<>();
+                List<Coordinate> alreadyRemoved = new ArrayList<>();
 
                 for (int i = 0; i < coords.length; ++i) {
                     Coordinate toAdd = (Coordinate) coords[i].clone();
@@ -443,8 +458,8 @@ public class WarngenUIManager extends InputAdapter {
                     }
                 }
 
-                if (coordList.get(0)
-                        .equals(coordList.get(coordList.size() - 1)) == false) {
+                if (!coordList.get(0)
+                        .equals(coordList.get(coordList.size() - 1))) {
                     coordList.add(coordList.get(0));
                 }
 
@@ -452,7 +467,7 @@ public class WarngenUIManager extends InputAdapter {
                         .toArray(new Coordinate[coordList.size()]));
                 Polygon newPoly = gf.createPolygon(lr, null);
 
-                if (newPoly.isValid() == false) {
+                if (!newPoly.isValid()) {
                     return;
                 }
 
@@ -473,7 +488,7 @@ public class WarngenUIManager extends InputAdapter {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.action.Action#getText()
          */
         @Override
@@ -540,7 +555,7 @@ public class WarngenUIManager extends InputAdapter {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.action.Action#run()
          */
         @Override
@@ -617,7 +632,7 @@ public class WarngenUIManager extends InputAdapter {
 
         /*
          * (non-Javadoc)
-         * 
+         *
          * @see org.eclipse.jface.action.Action#getText()
          */
         @Override

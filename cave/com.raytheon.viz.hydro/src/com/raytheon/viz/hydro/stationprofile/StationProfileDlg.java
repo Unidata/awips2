@@ -35,13 +35,14 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
@@ -67,21 +68,14 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * 30 Nov 2011  11253      lbousaidi   used List instead of TreeMap
  * 29 Mar 2013  1790       rferrel     Make dialog non-blocking.
  * 23 Oct 2013  15183      wkwock      Fix scales and value format
+ * 18 Jan 2018  6822       mduff       Refactored the drawing calculations for better drawing.
  * 
  * </pre>
  * 
  * @author lvenable
- * @version 1.0
  * 
  */
 public class StationProfileDlg extends CaveSWTDialog {
-    /**
-     * Rounding factor.
-     */
-    private static final int SCALE_ROUNDING = 5;
-
-    private static final int MIN_RIVER_MILES = 200;
-
     /**
      * Font used when drawing the canvases.
      */
@@ -95,78 +89,68 @@ public class StationProfileDlg extends CaveSWTDialog {
     /**
      * Canvas height.
      */
-    private final int CANVAS_HEIGHT = 450;
+    private static final int CANVAS_HEIGHT = 450;
 
     /**
      * Station profile canvas width.
      */
-    private final int PROFILE_CANVAS_WIDTH = 2000;
+    private int profileCanvasWidth = 1600;
 
     /**
      * Label canvas width.
      */
-    private final int LABEL_CANVAS_WIDTH = 100;
+    private static final int LABEL_CANVAS_WIDTH = 100;
 
     /**
      * Scrolled composite width.
      */
-    private final int SCROLLED_COMP_WIDTH = 800;
+    private static final int SCROLLED_COMP_WIDTH = 800;
 
     /**
      * Scrolled composite height.
      */
-    private final int SCROLLED_COMP_HEIGHT = CANVAS_HEIGHT;
+    private static final int SCROLLED_COMP_HEIGHT = CANVAS_HEIGHT;
 
     /**
      * Hash length on the River Miles horizontal line.
      */
-    private final int RIVER_MILES_HASH = 8;
+    private static final int RIVER_MILES_HASH = 8;
 
     /**
      * Hash length on the Elevation In Feet vertical line.
      */
-    private final int ELEVATION_HASH = 8;
+    private static final int ELEVATION_HASH = 8;
 
     /**
      * Hash length of the black hash mark where the stations are drawn.
      */
-    private final int POINT_HASH = 10;
+    private static final int POINT_HASH = 10;
 
     /**
      * Height of the station bar.
      */
-    private final int BAR_HEIGHT = 40;
+    private static final int BAR_HEIGHT = 40;
 
     /**
      * Width of the station bar.
      */
-    private final int BAR_WIDTH = 10;
+    private static final int BAR_WIDTH = 10;
 
     /**
      * Y coordinate of the horizontal graph line.
      */
-    private final int BOTTOM_Y_COORD = 400;
+    private static final int BOTTOM_Y_COORD = 400;
 
     /**
      * Number of pixel from the top of the canvas to the top of the vertical
      * graph line.
      */
-    private final int TOP_Y_COORD = 60;
+    private static final int TOP_Y_COORD = 60;
 
     /**
      * "ELEVATION IN FEET" string.
      */
-    private final String ELEVATION_FEET = "ELEVATION IN FEET";
-
-    /**
-     * Canvas where the Elevation labels and graph lines are drawn.
-     */
-    private Canvas labelCanvas;
-
-    /**
-     * Canvas where the station profile points are drawn.
-     */
-    private Canvas profileCanvas;
+    private static final String ELEVATION_FEET = "ELEVATION IN FEET";
 
     /**
      * Offset between the elevation points.
@@ -177,11 +161,6 @@ public class StationProfileDlg extends CaveSWTDialog {
      * The pixels between the elevation hashes.
      */
     private int elevationPixelOffset = 0;
-
-    /**
-     * X coordinate of the Zero Mile marker.
-     */
-    private final int ZERO_MILE_XCOORD = PROFILE_CANVAS_WIDTH / 2;
 
     /**
      * Number of pixels per Y increment.
@@ -219,20 +198,19 @@ public class StationProfileDlg extends CaveSWTDialog {
     private Text floodTF;
 
     /**
-     * default mile range.
-     */
-    private double mileRange = 10.0;
-
-    /**
      * selectedLid
      */
     private String selectedLid = null;
 
-    private Map<String, HydroDataReport> allReports = new HashMap<String, HydroDataReport>();
-
-    private List<Statprof> stationList = new ArrayList<Statprof>();
+    private Map<String, HydroDataReport> allReports = new HashMap<>();
 
     private boolean displayDlg = true;
+
+    private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
+
+    private Point screenDPI;
+
+    private int pixelsPerMile;
 
     /**
      * Constructor.
@@ -243,8 +221,8 @@ public class StationProfileDlg extends CaveSWTDialog {
     public StationProfileDlg(Shell parent, String selectedLid) {
         super(parent, SWT.DIALOG_TRIM, CAVE.DO_NOT_BLOCK);
         setText("Station Profile");
-
         this.selectedLid = selectedLid;
+        screenDPI = Display.getCurrent().getDPI();
         setReturnValue(selectedLid);
         loadStationProfileData();
         if (stationProfData != null) {
@@ -254,24 +232,12 @@ public class StationProfileDlg extends CaveSWTDialog {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#disposed()
-     */
     @Override
     protected void disposed() {
         font.dispose();
         profileColor.dispose();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#initializeComponents(org
-     * .eclipse.swt.widgets.Shell)
-     */
     @Override
     protected void initializeComponents(Shell shell) {
         profileColor = new Color(getDisplay(), 216, 212, 100);
@@ -280,17 +246,13 @@ public class StationProfileDlg extends CaveSWTDialog {
         initializeComponents();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.viz.ui.dialogs.CaveSWTDialogBase#shouldOpen()
-     */
     @Override
     protected boolean shouldOpen() {
         if (displayDlg) {
             return true;
         } else {
-            MessageBox mb = new MessageBox(getParent(), SWT.ICON_ERROR | SWT.OK);
+            MessageBox mb = new MessageBox(getParent(),
+                    SWT.ICON_ERROR | SWT.OK);
             mb.setText("Data Not Available");
             mb.setMessage("Unable to retrieve station information.");
             mb.open();
@@ -303,14 +265,10 @@ public class StationProfileDlg extends CaveSWTDialog {
      * Initialize the dialog components.
      */
     private void initializeComponents() {
-
-        // ------------------------------------
-        // Create the controls on the display
-        // ------------------------------------
         createTopLabel();
         createCanvases();
         createInformationFields();
-        // }
+
         // add a separator line
         GridData gd = new GridData(GridData.FILL_HORIZONTAL);
         Label sepLbl = new Label(shell, SWT.SEPARATOR | SWT.HORIZONTAL);
@@ -318,9 +276,6 @@ public class StationProfileDlg extends CaveSWTDialog {
 
         createCloseButton();
 
-        // ------------------------------------
-        // Update the information controls
-        // ------------------------------------
         updateInformationFields();
     }
 
@@ -328,8 +283,11 @@ public class StationProfileDlg extends CaveSWTDialog {
      * Calculate pixel and offset values.
      */
     private void calculateValues() {
-        double totalElevInc = stationProfData.getElevationFtMax()
-                - stationProfData.getElevationFtMin();
+        // 25 miles per inch
+        int pixelsPerInch = screenDPI.x;
+        pixelsPerMile = pixelsPerInch * 2 / 50;
+        double totalElevInc = stationProfData.getElevationScaleMax()
+                - stationProfData.getElevationScaleMin();
 
         // Calculate the offset between the elevation points
         double offsetDbl = totalElevInc / 5;
@@ -341,6 +299,14 @@ public class StationProfileDlg extends CaveSWTDialog {
 
         // Calculate the number of pixels per increment
         pixelsPerIncY = (BOTTOM_Y_COORD - TOP_Y_COORD) / totalElevInc;
+        // Add 150 pixel buffer to the right end of canvas for text
+        profileCanvasWidth = (int) (stationProfData.getMileRange())
+                * pixelsPerMile + 150;
+
+        // Minimum canvas size
+        if (profileCanvasWidth < 800) {
+            profileCanvasWidth = 800;
+        }
     }
 
     /**
@@ -352,8 +318,9 @@ public class StationProfileDlg extends CaveSWTDialog {
         labelComp.setLayout(gl);
 
         Label streamLbl = new Label(labelComp, SWT.NONE);
-        if (stationProfData != null) {
-            streamLbl.setText("Stream: " + stationProfData.getStreamName());
+        String streamName = stationProfData.getStreamName();
+        if (streamName != null) {
+            streamLbl.setText("Stream: " + streamName);
         } else {
             streamLbl.setText("Stream: No Data Available");
         }
@@ -475,7 +442,7 @@ public class StationProfileDlg extends CaveSWTDialog {
         closeBtn.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                shell.dispose();
+                close();
             }
         });
     }
@@ -487,7 +454,7 @@ public class StationProfileDlg extends CaveSWTDialog {
      *            Parent composite.
      */
     private void addLabelCanvas(Composite parentComp) {
-        labelCanvas = new Canvas(parentComp, SWT.DOUBLE_BUFFERED);
+        Canvas labelCanvas = new Canvas(parentComp, SWT.DOUBLE_BUFFERED);
         GridData gd = new GridData(SWT.DEFAULT, SWT.TOP, false, true);
         gd.heightHint = CANVAS_HEIGHT;
         gd.widthHint = LABEL_CANVAS_WIDTH;
@@ -516,12 +483,12 @@ public class StationProfileDlg extends CaveSWTDialog {
         GridData gd = new GridData(SCROLLED_COMP_WIDTH, SCROLLED_COMP_HEIGHT);
         scrolledComp.setLayoutData(gd);
 
-        profileCanvas = new Canvas(scrolledComp, SWT.DOUBLE_BUFFERED);
+        Canvas profileCanvas = new Canvas(scrolledComp, SWT.DOUBLE_BUFFERED);
         gd = new GridData(SWT.DEFAULT, SWT.TOP, false, true);
         gd.heightHint = CANVAS_HEIGHT;
-        gd.widthHint = PROFILE_CANVAS_WIDTH;
+        gd.widthHint = profileCanvasWidth;
 
-        profileCanvas.setSize(PROFILE_CANVAS_WIDTH, CANVAS_HEIGHT);
+        profileCanvas.setSize(profileCanvasWidth, CANVAS_HEIGHT);
 
         profileCanvas.setLayoutData(gd);
         profileCanvas.addPaintListener(new PaintListener() {
@@ -571,28 +538,25 @@ public class StationProfileDlg extends CaveSWTDialog {
                 LABEL_CANVAS_WIDTH - ELEVATION_HASH - 1, BOTTOM_Y_COORD);
 
         // Draw top hash mark & label
-        e.gc.drawLine(LABEL_CANVAS_WIDTH - 1, TOP_Y_COORD, LABEL_CANVAS_WIDTH
-                - ELEVATION_HASH - 1, TOP_Y_COORD);
+        e.gc.drawLine(LABEL_CANVAS_WIDTH - 1, TOP_Y_COORD,
+                LABEL_CANVAS_WIDTH - ELEVATION_HASH - 1, TOP_Y_COORD);
 
-        if (stationProfData != null) {
-            e.gc.drawString(
-                    String.format("%5d", stationProfData.getElevationFtMin()),
-                    40, BOTTOM_Y_COORD - fontHeight / 2, true);
-            e.gc.drawString(
-                    String.format("%5d", stationProfData.getElevationFtMax()),
-                    40, TOP_Y_COORD - fontHeight / 2, true);
-        }
+        e.gc.drawString(
+                String.format("%5d", stationProfData.getElevationScaleMin()),
+                40, BOTTOM_Y_COORD - fontHeight / 2, true);
+        e.gc.drawString(
+                String.format("%5d", stationProfData.getElevationScaleMax()),
+                40, TOP_Y_COORD - fontHeight / 2, true);
 
         // Draw remaining "in between" hash marks & labels
         int tmpYCoord = BOTTOM_Y_COORD - elevationPixelOffset;
-        int tmpElev = (stationProfData != null) ? stationProfData
-                .getElevationFtMin() + elevationOffset : elevationOffset;
+        int tmpElev = stationProfData.getElevationScaleMin() + elevationOffset;
 
         for (int i = 0; i < 5; i++) {
-            e.gc.drawLine(LABEL_CANVAS_WIDTH - 1, tmpYCoord, LABEL_CANVAS_WIDTH
-                    - ELEVATION_HASH - 1, tmpYCoord);
-            e.gc.drawString(String.format("%5d", tmpElev), 40, tmpYCoord
-                    - fontHeight / 2, true);
+            e.gc.drawLine(LABEL_CANVAS_WIDTH - 1, tmpYCoord,
+                    LABEL_CANVAS_WIDTH - ELEVATION_HASH - 1, tmpYCoord);
+            e.gc.drawString(String.format("%5d", tmpElev), 40,
+                    tmpYCoord - fontHeight / 2, true);
 
             tmpYCoord -= elevationPixelOffset;
             tmpElev += elevationOffset;
@@ -610,52 +574,37 @@ public class StationProfileDlg extends CaveSWTDialog {
         e.gc.setFont(font);
         int fontHeight = (e.gc.getFontMetrics().getHeight());
         int fontAveWidth = (e.gc.getFontMetrics().getAverageCharWidth());
-        DecimalFormat df = new DecimalFormat("#.##");
 
-        // List of label position objects
-        ArrayList<LabelPosition> labelList = new ArrayList<LabelPosition>();
+        List<LabelPosition> labelList = new ArrayList<>();
 
         e.gc.setBackground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+        e.gc.fillRectangle(0, 0, profileCanvasWidth, CANVAS_HEIGHT);
 
-        e.gc.fillRectangle(0, 0, PROFILE_CANVAS_WIDTH, CANVAS_HEIGHT);
-
-        // ----------------------------------------
         // Draw "RIVER MILES" label
-        // ----------------------------------------
         e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-        e.gc.drawString("RIVER MILES", PROFILE_CANVAS_WIDTH / 2 - fontAveWidth
-                * 5, CANVAS_HEIGHT - fontHeight - 3, true);
+        e.gc.drawString("RIVER MILES",
+                profileCanvasWidth / 2 - fontAveWidth * 5,
+                CANVAS_HEIGHT - fontHeight - 3, true);
 
-        // ----------------------------------------
-        // Draw River Miles line
-        // ----------------------------------------
-        e.gc.drawLine(0, BOTTOM_Y_COORD, PROFILE_CANVAS_WIDTH, BOTTOM_Y_COORD);
+        // Y-Axis line
+        e.gc.drawLine(0, BOTTOM_Y_COORD, profileCanvasWidth, BOTTOM_Y_COORD);
 
-        // ----------------------------------------
-        // Draw River Miles hash and labels
-        // ----------------------------------------
-
-        // Draw 0 miles hash and label
-/*        e.gc.drawLine(PROFILE_CANVAS_WIDTH / 2, BOTTOM_Y_COORD,
-                PROFILE_CANVAS_WIDTH / 2, BOTTOM_Y_COORD + RIVER_MILES_HASH);
-        e.gc.drawString("0", PROFILE_CANVAS_WIDTH / 2 - fontAveWidth / 2,
-                BOTTOM_Y_COORD + RIVER_MILES_HASH + 3, true);
-*/
-        // Draw 50 miles hash and label
-        double maxMile = getMaxMile(stationList);
-        int currMile = (int) Math.ceil(getMinMile(stationList) / 50) * 50;
+        // Draw X axis hash and labels
+        double maxMile = this.stationProfData.getMaxMile();
+        double minMile = stationProfData.getMinMile();
+        double mileScaleValue = maxMile;
         int x;
         int y;
-        while (maxMile > currMile) {
-            x = calcRiverMileXCoord(currMile);
 
-            e.gc.drawLine(x, BOTTOM_Y_COORD, x, BOTTOM_Y_COORD
-                    + RIVER_MILES_HASH);
-            e.gc.drawString(String.valueOf(currMile), x - fontAveWidth,
+        int numTics = (int) (mileScaleValue - minMile) / 50;
+        for (int i = 0; i <= numTics; i++) {
+            // 10 pixel offset to the right
+            x = i * pixelsPerMile * 50 + 10;
+            e.gc.drawLine(x, BOTTOM_Y_COORD, x,
+                    BOTTOM_Y_COORD + RIVER_MILES_HASH);
+            e.gc.drawString(String.valueOf(mileScaleValue), x - fontAveWidth,
                     BOTTOM_Y_COORD + RIVER_MILES_HASH + 3, true);
-
-            // Increment mile marker
-            currMile += 50;
+            mileScaleValue -= 50;
         }
 
         // ------------------------------------------
@@ -663,12 +612,55 @@ public class StationProfileDlg extends CaveSWTDialog {
         // ------------------------------------------
         e.gc.setBackground(profileColor);
 
-        // profile background
-        int[] pointArray = calcPlotPoints(stationList);
+        List<Integer> points = new ArrayList<>();
+        List<Statprof> stations = stationProfData.getStations();
 
-        if (pointArray != null) {
-            e.gc.fillPolygon(pointArray);
+        // Bottom right x,y coordinate
+        points.add(profileCanvasWidth);
+        points.add(BOTTOM_Y_COORD - 2);
+
+        // Bottom left x,y coordinate
+        points.add(2);
+        points.add(BOTTOM_Y_COORD - 2);
+
+        // Top left x,y coordinate
+        points.add(2);
+        points.add(calcElevationYCoord(stations.get(0).getId().getZd()));
+
+        // The last y value used
+        int lastY = points.get(5);
+
+        // Get gage bar points
+        for (Statprof station : stations) {
+            // Skip gage if the river mile is not valid
+            if (station.getId().getMile() == HydroConstants.MISSING_VALUE) {
+                continue;
+            }
+            x = (int) ((maxMile - station.getId().getMile()) * pixelsPerMile
+                    + 10);
+            y = calcElevationYCoord(station.getId().getZd());
+            points.add(x);
+            points.add(y);
+
+            lastY = y;
         }
+
+        /*
+         * Top right x,y coordinate Need to use the last y for this coordinate
+         * in case there is a site without a river mile, which can throw off the
+         * drawing.
+         */
+        points.add(profileCanvasWidth);
+        points.add(lastY);
+
+        // profile background
+        int i = 0;
+        int[] pointArray = new int[points.size()];
+        for (Integer pt : points) {
+            pointArray[i] = pt;
+            i++;
+        }
+        e.gc.fillPolygon(pointArray);
 
         // ================================================
         // NOTE: The color bars that are drawn below can
@@ -677,285 +669,195 @@ public class StationProfileDlg extends CaveSWTDialog {
         // ================================================
 
         // Draw vertical hashes and bars at the plot points
-
         e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
         e.gc.setLineWidth(2);
 
-        if (stationList != null) {
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm MM/dd");
-            sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
-            int i = 0;
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm MM/dd");
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-            for (Statprof station : stationList) {
-                // Skip gage if the river mile is not valid
-                if (station.getId().getMile() == HydroConstants.MISSING_VALUE) {
-                    continue;
-                }
+        for (Statprof station : stations) {
+            // Skip gage if the river mile is not valid
+            if (station.getId().getMile() == HydroConstants.MISSING_VALUE) {
+                continue;
+            }
 
-                e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
-                x = calcRiverMileXCoord(station.getId().getMile());
-                y = calcElevationYCoord(station.getId().getZd());
-                i++;
+            e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+            x = (int) ((maxMile - station.getId().getMile()) * pixelsPerMile
+                    + 10);
 
-                // hash mark at each site
-                e.gc.drawLine(x, y, x, y + POINT_HASH);
+            y = calcElevationYCoord(station.getId().getZd());
 
-                /*
-                 * determine color of staff, based on proximity to action or
-                 * flood STAGE or DISCHARGE as appropriate.
-                 */
-                HydroDataReport report = allReports.get(station.getId()
-                        .getLid());
+            // hash mark at each site
+            e.gc.drawLine(x, y, x, y + POINT_HASH);
 
-                RGB rgb = new RGB(0, 255, 0);
-                if (report != null) {
-                    if (station.getId().getPrimaryPe().startsWith("H")) {
-                        if ((report.getValue() > station.getId().getFs())
-                                && (station.getId().getFs() > 0)) {
-                            rgb = new RGB(255, 0, 0);
-                        } else if ((report.getValue() > station.getId()
-                                .getWstg()) && (station.getId().getWstg() > 0)) {
-                            rgb = new RGB(255, 255, 0);
-                        } // else use default green
-                    } else {
-                        if ((report.getValue() > station.getId().getFq())
-                                && (station.getId().getFs() > 0)) {
-                            rgb = new RGB(255, 0, 0);
-                        } else if ((report.getValue() > station.getId()
-                                .getActionFlow())
-                                && (station.getId().getWstg() > 0)) {
-                            rgb = new RGB(255, 255, 0);
-                        } // else use default green
+            /*
+             * determine color of staff, based on proximity to action or flood
+             * STAGE or DISCHARGE as appropriate.
+             */
+            HydroDataReport report = allReports.get(station.getId().getLid());
+            Display display = getDisplay();
+            Color barColor = display.getSystemColor(SWT.COLOR_GREEN);
+            if (report != null) {
+                if (station.getId().getPrimaryPe().startsWith("H")) {
+                    if ((report.getValue() > station.getId().getFs())
+                            && (station.getId().getFs() > 0)) {
+                        barColor = display.getSystemColor(SWT.COLOR_RED);
+                    } else if ((report.getValue() > station.getId().getWstg())
+                            && (station.getId().getWstg() > 0)) {
+                        barColor = display.getSystemColor(SWT.COLOR_YELLOW);
                     }
-                }
-
-                if (rgb != null) {
-                    Color color = new Color(getDisplay(), rgb.red, rgb.green,
-                            rgb.blue);
-                    e.gc.setBackground(color);
-                    e.gc.fillRectangle(x - BAR_WIDTH / 2, y - BAR_HEIGHT,
-                            BAR_WIDTH, BAR_HEIGHT);
-                    color.dispose();
-                }
-
-                // Get the label locations and store in object
-
-                // label at each site
-                e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-                StringBuilder label = new StringBuilder();
-                label.append(station.getId().getLid() + " (");
-
-                HydroDataReport rpt = allReports.get(station.getId().getLid());
-                if (rpt.getValue() != HydroConstants.MISSING_VALUE) {
-                    label.append(df.format(rpt.getValue()) + " - ");
-                    label.append(sdf.format(rpt.getValidTime()) + ")");
+                    // else use default green
                 } else {
-                    label.append("MSG/MSG)");
-                }
-                LabelPosition lp = new LabelPosition();
-
-                // lid and value
-                lp.setLidX(x - fontAveWidth);
-                lp.setLidY(y - BAR_HEIGHT - 20);
-                lp.setLidBuffer(label.toString());
-
-                // elevation
-                String feet = String.valueOf(station.getId().getZd());
-                int offset = feet.length() * fontAveWidth / 2;
-                lp.setElevX(x - offset);
-                lp.setElevY(y + POINT_HASH);
-                lp.setElevBuffer(feet);
-
-                labelList.add(lp);
-            }
-
-            // Draw the elevation labels, left to right
-            if (labelList.size() == 0) {
-                return;
-            }
-
-            for (int j = 0; j < labelList.size() - 1; j++) {
-                LabelPosition lp = labelList.get(j);
-                LabelPosition lp2 = labelList.get(j + 1);
-
-                boolean elevCollision = false;
-
-                int elevX = lp.getElevX();
-                int elevY = lp.getElevY();
-
-                int elevX2 = lp2.getElevX();
-                int elevY2 = lp2.getElevY();
-                int elevLength = lp.getElevBuffer().length();
-                int pixelOverlap = 0;
-
-                int offset = elevLength * fontAveWidth / 2;
-                int offset2 = lp2.getElevBuffer().length() * fontAveWidth / 2;
-
-                // right pixel value of elevation label 1
-                int rightPixValElev = ((elevX - offset) + (elevLength * fontAveWidth));
-
-                // left pixel value of elevation label 2
-                int leftPixValElev = (elevX2 - offset2);
-
-                if (rightPixValElev >= leftPixValElev) {
-                    elevCollision = true;
-                }
-
-                // if collision try moving labels
-                if (elevCollision) {
-                    pixelOverlap = elevY2 - (elevY + fontHeight);
-
-                    if (pixelOverlap < 0) {
-                        lp2.setElevY(elevY - pixelOverlap);
+                    if ((report.getValue() > station.getId().getFq())
+                            && (station.getId().getFs() > 0)) {
+                        barColor = display.getSystemColor(SWT.COLOR_RED);
+                    } else if ((report.getValue() > station.getId()
+                            .getActionFlow())
+                            && (station.getId().getWstg() > 0)) {
+                        barColor = display.getSystemColor(SWT.COLOR_YELLOW);
                     }
+                    // else use default green
                 }
-
-                // draw elevation label
-                e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
-                e.gc.drawString(lp.getElevBuffer(), lp.getElevX(),
-                        lp.getElevY(), true);
             }
 
-            // Reset to white
+            e.gc.setBackground(barColor);
+            e.gc.fillRectangle(x - BAR_WIDTH / 2, y - BAR_HEIGHT, BAR_WIDTH,
+                    BAR_HEIGHT);
+
+            // label at each site
             e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+            StringBuilder label = new StringBuilder();
+            label.append(station.getId().getLid()).append(" (");
 
-            // Draw the lid labels, right to left
-            LabelPosition lp = labelList.get(labelList.size() - 1);
-            e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-            e.gc.drawString(lp.getLidBuffer(), lp.getLidX(), lp.getLidY(), true);
+            HydroDataReport rpt = allReports.get(station.getId().getLid());
+            if (rpt.getValue() != HydroConstants.MISSING_VALUE) {
+                label.append(decimalFormat.format(rpt.getValue()))
+                        .append(" - ");
+                label.append(sdf.format(rpt.getValidTime())).append(")");
+            } else {
+                label.append("MSG/MSG)");
+            }
+            LabelPosition lp = new LabelPosition();
 
-            for (int j = labelList.size() - 2; j >= 0; j--) {
-                lp = labelList.get(j);
+            // lid and value
+            lp.setLidX(x - fontAveWidth);
+            lp.setLidY(y - BAR_HEIGHT - 20);
+            lp.setLidBuffer(label.toString());
 
-                // one point left of lp
-                LabelPosition lp2 = labelList.get(j + 1);
+            // elevation
+            String feet = String.valueOf(station.getId().getZd());
+            int offset = feet.length() * fontAveWidth / 2;
+            lp.setElevX(x - offset);
+            lp.setElevY(y + POINT_HASH);
+            lp.setElevBuffer(feet);
 
-                boolean lidCollision = false;
+            labelList.add(lp);
+        }
 
-                int lidX = lp.getLidX();
-                int lidY = lp.getLidY();
+        // Draw the elevation labels, left to right
+        if (labelList.isEmpty()) {
+            return;
+        }
 
-                int lidX2 = lp2.getLidX();
-                int lidY2 = lp2.getLidY();
-                int lidLength = lp2.getLidBuffer().length();
-                int pixelOverlap = 0;
+        for (int j = 0; j < labelList.size() - 1; j++) {
+            LabelPosition lp = labelList.get(j);
+            LabelPosition lp2 = labelList.get(j + 1);
 
-                // right pixel value of lid label 2
-                int rightPixValLid = ((lidX - fontAveWidth) + (lidLength * fontAveWidth));
+            boolean elevCollision = false;
 
-                // left pixel value of lid label 1
-                int leftPixValLid = lidX2 - fontAveWidth;
+            int elevX = lp.getElevX();
+            int elevY = lp.getElevY();
 
-                if (rightPixValLid >= leftPixValLid) {
-                    lidCollision = true;
-                }
+            int elevX2 = lp2.getElevX();
+            int elevY2 = lp2.getElevY();
+            int elevLength = lp.getElevBuffer().length();
+            int pixelOverlap = 0;
 
-                // if collision try moving labels, but not the last one in the
-                // list
-                if (lidCollision) {
-                    pixelOverlap = lidY2 - (lidY + fontHeight) + 5;
+            int offset = elevLength * fontAveWidth / 2;
+            int offset2 = lp2.getElevBuffer().length() * fontAveWidth / 2;
 
-                    if (pixelOverlap < 0) {
-                        lp.setLidY((lidY + pixelOverlap));
-                    }
-                }
+            // right pixel value of elevation label 1
+            int rightPixValElev = ((elevX - offset)
+                    + (elevLength * fontAveWidth));
 
-                e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
-                e.gc.drawString(lp.getLidBuffer(), lp.getLidX(), lp.getLidY(),
-                        true);
+            // left pixel value of elevation label 2
+            int leftPixValElev = (elevX2 - offset2);
+
+            if (rightPixValElev >= leftPixValElev) {
+                elevCollision = true;
             }
 
-            // draw last label in list
-            lp = labelList.get(labelList.size() - 1);
+            // if collision try moving labels
+            if (elevCollision) {
+                pixelOverlap = elevY2 - (elevY + fontHeight);
+
+                if (pixelOverlap < 0) {
+                    lp2.setElevY(elevY - pixelOverlap);
+                }
+            }
 
             // draw elevation label
             e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
             e.gc.drawString(lp.getElevBuffer(), lp.getElevX(), lp.getElevY(),
                     true);
         }
-    }
 
-    /**
-     * Calculate the station profile plot points.
-     * 
-     * @return Array of plot points.
-     */
-    private int[] calcPlotPoints(List<Statprof> stationList) {
-        if (stationProfData != null) {
-            ArrayList<Integer> sPP = new ArrayList<Integer>();
-            ArrayList<Integer> points = new ArrayList<Integer>();
+        // Reset to white
+        e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
 
-            // Bottom right x,y coordinate
-            points.add(PROFILE_CANVAS_WIDTH);
-            points.add(BOTTOM_Y_COORD - 2);
+        // Draw the lid labels, right to left
+        LabelPosition lp = labelList.get(labelList.size() - 1);
+        e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+        e.gc.drawString(lp.getLidBuffer(), lp.getLidX(), lp.getLidY(), true);
 
-            // Bottom left x,y coordinate
-            points.add(2);
-            points.add(BOTTOM_Y_COORD - 2);
+        for (int j = labelList.size() - 2; j >= 0; j--) {
+            lp = labelList.get(j);
 
-            // Top left x,y coordinate
-            points.add(2);
-            points.add(calcElevationYCoord(stationList.get(0).getId().getZd()));
+            // one point left of lp
+            LabelPosition lp2 = labelList.get(j + 1);
 
-            // The last y value used
-            int lastY = points.get(5);
+            boolean lidCollision = false;
 
-            // Get gage bar points
-            for (Statprof station : stationList) {
-                // Skip gage if the river mile is not valid
-                if (station.getId().getMile() == HydroConstants.MISSING_VALUE) {
-                    continue;
+            int lidX = lp.getLidX();
+            int lidY = lp.getLidY();
+
+            int lidX2 = lp2.getLidX();
+            int lidY2 = lp2.getLidY();
+            int lidLength = lp2.getLidBuffer().length();
+            int pixelOverlap = 0;
+
+            // right pixel value of lid label 2
+            int rightPixValLid = ((lidX - fontAveWidth)
+                    + (lidLength * fontAveWidth));
+
+            // left pixel value of lid label 1
+            int leftPixValLid = lidX2 - fontAveWidth;
+
+            if (rightPixValLid >= leftPixValLid) {
+                lidCollision = true;
+            }
+
+            // if collision try moving labels, but not the last one in the
+            // list
+            if (lidCollision) {
+                pixelOverlap = lidY2 - (lidY + fontHeight) + 5;
+
+                if (pixelOverlap < 0) {
+                    lp.setLidY((lidY + pixelOverlap));
                 }
-
-                Integer x = calcRiverMileXCoord(station.getId().getMile());
-                Integer y = calcElevationYCoord(station.getId().getZd());
-
-                points.add(x);
-                points.add(y);
-
-                sPP.add(x);
-                sPP.add(y);
-
-                lastY = y;
             }
 
-            // Top right x,y coordinate
-            // Need to use the last y for this coordinate in case
-            // there is a site without a river mile, which can
-            // throw off the drawing.
-            points.add(PROFILE_CANVAS_WIDTH);
-            points.add(lastY);
-
-            // Convert to array
-            int i = 0;
-            int[] rval = new int[points.size()];
-            for (Integer pt : points) {
-                rval[i++] = pt;
-            }
-
-            return rval;
-        }
-        return null;
-    }
-
-    /**
-     * Calculate the X coordinate for the river mile passed in.
-     * 
-     * @param riverMile
-     *            River mile.
-     * @return X coordinate of the river mile.
-     */
-    private int calcRiverMileXCoord(double riverMile) {
-        if (Double.compare(mileRange, 10) < 0) {
-            mileRange = 10;
+            e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
+            e.gc.drawString(lp.getLidBuffer(), lp.getLidX(), lp.getLidY(),
+                    true);
         }
 
-        double maxMile = getMaxMile(stationList);
+        // draw last label in list
+        lp = labelList.get(labelList.size() - 1);
 
-        int xCoord = (int) Math.round((ZERO_MILE_XCOORD + 2)
-                * (maxMile - riverMile) / mileRange);
-
-        return xCoord;
+        // draw elevation label
+        e.gc.setForeground(getDisplay().getSystemColor(SWT.COLOR_BLACK));
+        e.gc.drawString(lp.getElevBuffer(), lp.getElevX(), lp.getElevY(), true);
     }
 
     /**
@@ -967,8 +869,8 @@ public class StationProfileDlg extends CaveSWTDialog {
      */
     private int calcElevationYCoord(double elevation) {
         double yCoordDbl = BOTTOM_Y_COORD
-                - (elevation - stationProfData.getElevationFtMin())
-                * pixelsPerIncY;
+                - (elevation - stationProfData.getElevationScaleMin())
+                        * pixelsPerIncY;
         int yCoord = (int) Math.round(yCoordDbl);
 
         return yCoord;
@@ -978,11 +880,8 @@ public class StationProfileDlg extends CaveSWTDialog {
      * Populate the station combo box.
      */
     private void populateStationCbo() {
-        if (stationList != null) {
-            for (Statprof station : stationList) {
-                String stations = station.getId().getLid();
-                stationCbo.add(stations);
-            }
+        for (Statprof station : stationProfData.getStations()) {
+            stationCbo.add(station.getId().getLid());
         }
     }
 
@@ -990,16 +889,16 @@ public class StationProfileDlg extends CaveSWTDialog {
      * Update the station profile information fields using the selected station.
      */
     private void updateInformationFields() {
-        if (stationProfData != null && stationCbo.getSelectionIndex() >= 0) {
+        if (stationCbo.getSelectionIndex() >= 0) {
             Statprof data = stationProfData
                     .getStationData(stationCbo.getText());
             String name = null;
             if (data.getId().getProximity() == null) {
-                name = String.format("%s %s %s", data.getId().getStream(),
-                        "AT", data.getId().getName());
+                name = String.format("%s %s %s", data.getId().getStream(), "AT",
+                        data.getId().getName());
             } else {
-                name = String.format("%s %s %s", data.getId().getStream(), data
-                        .getId().getProximity(), data.getId().getName());
+                name = String.format("%s %s %s", data.getId().getStream(),
+                        data.getId().getProximity(), data.getId().getName());
             }
 
             if (name != null) {
@@ -1011,11 +910,12 @@ public class StationProfileDlg extends CaveSWTDialog {
             }
 
             if (data.getId().getPrimaryPe().startsWith("H")) {
-                actionTF.setText(String.format("%5.2f", data.getId().getWstg()));
+                actionTF.setText(
+                        String.format("%5.2f", data.getId().getWstg()));
                 floodTF.setText(String.format("%5.2f", data.getId().getFs()));
             } else {
-                actionTF.setText(String.format("%5.2f", data.getId()
-                        .getActionFlow()));
+                actionTF.setText(
+                        String.format("%5.2f", data.getId().getActionFlow()));
                 floodTF.setText(String.format("%5.2f", data.getId().getFq()));
             }
         }
@@ -1039,8 +939,8 @@ public class StationProfileDlg extends CaveSWTDialog {
             }
 
             /* get the static station data */
-            stationList = rdm.getStatProf(stream);
-            if ((stationList == null) || (stationList.size() == 0)) {
+            List<Statprof> stationList = rdm.getStatProf(stream);
+            if ((stationList == null) || (stationList.isEmpty())) {
                 // Error dialog
                 stationProfData = null;
                 return;
@@ -1049,147 +949,8 @@ public class StationProfileDlg extends CaveSWTDialog {
             /* get the dynamic river station data */
             loadStatProfReports(stationList);
 
-            // Create the statioProfileData object
-            double maxElevation = getMaxElevation(stationList);
-            double minElevation = getMinElevation(stationList);
-
-            stationProfData = new StationProfileData(stream,
-                    (int) maxElevation, (int) minElevation);
-            double maxMile = getMaxMile(stationList);
-            double minMile = getMinMile(stationList);
-
-            mileRange = (maxMile - minMile) * 1.5;
-            if (mileRange < (MIN_RIVER_MILES)) {
-                mileRange = MIN_RIVER_MILES;
-            }
-
-            for (Statprof station : stationList) {
-                stationProfData.addStationData(station.getId().getLid(),
-                        station);
-            }
+            stationProfData = new StationProfileData(stream, stationList);
         }
-    }
-
-    /**
-     * Get the maximum elevation of the stations
-     * 
-     * @param stationList
-     *            List of Statprof objects
-     * 
-     * @return The maximum elevation
-     */
-    private double getMaxElevation(List<Statprof> stationList) {
-        double max = -9999;
-
-        /* iterate through elevations and determine maximum value. */
-        for (Statprof station : stationList) {
-            if ((station == null) || (station.getId().getFs() == null)) {
-                continue;
-            }
-            if (station.getId().getZd() + station.getId().getFs() > max) {
-                max = station.getId().getZd();
-            }
-        }
-
-        /* round off, and return. */
-        long lmax = (long) max / SCALE_ROUNDING;
-        max = (lmax + 100) * SCALE_ROUNDING;
-
-        if (max < 0) {
-            max = 0;
-        }
-
-        return max;
-    }
-
-    /**
-     * Get the minimum elevation of the stations
-     * 
-     * @param stationList
-     *            List of Statprof objects
-     * 
-     * @return The minimum elevation
-     */
-    private double getMinElevation(List<Statprof> stationList) {
-        double min = 20000;
-
-        /* iterate through elevations and determine minimum value. */
-        for (Statprof station : stationList) {
-            if ((station == null) || (station.getId().getFs() == null)) {
-                continue;
-            }
-            if (station.getId().getZd() + station.getId().getFs() < min) {
-                min = station.getId().getZd();
-            }
-        }
-
-        /* round off to nice even values, and return. */
-        long lmin = (long) min / SCALE_ROUNDING;
-        min = (lmin - 100) * SCALE_ROUNDING;
-
-        if (min > 19999) {
-            min = 0;
-        }
-
-        return min;
-    }
-
-    /**
-     * Get the maximum river mile.
-     * 
-     * @param stationList
-     *            List of stations
-     * 
-     * @return the greatest river mile
-     */
-    private double getMaxMile(List<Statprof> stationList) {
-        double max = 0;
-        long lmax = 0;
-        double mod = 0;
-
-        for (Statprof station : stationList) {
-            if (station.getId().getMile() > max) {
-                max = station.getId().getMile();
-            }
-        }
-
-        /* round off to nice even values, and return. */
-        lmax = (long) max / SCALE_ROUNDING;
-        max = (lmax + 10) * SCALE_ROUNDING;
-        if (mod == (long) max % 10) {
-            max += mod;
-        }
-
-        return max;
-    }
-
-    /**
-     * Get the minimum river mile.
-     * 
-     * @param stationList
-     *            List of stations
-     * 
-     * @return the smallest river mile
-     */
-    private double getMinMile(List<Statprof> stationList) {
-        double min = 20000;
-        long lmin = 0;
-        double mod = 0;
-
-        for (Statprof station : stationList) {
-            if (station.getId().getMile() < min) {
-                min = station.getId().getMile();
-            }
-        }
-
-        /* round off to nice even values, and return. */
-        lmin = (long) min / SCALE_ROUNDING;
-        min = (lmin - 10) * SCALE_ROUNDING;
-        if (mod == (long) min % 10) {
-            min += mod;
-        }
-
-        return min;
     }
 
     /**
@@ -1209,8 +970,8 @@ public class StationProfileDlg extends CaveSWTDialog {
             }
 
             /* get the river data for the current station */
-            MaxObsFcst mof = new MaxObsFcst(sp.getId().getLid(), sp.getId()
-                    .getPrimaryPe(), hoursBack, fcstBasisHoursAgo);
+            MaxObsFcst mof = new MaxObsFcst(sp.getId().getLid(),
+                    sp.getId().getPrimaryPe(), hoursBack, fcstBasisHoursAgo);
             HydroDataReport[] dataReports = mof.calcMaxObsFcst();
             HydroDataReport obsReport = dataReports[0];
             HydroDataReport fcstReport = dataReports[1];

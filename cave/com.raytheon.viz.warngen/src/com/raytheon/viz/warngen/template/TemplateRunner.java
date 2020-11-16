@@ -160,6 +160,7 @@ import com.vividsolutions.jts.io.WKTReader;
  * Jul 21, 2016 DR 18159  Qinglu Lin   update runTemplate().
  * Aug 29, 2017  6328      randerso    Fix misspelled method name
  * Oct 31, 2017  6328      randerso    Fix missing CAN segment for partial cancellation
+ * Jun 24, 2019  ----     mjames@ucar  Remove backupData
  *
  * </pre>
  *

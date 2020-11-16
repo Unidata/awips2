@@ -74,6 +74,7 @@ import jep.JepException;
  * Jul 18, 2016  5747     dgilling        Move edex_static to common_static.
  * Oct 20, 2016  5953     randerso        Generate fips2cities and zones2cities in
  *                                        common_static/configured/gfe/python
+ * Feb 20, 2018  6602     dgilling        Update for new text utilities path.
  *
  * </pre>
  *
@@ -81,17 +82,17 @@ import jep.JepException;
  */
 
 public class AreaDictionaryMaker {
-    protected static final transient IUFStatusHandler statusHandler = UFStatus
+    protected static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(AreaDictionaryMaker.class);
 
-    protected static final String FIPS_CITY_QUERY = //
+    protected static final String FIPS_CITY_QUERY =
     "SELECT name, population,  ST_Y(city.the_geom), ST_X(city.the_geom) "
             + "FROM mapdata.city, mapdata.county "
             + "WHERE county.state = :state AND substring(fips,3,3) = :num "
             + "AND ST_Contains(county.the_geom, city.the_geom) "
             + "ORDER BY city.name;";
 
-    protected static final String ZONES_CITY_QUERY = //
+    protected static final String ZONES_CITY_QUERY =
     "SELECT city.name, population,  ST_Y(city.the_geom), ST_X(city.the_geom) "
             + "FROM mapdata.city, mapdata.zone "
             + "WHERE zone.state = :state AND zone.zone = :num "
@@ -210,8 +211,8 @@ public class AreaDictionaryMaker {
                 LocalizationContext.LocalizationType.CAVE_STATIC,
                 LocalizationContext.LocalizationLevel.CONFIGURED);
         caveStaticConfig.setContextName(siteID);
-        File outputDirFile = pathMgr.getFile(caveStaticConfig, LocalizationUtil
-                .join("gfe", "userPython", "textUtilities", "regular"));
+        File outputDirFile = pathMgr.getFile(caveStaticConfig,
+                GfePyIncludeUtil.TEXT_UTILITIES);
         outputDirFile.mkdir();
         argMap.put("outputDir", outputDirFile.getPath());
 
@@ -324,7 +325,7 @@ public class AreaDictionaryMaker {
                             Double lat = (Double) city.getColumn(2);
                             Double lon = (Double) city.getColumn(3);
 
-                            if (name.indexOf("'") >= 0) {
+                            if (name.indexOf('\'') >= 0) {
                                 sb.append("(\"").append(name).append("\", ");
                             } else {
                                 sb.append("('").append(name).append("', ");
@@ -365,7 +366,7 @@ public class AreaDictionaryMaker {
             CoreDao dao = new CoreDao(DaoConfig.forDatabase("maps"));
             QueryResult result = dao.executeMappedSQLQuery(
                     "SELECT state, name FROM mapdata.states");
-            stateDict = new HashMap<String, String>(result.getResultCount(),
+            stateDict = new HashMap<>(result.getResultCount(),
                     1.0f);
             for (QueryResultRow row : result.getRows()) {
                 String st = (String) row.getColumn(0);

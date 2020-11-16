@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -39,7 +39,6 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
-import org.opengis.coverage.grid.GridEnvelope;
 
 import com.raytheon.uf.common.dataplugin.gfe.GridDataHistory;
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -60,14 +59,12 @@ import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockMode;
 import com.raytheon.uf.common.dataplugin.gfe.server.lock.LockTable.LockStatus;
 import com.raytheon.uf.common.dataplugin.gfe.server.request.LockRequest;
 import com.raytheon.uf.common.dataplugin.gfe.slice.DiscreteGridSlice;
-import com.raytheon.uf.common.dataplugin.gfe.slice.IContinuousSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.IGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.ScalarGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.VectorGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.slice.WeatherGridSlice;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherKey;
 import com.raytheon.uf.common.dataplugin.gfe.weather.WeatherSubKey;
-import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.message.WsId;
 import com.raytheon.uf.common.status.IPerformanceStatusHandler;
 import com.raytheon.uf.common.status.IUFStatusHandler;
@@ -84,7 +81,13 @@ import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.GFEServerException;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.griddata.AbstractGridData;
+import com.raytheon.viz.gfe.core.griddata.DiscreteDataObject;
+import com.raytheon.viz.gfe.core.griddata.IContinuousDataObject;
+import com.raytheon.viz.gfe.core.griddata.IDataObject;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
+import com.raytheon.viz.gfe.core.griddata.ScalarDataObject;
+import com.raytheon.viz.gfe.core.griddata.VectorDataObject;
+import com.raytheon.viz.gfe.core.griddata.WeatherDataObject;
 import com.raytheon.viz.gfe.core.parm.ParmSaveJob.ParmSaveStatus;
 import com.raytheon.viz.gfe.core.parm.ParmState.InterpMode;
 import com.raytheon.viz.gfe.core.wxvalue.DiscreteWxValue;
@@ -98,26 +101,26 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 /**
  * The Parm class is the fundamental object of the entire data subsystem.
- * 
+ *
  * All meteorological data for a particular weather element are contain within
  * the parm along with many other attributes such as VisualType, graphic color,
  * edit modes, selected state, and color tables. Most of this information is
  * available via the public interface.
- * 
+ *
  * Parms are created and managed by the ParmManager. Objects outside the data
  * subsystem get at parm information through the ParmManager.
- * 
+ *
  * There are three levels of editing on this system:
  * <OL>
  * <LI>Selected state grid manipulation
  * <LI>Single Parm Grid manipulation
  * <LI>Direct Grid Editing
  * </OL>
- * 
- * 
- * 
+ *
+ *
+ *
  * Selected state grid manipulation:
- * 
+ *
  * The user must use the functions in ParmManager to perform the selected state
  * grid manipulation tasks. The user must NOT use the parm functions to directly
  * perform this since a) selection state is not checked, b) the undo list of
@@ -130,11 +133,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * parm may be called directly; however, the user must first check for the
  * selected state. The data manager's setUndoParmList() is handled within the
  * data manager.
- * 
- * 
- * 
+ *
+ *
+ *
  * Single Parm Grid manipulation
- * 
+ *
  * The user must use the functions in Parm to perform the single parm grid
  * manipulation tasks. There are no equivalent functions in ParmManager. The
  * user should NOT call startParmEdit() or endParmEdit() in conjunction with
@@ -144,11 +147,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  * have grid pointers from another parm. The units are checked for validity. The
  * undo capability is built-into this command, i.e., there is no need to call
  * the data manager's setUndoParmList(), or clearUndoParmList().
- * 
- * 
- * 
+ *
+ *
+ *
  * Direct Grid Editing
- * 
+ *
  * Before the set of grids are to be edited, the data manager's
  * clearUndoParmList() should be called to reset the undo list. For each parm to
  * be edited, call its startParmEdit() function. This function returns a pointer
@@ -157,50 +160,59 @@ import com.vividsolutions.jts.geom.Coordinate;
  * When finished editing each parm, call endParmEdit(). There is no need to call
  * the data manager's setUndoParmList() as this is implicit in the
  * startParmEdit().
- * 
+ *
  * Note that only ONE startParmEdit() should be called without a corresponding
  * endParmEdit(). Also extendParmEdit() should not be called unless a
  * startParmEdit() was called first.
- * 
- * 
- * 
+ *
+ *
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 01/29/2008              chammack    Initial creation of skeleton.
- * 04/01/2008   879        rbell       Implement TR functions
- * 06/17/08     #940       bphillip    Implemented GFE Locking
- * 05Aug2008    #1383       ebabin      Fix for time shift not working.
- * 12Sep2008    #1332      wdougherty  Added deleteLockedTR() for editing hazards.
- * 04/16/2009   #2262      rjpeter     Updated pencilStretch to return Grid2DBit.
- * 06/08/2009   #2159      rjpeter     Fixed undo.
- * 02/23/2012   #346       dgilling    Implement a dispose method to mimic 
- *                                     AWIPS1 use of C++ destructor.
- * 03/02/2012   #346       dgilling    Create a disposed flag to help ensure
- *                                     no interaction with Parms after dispose
- *                                     is called.
- * 02/13/13     #1597      randerso    Removed debug logging to improve performance
- * Mar 13, 2013 1792       bsteffen    Improve performance of gfe parm average
- *                                     ant time weighted average.
- * Apr 02, 2013 #1774      randerso    Fixed a possible deadlock issue.
- * Aug 27, 2013 #2302      randerso    Fix simultaneous save issue
- * Oct 31, 2013 #2508      randerso    Change to use DiscreteGridSlice.getKeys()
- * Jun 30, 2014 #3332      randerso    Kept local reference to lock table to avoid 
- *                                     race conditions with asynchronous updates
- * Sep 10, 2015 #4782      randerso    Converted inParmEdit to ReentrantLock to force 
- *                                     updates to be run consecutively.
- *                                     Cleaned up TODOs, FIXMEs and deprecations.
- * Apr 04, 2016 #5539      randerso    Fix unsigned byte issues
- * 
+ *
+ * Date          Ticket#  Engineer    Description
+ * ------------- -------- ----------- ------------------------------------------
+ * Jan 29, 2008           chammack    Initial creation of skeleton.
+ * Apr 01, 2008  879      rbell       Implement TR functions
+ * Jun 17, 2008  940      bphillip    Implemented GFE Locking
+ * Aug 05, 2008  1383     ebabin      Fix for time shift not working.
+ * Sep 12, 2008  1332     wdougherty  Added deleteLockedTR() for editing
+ *                                    hazards.
+ * Apr 16, 2009  2262     rjpeter     Updated pencilStretch to return Grid2DBit.
+ * Jun 08, 2009  2159     rjpeter     Fixed undo.
+ * Feb 23, 2012  346      dgilling    Implement a dispose method to mimic AWIPS1
+ *                                    use of C++ destructor.
+ * Mar 02, 2012  346      dgilling    Create a disposed flag to help ensure no
+ *                                    interaction with Parms after dispose is
+ *                                    called.
+ * Feb 13, 2013  1597     randerso    Removed debug logging to improve
+ *                                    performance
+ * Mar 13, 2013  1792     bsteffen    Improve performance of gfe parm average
+ *                                    ant time weighted average.
+ * Apr 02, 2013  1774     randerso    Fixed a possible deadlock issue.
+ * Aug 27, 2013  2302     randerso    Fix simultaneous save issue
+ * Oct 31, 2013  2508     randerso    Change to use DiscreteGridSlice.getKeys()
+ * Jun 30, 2014  3332     randerso    Kept local reference to lock table to
+ *                                    avoid race conditions with asynchronous
+ *                                    updates
+ * Sep 10, 2015  4782     randerso    Converted inParmEdit to ReentrantLock to
+ *                                    force updates to be run consecutively.
+ *                                    Cleaned up TODOs, FIXMEs and deprecations.
+ * Apr 04, 2016  5539     randerso    Fix unsigned byte issues
+ * Dec 14, 2017  7178     randerso    Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso    Changes to support IDataObject. Code
+ *                                    cleanup
+ * Jan 24, 2018  7153     randerso    Changes to allow new GFE config file to be
+ *                                    selected when perspective is re-opened.
+ * Mar 29, 2018  7178     randerso    Fix regression in swapParm
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
 
 public abstract class Parm implements Comparable<Parm> {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(Parm.class);
 
     private final IPerformanceStatusHandler perfLog = PerformanceStatus
@@ -217,6 +229,8 @@ public abstract class Parm implements Comparable<Parm> {
     protected boolean hidden;
 
     protected List<Date> timesBeingEdited;
+
+    protected ParmID parmID;
 
     protected GridParmInfo gridInfo;
 
@@ -245,33 +259,41 @@ public abstract class Parm implements Comparable<Parm> {
      */
     public static enum CreateFromScratchMode {
 
-        DEFAULT, PICKUP
+        /** Default mode, creates with min value */
+        DEFAULT,
+
+        /** Pickup mode, crates with pickup value */
+        PICKUP
     };
 
     /**
      * The interpolation state
      */
     public static enum InterpState {
-        ASYNC, SYNC
+        /** Asynchronous interpolation */
+        ASYNC,
+
+        /** Synchronous interpolation */
+        SYNC
     };
 
     private static class InterpolateJob extends Job {
         private static final int MAX_JOBS = 2;
 
         private static class Request {
-            Parm parm;
+            public Parm parm;
 
             public Request(Parm parm) {
                 this.parm = parm;
             }
         }
 
-        private static BlockingQueue<Request> requestQueue = new ArrayBlockingQueue<Parm.InterpolateJob.Request>(
+        private static BlockingQueue<Request> requestQueue = new ArrayBlockingQueue<>(
                 50);
 
         private static List<InterpolateJob> jobs;
         static {
-            jobs = new ArrayList<Parm.InterpolateJob>(MAX_JOBS);
+            jobs = new ArrayList<>(MAX_JOBS);
             for (int i = 0; i < MAX_JOBS; i++) {
                 jobs.add(new InterpolateJob());
             }
@@ -299,12 +321,6 @@ public abstract class Parm implements Comparable<Parm> {
             }
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see org.eclipse.core.runtime.jobs.Job#run(org.eclipse.core.runtime.
-         * IProgressMonitor)
-         */
         @Override
         protected IStatus run(IProgressMonitor monitor) {
             Request req = null;
@@ -329,7 +345,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Constructor
-     * 
+     *
      * @param parmID
      * @param gridInfo
      * @param mutable
@@ -338,19 +354,20 @@ public abstract class Parm implements Comparable<Parm> {
      */
     protected Parm(ParmID parmID, GridParmInfo gridInfo, boolean mutable,
             boolean displayable, DataManager manager) {
+        this.parmID = parmID;
         this.gridInfo = gridInfo;
         this.gridInfo.setParmID(parmID);
         this.mutable = mutable;
         this.ignoreLocks = false;
         this.dataManager = manager;
-        this.grids = new RWLArrayList<IGridData>();
-        this.timesBeingEdited = new ArrayList<Date>();
-        this.undoBuffers = new ArrayList<UndoBuffer>();
+        this.grids = new RWLArrayList<>();
+        this.timesBeingEdited = new ArrayList<>();
+        this.undoBuffers = new ArrayList<>();
         this.parmState = new ParmState(this);
 
         this.displayAttributes = new ParmDisplayAttributes(displayable, this);
-        this.parmListeners = new ParmListeners(this.dataManager
-                .getParmManager().getNotificationPool());
+        this.parmListeners = new ParmListeners(
+                this.dataManager.getParmManager().getNotificationPool());
 
         // Construct an empty lock table
         // Subclasses who utilize locks will override this
@@ -361,7 +378,8 @@ public abstract class Parm implements Comparable<Parm> {
         List<String> knownOfficeTypes = dataManager.knownOfficeTypes();
         for (String ot : knownOfficeTypes) {
             if (parmName.endsWith(ot)) {
-                this.officeType = ot; // match found
+                // match found
+                this.officeType = ot;
                 break;
             }
         }
@@ -374,6 +392,11 @@ public abstract class Parm implements Comparable<Parm> {
         this.saveJob = new ParmSaveJob(this);
     }
 
+    /**
+     * Dispose this parm.
+     *
+     * Frees all resources associated with the parm
+     */
     public void dispose() {
         synchronized (this) {
             this.disposed = true;
@@ -411,7 +434,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Return the associated data manager
-     * 
+     *
      * @return the datamanager
      */
     public DataManager getDataManager() {
@@ -420,7 +443,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Set the grid mutable/immutable
-     * 
+     *
      * @param isMutable
      *            the mutable flag
      */
@@ -430,12 +453,12 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Locks the particular grid, returns true if successful.
-     * 
+     *
      * Checks the lock status for the grid's time range. We request a lock if we
      * don't already have one. If we cannot get a lock, then we return false.
-     * 
+     *
      * @param tr
-     * @return
+     * @return true if successful
      */
     public boolean forceLockTR(final TimeRange tr) {
         LockStatus lockStatus = this.lockTable.checkLock(tr);
@@ -455,27 +478,27 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Request a lock
-     * 
+     *
      * @param lreq
-     * @return
+     * @return true if lock request successful
      */
     protected abstract boolean requestLock(List<LockRequest> lreq);
 
     /**
      * Request a lock
-     * 
+     *
      * @param lr
-     * @return
+     * @return true if lock request successful
      */
     protected boolean requestLock(LockRequest lr) {
-        List<LockRequest> lreq = new ArrayList<LockRequest>();
+        List<LockRequest> lreq = new ArrayList<>();
         lreq.add(lr);
         return requestLock(lreq);
     }
 
     /**
      * NOTE: Formerly isModified().
-     * 
+     *
      * @return true, if is locked
      */
     public boolean isLocked() {
@@ -488,10 +511,10 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * NOTE: Formerly isModified(TimeRange).
-     * 
+     *
      * @param timeRange
      *            the time range
-     * 
+     *
      * @return true, if is locked
      */
     public boolean isLocked(TimeRange timeRange) {
@@ -506,7 +529,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Is ISC Parm?
-     * 
+     *
      * @return the iscParm
      */
     public boolean isIscParm() {
@@ -515,7 +538,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Gets the parm state.
-     * 
+     *
      * @return the parm state
      */
     public ParmState getParmState() {
@@ -524,24 +547,33 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Is Mutable?
-     * 
+     *
      * @return the mutable
      */
     public boolean isMutable() {
         return this.mutable;
     }
 
+    /**
+     * @return true if locks are ignored
+     */
     public boolean ignoreLocks() {
         return this.ignoreLocks;
     }
 
+    /**
+     * Set to true to ignore locks
+     *
+     * @param ignoreLocks
+     *            true to ignore locks
+     */
     public void setIgnoreLocks(boolean ignoreLocks) {
         this.ignoreLocks = ignoreLocks;
     }
 
     /**
      * Is Hidden?
-     * 
+     *
      * @return the hidden
      */
     public boolean isHidden() {
@@ -550,7 +582,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Gets the grid info.
-     * 
+     *
      * @return the grid info
      */
     public GridParmInfo getGridInfo() {
@@ -568,12 +600,12 @@ public abstract class Parm implements Comparable<Parm> {
      * @return the parmID
      */
     public ParmID getParmID() {
-        return gridInfo.getParmID();
+        return this.parmID;
     }
 
     /**
      * Gets the grid inventory.
-     * 
+     *
      * @return the grid inventory
      */
     public IGridData[] getGridInventory() {
@@ -588,7 +620,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Returns the time range associated with the entire set of grids
-     * 
+     *
      * @return time range
      */
     public TimeRange getInventorySpan() {
@@ -599,9 +631,8 @@ public abstract class Parm implements Comparable<Parm> {
         try {
             if ((this.grids.size() > 0)
                     && !getGridInfo().isTimeIndependentParm()) {
-                return new TimeRange(
-                        this.grids.get(0).getGridTime().getStart(), this.grids
-                                .get(this.grids.size() - 1).getGridTime()
+                return new TimeRange(this.grids.get(0).getGridTime().getStart(),
+                        this.grids.get(this.grids.size() - 1).getGridTime()
                                 .getEnd());
             }
         } finally {
@@ -614,7 +645,7 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Returns the time range that encompasses the data inventory plus the
      * current set of locks. The locks are only considered for mutable parms.
-     * 
+     *
      * @return the parm time range
      */
     public TimeRange getParmTimeRange() {
@@ -639,28 +670,26 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Routine to break the specified locks (identified by time and owner)
-     * 
+     *
      * @param lockTimes
      *            The times for which to break the locks
-     * @return
+     * @return true if locks
      */
     public boolean breakLock(TimeRange... lockTimes) {
 
         if (lockTimes.length == 0) {
-            return true; // nothing to do
+            // nothing to do
+            return true;
         }
 
         // assemble the list of locks to break
-        List<LockRequest> lreq = new ArrayList<LockRequest>();
+        List<LockRequest> lreq = new ArrayList<>();
         for (TimeRange tr : lockTimes) {
             lreq.add(new LockRequest(getParmID(), tr, LockMode.BREAK_LOCK));
         }
 
         // break them
-        if (requestLock(lreq)) {
-            return true;
-        }
-        return false;
+        return requestLock(lreq);
     }
 
     /**
@@ -668,9 +697,9 @@ public abstract class Parm implements Comparable<Parm> {
      * Returns the pointer(s) to the newly created grids. If a grid already
      * exists over the time range, then the existing inventory for the time
      * range is returned instead of a newly created grid.
-     * 
+     *
      * @param timeRange
-     * @return
+     * @return see above
      * @throws GFEOperationFailedException
      */
     public IGridData[] createCorrespondingGrids(TimeRange timeRange)
@@ -688,10 +717,10 @@ public abstract class Parm implements Comparable<Parm> {
             setMutable(true);
             // allow every hour
             TimeConstraints tc = new TimeConstraints(3600, 3600, 0);
-            gridInfo = new GridParmInfo(getParmID(),
-                    getGridInfo().getGridLoc(), gpi.getGridType(),
-                    gpi.getUnitString(), gpi.getDescriptiveName(),
-                    gpi.getMinValue(), gpi.getMaxValue(), gpi.getPrecision(),
+            gridInfo = new GridParmInfo(getParmID(), getGridInfo().getGridLoc(),
+                    gpi.getGridType(), gpi.getUnitString(),
+                    gpi.getDescriptiveName(), gpi.getMinValue(),
+                    gpi.getMaxValue(), gpi.getPrecision(),
                     gpi.isTimeIndependentParm(), tc, gpi.isRateParm());
             setIgnoreLocks(true);
         }
@@ -703,8 +732,11 @@ public abstract class Parm implements Comparable<Parm> {
         // reset the mutable flag if necessary, and cancel the lock we
         // created if we are on an immutable database
         if (!mutableP) {
-            looseLocks(); // drop all locks
-            gridInfo = gpi; // reset the grid parm info
+            // drop all locks
+            looseLocks();
+
+            // reset the grid parm info
+            gridInfo = gpi;
             setMutable(false);
             setIgnoreLocks(false);
         }
@@ -715,7 +747,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Save a parameter
-     * 
+     *
      * @param all
      * @return true if save successful
      */
@@ -737,7 +769,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Save a parameter
-     * 
+     *
      * @param times
      *            TimeRanges to be saved
      * @return true if save successful
@@ -753,19 +785,19 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Save a parameter
-     * 
+     *
      * @param tr
      * @return true if save successful
      */
     public boolean saveParameter(TimeRange tr) {
-        ArrayList<TimeRange> trs = new ArrayList<TimeRange>();
+        List<TimeRange> trs = new ArrayList<>();
         trs.add(tr);
         return saveParameter(trs);
     }
 
     /**
      * Subclass specific save implementation
-     * 
+     *
      * @param tr
      *            TimeRanges to be saved
      * @return true if save successful
@@ -774,14 +806,14 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Returns a list of grids that overlap the given time range.
-     * 
+     *
      * @param timeRange
      *            the range to search
-     * 
+     *
      * @return an array of grid data
      */
     public IGridData[] getGridInventory(TimeRange timeRange) {
-        List<IGridData> gridPtrs = new ArrayList<IGridData>();
+        List<IGridData> gridPtrs = new ArrayList<>();
         boolean found = false;
         this.grids.acquireReadLock();
         try {
@@ -802,17 +834,17 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Creates a new grid(s) over the specified TimeRanges with a default value.
-     * 
+     *
      * @param timeRanges
      *            the time ranges
      * @param mode
      *            the mode
-     * 
+     *
      * @throws GFEOperationFailedException
      *             the GFE operation failed exception
      */
-    public void insertNewGrid(TimeRange[] timeRanges, CreateFromScratchMode mode)
-            throws GFEOperationFailedException {
+    public void insertNewGrid(TimeRange[] timeRanges,
+            CreateFromScratchMode mode) throws GFEOperationFailedException {
         // Makes an empty grid, sets the valid time appropriately, make a
         // Grid2DBit with all bits set (for the data change notification), put
         // the grid into the inventory, set all values in the grid to the
@@ -821,7 +853,7 @@ public abstract class Parm implements Comparable<Parm> {
         // value.
 
         // create the grids
-        List<IGridData> tmpGrids = new ArrayList<IGridData>();
+        List<IGridData> tmpGrids = new ArrayList<>();
         TimeRange overallTR = new TimeRange();
         for (int i = 0; i < timeRanges.length; i++) {
             // Make a GridData
@@ -840,7 +872,8 @@ public abstract class Parm implements Comparable<Parm> {
             // Set to the proper valid time and update the history
             grid.changeValidTime(expandedTR, false);
             GridDataHistory hist = new GridDataHistory(
-                    GridDataHistory.OriginType.SCRATCH, getParmID(), expandedTR);
+                    GridDataHistory.OriginType.SCRATCH, getParmID(),
+                    expandedTR);
 
             grid.updateHistory(hist);
 
@@ -861,7 +894,7 @@ public abstract class Parm implements Comparable<Parm> {
      * This routine may be used to copy data from one parameter to another.. The
      * origins of the "grids" are preserved, therefore the user must properly
      * set them before calling this routine.
-     * 
+     *
      * @param replaceRange
      *            the replace range
      * @param grids
@@ -874,11 +907,11 @@ public abstract class Parm implements Comparable<Parm> {
         // must first expand it to the split boundary. Call start parm edit to
         // begin the edit operation, split on the replace range time range, and
         // then call replaceGrids() to remove the old and insert the new grids.
-        // If the operation was successul, then send out a notification and
+        // If the operation was successful, then send out a notification and
         // return true.
 
         for (IGridData grid : grids) {
-            String errMsg = grid.getGridSlice().isValid();
+            String errMsg = grid.validateData();
             if (errMsg != null) {
                 statusHandler.handle(Priority.SIGNIFICANT,
                         "ReplaceGriddedData aborted for " + getParmID() + ' '
@@ -927,6 +960,9 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Sends an inventory changed notification to all parm clients. The time
      * range of the changed inventory is given.
+     *
+     * @param tr
+     *            time range of changed inventory
      */
     protected void sendInvChangedNotification(final TimeRange tr) {
         if (this.dataManager != null) {
@@ -947,6 +983,9 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Sends a grid history updated notification to all parm clients. The time
      * range of the updated history is given.
+     *
+     * @param tr
+     *            time range of updated history
      */
     protected void sendGridHistoryUpdatedNotification(final TimeRange tr) {
         this.parmListeners.fireGridHistoryUpdatedListener(this, tr);
@@ -957,9 +996,9 @@ public abstract class Parm implements Comparable<Parm> {
      * used for grid and point modification routines (GridData and PointData).
      * The programmer must call this routine before any modifications are made
      * to the data.
-     * 
-     * @param absTimes
-     *            the times
+     *
+     * @param absTime
+     *            the time
      * @return the grid data
      * @throws GFEOperationFailedException
      */
@@ -980,7 +1019,7 @@ public abstract class Parm implements Comparable<Parm> {
      * used for grid and point modification routines (GridData and PointData).
      * The programmer must call this routine before any modifications are made
      * to the data.
-     * 
+     *
      * @param absTimes
      *            the times
      * @return the grid data
@@ -1018,13 +1057,11 @@ public abstract class Parm implements Comparable<Parm> {
                     "extendParmEdit() called without calling startParmEdit() first");
         }
         // check for grids and ok to edit
-        List<IGridData> retGrids = new ArrayList<IGridData>();
-        List<TimeRange> affectedTimes = new ArrayList<TimeRange>();
-        List<TimeRange> saveUndoTimes = new ArrayList<TimeRange>();
+        List<IGridData> retGrids = new ArrayList<>();
+        List<TimeRange> affectedTimes = new ArrayList<>();
+        List<TimeRange> saveUndoTimes = new ArrayList<>();
         int i;
-        for (i = 0; i < absTimes.length; i++) {
-            Date absTime = absTimes[i]; // extract from sequence
-
+        for (Date absTime : absTimes) {
             // Get the overlapping grid and see if it's ok to edit.
             IGridData grid = null;
             grid = overlappingGrid(absTime);
@@ -1040,8 +1077,9 @@ public abstract class Parm implements Comparable<Parm> {
         }
 
         // any grids at all?
-        if (saveUndoTimes.size() == 0) {
-            return new IGridData[0]; // empty list
+        if (saveUndoTimes.isEmpty()) {
+            // empty list
+            return new IGridData[0];
         }
 
         // Save the current grids in the undo buffer
@@ -1077,11 +1115,11 @@ public abstract class Parm implements Comparable<Parm> {
      * Command to start a parm edit for selected time range or entire grid
      * manipulations. The time range affected is given. Returns true if it is
      * okay to continue to edit.
-     * 
+     *
      * @param timeRange
      *            the time range to look at
      * @return true if okay to continue editing
-     * 
+     *
      */
     private boolean startParmEditInternal(final TimeRange timeRange) {
         // Checks if it is okay to edit this. Saves a copy of the data to
@@ -1104,7 +1142,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Routine called by edit functions after the parm has been edited.
-     * 
+     *
      * @return true, if end parm edit succeeded
      */
     public boolean endParmEdit() {
@@ -1125,11 +1163,12 @@ public abstract class Parm implements Comparable<Parm> {
 
         if (this.lockTable != null) {
             for (int i = 0; i < this.undoBuffers.size(); i++) {
-                LockStatus lockStatus = lockTable.checkLock(undoBuffers.get(i)
-                        .getUndoTimeRange());
+                LockStatus lockStatus = lockTable
+                        .checkLock(undoBuffers.get(i).getUndoTimeRange());
                 if (!lockStatus.equals(LockStatus.LOCKED_BY_ME)) {
-                    LockRequest lr = new LockRequest(getParmID(), undoBuffers
-                            .get(i).getUndoTimeRange(), LockMode.LOCK);
+                    LockRequest lr = new LockRequest(getParmID(),
+                            undoBuffers.get(i).getUndoTimeRange(),
+                            LockMode.LOCK);
                     if (!requestLock(lr)) {
                         this.forceUndo();
                         returnVal = false;
@@ -1160,7 +1199,7 @@ public abstract class Parm implements Comparable<Parm> {
      * endParmEdit() after an edit operation has occurred. Also called by
      * virtual calculated parms. The isHistoryModified indicates whether the the
      * grid data history should be set to modified.
-     * 
+     *
      * @param gridData
      *            the grid data
      * @param changedPoints
@@ -1214,10 +1253,10 @@ public abstract class Parm implements Comparable<Parm> {
      * of the split time range match possible split boundaries. No notifications
      * are made in this routine. Splits at the starting and ending time of the
      * time range provided that the grids aren't already split at those points.
-     * 
+     *
      * @param splitTimeRange
      *            the split time range
-     * 
+     *
      * @return true, if split
      */
     private boolean split(final TimeRange splitTimeRange) {
@@ -1232,18 +1271,15 @@ public abstract class Parm implements Comparable<Parm> {
 
         boolean invChanged = false;
         IGridData leftGrid = overlappingGrid(splitTimeRange.getStart());
-        if ((leftGrid != null)
-                && !leftGrid.getGridTime().getStart()
-                        .equals(splitTimeRange.getStart())) {
+        if ((leftGrid != null) && !leftGrid.getGridTime().getStart()
+                .equals(splitTimeRange.getStart())) {
             IGridData newGrid = null;
-            try {
-                newGrid = leftGrid.clone();
-            } catch (CloneNotSupportedException e) {
-                newGrid = null;
-            }
+            newGrid = leftGrid.copy();
             newGrid.updateHistoryToModified(this.dataManager.getWsId());
-            newGrid.changeValidTime(new TimeRange(leftGrid.getGridTime()
-                    .getStart(), splitTimeRange.getStart()), true);
+            newGrid.changeValidTime(
+                    new TimeRange(leftGrid.getGridTime().getStart(),
+                            splitTimeRange.getStart()),
+                    true);
             leftGrid.changeValidTime(new TimeRange(splitTimeRange.getStart(),
                     leftGrid.getGridTime().getEnd()), true);
             leftGrid.updateHistoryToModified(this.dataManager.getWsId());
@@ -1251,21 +1287,18 @@ public abstract class Parm implements Comparable<Parm> {
             invChanged = true;
         }
 
-        IGridData rightGrid = overlappingGrid(new Date(splitTimeRange.getEnd()
-                .getTime() - 1000));
-        if ((rightGrid != null)
-                && !rightGrid.getGridTime().getEnd()
-                        .equals(splitTimeRange.getEnd())) {
+        IGridData rightGrid = overlappingGrid(
+                new Date(splitTimeRange.getEnd().getTime() - 1000));
+        if ((rightGrid != null) && !rightGrid.getGridTime().getEnd()
+                .equals(splitTimeRange.getEnd())) {
             IGridData newGrid;
-            try {
-                newGrid = rightGrid.clone();
-            } catch (CloneNotSupportedException e) {
-                newGrid = null;
-            }
+            newGrid = rightGrid.copy();
 
             newGrid.updateHistoryToModified(this.dataManager.getWsId());
-            newGrid.changeValidTime(new TimeRange(rightGrid.getGridTime()
-                    .getStart(), splitTimeRange.getEnd()), true);
+            newGrid.changeValidTime(
+                    new TimeRange(rightGrid.getGridTime().getStart(),
+                            splitTimeRange.getEnd()),
+                    true);
             rightGrid.changeValidTime(new TimeRange(splitTimeRange.getEnd(),
                     rightGrid.getGridTime().getEnd()), true);
             rightGrid.updateHistoryToModified(this.dataManager.getWsId());
@@ -1284,10 +1317,10 @@ public abstract class Parm implements Comparable<Parm> {
      * splitting of grids will occur. No notifications are made. Assumes that
      * locks have already been checked and that it is okay to edit over the time
      * range.
-     * 
+     *
      * @param timeRange
      *            the time range
-     * 
+     *
      * @return true, if action occurred
      */
     private boolean removeGrids(final TimeRange timeRange) {
@@ -1317,10 +1350,10 @@ public abstract class Parm implements Comparable<Parm> {
      * Assumes that the user has already verified that it is okay to edit over
      * the replaceRange time range. The grid sources are checked. If the grid
      * has come from a different parm, then data translation will occur.
-     * 
+     *
      * @param replaceRange
-     * @param gGrids
-     * @return
+     * @param orgGrids
+     * @return true if successful
      */
     protected boolean replaceGrids(final TimeRange replaceRange,
             final IGridData[] orgGrids) {
@@ -1331,7 +1364,7 @@ public abstract class Parm implements Comparable<Parm> {
         boolean invChanged = removeGrids(replaceRange);
 
         // these will be the actual ones stored
-        List<IGridData> grids = new ArrayList<IGridData>(orgGrids.length);
+        List<IGridData> grids = new ArrayList<>(orgGrids.length);
 
         for (int i = 0; i < orgGrids.length; i++) {
             // ensure that the grid valid times are expanded to this parm's
@@ -1362,7 +1395,8 @@ public abstract class Parm implements Comparable<Parm> {
                 if (!addNonOverlap(grids, orgGrids[i], orgTR, expTR)) {
                     continue;
                 }
-            } else { // rate-dependent weather element with populated grids
+            } else {
+                // rate-dependent weather element with populated grids
                 adjustIntersects(grids, orgGrids[i], orgTR);
                 TimeRange newTR = new TimeRange();
                 TimeRange[] retVal = getNewTimeRange(
@@ -1390,7 +1424,7 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Returns an expanded new TimeRange and sets newTR based on grids and
      * orgTR.
-     * 
+     *
      * @param grids
      * @param orgTR
      * @param newTR
@@ -1407,8 +1441,8 @@ public abstract class Parm implements Comparable<Parm> {
             newTR = orgTR;
         } else {
             // check intersection of last one in file
-            TimeRange interTR = orgTR.intersection(grids[grids.length - 1]
-                    .getGridTime());
+            TimeRange interTR = orgTR
+                    .intersection(grids[grids.length - 1].getGridTime());
 
             // exact match -- so already handled
             if (interTR == orgTR) {
@@ -1432,7 +1466,7 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Adjusts the values of the grids which may intersect orgTR using the
      * supplied grid.
-     * 
+     *
      * @param grids
      * @param grid
      * @param orgTR
@@ -1448,32 +1482,27 @@ public abstract class Parm implements Comparable<Parm> {
                 // add proportional value to existing grid
                 float timeRatio = (float) intersect.getDuration()
                         / (float) orgTR.getDuration();
-                if ((grids.get(j).getGridSlice() instanceof IContinuousSlice)
-                        && (grid.getGridSlice() instanceof IContinuousSlice)) {
+                if ((grids.get(j)
+                        .getDataObject() instanceof IContinuousDataObject)
+                        && (grid.getDataObject() instanceof IContinuousDataObject)) {
 
-                    IGridSlice copy;
-                    try {
-                        copy = grid.getGridSlice().clone();
-                    } catch (CloneNotSupportedException e) {
-                        copy = null;
-                    }
+                    IContinuousDataObject copy = (IContinuousDataObject) grid
+                            .getDataObject().copy();
 
-                    ((IContinuousSlice) copy).operateEquals(Op.MULTIPLY,
-                            timeRatio);
+                    copy.operateEquals(Op.MULTIPLY, timeRatio);
 
-                    ((IContinuousSlice) grids.get(j).getGridSlice())
-                            .operateEquals(Op.ADD, (IContinuousSlice) copy);
+                    ((IContinuousDataObject) grids.get(j).getDataObject())
+                            .operateEquals(Op.ADD, copy);
 
                 }
                 // update history
                 GridDataHistory[] his = grids.get(j).getHistory();
-                List<GridDataHistory> historyAsList = new ArrayList<GridDataHistory>(
+                List<GridDataHistory> historyAsList = new ArrayList<>(
                         Arrays.asList(his));
                 historyAsList.addAll(Arrays.asList(grid.getHistory()));
 
-                grids.get(j).updateHistory(
-                        historyAsList.toArray(new GridDataHistory[historyAsList
-                                .size()]));
+                grids.get(j).updateHistory(historyAsList
+                        .toArray(new GridDataHistory[historyAsList.size()]));
                 // updated history
 
             }
@@ -1482,13 +1511,13 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Inserts the grids in 'grids' into this Parm.
-     * 
+     *
      * @param grids
      *            the grids to insert
      */
     private boolean insertGrids(List<IGridData> grids) {
-        if (grids.size() != 0) {
-            ArrayList<IGridData> newGrids = new ArrayList<IGridData>(grids);
+        if (!grids.isEmpty()) {
+            List<IGridData> newGrids = new ArrayList<>(grids);
             Collections.sort(newGrids);
 
             // need to insert the set of new grids before an existing grid
@@ -1500,8 +1529,8 @@ public abstract class Parm implements Comparable<Parm> {
             try {
                 this.grids.ensureCapacity(this.grids.size() + newGrids.size());
                 for (int i = 0; i < this.grids.size(); i++) {
-                    if (this.grids.get(i).getGridTime().getStart().getTime() >= gridsEndTime
-                            .getTime()) {
+                    if (this.grids.get(i).getGridTime().getStart()
+                            .getTime() >= gridsEndTime.getTime()) {
                         this.grids.addAll(i, grids);
                         inserted = true;
                         break;
@@ -1516,7 +1545,7 @@ public abstract class Parm implements Comparable<Parm> {
                 this.grids.releaseWriteLock();
             }
         }
-        return grids.size() != 0;
+        return !grids.isEmpty();
     }
 
     /**
@@ -1524,27 +1553,30 @@ public abstract class Parm implements Comparable<Parm> {
      * with this parms units, etc. So... The copy may either be the same pointer
      * passed in or a new copy. If it is a new grid then the old one will be
      * deleted!
-     * 
+     *
      * @param originalGrid
      * @return
      * @throws GFEServerException
      */
     private IGridData copyGrid(IGridData originalGrid)
             throws GFEServerException {
-        // did this grid come from a different parm? If so,
-        // then we have to translate the data before inserting the set
-        // of grids. Copy grids will also change units if necessary.
+        /*
+         * Did this grid come from a different parm? If so, then we have to
+         * translate the data before inserting the set of grids. Copy grids will
+         * also change units if necessary.
+         */
         if (!originalGrid.getParm().getParmID().equals(getParmID())) {
             // create a dummy one
             IGridData grid = makeEmptyGrid();
 
-            grid.copyGridValues(originalGrid); // translate the grid
+            // translate the grid
+            grid.copyGridValues(originalGrid);
 
             // make a new his if ISC, if not keep the rest
             if (originalGrid.getParm().isIscParm()) {
                 GridDataHistory iscHis = new GridDataHistory(
-                        GridDataHistory.OriginType.CALCULATED, originalGrid
-                                .getParm().getParmID(),
+                        GridDataHistory.OriginType.CALCULATED,
+                        originalGrid.getParm().getParmID(),
                         originalGrid.getGridTime(), null, (WsId) null);
                 grid.updateHistory(iscHis);
             } else {
@@ -1553,7 +1585,9 @@ public abstract class Parm implements Comparable<Parm> {
             grid.resetSavePublishHistory();
 
             grid.changeValidTime(originalGrid.getGridTime(), false);
-            originalGrid = grid; // replace it with the translated one
+
+            // replace it with the translated one
+            originalGrid = grid;
         }
 
         return originalGrid;
@@ -1562,7 +1596,7 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Adds grid to grids if it does not overlap. Returns true if a grid was
      * added and false if not.
-     * 
+     *
      * @param grids
      *            the grids
      * @param grid
@@ -1571,7 +1605,7 @@ public abstract class Parm implements Comparable<Parm> {
      *            the org tr
      * @param expTR
      *            the exp tr
-     * 
+     *
      * @return true, if success
      */
     private boolean addNonOverlap(List<IGridData> grids, IGridData grid,
@@ -1583,18 +1617,20 @@ public abstract class Parm implements Comparable<Parm> {
         }
 
         if (!orgTR.equals(expTR)) {
-            grid.changeValidTime(expTR, false); // match time constraints
+            // match time constraints
+            grid.changeValidTime(expTR, false);
 
         }
 
-        grids.add(grid); // add grid to list
+        // add grid to list
+        grids.add(grid);
         return true;
     }
 
     /**
      * May add new grids to grids based on the supplied grid and time ranges.
      * This function is used for rate-dependent parameters.
-     * 
+     *
      * @param retvalList
      * @param grid
      *            the grid
@@ -1611,9 +1647,8 @@ public abstract class Parm implements Comparable<Parm> {
             final TimeRange orgTR, final TimeRange newTRExp,
             final TimeRange newTR) throws GFEServerException {
         // get possible destination grids, combine where possible
-        List<TimeRange> ctimes = new ArrayList<TimeRange>(
-                Arrays.asList(getGridInfo().getTimeConstraints()
-                        .constraintTimes(newTRExp)));
+        List<TimeRange> ctimes = new ArrayList<>(Arrays.asList(
+                getGridInfo().getTimeConstraints().constraintTimes(newTRExp)));
         for (int k = ctimes.size() - 1; k > 0; k--) {
             if (newTR.contains(ctimes.get(k))
                     && newTR.contains(ctimes.get(k - 1))
@@ -1634,30 +1669,28 @@ public abstract class Parm implements Comparable<Parm> {
             // create a dummy one
             IGridData newgrid = makeEmptyGrid(CreateFromScratchMode.DEFAULT);
 
-            IGridSlice copy;
-            try {
-                copy = grid.getGridSlice().clone();
-            } catch (CloneNotSupportedException e) {
-                throw new GFEServerException(
-                        "Failed to clone the grid's underlying grid gridSlice.",
-                        e);
-            }
+            IDataObject copy = grid.getDataObject().copy();
 
-            if ((copy instanceof IContinuousSlice)
-                    && (newgrid.getGridSlice() instanceof IContinuousSlice)) {
-                ((IContinuousSlice) copy).operateEquals(Op.MULTIPLY, timeRatio,
+            if ((copy instanceof IContinuousDataObject) && (newgrid
+                    .getDataObject() instanceof IContinuousDataObject)) {
+                ((IContinuousDataObject) copy).operateEquals(Op.MULTIPLY,
+                        timeRatio,
                         dataManager.getRefManager().fullRefSet().getGrid());
-                ((IContinuousSlice) newgrid.getGridSlice()).operateEquals(
-                        Op.ADD, (IContinuousSlice) copy, dataManager
-                                .getRefManager().fullRefSet().getGrid());
+                ((IContinuousDataObject) newgrid.getDataObject()).operateEquals(
+                        Op.ADD, (IContinuousDataObject) copy,
+                        dataManager.getRefManager().fullRefSet().getGrid());
             }
 
-            newgrid.updateHistory(grid.getHistory()); // history
-            // rate-accum grids that are time shifted are not considered
-            // modified
+            newgrid.updateHistory(grid.getHistory());
 
+            /*
+             * rate-accum grids that are time shifted are not considered
+             * modified
+             */
             newgrid.changeValidTime(ctimes.get(k), false);
-            retvalList.add(newgrid); // add grid to list
+
+            // add grid to list
+            retvalList.add(newgrid);
         }
 
         return retvalList.toArray(new IGridData[retvalList.size()]);
@@ -1666,7 +1699,7 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Returns true if all of the grids in 'grids' match the units (or can be
      * converted to the units) of this Parm.
-     * 
+     *
      * @param grids
      * @return
      */
@@ -1679,8 +1712,9 @@ public abstract class Parm implements Comparable<Parm> {
                                 + grids[i].getParm().getParmID()
                                 + " that do not share units ["
                                 + grids[i].getParm().getGridInfo()
-                                        .getUnitString() + " with this parm: "
-                                + this.getParmID() + " units: "
+                                        .getUnitString()
+                                + " with this parm: " + this.getParmID()
+                                + " units: "
                                 + this.getGridInfo().getUnitString());
                 return false;
             }
@@ -1693,7 +1727,7 @@ public abstract class Parm implements Comparable<Parm> {
      * range. If clearFirst is true, then any existing undo buffer is purged. If
      * clearFirst is false, then the new saveUndo() request will be merged with
      * the previous saveUndo() requests.
-     * 
+     *
      * @param undoRanges
      * @param clearFirst
      */
@@ -1728,7 +1762,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Returns true if it is okay to edit over the given time range.
-     * 
+     *
      * @param timeRange
      *            the time range to check
      * @return true if ok to edit
@@ -1766,6 +1800,8 @@ public abstract class Parm implements Comparable<Parm> {
             try {
                 lockStatus = lockTable.checkLock(expandedTR);
             } catch (Exception e) {
+                statusHandler.error("Exception while checking lock for " + this
+                        + " at time " + expandedTR, e);
                 return false;
             }
             if (lockStatus.equals(LockStatus.LOCKED_BY_OTHER)) {
@@ -1778,15 +1814,15 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Populate a grid with data. This is implemented but subclasses of Parm
-     * 
+     *
      * @param grid
      */
     public abstract void populateGrid(IGridData grid);
 
     /**
      * Populate a grid with data. This is implemented but subclasses of Parm
-     * 
-     * @param grid
+     *
+     * @param grids
      */
     public abstract void populateGrids(List<IGridData> grids);
 
@@ -1794,10 +1830,10 @@ public abstract class Parm implements Comparable<Parm> {
      * Expand the input TimeRange so that it matches the time boundaries for the
      * grids identified by the specified TimeRange. If a grid doesn't exist on
      * one end of the time range, then that time isn't modified.
-     * 
+     *
      * @param timeRange
      *            the time range to expand
-     * 
+     *
      * @return the expanded range
      */
     protected TimeRange expandToGridTimes(final TimeRange timeRange) {
@@ -1806,8 +1842,8 @@ public abstract class Parm implements Comparable<Parm> {
         // their times, if not, use the passed in time range. The start and
         // ending times are considered separately.
         final IGridData leftGrid = overlappingGrid(timeRange.getStart());
-        final IGridData rightGrid = overlappingGrid(new Date(timeRange.getEnd()
-                .getTime() - 1000));
+        final IGridData rightGrid = overlappingGrid(
+                new Date(timeRange.getEnd().getTime() - 1000));
 
         Date startTime = new Date(timeRange.getStart().getTime());
         Date endTime = new Date(timeRange.getEnd().getTime());
@@ -1824,7 +1860,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Grid history changed
-     * 
+     *
      * @param gridData
      */
     public void gridHistoryChanged(IGridData gridData) {
@@ -1852,12 +1888,11 @@ public abstract class Parm implements Comparable<Parm> {
         IGridSlice gs = null;
 
         GridDataHistory gdh = new GridDataHistory(
-                GridDataHistory.OriginType.SCRATCH, getParmID(), new TimeRange(
-                        new Date(0l), new Date(1l)), null, (WsId) null);
+                GridDataHistory.OriginType.SCRATCH, getParmID(),
+                new TimeRange(new Date(0l), new Date(1l)), null, (WsId) null);
 
         switch (getGridInfo().getGridType()) {
         case SCALAR: {
-            float value = 0.0f;
             WxValue wxValue = null;
             // default or pickup
             if (mode == CreateFromScratchMode.DEFAULT) {
@@ -1866,7 +1901,7 @@ public abstract class Parm implements Comparable<Parm> {
                 wxValue = this.parmState.getPickUpValue();
             }
 
-            value = ((ScalarWxValue) wxValue).getValue();
+            float value = ((ScalarWxValue) wxValue).getValue();
             Grid2DFloat g2d = new Grid2DFloat(x, y, value);
 
             gs = new ScalarGridSlice(new TimeRange(), getGridInfo(),
@@ -1875,8 +1910,9 @@ public abstract class Parm implements Comparable<Parm> {
         }
         case VECTOR: {
             // default or pickup
-            WxValue value = mode == CreateFromScratchMode.DEFAULT ? WxValue
-                    .defaultValue(this) : this.parmState.getPickUpValue();
+            WxValue value = mode == CreateFromScratchMode.DEFAULT
+                    ? WxValue.defaultValue(this)
+                    : this.parmState.getPickUpValue();
 
             Grid2DFloat mag = new Grid2DFloat(x, y,
                     ((VectorWxValue) value).getMag());
@@ -1889,8 +1925,9 @@ public abstract class Parm implements Comparable<Parm> {
             break;
         }
         case WEATHER: {
-            WeatherWxValue value = (WeatherWxValue) (mode == CreateFromScratchMode.DEFAULT ? WxValue
-                    .defaultValue(this) : this.parmState.getPickUpValue());
+            WeatherWxValue value = (WeatherWxValue) (mode == CreateFromScratchMode.DEFAULT
+                    ? WxValue.defaultValue(this)
+                    : this.parmState.getPickUpValue());
 
             Grid2DByte grid = new Grid2DByte(x, y, (byte) 0);
 
@@ -1900,8 +1937,9 @@ public abstract class Parm implements Comparable<Parm> {
             break;
         }
         case DISCRETE: {
-            DiscreteWxValue value = (DiscreteWxValue) (mode == CreateFromScratchMode.DEFAULT ? WxValue
-                    .defaultValue(this) : this.parmState.getPickUpValue());
+            DiscreteWxValue value = (DiscreteWxValue) (mode == CreateFromScratchMode.DEFAULT
+                    ? WxValue.defaultValue(this)
+                    : this.parmState.getPickUpValue());
 
             Grid2DByte grid = new Grid2DByte(x, y, (byte) 0);
 
@@ -1911,19 +1949,19 @@ public abstract class Parm implements Comparable<Parm> {
             break;
         }
         default:
-            throw new IllegalArgumentException("Unsupported Grid type: "
-                    + getGridInfo().getGridType());
+            throw new IllegalArgumentException(
+                    "Unsupported Grid type: " + getGridInfo().getGridType());
         }
 
         // now create the grid data
-        return AbstractGridData.makeGridData(this, gs);
+        return AbstractGridData.makeGridData(this, gs, true);
     }
 
     /**
      * Set the underlying grids
      * <p>
      * <b>Note: this function is for testing only, not for general use.</b>
-     * 
+     *
      * @param grids
      */
     public void setGrids(List<IGridData> grids) {
@@ -1946,7 +1984,7 @@ public abstract class Parm implements Comparable<Parm> {
         // perform the undo (check locks) using okToEdit(), and then calls
         // forceUndo() to perform the undo operation.
         // Check for invalid undo buffer
-        if (this.undoBuffers.size() == 0) {
+        if (this.undoBuffers.isEmpty()) {
             return;
         }
 
@@ -1986,23 +2024,19 @@ public abstract class Parm implements Comparable<Parm> {
             // + msg));
 
             baffectedTR[i] = undoBuffer.getUndoTimeRange();
-            bgridCopies[i] = new ArrayList<IGridData>();
+            bgridCopies[i] = new ArrayList<>();
 
             for (IGridData gridData : undoBuffer.getUndoGrids()) {
-                try {
-                    bgridCopies[i].add(gridData.clone());
-                } catch (CloneNotSupportedException e) {
-                    // don't add this undo grid
-                }
+                bgridCopies[i].add(gridData.copy());
             }
         }
 
-        saveUndo(baffectedTR, true); // Save the current set of grids
+        // Save the current set of grids
+        saveUndo(baffectedTR, true);
 
         for (i = 0; i < bgridCopies.length; i++) {
-            invChanged |= replaceGrids(
-                    baffectedTR[i],
-                    bgridCopies[i].toArray(new IGridData[bgridCopies[i].size()]));
+            invChanged |= replaceGrids(baffectedTR[i], bgridCopies[i]
+                    .toArray(new IGridData[bgridCopies[i].size()]));
         }
 
         // send out notification if anything has changed
@@ -2014,9 +2048,7 @@ public abstract class Parm implements Comparable<Parm> {
     }
 
     /**
-     * Return the undo buffer
-     * 
-     * @return
+     * @return the undo buffer
      */
     public UndoBuffer[] getUndoBuffer() {
         return this.undoBuffers
@@ -2026,7 +2058,7 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Calculates the time-weighted average at each gridPoint for all the grids
      * that are contained within the specified TimeRange.
-     * 
+     *
      * @param timeRange
      *            the timerange to average over
      * @return the weighted average parm
@@ -2041,7 +2073,7 @@ public abstract class Parm implements Comparable<Parm> {
         }
 
         // calculate the time ranges of the grids that overlap
-        List<TimeRange> gridTR = new ArrayList<TimeRange>();
+        List<TimeRange> gridTR = new ArrayList<>();
         for (int i = 0; i < grids.length; i++) {
             gridTR.add(timeRange.intersection(grids[i].getGridTime()));
         }
@@ -2056,34 +2088,25 @@ public abstract class Parm implements Comparable<Parm> {
         // CartCoord2D<int> gridSize = gridLocation().gridSize();
         int gridCount = grids.length;
         GridParmInfo gridInfo = getGridInfo();
+        Point gridSize = this.getGridInfo().getGridLoc().gridSize();
 
         // Make a new GridSlice into which the result will go
         IGridSlice gridSlice = null;
-        GridEnvelope ge = MapUtil.getGridGeometry(this.gridInfo.getGridLoc())
-                .getGridRange();
-
         ParmID parmId = getParmID();
         String siteId = parmId.getDbId().getSiteId();
 
         if ((grids.length == 1)
                 && (getGridInfo().getGridType() != GridType.WEATHER)) {
-            // nothing to average so we're done, except in the weather case
-            try {
-                gridSlice = grids[0].getGridSlice().clone();
-            } catch (CloneNotSupportedException e) {
-                // This should never happen.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
+            gridSlice = grids[0].getGridSlice().copy();
         } else if (getGridInfo().getGridType() == GridType.SCALAR) {
-            Grid2DFloat grid = new Grid2DFloat(ge.getSpan(0), ge.getSpan(1));
+            Grid2DFloat grid = new Grid2DFloat(gridSize.x, gridSize.y);
             Grid2DFloat[] scalarGrids = new Grid2DFloat[gridCount];
             for (int c = 0; c < gridCount; c++) {
-                scalarGrids[c] = ((ScalarGridSlice) grids[c].getGridSlice())
+                scalarGrids[c] = ((ScalarDataObject) grids[c].getDataObject())
                         .getScalarGrid();
             }
-            for (int i = 0; i < ge.getSpan(0); i++) {
-                for (int j = 0; j < ge.getSpan(1); j++) {
+            for (int i = 0; i < gridSize.x; i++) {
+                for (int j = 0; j < gridSize.y; j++) {
                     float value = 0.0f;
                     for (int k = 0; k < gridCount; k++) {
                         value += scalarGrids[k].get(i, j)
@@ -2098,32 +2121,35 @@ public abstract class Parm implements Comparable<Parm> {
                     timeRange, null, (WsId) null);
             gridSlice = new ScalarGridSlice(timeRange, getGridInfo(),
                     new GridDataHistory[] { gridHistory }, grid);
-        } else if (getGridInfo().getGridType() == GridType.VECTOR)
-        // Do average using UV to MagDir conversions
-        {
+        } else if (getGridInfo().getGridType() == GridType.VECTOR) {
+            // Do average using UV to MagDir conversions
+
             // Get the mag and dir grids
             Grid2DFloat uGrid;
             Grid2DFloat vGrid;
-            Grid2DFloat uSum = new Grid2DFloat(ge.getSpan(0), ge.getSpan(1));
-            Grid2DFloat vSum = new Grid2DFloat(ge.getSpan(0), ge.getSpan(1));
+            Grid2DFloat uSum = new Grid2DFloat(gridSize.x, gridSize.y);
+            Grid2DFloat vSum = new Grid2DFloat(gridSize.x, gridSize.y);
             // sum
             for (int k = 0; k < gridCount; k++) {
-                VectorGridSlice vgs = (VectorGridSlice) grids[k].getGridSlice();
+                VectorDataObject vdo = (VectorDataObject) grids[k]
+                        .getDataObject();
 
-                uGrid = vgs.vectorUGrid();
-                vGrid = vgs.vectorVGrid();
+                uGrid = vdo.vectorUGrid();
+                vGrid = vdo.vectorVGrid();
 
                 float dur = gridTR.get(k).getDuration();
-                for (int i = 0; i < ge.getSpan(0); i++) {
-                    for (int j = 0; j < ge.getSpan(1); j++) {
-                        uSum.set(i, j, uSum.get(i, j) + (uGrid.get(i, j) * dur));
-                        vSum.set(i, j, vSum.get(i, j) + (vGrid.get(i, j) * dur));
+                for (int i = 0; i < gridSize.x; i++) {
+                    for (int j = 0; j < gridSize.y; j++) {
+                        uSum.set(i, j,
+                                uSum.get(i, j) + (uGrid.get(i, j) * dur));
+                        vSum.set(i, j,
+                                vSum.get(i, j) + (vGrid.get(i, j) * dur));
                     }
                 }
             }
             // average
-            for (int i = 0; i < ge.getSpan(0); i++) {
-                for (int j = 0; j < ge.getSpan(1); j++) {
+            for (int i = 0; i < gridSize.x; i++) {
+                for (int j = 0; j < gridSize.y; j++) {
                     uSum.set(i, j, uSum.get(i, j) / totalDuration);
                     vSum.set(i, j, vSum.get(i, j) / totalDuration);
                 }
@@ -2143,25 +2169,23 @@ public abstract class Parm implements Comparable<Parm> {
             // type is chosen.
 
             int configP = GFEPreference
-                    .getIntPreference("SignificantWeatherTimeWeightAverage_percent");
+                    .getInt("SignificantWeatherTimeWeightAverage_percent");
             configP = (configP >= 1) ? configP : 40;
             configP = (configP <= 100) ? configP : 40;
 
             float significantPercent = (float) (configP / 100.0);
-            Point gridSize = this.getGridInfo().getGridLoc().gridSize();
-
             Grid2DByte grid = new Grid2DByte(gridSize.x, gridSize.y);
-            ArrayList<WeatherKey> key = new ArrayList<WeatherKey>();
+            List<WeatherKey> key = new ArrayList<>();
 
             for (int i = 0; i < gridSize.x; i++) {
                 for (int j = 0; j < gridSize.y; j++) {
-                    ArrayList<WeatherSubKey> subKeys = new ArrayList<WeatherSubKey>();
-                    ArrayList<Integer> wcount = new ArrayList<Integer>();
+                    List<WeatherSubKey> subKeys = new ArrayList<>();
+                    List<Integer> wcount = new ArrayList<>();
                     for (int k = 0; k < gridCount; k++) {
-                        WeatherKey key1[] = ((WeatherGridSlice) grids[k]
-                                .getGridSlice()).getKeys();
-                        Grid2DByte grid1 = ((WeatherGridSlice) grids[k]
-                                .getGridSlice()).getWeatherGrid();
+                        WeatherKey key1[] = ((WeatherDataObject) grids[k]
+                                .getDataObject()).getKeys();
+                        Grid2DByte grid1 = ((WeatherDataObject) grids[k]
+                                .getDataObject()).getWeatherGrid();
                         WeatherKey tmpKey = key1[0xFF & grid1.get(i, j)];
                         WeatherSubKey gpkeys[] = tmpKey.getSubKeys().toArray(
                                 new WeatherSubKey[tmpKey.getSubKeys().size()]);
@@ -2178,16 +2202,17 @@ public abstract class Parm implements Comparable<Parm> {
                     }
                     // Make the combined weather sub key, but only with those
                     // values that exceed the configured percentage
-                    ArrayList<WeatherSubKey> weightedKeys = new ArrayList<WeatherSubKey>();
+                    List<WeatherSubKey> weightedKeys = new ArrayList<>();
                     for (int k = 0; k < subKeys.size(); k++) {
-                        if (((float) wcount.get(k) / totalDuration) > significantPercent) {
+                        if (((float) wcount.get(k)
+                                / totalDuration) > significantPercent) {
                             weightedKeys.add(subKeys.get(k));
                         }
                     }
 
-                    // if none exceed the percentage, then find the most predom.
-                    if (weightedKeys.size() == 0) {
-                        // find the subkey that is most predominent
+                    // if none exceed the percentage
+                    if (weightedKeys.isEmpty()) {
+                        // find the subkey that is most predominant
                         int maxCount = wcount.get(0);
                         for (int k = 1; k < subKeys.size(); k++) {
                             if (wcount.get(k) > maxCount) {
@@ -2220,22 +2245,20 @@ public abstract class Parm implements Comparable<Parm> {
             gridSlice = new WeatherGridSlice(timeRange, getGridInfo(),
                     new GridDataHistory[] { gridHistory }, grid,
                     key.toArray(new WeatherKey[key.size()]));
-        } else if (getGridInfo().getGridType() == GridType.DISCRETE)
-        // TW Average is the time weighted most common value.
-        {
-            Point gridSize = this.getGridInfo().getGridLoc().gridSize();
+        } else if (getGridInfo().getGridType() == GridType.DISCRETE) {
+            // TW Average is the time weighted most common value.
             Grid2DByte grid = new Grid2DByte(gridSize.x, gridSize.y);
-            ArrayList<DiscreteKey> key = new ArrayList<DiscreteKey>();
+            List<DiscreteKey> key = new ArrayList<>();
 
             for (int i = 0; i < gridSize.x; i++) {
                 for (int j = 0; j < gridSize.y; j++) {
                     // Dict<TextString, int> values;
-                    Map<DiscreteKey, MutableInteger> values = new HashMap<DiscreteKey, MutableInteger>();
+                    Map<DiscreteKey, MutableInteger> values = new HashMap<>();
                     for (int k = 0; k < gridCount; k++) {
-                        DiscreteKey key1[] = ((DiscreteGridSlice) grids[k]
-                                .getGridSlice()).getKeys();
-                        Grid2DByte grid1 = ((DiscreteGridSlice) grids[k]
-                                .getGridSlice()).getDiscreteGrid();
+                        DiscreteKey key1[] = ((DiscreteDataObject) grids[k]
+                                .getDataObject()).getKeys();
+                        Grid2DByte grid1 = ((DiscreteDataObject) grids[k]
+                                .getDataObject()).getDiscreteGrid();
                         DiscreteKey kv = key1[0xFF & grid1.get(i, j)];
                         // add it to the dictionary
                         MutableInteger cnt = values.get(kv);
@@ -2246,7 +2269,7 @@ public abstract class Parm implements Comparable<Parm> {
                         cnt.add((int) (gridTR.get(k).getDuration() / 1000));
                     }
 
-                    // Find the one with the highest occurance
+                    // Find the one with the highest occurrence
                     DiscreteKey highestKey = null;
                     int highestCount = 0;
                     for (DiscreteKey k : values.keySet()) {
@@ -2278,9 +2301,9 @@ public abstract class Parm implements Comparable<Parm> {
         }
 
         // create the virtual parm
-        ParmID pid = this.dataManager.getParmManager().getUniqueParmID(
-                getParmID(), "TWAVG", "TMP");
-        GridParmInfo gpi = this.gridInfo.clone();
+        ParmID pid = this.dataManager.getParmManager()
+                .getUniqueParmID(getParmID(), "TWAVG", "TMP");
+        GridParmInfo gpi = this.gridInfo.copy();
         gpi.resetParmID(pid);
 
         updateDiscreteVParmKeys(getParmID(), pid);
@@ -2305,7 +2328,7 @@ public abstract class Parm implements Comparable<Parm> {
      * Performs an adjust operation over the specified ReferenceData area at the
      * specified time. Used by smart tools. User must use a startParmEdit and
      * endParmEdit.
-     * 
+     *
      * @param deltaValue
      *            the delta value
      * @param time
@@ -2336,6 +2359,19 @@ public abstract class Parm implements Comparable<Parm> {
         grid.applyDelta(time, deltaValue, false, bits);
     }
 
+    /**
+     * Command to extend a parm edit sequence for the given time. This routine
+     * is used for grid and point modification routines (GridData and
+     * PointData). The programmer must call this routine after startParmEdit()
+     * is called (and returns a valid value), whenever the original absTime in
+     * the startParmEdit() has changed. No modifications should be made to the
+     * data indicated by absTime until this function is called and the value
+     * returned is non-NULL.
+     *
+     * @param absTime
+     * @return see above
+     * @throws GFEOperationFailedException
+     */
     public IGridData extendParmEdit(Date absTime)
             throws GFEOperationFailedException {
         Date[] dateArray = { absTime };
@@ -2348,6 +2384,24 @@ public abstract class Parm implements Comparable<Parm> {
         return null;
     }
 
+    /**
+     * Command to extend a parm edit sequence for the given set of times. This
+     * routine is used for multiple grid and point modification routines
+     * (GridData and PointData). The programmer must call this routine after
+     * startParmEdit() is called (and returns a valid value), whenever the
+     * original absTime sequence has changed. The sequence should only include
+     * the new set of times and not the original set of times. No modifications
+     * should be made to the data indicated by the sequence of abstimes until
+     * this function is called and the value returned is valid.
+     *
+     * The length of the return sequence is the same as the length of the abs
+     * time sequence, unless the entire sequence is invalid. In this case, the
+     * returned sequence is of length 0.
+     *
+     * @param absTimes
+     * @return see above
+     * @throws GFEOperationFailedException
+     */
     public IGridData[] extendParmEdit(Date[] absTimes)
             throws GFEOperationFailedException {
         return setupParmEdit(absTimes, false);
@@ -2355,13 +2409,19 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Return the set of listeners for this parm
-     * 
-     * @return
+     *
+     * @return the parm listeners
      */
     public ParmListeners getListeners() {
         return this.parmListeners;
     }
 
+    /**
+     * Returns true if this parm has been modified (and there is data that needs
+     * to be saved).
+     *
+     * @return true if parm has been modified by me
+     */
     public boolean isModified() {
 
         if (!lockTable.lockedByMe().isEmpty()) {
@@ -2376,23 +2436,19 @@ public abstract class Parm implements Comparable<Parm> {
      * timeRange will be copied and returned. The user of this routine is
      * responsible for deallocating the gridData pointers returned from this
      * function.
-     * 
+     *
      * Gets the grid pointers that overlap timeRange using gridInventory(). Then
      * uses GridData::makeCopy() to make an identical copy of each grid. Returns
      * the set of copied grids. The origin of the source grids are copied to the
      * returned grids.
-     * 
+     *
      * @param timeRange
-     * @return
+     * @return the copied grids
      */
     protected IGridData[] getGridCopies(TimeRange timeRange) {
         IGridData[] rVal = this.getGridInventory(timeRange);
         for (int i = 0; i < rVal.length; i++) {
-            try {
-                rVal[i] = rVal[i].clone();
-            } catch (CloneNotSupportedException e) {
-                rVal[i] = null;
-            }
+            rVal[i] = rVal[i].copy();
         }
 
         return rVal;
@@ -2404,7 +2460,7 @@ public abstract class Parm implements Comparable<Parm> {
      * shifting. If copyOnly is false, then the original data is moved. The
      * secondsToShift must be a multiple of the split boundary interval. Returns
      * true if this operation was valid and can be undone.
-     * 
+     *
      * Ensure that the secondsToShift matches a grid interval allowed by the
      * split boundary. Calculates the destination, source, and affected time
      * ranges. Starts the parm edit, performs a split on the destination time
@@ -2412,18 +2468,18 @@ public abstract class Parm implements Comparable<Parm> {
      * their times. Delete the source data (for move only). Use replaceGrids()
      * to insert the new grids. Notify parm clients that the inventory has
      * changed.
-     * 
+     *
      * Ideally it would be nice to just lock the source and destination time
      * ranges, rather than the entire span between them. This is impractical in
      * the current design since the undo buffers and the startParmEdit() can
      * only accept a single time range.
-     * 
+     *
      * The origins of the new grids are set to modified.
-     * 
+     *
      * @param tr
      * @param secondsToShift
      * @param copyOnly
-     * @return
+     * @return true if successful
      */
     public boolean timeShiftTR(TimeRange tr, int secondsToShift,
             boolean copyOnly) {
@@ -2442,9 +2498,9 @@ public abstract class Parm implements Comparable<Parm> {
 
         // calculate source and destination timeRanges
         TimeRange sourceTR = new TimeRange(tr.getStart(), tr.getEnd());
-        TimeRange destinationTR = new TimeRange(tr.getStart().getTime()
-                + (secondsToShift * 1000), tr.getEnd().getTime()
-                + (secondsToShift * 1000));
+        TimeRange destinationTR = new TimeRange(
+                tr.getStart().getTime() + (secondsToShift * 1000),
+                tr.getEnd().getTime() + (secondsToShift * 1000));
 
         // Create a combinedTR that includes the all blocks it touches
         TimeRange combinedTR = destinationTR;
@@ -2470,7 +2526,9 @@ public abstract class Parm implements Comparable<Parm> {
             if (sourceGrids.length == 0) {
                 // USER_ALERT(_msgHand, "No grids to shift for "
                 // << parmID().shortParmIdentifier() << std::endl, 'S', "GFE");
-                return false; // nothing to do
+
+                // nothing to do
+                return false;
             }
 
             firstGrid = sourceGrids[0];
@@ -2490,33 +2548,38 @@ public abstract class Parm implements Comparable<Parm> {
             // USER_ALERT(_msgHand, "No grids to shift for "
             // << parmID().shortParmIdentifier() << std::endl,
             // 'S', "GFE");
-            return false; // nothing to do
+
+            // nothing to do
+            return false;
         }
 
         for (int i = 0; i < destGrids.length; i++) {
             TimeRange tr2 = destGrids[i].getGridTime();
-            tr2 = new TimeRange(tr2.getStart().getTime()
-                    + (secondsToShift * 1000), tr2.getEnd().getTime()
-                    + (secondsToShift * 1000));
+            tr2 = new TimeRange(
+                    tr2.getStart().getTime() + (secondsToShift * 1000),
+                    tr2.getEnd().getTime() + (secondsToShift * 1000));
             destGrids[i].changeValidTime(tr2, true);
             destGrids[i].updateHistoryToModified(this.dataManager.getWsId());
         }
 
         // Trim the start of the first copied grid, if necessary
-        if (destGrids[0].getGridTime().getStart().getTime() < (sourceTR
-                .getStart().getTime() + (secondsToShift * 1000))) {
-            TimeRange newTR = new TimeRange(sourceTR.getStart().getTime()
-                    + (secondsToShift * 1000), destGrids[0].getGridTime()
-                    .getEnd().getTime());
+        if (destGrids[0].getGridTime().getStart()
+                .getTime() < (sourceTR.getStart().getTime()
+                        + (secondsToShift * 1000))) {
+            TimeRange newTR = new TimeRange(
+                    sourceTR.getStart().getTime() + (secondsToShift * 1000),
+                    destGrids[0].getGridTime().getEnd().getTime());
             destGrids[0].changeValidTime(newTR, true);
         }
 
         // Trim the end of the last copied grid, if necessary
-        if (destGrids[destGrids.length - 1].getGridTime().getEnd().getTime() > (sourceTR
-                .getEnd().getTime() + (secondsToShift * 1000))) {
-            TimeRange newTR = new TimeRange(destGrids[destGrids.length - 1]
-                    .getGridTime().getStart().getTime(), sourceTR.getEnd()
-                    .getTime() + (secondsToShift * 1000));
+        if (destGrids[destGrids.length - 1].getGridTime().getEnd()
+                .getTime() > (sourceTR.getEnd().getTime()
+                        + (secondsToShift * 1000))) {
+            TimeRange newTR = new TimeRange(
+                    destGrids[destGrids.length - 1].getGridTime().getStart()
+                            .getTime(),
+                    sourceTR.getEnd().getTime() + (secondsToShift * 1000));
             destGrids[destGrids.length - 1].changeValidTime(newTR, true);
         }
 
@@ -2562,12 +2625,12 @@ public abstract class Parm implements Comparable<Parm> {
      * Returns true if this operation was valid and can be undone. Note that
      * this parm does not need to be in the selected state for this operation to
      * work.
-     * 
+     *
      * Calls timeShiftTR().
-     * 
+     *
      * @param secondsToShift
      * @param copyOnly
-     * @return
+     * @return true if successful
      */
     public boolean timeShiftSelectedTR(int secondsToShift, boolean copyOnly) {
         return timeShiftTR(this.parmState.getSelectedTimeRange(),
@@ -2582,10 +2645,10 @@ public abstract class Parm implements Comparable<Parm> {
      * operation was successful and the operation can be undone. Note that this
      * parm does not have to be in the selected state for this routine to
      * function.
-     * 
+     *
      * Calls deleteTR() with the selected time range.
-     * 
-     * @return
+     *
+     * @return true if successful
      */
     public boolean deleteSelectedTR() {
         return deleteTR(this.parmState.getSelectedTimeRange());
@@ -2597,20 +2660,21 @@ public abstract class Parm implements Comparable<Parm> {
      * removed. Any existing grids that are partially contained within the time
      * range will be split. Returns true if this operation was successful and
      * the operation can be undone.
-     * 
+     *
      * Checks to see if there is anything to delete by using gridInventory().
      * Expands out the time range to include the complete grids -- this is the
      * required lock state. Then calls startParmEdit() to validate the complete
      * editing time. Commands a split at the time range boundaries and then
      * calls remove grids over the time range. If the inventory has changed,
      * then we notify parm clients of its change.
-     * 
+     *
      * @param tr
-     * @return
+     * @return true if successful
      */
     public boolean deleteTR(TimeRange tr) {
         if (this.getGridInventory(tr).length == 0) {
-            return false; // nothing to delete
+            // nothing to delete
+            return false;
         }
 
         // expand the tr to the time constraints (so split will work)
@@ -2647,18 +2711,18 @@ public abstract class Parm implements Comparable<Parm> {
      * removed. Any existing grids that are partially contained within the time
      * range will be split. Returns true if this operation was successful and
      * the operation can be undone.
-     * 
+     *
      * Checks to see if there is anything to delete by using gridInventory().
      * Expands out the time range to include the complete grids -- this is the
      * required lock state. Checks the lock table to be sure the lock state is
      * held by the current workstation. Commands a split at the time range
      * boundaries and then calls remove grids over the time range. If the
      * inventory has changed, then we notify parm clients of its change.
-     * 
+     *
      * This method is the same as deleteTR(TimeRange), except that the
      * workstation must already own the lock to the affected time range, and the
      * lock is not released when it completes.
-     * 
+     *
      * @param tr
      *            The time range
      * @return true if grids in tr were deleted, false if there were no grids or
@@ -2667,7 +2731,8 @@ public abstract class Parm implements Comparable<Parm> {
      */
     public boolean deleteLockedTR(TimeRange tr) {
         if (this.getGridInventory(tr).length == 0) {
-            return false; // nothing to delete
+            // nothing to delete
+            return false;
         }
 
         // expand the tr to the time constraints (so split will work)
@@ -2704,8 +2769,8 @@ public abstract class Parm implements Comparable<Parm> {
      * within the parm's selection time range will be split. Returns true if the
      * operation was successful and it can be undone. Note that this routine
      * will operate even if the parm is not selected.
-     * 
-     * @return
+     *
+     * @return true if successful
      */
     public boolean splitSelectedTR() {
         return splitTR(this.parmState.getSelectedTimeRange());
@@ -2714,21 +2779,21 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Returns true if a call to split() with the specified time range will
      * modify the inventory.
-     * 
-     * Kinda ugly. This has the same logic in it as split()...
-     * 
+     *
      * @param timeRange
-     * @return
+     * @return true if will split
      */
     public boolean willSplit(TimeRange timeRange) {
         IGridData leftGrid = overlappingGrid(timeRange.getStart());
-        IGridData rightGrid = overlappingGrid(new Date(timeRange.getEnd()
-                .getTime() - 1000));
+        IGridData rightGrid = overlappingGrid(
+                new Date(timeRange.getEnd().getTime() - 1000));
         if (((leftGrid == null) || leftGrid.getGridTime().getStart()
                 .equals(timeRange.getStart()))
                 && ((rightGrid == null) || rightGrid.getGridTime().getEnd()
                         .equals(timeRange.getEnd()))) {
-            return false; // nothing to split
+
+            // nothing to split
+            return false;
         }
         return true;
     }
@@ -2740,25 +2805,27 @@ public abstract class Parm implements Comparable<Parm> {
      * given time range will be split. Returns true if the operation was
      * successful and it can be undone. Note that this routine will operate even
      * if the parm is not selected.
-     * 
+     *
      * Checks to see if there is anything to split by using gridInventory().
      * Expands out the given time range to include the complete grids. Commands
      * a split at the selected time range boundaries. Then we notify parm
      * clients of its change.
-     * 
+     *
      * NOTE: this function is similar to deleteSelected with the exception that
      * removeGrids() is not called after the split occurs.
-     * 
+     *
      * @param timeRange
-     * @return
+     * @return true if successful
      */
     public boolean splitTR(TimeRange timeRange) {
         if (this.getGridInventory(timeRange).length == 0) {
-            return false; // nothing to delete
+            // nothing to delete
+            return false;
         }
 
         if (!willSplit(timeRange)) {
-            return false; // nothing to split
+            // nothing to split
+            return false;
         }
 
         // affectedTR is the locking time range
@@ -2794,11 +2861,11 @@ public abstract class Parm implements Comparable<Parm> {
      * differ. Note that this function will operate even if this parm is not
      * selected. Returns true if the operation was successful and it can be
      * undone.
-     * 
+     *
      * Uses copyTRFrom().
-     * 
+     *
      * @param sourceParm
-     * @return
+     * @return true if successful
      */
     public boolean copySelectedTRFrom(Parm sourceParm) {
         return copyTRFrom(sourceParm, this.parmState.getSelectedTimeRange());
@@ -2810,9 +2877,9 @@ public abstract class Parm implements Comparable<Parm> {
      * successful. This routine is primarily used for the set of copySelected
      * To/From routines. If there aren't any grids in the source, then nothing
      * is copied to the destination.
-     * 
+     *
      * The grids sent to replaceGrids() are set to INITIALIZED.
-     * 
+     *
      * @param timeRange
      * @param sourceParm
      * @return
@@ -2830,8 +2897,7 @@ public abstract class Parm implements Comparable<Parm> {
         IGridData newGrids[] = sourceParm.getGridCopies(copyTR);
 
         // these will be the actual ones stored
-        List<IGridData> gridsToPopulate = new ArrayList<IGridData>(
-                newGrids.length);
+        List<IGridData> gridsToPopulate = new ArrayList<>(newGrids.length);
 
         // populate grids all at once from db
         for (IGridData grid : newGrids) {
@@ -2840,17 +2906,19 @@ public abstract class Parm implements Comparable<Parm> {
             }
         }
 
-        // this will update the references on the array and populate all grids
-        // in one call to server
+        /*
+         * this will update the references on the array and populate all grids
+         * in one call to server
+         */
         sourceParm.populateGrids(gridsToPopulate);
 
         // any grids within the copy time range?, if not, then nothing to do
         if (newGrids.length == 0) {
             statusHandler.handle(Priority.EVENTA, "No grids to copy for "
                     + getParmID().getShortParmId() + ' ' + affectedTR);
-            // USER_ALERT(_msgHand, "No grids to copy for "
-            // << parmID().shortParmIdentifier() << std::endl, 'R', "GFE");
-            return false; // nothing to do
+
+            // nothing to do
+            return false;
         }
 
         // Start the edit operation
@@ -2874,15 +2942,16 @@ public abstract class Parm implements Comparable<Parm> {
             TimeRange tr;
             if (newGrids[0].getGridTime().getStart().getTime() < copyTR
                     .getStart().getTime()) {
-                tr = new TimeRange(copyTR.getStart(), newGrids[0].getGridTime()
-                        .getEnd());
+                tr = new TimeRange(copyTR.getStart(),
+                        newGrids[0].getGridTime().getEnd());
                 newGrids[0].changeValidTime(tr, true);
                 newGrids[0].updateHistoryToModified(this.dataManager.getWsId());
             }
-            if (newGrids[newGrids.length - 1].getGridTime().getEnd().getTime() > copyTR
-                    .getEnd().getTime()) {
-                tr = new TimeRange(newGrids[newGrids.length - 1].getGridTime()
-                        .getStart(), copyTR.getEnd());
+            if (newGrids[newGrids.length - 1].getGridTime().getEnd()
+                    .getTime() > copyTR.getEnd().getTime()) {
+                tr = new TimeRange(
+                        newGrids[newGrids.length - 1].getGridTime().getStart(),
+                        copyTR.getEnd());
                 newGrids[newGrids.length - 1].changeValidTime(tr, true);
                 newGrids[newGrids.length - 1]
                         .updateHistoryToModified(this.dataManager.getWsId());
@@ -2911,12 +2980,12 @@ public abstract class Parm implements Comparable<Parm> {
      * boundary information for the source and destination parms differ. Note
      * that this function will operate even if this parm is not selected.
      * Returns true if the operation was successful and it can be undone.
-     * 
+     *
      * Uses copyFromParm().
-     * 
+     *
      * @param sourceParm
      * @param tr
-     * @return
+     * @return true if successful
      */
     public boolean copyTRFrom(Parm sourceParm, TimeRange tr) {
         return copyFromParm(tr, sourceParm);
@@ -2931,11 +3000,11 @@ public abstract class Parm implements Comparable<Parm> {
      * differ. Note that the selection time range for this parm will be changed.
      * Note that this function will operate even if this parm is not selected.
      * Returns true if the operation was successful and it can be undone.
-     * 
+     *
      * Uses copyFromParm() to perform the copies.
-     * 
+     *
      * @param sourceParm
-     * @return
+     * @return true if successful
      */
     public boolean copyEverythingFrom(Parm sourceParm) {
         boolean retVal = false;
@@ -2962,7 +3031,7 @@ public abstract class Parm implements Comparable<Parm> {
      * parmID is swapped also. Note that this routine only works for parms with
      * the same parmname, model source, type, and siteID. Only the model time
      * may be different. Returns true if successful.
-     * 
+     *
      * The important aspect of this routine is to swap this and the other parm
      * without changing the parm pointers. The following private data gets
      * swapped: _gridParmInfo, _grids, _lockTable. Notifications are sent out
@@ -2970,16 +3039,16 @@ public abstract class Parm implements Comparable<Parm> {
      * and parm id changed. Many of the private data does not get swapped since
      * it is assumed that we are swapping parms of the same name and model
      * source, and hence they have the same attributes.
-     * 
+     *
      * Note that the pointers for the grid data are also swapped, no grid copies
      * are made. This is a safe operation since no one caches grid data
      * pointers.
-     * 
+     *
      * Purges the undo grids since effectively the contents of the data
      * inventory have been completely replaced.
-     * 
+     *
      * @param otherParm
-     * @return
+     * @return true if successful
      */
     public boolean swapParm(Parm otherParm) {
         // verify that we can perform the swap by comparing aspects of the
@@ -2997,8 +3066,8 @@ public abstract class Parm implements Comparable<Parm> {
                             + this.getParmID() + ' ' + otherParm.getParmID());
         }
 
-        statusHandler.handle(Priority.VERBOSE, "Swapping " + getParmID()
-                + " with " + otherParm.getParmID());
+        statusHandler.handle(Priority.VERBOSE,
+                "Swapping " + getParmID() + " with " + otherParm.getParmID());
 
         // purge the undo grids for both this and the other parm
         purgeUndoGrids();
@@ -3015,14 +3084,16 @@ public abstract class Parm implements Comparable<Parm> {
             // store this parm's information into the other parm's data members
             otherParm.grids = this.grids;
             otherParm.gridInfo = this.gridInfo;
+            otherParm.parmID = this.gridInfo.getParmID();
             otherParm.lockTable = getLockTable();
 
             // now store the copies of the other's parm info into this parm
             this.grids = otherGrids;
             this.gridInfo = otherParmInfo;
+            this.parmID = this.gridInfo.getParmID();
             this.lockTable = otherLockTable;
 
-            // modify the parm association for the GridSlices
+            // modify the parm association for the grids
             for (IGridData grid : this.grids) {
                 grid.changeParmAssociation(this);
             }
@@ -3054,7 +3125,7 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Sends a ParmID changed notification to all parm clients. The new ParmID
      * is given.
-     * 
+     *
      * @param newParmId
      *            The new ParmID for this Parm.
      */
@@ -3072,10 +3143,11 @@ public abstract class Parm implements Comparable<Parm> {
      * zeroed. time range will be zeroed. Returns true if this operation was
      * successful and the operation can be undone. Note that this parm does not
      * have to be in the selected state for this routine to function.
-     * 
+     *
      * Calls zeroTR(selected time range)
-     * 
-     * @return
+     *
+     * @return true if successful
+     * @throws GFEException
      */
     public boolean zeroSelectedTR() throws GFEException {
         return zeroTR(this.parmState.getSelectedTimeRange());
@@ -3087,12 +3159,12 @@ public abstract class Parm implements Comparable<Parm> {
      * if this operation was successful and the operation can be undone. Note
      * that this parm does not have to be in the selected state for this routine
      * to function.
-     * 
+     *
      * Calls assignValueTR().
-     * 
+     *
      * @param tr
-     * @return
-     * @throws GFEServerException
+     * @return true if successful
+     * @throws GFEException
      */
     public boolean zeroTR(TimeRange tr) throws GFEException {
         WxValue wxValue = WxValue.defaultValue(this);
@@ -3105,11 +3177,12 @@ public abstract class Parm implements Comparable<Parm> {
      * zeroed. time range will be modified. Returns true if this operation was
      * successful and the operation can be undone. Note that this parm does not
      * have to be in the selected state for this routine to function.
-     * 
+     *
      * Calls assignValueTR(selected time range, wxvalue)
-     * 
+     *
      * @param wxValue
-     * @return
+     * @return true if successful
+     * @throws GFEOperationFailedException
      */
     public boolean assignValueSelectedTR(WxValue wxValue)
             throws GFEOperationFailedException {
@@ -3122,16 +3195,17 @@ public abstract class Parm implements Comparable<Parm> {
      * operation was successful and the operation can be undone. Note that this
      * parm does not have to be in the selected state for this routine to
      * function.
-     * 
+     *
      * Expands the time range to the grid times. Gets the grid inventory to
      * ensure there is something to do. Extracts the grid times. Starts a parm
      * edit with all grids. Verifies the value. Sets the entire grid (each grid)
      * to the specified value. Ends parm edit. Routine resets the VECTOR or
      * WEATHER mode if appropriate to really set the data.
-     * 
+     *
      * @param tr
      * @param wxValue
-     * @return
+     * @return true if successful
+     * @throws GFEOperationFailedException
      */
     public boolean assignValueTR(TimeRange tr, WxValue wxValue)
             throws GFEOperationFailedException {
@@ -3148,7 +3222,8 @@ public abstract class Parm implements Comparable<Parm> {
         // get the inventory
         IGridData inv[] = this.getGridInventory(affectedTR);
         if (inv.length == 0) {
-            return false; // nothing to zero
+            // nothing to zero
+            return false;
         }
         Date invTimes[] = new Date[inv.length];
         int i;
@@ -3159,13 +3234,16 @@ public abstract class Parm implements Comparable<Parm> {
         // start parm edit
         inv = startParmEdit(invTimes);
         if (inv.length == 0) {
-            return false; // no changes;
+            // no changes;
+            return false;
         }
 
         // calculate the default value
         Point gridSize = this.getGridInfo().getGridLoc().gridSize();
         Grid2DBit grid2DBit = new Grid2DBit(gridSize.x, gridSize.y);
-        grid2DBit.negate(); // turn all bits on
+
+        // turn all bits on
+        grid2DBit.negate();
 
         // temporarily change the WEATHER COMBINE or VECTOR MODE to ensure
         // that our setValue really zeros the grid.
@@ -3206,10 +3284,10 @@ public abstract class Parm implements Comparable<Parm> {
      * operation was successful and the operation can be undone. Note that this
      * parm does not have to be in the selected state for this routine to
      * function.
-     * 
+     *
      * Uses fragmentTR().
-     * 
-     * @return
+     *
+     * @return true if successful
      */
     public boolean fragmentSelectedTR() {
         return fragmentTR(this.parmState.getSelectedTimeRange());
@@ -3222,15 +3300,16 @@ public abstract class Parm implements Comparable<Parm> {
      * operation was successful and the operation can be undone. Note that this
      * parm does not have to be in the selected state for this routine to
      * function.
-     * 
+     *
      * Fragments 1 grid at a time and uses replaceGriddedData().
-     * 
+     *
      * @param tr
-     * @return
+     * @return true if successful
      */
     public boolean fragmentTR(TimeRange tr) {
         if (this.getGridInventory(tr).length == 0) {
-            return false; // nothing to fragment
+            // nothing to fragment
+            return false;
         }
 
         if (!willSplit(tr)) {
@@ -3274,28 +3353,24 @@ public abstract class Parm implements Comparable<Parm> {
         IGridData[] inv = this.getGridInventory(expandTR);
 
         // get each grid from the range and see if it needs fragmenting
-        ArrayList<IGridData> newGrids = new ArrayList<IGridData>();
+        List<IGridData> newGrids = new ArrayList<>();
         for (int i = 0; i < inv.length; i++) {
             if (inv[i] == null) {
-                continue; // skip this one
+                // skip this one
+                continue;
             }
             TimeRange times[] = this.getGridInfo().getTimeConstraints()
                     .constraintTimes(inv[i].getGridTime());
             for (int j = 0; j < times.length; j++) {
                 IGridData copy;
-                try {
-                    copy = inv[i].clone();
-                } catch (CloneNotSupportedException e) {
-                    copy = null;
-                }
+                copy = inv[i].copy();
                 copy.changeValidTime(times[j], true);
                 newGrids.add(copy);
             }
         }
 
         invChanged = this.replaceGrids(expandTR,
-                newGrids.toArray(new IGridData[newGrids.size()]))
-                || invChanged;
+                newGrids.toArray(new IGridData[newGrids.size()])) || invChanged;
 
         // finish up the parm edit
         boolean endOkay = endParmEdit();
@@ -3311,15 +3386,15 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Command to create data from scratch for the selected time range for this
      * parameter. Interval specifies the create interval. Duration specifies the
-     * duration of each grid gridSlice to be created. Returns true if the
-     * request was handled.
-     * 
+     * duration of each grid to be created. Returns true if the request was
+     * handled successfully.
+     *
      * Uses createFromScratchTR().
-     * 
+     *
      * @param mode
      * @param interval
      * @param duration
-     * @return
+     * @return true if successful
      * @throws GFEOperationFailedException
      */
     public boolean createFromScratchSelectedTR(CreateFromScratchMode mode,
@@ -3331,24 +3406,24 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Command to create data from scratch for the given time range for this
      * parameter. Interval specifies the create interval. Duration specifies the
-     * duration of each created grid. Returns true if the request was handled.
-     * 
+     * duration of each created grid. Returns true if the request was handled
+     * successfully.
+     *
      * @param tr
      * @param mode
      * @param interval
      * @param duration
-     * @return
+     * @return true if successful
      * @throws GFEOperationFailedException
      */
-    public boolean createFromScratchTR(TimeRange tr,
-            CreateFromScratchMode mode, int interval, int duration)
-            throws GFEOperationFailedException {
+    public boolean createFromScratchTR(TimeRange tr, CreateFromScratchMode mode,
+            int interval, int duration) throws GFEOperationFailedException {
         // Check if it's O.K. to edit
         if (!isOkToEdit(tr)) {
             return false;
         }
 
-        List<TimeRange> gridTimes = new ArrayList<TimeRange>();
+        List<TimeRange> gridTimes = new ArrayList<>();
 
         TimeConstraints tc = gridInfo.getTimeConstraints();
 
@@ -3393,7 +3468,7 @@ public abstract class Parm implements Comparable<Parm> {
             }
         }
 
-        if (gridTimes.size() > 0) {
+        if (!gridTimes.isEmpty()) {
             insertNewGrid(gridTimes.toArray(new TimeRange[] {}), mode);
         }
         return true;
@@ -3402,9 +3477,9 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Calculates the minimum value at each gridPoint for all the grids that are
      * contained within the specified TimeRange.
-     * 
+     *
      * @param timeRange
-     * @return
+     * @return the min grid
      */
     public Parm min(TimeRange timeRange) {
         // Can't take the minimum of a weather or discrete type
@@ -3421,35 +3496,37 @@ public abstract class Parm implements Comparable<Parm> {
             return null;
         }
 
-        TimeRange vtime = new TimeRange(grids[0].getGridTime().getStart()
-                .getTime(), grids[grids.length - 1].getGridTime().getEnd()
-                .getTime());
+        // Get a copy of the 0th data object to start the minGrid calculation
+        IDataObject minDataObject = grids[0].getDataObject().copy();
 
-        // Make a new GridSlice into which the result will go
-
-        IGridSlice gridSlice = null;
-        try {
-            gridSlice = grids[0].getGridSlice().clone();
-        } catch (CloneNotSupportedException e) {
-            // This should never happen.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        // loop through each grid starting at 1 since we already have the 0th
+        for (int i = 1; i < grids.length; i++) {
+            minDataObject = grids[i].gridMin(minDataObject);
         }
 
-        gridSlice
-                .setHistory(new GridDataHistory[] { new GridDataHistory(
-                        GridDataHistory.OriginType.CALCULATED,
-                        this.getParmID(), vtime) });
-        gridSlice.setValidTime(vtime);
+        // Make a new GridSlice into which the result will go
+        TimeRange vtime = new TimeRange(
+                grids[0].getGridTime().getStart().getTime(),
+                grids[grids.length - 1].getGridTime().getEnd().getTime());
 
-        // loop through each grid starting at 1 since we copied the 0th
-        for (int i = 1; i < grids.length; i++) {
-            gridSlice = grids[i].gridMin(gridSlice);
+        GridDataHistory[] gridHistory = new GridDataHistory[] {
+                new GridDataHistory(GridDataHistory.OriginType.CALCULATED,
+                        this.getParmID(), vtime) };
+
+        IGridSlice gridSlice;
+        if (grids[0].getGridInfo().getGridType() == GridType.SCALAR) {
+            gridSlice = new ScalarGridSlice(vtime, this.gridInfo, gridHistory,
+                    ((ScalarDataObject) minDataObject).getScalarGrid());
+        } else {
+            gridSlice = new VectorGridSlice(vtime, this.gridInfo, gridHistory,
+                    ((VectorDataObject) minDataObject).getMagGrid(),
+                    ((VectorDataObject) minDataObject).getDirGrid());
         }
 
         // create the virtual parm
-        ParmID pid = this.dataManager.getParmManager().getUniqueParmID(
-                this.getParmID(), "MIN", "TMP");
-        GridParmInfo gpi = this.gridInfo.clone();
+        ParmID pid = this.dataManager.getParmManager()
+                .getUniqueParmID(this.getParmID(), "MIN", "TMP");
+        GridParmInfo gpi = this.gridInfo.copy();
         gpi.resetParmID(pid);
 
         updateDiscreteVParmKeys(getParmID(), pid);
@@ -3463,9 +3540,9 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Calculates the maximum value at each gridPoint for all the grids that are
      * contained within the specified TimeRange.
-     * 
+     *
      * @param timeRange
-     * @return
+     * @return the max grid
      */
     public Parm max(TimeRange timeRange) {
         // Can't take the minimum of a weather or discrete type
@@ -3482,35 +3559,37 @@ public abstract class Parm implements Comparable<Parm> {
             return null;
         }
 
-        TimeRange vtime = new TimeRange(grids[0].getGridTime().getStart()
-                .getTime(), grids[grids.length - 1].getGridTime().getEnd()
-                .getTime());
+        // Get a copy of the 0th data object to start the minGrid calculation
+        IDataObject maxDataObject = grids[0].getDataObject().copy();
 
-        // Make a new GridSlice into which the result will go
-
-        IGridSlice gridSlice = null;
-        try {
-            gridSlice = grids[0].getGridSlice().clone();
-        } catch (CloneNotSupportedException e) {
-            // This should never happen.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
+        // loop through each grid starting at 1 since we already have the 0th
+        for (int i = 1; i < grids.length; i++) {
+            maxDataObject = grids[i].gridMax(maxDataObject);
         }
 
-        gridSlice
-                .setHistory(new GridDataHistory[] { new GridDataHistory(
-                        GridDataHistory.OriginType.CALCULATED,
-                        this.getParmID(), vtime) });
-        gridSlice.setValidTime(vtime);
+        // Make a new GridSlice into which the result will go
+        TimeRange vtime = new TimeRange(
+                grids[0].getGridTime().getStart().getTime(),
+                grids[grids.length - 1].getGridTime().getEnd().getTime());
 
-        // loop through each grid starting at 1 since we copied the 0th
-        for (int i = 1; i < grids.length; i++) {
-            gridSlice = grids[i].gridMax(gridSlice);
+        GridDataHistory[] gridHistory = new GridDataHistory[] {
+                new GridDataHistory(GridDataHistory.OriginType.CALCULATED,
+                        this.getParmID(), vtime) };
+
+        IGridSlice gridSlice;
+        if (grids[0].getGridInfo().getGridType() == GridType.SCALAR) {
+            gridSlice = new ScalarGridSlice(vtime, this.gridInfo, gridHistory,
+                    ((ScalarDataObject) maxDataObject).getScalarGrid());
+        } else {
+            gridSlice = new VectorGridSlice(vtime, this.gridInfo, gridHistory,
+                    ((VectorDataObject) maxDataObject).getMagGrid(),
+                    ((VectorDataObject) maxDataObject).getDirGrid());
         }
 
         // create the virtual parm
-        ParmID pid = this.dataManager.getParmManager().getUniqueParmID(
-                this.getParmID(), "MAX", "TMP");
-        GridParmInfo gpi = this.gridInfo.clone();
+        ParmID pid = this.dataManager.getParmManager()
+                .getUniqueParmID(this.getParmID(), "MAX", "TMP");
+        GridParmInfo gpi = this.gridInfo.copy();
         gpi.resetParmID(pid);
 
         updateDiscreteVParmKeys(getParmID(), pid);
@@ -3524,9 +3603,9 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Calculates the sum at each gridPoint for all the grids that are contained
      * within the specified TimeRange.
-     * 
+     *
      * @param timeRange
-     * @return
+     * @return the sum grid
      */
     public Parm sum(TimeRange timeRange) {
         // Can't take the minimum of a weather or discrete type
@@ -3543,34 +3622,37 @@ public abstract class Parm implements Comparable<Parm> {
             return null;
         }
 
-        TimeRange vtime = new TimeRange(grids[0].getGridTime().getStart()
-                .getTime(), grids[grids.length - 1].getGridTime().getEnd()
-                .getTime());
+        // Get a copy of the 0th data object to start the minGrid calculation
+        IDataObject sumDataObject = grids[0].getDataObject().copy();
+
+        // loop through each grid starting at 1 since we already have the 0th
+        for (int i = 1; i < grids.length; i++) {
+            sumDataObject = grids[i].gridSum(sumDataObject);
+        }
 
         // Make a new GridSlice into which the result will go
+        TimeRange vtime = new TimeRange(
+                grids[0].getGridTime().getStart().getTime(),
+                grids[grids.length - 1].getGridTime().getEnd().getTime());
 
-        IGridSlice gridSlice = null;
-        try {
-            gridSlice = grids[0].getGridSlice().clone();
-        } catch (CloneNotSupportedException e) {
-            // This should never happen.
-            statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(), e);
-        }
-        gridSlice
-                .setHistory(new GridDataHistory[] { new GridDataHistory(
-                        GridDataHistory.OriginType.CALCULATED,
-                        this.getParmID(), vtime) });
-        gridSlice.setValidTime(vtime);
+        GridDataHistory[] gridHistory = new GridDataHistory[] {
+                new GridDataHistory(GridDataHistory.OriginType.CALCULATED,
+                        this.getParmID(), vtime) };
 
-        // loop through each grid starting at 1 since we copied the 0th
-        for (int i = 1; i < grids.length; i++) {
-            gridSlice = grids[i].gridSum(gridSlice);
+        IGridSlice gridSlice;
+        if (grids[0].getGridInfo().getGridType() == GridType.SCALAR) {
+            gridSlice = new ScalarGridSlice(vtime, this.gridInfo, gridHistory,
+                    ((ScalarDataObject) sumDataObject).getScalarGrid());
+        } else {
+            gridSlice = new VectorGridSlice(vtime, this.gridInfo, gridHistory,
+                    ((VectorDataObject) sumDataObject).getMagGrid(),
+                    ((VectorDataObject) sumDataObject).getDirGrid());
         }
 
         // create the virtual parm
-        ParmID pid = this.dataManager.getParmManager().getUniqueParmID(
-                this.getParmID(), "SUM", "TMP");
-        GridParmInfo gpi = this.gridInfo.clone();
+        ParmID pid = this.dataManager.getParmManager()
+                .getUniqueParmID(this.getParmID(), "SUM", "TMP");
+        GridParmInfo gpi = this.gridInfo.copy();
         gpi.resetParmID(pid);
 
         updateDiscreteVParmKeys(getParmID(), pid);
@@ -3584,9 +3666,9 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Calculates the average at each gridPoint for all the grids that are
      * contained within the specified TimeRange.
-     * 
+     *
      * @param timeRange
-     * @return
+     * @return the average grid
      */
     public Parm avg(TimeRange timeRange) {
         // Get the list of grids that are found inside the specified timeRange
@@ -3609,19 +3691,12 @@ public abstract class Parm implements Comparable<Parm> {
 
         // ServerResponse sr;
         if (grids.length == 1) {
-            // nothing to average so we're done
-            try {
-                gridSlice = grids[0].getGridSlice().clone();
-            } catch (CloneNotSupportedException e) {
-                // This should never happen.
-                statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
-                        e);
-            }
+            gridSlice = grids[0].getGridSlice().copy();
         } else if (this.gridInfo.getGridType() == GridType.SCALAR) {
             Grid2DFloat grid = new Grid2DFloat(gridSize.x, gridSize.y);
             Grid2DFloat[] scalarGrids = new Grid2DFloat[gridCount];
             for (int c = 0; c < gridCount; c++) {
-                scalarGrids[c] = ((ScalarGridSlice) grids[c].getGridSlice())
+                scalarGrids[c] = ((ScalarDataObject) grids[c].getDataObject())
                         .getScalarGrid();
             }
             for (i = 0; i < gridSize.x; i++) {
@@ -3639,18 +3714,18 @@ public abstract class Parm implements Comparable<Parm> {
                     timeRange);
             gridSlice = new ScalarGridSlice(timeRange, this.gridInfo,
                     new GridDataHistory[] { gridHistory }, grid);
-        } else if (this.gridInfo.getGridType() == GridType.VECTOR)
-        // Do average using UV to MagDir conversions
-        {
+        } else if (this.gridInfo.getGridType() == GridType.VECTOR) {
+            // Do average using UV to MagDir conversions
+
             // Get the mag and dir grids
             Grid2DFloat uGrid, vGrid;
             Grid2DFloat uSum = new Grid2DFloat(gridSize.x, gridSize.y, 0.0f);
             Grid2DFloat vSum = new Grid2DFloat(gridSize.x, gridSize.y, 0.0f);
             // sum
             for (k = 0; k < gridCount; k++) {
-                uGrid = ((VectorGridSlice) grids[k].getGridSlice())
+                uGrid = ((VectorDataObject) grids[k].getDataObject())
                         .vectorUGrid();
-                vGrid = ((VectorGridSlice) grids[k].getGridSlice())
+                vGrid = ((VectorDataObject) grids[k].getDataObject())
                         .vectorVGrid();
 
                 for (i = 0; i < gridSize.x; i++) {
@@ -3676,21 +3751,20 @@ public abstract class Parm implements Comparable<Parm> {
                     new GridDataHistory[] { gridHistory });
         }
 
-        else if (this.gridInfo.getGridType() == GridType.WEATHER)
-        // Average will be a combination of all weatherKeys
-        {
+        else if (this.gridInfo.getGridType() == GridType.WEATHER) {
+            // Average will be a combination of all weatherKeys
             Grid2DByte grid = new Grid2DByte(gridSize.x, gridSize.y);
-            List<WeatherKey> key = new ArrayList<WeatherKey>();
-            Map<String, Byte> idxMap = new HashMap<String, Byte>();
+            List<WeatherKey> key = new ArrayList<>();
+            Map<String, Byte> idxMap = new HashMap<>();
 
             for (j = 0; j < gridSize.y; j++) {
                 for (i = 0; i < gridSize.x; i++) {
                     // Build an index sequence string.
                     StringBuilder idxSb = new StringBuilder();
                     for (k = 0; k < gridCount; k++) {
-                        DiscreteGridSlice slice = ((DiscreteGridSlice) grids[k]
-                                .getGridSlice());
-                        byte inIdx = slice.getDiscreteGrid().get(i, j);
+                        WeatherDataObject dataObject = ((WeatherDataObject) grids[k]
+                                .getDataObject());
+                        byte inIdx = dataObject.getWeatherGrid().get(i, j);
                         idxSb.append(inIdx).append(":");
                     }
                     String idxSeq = idxSb.toString();
@@ -3699,18 +3773,18 @@ public abstract class Parm implements Comparable<Parm> {
                     Byte idx = idxMap.get(idxSeq);
                     if (idx == null) {
                         // new idxSeq. Build a weather key for it.
-                        ArrayList<WeatherSubKey> subkeys = new ArrayList<WeatherSubKey>();
+                        List<WeatherSubKey> subkeys = new ArrayList<>();
                         for (k = 0; k < gridCount; k++) {
-                            WeatherGridSlice slice = ((WeatherGridSlice) grids[k]
-                                    .getGridSlice());
-                            WeatherKey[] key1 = slice.getKeys();
-                            Grid2DByte grid1 = slice.getWeatherGrid();
+                            WeatherDataObject dataObject = ((WeatherDataObject) grids[k]
+                                    .getDataObject());
+                            WeatherKey[] key1 = dataObject.getKeys();
+                            Grid2DByte grid1 = dataObject.getWeatherGrid();
                             WeatherKey key1ij = key1[0xFF & grid1.get(i, j)];
                             subkeys.addAll(key1ij.getSubKeys());
                         }
 
-                        WeatherKey wxkey = new WeatherKey(getParmID().getDbId()
-                                .getSiteId(), subkeys);
+                        WeatherKey wxkey = new WeatherKey(
+                                getParmID().getDbId().getSiteId(), subkeys);
 
                         // Keys for different idxSeqs might be equivalent.
                         // Look for identical WeatherKey in key.
@@ -3740,25 +3814,25 @@ public abstract class Parm implements Comparable<Parm> {
                     key.toArray(new DiscreteKey[0]));
         }
 
-        else if (this.gridInfo.getGridType() == GridType.DISCRETE)
-        // Average is the most common value.
-        // If two are equally common (i.e., only 2 grids), the earliest wins.
-        {
+        else if (this.gridInfo.getGridType() == GridType.DISCRETE) {
+            // Average is the most common value.
+            // If two are equally common (i.e., only 2 grids),
+            // the earliest wins.
             Grid2DByte grid = new Grid2DByte(gridSize.x, gridSize.y);
-            ArrayList<DiscreteKey> key = new ArrayList<DiscreteKey>();
+            List<DiscreteKey> key = new ArrayList<>();
 
             for (j = 0; j < gridSize.y; j++) {
                 for (i = 0; i < gridSize.x; i++) {
 
                     // DiscreteKey.compareTo() => 0; use Strings.
-                    Map<String, Integer> values = new TreeMap<String, Integer>();
-                    Map<String, DiscreteKey> keys = new TreeMap<String, DiscreteKey>();
+                    Map<String, Integer> values = new TreeMap<>();
+                    Map<String, DiscreteKey> keys = new TreeMap<>();
 
                     for (k = 0; k < gridCount; k++) {
-                        DiscreteKey[] key1 = ((DiscreteGridSlice) grids[k]
-                                .getGridSlice()).getKeys();
-                        Grid2DByte grid1 = ((DiscreteGridSlice) grids[k]
-                                .getGridSlice()).getDiscreteGrid();
+                        DiscreteKey[] key1 = ((DiscreteDataObject) grids[k]
+                                .getDataObject()).getKeys();
+                        Grid2DByte grid1 = ((DiscreteDataObject) grids[k]
+                                .getDataObject()).getDiscreteGrid();
                         DiscreteKey dkv = key1[0xFF & grid1.get(i, j)];
                         String dks = dkv.toString();
                         // add it to the dictionary
@@ -3771,7 +3845,7 @@ public abstract class Parm implements Comparable<Parm> {
                         values.put(dks, count);
                     }
 
-                    // Find the one with the highest occurance
+                    // Find the one with the highest occurrence
                     String keyOfHighest = null;
                     Integer highestCount = Integer.valueOf(0);
                     for (Entry<String, Integer> entry : values.entrySet()) {
@@ -3781,7 +3855,8 @@ public abstract class Parm implements Comparable<Parm> {
                         }
                     }
 
-                    DiscreteKey newkey = new DiscreteKey(keys.get(keyOfHighest));
+                    DiscreteKey newkey = new DiscreteKey(
+                            keys.get(keyOfHighest));
 
                     // attempt lookup for existing
                     int index = key.indexOf(newkey);
@@ -3803,9 +3878,9 @@ public abstract class Parm implements Comparable<Parm> {
         }
 
         // create the virtual parm
-        ParmID pid = this.dataManager.getParmManager().getUniqueParmID(
-                this.getParmID(), "AVG", "TMP");
-        GridParmInfo gpi = this.gridInfo.clone();
+        ParmID pid = this.dataManager.getParmManager()
+                .getUniqueParmID(this.getParmID(), "AVG", "TMP");
+        GridParmInfo gpi = this.gridInfo.copy();
         gpi.resetParmID(pid);
 
         updateDiscreteVParmKeys(getParmID(), pid);
@@ -3815,6 +3890,15 @@ public abstract class Parm implements Comparable<Parm> {
         return newParm;
     }
 
+    /**
+     * Performs a smooth operation over the specified ReferenceData area at the
+     * specified time. Used by smart tools. User must use a startParmEdit and
+     * endParmEdit.
+     *
+     * @param time
+     * @param refData
+     *            edit area
+     */
     public void smooth(Date time, ReferenceData refData) {
         IGridData grid = overlappingGrid(time);
 
@@ -3833,32 +3917,33 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Performs a pencil stretch operation on the grid. Provided the value to be
-     * assigned, and the path in AWIPS world coordintes. User must call
+     * assigned, and the path in AWIPS world coordinates. User must call
      * startParmEdit() and endParmEdit(). The limitToEditArea indicates whether
      * the pencil stretch operation should be limited to just the active edit
      * area.
-     * 
+     *
      * @param time
      * @param value
      * @param path
-     * @return
+     * @return the changed points
      */
-    public Grid2DBit pencilStretch(Date time, WxValue value, Coordinate path[]) {
+    public Grid2DBit pencilStretch(Date time, WxValue value,
+            Coordinate path[]) {
         return pencilStretch(time, value, path, true);
     }
 
     /**
      * Performs a pencil stretch operation on the grid. Provided the value to be
-     * assigned, and the path in AWIPS world coordintes. User must call
+     * assigned, and the path in AWIPS world coordinates. User must call
      * startParmEdit() and endParmEdit(). The limitToEditArea indicates whether
      * the pencil stretch operation should be limited to just the active edit
      * area.
-     * 
+     *
      * @param time
      * @param value
      * @param path
      * @param limitToEditArea
-     * @return
+     * @return the changed points
      */
     public Grid2DBit pencilStretch(Date time, WxValue value, Coordinate path[],
             boolean limitToEditArea) {
@@ -3879,11 +3964,11 @@ public abstract class Parm implements Comparable<Parm> {
      * grid overlaps the input time, then NULL is returned. The pointer
      * represents the actual grid within this parm. The user must not deallocate
      * it.
-     * 
+     *
      * Calls getOverlappingGrid();
-     * 
+     *
      * @param time
-     * @return
+     * @return the overlapping grid
      */
     public IGridData overlappingGrid(Date time) {
         this.grids.acquireReadLock();
@@ -3899,14 +3984,12 @@ public abstract class Parm implements Comparable<Parm> {
                 }
 
                 if (time.getTime() < this.grids.get(mid).getGridTime().getEnd()
-                        .getTime()) // on
-                // the
-                // left
-                {
+                        .getTime()) {
+                    // on the left
                     end = mid - 1;
                     mid = ((end - begin) / 2) + begin;
-                } else // on the right
-                {
+                } else {
+                    // on the right
                     begin = mid + 1;
                     mid = ((end - begin) / 2) + begin;
                 }
@@ -3929,11 +4012,11 @@ public abstract class Parm implements Comparable<Parm> {
      * Performs a move/copy area edit on a grid for the given time, points to
      * move or copy, the amount to move, and whether this is a copy or a move
      * operation. User must call startParmEdit() and endParmEdit().
-     * 
+     *
      * @param time
      * @param pointsToMove
      * @param delta
-     * @parm copyOp
+     * @param copyOp
      */
     public void moveCopyArea(final Date time, final Grid2DBit pointsToMove,
             final Point delta, boolean copyOp) {
@@ -3952,14 +4035,14 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Command to interpolate data for the selected time range for this
      * parameter. Interval specifies the interpolation interval. Duration
-     * specifies the duration of each grid gridSlice to be interpolated. Returns
-     * true if the interpolation request was made.
-     * 
+     * specifies the duration of each grid to be interpolated. Returns true if
+     * the interpolation request was made.
+     *
      * @param interpMode
      * @param state
      * @param interval
      * @param duration
-     * @return
+     * @return true if successful
      * @throws GFEOperationFailedException
      */
     public boolean interpolateSelectedTR(InterpMode interpMode,
@@ -3974,15 +4057,15 @@ public abstract class Parm implements Comparable<Parm> {
      * Interval specifies the interpolation interval. Duration specifies the
      * duration of each interpolated grid. Returns true if the interpolation
      * request was made.
-     * 
+     *
      * Calls interpolateTRInternal() with the quiet flag set to false.
-     * 
+     *
      * @param tr
      * @param interpMode
      * @param state
      * @param interval
      * @param duration
-     * @return
+     * @return true if successful
      * @throws GFEOperationFailedException
      */
     public boolean interpolateTR(final TimeRange tr, InterpMode interpMode,
@@ -3998,15 +4081,15 @@ public abstract class Parm implements Comparable<Parm> {
      * duration of each interpolated grid. The quiet flag indicates whether any
      * logging messages (to USER_ALERT) should be made on errors or finish.
      * Returns true if the interpolation request was made.
-     * 
-     * Get the grid inventory and addd grids on either side to get a complete
+     *
+     * Get the grid inventory and add grids on either side to get a complete
      * set. then using splitBoundary, make empty dataSlices with appropriate
      * TimeRanges. Create an interpolator object, request interpolation (creates
      * an interp request) and call for interpolation.
-     * 
+     *
      * base grids are ones with data already established, and are used as the
      * control values for interpolation.
-     * 
+     *
      * @param tr
      * @param interpMode
      * @param state
@@ -4018,7 +4101,8 @@ public abstract class Parm implements Comparable<Parm> {
      */
     private boolean interpolateTRInternal(final TimeRange tr,
             InterpMode interpMode, InterpState state, int interval,
-            int duration, boolean quietMode) throws GFEOperationFailedException {
+            int duration, boolean quietMode)
+            throws GFEOperationFailedException {
         int i, j;
 
         // if interval is not set, then set it to the time constraints
@@ -4042,7 +4126,7 @@ public abstract class Parm implements Comparable<Parm> {
         List<IGridData> baseGrids;
         this.grids.acquireReadLock();
         try {
-            baseGrids = new ArrayList<IGridData>(this.grids);
+            baseGrids = new ArrayList<>(this.grids);
         } finally {
             this.grids.releaseReadLock();
         }
@@ -4052,11 +4136,15 @@ public abstract class Parm implements Comparable<Parm> {
         if (interpMode.equals(InterpMode.EDITED)) {
             for (i = baseGrids.size() - 1; i >= 0; i--) {
                 for (j = 0; j < baseGrids.get(i).getHistory().length; j++) {
-                    if (!dataManager.getWsId().equals(
-                            baseGrids.get(i).getHistory()[j].getWhoModified())) {
-                        baseGrids.remove(i); // remove it from
-                        // consideration
-                        break; // out of the j loop
+                    if (!dataManager.getWsId()
+                            .equals(baseGrids.get(i).getHistory()[j]
+                                    .getWhoModified())) {
+
+                        // remove it from consideration
+                        baseGrids.remove(i);
+
+                        // break out of the j loop
+                        break;
                     }
                 }
             }
@@ -4064,9 +4152,7 @@ public abstract class Parm implements Comparable<Parm> {
 
         if (baseGrids.size() < 2) {
             if (quietMode) {
-                Activator
-                        .getDefault()
-                        .getLog()
+                Activator.getDefault().getLog()
                         .log(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
                                 "Interpolation requires at least two base grids for "
                                         + getParmID().getShortParmId()));
@@ -4097,7 +4183,8 @@ public abstract class Parm implements Comparable<Parm> {
         // time
         int endIndex = -1;
         for (i = startIndex + 1; i < baseGrids.size(); i++) {
-            if (baseGrids.get(i).getGridTime().getEnd().compareTo(tr.getEnd()) >= 0) {
+            if (baseGrids.get(i).getGridTime().getEnd()
+                    .compareTo(tr.getEnd()) >= 0) {
                 endIndex = i;
                 break;
             }
@@ -4122,7 +4209,7 @@ public abstract class Parm implements Comparable<Parm> {
 
         int estimatedGrids = (int) (tr.getDuration() / 1000 / interval);
 
-        List<TimeRange> temp = new ArrayList<TimeRange>(estimatedGrids);
+        List<TimeRange> temp = new ArrayList<>(estimatedGrids);
         Date st = times[0].getStart();
         TimeRange gTR;
         while (true) {
@@ -4130,8 +4217,8 @@ public abstract class Parm implements Comparable<Parm> {
             gTR = new TimeRange(st, duration * 1000);
             if (gridInfo.getTimeConstraints().getRepeatInterval() != gridInfo
                     .getTimeConstraints().getDuration()) {
-                gTR = gridInfo.getTimeConstraints().constraintTime(
-                        gTR.getStart());
+                gTR = gridInfo.getTimeConstraints()
+                        .constraintTime(gTR.getStart());
             } else {
                 gTR = gridInfo.getTimeConstraints().expandTRToQuantum(gTR);
             }
@@ -4149,14 +4236,15 @@ public abstract class Parm implements Comparable<Parm> {
         }
 
         // now split grids if necessary due to interference with base grids
-        List<TimeRange> newDSTR = new ArrayList<TimeRange>(estimatedGrids);
+        List<TimeRange> newDSTR = new ArrayList<>(estimatedGrids);
         for (TimeRange t : temp) {
             boolean overlaps = false;
             for (i = 0; i < baseGrids.size(); i++) {
                 final TimeRange bgTime = baseGrids.get(i).getGridTime();
                 if (t.overlaps(bgTime)) {
                     if (bgTime.contains(t)) {
-                        break; // can't salvage this one
+                        // can't salvage this one
+                        break;
                     }
                     if ((bgTime.getStart().compareTo(t.getStart()) <= 0)
                             && (bgTime.getEnd().compareTo(t.getEnd()) < 0)) {
@@ -4164,13 +4252,13 @@ public abstract class Parm implements Comparable<Parm> {
                         overlaps = true;
                     } else if ((bgTime.getStart().compareTo(t.getStart()) > 0)
                             && (bgTime.getEnd().compareTo(t.getEnd()) >= 0)) {
-                        newDSTR.add(new TimeRange(t.getStart(), bgTime
-                                .getStart()));
+                        newDSTR.add(
+                                new TimeRange(t.getStart(), bgTime.getStart()));
                         overlaps = true;
                     } else if (t.contains(bgTime)) {
                         // split into 2 - left part
-                        newDSTR.add(new TimeRange(t.getStart(), bgTime
-                                .getStart()));
+                        newDSTR.add(
+                                new TimeRange(t.getStart(), bgTime.getStart()));
                         newDSTR.add(new TimeRange(bgTime.getEnd(), t.getEnd()));
                         overlaps = true;
                     }
@@ -4203,27 +4291,28 @@ public abstract class Parm implements Comparable<Parm> {
 
         // Make the gridslice and timerange arrays required as input
         // for interpolation.
-        List<IGridSlice> dataSlices = new ArrayList<IGridSlice>(estimatedGrids);
-        List<TimeRange> interptimes = new ArrayList<TimeRange>(estimatedGrids);
+        List<IGridSlice> dataSlices = new ArrayList<>(estimatedGrids);
+        List<TimeRange> interptimes = new ArrayList<>(estimatedGrids);
 
         for (i = 0; i < baseGrids.size(); i++) {
-            IGridSlice bs = baseGrids.get(i).getGridSlice();
-            dataSlices.add(bs);
-            interptimes.add(bs.getValidTime());
+            IGridData bg = baseGrids.get(i);
+            dataSlices.add(bg.getGridSlice());
+            interptimes.add(bg.getGridTime());
 
             // if a gap's time range fits in here, append to arrays.
             if (i < (baseGrids.size() - 1)) {
-                IGridSlice nbs = baseGrids.get(i + 1).getGridSlice();
+                IGridData nbg = baseGrids.get(i + 1);
                 for (j = 0; j < newDSTR.size(); j++) {
                     TimeRange ntr = newDSTR.get(j);
-                    if ((ntr.getStart().compareTo(bs.getValidTime().getEnd()) >= 0)
+                    if ((ntr.getStart()
+                            .compareTo(bg.getGridTime().getEnd()) >= 0)
                             && (ntr.getEnd().compareTo(
-                                    nbs.getValidTime().getStart()) <= 0)) {
-                        // make an empty NONE type GridSlice for the
-                        // ones to
-                        // be interpolated, and append the time for it.
-                        IGridSlice ds1 = null;
-                        dataSlices.add(ds1);
+                                    nbg.getGridTime().getStart()) <= 0)) {
+                        /*
+                         * make an empty NONE type GridSlice for the ones to be
+                         * interpolated, and append the time for it.
+                         */
+                        dataSlices.add(null);
                         interptimes.add(ntr);
                     }
                 }
@@ -4232,17 +4321,15 @@ public abstract class Parm implements Comparable<Parm> {
 
         // Final check to see if there is anything to do
         int count = 0;
-        for (i = 0; i < dataSlices.size(); i++) {
-            if (dataSlices.get(i) == null) {
+        for (IGridSlice slice : dataSlices) {
+            if (slice == null) {
                 count++;
                 break;
             }
         }
         if (count == 0) {
             if (quietMode) {
-                Activator
-                        .getDefault()
-                        .getLog()
+                Activator.getDefault().getLog()
                         .log(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
                                 "No grids need interpolating for "
                                         + getParmID().getShortParmId()));
@@ -4264,13 +4351,10 @@ public abstract class Parm implements Comparable<Parm> {
 
         // make Interpolator requests
         if (!this.interpolator.requestInterpolation(getParmID(), gridInfo,
-                interptimes.toArray(new TimeRange[interptimes.size()]),
-                dataSlices.toArray(new IGridSlice[dataSlices.size()]),
+                interptimes, dataSlices,
                 this.parmState.getInterpolateAlgorithm())) {
             if (quietMode) {
-                Activator
-                        .getDefault()
-                        .getLog()
+                Activator.getDefault().getLog()
                         .log(new Status(IStatus.WARNING, Activator.PLUGIN_ID,
                                 "Non-valid interpolation request was made for "
                                         + getParmID().getShortParmId()));
@@ -4301,7 +4385,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Actually performs the interpolation
-     * 
+     *
      * @param quietMode
      * @throws GFEOperationFailedException
      */
@@ -4317,7 +4401,7 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Handles cleanup and logging when interpolation is finished. The quiet
      * flag indicates whether USER_ALERT messages should be sent.
-     * 
+     *
      * @param quietMode
      */
     private void finishInterpolation(boolean quietMode) {
@@ -4343,19 +4427,20 @@ public abstract class Parm implements Comparable<Parm> {
     /**
      * Call this routine when interpolated data arrives from interpolation. The
      * data gridSlice that has been interpolated is specified in arg list.
-     * 
+     *
      * Convert the data gridSlice into a GridData. Adjust the grid time to match
      * split boundaries if necessary. Use replaceGriddedData() to handle the
      * insertion and notifications.
-     * 
+     *
      * @param newslice
      * @throws GFEOperationFailedException
      */
     private void interpolatedDataArrived(IGridSlice dataSlice)
             throws GFEOperationFailedException {
-        IGridData grid = AbstractGridData.makeGridData(this, dataSlice);
+        IGridData grid = AbstractGridData.makeGridData(this, dataSlice, true);
         if (grid == null) {
-            return; // received bad grid (or dataslice)
+            // received bad grid (or dataslice)
+            return;
         }
 
         // validate the time
@@ -4363,12 +4448,11 @@ public abstract class Parm implements Comparable<Parm> {
         TimeRange expandedTR = getGridInfo().getTimeConstraints()
                 .expandTRToQuantum(origGridTR);
         if (!expandedTR.equals(origGridTR)) {
-            Activator
-                    .getDefault()
-                    .getLog()
+            Activator.getDefault().getLog()
                     .log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
                             "interpolated data does not match quantum. gridTR="
-                                    + origGridTR + " expandedTR=" + expandedTR));
+                                    + origGridTR + " expandedTR="
+                                    + expandedTR));
             grid.changeValidTime(expandedTR, true);
         }
 
@@ -4376,47 +4460,54 @@ public abstract class Parm implements Comparable<Parm> {
         this.dataManager.getParmOp().clearUndoParmList();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Comparable#compareTo(java.lang.Object)
-     */
     @Override
     public int compareTo(Parm other) {
 
         int cmp = 0;
         for (char sortChar : ParmSortPreference.getParmSortAlgorithm()) {
             switch (sortChar) {
-            case 'm': // mutable/immutable
+
+            // mutable/immutable
+            case 'm':
                 if (this.mutable && !other.mutable) {
                     cmp = -1;
                 } else if (!this.mutable && other.mutable) {
                     cmp = 1;
                 }
                 break;
-            case 'M': // model
+
+            // model
+            case 'M':
                 String model1 = this.getParmID().getDbId().getModelName();
                 String model2 = other.getParmID().getDbId().getModelName();
                 cmp = model1.compareTo(model2);
                 break;
-            case 'N': // name
+
+            // name
+            case 'N':
                 cmp = compareName(other);
                 break;
-            case 't': // time
+
+            // time
+            case 't':
                 Date thisDate = this.getParmID().getDbId().getModelDate();
                 Date otherDate = other.getParmID().getDbId().getModelDate();
 
                 long thisTime = (thisDate == null ? 0 : thisDate.getTime());
                 long otherTime = (otherDate == null ? 0 : otherDate.getTime());
 
-                cmp = (thisTime < otherTime ? 1 : (thisTime == otherTime ? 0
-                        : -1));
+                cmp = (thisTime < otherTime ? 1
+                        : (thisTime == otherTime ? 0 : -1));
                 break;
-            case 'o': // "other"- type
+
+            // "other"- type
+            case 'o':
                 String type1 = getParmID().getDbId().getDbType();
                 String type2 = other.getParmID().getDbId().getDbType();
                 cmp = type1.compareTo(type2);
                 break;
+
+            // level
             case 'l':
                 String level1 = this.getParmID().getParmLevel();
                 String level2 = other.getParmID().getParmLevel();
@@ -4441,7 +4532,7 @@ public abstract class Parm implements Comparable<Parm> {
      * sorted before other parms. When both are in the list, their position in
      * the list determines which comes first. If neither is in the list, then
      * the comparison reverts to a string comparison between the two names.
-     * 
+     *
      * @param o
      *            The other parm to compare to by name
      * @return -1, 1, or 0
@@ -4451,8 +4542,8 @@ public abstract class Parm implements Comparable<Parm> {
         String parm1 = this.getParmID().getParmName();
         String parm2 = o.getParmID().getParmName();
 
-        List<String> strings = Arrays.asList(ParmSortPreference
-                .getParmSortPreference());
+        List<String> strings = Arrays
+                .asList(ParmSortPreference.getParmSortPreference());
         int idx1 = strings.indexOf(parm1);
         int idx2 = strings.indexOf(parm2);
 
@@ -4478,7 +4569,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Displays a formatted string of parm: ex. ABR IFP ISC ----- MinT SFC
-     * 
+     *
      * @return a formmated string
      */
     public String getFormattedString() {
@@ -4519,7 +4610,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Method called when notification of new inventory arrives
-     * 
+     *
      * @param affectedTimeRange
      * @param histories
      */
@@ -4528,7 +4619,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Method called when notification of updated history arrives
-     * 
+     *
      * @param histories
      */
     public void historyUpdateArrived(
@@ -4538,7 +4629,7 @@ public abstract class Parm implements Comparable<Parm> {
 
     /**
      * Updates the lock table with an updated version due to notifications
-     * 
+     *
      * @param table
      *            The updated lock table
      */
@@ -4557,25 +4648,16 @@ public abstract class Parm implements Comparable<Parm> {
     }
 
     /**
-     * Return the lock table
-     * 
-     * @return
+     * @return the lock table
      */
     public LockTable getLockTable() {
         return lockTable;
     }
 
     /**
-     * Parm specific implementation of deallocation of grids
-     * 
-     * @param seconds
-     */
-    public abstract void deallocateUnusedGrids(int seconds);
-
-    /**
      * Build the expression name
-     * 
-     * @return
+     *
+     * @return the expression name
      */
     public String expressionName() {
         // Build the expression name for the parm
@@ -4593,51 +4675,61 @@ public abstract class Parm implements Comparable<Parm> {
      * database, convert the data slices into grids, and then call
      * replaceGrids() to insert them into the inventory. Notification of changes
      * to the inventory are sent.
-     * 
+     *
      * @return true if the operation succeeded
      */
     public abstract boolean revertParameter();
 
+    /**
+     * Forces the parm to toss any existing locks. This should only be called by
+     * the data subsystem on shutdown.
+     *
+     * -- implementation -------------------------------------------------------
+     * Unlock any locks left in this parm.
+     *
+     */
     public abstract void looseLocks();
 
+    /**
+     * @return the office type associated with this parm, such as "wfo" or
+     *         "rfc".
+     */
     public String getOfficeType() {
         return officeType;
     }
 
-    public void setOfficeType(String officeType) {
-        this.officeType = officeType;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return getParmID().toString();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
-        return getParmID().hashCode();
+        final int prime = 31;
+        int result = 1;
+        result = (prime * result) + ((parmID == null) ? 0 : parmID.hashCode());
+        return result;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Parm) {
-            return getParmID().equals(((Parm) obj).getParmID());
+        if (this == obj) {
+            return true;
         }
-        return false;
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Parm other = (Parm) obj;
+        if (parmID == null) {
+            if (other.parmID != null) {
+                return false;
+            }
+        } else if (!parmID.equals(other.parmID)) {
+            return false;
+        }
+        return true;
     }
 }

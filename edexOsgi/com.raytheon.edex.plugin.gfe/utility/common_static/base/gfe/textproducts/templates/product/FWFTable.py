@@ -1,21 +1,29 @@
 ##
 # This software was developed and / or modified by Raytheon Company,
 # pursuant to Contract DG133W-05-CQ-1067 with the US Government.
-# 
+#
 # U.S. EXPORT CONTROLLED TECHNICAL DATA
 # This software product contains export-restricted data whose
 # export/transfer/disclosure is restricted by U.S. law. Dissemination
 # to non-U.S. persons whether in the United States or abroad requires
 # an export license or other authorization.
-# 
+#
 # Contractor Name:        Raytheon Company
 # Contractor Address:     6825 Pine Street, Suite 340
 #                         Mail Stop B8
 #                         Omaha, NE 68106
 #                         402.291.0100
-# 
+#
 # See the AWIPS II Master Rights File ("Master Rights File.pdf") for
 # further licensing information.
+##
+#
+# SOFTWARE HISTORY
+#
+# Date          Ticket#  Engineer  Description
+# ------------- -------- --------- --------------------------------------------
+# Feb 22, 2018  7044     randerso  Fix units in _dispersion method
+#
 ##
 
 ##
@@ -58,33 +66,33 @@
 #                      "COZ035_pt".  If no such edit area exists, the system will simply
 #                      use the original edit area.
 #                      Note that Hazards will always be generated for the entire edit area.
-#  mapNameForCombinations Name of the map background that is used for 
-#                         creating/editing the combinations file.  This must 
+#  mapNameForCombinations Name of the map background that is used for
+#                         creating/editing the combinations file.  This must
 #                         be defined or the GFE zone combiner
-#  database               Source database for product. Can be "Official", 
+#  database               Source database for product. Can be "Official",
 #                         "Fcst" or "ISC"
 #  outputFile             Defines the output location of the finished product
 #                         when saved from the Formatter Launcher.
 #  debug                  If on, debug_print statements will appear.
-#  textdbPil              Defines the awips product identifier 
-#                         (e.g., DENCCFDEN) that is used to store the product 
+#  textdbPil              Defines the awips product identifier
+#                         (e.g., DENCCFDEN) that is used to store the product
 #                         in the AWIPS text database.
-#                         This value is also used for the default GUI entry for 
+#                         This value is also used for the default GUI entry for
 #                         storage.
-#  awipsWANPil            Defines the awips product identifier 
-#                         (e.g., KBOUCCFDEN) that is used to transmit the 
-#                         product to the AWIPS WAN. 
-#                         This value is also used for the default GUI 
+#  awipsWANPil            Defines the awips product identifier
+#                         (e.g., KBOUCCFDEN) that is used to transmit the
+#                         product to the AWIPS WAN.
+#                         This value is also used for the default GUI
 #                         entry for storage.
 #  hazardSamplingThreshold  Defines the percentage coverage or number of
 #                    grid points in a zone that must contain the hazard
 #                    in order for it to be considered. Tuple (percent, points)
 #
 #  periodCombining     If 1, an attempt will be made to combine components
-#                      or time periods into one.  Otherwise no period 
+#                      or time periods into one.  Otherwise no period
 #                      combining will be done.
 #  columnJustification   # Left (l) or right (r) justification for columns
-#  areaDictionary      Modify the AreaDictionary utility with UGC information 
+#  areaDictionary      Modify the AreaDictionary utility with UGC information
 #                      about zones.
 #  useRH               If 1, use RH grids instead of MaxRH, MinRH
 #  summaryExtended
@@ -94,21 +102,21 @@
 #                       generated for each individual area
 #  extendedLabel    If extendedLabel== 1, a label will be included for each
 #                    individual extended
-#  mixingParmsDayAndNight   Set this to 1 if you want Mixing Height, 
-#                           Transport Wind and Vent Index reported in 
+#  mixingParmsDayAndNight   Set this to 1 if you want Mixing Height,
+#                           Transport Wind and Vent Index reported in
 #                           night periods.
 #  mixHgtMethod             Can be "Max" or "Avg" for mixHgt analysis method
 #  lightningPhrases         Set this to 1 if you want Lightning Activity
-#                           reported with phrases like "1-8 strikes", 
+#                           reported with phrases like "1-8 strikes",
 #                           "9-15 strikes", etc.
-#  windAdjustmentFactor     Winds are reported from the Wind20ft grid 
-#                           if available. Otherwise, the Wind grid is used 
-#                           with the magnitude multiplied by this wind 
-#                           adjustment factor. Winds reported by RAWS sites 
+#  windAdjustmentFactor     Winds are reported from the Wind20ft grid
+#                           if available. Otherwise, the Wind grid is used
+#                           with the magnitude multiplied by this wind
+#                           adjustment factor. Winds reported by RAWS sites
 #                           are frequently lower than ASOS winds
-#                           due to the fact that use a 10-min average.  
-#                           A common adjustment factor is 80% (0.80).  If 
-#                           you want no adjustment to the winds then set 
+#                           due to the fact that use a 10-min average.
+#                           A common adjustment factor is 80% (0.80).  If
+#                           you want no adjustment to the winds then set
 #                           this variable to 1.00.
 #                           NOTE: This value can optionally be specified as an
 #                           nlValue dictionary.
@@ -119,19 +127,19 @@
 #  minGustMph               Gusts will not be reported below this value
 #  windGustDiffMph          Gusts will be reported only if the difference between
 #                           gust and max wind exceeds this amount.
-#  
-#  humidityRecovery_percentage  If max humidity is above this percentage, 
+#
+#  humidityRecovery_percentage  If max humidity is above this percentage,
 #                               humidity recovery will be Excellent.
 #  rhPhraseThreshold        The MinRH phrase will be included in the extended, IF
 #                           the MinRH is less than this threshold.
 #                           The default (-1) will not produce a MinRH phrase.
 #  includeOutlooks          Set this to 1 to include long-range outlook
-#                           placeholders at the end of the product.  These 
+#                           placeholders at the end of the product.  These
 #                           are appended by _postProcessProduct.
 #  useHolidays              Set to 1 to use holidays in the time period labels
 #
 #  Weather-related flags
-#       hoursSChcEnds        - specifies hours past the beginning of the 
+#       hoursSChcEnds        - specifies hours past the beginning of the
 #                              first period of the product to stop including 'Slight
 #                              Chance' or 'Isolated' weather types
 #       popWxThreshold       -Affects the values in the following rows:
@@ -152,7 +160,7 @@
 ##          could be non-empty, but since QPF would be 0.0,
 ##          then no CHANCE PRECIP, Precip duration, Precip begin and Precip end will be reported.
 
-#  areaDictionary    Modify the AreaDictionary utility with UGC 
+#  areaDictionary    Modify the AreaDictionary utility with UGC
 #                    information about zones.
 #
 #-------------------------------------------------------------------------
@@ -165,7 +173,7 @@
 #-------------------------------------------------------------------------
 # Edit Areas Needed: area1, area2
 #-------------------------------------------------------------------------
-# Associated Utilities Files e.g. Combinations file: 
+# Associated Utilities Files e.g. Combinations file:
 #-------------------------------------------------------------------------
 # Component Products:
 #   Extended
@@ -187,7 +195,7 @@
 #       wxIntensityDescriptors
 #       wxCombinations
 #       combine_T_RW
-#    
+#
 #-------------------------------------------------------------------------
 # Example Output:
 #  Refer to the NWS Directives for Fire Weather Services.
@@ -203,7 +211,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
              (("Product Issuance", "productIssuance") , "Morning", "radio",
               ["Morning", "Afternoon"]),
          ]
-    Definition =  {
+    Definition = {
         "type": "smart",
         "displayName": "None",
         "database": "Official",
@@ -217,9 +225,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         ## Edit Areas:
         "showZoneCombiner" : 1, # 1 to cause zone combiner to display
         "defaultEditAreas" : "Combinations_FWFTable_<site>_<MultiPil>",
-        
+
         # product identifiers
-        "productName": "Fire Weather Planning Forecast",       # product name 
+        "productName": "Fire Weather Planning Forecast",       # product name
         "fullStationID": "<fullStationID>",    # full station identifier (4letter)
         "wmoID": "<wmoID>",          # WMO ID
         "pil": "<pil>",            # Product pil
@@ -240,7 +248,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         "useRH": 0,                 # Use RH grids instead of MaxRH, MinRH
         # Area Dictionary -- Descriptive information about zones
         "areaDictionary": "AreaDictionary",
-        
+
         # If summaryExtended == 1, then a summary extended forecast will
         # be generated for the given summaryArea
         "summaryExtended": 1,
@@ -271,7 +279,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Light wind string in the table
         "tableLightWindPhrase" : "Lgt/Var",
         # Use a range for the winds in the table 1=yes
-        "tableWindRanges" : 0, 
+        "tableWindRanges" : 0,
         # Gusts will not be reported below this value.
         "minGustMph": 17,
         # Gust - wind must exceed this threshold to be reported.
@@ -279,9 +287,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # If max humidity is above this percentage, humidity recovery
         # will be Excellent.
         "humidityRecovery_percentage": 50,
-        # Set to MinRH value below which you would like a MinRH phrase in the Extended. 
+        # Set to MinRH value below which you would like a MinRH phrase in the Extended.
         # Default (-1) is no MinRH phrase.
-        "rhPhraseThreshold": -1,
+        "rhPhraseThreshold":-1,
         # Set the following variable to 1 to include long-range outlook
         # placeholders at the end of the product.  These are appended by
         # _postProcessProduct
@@ -301,7 +309,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def __init__(self):
         TextRules.TextRules.__init__(self)
         SampleAnalysis.SampleAnalysis.__init__(self)
-    
+
     def _rowList(self):
         # The rowList is controls what parameters go into the table.
         # The list is a set of (label:method) pairs.
@@ -314,7 +322,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             ("Precip type", self._precipType_row),
             ("Chance precip (%)", self._chancePrecip_row),
             ("Temp (24h trend)", self._tempWithTrend_row),
-            ("RH % (24h trend)",self._rhWithTrend_row),
+            ("RH % (24h trend)", self._rhWithTrend_row),
             # Use these if you do not want trends
             #("TEMP", self._temp_row),
             #("RH %", self._rh_row),
@@ -347,7 +355,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 ##            #("MIX HGT 500", self._mixHgt500_row),
             ("Stability class", self._stability_row),
             ]
-    
+
     ########################################################################
     # COMPONENT PRODUCTS
     ########################################################################
@@ -366,8 +374,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
          ## Components
           "methodList": methodList,
           "narrativeDef": [
-                       ("Extended",24),("Extended",24),("Extended",24),
-                       ("Extended",24), ("Extended",24)],
+                       ("Extended", 24), ("Extended", 24), ("Extended", 24),
+                       ("Extended", 24), ("Extended", 24)],
           }
 
     def Extended(self):
@@ -442,7 +450,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             connectorMethod = self.vectorConnector
         self.subPhraseSetUp(tree, node, elementInfoList, connectorMethod)
         return self.DONE()
-    
+
     def nextDay24HourLabel_flag(self, tree, node):
         # Return 1 to have the TimeDescriptor module label 24 hour periods starting
         # after 1600 as the next day.
@@ -508,22 +516,22 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # Determine time ranges
         self._determineTimeRanges(argDict)
-        
+
         # Sample the data
         self._sampleData(argDict)
-        
+
         # Initialize the output string
         fcst = ""
         fcst = self._preProcessProduct(fcst, argDict)
 
         # Generate the product for each edit area in the list
         fraction = 0
-        fractionOne = 1.0/float(len(self._areaList))
+        fractionOne = 1.0 / float(len(self._areaList))
         percent = 50.0
         for editArea, areaLabel in self._areaList:
             self.progressMessage(fraction, percent, "Making Product for " + areaLabel)
             fcst = self._preProcessArea(fcst, editArea, areaLabel, argDict)
-            fcst  = self._makeProduct(fcst, editArea, areaLabel, argDict)
+            fcst = self._makeProduct(fcst, editArea, areaLabel, argDict)
             fcst = self._postProcessArea(fcst, editArea, areaLabel, argDict)
             fraction = fractionOne
 
@@ -544,7 +552,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             if type(key) is types.TupleType:
                 label, variable = key
                 exec "self._" + variable + "= varDict[key]"
-        
+
         # Set up product-specific variables
         self._colWidth = 13
         if self._columnJustification == "l":
@@ -553,7 +561,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             self._rowLabelWidth = 24
         self._fixedValueWidth = 13
         self._analysisList = self._getAnalysisList()
-        
+
         return None
 
     def _determineTimeRanges(self, argDict):
@@ -566,7 +574,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         if self._productIssuance == "Morning":
             rangeNames = ["Today", "Tonight", "Tomorrow"]
-                
+
         else:
             dayTime3 = self.createTimeRange(54, 66, "LT")
             rangeNames = ["Tonight", "Tomorrow", "Tomorrow Night", dayTime3]
@@ -576,25 +584,25 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # Determine time range to BEGIN the extended forecast
         length = len(self._timeRangeList)
-        lastPeriod = self._timeRangeList[length-1][0]
-                
+        lastPeriod = self._timeRangeList[length - 1][0]
+
         self._extendedRange = TimeRange.TimeRange(
             lastPeriod.endTime(), lastPeriod.endTime() + 3600)
 
         # Determine prior time range
         firstPeriod, label = self._timeRangeList[0]
         self._priorTimeRange = TimeRange.TimeRange(
-            firstPeriod.startTime() - 24*3600, firstPeriod.startTime())
+            firstPeriod.startTime() - 24 * 3600, firstPeriod.startTime())
 
         # Get entire timeRange of table for Headlines
         # Tom says: I'm very unsure about removing this line...........
         self._timeRange = TimeRange.TimeRange(
             firstPeriod.startTime(), lastPeriod.endTime())
         argDict["productTimeRange"] = self._timeRange
-        
+
         # Determine issue time
         self._issueTime = AbsTime.current()
-        
+
         # Sets up the expiration time
         self._expireTime, self._ddhhmmTimeExpire = \
           self.getExpireTimeFromLToffset(self._currentTime,
@@ -612,9 +620,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         # Get a sampler (or set of samplers)
         samplerList = []
         samplerList.append((self._getAnalysisList(), self._timeRangeList))
-        samplerList.append((self._priorAnalysisList(), 
+        samplerList.append((self._priorAnalysisList(),
           [(self._priorTimeRange, "")]))
-        
+
         sampleInfo = []
         for analysisList, periods in samplerList:
             sampleInfo.append((analysisList, periods, self._areaList))
@@ -642,12 +650,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         s = self._wmoID + " " + self._fullStationID + " " + \
                self._ddhhmmTime + "\n" + self._pil + "\n\n"
-        fcst =  fcst + s.upper()
+        fcst = fcst + s.upper()
 
-        s = productName + "\n" +\
+        s = productName + "\n" + \
                "National Weather Service " + self._wfoCityState + \
                "\n" + issuedByString + self._timeLabel + "\n\n"
-        fcst =  fcst + s
+        fcst = fcst + s
 
         # Put in a place holder for the headlines to be substituted in
         # "postProcessProduct"
@@ -667,9 +675,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         self._hazards = argDict['hazards']
         self._combinations = argDict["combinations"]
 
-        headlines = self.generateProduct("Hazards", argDict, area = editArea,
+        headlines = self.generateProduct("Hazards", argDict, area=editArea,
                                          areaLabel=areaLabel,
-                                         timeRange = self._timeRange)
+                                         timeRange=self._timeRange)
         self._addHeadlines(headlines)
         fcst = fcst + headlines
 
@@ -688,7 +696,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             if self._columnJustification == "l":
                 fcst = fcst + string.ljust(label, self._colWidth)
             else:
-                fcst = fcst + string.rjust(label, self._colWidth)               
+                fcst = fcst + string.rjust(label, self._colWidth)
         fcst = fcst + "\n\n"
 
         # Get the statistics for this edit area and all time ranges
@@ -696,17 +704,17 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             self._sampler, self._analysisList, self._timeRangeList, editArea)
 
         # Get the prior statistics for this edit area and all time ranges
-        priorStatDict = self.getStatDict( 
+        priorStatDict = self.getStatDict(
           self._sampler, self._priorAnalysisList(), self._priorTimeRange,
           editArea)
-        
+
         # Get a statDict for the first 12 hours of the extended
         self._extStatDict = self.getStatDict(self._extSampler,
                                              self._extAnalList, self._extTR,
                                              editArea)
 
         # Format each row of table
-        for label, method in self._rowList():            
+        for label, method in self._rowList():
             fcst = method(fcst, label, statList, priorStatDict)
         fcst = fcst + "\n"
         fcst = fcst + "Remarks...None.\n\n"
@@ -716,17 +724,17 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             if self._extendedLabel == 1:
                 fcst = fcst + ".FORECAST FOR DAYS 3 THROUGH 7...\n\n"
             extended = self.generateProduct("ExtendedNarrative", argDict,
-                area = editArea, timeRange=self._extendedRange)
+                area=editArea, timeRange=self._extendedRange)
             fcst = fcst + extended
         return fcst
 
     def _cloudCover_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._sky, None, self._rowLabelWidth, self._fixedValueWidth, 
+            self._sky, None, self._rowLabelWidth, self._fixedValueWidth,
             self._columnJustification)
         return fcst
-    
+
     def _precipType_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
@@ -737,36 +745,36 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _chancePrecip_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._popVal, None, self._rowLabelWidth, 
+            self._popVal, None, self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-    
+
     def _tempWithTrend_row(self, fcst, label, statList, priorStatDict):
         dayElement = "MaxT"
         nightElement = "MinT"
         dayMinMax = "Max"
         nightMinMax = "Min"
         fcst = fcst + self.makeRow(
-            label, self._colWidth, self._timeRangeList, statList, 
-            self.dayOrNightVal, [dayElement, nightElement, dayMinMax, 
-            nightMinMax, "Ttrend", priorStatDict, statList, 
-            self._timeRangeList], self._rowLabelWidth, 
+            label, self._colWidth, self._timeRangeList, statList,
+            self.dayOrNightVal, [dayElement, nightElement, dayMinMax,
+            nightMinMax, "Ttrend", priorStatDict, statList,
+            self._timeRangeList], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-            
+
     def _temp_row(self, fcst, label, statList, priorStatDict):
         dayElement = "MaxT"
         nightElement = "MinT"
         dayMinMax = "Max"
         nightMinMax = "Min"
         fcst = fcst + self.makeRow(
-            label, self._colWidth, self._timeRangeList, statList, 
-            self.dayOrNightVal, [dayElement, nightElement, dayMinMax, 
-            nightMinMax, None, priorStatDict, statList, 
-            self._timeRangeList], self._rowLabelWidth, 
+            label, self._colWidth, self._timeRangeList, statList,
+            self.dayOrNightVal, [dayElement, nightElement, dayMinMax,
+            nightMinMax, None, priorStatDict, statList,
+            self._timeRangeList], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-            
+
     def _rhWithTrend_row(self, fcst, label, statList, priorStatDict):
         if self._useRH == 1:
             dayElement = "RH"
@@ -782,7 +790,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             priorStatDict, statList, self._timeRangeList],
             self._rowLabelWidth, self._fixedValueWidth, self._columnJustification)
         return fcst
-            
+
     def _rh_row(self, fcst, label, statList, priorStatDict):
         if self._useRH == 1:
             dayElement = "RH"
@@ -802,31 +810,31 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
     def _windValleyMph_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._wind,["AM"], self._rowLabelWidth, self._fixedValueWidth, 
+            self._wind, ["AM"], self._rowLabelWidth, self._fixedValueWidth,
             self._columnJustification)
         return fcst
-    
+
     def _windRidgeMph_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._wind,["PM"], self._rowLabelWidth, self._fixedValueWidth,
+            self._wind, ["PM"], self._rowLabelWidth, self._fixedValueWidth,
             self._columnJustification)
         return fcst
-    
+
     def _precipAmount_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._qpfVal, None, self._rowLabelWidth, self._fixedValueWidth,
             self._columnJustification)
         return fcst
-    
+
     def _precipDuration_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._duration, ["Wx"], self._rowLabelWidth, 
+            self._duration, ["Wx"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-    
+
     def _precipBegin_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
@@ -834,7 +842,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             self._rowLabelWidth, self._fixedValueWidth,
             self._columnJustification)
         return fcst
-    
+
     def _precipEnd_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
@@ -842,112 +850,112 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             self._rowLabelWidth, self._fixedValueWidth,
             self._columnJustification)
         return fcst
-        
+
     def _mixHgtFt_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._mixHgt, ["ft"], self._rowLabelWidth, 
+            self._mixHgt, ["ft"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
+
     def _mixHgtM_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._mixHgt, ["m"], self._rowLabelWidth, 
+            self._mixHgt, ["m"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _transWindKts_row(self, fcst, label, statList, priorStatDict):    
+
+    def _transWindKts_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._transWind, ["kts"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _transWindMS_row(self, fcst, label, statList, priorStatDict):    
+
+    def _transWindMS_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._transWind, ["ms"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _transWindMph_row(self, fcst, label, statList, priorStatDict):    
+
+    def _transWindMph_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._transWind, ["mph"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
-        return fcst    
+        return fcst
 
     def _ventRate_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._ventRate, ["m/s-m"], self._rowLabelWidth, 
-            self._fixedValueWidth, self._columnJustification)
-        return fcst
-    
-    def _ventRateKtFt_row(self, fcst, label, statList, priorStatDict):    
-        fcst = fcst + self.makeRow(
-            label, self._colWidth, self._timeRangeList, statList,
-            self._ventRate, ["kt-ft"], self._rowLabelWidth, 
+            self._ventRate, ["m/s-m"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
 
-    def _ventRateMphFt_row(self, fcst, label, statList, priorStatDict):    
+    def _ventRateKtFt_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._ventRate, ["mph-ft"], self._rowLabelWidth, 
+            self._ventRate, ["kt-ft"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _dispersion_row(self, fcst, label, statList, priorStatDict):    
+
+    def _ventRateMphFt_row(self, fcst, label, statList, priorStatDict):
+        fcst = fcst + self.makeRow(
+            label, self._colWidth, self._timeRangeList, statList,
+            self._ventRate, ["mph-ft"], self._rowLabelWidth,
+            self._fixedValueWidth, self._columnJustification)
+        return fcst
+
+    def _dispersion_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._dispersion, None, self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _dsi_row(self, fcst, label, statList, priorStatDict):    
+
+    def _dsi_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._dsi, None, self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _sunHours_row(self, fcst, label, statList, priorStatDict):    
+
+    def _sunHours_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._sunHours, ["HrsOfSun"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _ceiling_row(self, fcst, label, statList, priorStatDict):    
+
+    def _ceiling_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._cigHeight, None, self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _cwr_row(self, fcst, label, statList, priorStatDict):    
+
+    def _cwr_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._cwr, None, self._rowLabelWidth, 
+            self._cwr, None, self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _lal_row(self, fcst, label, statList, priorStatDict):    
+
+    def _lal_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
-            self._getLightning, ["LAL"], self._rowLabelWidth, 
+            self._getLightning, ["LAL"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _haines_row(self, fcst, label, statList, priorStatDict):    
+
+    def _haines_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._haines, ["Haines"], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
+
     def _rhRecovery_row(self, fcst, label, statList, priorStatDict):
         if self._useRH == 1:
             element = "RH"
@@ -956,19 +964,19 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             element = "MaxRH"
             priorElement = "MinRH"
         fcst = fcst + self.makeRow(
-            label, self._colWidth, self._timeRangeList, statList, 
-            self._rhRecovery, [element, priorElement, priorStatDict], self._rowLabelWidth, 
+            label, self._colWidth, self._timeRangeList, statList,
+            self._rhRecovery, [element, priorElement, priorStatDict], self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _mixHgt500_row(self, fcst, label, statList, priorStatDict):    
+
+    def _mixHgt500_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._mixHgt500, None, self._rowLabelWidth,
             self._fixedValueWidth, self._columnJustification)
         return fcst
-        
-    def _stability_row(self, fcst, label, statList, priorStatDict):    
+
+    def _stability_row(self, fcst, label, statList, priorStatDict):
         fcst = fcst + self.makeRow(
             label, self._colWidth, self._timeRangeList, statList,
             self._stability, ["Stability"], self._rowLabelWidth,
@@ -989,7 +997,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if self._includeOutlooks:
             fcst = fcst + "\n.OUTLOOK 6 TO 10 DAYS... \n\n.OUTLOOK 8 TO 14 DAYS...\n\n\n"
             fcst = fcst + "\n.OUTLOOK\n\n"
-            
+
         # Make summary headline string and substitute for "<HEADLINE>" placeholder
         headlineStr = ""
         for h in self._prodHeadlines:
@@ -1003,7 +1011,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         self.setProgressPercentage(100)
         self.progressMessage(0, 100, self._displayName + " Complete")
         return fcst
-        
+
     # provides expiration time offset from today's midnight based on issuance.
     def expireOffset(self):
         if self._productIssuance == "Morning":
@@ -1011,7 +1019,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return 16
         else:
             # 6am tomorrow
-            return 24+4
+            return 24 + 4
 
      ########################################################################
     # PRODUCT-SPECIFIC METHODS
@@ -1037,7 +1045,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
           ("MixHgt", self.avg, [0]),
           ("TransWind", self.vectorAvg, [0]),
           ("VentRate", self.minMax, [0]), # aka "Dispersion" prior to RPP20
-          ("DSI", self.avg), 
+          ("DSI", self.avg),
           ("HrsOfSun", self.avg),
           # Uncomment the next line if you're carrying Cig Height
           #("Ceiling", self.minMax),
@@ -1102,9 +1110,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
 
         # Get Wind stats
         adjust = 0
-        windStats = self.getStats(statDict,"Wind20ft")
+        windStats = self.getStats(statDict, "Wind20ft")
         if windStats is None:
-            windStats = self.getStats(statDict,"Wind")
+            windStats = self.getStats(statDict, "Wind")
             if windStats is None:
                 return ""
             adjust = 1
@@ -1119,23 +1127,23 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         mag2 = self.ktToMph(mag2)
         # Adjust if using Wind
         if adjust:
-            mag1 = mag1*self._windAdjustmentFactor
-            mag2 = mag2*self._windAdjustmentFactor
+            mag1 = mag1 * self._windAdjustmentFactor
+            mag2 = mag2 * self._windAdjustmentFactor
 
         # Get Gust Stats
-        gustStats = self.getStats(statDict,"WindGust")
+        gustStats = self.getStats(statDict, "WindGust")
         if gustStats is None:
             gust1 = 0
             gust2 = 0
         else:
-            gust1,subRange = gustStats[0]
+            gust1, subRange = gustStats[0]
             if len(gustStats) > 1:
-                gust2,subRange = gustStats[1]
+                gust2, subRange = gustStats[1]
             else:
                 gust2 = gust1
-        gust1 = self.ktToMph(gust1)*self._windAdjustmentFactor
-        gust2 = self.ktToMph(gust2)*self._windAdjustmentFactor
-        
+        gust1 = self.ktToMph(gust1) * self._windAdjustmentFactor
+        gust2 = self.ktToMph(gust2) * self._windAdjustmentFactor
+
         # This method is called twice for each time period,
         #   once for AM winds and once for PM winds
         # For the AM winds:
@@ -1144,7 +1152,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         #     If the time period is daytime, report the afternoon winds
         #     Otherwise, report the evening winds
         amPm = argList[0]
-        day = self.getPeriod(timeRange,1)
+        day = self.getPeriod(timeRange, 1)
         if amPm == "AM":
             if day == 1:
                 windMag = mag1
@@ -1169,7 +1177,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             if windMag < self._tableLightWindThreshold:
                 windString = self._tableLightWindPhrase
             elif self._tableWindRanges:
-                windString = self._getVectorRange(((windMag-2, windMag+2), windDir))
+                windString = self._getVectorRange(((windMag - 2, windMag + 2), windDir))
             else:
                 windString = self.getVectorVal((windMag, windDir))
 
@@ -1177,9 +1185,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         gustString = ''
         if windString != "" and windString != self._tableLightWindPhrase:
             if windGustVal >= self._minGustMph and (windGustVal - windMag) >= self._windGustDiffMph:
-                    gustString = ' G'+`int(windGustVal)`
+                    gustString = ' G' + `int(windGustVal)`
         return windString + gustString
-    
+
     def _qpfVal(self, statDict, timeRange, argList):
         qpf = self.getStats(statDict, "QPF")
         if qpf is None:
@@ -1190,7 +1198,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return  self.fformat(qpf, .01)
         else:
             return "0.00"
-        
+
     def _duration(self, statDict, timeRange, argList):
         precipFlag, wx, qpf, pop = \
                     self._checkPrecip(statDict, timeRange, argList)
@@ -1198,12 +1206,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             return ""
         if not precipFlag:
             return ""
-        statsByRange = self.getStats(statDict,"Wx__dominantWx_0")
+        statsByRange = self.getStats(statDict, "Wx__dominantWx_0")
         if statsByRange is None:
             return ""
         # Found in TableBuilder:
         return self.wxDuration(statsByRange, timeRange)
-    
+
     def _begin(self, statDict, timeRange, argList):
         # Check if this period should have precip based on Wx, QPF, PoP
         precipFlag, wx, qpf, pop = \
@@ -1211,16 +1219,16 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         #print "_begin:",timeRange,precipFlag, wx, qpf, pop
         if not precipFlag:
             return ""
-        
+
         durationRange = self._getTR(statDict, timeRange, argList)
         if durationRange is None:
             return ""
         durStart = durationRange.startTime()
         if durStart < timeRange.startTime():
             return "Continuing"
-        value =  string.strip(self.localHourLabel(durStart))
+        value = string.strip(self.localHourLabel(durStart))
         return value
-    
+
     def _end(self, statDict, timeRange, argList):
         # Check if this period should have precip based on Wx, QPF, PoP
         precipFlag, wx, qpf, pop = \
@@ -1235,9 +1243,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         durEnd = durationRange.endTime()
         if durEnd > timeRange.endTime():
             return "Continuing"
-        value =  string.strip(self.localHourLabel(durEnd))
+        value = string.strip(self.localHourLabel(durEnd))
         return value
-    
+
     def _getTR(self, statDict, timeRange, argList, ending=0):
         # Get a beginning or ending timeRange for weather occurring.
         #print "_getTR:",timeRange,ending
@@ -1302,13 +1310,13 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                     break
             if range is not None:
                 break
-            
+
         if currentIndex > 0 and not ending:
             # If the precip startTime found in the previous for-loop equals the
             # startTime for the current timeRange, then we need to look at the
             # previous timeRange to see if precip is "Continuing".
             if range is not None and range.startTime() == timeRange.startTime():
-                #PJ Make sure previous period has Wx/QPF/PoP 
+                #PJ Make sure previous period has Wx/QPF/PoP
                 precipFlag, wx, qpf, pop = \
                     self._checkPrecip(prevStatDict, prevTR, argList)
                 #print "getTR beg _checkPrecip:",prevTR,precipFlag, wx, qpf, pop
@@ -1328,7 +1336,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             # endTime for the current timeRange, then we need to look at the
             # next timeRange to determine if precip is "Continuing".
             if range is not None and range.endTime() == timeRange.endTime():
-                #PJ Make sure next period has Wx/QPF/PoP 
+                #PJ Make sure next period has Wx/QPF/PoP
                 precipFlag, wx, qpf, pop = \
                     self._checkPrecip(nextStatDict, nextTR, argList)
                 #print "getTR end _checkPrecip:",nextTR,precipFlag, wx, qpf, pop
@@ -1341,7 +1349,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                         if self.precip_related(subKey):
                             nextRange = tr
                             break
-                        
+
                     if nextRange is None:
                         return range
 
@@ -1356,17 +1364,18 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 return index
             index = index + 1
         return
-    
+
     def _mixHgt(self, statDict, timeRange, argList):
-        # Report MixHgt 
+        # Report MixHgt
         mixHgt = self._mixHgtValue(statDict, timeRange, argList)
         if mixHgt is None:
             return ""
         else:
+            mixHgt = self.round(mixHgt, "Nearest", 1)
             return self.getScalarVal(mixHgt)
-        
+
     def _mixHgtValue(self, statDict, timeRange, argList):
-        # Report MixHgt 
+        # Report MixHgt
         units = argList[0]
         day = self.getPeriod(timeRange, 1)
         method = self._mixHgtMethod
@@ -1380,8 +1389,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             mixHgt = self._getMixHgt(statDict, minMax, method)
             if mixHgt != None:
                 if units == "m":
-                    mixHgt = mixHgt/3.2808
-                mixHgt = self.round(mixHgt,"Nearest",1)
+                    mixHgt = mixHgt / 3.2808
             return mixHgt
         else:
             return None
@@ -1468,10 +1476,11 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             if transWind is None:
                 return "N/A"
             mag, dir = transWind
-            return self.getVectorVal((mag,dir))
+            mag = self.round(mag, "Nearest", 1)
+            return self.getVectorVal((mag, dir))
         else:
             return ""
-        
+
     def _transWindValue(self, statDict, timeRange, argList):
         # Return the transport wind as a tuple of magnitude and direction
 
@@ -1486,13 +1495,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if day == 1:
             transWind = self._getCorrelatedStats(
                 statDict, "TransWind", minMax, self.VECTOR())
-            if transWind !=  None:
+            if transWind != None:
                 mag, dir = transWind
                 if units == "ms":
-                    mag = mag/1.94
+                    mag = mag / 1.94
                 elif units == "mph":
                     mag = mag * 1.15
-                mag = self.round(mag, "Nearest", 1)
                 return mag, dir
         else:
             return None
@@ -1516,7 +1524,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             magStr = string.rjust(magStr, rjustLen)
             if type(dir) is not types.StringType:
                 dir = self.dirToText(dir)
-            dirStr = string.rjust(dir,2)
+            dirStr = string.rjust(dir, 2)
             return dirStr + magStr
 
     def wxVal(self, stats, timeRange, argList):
@@ -1533,17 +1541,17 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             #print wxValue, timeRange
             val = self.short_weather_phrase(element, wxValue)
             val = val.replace("|", " ")
-            val = string.replace(val,"THUNDER STORMS","THUNDERSTORMS")
-            val = string.replace(val,"THUNDERSTORMS","TSTMS")
-            val = string.replace(val,"FREEZING RAIN","FRZ RAIN")
-            val = string.replace(val,"FREEZING DRIZZLE","FRZ DRZL")
-            val = string.replace(val,"RAIN SHOWERS","SHOWERS")
-            val = string.replace(val,"thunder storms","thunderstorms")
-            val = string.replace(val,"thunderstorms","tstms")
-            val = string.replace(val,"freezing rain","frz rain")
-            val = string.replace(val,"freezing drizzle","frz drzl ")
-            val = string.replace(val,"rain showers ","showers")
-            if self.wxOrder(val)<self.wxOrder(value) or value == "":
+            val = string.replace(val, "THUNDER STORMS", "THUNDERSTORMS")
+            val = string.replace(val, "THUNDERSTORMS", "TSTMS")
+            val = string.replace(val, "FREEZING RAIN", "FRZ RAIN")
+            val = string.replace(val, "FREEZING DRIZZLE", "FRZ DRZL")
+            val = string.replace(val, "RAIN SHOWERS", "SHOWERS")
+            val = string.replace(val, "thunder storms", "thunderstorms")
+            val = string.replace(val, "thunderstorms", "tstms")
+            val = string.replace(val, "freezing rain", "frz rain")
+            val = string.replace(val, "freezing drizzle", "frz drzl ")
+            val = string.replace(val, "rain showers ", "showers")
+            if self.wxOrder(val) < self.wxOrder(value) or value == "":
                 value = val
             #print "value", value
         if value == "":
@@ -1572,7 +1580,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 continue
             val, cov = self.weather_value(None, None, subKey, typeOnly=1)
             # print "subKey = ", subKey, "Val = ", val, "\n"
-            if string.find(val, "freezing")>= 0:
+            if string.find(val, "freezing") >= 0:
                 isFreezing = 1
             if val == "rain":
                 isLiquid = 1
@@ -1580,7 +1588,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 isSnow = 1
             if val == "sleet":
                 isSleet = 1
-            if self.wxOrder(val)<self.wxOrder(value) or value == "":
+            if self.wxOrder(val) < self.wxOrder(value) or value == "":
                 value = val
             # print "value", value
         if isLiquid and isSnow:
@@ -1591,15 +1599,15 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             value = "snow/fz ra"
         if isLiquid and isSleet and isSnow:
             value = "snow/rain"
-        value = string.replace(value," ","|")
-        value = string.replace(value, "thunderstorm","thunder|storm")
+        value = string.replace(value, " ", "|")
+        value = string.replace(value, "thunderstorm", "thunder|storm")
         # print "returning", value
         return value
 
     def precip_related(self, subkey):
         # These are weather types that are precip versus non-precip
         # and could be separated into different phrases from the non-precip weather types.
-        if subkey.wxType() in  ["ZR","R","RW","S","SW", "T","ZL","L", "IP", "SA"]:
+        if subkey.wxType() in  ["ZR", "R", "RW", "S", "SW", "T", "ZL", "L", "IP", "SA"]:
             return 1
         else:
             return 0
@@ -1667,12 +1675,12 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
                 value = self.getScalarVal(lal)
         return value
 
-    def _haines(self,statDict, timeRange, argList):
+    def _haines(self, statDict, timeRange, argList):
         haines = self.getStats(statDict, "Haines")
         if haines is None:
             return ""
         min, max, avg = haines
-        return string.strip(`int(avg)`) 
+        return string.strip(`int(avg)`)
 
     def _rhRecovery(self, statDict, timeRange, argList):
         element = argList[0]
@@ -1702,20 +1710,20 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             (25, "Poor"),
             (55, "Moderate"),
             (70, "Good"),
-            (100,"Excellent"),
+            (100, "Excellent"),
             ]
- 
+
     def _calcVentRate(self, statDict, timeRange, argList):
-        units=argList[0]
+        units = argList[0]
         if units == "kt-ft":
-          mixHgtArgList=["ft"]
-          transWindArgList=["kts"]
+          mixHgtArgList = ["ft"]
+          transWindArgList = ["kts"]
         elif units == "mph-ft":
-          mixHgtArgList=["ft"]
-          transWindArgList=["mph"]
+          mixHgtArgList = ["ft"]
+          transWindArgList = ["mph"]
         elif units == "m/s-m":
-          mixHgtArgList=["m"]
-          transWindArgList=["ms"]
+          mixHgtArgList = ["m"]
+          transWindArgList = ["ms"]
         else:
             # Unknown configuration
             return None
@@ -1726,8 +1734,8 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         transWind = self._transWindValue(statDict, timeRange, transWindArgList)
         if transWind is None:
             return None
-        mag,dir = transWind
-        return  mixHgt*mag
+        mag, dir = transWind
+        return  mixHgt * mag
 
     def _ventRate(self, statDict, timeRange, argList):
         day = self.getPeriod(timeRange, 1)
@@ -1746,9 +1754,9 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
             else:
                 units = argList[0]
                 if units == "m/s-m":
-                    vr = vr/1.94/3.2808
+                    vr = vr / 1.94 / 3.2808
                 elif units == "mph-ft":
-                    vr = vr*1.15
+                    vr = vr * 1.15
             return  `int(self.round(vr, "Nearest", 1))`
         else:
             return ""
@@ -1764,7 +1772,7 @@ class TextProduct(TextRules.TextRules, SampleAnalysis.SampleAnalysis):
         if day == 1:
             vr = self._getCorrelatedStats(statDict, "VentRate", minMax)
             if vr is None:
-                argList = ["kt-ft"]
+                argList = ["m/s-m"]
                 vr = self._calcVentRate(statDict, timeRange, argList)
             if vr is None:
                 return ""

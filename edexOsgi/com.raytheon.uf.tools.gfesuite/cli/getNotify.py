@@ -60,6 +60,7 @@ classMap = {
     UserMessageNotification: 'U',
     VTECTableChangeNotification: 'V',
     CombinationsFileChangedNotification: 'C',
+    ServiceBackupJobStatusNotification: 'S',
     GridHistoryUpdateNotification: 'H'
 }
 topicList = ['edex.alerts.gfe', 'edex.alerts.vtec']

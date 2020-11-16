@@ -91,6 +91,7 @@ import com.raytheon.viz.pointdata.rsc.PlotResource;
  * Dec 14, 2015  4816     dgilling    Support refactored PythonJobCoordinator API.
  * Jun 12, 2017  6303     bsteffen    Add getColor
  * Aug 07, 2017  6376     bsteffen    Handle script inside cdata.
+ * Jan 26, 2018  6698     njensen     Create antialiased images
  * 
  * </pre>
  * 
@@ -98,7 +99,7 @@ import com.raytheon.viz.pointdata.rsc.PlotResource;
  */
 public class PlotModelFactory extends SVGImageFactory {
 
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(PlotModelFactory.class);
 
     public static final String PLOT_MODEL_DIR = "plotModels";
@@ -173,33 +174,33 @@ public class PlotModelFactory extends SVGImageFactory {
     }
 
     public static class PlotModelElement {
-        DisplayMode mode = DisplayMode.TEXT;
+        public DisplayMode mode = DisplayMode.TEXT;
 
-        String format = null;
+        public String format = null;
 
-        String parameter = null;
+        public String parameter = null;
 
-        String unit = null;
+        public String unit = null;
 
-        String symbol = null;
+        public String symbol = null;
 
-        int trim = 0;
+        public int trim = 0;
 
-        int index = -1;
+        public int index = -1;
 
-        UnitConverter converter = null;
+        public UnitConverter converter = null;
 
-        Element plotElement = null;
+        public Element plotElement = null;
 
-        Node plotNode = null;
+        public Node plotNode = null;
 
-        S2N ranking = null;
+        public S2N ranking = null;
 
-        IAbstractLookupTable lookup = null;
+        public IAbstractLookupTable lookup = null;
 
-        PlotWindElement winds = null;
+        public PlotWindElement winds = null;
 
-        boolean required = false;
+        public boolean required = false;
 
         public Node getPlotNode() {
             return plotNode;
@@ -211,21 +212,21 @@ public class PlotModelFactory extends SVGImageFactory {
     }
 
     public static class PlotWindElement {
-        Node barbNode = null;
+        public Node barbNode = null;
 
-        Element barbElement = null;
+        public Element barbElement = null;
 
-        Node arrowNode = null;
+        public Node arrowNode = null;
 
-        Element arrowElement = null;
+        public Element arrowElement = null;
 
-        Node gustNode = null;
+        public Node gustNode = null;
 
-        Element gustElement = null;
+        public Element gustElement = null;
 
-        String gustX = null;
+        public String gustX = null;
 
-        String gustY = null;
+        public String gustY = null;
     }
 
     public PlotModelFactory(IMapDescriptor mapDescriptor, String plotModelFile)
@@ -233,8 +234,8 @@ public class PlotModelFactory extends SVGImageFactory {
         super(plotModelFile(plotModelFile));
         regenerateStyle();
         this.plotModelFile = plotModelFile;
-        this.plotFields = new ArrayList<PlotModelElement>();
-        this.sampleFields = new ArrayList<PlotModelElement>();
+        this.plotFields = new ArrayList<>();
+        this.sampleFields = new ArrayList<>();
 
         setColor(new RGB(0, 0, 255));
         this.gc = new GeodeticCalculator(mapDescriptor.getCRS());
@@ -279,7 +280,7 @@ public class PlotModelFactory extends SVGImageFactory {
              * the cache size increases. 3 elements might not be the optimal way
              * of detecting complexity but it is better than nothing.
              */
-            imageCache = new HashMap<String, BufferedImage>();
+            imageCache = new HashMap<>();
         }
         NodeList scriptNodes = document.getElementsByTagName("script");
 
@@ -353,10 +354,10 @@ public class PlotModelFactory extends SVGImageFactory {
         PlotModelElement thisElement = new PlotModelElement();
         thisElement.plotElement = plotElement;
         thisElement.plotNode = plotElement.getChildNodes().item(0);
-        if (dmAttribute.equals("text")) {
+        if ("text".equals(dmAttribute)) {
             thisElement.mode = DisplayMode.TEXT;
             plotElement.setAttribute("class", "text");
-        } else if (dmAttribute.equals("barb")) {
+        } else if ("barb".equals(dmAttribute)) {
             thisElement.mode = DisplayMode.BARB;
             thisElement.winds = new PlotWindElement();
             NodeList windElements = plotElement.getChildNodes();
@@ -381,7 +382,7 @@ public class PlotModelFactory extends SVGImageFactory {
                     }
                 }
             }
-        } else if (dmAttribute.equals("arrowuv")) {
+        } else if ("arrowuv".equals(dmAttribute)) {
             thisElement.mode = DisplayMode.ARROW;
             thisElement.winds = new PlotWindElement();
             NodeList windElements = plotElement.getChildNodes();
@@ -414,8 +415,8 @@ public class PlotModelFactory extends SVGImageFactory {
                     }
                 }
             }
-        } else if (dmAttribute.equals("table")
-                || dmAttribute.equals("recursive_translation")) {
+        } else if ("table".equals(dmAttribute)
+                || "recursive_translation".equals(dmAttribute)) {
             thisElement.mode = DisplayMode.TABLE;
             if (plotElement.hasAttribute(PFT_ATTRIBUTE)) {
                 thisElement.ranking = S2N
@@ -427,13 +428,13 @@ public class PlotModelFactory extends SVGImageFactory {
                 thisElement.lookup = LookupUtils.buildLookupTable(table);
                 thisElement.lookup.setMode(dmAttribute);
             }
-        } else if (dmAttribute.equals("arrow")) {
+        } else if ("arrow".equals(dmAttribute)) {
             plotElement.setAttribute("class", "text");
             thisElement.mode = DisplayMode.BARB;
-        } else if (dmAttribute.equals("available")) {
+        } else if ("available".equals(dmAttribute)) {
             thisElement.mode = DisplayMode.AVAIL;
             plotElement.setAttribute("class", "text");
-        } else if (dmAttribute.equals("range")) {
+        } else if ("range".equals(dmAttribute)) {
             thisElement.mode = DisplayMode.RANGE;
             if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
                 File table = getTableFile(
@@ -441,9 +442,9 @@ public class PlotModelFactory extends SVGImageFactory {
                 thisElement.lookup = LookupUtils.buildLookupTable(table);
                 thisElement.lookup.setMode(dmAttribute);
             }
-        } else if (dmAttribute.equals("null")) {
+        } else if ("null".equals(dmAttribute)) {
             thisElement.mode = DisplayMode.NULL;
-        } else if (dmAttribute.equals("sample")) {
+        } else if ("sample".equals(dmAttribute)) {
             thisElement.mode = DisplayMode.SAMPLE;
             if (plotElement.hasAttribute(PLT_ATTRIBUTE)) {
                 File table = getTableFile(
@@ -590,7 +591,7 @@ public class PlotModelFactory extends SVGImageFactory {
                                     + getPlotModelFilename(),
                             e);
                 } finally {
-                    if (result.booleanValue() == false) {
+                    if (!result) {
                         return null;
                     }
                 }
@@ -663,7 +664,7 @@ public class PlotModelFactory extends SVGImageFactory {
             }
 
             BufferedImage bufferedImage = createSingleColorImage(color,
-                    plotModelHeight, plotModelWidth);
+                    plotModelHeight, plotModelWidth, true, true);
 
             if (imageCache != null) {
                 imageCache.put(imageId.toString(), bufferedImage);
@@ -1025,14 +1026,14 @@ public class PlotModelFactory extends SVGImageFactory {
                     displayValue = value.doubleValue();
                 }
                 if (element.format != null) {
-                    if (element.format.equals("time")) {
-                        Date d = new Date(new Double(displayValue).longValue());
+                    if ("time".equals(element.format)) {
+                        Date d = new Date((long) displayValue);
                         synchronized (SAMPLE_DATE) {
                             SAMPLE_DATE.setTimeZone(TimeUtil.GMT_TIME_ZONE);
                             sValue = SAMPLE_DATE.format(d);
                         }
                     } else if (element.format.startsWith("time:")) {
-                        Date d = new Date(new Double(displayValue).longValue());
+                        Date d = new Date((long) displayValue);
                         SimpleDateFormat sampleData = new SimpleDateFormat(
                                 element.format.substring(5));
                         sampleData.setTimeZone(TimeUtil.GMT_TIME_ZONE);
@@ -1059,7 +1060,7 @@ public class PlotModelFactory extends SVGImageFactory {
 
         if (element.lookup != null && sValue != null) {
             String lu = null;
-            if (!sValue.equals("?")) {
+            if (!"?".equals(sValue)) {
                 lu = element.lookup.lookup(sValue);
             }
             if (lu != null) {
@@ -1125,7 +1126,7 @@ public class PlotModelFactory extends SVGImageFactory {
         if (element.lookup != null && sValue != null) {
             String lu = null;
             lu = element.lookup.lookup(sValue);
-            if (!lu.equals("")) {
+            if (!lu.isEmpty()) {
                 sValue = lu;
             }
         }

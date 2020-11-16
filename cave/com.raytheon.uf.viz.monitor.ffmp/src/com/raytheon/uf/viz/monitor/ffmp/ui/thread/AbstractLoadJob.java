@@ -272,8 +272,8 @@ public abstract class AbstractLoadJob extends Job {
         List<String> guidanceTypes = productRun.getGuidanceTypes(product);
         smonitor.beginTask(null, guidanceTypes.size() * PROGRESS_FACTOR);
         for (String type : guidanceTypes) {
-            List<SourceXML> guidanceSources = productRun.getGuidanceSources(
-                    product, type);
+            List<SourceXML> guidanceSources = productRun
+                    .getGuidanceSources(product, type);
             int subWork = guidanceSources.size();
             for (SourceXML guidSource : guidanceSources) {
                 NavigableMap<Date, List<String>> iguidURIs = getGuidURIs(

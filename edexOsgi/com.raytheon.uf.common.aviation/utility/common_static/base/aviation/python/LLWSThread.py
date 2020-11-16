@@ -170,6 +170,7 @@
 #* Mar 25, 2013 1735        rferrel     __initializeLLWSDictsLists now reads cfg data only for 
 #*                                      desired site instead of all sites. So it is O(n) instead of O(n**2)
 #* Oct 31, 2016 5979        njensen     Cast to primitives for compatibility
+#* Feb 22, 2018 5697        mapeters    Fix errors from removing profiler plugins
 ##  
 #
 
@@ -177,7 +178,7 @@
 # This is a base file that is not intended to be overridden.
 ##
 
-import logging, os, Queue, re, time, math, sys
+import logging, os, Queue, re, time, math
 import Avn, AvnParser, LLWSData, MetarData
 
 _Logger = logging.getLogger(Avn.CATEGORY)
@@ -201,7 +202,6 @@ class Server(object):
    __TimeOut = 10.0
 
    def __init__(self, info):     
-      self.profilerList = []
       self.radarList = []
       self.metarList = []
       self.acarsList = []
@@ -219,7 +219,6 @@ class Server(object):
       """
       Examine configuration file and setup dictionaries and lists
       """
-      pList = []
       rList = []
       aList = []
 
@@ -250,12 +249,10 @@ class Server(object):
              self.siteVWPsDict[m] = [radars,profilers,radar_cutoff,profiler_cutoff]
              self.acarsDict[m] = [acars]
              #
-             pList.extend(profilers)
              rList.extend(radars)
              aList.extend(acars)
       #
-      # Find all unique radars and profilers to monitor
-      self.profilerList = dict.fromkeys(pList).keys()
+      # Find all unique radars and acars to monitor
       self.radarList = dict.fromkeys(rList).keys()
       self.acarsList = dict.fromkeys(aList).keys()
       
@@ -373,54 +370,6 @@ class Server(object):
          
       return [timestamp, H, U, V]
 
-   def __readProfilerData(self,data,pname):
-      """
-      Read profiler VWP file to get the wind and height information
-      """
-      #
-      # Initialization . . .
-      timestamp = 0
-      U = []
-      V = []
-      H = []
-      
-      timestamp = data['validTime'] / 1000
-      #
-      # If the data is old, return early.
-      if time.time() - timestamp > 1.5 * _HR2SECS:
-         _Logger.info('Profiler data for %s is out of date', pname)
-         return [timestamp, H, U, V]
-
-      lvls = data['numProfLvls']
-      uC = data.getNumberAllLevels('uComponent')[:lvls]
-      vC = data.getNumberAllLevels('vComponent')[:lvls]
-      hC = data.getNumberAllLevels('height')[:lvls]
-      QC = data.getNumberAllLevels('uvQualityCode')[:lvls]
-      
-      for n in range(lvls):
-         u = uC[n]
-         v = vC[n]
-         h = hC[n]
-         qc = QC[n]
-         if qc == 0:
-            H.append(h)
-            U.append(u)
-            V.append(v)
-            _Logger.debug( 'P\t%s\t%4.1f\t%03d\t%4.1f' %
-                           ( pname, h*_MTRS2FT, int(270. - math.degrees(math.atan2(v,u)))%361,
-                             math.hypot(v,u)*_MPS2KNTS))
-
-         # If we go above 624 meters (2050 ft), that's enough
-         if h > _MAXLLWSLVL:
-            break
-
-         elif qc and h <= _MAXLLWSLVL:
-            _Logger.debug( 'X\t%s\t%4.1f\t%03d\t%4.1f\t%d' %
-                           ( pname, h*_MTRS2FT, int(270. - math.degrees(math.atan2(v,u)))%361,
-                             math.hypot(v,u)*_MPS2KNTS, qc))
-
-      return [timestamp, H, U, V]
-
    def __readAcarsData(self,acarsRec, acarsId):
       timestamp = acarsRec.getTimeObs().getTimeInMillis() / 1000
       
@@ -442,10 +391,10 @@ class Server(object):
           level = itr.next()
           alt = level.getFlightLevel()
           spd = level.getWindSpeed()
-          dir = level.getWindDirection()
-          if not alt or not spd or not dir:
+          direction = level.getWindDirection()
+          if not alt or not spd or not direction:
               continue
-          level = {'alt': int(alt), 'spd': float(spd), 'dir': float(dir)}
+          level = {'alt': int(alt), 'spd': float(spd), 'dir': float(direction)}
           levelList.append(level)
           
       levelList.sort(lambda x, y: x['alt']-y['alt'])
@@ -454,8 +403,8 @@ class Server(object):
       for level in levelList:
           alt = level['alt']
           spd = level['spd']
-          dir = level['dir']
-          if spd > 100 or dir > 360.0:
+          direction = level['dir']
+          if spd > 100 or direction > 360.0:
               continue
           
           hgt = alt - delta
@@ -465,8 +414,8 @@ class Server(object):
           
           spd = -spd
           H.append(hgt)
-          U.append(spd*math.sin(math.radians(dir)))
-          V.append(spd*math.cos(math.radians(dir)))
+          U.append(spd*math.sin(math.radians(direction)))
+          V.append(spd*math.cos(math.radians(direction)))
       
           if hgt > _MAXLLWSLVL:
               break
@@ -709,36 +658,6 @@ class Server(object):
           _Logger.info("Error reading acars data")
          
       return True
-      
-   def processProfilerData(self,ident):
-      """
-      Process the newly arrived profiler data
-      """      
-      import RefTimePointDataRetrieve, NoDataException
-      PARAMETERS = ["profilerId", "validTime", "numProfLvls", "height",
-                    "uComponent", "vComponent", "uvQualityCode"]
-      site = AvnParser.getTafSiteCfg(ident)
-      profilerList = site['sites']['profilers']
-      if len(profilerList) > 0:
-         for profilerName in profilerList:
-            try :
-                pdc = RefTimePointDataRetrieve.retrieve('profiler', None, PARAMETERS,
-                                                 keyId='validTime', constraint={'profilerId':profilerName},
-                                                 maxSize=1)
-            except NoDataException.NoDataException:
-                _Logger.info("Error reading profiler " + profilerName)
-                profilerList.remove(profilerName)
-                continue
-            validTimes = pdc.keys()
-            validTimes.sort(reverse=True)
-            data = pdc[validTimes[0]]
-            try:
-               self.vwpObsDict[profilerName] = self.__readProfilerData(data,profilerName)        
-            except InValid:
-               _Logger.info("Error reading profiler data")
-         return profilerList
-      else:
-         return []
 
    def __processVWP(self):
       while True:
@@ -751,12 +670,10 @@ class Server(object):
                raise SystemExit
 
             if code in [gamin.GAMChanged, gamin.GAMCreated]:
-               if 'profiler' in directory:
-                  self.__processProfilerData(os.path.join(directory, fname))
-               elif 'VWP' in directory:
+               if 'VWP' in directory:
                   self.__processRadarData(os.path.join(directory, fname))
-	       elif 'acars' in directory:
-		  self.__processAcarsData(os.path.join(directory, fname))
+               elif 'acars' in directory:
+                  self.__processAcarsData(os.path.join(directory, fname))
 
          except Queue.Empty:
             break
@@ -807,14 +724,10 @@ class Server(object):
       for f in [self.__getLatestFile(d) for d in self.radarDirs]:
          if 'VWP' in f:
             self.__processRadarData(f)
-         
-      if self.profilerList:
-         for p in self.profilerDirs.split(','):
-            self.__processProfilerData(self.__getLatestFile(p))
 
       if self.acarsList:
-	 for a in self.acarsDirs.split(','):
-	    self.__processAcarsData(self.__getLatestFile(a))
+         for a in self.acarsDirs.split(','):
+            self.__processAcarsData(self.__getLatestFile(a))
 
 
    def paths(self):
@@ -822,13 +735,10 @@ class Server(object):
       Public method so that AvnDIS parent can properly set up directories to monitor
       """
       paths = self.radarDirs
-      if self.profilerList:
-         for p in self.profilerDirs.split(','):
-            paths.append(p)
       
       if self.acarsList:
-	 for a in self.acarsDirs.split(','):
-	    paths.append(a)
+         for a in self.acarsDirs.split(','):
+            paths.append(a)
 
       return paths
 

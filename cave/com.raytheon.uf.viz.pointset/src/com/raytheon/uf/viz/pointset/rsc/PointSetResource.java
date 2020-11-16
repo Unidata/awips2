@@ -25,7 +25,6 @@ import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -81,17 +80,17 @@ import com.vividsolutions.jts.geom.Coordinate;
  * SOFTWARE HISTORY
  * 
  * Date          Ticket#  Engineer  Description
- * ------------- -------- --------- ---------------------
+ * ------------- -------- --------- -----------------------------------
  * Aug 28, 2015  4709     bsteffen  Initial creation
  * Jan 25, 2016  5208     bsteffen  Better default style
+ * Nov 28, 2017  5863     bsteffen  Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
-public class PointSetResource extends
-        AbstractVizResource<PointSetResourceData, IMapDescriptor> {
+public class PointSetResource
+        extends AbstractVizResource<PointSetResourceData, IMapDescriptor> {
 
     private final PointSetStageJob stageJob = new PointSetStageJob();
 
@@ -101,8 +100,7 @@ public class PointSetResource extends
 
     protected PointSetResource(PointSetResourceData resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
-        this.dataTimes = new ArrayList<>();
+        super(resourceData, loadProperties, false);
     }
 
     @Override
@@ -118,15 +116,15 @@ public class PointSetResource extends
     public ColorMapParameters createColorMapParameters(PointSetRecord record)
             throws VizException {
         ParamLevelMatchCriteria matchCriteria = new ParamLevelMatchCriteria();
-        matchCriteria.setParameterName(Collections.singletonList(record
-                .getParameter().getAbbreviation()));
+        matchCriteria.setParameterName(Collections
+                .singletonList(record.getParameter().getAbbreviation()));
         matchCriteria.setLevels(Collections
                 .singletonList(convertLevelForStyle(record.getLevel())));
-        matchCriteria.setCreatingEntityNames(Collections.singletonList(record
-                .getDatasetId()));
+        matchCriteria.setCreatingEntityNames(
+                Collections.singletonList(record.getDatasetId()));
         try {
-            styleRule = StyleManager.getInstance().getStyleRule(
-                    StyleType.IMAGERY, matchCriteria);
+            styleRule = StyleManager.getInstance()
+                    .getStyleRule(StyleType.IMAGERY, matchCriteria);
             if (styleRule == null) {
                 ColorMapData data = new PointSetDataCallback(record)
                         .getColorMapData();
@@ -148,14 +146,14 @@ public class PointSetResource extends
                     }
                 }
                 styleRule = new StyleRule();
-                styleRule.setPreferences(new PointSetImagePreferences(record
-                        .getParameter()));
+                styleRule.setPreferences(
+                        new PointSetImagePreferences(record.getParameter()));
                 float[] factoryData = { min, max };
                 return ColorMapParameterFactory.build(styleRule, factoryData,
                         null, data.getDataUnit());
             }
-            return ColorMapParameterFactory.build(styleRule, record
-                    .getParameter().getUnit());
+            return ColorMapParameterFactory.build(styleRule,
+                    record.getParameter().getUnit());
 
         } catch (StyleException e) {
             throw new VizException(e);
@@ -170,17 +168,17 @@ public class PointSetResource extends
             Level level) {
         LevelType type = LevelType.DEFAULT;
         String master = level.getMasterLevel().getName();
-        if (master.equalsIgnoreCase("MB")) {
+        if ("MB".equalsIgnoreCase(master)) {
             type = LevelType.PRESSURE;
-        } else if (master.equalsIgnoreCase("FHAG")) {
+        } else if ("FHAG".equalsIgnoreCase(master)) {
             type = LevelType.HEIGHT_AGL;
-        } else if (master.equalsIgnoreCase("FH")) {
+        } else if ("FH".equalsIgnoreCase(master)) {
             type = LevelType.HEIGHT_AGL;
-        } else if (master.equalsIgnoreCase("SFC")) {
+        } else if ("SFC".equalsIgnoreCase(master)) {
             type = LevelType.SURFACE;
-        } else if (master.equalsIgnoreCase("K")) {
+        } else if ("K".equalsIgnoreCase(master)) {
             type = LevelType.THETA;
-        } else if (master.equals("BL")) {
+        } else if ("BL".equals(master)) {
             type = LevelType.MB_AGL;
         } else {
             /*
@@ -265,13 +263,12 @@ public class PointSetResource extends
                      */
                     createColorMapParameters(record);
                 } catch (VizException e) {
-                    statusHandler.error(
-                            "Unable to create color map parameters.", e);
+                    statusHandler
+                            .error("Unable to create color map parameters.", e);
                 }
             }
             frames.put(record.getDataTime(), new PointSetFrame(record, this));
             dataTimes.add(record.getDataTime());
-            Collections.sort(dataTimes);
 
         }
     }
@@ -312,8 +309,8 @@ public class PointSetResource extends
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         if (!frames.isEmpty()) {
-            ColorMapParameters colorMapParameters = createColorMapParameters(frames
-                    .values().iterator().next().getRecord());
+            ColorMapParameters colorMapParameters = createColorMapParameters(
+                    frames.values().iterator().next().getRecord());
             if (colorMapParameters.getColorMapName() == null) {
                 colorMapParameters.setColorMapName("Grid/Gridded Data");
             }
@@ -323,8 +320,8 @@ public class PointSetResource extends
             } catch (ColorMapException e) {
                 throw new VizException(e);
             }
-            getCapability(ColorMapCapability.class).setColorMapParameters(
-                    colorMapParameters);
+            getCapability(ColorMapCapability.class)
+                    .setColorMapParameters(colorMapParameters);
         }
     }
 
@@ -380,8 +377,8 @@ public class PointSetResource extends
         } else {
             try {
                 Coordinate ll = coord.asLatLon();
-                double[] pix = descriptor.worldToPixel(new double[] { ll.x,
-                        ll.y });
+                double[] pix = descriptor
+                        .worldToPixel(new double[] { ll.x, ll.y });
                 double dataValue = frame.inspect(pix[0], pix[1]);
                 if (Double.isNaN(dataValue)) {
                     return "No Data";

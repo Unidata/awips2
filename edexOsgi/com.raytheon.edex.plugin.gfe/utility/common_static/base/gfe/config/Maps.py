@@ -311,10 +311,10 @@ rfc.editAreaName = ['ISC','site_id']
 rfc.groupName = 'ISC'
 
 #  NHA ISC area
-#domain = ShapeTable('nhadomain')
-#domain.name = "TropicalISC"
-#domain.groupName = "ISC"
-#domain.editAreaName = "ISC_NHA"
+domain = ShapeTable('nhadomain')
+domain.name = "TropicalISC"
+domain.groupName = "ISC"
+domain.editAreaName = "ISC_NHA"
 
 #    Storm Surge Watch/Warning Area
 # stormsurgeww = ShapeTable('stormsurgeww')
@@ -337,7 +337,7 @@ offshoreCWA.groupName = 'OffShoreMZones_' + CWA
 
 # this is a complete listing of all maps
 maps = [ CWAcounties, FIPS, Counties, CWAzones, Zones, FWCWAzones, FWZones, cwas, isc, 
-         fwaor, CWAmzones, Mzones, States, rfc, offshore, offshoreCWA ]
+         fwaor, CWAmzones, Mzones, States, rfc, domain, offshore, offshoreCWA ]
 
 # import the local maps file
 if not BASELINE:

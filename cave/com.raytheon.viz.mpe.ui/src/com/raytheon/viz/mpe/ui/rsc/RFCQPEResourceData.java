@@ -54,6 +54,7 @@ import com.raytheon.viz.mpe.ui.rfcmask.RfcMask;
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Jun 20, 2017 17911      wkwock      Initial creation
+ * Aug 14, 2018 20851      wkwock      Use period end time instead of reference time
  *
  * </pre>
  *
@@ -123,7 +124,7 @@ public class RFCQPEResourceData extends AbstractRequestableResourceData {
         PluginDataObject[] pdoList = getLatestPluginDataObjects(availableTimes,
                 new DataTime[0]);
         for (PluginDataObject pdo : pdoList) {
-            pdos.put(pdo.getDataTime().getRefTime(), pdo);
+            pdos.put(pdo.getDataTime().getValidPeriod().getEnd(), pdo);
         }
 
         if (colorList == null) {
@@ -163,7 +164,7 @@ public class RFCQPEResourceData extends AbstractRequestableResourceData {
 
                 Date displayDate = MPEDisplayManager.getCurrent()
                         .getCurrentDisplayedDate();
-                if (displayDate.equals(newTimes[i].getRefTime())) {
+                if (displayDate.equals(newTimes[i].getValidPeriod().getEnd())) {
                     issueRefresh = true;
                 }
             }
@@ -173,7 +174,7 @@ public class RFCQPEResourceData extends AbstractRequestableResourceData {
                     new DataTime[0]);
             for (PluginDataObject newPdo : newPdos) {
                 // merge and use the new PDO for same datatime
-                pdos.put(newPdo.getDataTime().getRefTime(), newPdo);
+                pdos.put(newPdo.getDataTime().getValidPeriod().getEnd(), newPdo);
             }
 
         } catch (VizException e) {

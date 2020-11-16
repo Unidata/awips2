@@ -148,14 +148,15 @@
 #    Date            Ticket#       Engineer       Description
 #    ------------    ----------    -----------    --------------------------
 #    06JUL2012       15153         zhao           Retrieve latest METAR record in database
+#    Jan 19, 2018    6957          tgurney        Log missing metar message at info level
 #
 
 ##
 # This is a base file that is not intended to be overridden.
 ##
 
-import logging, os, time
-import Avn, AvnLib, Globals, MonitorP, MetarMonitorP
+import logging, time
+import Avn, AvnLib, MonitorP, MetarMonitorP
 
 _Logger = logging.getLogger(Avn.CATEGORY)
 import MetarData
@@ -191,7 +192,7 @@ class Monitor(MetarMonitorP.Monitor):
         result = {}
         if not metars:
             msg = 'Missing METAR'
-            _Logger.warning('%s for %s', msg, self.info['sites']['metar'])
+            _Logger.info('%s for %s', msg, self.info['sites']['metar'])
         else:
             rpt = metars[0]
             result['header'] = rpt.header

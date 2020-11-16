@@ -188,7 +188,8 @@ public class FFMPDataGenerator {
             List<DomainXML> domains = resource.getDomains();
             List<List<Long>> huclistsAll = getOtherSiteQpfBasins(siteKey,
                     FFMPRecord.ALL, domains);// DR 16096
-            if ((centeredAggregationKey == null) || huc.equals(FFMPRecord.ALL)) {
+            if ((centeredAggregationKey == null)
+                    || huc.equals(FFMPRecord.ALL)) {
 
                 if (huc.equals(FFMPRecord.ALL)) {
 
@@ -211,8 +212,8 @@ public class FFMPDataGenerator {
                             String cwa = domain.getCwa();
 
                             if ((cwa.equals(fmdb.getCwa()))
-                                    || (domain.isPrimary() && fmdb
-                                            .isPrimaryCwa())) {
+                                    || (domain.isPrimary()
+                                            && fmdb.isPrimaryCwa())) {
 
                                 try {
                                     setFFMPRow(fbd.get(key), tData, false, cwa);
@@ -252,8 +253,8 @@ public class FFMPDataGenerator {
                 } else {
 
                     // Find all of the basins for this HUC level
-                    List<Long> keyList = ft
-                            .getHucKeyList(siteKey, huc, domains);
+                    List<Long> keyList = ft.getHucKeyList(siteKey, huc,
+                            domains);
                     tData = new FFMPTableData(keyList.size());
                     List<List<Long>> huclists = getOtherSiteQpfBasins(siteKey,
                             huc, domains);// DR 16096
@@ -270,8 +271,8 @@ public class FFMPDataGenerator {
 
                         if (!pfafs.isEmpty()) {
 
-                            FFMPBasinMetaData fmdb = ft.getBasinInDomains(
-                                    siteKey, domains, pfafs);
+                            FFMPBasinMetaData fmdb = ft
+                                    .getBasinInDomains(siteKey, domains, pfafs);
 
                             if (fmdb != null) {
 
@@ -285,7 +286,7 @@ public class FFMPDataGenerator {
 
                                     statusHandler.handle(Priority.PROBLEM,
 
-                                    "Couldn't create table row", e);
+                                            "Couldn't create table row", e);
                                 }
                             }
                         }
@@ -311,8 +312,8 @@ public class FFMPDataGenerator {
                                                       // aggregation_county-huc_click
                         for (DomainXML domain : domains) {
                             if ((domain.getCwa().equals(fmdb.getCwa()))
-                                    || (domain.isPrimary() && fmdb
-                                            .isPrimaryCwa())) {
+                                    || (domain.isPrimary()
+                                            && fmdb.isPrimaryCwa())) {
                                 this.filterOtherSiteHucs(huclistsAll, key,
                                         false);
                                 setFFMPRow(fbd.get(key), tData, false, null);
@@ -337,10 +338,10 @@ public class FFMPDataGenerator {
 
                                         } catch (Exception e) {
 
-                                            statusHandler
-                                                    .handle(Priority.PROBLEM,
-                                                            "Couldn't create table row",
-                                                            e);
+                                            statusHandler.handle(
+                                                    Priority.PROBLEM,
+                                                    "Couldn't create table row",
+                                                    e);
                                         }
                                     }
                                 }
@@ -399,24 +400,25 @@ public class FFMPDataGenerator {
         FFMPConfig config = FFMPConfig.getInstance();
         String includedCWAs = config.getFFMPConfigData().getIncludedCWAs();
         cwaArr = includedCWAs.split(",");
-        monitor.setQpfWindow(monitor.getTimeWindow(qpfSource, paintRefTime,
-                siteKey));
+        monitor.setQpfWindow(
+                monitor.getTimeWindow(qpfSource, paintRefTime, siteKey));
         Date qpeTimeEnd = paintRefTime;
         Date qpeTimeBegin = tableTime;
 
         if (resource.isSplit()) {
             // hack off the QPF duration for the table values of QPE (Split
-            // Window)      
-            double duration = qpfSource.getDurationHour(); 
-            qpeTimeBegin = new Date(
-                  (long) (qpeTimeBegin.getTime() + (duration * TimeUtil.MILLIS_PER_HOUR)));
-            
+            // Window)
+            double duration = qpfSource.getDurationHour();
+            qpeTimeBegin = new Date((long) (qpeTimeBegin.getTime()
+                    + (duration * TimeUtil.MILLIS_PER_HOUR)));
+
         }
-        //System.out.println("\nxxxx 11861: qpe time window: ["+tableTime +", "+qpeTime+"]\n");
+        // System.out.println("\nxxxx 11861: qpe time window: ["+tableTime +",
+        // "+qpeTime+"]\n");
         monitor.setQpeWindow(new FFMPTimeWindow(qpeTimeBegin, qpeTimeEnd));
-        
-        FFMPRecord rateRecord = monitor.getRateRecord(product, siteKey,
-                dataKey, product.getRate(), paintRefTime, true);
+
+        FFMPRecord rateRecord = monitor.getRateRecord(product, siteKey, dataKey,
+                product.getRate(), paintRefTime, true);
         FFMPRecord qpeRecord = monitor.getQPERecord(product, siteKey, dataKey,
                 product.getQpe(), tableTime, true);
         FFMPRecord qpfRecord = monitor.getQPFRecord(product, siteKey, dataKey,
@@ -452,8 +454,8 @@ public class FFMPDataGenerator {
                 guidBasins = new LinkedHashMap<String, FFMPBasinData>();
                 for (String type : guidRecords.keySet()) {
                     if (guidRecords.get(type) != null) {
-                        guidBasins.put(type, guidRecords.get(type)
-                                .getBasinData());
+                        guidBasins.put(type,
+                                guidRecords.get(type).getBasinData());
                     } else {
                         guidBasins.put(type, null);
                     }
@@ -511,8 +513,9 @@ public class FFMPDataGenerator {
                 String sname = sic.getSourceName();
 
                 for (String qpf : qpflist) {
-                    if (qpf.equalsIgnoreCase(sname))
+                    if (qpf.equalsIgnoreCase(sname)) {
                         map.put(sname, sic.getDataKey());
+                    }
                 }
             }
         }
@@ -563,7 +566,8 @@ public class FFMPDataGenerator {
         java.util.ArrayList<String> dataKeys = this
                 .getDisplayingQpfDataKeys(dqpf);// more than one datakey for
                                                 // mosaic QPFSCAN
-        for (String site : dataKeys) {// System.out.println("@545----------- qpf-site: "+site);
+        for (String site : dataKeys) {// System.out.println("@545-----------
+                                      // qpf-site: "+site);
             huclist.add(ft.getHucKeyList(site, huc, domains));
         }
 
@@ -574,9 +578,10 @@ public class FFMPDataGenerator {
 
     public void filterOtherSiteHucs(List<List<Long>> huclists, Long key,
             boolean isAggregate) {
-        if (huclists == null || huclists.size() == 0) // QPFSCAN column is not
-                                                      // on 2014-01-09
+        if (huclists == null || huclists.size() == 0) {
+            // on 2014-01-09
             return;
+        }
         boolean isInOtherSite = false;
         /*
          * for(List<Long> list : huclists){ if(list.contains(key)){
@@ -593,21 +598,22 @@ public class FFMPDataGenerator {
         // Only for non-aggregates; fix NO DATA shows 0.0
         try {
             if (Float.isNaN(resource.getBasin(key, FFMPRecord.FIELDS.QPF,
-                    this.paintRefTime, false).getValue()))
+                    this.paintRefTime, false).getValue())) {
                 setQPFMissing();
-            else
+            } else {
                 this.qpfBasin = this.qpfBasinClone;
+            }
         } catch (Exception e) {
-            statusHandler.info("FFMPResource.getBasin Exception: "
-                    + e.getMessage());
+            statusHandler
+                    .info("FFMPResource.getBasin Exception: " + e.getMessage());
         }
 
     }
 
     /**
-     * based on FFMPConfig.isSplit() and AttributesDlg.createAttributeControls()
-     * @176/178 since Only using AttrData causing all "M" when QPFSCAN column
-     * already on.
+     * based on FFMPConfig.isSplit() and
+     * AttributesDlg.createAttributeControls() @176/178 since Only using
+     * AttrData causing all "M" when QPFSCAN column already on.
      */
     public String getQpfType() {
         String qCname = "";
@@ -628,8 +634,8 @@ public class FFMPDataGenerator {
             }
         }
 
-        return qpfColOn ? qCname : monitor.getConfig().getAttrData()
-                .getQpfType();
+        return qpfColOn ? qCname
+                : monitor.getConfig().getAttrData().getQpfType();
     }
 
     // An example for below:
@@ -667,20 +673,24 @@ public class FFMPDataGenerator {
 
     // fix for County/HUC M but post_click 0.0 issue
     private void checkCenteredAggregationKey() {
-        if (!(this.centeredAggregationKey instanceof Long))
+        if (!(this.centeredAggregationKey instanceof Long)) {
             return;
+        }
 
         HashMap<String, java.util.ArrayList<Long>> map = FFMPDataGenerator.M_LIST
                 .get(this.siteKey);
-        if (map == null)
+        if (map == null) {
             return;
+        }
 
         java.util.ArrayList<Long> list = map.get(this.huc);
-        if (list == null)
+        if (list == null) {
             return;
+        }
 
-        if (list.contains((Long) this.centeredAggregationKey))
+        if (list.contains(this.centeredAggregationKey)) {
             this.setQPFMissing();
+        }
     }
 
     // Utilize the fact FFMPRowGenerator set QPFSCAN M if qpfBasin null
@@ -706,8 +716,8 @@ public class FFMPDataGenerator {
                     break; // one is enough
                 }
             } catch (VizException e) {
-                statusHandler.info("FFMPResource.getBasin Exception: "
-                        + e.getMessage());
+                statusHandler.info(
+                        "FFMPResource.getBasin Exception: " + e.getMessage());
             }
         }
 

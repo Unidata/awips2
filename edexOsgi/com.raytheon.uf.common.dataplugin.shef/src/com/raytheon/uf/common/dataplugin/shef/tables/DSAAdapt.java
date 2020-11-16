@@ -7,13 +7,30 @@ import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+/**
+ * Class to define dsaadapt database table.
+ * <p>
+ * 
+ * <pre>
+ * SOFTWARE HISTORY
+ * Date         Ticket#     Engineer    Description
+ * ------------ ----------  ----------- --------------------------
+ * April 2018   DCS 20586   P Tilles    Rename column "max_usability_blk" to 
+ *                                        "kdp_coeff_rain_hail"
+ * 
+ * 
+ * </pre>
+ * 
+ * 
+ */
+
 @Entity
 @Table(name = "dsaadapt")
 @javax.xml.bind.annotation.XmlRootElement
 @javax.xml.bind.annotation.XmlAccessorType(javax.xml.bind.annotation.XmlAccessType.NONE)
 @com.raytheon.uf.common.serialization.annotations.DynamicSerialize
-public class DSAAdapt extends
-        com.raytheon.uf.common.dataplugin.persist.PersistableDataObject
+public class DSAAdapt
+        extends com.raytheon.uf.common.dataplugin.persist.PersistableDataObject
         implements java.io.Serializable,
         com.raytheon.uf.common.serialization.ISerializableObject {
 
@@ -81,7 +98,7 @@ public class DSAAdapt extends
 
     @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
-    private Float max_usability_blk;
+    private Float kdp_coeff_rain_hail;
 
     @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
@@ -159,7 +176,6 @@ public class DSAAdapt extends
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float longst_lag;
 
-    // * new for Build 17 *
     @javax.xml.bind.annotation.XmlElement
     @com.raytheon.uf.common.serialization.annotations.DynamicSerializeElement
     private Float min_early_term_angle;
@@ -212,7 +228,7 @@ public class DSAAdapt extends
             float z_r_mult, float z_r_power, float zdr_z_mult,
             float zdr_z_power, float zdr_zdr_power, float min_corr_precip,
             float min_corr_kdp, float refl_max, float kdp_max_beam_blk,
-            float max_usability_blk, float kdp_min_usage_rate, float ws_mult,
+            float kdp_coeff_rain_hail, float kdp_min_usage_rate, float ws_mult,
             float gr_mult, float rh_mult, float ds_mult, float ic_mult,
             float grid_is_full, float paif_rate, float paif_area,
             float rain_time_thresh, float num_zones, float max_precip_rate,
@@ -240,7 +256,7 @@ public class DSAAdapt extends
         this.min_corr_kdp = min_corr_kdp;
         this.refl_max = refl_max;
         this.kdp_max_beam_blk = kdp_max_beam_blk;
-        this.max_usability_blk = max_usability_blk;
+        this.kdp_coeff_rain_hail = kdp_coeff_rain_hail; // new for Bld 19
         this.kdp_min_usage_rate = kdp_min_usage_rate;
         this.ws_mult = ws_mult;
         this.gr_mult = gr_mult;
@@ -260,9 +276,6 @@ public class DSAAdapt extends
         this.num_grpairs = num_grpairs;
         this.reset_bias = reset_bias;
         this.longst_lag = longst_lag;
-
-        // *new for Build 17 *
-
         this.min_early_term_angle = min_early_term_angle;
         this.max_volume_per_hour = max_volume_per_hour;
         this.dry_snow_mult = dry_snow_mult;
@@ -277,8 +290,8 @@ public class DSAAdapt extends
 
     @EmbeddedId
     @AttributeOverrides({
-            @AttributeOverride(name = "radid", column = @Column(name = "radid", nullable = false, length = 3)),
-            @AttributeOverride(name = "obstime", column = @Column(name = "obstime", nullable = false, length = 29)) })
+            @AttributeOverride(name = "radid", column = @Column(name = "radid", nullable = false, length = 3) ),
+            @AttributeOverride(name = "obstime", column = @Column(name = "obstime", nullable = false, length = 29) ) })
     public DSAAdaptId getId() {
         return this.id;
     }
@@ -413,13 +426,13 @@ public class DSAAdapt extends
         this.kdp_max_beam_blk = kdp_max_beam_blk;
     }
 
-    @Column(name = "max_usability_blk")
-    public Float getMaxUsabilityBlk() {
-        return this.max_usability_blk;
+    @Column(name = "kdp_coeff_rain_hail")
+    public Float getKDPCoeffRainHail() {
+        return this.kdp_coeff_rain_hail;
     }
 
-    public void setMaxUsabilityBlk(Float max_usability_blk) {
-        this.max_usability_blk = max_usability_blk;
+    public void setKDPCoeffRainHail(Float kdp_coeff_rain_hail) {
+        this.kdp_coeff_rain_hail = kdp_coeff_rain_hail;
     }
 
     @Column(name = "kdp_min_usage_rate")
@@ -592,8 +605,6 @@ public class DSAAdapt extends
     public void setLongstLag(Float longst_lag) {
         this.longst_lag = longst_lag;
     }
-
-    // * new for Build 17 *
 
     @Column(name = "min_early_term_angle")
     public Float getMinEarlyTermAngle() {

@@ -222,15 +222,16 @@
 #
 #    Change Document History:
 #       1:
-#       	Change Document:   GFS1-NHD_SPR_7432
-#       	Action Date:       06-NOV-2009 08:30:19
-#       	Relationship Type: In Response to
-#       	Status:           NEXTRELEASE
-#       	Title:             OB9.2 AvnFPS - TPO/FuelAlternate Rule Doesn't work
+#               Change Document:   GFS1-NHD_SPR_7432
+#               Action Date:       06-NOV-2009 08:30:19
+#               Relationship Type: In Response to
+#               Status:           NEXTRELEASE
+#               Title:             OB9.2 AvnFPS - TPO/FuelAlternate Rule Doesn't work
 #       
 #    Date          Ticket#       Engineer       Description
 #    ----------    ----------    -----------    --------------------------
 #    08/03/2015    17540         zhao           Modified to make default issue time configurable
+#    01/16/2018    6989          tgurney        Change AMD line indent to 5 spaces
 #
 
 ##
@@ -460,7 +461,7 @@ def indentTaf(lines):
         taf.append(l2)
     k += 1
     for line in lines[k:]:
-        if line.startswith('FM'):
+        if line.startswith('FM') or line.startswith('AMD'):
             l1, l2 = _split_line(line, 4)
         elif line.startswith('TEMPO'):
             l1, l2 = _split_line(line, 5)
@@ -604,7 +605,7 @@ def makeTafFromPeriods(ident, bbb, periods, t=None, tafDuration=24, evtime=None)
         p = inperiods.next()
         if getValidTime('taf', bbb, t) < p['prev']['time']['from']-1800.0:
            # start time of the first group in the future
-	   tmp=formatRecForMAIN(None, ident, bbb, t, tafDuration, evtime)
+           tmp=formatRecForMAIN(None, ident, bbb, t, tafDuration, evtime)
            lines.append(' '.join(' '.join(tmp).split()))
            tmp = formatRecForFM(p['prev'])
         else:
@@ -749,22 +750,22 @@ def flightCategory(dcd):
     sky, vis = dcd.get('sky',{}), dcd.get('vsby',{})
     cig, vsby = sky.get('cig',-1), vis.get('value',-1)
     if cig < 0: #cig is missing, vsby may be valid
-	if vsby < 0: #vsby missing, default to VFR 
-	    return Avn.VFR
-	elif vsby < 1.0:
-	    return Avn.LIFR
-	elif vsby < 3.0:
-	    return Avn.IFR
-	elif vsby < 6.0:
-	    return Avn.MVFR
-	return Avn.VFR
+        if vsby < 0: #vsby missing, default to VFR 
+            return Avn.VFR
+        elif vsby < 1.0:
+            return Avn.LIFR
+        elif vsby < 3.0:
+            return Avn.IFR
+        elif vsby < 6.0:
+            return Avn.MVFR
+        return Avn.VFR
     elif vsby < 0: #vsby is missing, cig is valid (took care of cig & vsby both missing already)
-	if cig < 500:
-	    return Avn.LIFR
-	elif cig < 1000:
-	    return Avn.IFR
-	elif cig < 3100:
-	    return Avn.MVFR
+        if cig < 500:
+            return Avn.LIFR
+        elif cig < 1000:
+            return Avn.IFR
+        elif cig < 3100:
+            return Avn.MVFR
         return Avn.VFR
     elif cig < 500 or vsby < 1.0:
         return Avn.LIFR
@@ -1068,7 +1069,7 @@ class TafData:
                 except (TypeError,KeyError):
                     pass
                 
-	    return tempo
+            return tempo
         except KeyError:
             return None
         

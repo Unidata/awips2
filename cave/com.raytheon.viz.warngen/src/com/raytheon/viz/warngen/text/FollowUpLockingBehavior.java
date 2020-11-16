@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -29,11 +29,11 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
 
 /**
  * Locks text patterns for follow up warnings.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date         Ticket#    Engineer    Description
  * ------------ ---------- ----------- --------------------------
  * Sep 24, 2012    15322   jsanchez     Initial creation
@@ -41,9 +41,11 @@ import com.raytheon.viz.warngen.gis.AffectedAreas;
  * Mar 13, 2013    15892   D. Friedman  Fix headline locking. Do not
  *                                      lock "AND" or "FOR".
  * May 29, 2015    4442    randerso     Fixed WarnGen text locking to work with mixed case
- * 
+ * Jan 24, 2018    6970    dgilling     Fixed text locking for headlines that
+ *                                      contain 2 times.
+ *
  * </pre>
- * 
+ *
  * @author jsanchez
  * @version 1.0
  */
@@ -59,11 +61,11 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
                     Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     private static Pattern timePtrn = Pattern.compile(
-            "AT \\d{3,4} (AM|PM) \\w{3,4}", Pattern.MULTILINE
-                    | Pattern.CASE_INSENSITIVE);
+            "AT \\d{3,4} (AM|PM) \\w{3,4}(\\/\\d{3,4} (AM|PM) \\w{3,4}\\/){0,1}",
+            Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     private static Pattern remainsPtrn = Pattern.compile(
-            "REMAINS IN EFFECT UNTIL \\d{3,4} (AM|PM) \\w{3,4}",
+            "REMAINS IN EFFECT UNTIL \\d{3,4} (AM|PM) \\w{3,4}(\\/\\d{3,4} (AM|PM) \\w{3,4}\\/){0,1}",
             Pattern.MULTILINE | Pattern.CASE_INSENSITIVE);
 
     private static Pattern canceledPtrn = Pattern.compile(
@@ -85,7 +87,7 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
 
     /**
      * Locks the cancel and the follow up headlines.
-     * 
+     *
      */
     private void headlines() {
         // LOCK_END should not be found at the beginning since the previous line
@@ -116,7 +118,7 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
 
     /**
      * Locks remains in effect text.
-     * 
+     *
      * @param followupHeadline
      * @return
      */
@@ -128,7 +130,7 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
 
     /**
      * Locks the canceled text.
-     * 
+     *
      * @param canceledHeadline
      * @return
      */
@@ -140,7 +142,7 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
 
     /**
      * Helper method to lock area names and notations in the headline.
-     * 
+     *
      * @param headline
      * @param areas
      * @return
@@ -153,8 +155,8 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
                     + WarnGenPatterns.LOCK_END;
 
         } else {
-            Set<String> notations = new HashSet<String>();
-            Set<String> names = new HashSet<String>();
+            Set<String> notations = new HashSet<>();
+            Set<String> names = new HashSet<>();
 
             for (AffectedAreas affectedArea : affectedAreas) {
                 if ((affectedArea.getAreaNotation() != null)
@@ -205,7 +207,7 @@ public class FollowUpLockingBehavior extends AbstractLockingBehavior {
 
     /**
      * Common key words to be locked in a headline.
-     * 
+     *
      * @param headline
      * @return
      */

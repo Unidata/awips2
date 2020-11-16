@@ -109,6 +109,8 @@ import com.raytheon.viz.ui.dialogs.CaveSWTDialog;
  * Mar 08, 2017 17643    jdeng       Fix errors when deleting/setting data to
  *                                   missing
  * Mar 23, 2017  6117    bsteffen    Workaround crash when printing images.
+ * Jan 16, 2018  6772    lvenable    Retrieved the data after saving so the displayed
+ *                                   data matches the data saved to the DB.
  *
  * </pre>
  *
@@ -122,56 +124,6 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
 
     /** Location and size of dialog. */
     private static Rectangle bounds = null;
-
-    /**
-     * Time Series Control menu item.
-     */
-    private MenuItem timeSeriesControlMI;
-
-    /**
-     * Save menu item.
-     */
-    private MenuItem saveMI;
-
-    /**
-     * Print sub menu item.
-     */
-    private MenuItem printSubMI;
-
-    /**
-     * Reverse video menu item.
-     */
-    private MenuItem reverseVideoMI;
-
-    /**
-     * Normal menu item.
-     */
-    private MenuItem normalMI;
-
-    /**
-     * Quit menu item.
-     */
-    private MenuItem quitMI;
-
-    /**
-     * Zoom menu item.
-     */
-    private MenuItem zoomSubMI;
-
-    /**
-     * Set menu item.
-     */
-    private MenuItem setMI;
-
-    /**
-     * Reset menu item.
-     */
-    private MenuItem resetMI;
-
-    /**
-     * Show PC sub menu item.
-     */
-    private MenuItem showPcSubMI;
 
     /**
      * Off menu item.
@@ -194,11 +146,6 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     private MenuItem showLatestFcstMI;
 
     /**
-     * Scale Stages menu item.
-     */
-    private MenuItem scaleStagesMI;
-
-    /**
      * Data Only menu item.
      */
     private MenuItem dataOnlyMI;
@@ -219,11 +166,6 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     private MenuItem gridLinesMI;
 
     /**
-     * Plot menu item.
-     */
-    private MenuItem plotMI;
-
-    /**
      * Points menu item.
      */
     private MenuItem pointsMI;
@@ -237,11 +179,6 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
      * Both points and lines menu item.
      */
     private MenuItem bothMI;
-
-    /**
-     * Batch scale stages menu item.
-     */
-    private MenuItem batchScaleStagesMI;
 
     /**
      * Batch Data Only menu item.
@@ -341,10 +278,10 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     /**
      * Display Canvas List.
      */
-    private final List<TimeSeriesDisplayCanvas> canvasList = new ArrayList<TimeSeriesDisplayCanvas>();
+    private final List<TimeSeriesDisplayCanvas> canvasList = new ArrayList<>();
 
     /** List of page composites */
-    private final List<Composite> pageCompList = new ArrayList<Composite>();
+    private final List<Composite> pageCompList = new ArrayList<>();
 
     /**
      * The page currently displayed.
@@ -373,17 +310,17 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     /**
      * Holds the list of edited points.
      */
-    private List<ForecastData> editList = new ArrayList<ForecastData>();
+    private List<ForecastData> editList = new ArrayList<>();
 
     /**
      * Holds the list of deleted points.
      */
-    private final List<ForecastData> deleteList = new ArrayList<ForecastData>();
+    private final List<ForecastData> deleteList = new ArrayList<>();
 
     /**
      * Holds the list of inserted points.
      */
-    private List<ForecastData> insertList = new ArrayList<ForecastData>();
+    private List<ForecastData> insertList = new ArrayList<>();
 
     /**
      * The main graph Composite.
@@ -518,7 +455,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         // --------------------------------------------
         // Create the Time Series Control menu item
         // --------------------------------------------
-        timeSeriesControlMI = new MenuItem(fileMenu, SWT.NONE);
+        MenuItem timeSeriesControlMI = new MenuItem(fileMenu, SWT.NONE);
         timeSeriesControlMI.setText("&Time Series Control\tCtrl+T");
         timeSeriesControlMI.setAccelerator(SWT.CTRL + 'T');
         timeSeriesControlMI.addSelectionListener(new SelectionAdapter() {
@@ -531,7 +468,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         // -----------------------------------------
         // Create the Save menu item
         // -----------------------------------------
-        saveMI = new MenuItem(fileMenu, SWT.NONE);
+        MenuItem saveMI = new MenuItem(fileMenu, SWT.NONE);
         saveMI.setText("&Save\tCtrl+S");
         saveMI.setAccelerator(SWT.CTRL + 'S');
         saveMI.addSelectionListener(new SelectionAdapter() {
@@ -544,7 +481,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         // -----------------------------------------
         // Create the Print menu item and sub menu
         // -----------------------------------------
-        printSubMI = new MenuItem(fileMenu, SWT.CASCADE);
+        MenuItem printSubMI = new MenuItem(fileMenu, SWT.CASCADE);
         printSubMI.setText("Print");
 
         Menu printSubMenu = new Menu(shell, SWT.DROP_DOWN);
@@ -555,7 +492,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         // -----------------------------------------
         // Create the Quit menu item
         // -----------------------------------------
-        quitMI = new MenuItem(fileMenu, SWT.NONE);
+        MenuItem quitMI = new MenuItem(fileMenu, SWT.NONE);
         quitMI.setText("&Quit\tCtrl+Q");
         quitMI.setAccelerator(SWT.CTRL + 'Q');
         quitMI.addSelectionListener(new SelectionAdapter() {
@@ -627,7 +564,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         // -----------------------------------------
         // Create the Zoom menu item and sub menu
         // -----------------------------------------
-        zoomSubMI = new MenuItem(graphMenu, SWT.CASCADE);
+        MenuItem zoomSubMI = new MenuItem(graphMenu, SWT.CASCADE);
         zoomSubMI.setText("Zoom");
 
         Menu zoomSubMenu = new Menu(shell, SWT.DROP_DOWN);
@@ -638,7 +575,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         // ------------------------------------------------------
         // Create the Show PC as 1hr. PP menu item and sub menu
         // ------------------------------------------------------
-        showPcSubMI = new MenuItem(graphMenu, SWT.CASCADE);
+        MenuItem showPcSubMI = new MenuItem(graphMenu, SWT.CASCADE);
         showPcSubMI.setText("Show PC as 1Hr. PP");
 
         Menu showPcSubMenu = new Menu(shell, SWT.DROP_DOWN);
@@ -663,7 +600,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         // ------------------------------------------------------
         // Create the Scale Stages menu item and sub menu
         // ------------------------------------------------------
-        scaleStagesMI = new MenuItem(graphMenu, SWT.CASCADE);
+        MenuItem scaleStagesMI = new MenuItem(graphMenu, SWT.CASCADE);
         scaleStagesMI.setText("Scale Stages");
 
         Menu scaleStagesSubMenu = new Menu(shell, SWT.DROP_DOWN);
@@ -711,7 +648,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         // ------------------------------------------------------
         // Create the Plot menu item and sub menu
         // ------------------------------------------------------
-        plotMI = new MenuItem(optionsMenu, SWT.CASCADE);
+        MenuItem plotMI = new MenuItem(optionsMenu, SWT.CASCADE);
         plotMI.setText("Plot");
 
         Menu plotSubMenu = new Menu(shell, SWT.DROP_DOWN);
@@ -722,7 +659,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
         // --------------------------------------------------------
         // Create the Batch Scale Stages menu item and sub menu
         // --------------------------------------------------------
-        batchScaleStagesMI = new MenuItem(optionsMenu, SWT.CASCADE);
+        MenuItem batchScaleStagesMI = new MenuItem(optionsMenu, SWT.CASCADE);
         batchScaleStagesMI.setText("Batch Scale Stages");
 
         Menu batchScaleStagesSubMenu = new Menu(shell, SWT.DROP_DOWN);
@@ -858,7 +795,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                      */
                     Date insertStartTime = Calendar
                             .getInstance(TimeZone.getTimeZone("GMT")).getTime();
-                    if (deleteList.size() > 0) {
+                    if (!deleteList.isEmpty()) {
                         try {
                             dataManager.insertDelRejectedData(deleteList,
                                     rejectedSecondsMap, insertStartTime);
@@ -870,7 +807,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                         }
                     }
 
-                    if (insertList.size() > 0) {
+                    if (!insertList.isEmpty()) {
                         try {
                             dataManager.insert(insertList);
                             updateMaxFcst(insertList);
@@ -891,7 +828,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                         }
                     }
 
-                    if (editList.size() > 0) {
+                    if (!editList.isEmpty()) {
                         try {
                             dataManager.insertSetMRejectedData(editList,
                                     rejectedSecondsMap, insertStartTime);
@@ -903,25 +840,17 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                         }
                     }
 
+                    for (TimeSeriesDisplayCanvas canvas : canvasList) {
+                        if (canvas != null) {
+                            canvas.cancelEdit();
+                            canvas.getDataForGraph();
+                            canvas.redraw();
+                        }
+                    }
+
                     setSelectTrace(false);
                     setCancel(true);
-                    insertMI.setEnabled(false);
-                    insertMI.setSelection(false);
-                    deleteMI.setEnabled(false);
-                    deleteMI.setSelection(false);
-                    moveMI.setEnabled(false);
-                    moveMI.setSelection(false);
-                    setMissingMI.setEnabled(false);
-                    setMissingMI.setSelection(false);
-                    saveToDatabaseMI.setEnabled(false);
-                    cancelChangesMI.setEnabled(false);
-                    selectTraceMI.setEnabled(true);
-
-                    // clear the edit point lists
-                    insertList.clear();
-                    editList.clear();
-                    deleteList.clear();
-                    displayCanvas.redraw();
+                    resetMenuItemsAndLists();
                 }
             }
         });
@@ -948,7 +877,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
      *            The print menu.
      */
     private void createPrintSubMenu(Menu printSubMenu) {
-        reverseVideoMI = new MenuItem(printSubMenu, SWT.NONE);
+        MenuItem reverseVideoMI = new MenuItem(printSubMenu, SWT.NONE);
         reverseVideoMI.setText("Reverse Video");
         reverseVideoMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -958,7 +887,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
             }
         });
 
-        normalMI = new MenuItem(printSubMenu, SWT.NONE);
+        MenuItem normalMI = new MenuItem(printSubMenu, SWT.NONE);
         normalMI.setText("Normal");
         normalMI.addSelectionListener(new SelectionAdapter() {
             @Override
@@ -976,7 +905,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
      *            The Zoom menu.
      */
     private void createZoomSubMenu(Menu zoomSubMenu) {
-        setMI = new MenuItem(zoomSubMenu, SWT.NONE);
+        MenuItem setMI = new MenuItem(zoomSubMenu, SWT.NONE);
         setMI.setText("Set\tCtrl+Z");
         setMI.setAccelerator(SWT.CTRL + 'Z');
         setMI.addSelectionListener(new SelectionAdapter() {
@@ -996,7 +925,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
             }
         });
 
-        resetMI = new MenuItem(zoomSubMenu, SWT.NONE);
+        MenuItem resetMI = new MenuItem(zoomSubMenu, SWT.NONE);
         resetMI.setText("&Reset\tCtrl+R");
         resetMI.setAccelerator(SWT.CTRL + 'R');
         resetMI.addSelectionListener(new SelectionAdapter() {
@@ -1233,6 +1162,35 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
     }
 
     /**
+     * Reset the menu items under the edit menu and clear the insert, edit, and
+     * delete lists.
+     */
+    private void resetMenuItemsAndLists() {
+        insertMI.setEnabled(false);
+        insertMI.setSelection(false);
+        deleteMI.setEnabled(false);
+        deleteMI.setSelection(false);
+        moveMI.setEnabled(false);
+        moveMI.setSelection(false);
+        setMissingMI.setEnabled(false);
+        setMissingMI.setSelection(false);
+        saveToDatabaseMI.setEnabled(false);
+        cancelChangesMI.setEnabled(false);
+        selectTraceMI.setEnabled(true);
+
+        // Clear the insert, edit, and delete lists.
+        if (insertList != null) {
+            insertList.clear();
+        }
+        if (editList != null) {
+            editList.clear();
+        }
+        if (deleteList != null) {
+            deleteList.clear();
+        }
+    }
+
+    /**
      * From Apps defaults get the showCatValue.
      */
     private void loadAppsDefaults() {
@@ -1393,15 +1351,15 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                     }
 
                     String traceMode = groupInfo.getTraceMode().trim();
-                    if (traceMode.equalsIgnoreCase("B")) {
+                    if ("B".equalsIgnoreCase(traceMode)) {
                         bothMI.setSelection(true);
                         pointsMI.setSelection(false);
                         linesMI.setSelection(false);
-                    } else if (traceMode.equalsIgnoreCase("P")) {
+                    } else if ("P".equalsIgnoreCase(traceMode)) {
                         bothMI.setSelection(false);
                         pointsMI.setSelection(true);
                         linesMI.setSelection(false);
-                    } else if (traceMode.equalsIgnoreCase("L")) {
+                    } else if ("L".equalsIgnoreCase(traceMode)) {
                         bothMI.setSelection(false);
                         pointsMI.setSelection(false);
                         linesMI.setSelection(true);
@@ -1425,7 +1383,7 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                 stackGridComp.layout();
             }
 
-            if (pageCompList.size() > 0) {
+            if (!pageCompList.isEmpty()) {
                 ((GridData) pageCompList.get(0)
                         .getLayoutData()).exclude = false;
                 pageCompList.get(0).setVisible(true);
@@ -1501,28 +1459,8 @@ public class TimeSeriesDisplayDlg extends CaveSWTDialog {
                     canvas.redraw();
                 }
             }
-            insertMI.setEnabled(false);
-            insertMI.setSelection(false);
-            deleteMI.setEnabled(false);
-            deleteMI.setSelection(false);
-            moveMI.setEnabled(false);
-            moveMI.setSelection(false);
-            setMissingMI.setEnabled(false);
-            setMissingMI.setSelection(false);
-            saveToDatabaseMI.setEnabled(false);
-            cancelChangesMI.setEnabled(false);
-            selectTraceMI.setEnabled(true);
 
-            // clear the edit point lists
-            if (insertList != null) {
-                insertList.clear();
-            }
-            if (editList != null) {
-                editList.clear();
-            }
-            if (deleteList != null) {
-                deleteList.clear();
-            }
+            resetMenuItemsAndLists();
         }
     }
 

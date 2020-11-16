@@ -53,6 +53,11 @@
 #              makes gridpoints not on the same (land or sea) appear to
 #              be MUCH further apart.
 # 2006/10/10 - Reduce memory in the Serp routines
+#
+#Date          Ticket#   Engineer  Description
+#------------  -------  --------- ---------------
+#Dec 17, 2018  21046    smoorthy   adding in change to replace 1.0e-200 which causes NaN values to appear
+#
 # ----------------------------------------------------------------------------
 
 ##
@@ -760,7 +765,7 @@ class ObjAnal(SmartScript.SmartScript):
       #  Calculate weighted average.  Sum of (weights * values) divided by
       #  the sum of weights (make sure sum of weights is non-zero)
       #
-      totweights[np.less(totweights,1.0e-200)] = 1.0e-200
+      totweights[totweights<1.0e-6] = 1.0e-6
       chg=totsum/totweights
       #
       #  Barnes PASS 2
@@ -792,7 +797,7 @@ class ObjAnal(SmartScript.SmartScript):
       #  Calculate weighted average.  Sum of (weights * values) divided by
       #  the sum of weights (make sure sum of weights is non-zero)
       #
-      totweights[np.less(totweights,1.0e-200)] = 1.0e-200
+      totweights[totweights<1.0e-6] = 1.0e-6
       chg2=totsum/totweights
       #
       #  Add the adjustment from PASS 2 to PASS 1

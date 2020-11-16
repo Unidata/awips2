@@ -19,13 +19,6 @@
  **/
 package com.raytheon.viz.gfe.dialogs.formatterlauncher;
 
-import static com.raytheon.viz.gfe.product.ProductFileUtil.getDraftFile;
-import static com.raytheon.viz.gfe.product.ProductFileUtil.getLastProductFile;
-import static com.raytheon.viz.gfe.product.ProductFileUtil.getProductFile;
-import static com.raytheon.viz.gfe.product.ProductFileUtil.readFile;
-import static com.raytheon.viz.gfe.product.ProductFileUtil.writeFile;
-import static com.raytheon.viz.gfe.product.StringUtil.stringJoin;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -40,6 +33,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -51,7 +45,6 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageRegistry;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -63,7 +56,6 @@ import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -124,91 +116,129 @@ import com.raytheon.viz.ui.simulatedtime.SimulatedTimeOperations;
 
 /**
  * Composite containing the product editor controls.
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 18 APR 2008  ###        lvenable    Initial creation
- * 19 JAN 2010  4085       ryu         Save and load draft
- * 19 FEB 2010  4132       ryu         Product correction.
- * 23 FEB 2010  3463       rtran       CallToActions dialogs
- * 03Mar2010    4765       MW Fegan    Use common spell checker.
- * 22 Mar 2010  2053       wkwock      Fix issue time in text
- * 24 Mar 2010  4255       wkwock      Fix expire time in text
- * 02Aug2010    2187       cjeanbap    Update variable/method signature to be consistent.
- * 20Aug2010    4687       cjeanbap    Fixed NullPointerException.
- * 27 AUG 2010  6730       jnjanga     Port FixVTEC functionality from A1.
- * 21 SEP 2010  5817       jnjanga     Fix attribution phrase append from issuance to issuance.
- * 27 OCT 2010  5817       jnjanga     Fix N.P.E caused when call getVTECActionCodes on non VTEC products.
- * 31 AUG 2012 15178       mli         Add autoWrite and autoStore capability
- * 31 AUG 2012 15037       mli         Handle bad characters in text formatter definition
- * 07 Nov 2012 1298        rferrel     Changes for non-blocking CallToActionsDlg.
- *                                     Changes for non-blocking FindReplaceDlg.
- *                                     Changes for non-blocking StoreTransmitDlg.
- *                                     Changes for non-blocking WrapLengthDialog.
- * 08 Feb 2013 12851       jzeng       Add menuToAddTo in create*Menu
- *                                     Create createEditorPopupMenu()
- *                                     Add mouselistener in createTextControl() for StyledText
- * 28 Feb 2013 15889       ryu         Removed detachAttributionPhrase and getVTECActionCodes
- * 02/12/2013        #1597 randerso    Code cleanup. Fixed possible widget disposed errors on shut down.
- * 05/08/2013        #1842 dgilling    Add alternate setProductText(), fix
- *                                     warnings.
- * 09/03/2013  16534       ryu         Refactor; sneak in a change for Ron (RM #1597).
- * 01/06/2014  2649        dgilling    Pass flag to StoreTransmitDlg to only
- *                                     update VTEC lines on products that
- *                                     aren't being corrected.
- * 02/05/2014  17022       ryu         Modified loadDraft() to fix merging of WMO heading and AWIPS ID.
- * 03/25/2014   #2884      randerso    Added xxxid to check for disabling editor
- * 05/12/2014  16195       zhao        Modified widgetSelected() for "Auto Wrap" option widget
- * 10/20/2014   #3685      randerso    Made conversion to upper case conditional on product id
- * 12/01/2014  #624        zhao        Modified saveFile()
- * 12/16/2014  #14946      ryu         Modified updateIssueExpireTimes() so issuance time is displayed
- *                                     for the local time zones for each segment.
- * 01/28/2015  #4018       randerso    Code cleanup.
- * 02/04/2014  17039       ryu         Removed menu item related to the HighlighFramingCodes feature.
- * 04/20/2015   4027       randerso    Renamed ProductStateEnum with an initial capital
- *                                     Expunged Calendar from ActiveTableRecord
- * 07/02/2015  13753       lshi        Update times for products in Product Editor
- * 07/22/2015  13753       lshi        Keeps issue time unchanged
- * 07/28/2015   4263       dgilling    Support changes to TextProductManager.                                
- * 08/06/2015  13753       lshi        removed updateTime flag, undo the change of updateIssueExpireTimes, etc.
- * 08/10/2015   4721       randerso    Changed getNNNid() to use the productID field (not textdbPil)
- * Aug 31, 2015 4749       njensen     Changed setCloseCallback to addCloseCallback
- * 09/15/2015   4858       dgilling    Disable store/transmit in DRT mode.
- * 10/14/2015   4959       dgilling    Support new function signature for wordWrap.
- * 
- * 10/26/2015  18244       lshi        fixed NullPointerException (pds, updateIssueExpireTimes)
- * 12/14/2015  18367       ryu         Disable finalization of ETN when product is stored to text database.
- * 12/16/2015  18410       lshi        For corrected products, both WMO time and MND time should
- *                                     match the current time
- * 01/21/2016  18505       lshi        Resent product should have same WMO, MND, and segment times
- *                                     as original product.
- * 02/05/2016   5242       dgilling    Remove calls to deprecated Localization APIs.
- * 02/10/2016   5337       dgilling    Prevent CAN products past VTEC end time 
- *                                     from being transmitted.
- * 02/24/2016   5411       randerso    Leave issue times in mixed case.
- * 03/01/2016  14775       ryu         Initialize product definition for product correction; 
- *                                     modified saveFile() and getDir().
- * 06/13/2016  #5685       dgilling    Use product definition to initialize word wrap value.
- * 06/17/2016  18940/18428 arickert    Do not unlock text on first line of Product Editor
- * 06/28/2016   5578       bsteffen    Prevent getTimeZones from calling python while synced with the UI thread.
- * 10/25/2016  19446       ryu         Replace call to updateExpireTime() in setPurgeTime() to
- *                                     fix CAVE freeze issue when a ValuesDialog is open.
- * Nov 02, 2016 5979       njensen     Cast to Number where applicable
- * 02/24/2017  19715       ryu         Fix issue of expiration time being changed on product correction.
+ *
+ * Date          Ticket#      Engineer  Description
+ * ------------- ------------ --------- ----------------------------------------
+ * Apr 18, 2008  ###          lvenable  Initial creation
+ * Jan 19, 2010  4085         ryu       Save and load draft
+ * Feb 19, 2010  4132         ryu       Product correction.
+ * Feb 23, 2010  3463         rtran     CallToActions dialogs
+ * Mar 03, 2010  4765         MW Fegan  Use common spell checker.
+ * Mar 22, 2010  2053         wkwock    Fix issue time in text
+ * Mar 24, 2010  4255         wkwock    Fix expire time in text
+ * Aug 02, 2010  2187         cjeanbap  Update variable/method signature to be
+ *                                      consistent.
+ * Aug 20, 2010  4687         cjeanbap  Fixed NullPointerException.
+ * Aug 27, 2010  6730         jnjanga   Port FixVTEC functionality from A1.
+ * Sep 21, 2010  5817         jnjanga   Fix attribution phrase append from
+ *                                      issuance to issuance.
+ * Oct 27, 2010  5817         jnjanga   Fix N.P.E caused when call
+ *                                      getVTECActionCodes on non VTEC products.
+ * Aug 31, 2012  15178        mli       Add autoWrite and autoStore capability
+ * Aug 31, 2012  15037        mli       Handle bad characters in text formatter
+ *                                      definition
+ * Nov 07, 2012  1298         rferrel   Changes for non-blocking
+ *                                      CallToActionsDlg. Changes for
+ *                                      non-blocking FindReplaceDlg. Changes for
+ *                                      non-blocking StoreTransmitDlg. Changes
+ *                                      for non-blocking WrapLengthDialog.
+ * Feb 08, 2013  12851        jzeng     Add menuToAddTo in create*Menu Create
+ *                                      createEditorPopupMenu() Add
+ *                                      mouselistener in createTextControl() for
+ *                                      StyledText
+ * Feb 28, 2013  15889        ryu       Removed detachAttributionPhrase and
+ *                                      getVTECActionCodes
+ * Feb 12, 2013  1597         randerso  Code cleanup. Fixed possible widget
+ *                                      disposed errors on shut down.
+ * May 08, 2013  1842         dgilling  Add alternate setProductText(), fix
+ *                                      warnings.
+ * Sep 03, 2013  16534        ryu       Refactor; sneak in a change for Ron (RM
+ *                                      #1597).
+ * Jan 06, 2014  2649         dgilling  Pass flag to StoreTransmitDlg to only
+ *                                      update VTEC lines on products that
+ *                                      aren't being corrected.
+ * Feb 05, 2014  17022        ryu       Modified loadDraft() to fix merging of
+ *                                      WMO heading and AWIPS ID.
+ * Mar 25, 2014  2884         randerso  Added xxxid to check for disabling
+ *                                      editor
+ * May 12, 2014  16195        zhao      Modified widgetSelected() for "Auto
+ *                                      Wrap" option widget
+ * Oct 20, 2014  3685         randerso  Made conversion to upper case
+ *                                      conditional on product id
+ * Dec 01, 2014  624          zhao      Modified saveFile()
+ * Dec 16, 2014  14946        ryu       Modified updateIssueExpireTimes() so
+ *                                      issuance time is displayed for the local
+ *                                      time zones for each segment.
+ * Jan 28, 2015  4018         randerso  Code cleanup.
+ * Feb 04, 2014  17039        ryu       Removed menu item related to the
+ *                                      HighlighFramingCodes feature.
+ * Apr 20, 2015  4027         randerso  Renamed ProductStateEnum with an initial
+ *                                      capital Expunged Calendar from
+ *                                      ActiveTableRecord
+ * Jul 02, 2015  13753        lshi      Update times for products in Product
+ *                                      Editor
+ * Jul 22, 2015  13753        lshi      Keeps issue time unchanged
+ * Jul 28, 2015  4263         dgilling  Support changes to TextProductManager.
+ * Aug 06, 2015  13753        lshi      removed updateTime flag, undo the change
+ *                                      of updateIssueExpireTimes, etc.
+ * Aug 10, 2015  4721         randerso  Changed getNNNid() to use the productID
+ *                                      field (not textdbPil)
+ * Aug 31, 2015  4749         njensen   Changed setCloseCallback to
+ *                                      addCloseCallback
+ * Sep 15, 2015  4858         dgilling  Disable store/transmit in DRT mode.
+ * Oct 14, 2015  4959         dgilling  Support new function signature for
+ *                                      wordWrap.
+ * Oct 26, 2015  18244        lshi      fixed NullPointerException (pds,
+ *                                      updateIssueExpireTimes)
+ * Dec 14, 2015  18367        ryu       Disable finalization of ETN when product
+ *                                      is stored to text database.
+ * Dec 16, 2015  18410        lshi      For corrected products, both WMO time
+ *                                      and MND time should match the current
+ *                                      time
+ * Jan 21, 2016  18505        lshi      Resent product should have same WMO,
+ *                                      MND, and segment times as original
+ *                                      product.
+ * Feb 05, 2016  5242         dgilling  Remove calls to deprecated Localization
+ *                                      APIs.
+ * Feb 10, 2016  5337         dgilling  Prevent CAN products past VTEC end time
+ *                                      from being transmitted.
+ * Feb 24, 2016  5411         randerso  Leave issue times in mixed case.
+ * Mar 01, 2016  14775        ryu       Initialize product definition for
+ *                                      product correction; modified saveFile()
+ *                                      and getDir().
+ * Jun 13, 2016  5685         dgilling  Use product definition to initialize
+ *                                      word wrap value.
+ * Jun 17, 2016  18940/18428  arickert  Do not unlock text on first line of
+ *                                      Product Editor
+ * Jun 28, 2016  5578         bsteffen  Prevent getTimeZones from calling python
+ *                                      while synced with the UI thread.
+ * Oct 25, 2016  19446        ryu       Replace call to updateExpireTime() in
+ *                                      setPurgeTime() to fix CAVE freeze issue
+ *                                      when a ValuesDialog is open.
+ * Nov 02, 2016  5979         njensen   Cast to Number where applicable
+ * Feb 24, 2017  19715        ryu       Fix issue of expiration time being
+ *                                      changed on product correction.
+ * Jan 23, 2018  7153         randerso  Changes to allow new GFE config file to
+ *                                      be selected when perspective is
+ *                                      re-opened.
+ * Feb 02, 2018  7089         dgilling  Allow larger product purge times.
+ * Feb 02, 2018  6702         randerso  Fixed printing products to paginate
+ *                                      correctly
+ * Feb 07, 2018  7073         randerso  Remove "brain" from productDefinition
+ *                                      when reviving editor
  *
  * </pre>
- * 
+ *
  * @author lvenable
- * 
+ *
  */
-public class ProductEditorComp extends Composite implements
-        INotificationObserver {
-    private final transient IUFStatusHandler statusHandler = UFStatus
+public class ProductEditorComp extends Composite
+        implements INotificationObserver {
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(ProductEditorComp.class);
-
-    private final String EMPTY = "";
 
     /**
      * Parent composite.
@@ -312,8 +342,6 @@ public class ProductEditorComp extends Composite implements
      */
     private Spinner hoursSpnr;
 
-    private MenuItem autoWrapMI;
-
     /**
      * Date & time formatter.
      */
@@ -324,16 +352,6 @@ public class ProductEditorComp extends Composite implements
      * Expiration date.
      */
     private Date expireDate;
-
-    /**
-     * Expire calendar.
-     */
-    private Calendar origExpireCal;
-
-    /**
-     * Adjusted expire calendar.
-     */
-    private Calendar adjustedExpireCal;
 
     private ImageRegistry registry;
 
@@ -357,15 +375,12 @@ public class ProductEditorComp extends Composite implements
 
     private String autoSendAddress;
 
-    private final String longLocalFmtStr = "hmm a z EEE MMM d yyyy";
+    private static final String longLocalFmtStr = "hmm a z EEE MMM d yyyy";
 
-    private final TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
+    private static final TimeZone gmtTimeZone = TimeZone.getTimeZone("GMT");
 
-    private final int initialYear = year(SimulatedTime.getSystemTime()
-            .getTime());
-
-    // for CTA dialogs
-    private String phenSig = null;
+    private final int initialYear = year(
+            SimulatedTime.getSystemTime().getTime());
 
     private boolean HazardCTA = false;
 
@@ -385,7 +400,8 @@ public class ProductEditorComp extends Composite implements
      */
     private final ITransmissionState transmissionCB;
 
-    private final SimpleDateFormat purgeTimeFmt = new SimpleDateFormat("ddHHmm");
+    private final SimpleDateFormat purgeTimeFmt = new SimpleDateFormat(
+            "ddHHmm");
 
     private final SimpleDateFormat vtecTimeFmt = new SimpleDateFormat(
             "yyMMdd'T'HHmm'Z'");
@@ -406,9 +422,10 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Enumeration of product types.
-     * 
+     *
      * @author lvenable
      */
+    @SuppressWarnings("javadoc")
     public enum productTypeEnum {
         rou, res, AAA, AAB, AAC, AAD, AAE, RRA, RRB, RRC, CCA, CCB, CCC;
     }
@@ -417,14 +434,14 @@ public class ProductEditorComp extends Composite implements
         REG, PE, COR;
     }
 
-    private final String[] REG_PTypes = { "rou", "AAA", "AAB", "AAC", "AAD",
-            "AAE", "RRA", "RRB", "RRC" };
+    private static final String[] REG_PTypes = { "rou", "AAA", "AAB", "AAC",
+            "AAD", "AAE", "RRA", "RRB", "RRC" };
 
-    private final String[] PE_PTypes = { "res", "RRA", "RRB", "RRC" };
+    private static final String[] PE_PTypes = { "res", "RRA", "RRB", "RRC" };
 
-    private final String[] COR_PTypes = { "CCA", "CCB", "CCC" };
+    private static final String[] COR_PTypes = { "CCA", "CCB", "CCC" };
 
-    private final String ZERO_VTEC = "000000T0000Z";
+    private static final String ZERO_VTEC = "000000T0000Z";
 
     private List<ActiveTableRecord> activeVtecRecords = null;
 
@@ -445,9 +462,9 @@ public class ProductEditorComp extends Composite implements
 
     private boolean wrapMode;
 
-    private String prdDir = "/tmp";
+    private String prdDir;
 
-    private String prodEditorDirectory = null;
+    private String prodEditorDirectory;
 
     /**
      * Zones don't change so save the time zone for each segment to save trips
@@ -458,10 +475,15 @@ public class ProductEditorComp extends Composite implements
     private final DataManager dm;
 
     /**
-     * Constructor.
-     * 
+     * Constructor
+     *
      * @param parent
      *            Parent composite.
+     * @param productDefinition
+     * @param productName
+     * @param editorCorrectionMode
+     * @param transmissionCB
+     * @param dataMgr
      */
     public ProductEditorComp(Composite parent,
             ProductDefinition productDefinition, String productName,
@@ -480,23 +502,11 @@ public class ProductEditorComp extends Composite implements
         this.transmissionCB = transmissionCB;
         this.dm = dataMgr;
 
-        IPreferenceStore prefs = Activator.getDefault().getPreferenceStore();
+        prdDir = GFEPreference.getString("GFESUITE_PRDDIR",
+                System.getProperty("java.io.tmpdir"));
 
-        if (prefs.contains("GFESUITE_PRDDIR")) {
-            prdDir = prefs.getString("GFESUITE_PRDDIR");
-            if (prdDir.equals(EMPTY)) {
-                prdDir = "/tmp";
-            }
-        }
-
-        if (prefs.contains("ProductEditorDirectory")) {
-            prodEditorDirectory = prefs.getString("ProductEditorDirectory");
-            if (prodEditorDirectory.equals(EMPTY)) {
-                prodEditorDirectory = prdDir;
-            }
-        } else {
-            prodEditorDirectory = prdDir;
-        }
+        prodEditorDirectory = GFEPreference.getString("ProductEditorDirectory",
+                prdDir);
 
         if (!editorCorrectionMode) {
             wmoId = getDefString("wmoID");
@@ -510,7 +520,7 @@ public class ProductEditorComp extends Composite implements
             }
         }
 
-        testVTEC = GFEPreference.getBooleanPreference("TestVTECDecode");
+        testVTEC = GFEPreference.getBoolean("TestVTECDecode");
         if (CAVEMode.getMode().equals(CAVEMode.PRACTICE)) {
             testVTEC = true;
         }
@@ -525,9 +535,8 @@ public class ProductEditorComp extends Composite implements
                     timeUpdater.cancel();
                     break;
                 case SWT.Show:
-                    if ((!dead)
-                            && ((getProductText() != null) || !getProductText()
-                                    .isEmpty())) {
+                    if ((!dead) && ((getProductText() != null)
+                            || !getProductText().isEmpty())) {
                         timeUpdater.schedule();
                     }
                     break;
@@ -595,29 +604,22 @@ public class ProductEditorComp extends Composite implements
         if (pdefWrapValue != null) {
             wrapColumn = ((Number) pdefWrapValue).intValue();
         } else {
-            wrapColumn = GFEPreference
-                    .getIntPreference("ProductOutputDialog_wrapSize");
-            if (wrapColumn == 0) {
-                wrapColumn = 66;
-            }
+            wrapColumn = GFEPreference.getInt("ProductOutputDialog_wrapSize",
+                    66);
         }
 
-        wrapMode = true;
-        // Have to distinguish between 0 and missing since dft=true
-        if (GFEPreference.contains("ProductOutputDialog_wrapMode")) {
-            wrapMode = (0 != GFEPreference
-                    .getIntPreference("ProductOutputDialog_wrapMode"));
-        }
+        wrapMode = GFEPreference.getBoolean("ProductOutputDialog_wrapMode",
+                true);
 
         if (this.pil != null) {
             String[] wrapPils = GFEPreference
-                    .getArrayPreference("ProductOutputDialog_wrapPils");
+                    .getStringArray("ProductOutputDialog_wrapPils");
             if (Arrays.asList(wrapPils).contains(pil.substring(0, 3))) {
                 wrapMode = true;
             }
 
             String[] nonWrapPils = GFEPreference
-                    .getArrayPreference("ProductOutputDialog_nonWrapPils");
+                    .getStringArray("ProductOutputDialog_nonWrapPils");
             if (Arrays.asList(nonWrapPils).contains(pil.substring(0, 3))) {
                 wrapMode = false;
             }
@@ -761,22 +763,7 @@ public class ProductEditorComp extends Composite implements
                 print.setText("Print");
                 PrinterData data = print.open();
                 if (!(data == null)) {
-                    Printer p = new Printer(data);
-                    p.startJob("PrintJob");
-                    p.startPage();
-                    Rectangle trim = p.computeTrim(0, 0, 0, 0);
-                    Point dpi = p.getDPI();
-                    int leftMargin = dpi.x + trim.x;
-                    int topMargin = (dpi.y / 2) + trim.y;
-                    GC gc = new GC(p);
-                    Font font = gc.getFont();
-                    String printText = textComp.getProductText();
-                    gc.drawText(printText, leftMargin,
-                            topMargin + font.getFontData()[0].getHeight());
-                    p.endPage();
-                    gc.dispose();
-                    p.endJob();
-                    p.dispose();
+                    printProductText(data);
                 }
 
             }
@@ -895,9 +882,9 @@ public class ProductEditorComp extends Composite implements
         spellCheckMI.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
-                SpellCheckDlg spellCheckDlg = new SpellCheckDlg(parent
-                        .getShell(), getTextEditorST(), MixedCaseProductSupport
-                        .isMixedCase(getNNNid()));
+                SpellCheckDlg spellCheckDlg = new SpellCheckDlg(
+                        parent.getShell(), getTextEditorST(),
+                        MixedCaseProductSupport.isMixedCase(getNNNid()));
                 spellCheckDlg.open();
             }
         });
@@ -919,7 +906,7 @@ public class ProductEditorComp extends Composite implements
      * Create the options menu.
      */
     private void createOptionsMenu(Menu menuToAddTo) {
-        autoWrapMI = new MenuItem(menuToAddTo, SWT.CHECK);
+        MenuItem autoWrapMI = new MenuItem(menuToAddTo, SWT.CHECK);
         autoWrapMI.setText("Auto Wrap");
         autoWrapMI.setSelection(wrapMode);
         autoWrapMI.addSelectionListener(new SelectionAdapter() {
@@ -1081,7 +1068,8 @@ public class ProductEditorComp extends Composite implements
         prodExpiresLbl.setText("Product expires in:");
 
         hoursSpnr = new Spinner(bottomComp, SWT.BORDER | SWT.READ_ONLY);
-        hoursSpnr.setValues(1200, 100, 4800, 2, 25, 25);
+        hoursSpnr.setValues(TimeUtil.HOURS_PER_HALF_DAY * 100, 100,
+                TimeUtil.HOURS_PER_WEEK * 100, 2, 25, 25);
         hoursSpnr.addSelectionListener(new SelectionAdapter() {
             @Override
             public void widgetSelected(SelectionEvent event) {
@@ -1092,9 +1080,9 @@ public class ProductEditorComp extends Composite implements
         Label atLbl = new Label(bottomComp, SWT.NONE);
         atLbl.setText(" At:");
 
-        origExpireCal = Calendar.getInstance();
-        adjustedExpireCal = Calendar.getInstance();
-        adjustedExpireCal.setTime(origExpireCal.getTime());
+        // TODO: should expireDate just be new Date() or
+        // SimulatedTime.getSystemTime().getTime()
+        Calendar origExpireCal = Calendar.getInstance();
         expireDate = origExpireCal.getTime();
 
         dateTimeLbl = new Label(bottomComp, SWT.NONE);
@@ -1123,7 +1111,6 @@ public class ProductEditorComp extends Composite implements
             }
         }
 
-
         VizApp.runSync(new Runnable() {
             @Override
             public void run() {
@@ -1148,7 +1135,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Store or Transmit text product.
-     * 
+     *
      * @param action
      *            STORE: show the Store dialog TRANSMITT: shows the Transmit
      *            dialog. AUTOSTORE: implement autoStore
@@ -1164,8 +1151,8 @@ public class ProductEditorComp extends Composite implements
         ProductDataStruct pds = textComp.getProductDataStruct();
         if (pds == null) {
             String msg = "There is no product to transmit.\n\nAction cancelled.";
-            MessageBox mb = new MessageBox(getShell(), SWT.OK
-                    | SWT.ICON_WARNING);
+            MessageBox mb = new MessageBox(getShell(),
+                    SWT.OK | SWT.ICON_WARNING);
             mb.setText("Error");
             mb.setMessage(msg);
             mb.open();
@@ -1174,8 +1161,8 @@ public class ProductEditorComp extends Composite implements
 
         if (pds.getCiMap() == null) {
             String msg = "The current product does not have a ci block.\n\nAction cancelled.";
-            MessageBox mb = new MessageBox(getShell(), SWT.OK
-                    | SWT.ICON_WARNING);
+            MessageBox mb = new MessageBox(getShell(),
+                    SWT.OK | SWT.ICON_WARNING);
             mb.setText("Error");
             mb.setMessage(msg);
             mb.open();
@@ -1213,8 +1200,8 @@ public class ProductEditorComp extends Composite implements
             // prevent the launching of another dialog until the modal dialog is
             // closed.
             StoreTransmitDlg storeDlg = new StoreTransmitDlg(parent.getShell(),
-                    showStore, this, transmissionCB, pid, !textComp.isCorMode()
-                            && (action == Action.TRANSMIT));
+                    showStore, this, transmissionCB, pid,
+                    !textComp.isCorMode() && (action == Action.TRANSMIT));
             storeDlg.open();
         }
     }
@@ -1224,8 +1211,8 @@ public class ProductEditorComp extends Composite implements
         // mmaron #7285: make sure there is \n in the end - to allow
         // Transmit
         if (!textComp.getTextEditorST().getText().endsWith("\n")) {
-            textComp.getTextEditorST().setText(
-                    textComp.getTextEditorST().getText() + "\n");
+            textComp.getTextEditorST()
+                    .setText(textComp.getTextEditorST().getText() + "\n");
         }
         if (!MixedCaseProductSupport.isMixedCase(getNNNid())) {
             textComp.upper();
@@ -1251,8 +1238,8 @@ public class ProductEditorComp extends Composite implements
             if (!silent) {
                 String msg = "The product still has 1 or more framing codes or contains a partial "
                         + "framing code tag.\n\nAction cancelled.";
-                MessageBox mb = new MessageBox(getShell(), SWT.OK
-                        | SWT.ICON_WARNING);
+                MessageBox mb = new MessageBox(getShell(),
+                        SWT.OK | SWT.ICON_WARNING);
                 mb.setText("Framing Codes");
                 mb.setMessage(msg);
                 mb.open();
@@ -1283,8 +1270,8 @@ public class ProductEditorComp extends Composite implements
      * get the zones contained in this segment Decode the UGC header line and
      * return the UGCs
      */
-    private ArrayList<String> decodeUGCs(SegmentData segData) {
-        HashMap<String, TextIndexPoints> segMap = segData.getSementMap();
+    private List<String> decodeUGCs(SegmentData segData) {
+        Map<String, TextIndexPoints> segMap = segData.getSementMap();
         TextIndexPoints tipUgc = segMap.get("uhdr");
         String uhdr = tipUgc.getText();
         uhdr = uhdr.replaceAll("\n", "");
@@ -1293,11 +1280,11 @@ public class ProductEditorComp extends Composite implements
         String[] UGCs = new String[validTokens];
         System.arraycopy(uhdrTokens, 0, UGCs, 0, validTokens);
 
-        ArrayList<String> zones = new ArrayList<>();
+        List<String> zones = new ArrayList<>();
         String alpha = "";
         for (String ugc : UGCs) {
-            if (ugc.contains(">")) {
-                int index = ugc.indexOf(">");
+            int index = ugc.indexOf('>');
+            if (index > -1) {
                 String first = ugc.substring(0, index);
                 String last = ugc.substring(index + 1);
                 if (first.length() == 6) {
@@ -1412,7 +1399,8 @@ public class ProductEditorComp extends Composite implements
         List<String> rval = new ArrayList<>();
         DecimalFormat formatter = new DecimalFormat("0000");
         for (String vtec : vtecs) {
-            if (!vtec.contains("-")) { // ignore HVTEC
+            if (vtec.indexOf('-') < 0) {
+                // ignore HVTEC
                 rval.add(vtec);
                 continue;
             }
@@ -1445,16 +1433,19 @@ public class ProductEditorComp extends Composite implements
             String oid, phen, sig, etn;
             List<ActiveTableRecord> activeRecs;
             if (vtecStart != null) {
-                if ((action.equals("NEW") || action.equals("EXB"))
+                if (("NEW".equals(action) || "EXB".equals(action))
                         && vtecStart.before(transmissionTime)) {
                     vtecStartStr = vtecTimeFmt.format(transmissionTime);
-                    vtecStart = transmissionTime; // set to transmission time
-                } else if ((action.equals("UPG") || action.equals("EXP")
-                        || action.equals("CAN") || action.equals("CON"))
-                        && (transmissionTime.getTime() >= vtecStart.getTime())) {
+
+                    // set to transmission time
+                    vtecStart = transmissionTime;
+                } else if (("UPG".equals(action) || "EXP".equals(action)
+                        || "CAN".equals(action) || "CON".equals(action))
+                        && (transmissionTime.getTime() >= vtecStart
+                                .getTime())) {
                     vtecStartStr = ZERO_VTEC;
                     vtecStart = null;
-                } else if (action.equals("EXT")) {
+                } else if ("EXT".equals(action)) {
                     oid = vtecTokens[2];
                     phen = vtecTokens[3];
                     sig = vtecTokens[4];
@@ -1478,8 +1469,7 @@ public class ProductEditorComp extends Composite implements
                         // segment invalid due to the event going into
                         // effect in part of the segment area
                         if ((started > 0) && (started < activeRecs.size())) {
-                            final String msg = "Event "
-                                    + eventStr
+                            final String msg = "Event " + eventStr
                                     + " has gone into effect in part"
                                     + " of its current segment's geographical area."
                                     + " The product must be regenerated.";
@@ -1489,8 +1479,7 @@ public class ProductEditorComp extends Composite implements
                             // if the current start time is in the future,
                             // product needs to be regenerated
                             if (vtecStart.after(transmissionTime)) {
-                                final String msg = "Event "
-                                        + eventStr
+                                final String msg = "Event " + eventStr
                                         + " has gone into effect but the product "
                                         + "has it starting in the future. "
                                         + "The product must be regenerated.";
@@ -1546,7 +1535,7 @@ public class ProductEditorComp extends Composite implements
             // force ETN to 1 if this is a new year (diff year from orig tt)
             // NEWs may need to have new ETN assigned if transtime next
             // year and starting time in the next year.
-            if (action.equals("NEW") && (year(transmissionTime) != initialYear)
+            if ("NEW".equals(action) && (year(transmissionTime) != initialYear)
                     && (year(vtecStart) > initialYear)) {
                 String phensig = vtecTokens[3] + vtecTokens[4];
                 Map<String, Integer> times = newYearETNs.get(phensig);
@@ -1555,11 +1544,11 @@ public class ProductEditorComp extends Composite implements
                 }
                 boolean match = false;
                 final TimeRange tr1 = new TimeRange(vtecStart, vtecEnd);
-                for (String t : times.keySet()) {
-                    final TimeRange tr2 = new TimeRange(t);
+                for (Entry<String, Integer> entry : times.entrySet()) {
+                    final TimeRange tr2 = new TimeRange(entry.getKey());
                     if (tr1.overlaps(tr2)) {
-                        vtecTokens[5] = formatter.format(times.get(t)
-                                .longValue());
+                        vtecTokens[5] = formatter
+                                .format(entry.getValue().longValue());
                         match = true;
                         break;
                     }
@@ -1567,8 +1556,8 @@ public class ProductEditorComp extends Composite implements
                 if (!match) {
                     // find max assigned for NEWs for phensig
                     int maxETN = 0;
-                    for (String t : times.keySet()) {
-                        maxETN = Math.max(maxETN, times.get(t).intValue());
+                    for (Integer t : times.values()) {
+                        maxETN = Math.max(maxETN, t);
                     }
                     // assign the next one
                     Integer nextETN = new Integer(maxETN + 1);
@@ -1592,9 +1581,9 @@ public class ProductEditorComp extends Composite implements
              * Give 30 minutes of slack for EXP action code, check the ending
              * time and transmission time
              */
-            if ((action.equals("EXP")) && (vtecEnd != null)) {
-                vtecEnd.setTime(vtecEnd.getTime()
-                        + (30 * TimeUtil.MILLIS_PER_MINUTE));
+            if (("EXP".equals(action)) && (vtecEnd != null)) {
+                vtecEnd.setTime(
+                        vtecEnd.getTime() + (30 * TimeUtil.MILLIS_PER_MINUTE));
             }
 
             if ((vtecEnd != null)
@@ -1606,15 +1595,15 @@ public class ProductEditorComp extends Composite implements
             }
 
             vtecTokens[timesTokenIdx] = vtecStartStr + "-" + vtecEndStr;
-            vline = "/" + stringJoin(vtecTokens, ".") + "/";
+            vline = "/" + String.join(".", vtecTokens) + "/";
             rval.add(vline);
         }
-        return stringJoin(rval, "\n");
+        return String.join("\n", rval);
     }
 
     /**
      * Decodes the start and end times of VTEC, return null if all zeros.
-     * 
+     *
      * @param vt
      *            The VTEC date string in "yyMMdd'T'HHmm'Z'" format
      * @return Date object that corresponds to the specified VTEC time or null
@@ -1635,26 +1624,29 @@ public class ProductEditorComp extends Composite implements
      * helper inner class to handle VTEC time ranges
      */
     class TimeRange {
-        Date startTime, endTime;
+        private Date startTime, endTime;
 
-        String st, et;
+        private String st, et;
 
         TimeRange(Date startTime, Date endTime) {
             this.startTime = startTime;
             this.endTime = endTime;
-            st = (startTime == null) ? ZERO_VTEC : vtecTimeFmt
-                    .format(startTime);
+            st = (startTime == null) ? ZERO_VTEC
+                    : vtecTimeFmt.format(startTime);
             et = (endTime == null) ? ZERO_VTEC : vtecTimeFmt.format(endTime);
         }
 
         TimeRange(String tr) {
-            st = tr.split("-")[0];
-            et = tr.split("-")[1];
             try {
+                String[] times = tr.split("-");
+                st = times[0];
+                et = times[1];
                 startTime = vtecTimeFmt.parse(st);
                 endTime = vtecTimeFmt.parse(et);
-            } catch (ParseException e) {
-                statusHandler.error("Error parsing time range", e);
+            } catch (ParseException | IndexOutOfBoundsException e) {
+                statusHandler.error(
+                        String.format("Error parsing time range: \"%s\"", tr),
+                        e);
             }
         }
 
@@ -1706,13 +1698,13 @@ public class ProductEditorComp extends Composite implements
             return;
         }
         List<SegmentData> segs = prodDataStruct.getSegmentsArray();
-        if ((segs == null) || (segs.size() == 0)) {
+        if ((segs == null) || (segs.isEmpty())) {
             textComp.endUpdate();
             return;
         }
 
         for (SegmentData segData : segs) {
-            HashMap<String, TextIndexPoints> segMap = segData.getSementMap();
+            Map<String, TextIndexPoints> segMap = segData.getSementMap();
             TextIndexPoints tipVtec = segMap.get("vtec");
             if (tipVtec == null) {
                 break;
@@ -1728,7 +1720,7 @@ public class ProductEditorComp extends Composite implements
             } catch (VizException e) {
                 // disable transmission of product
                 brain();
-                statusHandler.handle(Priority.PROBLEM, e.getMessage());
+                statusHandler.error(e.getLocalizedMessage(), e);
             }
         }
         textComp.endUpdate();
@@ -1752,9 +1744,8 @@ public class ProductEditorComp extends Composite implements
         fullStationId = pds.getFullStationId();
         pil = pds.getPil();
         if ((wmoId == null) || (fullStationId == null) || (pil == null)) {
-            statusHandler
-                    .handle(Priority.SIGNIFICANT,
-                            "Failed to parse wmoID, fullStationID, pil from loaded product");
+            statusHandler.handle(Priority.SIGNIFICANT,
+                    "Failed to parse wmoID, fullStationID, pil from loaded product");
             return;
         }
         productId = fullStationId + pil;
@@ -1773,11 +1764,11 @@ public class ProductEditorComp extends Composite implements
             txt = "DELAYED";
         } else if (val.charAt(0) == 'C') {
             txt = "CORRECTED";
-        } else if (val.equals("res")) {
+        } else if ("res".equals(val)) {
             txt = "RESENT";
             updateTimes = false;
-        } else if (val.equals("rou")) {
-            txt = EMPTY;
+        } else if ("rou".equals(val)) {
+            txt = "";
             updateTimes = false;
         } else {
             return;
@@ -1858,8 +1849,8 @@ public class ProductEditorComp extends Composite implements
      * @return
      */
     private TimeZone getLocalTimeZone() {
-        TimeZone timeZone = TimeZone.getTimeZone(dm.getParmManager()
-                .compositeGridLocation().getTimeZone());
+        TimeZone timeZone = TimeZone.getTimeZone(
+                dm.getParmManager().compositeGridLocation().getTimeZone());
         return timeZone;
     }
 
@@ -1910,8 +1901,8 @@ public class ProductEditorComp extends Composite implements
         List<String> purgeTimeStrs = new ArrayList<>();
         List<SegmentData> segArray = pds.getSegmentsArray();
         for (SegmentData sd : segArray) {
-            HashMap<String, TextIndexPoints> segMap = sd.getSementMap();
-            if (segMap.containsKey("purgeT") == true) {
+            Map<String, TextIndexPoints> segMap = sd.getSementMap();
+            if (segMap.containsKey("purgeT")) {
                 String pt = segMap.get("purgeT").getText();
                 if (pt != null) {
                     purgeTimeStrs.add(pt);
@@ -1956,7 +1947,7 @@ public class ProductEditorComp extends Composite implements
     /**
      * Returns a Date from an encoded YYMMDD and hhmm string. Function name is a
      * misnomer, but kept from porting AWIPS1 equivalent function.
-     * 
+     *
      * @param day
      *            The "calendar day" of the time in Java's "yyMMdd" format.
      * @param time
@@ -1968,7 +1959,7 @@ public class ProductEditorComp extends Composite implements
      */
     private Date timeFromYYYYMMDD_HHMM(String day, String time)
             throws ParseException {
-        if (day.equals("000000") && time.equals("0000")) {
+        if ("000000".equals(day) && "0000".equals(time)) {
             return new Date(0);
         }
 
@@ -1980,7 +1971,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Convert time string in DDHHMM format to a Date.
-     * 
+     *
      * @param dtgString
      *            time string in DDHHMM format
      * @return time converted from input string
@@ -1994,7 +1985,7 @@ public class ProductEditorComp extends Composite implements
         } catch (Exception e) {
             String msg = "Time string \"" + dtgString
                     + "\" not in DDHHMM format.";
-            statusHandler.handle(Priority.PROBLEM, msg);
+            statusHandler.error(msg, e);
             return null;
         }
 
@@ -2017,14 +2008,17 @@ public class ProductEditorComp extends Composite implements
     private void updateExpireTime() {
         if (textComp.isDisposed() || hoursSpnr.isDisposed()
                 || dateTimeLbl.isDisposed()) {
-            return; // we're shutting down just return
+            // we're shutting down just return
+            return;
         }
 
         int sel = hoursSpnr.getSelection();
         int hours = sel / 100;
         int minuteInc = (sel % 100) / 25;
+
+        // compute purgeOffset in minutes
         int purgeOffset = (hours * TimeUtil.MINUTES_PER_HOUR)
-                + (minuteInc * 15); // minutes
+                + (minuteInc * 15);
 
         Date now = SimulatedTime.getSystemTime().getTime();
         Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"));
@@ -2100,17 +2094,19 @@ public class ProductEditorComp extends Composite implements
                     String officeTimeZone = dm.getParmManager()
                             .compositeGridLocation().getTimeZone();
                     int numSegments = pds.getSegmentsArray().size();
-                    SimpleDateFormat fmt = new SimpleDateFormat(longLocalFmtStr);
+                    SimpleDateFormat fmt = new SimpleDateFormat(
+                            longLocalFmtStr);
                     fmt.setTimeZone(localTimeZone);
                     String officeIssueTime = fmt.format(now);
 
                     for (int i = 0; i < numSegments; i++) {
                         textComp.startUpdate();
-                        HashMap<String, TextIndexPoints> segMap = pds
+                        Map<String, TextIndexPoints> segMap = pds
                                 .getSegmentsArray().get(i).getSementMap();
 
                         TextIndexPoints tip = null;
-                        // don't change expiration time when product is corrected
+                        // don't change expiration time when product is
+                        // corrected
                         if (!editorCorrectionMode) {
                             tip = segMap.get("purgeT");
                             if (tip != null) {
@@ -2119,8 +2115,8 @@ public class ProductEditorComp extends Composite implements
                                 if (vtecTip != null) {
                                     vtecStr = vtecTip.getText();
                                 }
-                                Date newExpireTime = getExpireTime(now, expireDate,
-                                        vtecStr);
+                                Date newExpireTime = getExpireTime(now,
+                                        expireDate, vtecStr);
                                 String expireTimeStr = purgeTimeFmt
                                         .format(newExpireTime);
                                 textComp.replaceText(tip, expireTimeStr);
@@ -2135,10 +2131,10 @@ public class ProductEditorComp extends Composite implements
                              * length, which ensures we only need to reParse()
                              * once per segment
                              */
-                            List<String> zones = decodeUGCs(pds
-                                    .getSegmentsArray().get(i));
+                            List<String> zones = decodeUGCs(
+                                    pds.getSegmentsArray().get(i));
                             Collection<String> timeZones = getTimeZones(zones,
-                                            officeTimeZone);
+                                    officeTimeZone);
 
                             StringBuilder sb = new StringBuilder();
                             for (String tz : timeZones) {
@@ -2188,14 +2184,14 @@ public class ProductEditorComp extends Composite implements
      * returns the appropriate expiration time. Expiration time is the earliest
      * of the specified expiration time, 1 hr if a CAN code is detected, or the
      * ending time of ongoing events (CON, EXT, EXB, NEW).
-     * 
+     *
      * @param issTime
      *            issue time
      * @param expTime
      *            expire time
      * @param vtecStr
      *            vtec string
-     * 
+     *
      * @return expire time
      */
     public Date getExpireTime(Date issTime, Date expTime, String vtecStr) {
@@ -2212,7 +2208,10 @@ public class ProductEditorComp extends Composite implements
             String vtecStrs[] = vtecStr.split("\n");
             boolean canExpFound = false;
             boolean activeFound = false;
-            Date laterActive = null; // later end time of all active events
+
+            // later end time of all active events
+            Date laterActive = null;
+
             Date zeroDate = new Date(0);
 
             for (String str : vtecStrs) {
@@ -2220,7 +2219,7 @@ public class ProductEditorComp extends Composite implements
 
                 if (matcher.find()) {
                     String action = matcher.group(1);
-                    if (action.equals("CAN") || action.equals("EXP")) {
+                    if ("CAN".equals(action) || "EXP".equals(action)) {
                         canExpFound = true;
                     } else {
                         try {
@@ -2229,8 +2228,8 @@ public class ProductEditorComp extends Composite implements
                                     matcher.group(9));
                             if (!endTime.equals(zeroDate)) {
                                 if (laterActive != null) {
-                                    laterActive = (laterActive.after(endTime)) ? laterActive
-                                            : endTime;
+                                    laterActive = (laterActive.after(endTime))
+                                            ? laterActive : endTime;
                                 } else {
                                     laterActive = endTime;
                                 }
@@ -2247,7 +2246,8 @@ public class ProductEditorComp extends Composite implements
                         : expireTime;
             } else if (canExpFound && !activeFound) {
                 expireTime = (expireTime.before(issTimePlusHour)) ? expireTime
-                        : issTimePlusHour; // 1hr from now
+                        // 1hr from now
+                        : issTimePlusHour;
             }
         }
 
@@ -2265,9 +2265,10 @@ public class ProductEditorComp extends Composite implements
         long baseTime = (expireTimeSec / roundSec) * roundSec
                 * TimeUtil.MILLIS_PER_SECOND;
         if ((delta / TimeUtil.SECONDS_PER_MINUTE) >= 1) {
-            expireTime.setTime(baseTime
-                    + (roundSec * TimeUtil.MILLIS_PER_SECOND));
-        } else { // within 1 minute, don't add next increment
+            expireTime.setTime(
+                    baseTime + (roundSec * TimeUtil.MILLIS_PER_SECOND));
+        } else {
+            // within 1 minute, don't add next increment
             expireTime.setTime(baseTime);
         }
 
@@ -2343,7 +2344,7 @@ public class ProductEditorComp extends Composite implements
         if (fname != null) {
             File f = new File(fname);
             try {
-                String fileText = readFile(f);
+                String fileText = ProductFileUtil.readFile(f);
                 setProductText(fileText);
             } catch (IOException e) {
                 statusHandler.handle(Priority.PROBLEM, e.getLocalizedMessage(),
@@ -2368,11 +2369,12 @@ public class ProductEditorComp extends Composite implements
         if (fname != null) {
             productDefinition.put("outputFile", fname);
             try {
-                ProductFileUtil.writeFile(textComp.getProductText(), new File(
-                        fname));
+                ProductFileUtil.writeFile(textComp.getProductText(),
+                        new File(fname));
             } catch (IOException e) {
-                MessageBox mb = new MessageBox(parent.getShell(), SWT.RETRY
-                        | SWT.CANCEL);
+                statusHandler.debug("Save Failed", e);
+                MessageBox mb = new MessageBox(parent.getShell(),
+                        SWT.RETRY | SWT.CANCEL);
                 mb.setText("Save Failed");
                 mb.setMessage(e.getLocalizedMessage() + "\n Try again?");
                 if (mb.open() == SWT.RETRY) {
@@ -2382,7 +2384,7 @@ public class ProductEditorComp extends Composite implements
         }
     }
 
-    /*
+    /**
      * handle autoWrite, autoStore
      */
     public void doAutoStuff() {
@@ -2414,7 +2416,7 @@ public class ProductEditorComp extends Composite implements
         String fname = null;
         if (productDefinition.get("outputFile") != null) {
             fname = getDefString("outputFile");
-            if (fname.equals(EMPTY)) {
+            if (fname.isEmpty()) {
                 return;
             }
         } else {
@@ -2426,8 +2428,9 @@ public class ProductEditorComp extends Composite implements
         try {
             ProductFileUtil.writeFile(getProductText(), new File(fname));
         } catch (IOException e) {
-            MessageBox mb = new MessageBox(parent.getShell(), SWT.OK
-                    | SWT.ICON_WARNING);
+            statusHandler.debug("Formatter AutoWrite failed: " + this.pil, e);
+            MessageBox mb = new MessageBox(parent.getShell(),
+                    SWT.OK | SWT.ICON_WARNING);
             mb.setText("Error");
             mb.setMessage("Formatter AutoWrite failed: " + this.pil);
             mb.open();
@@ -2456,7 +2459,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Get the directory.
-     * 
+     *
      * @return The directory
      */
     private String getDir() {
@@ -2483,29 +2486,37 @@ public class ProductEditorComp extends Composite implements
         return fname;
     }
 
+    /**
+     * Store the product to a local file.
+     *
+     * Used for testVTEC products instead of storing to the TextDB
+     *
+     * @param pil
+     */
     public void devStore(String pil) {
         try {
-            writeFile(getProductText(), getProductFile(pil, true));
+            ProductFileUtil.writeFile(getProductText(),
+                    ProductFileUtil.getProductFile(pil, true));
         } catch (Exception ex) {
-            statusHandler.handle(Priority.PROBLEM, "Failed to save product "
-                    + pil + " to file.", ex);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Failed to save product " + pil + " to file.", ex);
         }
     }
 
     private void devLoad(String pil) {
-        LocalizationFile file = getLastProductFile(pil, true);
+        LocalizationFile file = ProductFileUtil.getLastProductFile(pil, true);
         if (file == null) {
-            statusHandler.handle(Priority.EVENTA, "Previous product for " + pil
-                    + " not found.");
+            statusHandler.handle(Priority.EVENTA,
+                    "Previous product for " + pil + " not found.");
             return;
         }
 
         String product = null;
         try {
-            product = readFile(file);
+            product = ProductFileUtil.readFile(file);
         } catch (IOException | LocalizationException ex) {
-            statusHandler.handle(Priority.PROBLEM, "Failed to load product "
-                    + pil, ex);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Failed to load product " + pil, ex);
             return;
         }
 
@@ -2525,11 +2536,11 @@ public class ProductEditorComp extends Composite implements
         try {
             DraftProduct draft = new DraftProduct(productDefinition,
                     getProductText());
-            draft.save(getDraftFile(productId));
+            draft.save(ProductFileUtil.getDraftFile(productId));
             setStatusText('R', productId + " draft saved.");
         } catch (Exception ex) {
-            statusHandler.handle(Priority.PROBLEM, "Error storing draft for "
-                    + productId, ex);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error storing draft for " + productId, ex);
         }
     }
 
@@ -2538,7 +2549,7 @@ public class ProductEditorComp extends Composite implements
      */
     public void loadDraft() {
         try {
-            LocalizationFile lf = getDraftFile(productId);
+            LocalizationFile lf = ProductFileUtil.getDraftFile(productId);
 
             if (!lf.exists()) {
                 setStatusText('S', "No previous draft for " + productId);
@@ -2567,8 +2578,8 @@ public class ProductEditorComp extends Composite implements
                 retrieveActiveVTEC();
             }
         } catch (Exception ex) {
-            statusHandler.handle(Priority.PROBLEM, "Error loading draft for "
-                    + productId, ex);
+            statusHandler.handle(Priority.PROBLEM,
+                    "Error loading draft for " + productId, ex);
             return;
         }
     }
@@ -2606,7 +2617,7 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Display the Find or Find & Replace dialog.
-     * 
+     *
      * @param findAndReplace
      *            If true show the Find & Replace dialog, false shows the Find
      *            dialog.
@@ -2615,8 +2626,8 @@ public class ProductEditorComp extends Composite implements
         // The dialog being opened is modal to the parent dialog. This will
         // prevent the launching of another dialog until the modal dialog is
         // closed.
-        FindReplaceDlg findAndReplaceDlg = new FindReplaceDlg(
-                parent.getShell(), findAndReplace, textComp);
+        FindReplaceDlg findAndReplaceDlg = new FindReplaceDlg(parent.getShell(),
+                findAndReplace, textComp);
         findAndReplaceDlg.open();
     }
 
@@ -2643,8 +2654,8 @@ public class ProductEditorComp extends Composite implements
 
         if (offset < offset_header[0]) {
             String msg1 = "...Insertion point not in segment...\n\n ";
-            MessageBox mb1 = new MessageBox(getShell(), SWT.OK
-                    | SWT.ICON_WARNING);
+            MessageBox mb1 = new MessageBox(getShell(),
+                    SWT.OK | SWT.ICON_WARNING);
             mb1.setText("CTA");
             mb1.setMessage(msg1);
             mb1.open();
@@ -2653,8 +2664,8 @@ public class ProductEditorComp extends Composite implements
 
         if (offset >= (textEditorST.getCharCount() - 1)) {
             String msg1 = "...Insertion point out of segment...\n\n ";
-            MessageBox mb1 = new MessageBox(getShell(), SWT.OK
-                    | SWT.ICON_WARNING);
+            MessageBox mb1 = new MessageBox(getShell(),
+                    SWT.OK | SWT.ICON_WARNING);
             mb1.setText("CTA");
             mb1.setMessage(msg1);
             mb1.open();
@@ -2662,12 +2673,12 @@ public class ProductEditorComp extends Composite implements
         }
 
         List<SegmentData> segs = prodDataStruct.getSegmentsArray();
-        if ((segs == null) || (segs.size() == 0)) {
+        if ((segs == null) || (segs.isEmpty())) {
             return;
         }
         Pattern codePattern = Pattern.compile("\\.([A-Z]{3})\\.");
         for (SegmentData segData : segs) {
-            HashMap<String, TextIndexPoints> segMap = segData.getSementMap();
+            Map<String, TextIndexPoints> segMap = segData.getSementMap();
             TextIndexPoints tipUgc = segMap.get("ugc");
             int start = prodDataStruct.positionToOffset(tipUgc.getStartIndex());
             int end = prodDataStruct.positionToOffset(tipUgc.getEndIndex());
@@ -2690,24 +2701,25 @@ public class ProductEditorComp extends Composite implements
             for (int i = 0; i < lineCount; i++) {
                 String vtec = prodDataStruct.getProductTextArray()[i
                         + tipVtec.getStartIndex().x];
-                if (vtec.indexOf("-") < 0) {
+                if (vtec.indexOf('-') < 0) {
                     newVtec[i] = vtec;
                 } else {
                     Matcher matcher = codePattern.matcher(vtec);
                     if (matcher.find()) {
                         String code = matcher.group();
 
-                        if (code.equals(".NEW.") || code.equals(".CON.")
-                                || code.equals(".EXT.") || code.equals(".EXB.")
-                                || code.equals(".EXA.") || code.equals(".COR.")) {
+                        if (".NEW.".equals(code) || ".CON.".equals(code)
+                                || ".EXT.".equals(code) || ".EXB.".equals(code)
+                                || ".EXA.".equals(code)
+                                || ".COR.".equals(code)) {
                             newVtec[i] = vtec;
 
-                            phenSig = vtec.substring(12, 16);
+                            String phenSig = vtec.substring(12, 16);
                             Sig[i] = phenSig;
                         }
                     }
                 }
-            }// loop
+            }
 
             HazardCTA = true;
             ctaDialog = new CallToActionsDlg(parent.getShell(),
@@ -2724,9 +2736,14 @@ public class ProductEditorComp extends Composite implements
             ctaDialog.open();
             // Found segment the cursor is in no need to check more segments.
             break;
-        }// loop
+        }
     }
 
+    /**
+     * Insert text
+     *
+     * @param txt
+     */
     public void insertText(String txt) {
 
         textEditorST = getTextEditorST();
@@ -2744,8 +2761,8 @@ public class ProductEditorComp extends Composite implements
             if (sr.foreground == textComp.getLockColor()) {
                 String msg = "The insertion point is in locked area then try "
                         + "to select another.\n\nAction cancelled.";
-                MessageBox mb = new MessageBox(getShell(), SWT.OK
-                        | SWT.ICON_WARNING);
+                MessageBox mb = new MessageBox(getShell(),
+                        SWT.OK | SWT.ICON_WARNING);
                 mb.setText("CTA");
                 mb.setMessage(msg);
                 mb.open();
@@ -2770,8 +2787,8 @@ public class ProductEditorComp extends Composite implements
 
         if (HazardCTA && (offset < offset_header[0])) {
             String msg1 = "...Insertion point not in segment...\n\n ";
-            MessageBox mb1 = new MessageBox(getShell(), SWT.OK
-                    | SWT.ICON_WARNING);
+            MessageBox mb1 = new MessageBox(getShell(),
+                    SWT.OK | SWT.ICON_WARNING);
             mb1.setText("CTA");
             mb1.setMessage(msg1);
             mb1.open();
@@ -2779,10 +2796,13 @@ public class ProductEditorComp extends Composite implements
         }
 
         this.textEditorST.insert(txt);
-        this.textEditorST.setCaretOffset(this.textEditorST.getCaretOffset()
-                + txt.length());
+        this.textEditorST.setCaretOffset(
+                this.textEditorST.getCaretOffset() + txt.length());
     }
 
+    /**
+     * @return the ImageRegistry
+     */
     public ImageRegistry getImageRegistry() {
         if (registry == null) {
             registry = new ImageRegistry();
@@ -2805,14 +2825,29 @@ public class ProductEditorComp extends Composite implements
         return registry;
     }
 
+    /**
+     * @return the StyledText of the editor
+     */
     public StyledText getTextEditorST() {
         return textComp.getTextEditorST();
     }
 
+    /**
+     * Set the product text and revive the editor
+     *
+     * @param text
+     */
     public void setProductText(String text) {
         setProductText(text, true);
     }
 
+    /**
+     * Set the product text
+     *
+     * @param text
+     * @param reviveEditor
+     *            true if editor should be revived
+     */
     public void setProductText(String text, boolean reviveEditor) {
         textComp.setProductText(text);
         if (reviveEditor) {
@@ -2821,30 +2856,51 @@ public class ProductEditorComp extends Composite implements
         }
     }
 
+    /**
+     * @return the product text
+     */
     public String getProductText() {
         return textComp.getProductText();
     }
 
+    /**
+     * @return the productId
+     */
     public String getProductId() {
         return productId;
     }
 
+    /**
+     * @return the NNN ID of the product
+     */
     public String getNNNid() {
         return productId.substring(4, 7);
     }
 
+    /**
+     * @return the productName
+     */
     public String getProductName() {
         return productName;
     }
 
+    /**
+     * @return the product type
+     */
     public String getProductType() {
         return prodTypeCbo.getItem(prodTypeCbo.getSelectionIndex());
     }
 
+    /**
+     * @return the autoSendAddress
+     */
     public String getAutoSendAddress() {
         return autoSendAddress;
     }
 
+    /**
+     * @return true if using test VTEC
+     */
     public boolean isTestVTEC() {
         return testVTEC;
     }
@@ -2903,7 +2959,7 @@ public class ProductEditorComp extends Composite implements
             }
 
             for (VTECChange m : msg.getChanges()) {
-                if (m.getSite().equals("*ALL") || m.getPil().equals("*ALL*")) {
+                if ("*ALL".equals(m.getSite()) || "*ALL*".equals(m.getPil())) {
                     allFound = true;
                 }
                 String msgPilxxx = m.getPil() + m.getXxxid();
@@ -2935,15 +2991,12 @@ public class ProductEditorComp extends Composite implements
 
         // send out warning to due braining and conflicts
         if (brained != null) {
-            String msg1 = "A "
-                    + brained
-                    + " was just sent by your office.\n"
-                    + "This affects the VTEC coding for your "
-                    + pil
+            String msg1 = "A " + brained + " was just sent by your office.\n"
+                    + "This affects the VTEC coding for your " + pil
                     + " product currently in the Formatter Launcher and thus the "
                     + pil + " product is now invalid.\n"
-                    + "Transmitting has been disabled for the " + pil
-                    + " tab. " + "You must re-run the " + pil + " formatter. ";
+                    + "Transmitting has been disabled for the " + pil + " tab. "
+                    + "You must re-run the " + pil + " formatter. ";
             setStatusText('U', msg1);
 
             // set tab back to gray
@@ -2957,6 +3010,11 @@ public class ProductEditorComp extends Composite implements
         }
     }
 
+    /**
+     * Disable (brain) the editor
+     *
+     * @return true if editor was enabled, false if already disabled
+     */
     public boolean brain() {
         // brains the editor (dims the buttons), returns 0 if already dead,
         // 1 if state has changed to dead.
@@ -2975,12 +3033,16 @@ public class ProductEditorComp extends Composite implements
         return true;
     }
 
+    /**
+     * Revive the editor
+     */
     public void revive() {
         timeUpdater.schedule();
         if (!dead) {
             return;
         }
         dead = false;
+        productDefinition.getDefinition().remove("brain");
         for (Button b : buttons) {
             b.setEnabled(true);
         }
@@ -2997,19 +3059,23 @@ public class ProductEditorComp extends Composite implements
         Priority priority;
 
         switch (importance) {
-        case 'U': // Urgent
+        case 'U':
+            // Urgent
             priority = Priority.CRITICAL;
             break;
 
-        case 'S': // Significant
+        case 'S':
+            // Significant
             priority = Priority.SIGNIFICANT;
             break;
 
-        case 'A': // Alert
+        case 'A':
+            // Alert
             priority = Priority.PROBLEM;
             break;
 
-        case 'R': // Routine
+        case 'R':
+            // Routine
         default:
             priority = Priority.EVENTA;
         }
@@ -3026,15 +3092,15 @@ public class ProductEditorComp extends Composite implements
 
     /**
      * Word-wrap the text selected by the user.
-     * 
+     *
      */
     private void doWrapSelection() {
         StyledText styledText = textComp.getTextEditorST();
         Point selectionRange = styledText.getSelectionRange();
         if (selectionRange.y == 0) {
             String msg1 = "No text is selected\n\n ";
-            MessageBox mb1 = new MessageBox(getShell(), SWT.OK
-                    | SWT.ICON_WARNING);
+            MessageBox mb1 = new MessageBox(getShell(),
+                    SWT.OK | SWT.ICON_WARNING);
             mb1.setText("CTA");
             mb1.setMessage(msg1);
             mb1.open();
@@ -3044,8 +3110,8 @@ public class ProductEditorComp extends Composite implements
         // Look for locked text in the selection
         if (textComp.rangeHasLockedText(selectionRange.x, selectionRange.y)) {
             String msg2 = "Selection contains locked text\n\n ";
-            MessageBox mb2 = new MessageBox(getShell(), SWT.OK
-                    | SWT.ICON_WARNING);
+            MessageBox mb2 = new MessageBox(getShell(),
+                    SWT.OK | SWT.ICON_WARNING);
             mb2.setText("CTA");
             mb2.setMessage(msg2);
             mb2.open();
@@ -3077,10 +3143,16 @@ public class ProductEditorComp extends Composite implements
         }
     }
 
+    /**
+     * @return the textComp
+     */
     public StyledTextComp getTextComp() {
         return textComp;
     }
 
+    /**
+     * @return true if editor is disabled
+     */
     public boolean isEditorDisabled() {
         return dead;
     }
@@ -3166,6 +3238,47 @@ public class ProductEditorComp extends Composite implements
         Menu callToActionsSubMenu = new Menu(popupMenu);
         callToActionsMI.setMenu(callToActionsSubMenu);
         createCallToActionsMenu(callToActionsSubMenu);
+    }
+
+    private void printProductText(PrinterData printerData) {
+        Printer printer = new Printer(printerData);
+        printer.startJob(prodDataStruct.getPil());
+
+        Rectangle clientArea = printer.getClientArea();
+        Rectangle trim = printer.computeTrim(0, 0, 0, 0);
+        Point dpi = printer.getDPI();
+
+        int leftMargin = dpi.x + trim.x;
+        int topMargin = (dpi.y / 2) + trim.y;
+        int bottomMargin = clientArea.height - dpi.y / 2 + trim.y + trim.height;
+
+        String productText = textComp.getProductText();
+        String[] lines = productText.split(
+                Pattern.quote(textComp.getTextEditorST().getLineDelimiter()));
+
+        GC gc = new GC(printer);
+        // gc.setFont(font);
+        int lineHeight = gc.getFontMetrics().getHeight();
+
+        printer.startPage();
+        int y = topMargin;
+        for (int line = 0; line < lines.length; line++) {
+            gc.drawText(lines[line], leftMargin, y);
+            y += lineHeight;
+
+            if (y + lineHeight >= bottomMargin) {
+                printer.endPage();
+                if (line + 1 < lines.length) {
+                    y = topMargin;
+                    printer.startPage();
+                }
+            }
+        }
+
+        // font.dispose();
+        gc.dispose();
+        printer.endJob();
+        printer.dispose();
     }
 
 }

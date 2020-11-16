@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Radar In Grid
 Bundle-SymbolicName: com.raytheon.uf.viz.grid.radar;singleton:=true
-Bundle-Version: 1.17.0.qualifier
+Bundle-Version: 1.18.0.qualifier
 Bundle-Vendor: RAYTHEON
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.16.1",
@@ -20,5 +20,6 @@ Require-Bundle: com.raytheon.uf.viz.core;bundle-version="1.16.1",
  javax.measure;bundle-version="1.0.0",
  com.raytheon.uf.common.datastorage;bundle-version="1.15.2",
  com.raytheon.viz.alerts;bundle-version="1.14.0",
- com.raytheon.uf.viz.datacube;bundle-version="1.14.0"
+ com.raytheon.uf.viz.datacube;bundle-version="1.14.0",
+ com.raytheon.uf.common.numeric
 Export-Package: com.raytheon.uf.viz.grid.radar

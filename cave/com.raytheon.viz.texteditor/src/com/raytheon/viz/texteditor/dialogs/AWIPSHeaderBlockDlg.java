@@ -104,6 +104,7 @@ import com.raytheon.viz.ui.dialogs.ICloseCallback;
  * 03/01/2016  RM14803      mgamazay    Added code to handle products without WMO header.
  * 08/25/2016   19250       Qinglu Lin  Log header block values.
  * Aug 04, 2017 6364        tgurney     Disable addressee change for WarnGen products
+ * Jun 24, 2019 ----        mjames      Non-operational
  *
  * </pre>
  *

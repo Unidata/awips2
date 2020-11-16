@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -41,8 +41,8 @@ import com.raytheon.uf.viz.core.exception.VizException;
 import com.raytheon.uf.viz.core.rsc.AbstractVizResource;
 import com.raytheon.uf.viz.core.rsc.ResourceList;
 import com.raytheon.uf.viz.core.rsc.ResourceProperties;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.actions.ShowISCMarkersAction;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.GFETimeMatcher;
@@ -65,19 +65,21 @@ import com.raytheon.viz.gfe.rsc.GFESystemResource;
  * Abstract Spatial Display Manager for GFE. Most of the implemented methods
  * were pulled out of GFESpatialDisplayManager and slightly modified for
  * compatibility with the OffscreenSpatialDisplayManager.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * Aug 20, 2009            njensen     Initial creation
- * Jun 14, 2017 6297       bsteffen    Make listeners thread safe.
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Aug 20, 2009           njensen   Initial creation
+ * Jun 14, 2017  6297     bsteffen  Make listeners thread safe.
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author njensen
- * @version 1.0
  */
 
 public abstract class AbstractSpatialDisplayManager
@@ -128,36 +130,42 @@ public abstract class AbstractSpatialDisplayManager
         this.displayModeChangedListeners = new CopyOnWriteArraySet<>();
         this.spatialEditorTimeChangedListeners = new CopyOnWriteArraySet<>();
 
-        setShowISCMarkers(Activator.getDefault().getPreferenceStore()
-                .getBoolean("ShowISCMarkers"));
+        setShowISCMarkers(GFEPreference.getBoolean("ShowISCMarkers"));
 
-        setShowISCUpdateTimeMarker(Activator.getDefault().getPreferenceStore()
-                .getBoolean("ShowISCUpdateTimeMarker"));
+        setShowISCUpdateTimeMarker(
+                GFEPreference.getBoolean("ShowISCUpdateTimeMarker"));
 
-        setShowISCSiteIDMarker(Activator.getDefault().getPreferenceStore()
-                .getBoolean("ShowISCSiteIDMarker"));
+        setShowISCSiteIDMarker(GFEPreference.getBoolean("ShowISCSiteIDMarker"));
 
         setShowISCOfficialSymbolMarker(
-                Activator.getDefault().getPreferenceStore()
-                        .getBoolean("ShowISCOfficialSymbolMarker"));
+                GFEPreference.getBoolean("ShowISCOfficialSymbolMarker"));
 
-        setShowISCUpdateTime(Activator.getDefault().getPreferenceStore()
-                .getBoolean("ShowISCUpdateTime"));
+        setShowISCUpdateTime(GFEPreference.getBoolean("ShowISCUpdateTime"));
 
-        setShowISCSiteID(Activator.getDefault().getPreferenceStore()
-                .getBoolean("ShowISCSiteID"));
+        setShowISCSiteID(GFEPreference.getBoolean("ShowISCSiteID"));
 
-        setShowISCOfficialSymbol(Activator.getDefault().getPreferenceStore()
-                .getBoolean("ShowISCOfficialSymbol"));
+        setShowISCOfficialSymbol(
+                GFEPreference.getBoolean("ShowISCOfficialSymbol"));
     }
 
     /**
      * Gets any descriptors to be kept in sync with the display manager (can be
      * empty)
-     * 
-     * @return
+     *
+     * @return the descriptors
      */
     protected abstract IDescriptor[] getDescriptors();
+
+    /**
+     * Force the spatial display to be refreshed
+     */
+    protected void refresh() {
+        for (IDescriptor desc : getDescriptors()) {
+            if (desc.getRenderableDisplay() != null) {
+                desc.getRenderableDisplay().refresh();
+            }
+        }
+    }
 
     @Override
     public Parm getActivatedParm() {
@@ -297,7 +305,7 @@ public abstract class AbstractSpatialDisplayManager
     /**
      * Returns the resource pair for a specific Parm and null if the resource
      * pair cannot be found.
-     * 
+     *
      * @param parm
      *            The parm that is associated to the resource pair
      * @return The resource pair that matches the parm or null if the resource
@@ -430,6 +438,7 @@ public abstract class AbstractSpatialDisplayManager
     public void setShowISCMarkers(boolean showISCMarkers) {
         this.showISCMarkers = showISCMarkers;
         updateElement(ShowISCMarkersAction.COMMAND_ID, this.showISCMarkers);
+        refresh();
     }
 
     @Override
@@ -440,6 +449,7 @@ public abstract class AbstractSpatialDisplayManager
     @Override
     public void setShowISCUpdateTimeMarker(boolean showISCUpdateTimeMarker) {
         this.showISCUpdateTimeMarker = showISCUpdateTimeMarker;
+        refresh();
     }
 
     @Override
@@ -450,6 +460,7 @@ public abstract class AbstractSpatialDisplayManager
     @Override
     public void setShowISCSiteIDMarker(boolean showISCSiteIDMarker) {
         this.showISCSiteIDMarker = showISCSiteIDMarker;
+        refresh();
     }
 
     @Override
@@ -461,6 +472,7 @@ public abstract class AbstractSpatialDisplayManager
     public void setShowISCOfficialSymbolMarker(
             boolean showISCOfficialSymbolMarker) {
         this.showISCOfficialSymbolMarker = showISCOfficialSymbolMarker;
+        refresh();
     }
 
     @Override
@@ -471,6 +483,7 @@ public abstract class AbstractSpatialDisplayManager
     @Override
     public void setShowISCUpdateTime(boolean showISCUpdateTime) {
         this.showISCUpdateTime = showISCUpdateTime;
+        refresh();
     }
 
     @Override
@@ -481,6 +494,7 @@ public abstract class AbstractSpatialDisplayManager
     @Override
     public void setShowISCSiteID(boolean showISCSiteID) {
         this.showISCSiteID = showISCSiteID;
+        refresh();
     }
 
     @Override
@@ -491,6 +505,7 @@ public abstract class AbstractSpatialDisplayManager
     @Override
     public void setShowISCOfficialSymbol(boolean showISCOfficialSymbol) {
         this.showISCOfficialSymbol = showISCOfficialSymbol;
+        refresh();
     }
 
     @Override

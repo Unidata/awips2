@@ -71,11 +71,11 @@ import com.vividsolutions.jts.geom.Coordinate;
  *                                     ConcurrentModification in a single thread.
  * Jul 21, 2015 4220       mapeters    Reset zoomHandler when constructing this graph
  * Nov 05, 2015 5070       randerso    Adjust font sizes for dpi scaling
+ * Feb 06, 2018 6829       njensen     Don't draw labels on axis for wind
  * 
  * </pre>
  * 
  * @author bsteffen
- * @version 1.0
  */
 public class VarHeightGraph extends AbstractGraph {
 
@@ -90,23 +90,11 @@ public class VarHeightGraph extends AbstractGraph {
         super(descriptor);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.graph.AbstractGraph#canHandleResoruce(com.raytheon
-     * .uf.viz.xy.map.rsc.IGraphableResource)
-     */
     @Override
     protected boolean canHandleResoruce(IGraphableResource<?, ?> rsc) {
         return rsc instanceof VarHeightResource;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#constructVirtualExtent()
-     */
     @Override
     protected void constructVirtualExtent() {
         this.zoomLevel = 1;
@@ -114,7 +102,7 @@ public class VarHeightGraph extends AbstractGraph {
             zoomHandler.reset();
         }
         double[] minMaxX = new double[2];
-        ArrayList<IGraphLabel<Double>> xLabels = new ArrayList<IGraphLabel<Double>>();
+        List<IGraphLabel<Double>> xLabels = new ArrayList<>();
         getRangeData(xLabels, new ArrayList<IGraphLabel<Double>>());
         minMaxX[0] = xLabels.get(0).getDiscreteValue();
         minMaxX[1] = xLabels.get(xLabels.size() - 1).getDiscreteValue();
@@ -135,11 +123,6 @@ public class VarHeightGraph extends AbstractGraph {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.raytheon.uf.viz.xy.graph.AbstractGraph#createAxes()
-     */
     @Override
     protected void createAxes() {
         yAxisPlacer.setPixelWidth(graphExtent.getWidth());
@@ -180,14 +163,6 @@ public class VarHeightGraph extends AbstractGraph {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.graph.AbstractGraph#paintTitles(com.raytheon.uf
-     * .viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintTitles(IGraphicsTarget target,
             PaintProperties paintProps) throws VizException {
@@ -205,14 +180,6 @@ public class VarHeightGraph extends AbstractGraph {
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.uf.viz.xy.graph.AbstractGraph#paintUnits(com.raytheon.uf
-     * .viz.core.IGraphicsTarget,
-     * com.raytheon.uf.viz.core.drawables.PaintProperties)
-     */
     @Override
     protected void paintUnits(IGraphicsTarget target, PaintProperties paintProps)
             throws VizException {
@@ -222,7 +189,7 @@ public class VarHeightGraph extends AbstractGraph {
         }
         paintHeightUnits(target, paintProps);
 
-        List<DrawableString> strings = new ArrayList<DrawableString>();
+        List<DrawableString> strings = new ArrayList<>();
 
         RGB rcsColor = null;
         /*
@@ -231,7 +198,7 @@ public class VarHeightGraph extends AbstractGraph {
          */
         List<IGraphableResource<?, ?>> copy = new ArrayList<>(graphResource);
         for (IGraphableResource<?, ?> grsc : copy) {
-            Set<IGraph> otherGraphs = new HashSet<IGraph>();
+            Set<IGraph> otherGraphs = new HashSet<>();
             for (ResourcePair rp : descriptor.getResourceList()) {
                 if (rp.getResource() instanceof IGraphableResource<?, ?>) {
                     IGraph graph = descriptor
@@ -273,8 +240,15 @@ public class VarHeightGraph extends AbstractGraph {
                     strings.add(parameters);
                 }
             }
+
+            /*
+             * to match AWIPS 1 we shouldn't draw the axis labels for wind
+             * displays
+             */
+            if (!rsc.isWind()) {
+                target.drawStrings(strings);
+            }
         }
-        target.drawStrings(strings);
     }
 
     @Override

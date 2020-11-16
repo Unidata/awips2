@@ -20,13 +20,13 @@
 package com.raytheon.viz.mpe.ui.rsc;
 
 import java.awt.Rectangle;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.measure.converter.UnitConverter;
 import javax.measure.unit.Unit;
+
 import org.geotools.coverage.grid.GridGeometry2D;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.datum.PixelInCell;
@@ -71,12 +71,12 @@ import com.vividsolutions.jts.geom.Coordinate;
  * Sep 28, 2017  6407      bkowal      Cleanup.
  * Oct 03, 2017  6407      bkowal      Updated to use {@link MPEConversionUtils}.
  * Oct 06, 2017  6407      bkowal      Cleanup. Updates to support GOES-R SATPRE.
+ * Nov 28, 2017  5863      bsteffen    Change dataTimes to a NavigableSet
  * 
  * </pre>
  * 
  * @author mschenke
  */
-
 public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedResourceData, F extends Frame>
         extends AbstractVizResource<T, IMapDescriptor>
         implements IResourceDataChanged, IMpeResource {
@@ -87,15 +87,10 @@ public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedRes
 
     protected Map<DataTime, F> frames = new HashMap<>();
 
-    /**
-     * @param resourceData
-     * @param loadProperties
-     */
     protected AbstractGriddedMPEResource(T resourceData,
             LoadProperties loadProperties) {
-        super(resourceData, loadProperties);
+        super(resourceData, loadProperties, false);
         resourceData.addChangeListener(this);
-        dataTimes = new ArrayList<>();
         getCapability(ColorMapCapability.class).setColorMapParameters(
                 MPEDisplayManager.createColorMap(resourceData.getCvUseString(),
                         resourceData.getDisplayString(),
@@ -287,10 +282,6 @@ public abstract class AbstractGriddedMPEResource<T extends AbstractMPEGriddedRes
      */
     protected abstract Rectangle getHrapSubGridExtent();
 
-    /**
-     * @param currTime
-     * @return
-     */
     protected abstract F createFrame(DataTime currTime) throws VizException;
 
     protected abstract GriddedContourDisplay createFrameContour(F frame)

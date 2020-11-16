@@ -278,6 +278,8 @@ import com.vividsolutions.jts.simplify.TopologyPreservingSimplifier;
  * 06/25/2017              mjames@ucar Simple dialog.
  * 08/29/2017  6328        randerso    Convert to use PresetInfoBullet
  * 09/25/2017  6362        randerso    Changed to support Alaska_Marine geospatial config
+ * 01/11/2018  7188        lvenable    Added a a check for ColorableCapability and set geometryChanged to true so the
+ *                                     polygon would redraw.
  * </pre>
  *
  * @author mschenke
@@ -3186,7 +3188,7 @@ public class WarngenLayer extends AbstractStormTrackResource {
             JTSGeometryData data = comp.createGeometryData();
             data.setGeometryColor(
                     getCapability(ColorableCapability.class).getColor());
-            comp.handle(state.getWarningArea());
+            comp.handle(state.getWarningArea(), data);
             hasDrawnShaded = true;
         } else {
             hasDrawnShaded = false;
@@ -4390,25 +4392,29 @@ public class WarngenLayer extends AbstractStormTrackResource {
     @Override
     public void resourceChanged(ChangeType type, Object object) {
         super.resourceChanged(type, object);
-        if ((type == ChangeType.CAPABILITY)
-                && (object instanceof EditableCapability)) {
-            if (dialog != null) {
-                final boolean editable = isEditable();
-                boxEditable = editable;
-                displayState.editable = editable;
-                dialog.realizeEditableState();
-                final WarngenDialog dlg = dialog;
-                dialog.getDisplay().asyncExec(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (!dlg.isDisposed()
-                                && (dlg.getShell().isVisible() != editable)) {
-                            dlg.showDialog(editable);
+
+        if (type == ChangeType.CAPABILITY) {
+            if (object instanceof EditableCapability) {
+                if (dialog != null) {
+                    final boolean editable = isEditable();
+                    boxEditable = editable;
+                    displayState.editable = editable;
+                    dialog.realizeEditableState();
+                    final WarngenDialog dlg = dialog;
+                    dialog.getDisplay().asyncExec(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (!dlg.isDisposed() && (dlg.getShell()
+                                    .isVisible() != editable)) {
+                                dlg.showDialog(editable);
+                            }
                         }
-                    }
-                });
+                    });
+                }
+                issueRefresh();
+            } else if (object instanceof ColorableCapability) {
+                state.geometryChanged = true;
             }
-            issueRefresh();
         }
     }
 

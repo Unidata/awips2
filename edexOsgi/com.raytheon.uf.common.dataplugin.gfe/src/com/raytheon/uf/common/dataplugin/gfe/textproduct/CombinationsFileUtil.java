@@ -40,6 +40,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.raytheon.uf.common.dataplugin.gfe.exception.GfeException;
 import com.raytheon.uf.common.dataplugin.gfe.python.GfePyIncludeUtil;
+import com.raytheon.uf.common.localization.ILocalizationFile;
 import com.raytheon.uf.common.localization.IPathManager;
 import com.raytheon.uf.common.localization.LocalizationContext;
 import com.raytheon.uf.common.localization.LocalizationContext.LocalizationLevel;
@@ -57,8 +58,8 @@ import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.util.FileUtil;
-import com.raytheon.uf.common.util.StringUtil;
 
+import jep.JepConfig;
 import jep.JepException;
 
 /**
@@ -94,43 +95,77 @@ import jep.JepException;
  * Oct 03, 2016  19293    randerso  Moved CombinationsFileUtil to common
  * Nov 11, 2016  19293    randerso  Added methods to allow siteId to be
  *                                  specified for use in EDEX
+ * Feb 16, 2018  7122     randerso  Changed to use String.join(). Code Cleanup
  *
  * </pre>
  *
  * @author mnash
- * @version 1.0
  */
 
 public class CombinationsFileUtil {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(CombinationsFileUtil.class);
 
     private static final int MAX_TRIES = 2;
 
-    public static String COMBINATIONS_DIR_PATH = FileUtil.join("gfe",
-            "combinations");
+    /**
+     * Directory for actual combinations files used by formatters
+     */
+    public static final String COMBINATIONS_DIR_PATH = LocalizationUtil
+            .join("gfe", "combinations");
 
-    public static String SAVED_COMBO_DIR = FileUtil.join("gfe", "comboData");
+    /**
+     * Directory for saved combo files. These are used to save combinations for
+     * later use. The latest combinations used by formatters are stored in
+     * COMBINATIONS_DIR_PATH.
+     */
+    public static final String SAVED_COMBO_DIR = LocalizationUtil.join("gfe",
+            "comboData");
 
     private static final SingleTypeJAXBManager<ComboData> jaxb = SingleTypeJAXBManager
             .createWithoutException(ComboData.class);
 
+    /**
+     * Zone Combination Data
+     *
+     * Stores a list of entries for each zone and it's associated zone group
+     */
     @XmlRootElement
     @XmlAccessorType(XmlAccessType.NONE)
     public static class ComboData {
 
+        /**
+         * ComboData Entry
+         *
+         * Represents the association of a zone with a zone group
+         */
         @XmlRootElement
         @XmlAccessorType(XmlAccessType.NONE)
         public static class Entry {
+            /**
+             * The group number associated with this zone
+             */
             @XmlAttribute
             public int group;
 
+            /**
+             * The zone name/id (e.g. NEZ123)
+             */
             @XmlAttribute
             public String zone;
 
+            /**
+             * Default constructor
+             */
             public Entry() {
             }
 
+            /**
+             * Constructor
+             *
+             * @param zone
+             * @param group
+             */
             public Entry(String zone, int group) {
                 this.zone = zone;
                 this.group = group;
@@ -140,9 +175,17 @@ public class CombinationsFileUtil {
         @XmlElement(name = "entry")
         private List<Entry> combos;
 
+        /**
+         * Default constructor
+         */
         public ComboData() {
         }
 
+        /**
+         * Constructor
+         *
+         * @param comboDict
+         */
         public ComboData(Map<String, Integer> comboDict) {
             this.combos = new ArrayList<>(comboDict.size());
             for (java.util.Map.Entry<String, Integer> entry : comboDict
@@ -168,7 +211,11 @@ public class CombinationsFileUtil {
         return combos;
     }
 
-    public static String fileToId(LocalizationFile file) {
+    /**
+     * @param file
+     * @return the ID for the specified LocalizationFile
+     */
+    public static String fileToId(ILocalizationFile file) {
         String id = LocalizationUtil.extractName(file.getPath()).replace(".xml",
                 "");
         id = FileUtil.unmangle(id);
@@ -176,19 +223,33 @@ public class CombinationsFileUtil {
         return id;
     }
 
-    public static LocalizationFile idToFile(String id) {
+    /**
+     * @param id
+     * @return the LocalizationFile for the specified ID
+     */
+    public static ILocalizationFile idToFile(String id) {
         String s = FileUtil.mangle(id) + ".xml";
         IPathManager pm = PathManagerFactory.getPathManager();
-        LocalizationFile lf = pm.getLocalizationFile(
+        ILocalizationFile lf = pm.getLocalizationFile(
                 pm.getContext(LocalizationType.CAVE_STATIC,
                         LocalizationLevel.SITE),
-                FileUtil.join(SAVED_COMBO_DIR, s));
+                LocalizationUtil.join(SAVED_COMBO_DIR, s));
         return lf;
     }
 
+    /**
+     * Save the combo data using the specified ID
+     *
+     * @param id
+     * @param combos
+     *            the combol data
+     * @throws LocalizationException
+     * @throws SerializationException
+     * @throws IOException
+     */
     public static void saveComboData(String id, Map<String, Integer> combos)
             throws LocalizationException, SerializationException, IOException {
-        LocalizationFile lf = idToFile(id);
+        ILocalizationFile lf = idToFile(id);
         try (SaveableOutputStream out = lf.openOutputStream()) {
             ComboData comboData = new ComboData(combos);
             jaxb.marshalToStream(comboData, out);
@@ -196,11 +257,24 @@ public class CombinationsFileUtil {
         }
     }
 
+    /**
+     * Delete the combo file for the specified ID
+     *
+     * @param id
+     * @throws LocalizationException
+     */
     public static void deleteComboData(String id) throws LocalizationException {
-        LocalizationFile lf = idToFile(id);
+        ILocalizationFile lf = idToFile(id);
         lf.delete();
     }
 
+    /**
+     * Converts named combination to real name in server.
+     *
+     * @param mapNames
+     * @param name
+     * @return the combo file name
+     */
     public static String nameToFN(List<String> mapNames, String name) {
         StringBuilder s = new StringBuilder();
         for (String mapName : mapNames) {
@@ -211,6 +285,14 @@ public class CombinationsFileUtil {
         return s.toString();
     }
 
+    /**
+     * Converts filename in server to named combination. May return empty
+     * string, indicating invalid name. Note that names are filtered by mapname.
+     *
+     * @param mapNames
+     * @param fn
+     * @return the combo name
+     */
     public static String fnToName(List<String> mapNames, String fn) {
         StringBuilder s = new StringBuilder();
         for (String mapName : mapNames) {
@@ -225,9 +307,19 @@ public class CombinationsFileUtil {
         }
     }
 
+    /**
+     * Loads a saved combo file and returns the combo data
+     *
+     * @param id
+     *            ID of combo data file to load
+     * @return the combo data
+     * @throws SerializationException
+     * @throws IOException
+     * @throws LocalizationException
+     */
     public static Map<String, Integer> loadComboData(String id)
             throws SerializationException, IOException, LocalizationException {
-        LocalizationFile lf = idToFile(id);
+        ILocalizationFile lf = idToFile(id);
         try (InputStream in = lf.openInputStream()) {
             ComboData comboData = jaxb.unmarshalFromInputStream(in);
 
@@ -258,8 +350,8 @@ public class CombinationsFileUtil {
 
         // retrieve combinations file if it's changed
         LocalizationFile lf = pm.getStaticLocalizationFile(
-                LocalizationType.CAVE_STATIC,
-                FileUtil.join(COMBINATIONS_DIR_PATH, comboName + ".py"));
+                LocalizationType.CAVE_STATIC, LocalizationUtil
+                        .join(COMBINATIONS_DIR_PATH, comboName + ".py"));
 
         return loadCombinationsFile(pm, lf, comboName);
     }
@@ -288,7 +380,8 @@ public class CombinationsFileUtil {
 
         LocalizationFile lf = pm.getStaticLocalizationFile(
                 new LocalizationContext[] { siteContext, configContext },
-                FileUtil.join(COMBINATIONS_DIR_PATH, comboName + ".py"));
+                LocalizationUtil.join(COMBINATIONS_DIR_PATH,
+                        comboName + ".py"));
 
         return loadCombinationsFile(pm, lf, comboName);
     }
@@ -315,18 +408,22 @@ public class CombinationsFileUtil {
                 LocalizationType.COMMON_STATIC, LocalizationLevel.BASE);
         String scriptPath = pm
                 .getLocalizationFile(context,
-                        FileUtil.join(GfePyIncludeUtil.COMMON_GFE,
+                        LocalizationUtil.join(GfePyIncludeUtil.COMMON_GFE,
                                 "CombinationsInterface.py"))
                 .getFile().getAbsolutePath();
 
         List<List<String>> combos = null;
-        HashMap<String, Object> map = new HashMap<>();
+        Map<String, Object> map = new HashMap<>();
         map.put("comboName", comboName);
         for (int retryCount = 0; retryCount < MAX_TRIES; retryCount++) {
-            try (PythonScript python = new PythonScript(scriptPath,
-                    PyUtil.buildJepIncludePath(lf.getFile().getParent(),
-                            GfePyIncludeUtil.getCommonPythonIncludePath()),
-                    CombinationsFileUtil.class.getClassLoader())) {
+            try (PythonScript python = new PythonScript(new JepConfig()
+                    .addIncludePaths(
+                            PyUtil.buildJepIncludePath(lf.getFile().getParent(),
+                                    GfePyIncludeUtil
+                                            .getCommonPythonIncludePath()))
+                    .setClassLoader(
+                            CombinationsFileUtil.class.getClassLoader()),
+                    scriptPath)) {
                 Object com = python.execute("getCombinations", map);
                 combos = (List<List<String>>) com;
 
@@ -370,7 +467,7 @@ public class CombinationsFileUtil {
      */
     public static void generateAutoCombinationsFile(
             List<List<String>> zoneGroupList, String comboName)
-                    throws LocalizationException {
+            throws LocalizationException {
 
         IPathManager pm = PathManagerFactory.getPathManager();
 
@@ -394,7 +491,7 @@ public class CombinationsFileUtil {
      */
     public static void saveCombinationsFile(String siteId,
             List<List<String>> zoneGroupList, String comboName)
-                    throws LocalizationException {
+            throws LocalizationException {
         IPathManager pm = PathManagerFactory.getPathManager();
 
         LocalizationContext context = pm
@@ -407,8 +504,8 @@ public class CombinationsFileUtil {
             LocalizationContext context, List<List<String>> zoneGroupList,
             String comboName) throws LocalizationException {
 
-        String fileName = FileUtil.join(COMBINATIONS_DIR_PATH, comboName)
-                + ".py";
+        String fileName = LocalizationUtil.join(COMBINATIONS_DIR_PATH,
+                comboName) + ".py";
         LocalizationFile lf = pm.getLocalizationFile(context, fileName);
 
         // delete the local .pyc file to force regeneration
@@ -431,7 +528,7 @@ public class CombinationsFileUtil {
                     modZGL.add("'" + zone + "'");
                 }
                 nextLineToWrite.append("\t([");
-                nextLineToWrite.append(StringUtil.join(modZGL, ','));
+                nextLineToWrite.append(String.join(",", modZGL));
                 nextLineToWrite.append("], ");
                 nextLineToWrite.append("'Region");
                 nextLineToWrite.append(df.format(i + 1));

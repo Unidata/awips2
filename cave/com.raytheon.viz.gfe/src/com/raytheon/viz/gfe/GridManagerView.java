@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -44,33 +44,39 @@ import com.raytheon.viz.ui.color.IBackgroundColorChangedListener.BGColorMode;
 
 /**
  * View for displaying GridManager
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 02/19/2008              dfitch      Initial creation.
- * 06/11/2009   #1947      rjpeter     Updated to add saving of parms on close,
- *                                     adding cancel capability and if error on
- *                                     save then the close is cancelled.
- * 10/30/2012   #1298      rferrel     Must keep blocking dialogs to work with eclipse plugins.
- * 12/10/2013   #2367      dgilling    Use new ProcedureJobePool and SmartToolJobPool.
- * Aug 13, 2015  4749      njensen     dispose() disposes of GridManager
- * Jan 14, 2016  5193      bsteffen    Fix NPE in isDirty
- * Jul 08, 2016  5641      njensen     setFocus() sets the focus on the view composite
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Feb 19, 2008           dfitch    Initial creation.
+ * Jun 11, 2009  1947     rjpeter   Updated to add saving of parms on close,
+ *                                  adding cancel capability and if error on
+ *                                  save then the close is cancelled.
+ * Oct 30, 2012  1298     rferrel   Must keep blocking dialogs to work with
+ *                                  eclipse plugins.
+ * Dec 10, 2013  2367     dgilling  Use new ProcedureJobePool and
+ *                                  SmartToolJobPool.
+ * Aug 13, 2015  4749     njensen   dispose() disposes of GridManager
+ * Jan 14, 2016  5193     bsteffen  Fix NPE in isDirty
+ * Jul 08, 2016  5641     njensen   setFocus() sets the focus on the view
+ *                                  composite
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author dfitch
- * @version 1.0
  */
 public class GridManagerView extends ViewPart implements ISaveablePart2 {
 
+    /**
+     * GridMangerView part ID
+     */
     public static final String ID = "com.raytheon.viz.gfe.GridManagerView";
 
     private Composite view;
-
-    private IWorkbenchWindow window;
 
     private DataManager dataManager;
 
@@ -86,16 +92,18 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
         getDataManager().getGridManager().dispose();
     }
 
+    /**
+     * @return the DataManager
+     */
     public DataManager getDataManager() {
         return dataManager;
     }
 
     @Override
     public void createPartControl(Composite parent) {
-
-        window = this.getSite().getWorkbenchWindow();
         view = parent;
 
+        IWorkbenchWindow window = this.getSite().getWorkbenchWindow();
         dataManager = DataManagerUIFactory.getInstance(window);
         if (dataManager == null) {
             return;
@@ -104,10 +112,7 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
         GridManager gm = new GridManager(view, dataManager);
         dataManager.setGridManager(gm);
 
-        String colorName = GFEPreference.getPreference("bgColor");
-        if (colorName.isEmpty()) {
-            colorName = "black";
-        }
+        String colorName = GFEPreference.getString("bgColor", "black");
         BackgroundColor.getInstance(getSite().getPage().getPerspective())
                 .setColor(BGColorMode.EDITOR, RGBColors.getRGBColor(colorName));
 
@@ -120,24 +125,25 @@ public class GridManagerView extends ViewPart implements ISaveablePart2 {
         view.setFocus();
     }
 
+    /**
+     * refresh the GridManagerView
+     */
     public void refresh() {
         /**
          * The resize of the view is done so that view displays properly.
-         * 
+         *
          */
         view.setSize(view.getBounds().width - 1, view.getBounds().height);
         view.setSize(view.getBounds().width + 1, view.getBounds().height);
     }
 
+    /**
+     * @return the view
+     */
     public Composite getView() {
         return view;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.ISaveablePart2#promptToSaveOnClose()
-     */
     @Override
     public int promptToSaveOnClose() {
         // Check for any running/queued jobs.

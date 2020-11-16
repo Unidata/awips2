@@ -57,6 +57,7 @@ import com.raytheon.uf.edex.decodertools.core.DecoderTools;
  * 03/07/2013   15071       W. Kwock    Skip empty data files.
  * 04/28/2014   3088        mpduff      Use UFStatus logging, various cleanup.
  * 01/10/2018   5049        mduff       Pass ShefParm to the ShefParser.
+ * 01/16/2018   6561        mduff       Added log statement with file name for tracking.
  * </pre>
  */
 public class ShefDecoder {
@@ -110,6 +111,12 @@ public class ShefDecoder {
             traceId = (String) headers.get(DecoderTools.INGEST_FILE_NAME);
         }
 
+        if (traceId != null) {
+            logger.info("Decode process started for " + traceId);
+        } else {
+            logger.info("Decode process started");
+        }
+
         ShefSeparator separator = null;
         try {
             separator = ShefSeparator.separate(data, headers);
@@ -118,7 +125,6 @@ public class ShefDecoder {
             separator = null;
         }
         if (separator != null) {
-
             long startTime = System.currentTimeMillis();
 
             Date postDate = null;

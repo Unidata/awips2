@@ -45,6 +45,7 @@ import com.raytheon.viz.grid.inv.GridInventory;
  * ------------ ---------- ----------- --------------------------
  * Sep 19, 2013   2391     mpduff      Initial creation
  * Sep 09, 2014   3356     njensen     Remove CommunicationException
+ * Jun 24, 2019   ----     mjames      Remove DatasetInfo
  * 
  * </pre>
  * 

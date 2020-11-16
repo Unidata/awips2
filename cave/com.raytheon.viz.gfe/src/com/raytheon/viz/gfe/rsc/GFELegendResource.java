@@ -19,8 +19,6 @@
  **/
 package com.raytheon.viz.gfe.rsc;
 
-import static com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode.IMAGE;
-
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,7 +28,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.TimeZone;
 
-import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.swt.graphics.RGB;
 
 import com.raytheon.uf.common.dataplugin.gfe.db.objects.DatabaseID;
@@ -40,6 +37,7 @@ import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
 import com.raytheon.uf.common.time.DataTime;
 import com.raytheon.uf.common.time.TimeRange;
+import com.raytheon.uf.common.time.util.TimeUtil;
 import com.raytheon.uf.common.util.Pair;
 import com.raytheon.uf.viz.core.IDisplayPaneContainer;
 import com.raytheon.uf.viz.core.IGraphicsTarget;
@@ -57,9 +55,8 @@ import com.raytheon.uf.viz.core.rsc.ResourceProperties;
 import com.raytheon.uf.viz.core.rsc.capabilities.ColorableCapability;
 import com.raytheon.uf.viz.core.rsc.legend.AbstractLegendResource;
 import com.raytheon.viz.core.ColorUtil;
-import com.raytheon.viz.gfe.Activator;
 import com.raytheon.viz.gfe.GFEOperationFailedException;
-import com.raytheon.viz.gfe.PreferenceInitializer;
+import com.raytheon.viz.gfe.GFEPreference;
 import com.raytheon.viz.gfe.core.DataManager;
 import com.raytheon.viz.gfe.core.ISpatialDisplayManager;
 import com.raytheon.viz.gfe.core.griddata.IGridData;
@@ -68,42 +65,57 @@ import com.raytheon.viz.gfe.core.msgs.Message;
 import com.raytheon.viz.gfe.core.msgs.Message.IMessageClient;
 import com.raytheon.viz.gfe.core.msgs.ShowQuickViewDataMsg;
 import com.raytheon.viz.gfe.core.parm.Parm;
+import com.raytheon.viz.gfe.core.parm.ParmDisplayAttributes.VisMode;
 import com.raytheon.viz.gfe.edittool.GridID;
 import com.raytheon.viz.ui.input.InputAdapter;
 
 /**
- * 
+ *
  * Port of SELegendVisual from AWIPS I GFE
- * 
+ *
  * <pre>
  * SOFTWARE HISTORY
- * Date         Ticket#    Engineer    Description
- * ------------ ---------- ----------- --------------------------
- * 03/17/2008              chammack    Initial Creation.
- * 08/19/2009   2547       rjpeter     Implement Test/Prac database display.
- * 07/10/2012   15186      ryu         Clean up initInternal per Ron
- * 11/30/2012   #1328      mschenke    Made GFE use descriptor for time matching
- *                                     and time storage and manipulation
- * 01/22/2013   #1518      randerso    Removed use of Map with Parms as keys,
- *                                     really just needed a list anyway.
- * 11/20/2013   #2331      randerso    Corrected legend for Topography
- * 03/10/2016   #5479      randerso    Use improved GFEFonts API
- * 
+ *
+ * Date          Ticket#  Engineer  Description
+ * ------------- -------- --------- --------------------------------------------
+ * Mar 17, 2008           chammack  Initial Creation.
+ * Aug 19, 2009  2547     rjpeter   Implement Test/Prac database display.
+ * Jul 10, 2012  15186    ryu       Clean up initInternal per Ron
+ * Nov 30, 2012  1328     mschenke  Made GFE use descriptor for time matching
+ *                                  and time storage and manipulation
+ * Jan 22, 2013  1518     randerso  Removed use of Map with Parms as keys,
+ *                                  really just needed a list anyway.
+ * Nov 20, 2013  2331     randerso  Corrected legend for Topography
+ * Mar 10, 2016  5479     randerso  Use improved GFEFonts API
+ * Jan 24, 2018  7153     randerso  Changes to allow new GFE config file to be
+ *                                  selected when perspective is re-opened.
+ *
  * </pre>
- * 
+ *
  * @author chammack
- * @version 1.0
  */
-public class GFELegendResource extends
-        AbstractLegendResource<GFELegendResourceData> implements
-        IMessageClient, INewModelAvailableListener {
+public class GFELegendResource
+        extends AbstractLegendResource<GFELegendResourceData>
+        implements IMessageClient, INewModelAvailableListener {
     private static final transient IUFStatusHandler statusHandler = UFStatus
             .getHandler(GFELegendResource.class);
 
+    /** GFE Legend Modes */
     public static enum LegendMode {
-        SETIME("Hide"), GRIDS("Show All Weather Elements"), MUTABLE(
-                "Show Fcst Weather Elements"), ACTIVE(
-                "Show Active Weather Element"), MAPS("Show Map");
+        /** Show only the spatial editor time */
+        SETIME("Hide"),
+
+        /** Show all weather elements */
+        GRIDS("Show All Weather Elements"),
+
+        /** Show only mutable weather elements */
+        MUTABLE("Show Fcst Weather Elements"),
+
+        /** Show only the active weather element */
+        ACTIVE("Show Active Weather Element"),
+
+        /** Show map legends */
+        MAPS("Show Map");
 
         private String str;
 
@@ -111,11 +123,6 @@ public class GFELegendResource extends
             this.str = str;
         }
 
-        /*
-         * (non-Javadoc)
-         * 
-         * @see java.lang.Enum#toString()
-         */
         @Override
         public String toString() {
             return str;
@@ -125,14 +132,15 @@ public class GFELegendResource extends
 
     private class GFELegendInputHandler extends InputAdapter {
 
-        ResourcePair mouseDownRsc = null;
+        private ResourcePair mouseDownRsc = null;
 
         @Override
         public boolean handleMouseDown(int x, int y, int mouseButton) {
             if ((mouseButton == 1) || (mouseButton == 2)) {
                 mouseDownRsc = checkLabelSpace(descriptor,
                         getResourceContainer().getActiveDisplayPane()
-                                .getTarget(), x, y);
+                                .getTarget(),
+                        x, y);
                 if (mouseDownRsc != null) {
                     return true;
                 }
@@ -164,8 +172,8 @@ public class GFELegendResource extends
                             GFEResource gfeRsc = (GFEResource) rsc
                                     .getResource();
                             GFELegendResource.this.dataManager
-                                    .getSpatialDisplayManager().makeVisible(
-                                            gfeRsc.getParm(),
+                                    .getSpatialDisplayManager()
+                                    .makeVisible(gfeRsc.getParm(),
                                             !props.isVisible(), false);
 
                         } else {
@@ -187,15 +195,16 @@ public class GFELegendResource extends
                                 sdm.activateParm(null);
                                 return true;
                             } else {
-                                IGridData grid = parm.overlappingGrid(sdm
-                                        .getSpatialEditorTime());
+                                IGridData grid = parm.overlappingGrid(
+                                        sdm.getSpatialEditorTime());
                                 if ((grid != null) && grid.isOkToEdit()) {
                                     sdm.activateParm(parm);
                                     return true;
                                 } else if (grid == null) {
                                     statusHandler.handle(Priority.SIGNIFICANT,
                                             "No Grid to make editable");
-                                } else if ((grid != null) && !grid.isOkToEdit()) {
+                                } else if ((grid != null)
+                                        && !grid.isOkToEdit()) {
                                     statusHandler.handle(Priority.SIGNIFICANT,
                                             "Grid cannot be edited");
                                 }
@@ -228,23 +237,15 @@ public class GFELegendResource extends
 
     private IInputHandler handler = new GFELegendInputHandler();
 
-    protected static RGB imageLegendColor = new RGB(255, 255, 255);
+    protected RGB imageLegendColor;
 
-    static {
-        new PreferenceInitializer() {
-            @Override
-            public void init() {
-                IPreferenceStore prefs = Activator.getDefault()
-                        .getPreferenceStore();
-
-                if (prefs.contains("ImageLegend_color")) {
-                    String color = prefs.getString("ImageLegend_color");
-                    imageLegendColor = RGBColors.getRGBColor(color);
-                }
-            }
-        }.run();
-    }
-
+    /**
+     * Constructor
+     *
+     * @param dataManager
+     * @param resourceData
+     * @param loadProps
+     */
     public GFELegendResource(DataManager dataManager,
             GFELegendResourceData resourceData, LoadProperties loadProps) {
         super(resourceData, loadProps);
@@ -252,11 +253,16 @@ public class GFELegendResource extends
         resourceDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
         this.dataManager = dataManager;
 
-        String s = Activator.getDefault().getPreferenceStore()
-                .getString("LegendMode");
+        String color = GFEPreference.getString("ImageLegend_color", "White");
+        imageLegendColor = RGBColors.getRGBColor(color);
+
+        String s = GFEPreference.getString("LegendMode", "GRIDS");
         try {
             mode = LegendMode.valueOf(s);
         } catch (Exception e) {
+            statusHandler.error(String.format(
+                    "GFE config file '%' contains an invalid value for preference: LegendMode",
+                    GFEPreference.getConfigName()), e);
             mode = LegendMode.GRIDS;
         }
     }
@@ -267,13 +273,6 @@ public class GFELegendResource extends
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.core.legend.ILegendDecorator#getLegendData(com.raytheon
-     * .viz.core.drawables.IDescriptor)
-     */
     @Override
     public LegendEntry[] getLegendData(IDescriptor descriptor) {
         LegendData[] data = null;
@@ -304,19 +303,19 @@ public class GFELegendResource extends
     /**
      * Gets an ordered list of Parm/ResourcePair pairs to display for the
      * legend.
-     * 
+     *
      * @param descriptor
-     * @return
+     * @return the parm/resource pairs
      */
     protected List<Pair<Parm, ResourcePair>> getLegendOrderedParms(
             IDescriptor descriptor) {
-        List<Pair<Parm, ResourcePair>> parms = new ArrayList<Pair<Parm, ResourcePair>>();
+        List<Pair<Parm, ResourcePair>> parms = new ArrayList<>();
         for (ResourcePair rp : descriptor.getResourceList()) {
             if (rp.getResource() instanceof GFEResource) {
                 Parm parm = ((GFEResource) rp.getResource()).getParm();
                 if ((qvGrid == null)
                         || ((qvGrid != null) && (qvGrid.getParm() == parm))) {
-                    parms.add(new Pair<Parm, ResourcePair>(parm, rp));
+                    parms.add(new Pair<>(parm, rp));
                     if (qvGrid != null) {
                         break;
                     }
@@ -338,7 +337,7 @@ public class GFELegendResource extends
     private LegendData[] getLegendDataGrids(IDescriptor descriptor) {
         int lengthOfTime = "144h Tue 19Z 12-Sep-06".length();
 
-        List<LegendData> legendDataList = new ArrayList<LegendData>();
+        List<LegendData> legendDataList = new ArrayList<>();
 
         FramesInfo currInfo = descriptor.getFramesInfo();
 
@@ -346,7 +345,8 @@ public class GFELegendResource extends
                 .getActivatedParm();
         StringBuilder labelBuilder = new StringBuilder();
 
-        List<Pair<Parm, ResourcePair>> parms = getLegendOrderedParms(descriptor);
+        List<Pair<Parm, ResourcePair>> parms = getLegendOrderedParms(
+                descriptor);
         Parm qvParm = null;
         if (qvGrid != null) {
             qvParm = qvGrid.getParm();
@@ -374,17 +374,13 @@ public class GFELegendResource extends
 
             if (!props.isVisible()) {
                 ld.color = ColorUtil.GREY;
-            } else if ((parm == qvParm)
-                    || (IMAGE == parm.getDisplayAttributes().getVisMode())) {
+            } else if ((parm == qvParm) || (VisMode.IMAGE == parm
+                    .getDisplayAttributes().getVisMode())) {
                 ld.color = imageLegendColor;
             } else {
-                String legColor = Activator
-                        .getDefault()
-                        .getPreferenceStore()
-                        .getString(
-                                parm.getParmID().compositeNameUI()
-                                        + "_Legend_color");
-                if (!legColor.equals("")) {
+                String legColor = GFEPreference.getString(
+                        parm.getParmID().compositeNameUI() + "_Legend_color");
+                if (!legColor.isEmpty()) {
                     ld.color = RGBColors.getRGBColor(legColor);
                 } else {
                     ld.color = rsc.getCapability(ColorableCapability.class)
@@ -406,8 +402,8 @@ public class GFELegendResource extends
             if (parmId.equals(topoID)) {
                 parmText = "Topography";
                 sb.append(parmText);
-                addSpaces(sb, lengths[0] + lengths[1] + lengths[2] + lengths[3]
-                        + 15);
+                addSpaces(sb,
+                        lengths[0] + lengths[1] + lengths[2] + lengths[3] + 15);
             } else {
                 sb.append(parmText);
 
@@ -460,10 +456,10 @@ public class GFELegendResource extends
                     if (currRscTime != null) {
                         TimeRange tr = currRscTime.getValidPeriod();
                         labelBuilder.append(String.format("%3d",
-                                tr.getDuration() / 3600000));
+                                tr.getDuration() / TimeUtil.MILLIS_PER_HOUR));
                         labelBuilder.append("h ");
-                        labelBuilder.append(resourceDateFormat.format(tr
-                                .getStart()));
+                        labelBuilder.append(
+                                resourceDateFormat.format(tr.getStart()));
                     } else {
                         labelBuilder.append(" <No Grid>");
                     }
@@ -486,7 +482,7 @@ public class GFELegendResource extends
 
     private LegendData[] getLegendDataMaps(IDescriptor descriptor) {
         Iterator<ResourcePair> rl = descriptor.getResourceList().iterator();
-        List<LegendData> legendDataList = new ArrayList<LegendData>();
+        List<LegendData> legendDataList = new ArrayList<>();
 
         while (rl.hasNext()) {
             ResourcePair rp = rl.next();
@@ -525,7 +521,7 @@ public class GFELegendResource extends
 
     /**
      * Get the legend mode
-     * 
+     *
      * @return the legend mode
      */
     public LegendMode getLegendMode() {
@@ -535,10 +531,14 @@ public class GFELegendResource extends
     /**
      * Works in a single pass to perform the operations performed in AWIPS I
      * getLargestLevelName, etc.
-     * 
-     * The fields in order: <LI>FieldName <LI>LevelName <LI>Units <LI>ModelName
-     * 
-     * 
+     *
+     * The fields in order:
+     * <LI>FieldName
+     * <LI>LevelName
+     * <LI>Units
+     * <LI>ModelName
+     *
+     *
      * @param descriptor
      * @return
      */
@@ -553,8 +553,8 @@ public class GFELegendResource extends
             ParmID parmId = parm.getParmID();
             sz[0] = Math.max(sz[0], parmId.getParmName().length());
             sz[1] = Math.max(sz[1], parmId.getParmLevel().length());
-            sz[2] = Math
-                    .max(sz[2], parm.getGridInfo().getUnitString().length());
+            sz[2] = Math.max(sz[2],
+                    parm.getGridInfo().getUnitString().length());
 
             DatabaseID dbId = parmId.getDbId();
             labelBuilder.setLength(0);
@@ -574,7 +574,6 @@ public class GFELegendResource extends
         return sz;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void disposeInternal() {
         super.disposeInternal();
@@ -592,7 +591,6 @@ public class GFELegendResource extends
         }
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     protected void initInternal(IGraphicsTarget target) throws VizException {
         super.initInternal(target);
@@ -609,14 +607,13 @@ public class GFELegendResource extends
     }
 
     private boolean isGridDisplayed(Parm parm) {
-        if ((mode == LegendMode.ACTIVE)
-                && (dataManager.getSpatialDisplayManager().getActivatedParm() != parm)) {
+        if ((mode == LegendMode.ACTIVE) && (dataManager
+                .getSpatialDisplayManager().getActivatedParm() != parm)) {
             return false;
         }
 
-        if ((mode == LegendMode.MUTABLE)
-                && !dataManager.getParmManager().getMutableDatabase()
-                        .equals(parm.getParmID().getDbId())) {
+        if ((mode == LegendMode.MUTABLE) && !dataManager.getParmManager()
+                .getMutableDatabase().equals(parm.getParmID().getDbId())) {
             return false;
         }
 
@@ -626,7 +623,7 @@ public class GFELegendResource extends
 
     /**
      * Set the legend mode
-     * 
+     *
      * @param mode
      *            the legend mode
      */
@@ -635,13 +632,6 @@ public class GFELegendResource extends
         this.getProperties().setVisible(true);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.msgs.Message.IMessageClient#receiveMessage(
-     * com.raytheon.viz.gfe.core.msgs.Message)
-     */
     @Override
     public void receiveMessage(Message message) {
         if (message instanceof ShowQuickViewDataMsg) {

@@ -1,19 +1,19 @@
 /**
  * This software was developed and / or modified by Raytheon Company,
  * pursuant to Contract DG133W-05-CQ-1067 with the US Government.
- * 
+ *
  * U.S. EXPORT CONTROLLED TECHNICAL DATA
  * This software product contains export-restricted data whose
  * export/transfer/disclosure is restricted by U.S. law. Dissemination
  * to non-U.S. persons whether in the United States or abroad requires
  * an export license or other authorization.
- * 
+ *
  * Contractor Name:        Raytheon Company
  * Contractor Address:     6825 Pine Street, Suite 340
  *                         Mail Stop B8
  *                         Omaha, NE 68106
  *                         402.291.0100
- * 
+ *
  * See the AWIPS II Master Rights File ("Master Rights File.pdf") for
  * further licensing information.
  **/
@@ -45,6 +45,7 @@ import com.raytheon.uf.common.geospatial.MapUtil;
 import com.raytheon.uf.common.status.IUFStatusHandler;
 import com.raytheon.uf.common.status.UFStatus;
 import com.raytheon.uf.common.status.UFStatus.Priority;
+import com.raytheon.uf.common.util.Pair;
 import com.raytheon.viz.gfe.core.parm.Parm;
 import com.raytheon.viz.gfe.core.parm.ParmState;
 import com.raytheon.viz.gfe.core.parm.ParmState.CombineMode;
@@ -55,11 +56,11 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 
 /**
  * Grid containing weather data.
- * 
+ *
  * <pre>
- * 
+ *
  * SOFTWARE HISTORY
- * 
+ *
  * Date          Ticket#  Engineer  Description
  * ------------- -------- --------- --------------------------------------------
  * Mar 15, 2011           randerso  Initial creation
@@ -70,69 +71,96 @@ import com.vividsolutions.jts.geom.MultiPolygon;
  *                                  wx elements
  * Apr 23, 2015  4259     njensen   Removed unused INumpyable
  * Aug 02, 2016  5744     mapeters  Remove unused cache code
- * 
+ * Dec 13, 2017  7178     randerso  Code formatting and cleanup
+ * Jan 04, 2018  7178     randerso  Changes to support IDataObject. Code cleanup
+ *
  * </pre>
- * 
+ *
  * @author randerso
  */
 
 public class WeatherGridData extends AbstractGridData {
-    private static final transient IUFStatusHandler statusHandler = UFStatus
+    private static final IUFStatusHandler statusHandler = UFStatus
             .getHandler(WeatherGridData.class);
 
     private String siteId;
 
-    public WeatherGridData(Parm aParm, IGridSlice aSlice) {
-        super(aParm, aSlice);
-        this.siteId = aParm.getParmID().getDbId().getSiteId();
-        if (!(aSlice instanceof WeatherGridSlice)) {
+    /**
+     * Constructor
+     *
+     * @param parm
+     * @param slice
+     * @param unsaved
+     *            true if data is unsaved and must not be depopulated
+     */
+    public WeatherGridData(Parm parm, IGridSlice slice, boolean unsaved) {
+        super(parm, slice, unsaved);
+        this.siteId = parm.getParmID().getDbId().getSiteId();
+        if (!(slice instanceof WeatherGridSlice)) {
             throw new IllegalArgumentException(
-                    "WeatherGridSlice required for WeatherGridData");
+                    "slice must be an instance of WeatherGridSlice, received: "
+                            + slice.getClass().getName());
         }
     }
 
+    /**
+     * Constructor, not for general use
+     *
+     * @param parm
+     * @param dataObject
+     */
+    public WeatherGridData(Parm parm, WeatherDataObject dataObject) {
+        super(parm, dataObject);
+        this.siteId = parm.getParmID().getDbId().getSiteId();
+    }
+
+    /**
+     * Copy constructor
+     *
+     * @param other
+     */
+    public WeatherGridData(WeatherGridData other) {
+        super(other);
+        this.siteId = other.siteId;
+    }
+
     @Override
-    public WeatherGridData clone() throws CloneNotSupportedException {
-        WeatherGridData agd = new WeatherGridData(this.parm,
-                this.gridSlice.clone());
-        return agd;
+    public WeatherGridData copy() {
+        return new WeatherGridData(this);
     }
 
     @Override
     protected Grid2DBit doSmooth(Date time, Grid2DBit pointsToSmooth) {
-        WeatherGridSlice thisSlice = getWeatherSlice();
-        Grid2DByte grid = thisSlice.getWeatherGrid();
+        Grid2DByte grid = getWeatherGrid();
 
         if ((grid.getXdim() != pointsToSmooth.getXdim())
                 || (grid.getYdim() != pointsToSmooth.getYdim())) {
-            statusHandler.handle(
-                    Priority.ERROR,
-                    "Dimension mismatch in doSmooth: " + getGrid().getXdim()
-                            + ',' + getGrid().getYdim() + ' '
+            statusHandler.handle(Priority.ERROR,
+                    "Dimension mismatch in doSmooth: "
+                            + getWeatherGrid().getXdim() + ','
+                            + getWeatherGrid().getYdim() + ' '
                             + pointsToSmooth.getXdim() + ','
                             + pointsToSmooth.getYdim());
             return new Grid2DBit(grid.getXdim(), grid.getYdim());
         }
 
         Grid2DByte originalGrid;
-        WeatherKey[] originalKey;
-        try {
-            WeatherGridSlice slice = thisSlice.clone();
-            if (iscMode()) {
-                getISCGrid(time, slice);
-            }
-            originalGrid = slice.getWeatherGrid();
-            originalKey = slice.getKeys();
-        } catch (CloneNotSupportedException e) {
-            statusHandler.handle(Priority.ERROR,
-                    "Could not clone weather slice.", e);
-            return new Grid2DBit(getGrid().getXdim(), getGrid().getYdim());
+        WeatherKey[] originalKeys;
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            WeatherDataObject dataObject = (WeatherDataObject) p.getSecond()
+                    .getDataObject();
+            originalGrid = dataObject.getWeatherGrid();
+            originalKeys = dataObject.getKeys();
+        } else {
+            originalGrid = getWeatherGrid().copy();
+            originalKeys = getKeys();
         }
 
         Point ll = new Point();
         Point ur = new Point();
         int maxCount, maxIndex, same;
-        short histo[] = new short[originalKey.length]; // histogram
+        short histo[] = new short[originalKeys.length]; // histogram
 
         // Get the smooth factor and divide by 2 for the loop
         int ss = getParm().getParmState().getSmoothSize() / 2;
@@ -156,7 +184,8 @@ public class WeatherGridData extends AbstractGridData {
                                 // if inside grid limits, make a
                                 // smoothed value
                                 if (originalGrid.isValid(newx, newy)) {
-                                    histo[0xFF & originalGrid.get(newx, newy)]++;
+                                    histo[0xFF
+                                            & originalGrid.get(newx, newy)]++;
                                 }
                             }
                         }
@@ -164,7 +193,7 @@ public class WeatherGridData extends AbstractGridData {
                         // find the max occurrence and assign
                         maxCount = -1;
                         maxIndex = 0;
-                        for (int k = 0; k < originalKey.length; k++) {
+                        for (int k = 0; k < originalKeys.length; k++) {
                             if (histo[k] > maxCount) {
                                 maxCount = histo[k];
                                 maxIndex = k;
@@ -175,7 +204,7 @@ public class WeatherGridData extends AbstractGridData {
                         // maxCount)
                         // if overlapping type of weather
                         same = 0;
-                        for (int k = 0; k < originalKey.length; k++) {
+                        for (int k = 0; k < originalKeys.length; k++) {
                             if (histo[k] == maxCount) {
                                 same++;
                             }
@@ -187,9 +216,9 @@ public class WeatherGridData extends AbstractGridData {
                             // make a combined key
                             WeatherKey ky = new WeatherKey(siteId,
                                     "<NoCov>:<NoWx>:<NoInten>:<NoVis>:");
-                            for (int k = 0; k < originalKey.length; k++) {
+                            for (int k = 0; k < originalKeys.length; k++) {
                                 if (histo[k] == maxCount) {
-                                    ky.addAll(originalKey[k]);
+                                    ky.addAll(originalKeys[k]);
                                 }
                             }
                             byte index = lookupKeyValue(ky);
@@ -199,8 +228,6 @@ public class WeatherGridData extends AbstractGridData {
                 }
             }
         }
-
-        thisSlice.setWeatherGrid(grid);
 
         // return the points that were changed
         return pointsToSmooth;
@@ -212,26 +239,28 @@ public class WeatherGridData extends AbstractGridData {
             throws FactoryException, TransformException {
         if (!(sourceGrid instanceof WeatherGridData)) {
             throw new IllegalArgumentException(
-                    "Expected WeatherGridData as source.");
+                    "sourceGrid must be an instance of WeatherGridData, received: "
+                            + sourceGrid.getClass().getName());
         }
 
         // simple case - no translation necessary - direct copy
         if (parm.getGridInfo().getGridLoc()
                 .equals(sourceGrid.getParm().getGridInfo().getGridLoc())) {
-            substitudeDS(sourceGrid.getGridSlice());
+            substitudeDataObject(sourceGrid);
         }
 
         // complex case - translation is necessary
         else {
             // copy the key from the source to the destination
-            setKeys(((WeatherGridSlice) sourceGrid.getGridSlice()).getKeys());
+            setKeys(((WeatherDataObject) sourceGrid.getDataObject()).getKeys());
 
             // find no weather key, which is always the 1st one
             int nowx = 0;
 
-            RemapGrid remap = new RemapGrid(sourceGrid.getParm().getGridInfo()
-                    .getGridLoc(), gridSlice.getGridInfo().getGridLoc());
-            setGrid(remap.remap(((WeatherGridSlice) sourceGrid.getGridSlice())
+            RemapGrid remap = new RemapGrid(
+                    sourceGrid.getParm().getGridInfo().getGridLoc(),
+                    getGridInfo().getGridLoc());
+            setGrid(remap.remap(((WeatherDataObject) sourceGrid.getDataObject())
                     .getWeatherGrid(), (byte) 255, (byte) nowx));
         }
         return true;
@@ -245,9 +274,7 @@ public class WeatherGridData extends AbstractGridData {
 
     @Override
     public WxValue getWxValue(int x, int y) {
-        // throw new UnsupportedOperationException("Attempt to getWxValue: ");
-        populate();
-        int index = 0xFF & getGrid().get(x, y);
+        int index = 0xFF & getWeatherGrid().get(x, y);
         WeatherWxValue tmpWeatherWxValue = new WeatherWxValue(getKeys()[index],
                 getParm());
 
@@ -255,51 +282,42 @@ public class WeatherGridData extends AbstractGridData {
     }
 
     @Override
-    public IGridSlice gridMax(IGridSlice gridSlice) {
+    public IDataObject gridMax(IDataObject dataObject) {
         throw new UnsupportedOperationException(
                 "Attempt to gridMax: on a Weather Grid");
     }
 
     @Override
-    public IGridSlice gridMin(IGridSlice gridSlice) {
+    public IDataObject gridMin(IDataObject dataObject) {
         throw new UnsupportedOperationException(
                 "Attempt to gridMin: on a Weather Grid");
     }
 
     @Override
-    public IGridSlice gridMultiply(float factor) {
+    public IDataObject gridMultiply(float factor) {
         throw new UnsupportedOperationException(
                 "Attempt to gridMultiply: on a Weather Grid");
     }
 
     @Override
-    public IGridSlice gridSum(IGridSlice gridSlice) {
+    public IDataObject gridSum(IDataObject dataObject) {
         throw new UnsupportedOperationException(
                 "Attempt to gridSum: on a Weather Grid");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.griddata.AbstractGridData#doContiguous(java
-     * .util.Date, java.awt.Point)
-     */
     @Override
     protected Grid2DBit doContiguous(Date time, Point location) {
         Point size = getParm().getGridInfo().getGridLoc().gridSize();
         Grid2DBit valid = new Grid2DBit(size.x, size.y, true);
 
-        // get the grid
         Grid2DByte originalGrid;
-        try {
-            WeatherGridSlice slice = this.getWeatherSlice().clone();
-            if (iscMode()) {
-                valid = getISCGrid(time, slice);
-            }
-            originalGrid = slice.getWeatherGrid();
-        } catch (CloneNotSupportedException e) {
-            originalGrid = new Grid2DByte();
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            valid = p.getFirst();
+            originalGrid = ((WeatherDataObject) p.getSecond().getDataObject())
+                    .getWeatherGrid();
+        } else {
+            originalGrid = getWeatherGrid();
         }
 
         Grid2DBit contig = new Grid2DBit(size.x, size.y);
@@ -329,7 +347,7 @@ public class WeatherGridData extends AbstractGridData {
     @Override
     protected Grid2DBit doPencilStretch(Date time, WxValue value,
             Coordinate[] path, Grid2DBit editArea) {
-        Grid2DByte grid = getGrid();
+        Grid2DByte grid = getWeatherGrid();
         if ((grid.getXdim() != editArea.getXdim())
                 || (grid.getYdim() != editArea.getYdim())) {
             statusHandler.handle(Priority.ERROR,
@@ -375,8 +393,15 @@ public class WeatherGridData extends AbstractGridData {
         throw new UnsupportedOperationException("Attempt to set: ");
     }
 
+    /**
+     * Compares a specified value to this grid using the specified op
+     *
+     * @param value
+     * @param op
+     * @return mask containing grid cells where comparison is true
+     */
     public Grid2DBit comparisonOperate(String value, Op op) {
-        Grid2DByte grid = getGrid();
+        Grid2DByte grid = getWeatherGrid();
         Grid2DBit bits = new Grid2DBit(grid.getXdim(), grid.getYdim());
         switch (op) {
         case EQ:
@@ -386,17 +411,17 @@ public class WeatherGridData extends AbstractGridData {
             if (!dkey.isValid()) {
                 return bits;
             }
-            bits = getWeatherSlice().eq(dkey);
+            bits = getDataObject().eq(dkey);
             if (op == Op.NOT_EQ) {
                 bits.negate();
             }
             break;
         }
         case ALMOST:
-            bits = getWeatherSlice().almost(value);
+            bits = getDataObject().almost(value);
             break;
         case NOT_ALMOST:
-            bits = getWeatherSlice().almost(value);
+            bits = getDataObject().almost(value);
             bits.negate();
             break;
         default:
@@ -408,31 +433,37 @@ public class WeatherGridData extends AbstractGridData {
         return bits;
     }
 
+    /**
+     * Compares a specified grid to this grid using the specified op
+     *
+     * @param gridData
+     * @param op
+     * @return mask containing grid cells where comparison is true
+     */
     public Grid2DBit comparisonOperate(IGridData gridData, Op op) {
-        if (gridData.getParm().getGridInfo().getGridType() != GridType.WEATHER) {
+        if (!(gridData instanceof WeatherGridData)) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid gridData type in WeatherGridData::operate().");
             return new Grid2DBit();
         }
 
-        Grid2DByte grid = getGrid();
+        WeatherDataObject wxDataObject = (WeatherDataObject) gridData
+                .getDataObject();
+
+        Grid2DByte grid = getWeatherGrid();
         Grid2DBit bits = new Grid2DBit(grid.getXdim(), grid.getYdim());
         switch (op) {
         case EQ:
-            bits = getWeatherSlice().eq(
-                    (WeatherGridSlice) gridData.getGridSlice());
+            bits = getDataObject().eq(wxDataObject);
             break;
         case NOT_EQ:
-            bits = getWeatherSlice().notEq(
-                    (WeatherGridSlice) gridData.getGridSlice());
+            bits = getDataObject().notEq(wxDataObject);
             break;
         case ALMOST:
-            bits = getWeatherSlice().almost(
-                    (WeatherGridSlice) gridData.getGridSlice());
+            bits = getDataObject().almost(wxDataObject);
             break;
         case NOT_ALMOST:
-            bits = getWeatherSlice().almost(
-                    (WeatherGridSlice) gridData.getGridSlice());
+            bits = getDataObject().almost(wxDataObject);
             bits.negate();
             break;
         default:
@@ -444,8 +475,15 @@ public class WeatherGridData extends AbstractGridData {
         return bits;
     }
 
+    /**
+     * Compares a specified weather key to this grid using the specified op
+     *
+     * @param value
+     * @param op
+     * @return mask containing grid cells where comparison is true
+     */
     public Grid2DBit comparisonOperate(WeatherKey value, Op op) {
-        Grid2DByte grid = getGrid();
+        Grid2DByte grid = getWeatherGrid();
         Grid2DBit bits = new Grid2DBit(grid.getXdim(), grid.getYdim());
         if (!value.isValid()) {
             statusHandler.handle(Priority.ERROR,
@@ -455,10 +493,10 @@ public class WeatherGridData extends AbstractGridData {
 
         switch (op) {
         case EQ:
-            bits = getWeatherSlice().eq(value);
+            bits = getDataObject().eq(value);
             break;
         case NOT_EQ:
-            bits = getWeatherSlice().notEq(value);
+            bits = getDataObject().notEq(value);
             break;
         default:
             statusHandler.handle(Priority.ERROR, "Invalid operator: " + op
@@ -469,9 +507,19 @@ public class WeatherGridData extends AbstractGridData {
         return bits;
     }
 
+    /**
+     * Performs the specified op on this grid using another weather grid and
+     * edit area edit area
+     *
+     * @param gridData
+     * @param op
+     * @param refData
+     * @return true if successful
+     */
     public boolean operate(WeatherGridData gridData, Op op,
             ReferenceData refData) {
-        if (gridData.getParm().getGridInfo().getGridType() != GridType.WEATHER) {
+        if (gridData.getParm().getGridInfo()
+                .getGridType() != GridType.WEATHER) {
             statusHandler.handle(Priority.ERROR,
                     "Invalid gridData type in WeatherGridData::operate().");
             return false;
@@ -481,8 +529,7 @@ public class WeatherGridData extends AbstractGridData {
         boolean didIt = false;
         switch (op) {
         case ASSIGN:
-            didIt = getWeatherSlice()
-                    .assign((gridData.getWeatherSlice()), bits);
+            didIt = getDataObject().assign((gridData.getDataObject()), bits);
             break;
         default:
             statusHandler.handle(Priority.ERROR, "Invalid operator: " + op
@@ -493,6 +540,14 @@ public class WeatherGridData extends AbstractGridData {
         return didIt;
     }
 
+    /**
+     * Performs the specified op on this grid using a specified weather value
+     *
+     * @param value
+     * @param op
+     * @param refData
+     * @return true if successful
+     */
     public boolean operate(WxValue value, Op op, ReferenceData refData) {
         boolean result = false;
         switch (value.getParm().getGridInfo().getGridType()) {
@@ -509,6 +564,14 @@ public class WeatherGridData extends AbstractGridData {
         return result;
     }
 
+    /**
+     * Performs the specified op on this grid using a specified weather key
+     *
+     * @param value
+     * @param op
+     * @param refData
+     * @return true if successful
+     */
     public boolean operate(WeatherKey value, Op op, ReferenceData refData) {
         if (!value.isValid()) {
             statusHandler.handle(Priority.ERROR,
@@ -520,7 +583,7 @@ public class WeatherGridData extends AbstractGridData {
         boolean didIt = false;
         switch (op) {
         case ASSIGN:
-            didIt = getWeatherSlice().assign(value, bits);
+            didIt = getDataObject().assign(value, bits);
             break;
         default:
             statusHandler.handle(Priority.ERROR, "Invalid operator: " + op
@@ -534,7 +597,7 @@ public class WeatherGridData extends AbstractGridData {
     @Override
     public Grid2DBit doSet(WxValue value, Grid2DBit pointsToSet) {
         GridType gridType = value.getParm().getGridInfo().getGridType();
-        Grid2DByte weatherGrid = getGrid();
+        Grid2DByte weatherGrid = getWeatherGrid();
         int xDim = weatherGrid.getXdim();
         int yDim = weatherGrid.getYdim();
 
@@ -547,9 +610,11 @@ public class WeatherGridData extends AbstractGridData {
         if (!wk.isValid()) {
             statusHandler.handle(Priority.ERROR,
                     "Invalid weather key in doSet()");
-            return new Grid2DBit(xDim, yDim); // unchanged
+
+            // unchanged
+            return new Grid2DBit(xDim, yDim);
         }
-        byte index = lookupKeyValue(wk); // look up key
+        byte index = lookupKeyValue(wk);
 
         // If there are no points to change, return an empty Grid2DBit.
         // Otherwise find the corners of a rectangular area in the grid
@@ -561,8 +626,8 @@ public class WeatherGridData extends AbstractGridData {
         }
 
         // combine mode application
-        if (CombineMode.COMBINE.equals(getParm().getParmState()
-                .getCombineMode())) {
+        if (CombineMode.COMBINE
+                .equals(getParm().getParmState().getCombineMode())) {
 
             // fancy code in here to prevent lots of repeated combining
             // for efficiency.
@@ -589,7 +654,8 @@ public class WeatherGridData extends AbstractGridData {
                                 combinedKey.addAll(getKeys()[dataPointIdx]);
 
                                 // Store new key index in lookup table
-                                newValues[dataPointIdx] = lookupKeyValue(combinedKey);
+                                newValues[dataPointIdx] = lookupKeyValue(
+                                        combinedKey);
                             }
                             // Update the grid
                             gridA[rowOffset + col] = newValues[dataPointIdx];
@@ -615,12 +681,18 @@ public class WeatherGridData extends AbstractGridData {
         return pointsToSet;
     }
 
-    public byte lookupKeyValue(WeatherKey wxkey) {
+    /**
+     * Lookup index of a key. If not present it is added to the list of keys
+     *
+     * @param key
+     * @return the index of the specified key
+     */
+    public byte lookupKeyValue(WeatherKey key) {
         // first check to see if it already is in the weather key
         int i = -1;
         WeatherKey keys[] = getKeys();
         for (int j = 0; j < keys.length; j++) {
-            if (keys[j].equals(wxkey)) {
+            if (keys[j].equals(key)) {
                 i = j;
             }
         }
@@ -631,7 +703,7 @@ public class WeatherGridData extends AbstractGridData {
         // not in weather key, must allocate a new entry
         WeatherKey keyArray[] = new WeatherKey[keys.length + 1];
         System.arraycopy(keys, 0, keyArray, 0, keys.length);
-        keyArray[keyArray.length - 1] = wxkey;
+        keyArray[keyArray.length - 1] = key;
         setKeys(keyArray);
         return (byte) (getKeys().length - 1);
     }
@@ -639,16 +711,16 @@ public class WeatherGridData extends AbstractGridData {
     /**
      * After looking in four directions, returns the byte value for the first
      * point set in gridCells at the minimum distance of the four directions.
-     * 
+     *
      * -- implementation
-     * 
+     *
      * Make an array of coords that define the directions up, right, down, and
      * left. Next loop through all directions, searching for the byte value at
      * the first point not set in gridCells. If a set point is found that is
      * closer than the current minimum distance, then reset the byte value and
      * distance. Return true if a byte value as found. Return false if we bumped
      * into the edge of the grid before we found a byte value.
-     * 
+     *
      * @param startCoord
      * @param gridCells
      * @param value
@@ -681,18 +753,18 @@ public class WeatherGridData extends AbstractGridData {
                     distance++;
                     coord.x += dirX[direction];
                     coord.y += dirY[direction];
-                } else // We found one
-                {
+                } else {
+                    // We found one
                     if (distance < minDistance) {
-                        Grid2DByte grid = getGrid();
+                        Grid2DByte grid = getWeatherGrid();
                         value.setValue(grid.get(coord.x, coord.y));
                         minDistance = distance;
                         setIt = true;
                     }
                     done = true;
                 }
-            } // while
-        } // for
+            }
+        }
 
         return setIt;
     }
@@ -703,22 +775,16 @@ public class WeatherGridData extends AbstractGridData {
         throw new UnsupportedOperationException("Attempt to pencilStretch: ");
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.griddata.AbstractGridData#doCopy(java.util.
-     * Date, com.raytheon.edex.grid.Grid2DBit, java.awt.Point)
-     */
     @Override
     protected Grid2DBit doCopy(Date time, Grid2DBit pointsToCopy, Point delta) {
-        WeatherGridSlice thisSlice = getWeatherSlice();
-        Grid2DByte sliceGrid = thisSlice.getWeatherGrid();
-        if ((sliceGrid.getXdim() != pointsToCopy.getXdim())
-                || (sliceGrid.getYdim() != pointsToCopy.getYdim())) {
-            throw new IllegalArgumentException("Dimension mismatch in doCopy: "
-                    + sliceGrid.getXdim() + ',' + sliceGrid.getYdim() + ' '
-                    + pointsToCopy.getXdim() + ',' + pointsToCopy.getYdim());
+        Grid2DByte grid = getWeatherGrid();
+        if ((grid.getXdim() != pointsToCopy.getXdim())
+                || (grid.getYdim() != pointsToCopy.getYdim())) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToChange have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    grid.getXdim(), grid.getYdim(), pointsToCopy.getXdim(),
+                    pointsToCopy.getYdim()));
         }
 
         // set up translation matrix
@@ -728,17 +794,16 @@ public class WeatherGridData extends AbstractGridData {
 
         // get the grid
         Grid2DByte originalGrid;
-        WeatherKey[] originalKey;
-        try {
-            WeatherGridSlice slice = thisSlice.clone();
-            if (iscMode()) {
-                getISCGrid(time, slice);
-            }
-            originalGrid = slice.getWeatherGrid();
-            originalKey = slice.getKeys();
-        } catch (CloneNotSupportedException e) {
-            originalGrid = new Grid2DByte();
-            originalKey = new WeatherKey[0];
+        WeatherKey[] originalKeys;
+        if (iscMode()) {
+            Pair<Grid2DBit, IGridData> p = getISCGrid(time);
+            WeatherDataObject dataObject = (WeatherDataObject) p.getSecond()
+                    .getDataObject();
+            originalGrid = dataObject.getWeatherGrid();
+            originalKeys = dataObject.getKeys();
+        } else {
+            originalGrid = getWeatherGrid().copy();
+            originalKeys = getKeys();
         }
 
         Point ll = new Point();
@@ -761,38 +826,31 @@ public class WeatherGridData extends AbstractGridData {
 
                         // if inside grid limits, copy value to new position
                         // of working grid.
-                        if (sliceGrid.isValid(newx, newy)) {
+                        if (grid.isValid(newx, newy)) {
                             // byte og = originalGrid.get(i, j);
                             int og = 0xFF & originalGrid.get(i, j);
                             byte v = translate[og];
                             if (v == -1) {
-                                v = lookupKeyValue(originalKey[og]);
+                                v = lookupKeyValue(originalKeys[og]);
                                 translate[og] = v;
                             }
-                            sliceGrid.set(newx, newy, og);
+                            grid.set(newx, newy, og);
                         }
                     }
                 }
             }
-            setGrid(sliceGrid);
+            setGrid(grid);
         }
 
         return pointsToCopy.translate(delta);
 
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * com.raytheon.viz.gfe.core.griddata.AbstractGridData#doFillIn(java.util
-     * .Date, com.raytheon.edex.grid.Grid2DBit)
-     */
     @Override
     protected Grid2DBit doFillIn(Date time, Grid2DBit pointsToFillIn) {
         Point lowerLeft = new Point();
         Point upperRight = new Point();
-        Grid2DByte grid = getGrid();
+        Grid2DByte grid = getWeatherGrid();
         if (!pointsToFillIn.extremaOfSetBits(lowerLeft, upperRight)) {
             return new Grid2DBit(grid.getXdim(), grid.getYdim());
         }
@@ -814,65 +872,81 @@ public class WeatherGridData extends AbstractGridData {
     }
 
     @Override
-    public void setGridSlice(IGridSlice gridSlice) {
-        if (!(gridSlice instanceof WeatherGridSlice)) {
+    public void setDataObject(IDataObject dataObject) {
+        if (!(dataObject instanceof WeatherDataObject)) {
             throw new IllegalArgumentException(
-                    "Called WeatherGridData.setGridSlice with "
-                            + gridSlice.getClass().getSimpleName());
+                    "dataObject must be an instance of WeatherDataObject, received: "
+                            + dataObject.getClass().getName());
         }
-        this.gridSlice = gridSlice;
+        super.setDataObject(dataObject);
     }
 
-    public void set(Grid2DByte values, List<WeatherKey> key, Grid2DBit points) {
-        populate();
+    /**
+     * Sets multiple (weather) values in the grid.
+     *
+     * @param values
+     * @param keys
+     * @param pointsToChange
+     */
+    public void set(Grid2DByte values, List<WeatherKey> keys,
+            Grid2DBit pointsToChange) {
         checkOkayForEdit();
 
-        gridSet(values, key, points);
-        setChangedPoints(points);
+        gridSet(values, keys, pointsToChange);
+        setChangedPoints(pointsToChange);
     }
 
-    protected void gridSet(Grid2DByte values, List<WeatherKey> key,
-            Grid2DBit points) {
-        Grid2DByte grid = getGrid();
+    protected void gridSet(Grid2DByte values, List<WeatherKey> keys,
+            Grid2DBit pointsToChange) {
+        Grid2DByte grid = getWeatherGrid();
         Point dim = new Point(grid.getXdim(), grid.getYdim());
-        if ((values.getXdim() != dim.x) || (values.getYdim() != dim.y)
-                || (points.getXdim() != dim.x) || (points.getYdim() != dim.y)) {
-            throw new IllegalArgumentException(
-                    "bad values/points dimensions for grid for: "
-                            + this.getParm().getParmID() + " gridDim="
-                            + values.getXdim() + ',' + values.getYdim()
-                            + " pointsDim=" + points.getXdim() + ','
-                            + points.getYdim() + " parmDim=" + dim);
+        if ((values.getXdim() != dim.x) || (values.getYdim() != dim.y)) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and the supplied grid have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    dim.x, dim.y, values.getXdim(), values.getYdim()));
+        }
+
+        if ((pointsToChange.getXdim() != dim.x)
+                || (pointsToChange.getYdim() != dim.y)) {
+            throw new IllegalArgumentException(String.format(
+                    "This grid and pointsToChange have different dimensions.\n"
+                            + "Expected: [%d,%d], received: [%d,%d]",
+                    dim.x, dim.y, pointsToChange.getXdim(),
+                    pointsToChange.getYdim()));
         }
 
         // ensure values doesn't exceed keys, and keys are good
-        for (WeatherKey wKey : key) {
+        for (WeatherKey wKey : keys) {
             if (!wKey.isValid()) {
                 throw new IllegalArgumentException(
-                        "Illegal weather key in gridSet()");
+                        "Invalid weather key in keys: " + wKey);
             }
         }
         // search for grid out of bounds
         int numValues = values.getXdim() * values.getYdim();
         byte[] bp = values.getBuffer().array();
         for (int i = 0; i < numValues; i++) {
-            if ((0xFF & bp[i]) > (key.size() - 1)) {
-                throw new IllegalArgumentException(
-                        "Illegal weather grid (bad values) in gridSet()");
+            if ((0xFF & bp[i]) > (keys.size() - 1)) {
+                throw new IndexOutOfBoundsException(String.format(
+                        "Invalid index in values[%d,%d]. Index: %d, Size: %d",
+                        i % values.getXdim(), i / values.getXdim(),
+                        (0XFF & bp[i]), keys.size()));
             }
         }
 
         // REPLACE mode is easy
-        if (parm.getParmState().getCombineMode() == ParmState.CombineMode.REPLACE) {
+        if (parm.getParmState()
+                .getCombineMode() == ParmState.CombineMode.REPLACE) {
             // create remap array
             byte[] remap = new byte[256];
-            for (int i = 0; i < key.size(); i++) {
-                remap[i] = lookupKeyValue(key.get(i)); // look up
+            for (int i = 0; i < keys.size(); i++) {
+                remap[i] = lookupKeyValue(keys.get(i));
             }
             // key
             for (int i = 0; i < dim.x; i++) {
                 for (int j = 0; j < dim.y; j++) {
-                    if (points.get(i, j) == 1) {
+                    if (pointsToChange.getAsBoolean(i, j)) {
                         grid.set(i, j, remap[0xFF & values.get(i, j)]);
                     }
                 }
@@ -882,9 +956,9 @@ public class WeatherGridData extends AbstractGridData {
         else {
             for (int i = 0; i < dim.x; i++) {
                 for (int j = 0; j < dim.y; j++) {
-                    if (points.get(i, j) == 1) {
+                    if (pointsToChange.get(i, j) == 1) {
                         WeatherKey combined = new WeatherKey(
-                                key.get(0xFF & values.get(i, j)));
+                                keys.get(0xFF & values.get(i, j)));
                         combined.addAll(doGetWeatherValue(i, j));
                         grid.set(i, j, lookupKeyValue(combined));
                     }
@@ -894,17 +968,9 @@ public class WeatherGridData extends AbstractGridData {
     }
 
     protected WeatherKey doGetWeatherValue(int x, int y) {
-        byte gridValue = getGrid().get(x, y);
+        byte gridValue = getWeatherGrid().get(x, y);
         int gridValueIdx = 0xFF & gridValue;
         return getKeys()[gridValueIdx];
-    }
-
-    @Override
-    protected void setGridSliceDataToNull() {
-        // Clone the slice with no data
-        this.gridSlice = new WeatherGridSlice(this.gridSlice.getValidTime(),
-                this.gridSlice.getGridInfo(), this.gridSlice.getHistory(),
-                null, new WeatherKey[0]);
     }
 
     @Override
@@ -925,35 +991,35 @@ public class WeatherGridData extends AbstractGridData {
             return false;
 
         default:
-            statusHandler.handle(Priority.PROBLEM, "Unsupported EditOp: "
-                    + editOp.name());
+            statusHandler.handle(Priority.PROBLEM,
+                    "Unsupported EditOp: " + editOp.name());
             return false;
         }
     }
 
     @Override
-    public synchronized boolean isPopulated() {
-        return ((WeatherGridSlice) this.gridSlice).isPopulated();
+    public synchronized WeatherDataObject getDataObject() {
+        return (WeatherDataObject) super.getDataObject();
     }
 
-    private Grid2DByte getGrid() {
-        return ((WeatherGridSlice) getGridSlice()).getWeatherGrid();
+    private Grid2DByte getWeatherGrid() {
+        return getDataObject().getWeatherGrid();
     }
 
     private void setGrid(Grid2DByte grid) {
-        ((WeatherGridSlice) getGridSlice()).setWeatherGrid(grid);
+        WeatherDataObject dataObject = getDataObject();
+        dataObject.setWeatherGrid(grid);
+        setDataObject(dataObject);
     }
 
     private WeatherKey[] getKeys() {
-        return ((WeatherGridSlice) getGridSlice()).getKeys();
+        return getDataObject().getKeys();
     }
 
     private void setKeys(WeatherKey[] keys) {
-        ((WeatherGridSlice) getGridSlice()).setKeys(keys);
-    }
-
-    public WeatherGridSlice getWeatherSlice() {
-        return (WeatherGridSlice) getGridSlice();
+        WeatherDataObject dataObject = getDataObject();
+        dataObject.setKeys(keys);
+        setDataObject(dataObject);
     }
 
     @Override
@@ -961,15 +1027,16 @@ public class WeatherGridData extends AbstractGridData {
         String emsg = "Grid contains data which exceeds limits for this parm. ";
 
         if (!getGridTime().isValid() || (getParm() == null)
-                || (getGridSlice() == null)) {
+                || (getDataObject() == null)) {
             statusHandler.handle(Priority.PROBLEM,
                     "Invalid grid time, bad parm or data slice");
-            return false; // time, parm, or data slice not valid
+            // time, parm, or data slice not valid
+            return false;
         }
 
         // check grid size
         Point dim = getParm().getGridInfo().getGridLoc().gridSize();
-        Grid2DByte grid = getGrid();
+        Grid2DByte grid = getWeatherGrid();
         Point gridDim = grid.getGridSize();
         if (!gridDim.equals(dim)) {
             statusHandler.handle(Priority.PROBLEM, "Grid dimensions " + gridDim
@@ -986,8 +1053,8 @@ public class WeatherGridData extends AbstractGridData {
         for (int j = 0; j < data.length; j++) {
             int value = 0xFF & data[j];
             if (value > keySize) {
-                statusHandler.handle(Priority.PROBLEM, emsg + "Data=" + value
-                        + " Min=0 Max=" + keySize);
+                statusHandler.handle(Priority.PROBLEM,
+                        emsg + "Data=" + value + " Min=0 Max=" + keySize);
                 return false;
             }
         }
@@ -995,12 +1062,36 @@ public class WeatherGridData extends AbstractGridData {
         // check key validity, then check for weather key validity
         for (int i = 0; i < keys.length; i++) {
             if (!keys[i].isValid()) {
-                statusHandler.handle(Priority.PROBLEM, "Invalid weather key: "
-                        + keys[i]);
+                statusHandler.handle(Priority.PROBLEM,
+                        "Invalid weather key: " + keys[i]);
                 return false;
             }
         }
 
         return true;
+    }
+
+    @Override
+    protected IGridSlice createSlice() {
+        return new WeatherGridSlice(getGridTime(), getGridInfo(), getHistory(),
+                getWeatherGrid(), getKeys());
+    }
+
+    @Override
+    protected String doValidateData(IDataObject dataObject) {
+        WeatherDataObject wdo = (WeatherDataObject) dataObject;
+
+        String retVal = wdo.checkDims(gridParmInfo.getGridLoc().getNx(),
+                gridParmInfo.getGridLoc().getNy());
+
+        if (retVal == null) {
+            retVal = wdo.checkKey();
+        }
+
+        if (retVal == null) {
+            retVal = wdo.checkKeyAndData();
+        }
+
+        return retVal;
     }
 }
