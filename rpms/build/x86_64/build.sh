@@ -98,7 +98,7 @@ function build_qpid() {
 }
 function build_python() {
    buildRPM "awips2-python-h5py"
-   buildRPM "awips2-python-jep"
+   #buildRPM "awips2-python-jep"
    buildRPM "awips2-python-tables"
    buildRPM "awips2-python-matplotlib"
    buildRPM "awips2-python-shapely"
@@ -132,6 +132,12 @@ function build_server() {
    build_pypies
    buildLocalization
 }
+#function build_ade()
+#{
+#   buildRPM "awips2-hdf5"  
+#   buildRPM "awips2-netcdf"  
+#    buildRPM "awips2-python"
+#}
 function build_ade() {
    buildRPM "awips2"
    buildRPM "awips2-java"
@@ -140,7 +146,9 @@ function build_ade() {
    buildRPM "awips2-groovy"
    buildRPM "awips2-yajsw"
    buildRPM "awips2-python"
+   buildRPM "awips2-python-cython"
    buildRPM "awips2-python-dateutil"
+   buildRPM "awips2-python-jep"
    buildRPM "awips2-python-numpy"
    buildRPM "awips2-python-pyparsing"
    buildRPM "awips2-python-pytz"
@@ -148,6 +156,7 @@ function build_ade() {
    buildRPM "awips2-python-six"
    buildRPM "awips2-python-pytz"
    buildRPM "awips2-qpid-lib"
+   buildRPM "awips2-hdf5"
 }
 
 if [ "${1}" = "-ade" ]; then build_ade && exit 0; fi

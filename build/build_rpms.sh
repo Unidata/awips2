@@ -31,9 +31,8 @@ if [ ! -d awips2-core-foss ]; then      git clone https://github.com/Unidata/awi
 if [ ! -d awips2-core ]; then           git clone https://github.com/Unidata/awips2-core.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
 if [ ! -d awips2-foss ]; then           git clone https://github.com/Unidata/awips2-foss.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
 if [ ! -d awips2-goesr ]; then          git clone https://github.com/Unidata/awips2-goesr.git --branch unidata_${AWIPSII_VERSION} --single-branch       ;fi
-if [ ! -d awips2-hazards ]; then        git clone https://github.com/Unidata/awips2-hazards.git --branch development --single-branch         ;fi
 if [ ! -d awips2-ncep ]; then           git clone https://github.com/Unidata/awips2-ncep.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
-if [ ! -d awips2-nws ]; then            git clone https://github.com/Unidata/awips2-nws.git --branch unidata_${AWIPSII_VERSION} --single-branch         ;fi
+if [ ! -d awips2-nws ]; then           git clone https://github.com/Unidata/awips2-nws.git --branch unidata_${AWIPSII_VERSION} --single-branch        ;fi
 if [ ! -d awips2-unidata ]; then        git clone https://github.com/Unidata/awips2-unidata.git --branch unidata_${AWIPSII_VERSION} --single-branch     ;fi
 
 #
@@ -62,6 +61,8 @@ if [ ! -z "$rpmname" ]; then
 else
 
   # If RPM name is not given build all groups in this order
+#  yum localinstall /awips2/repo/awips2-builds/dist/18.2.1-ade/x86_64/awips2-hdf5* -y
+#  yum localinstall /awips2/repo/awips2-builds/dist/18.2.1-ade/x86_64/awips2-netcdf* -y
   su - awips -c "/bin/bash $buildsh -ade"
   su - awips -c "/bin/bash $buildsh -python"
   su - awips -c "/bin/bash $buildsh -qpid"
@@ -75,9 +76,11 @@ fi
 
 # Move RPMs to awips2-builds/dist
 if [ "$(ls -A ${JENKINS_HOME}/build/rpms/awips2_latest/x86_64/)" ]; then
+   mkdir -p /awips2/repo/awips2-builds/dist/${os_version}-dev/x86_64/
    mv ${JENKINS_HOME}/build/rpms/awips2_latest/x86_64/* /awips2/repo/awips2-builds/dist/${os_version}-dev/x86_64/
 fi
 if [ "$(ls -A ${JENKINS_HOME}/build/rpms/awips2_latest/noarch/)" ]; then
+   mkdir -p /awips2/repo/awips2-builds/dist/${os_version}-dev/noarch/
    mv ${JENKINS_HOME}/build/rpms/awips2_latest/noarch/* /awips2/repo/awips2-builds/dist/${os_version}-dev/noarch/
 fi
 
