@@ -24,7 +24,7 @@ Requires: awips2
 Requires: awips2-qpid-lib
 Requires: awips2-python
 Requires: perl, pax, gcc, libtool, make
-Requires: libxml2-devel, libpng-devel, boost-program-options
+Requires: libxml2-devel, libpng-devel, boost-program-options, gcc-c++
 Provides: awips2-ldm
 BuildRequires: awips2-python
 BuildRequires: awips2-qpid-lib, boost-program-options
@@ -244,6 +244,7 @@ if [ -d /tmp/ldm/ ]; then
    cp -rp /tmp/ldm/ldmd.* /awips2/ldm/etc/
 fi
 
+su - awips -c "regutil /queue/size -s 2500M"
 
 %preun
 %postun
