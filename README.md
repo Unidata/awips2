@@ -30,7 +30,7 @@ Through a grant provided by [Jetstream](https://jetstream-cloud.org/), Unidata i
 * [The D2D Perspective](http://unidata.github.io/awips2/cave/d2d-perspective)
 * [The NCP Perspective](http://unidata.github.io/awips2/cave/ncp-perspective)
 * [The Localization Perspective](http://unidata.github.io/awips2/cave/localization-perspective)
-* [python-awips Data Access Framework](http://python-awips.readthedocs.io/)
+* [python-awips Data Access Framework](http://unidata.github.io/python-awips/)
 * [awips2-users Mailing List Archives](https://www.unidata.ucar.edu/mailing_lists/archives/awips2-users/)
 
 	* [(click to subscribe)](mailto:awips2-users-join@unidata.ucar.edu)
