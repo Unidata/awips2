@@ -1,15 +1,22 @@
+# Display Tools
 
-These programs are accessible though the **Tools** dropdown menu.
+The display tools are a subset of the tools available in CAVE.  These programs are accessible though the **Tools** dropdown menu.
 
-![image](../images/xiXbVEr.png)
+![image](../images/toolsMenuDisplayTools.png)
 
-Many of the tools listed under the Tools menu can be placed into an editable state. Do not enable the "Hide Legends" feature if you want to place a tool in an editable state, because access to editability is by clicking the center mouse button over the Product Legend
+Many of the tools listed under the Tools menu can be placed into an **editable state**. Do not enable the "Hide Legends" feature if you want to place a tool in an editable state, because access to editability is done by clicking the center mouse button, or right-clicking over the **Product Legend**.
+
+> **Note**: To see information about some of the other options in the Tools menu, check out the [**Radar Tools**](d2d-radar-tools) page.
+
+---
 
 ## Az/Ran Overlay
 
 This tool displays a movable azimuth/range radar map overlay. The overlay is in the "editable" state when displayed, and can be relocated by clicking the right mouse button.
 
 ![image](../images/xVAgVCCHwH.gif)
+
+---
 
 ## Baselines
 
@@ -19,17 +26,23 @@ Selecting Baselines displays 10 lines, labeled A-A' to J-J', along which cross-s
 
 ![image](../images/hK6RakT.png)
 
+---
+
 ## Choose By ID
 
 Choose By ID, which is a function of DMD (Digital Mesocyclone Display), is a method of selecting feature locations. The tool is used to monitor the same feature at a certain location. Without the Choose By ID tool, a monitored feature (over a period of time) could move away from its monitored location and another feature could move in its place. You can use Choose By ID to set points, baselines, and "Home" for conventional locations like METARs and RAOBs (Radiosonde Observations), but its primary use is for the WSR-88D-identified mesocyclone locations. You can also access the Choose By ID tool from the Tools menu on the Volume Browser.
 
 ![image](../images/E6cghWV.png)
 
+---
+
 ## Distance Bearing
 
 Selecting this tool displays six editable lines, each of which shows the azimuth and range of the labeled end of the line relative to the unlabeled end of the line. You can make the lines editable by clicking the center mouse button over the legend at the lower right of the display. Once in edit mode, a line can be moved as a unit and/or either of its end points can be adjusted.
 
 ![image](../images/fgaCqrd.png)
+
+---
 
 ## Distance Speed
 
@@ -49,12 +62,15 @@ This tool can be used to determine the speed and direction of a storm or any oth
 
 	* **Speed**: A radio button that allows you to display speed with the Centroid Marker.
 
+---
 
 ## Distance Scale
 
-This tool can be used to determine the size of a storm or any other meteorological feature of interest.
+Enabling this feature adds a scalebar to the bottom right hand of the main D2D display.  This tool can be used to determine the size of a storm or any other meteorological feature of interest.
 
 ![image](../images/iYYc68NN9w.gif)
+
+---
 
 ## Feature Following Zoom
 
@@ -62,14 +78,14 @@ When you zoom in over a small area to be able to view a feature in detail, anima
 
 To use this feature, first, you need to identify the location and motion of the feature, using Distance Speed or the WarnGen tracker. Once satisfied that the tracking icon is following the feature of interest, load this tool, and the center of the zoom area will track with the Distance Speed icon. Toggling the overlay off will resume the standard zooming behavior, and toggling it back on will reinvoke the feature following zoom.
 
-## Time of Arrival / Lead Time
-
-Selecting the Time Of Arrival / Lead Time option displays a tracking line from a feature's initial starting point in a past frame to its final position in the current frame. Once the final position is set, an Arrival Point is displayed. You can drag this point anywhere along the line to get the Time Of Arrival / Lead Time and Distance. You can also change the Mode from Point to Circular Front or Polyline anywhere along the line to better represent the feature(s).
+---
 
 ## Home
 
 Selecting the Home option displays a marker, which is an "X" with the word "Home" next to it.
-Clicking on the Home Location Legend with the center mouse button makes the marker editable; drag the "X" or click with the right mouse button to change its location. When the Home Marker is displayed, use the Sample feature (clock and hold while moving the pointer around the screen) to display the range in miles and azimuth (in degrees) of the pointer location relative to the Home location.
+Clicking on the Home Location Legend with the center mouse button makes the marker editable; drag the "X" or click with the right mouse button to change its location. When the Home Marker is displayed, use the **Sample** feature (click and hold to access the menu to turn on sampling) to display the range in miles and azimuth (in degrees) of the pointer location relative to the Home location.
+
+---
 
 ## Points
 
@@ -86,24 +102,22 @@ Points may be created, deleted, hidden, and manipulated (location, name, font, a
 
 1. **Create Point Dialog Box**: The Create Point dialog box is opened by clicking and holding the right mouse button on the map (but not on any exisiting Point) and selecting the "New Point..." option.
 
-	The Create Point dialog box opens with the Lat and Lon text boxes populated with the latitude
-and longiture values at the point where you had clicked the right mouse button. The latitude and longitude values can be viewed in "Degrees : Minutes : Seconds," "Degrees : Minutes," or "Degrees Only" (N and S refer to North and South; W and E refer to West and East).
+	The Create Point dialog box opens with the Lat and Lon text boxes populated with the latitude and longiture values at the point where you had clicked the right mouse button. The latitude and longitude values can be viewed in "Degrees : Minutes : Seconds," "Degrees : Minutes," or "Degrees Only" (N and S refer to North and South; W and E refer to West and East).
 
-	In the Create Point dialog box, you must:
+	In the Create Point dialog box, you **must**:
 
 	* Enter the Point's name
+
+	And **may** do any of the following:
+
 	* Modify the latitude and longitude values
 	* Assign the Point's color and font use
 	* Assign the Point to a group
 	* Select whether the Point is movable or hidden
 
-	By default, individual Points do not have an assigned color. They inherit the color
-of the Interactive Points layer reflected in the Interactive Points product legend. You can
-change the color of the Interactive Points layer by right clicking on the Interactive Points
-product legend and selecting a color from the dropdown list. The selected color then
-changes all points not having an assigned color to the new color.
+	By default, individual Points do not have an assigned color. They inherit the color of the Interactive Points layer reflected in the Interactive Points product legend. You can change the color of the Interactive Points layer by right clicking on the Interactive Points product legend and selecting a color from the dropdown list. The selected color then changes all points not having an assigned color to the new color.
 
-	 Points can be assigned to "<No Group>," which will organize them in the root location containing the group names when accessed by the Edit Points dialog box (see below).
+	Points can be assigned to "**<No Group\>**" which will organize them in the root location containing the group names when accessed by the Edit Points dialog box (see below).
 
 2. **Edit Point Dialog Box**: The Edit Point dialog box is opened by clicking and holding the right mouse button on a Point on the map and selecting the "Edit Point..." option. The latitude and longitude values can be viewed in "Degrees : Minutes : Seconds," "Degrees : Minutes," or "Degrees Only" (N and S refer to North and South; W and E refer to West and East).
 
@@ -127,6 +141,8 @@ or disassemble subgroups. The Points List dialog box also includes three columns
 moved.
 	* **Hidden**: Checking the checkbox adjacent to the Point hides the Point on the map.
 
+---
+
 ## Put home cursor
 
 The Put home cursor tool provides an easy way to locate a METAR observation station, a city and
@@ -141,11 +157,15 @@ Station, City/State, or Lat/Lon radio button, an Entry Box is activated next to 
 
 * **Go**: This menu button initiates the search for the desired station, city/state, or latitude/longitude. The Home marker jumps to the newly specified location.
 
+---
+
 ## Range Rings
 
-The Range Rings Tool displays adjustable range rings around locations of interest to your local office. When you select Range Rings from the Tools dropdown menu, the Range Rings legend appears in the Main Display Pane. The tool comes up editable, and the rangeRing dialog box opens. (Clicking B2 over the legend toggles tool editability and closes/opens the rangeRing dialog box.) Within this dialog box, you can toggle on/off any of the target locations using the square selectors. Adjust the size of the radii (in nautical miles) by typing a new value in the entry boxes associated with each location and pressing the Apply button. You can also add labels at the center of the range ring and/or at any of the radial distances using the Labels Options menu associated with each location. Using the Movable Rings, you can add a new location at a specific point by using the Interactive Points Tool, or by typing in latitude/longitude coordinates. There is no practical limit on the number of new locations you can add to the display. The list of locations is pre-set but can be customized at a field site
+The Range Rings Tool displays adjustable range rings around locations of interest to your local office. When you select Range Rings from the Tools dropdown menu, the Range Rings legend appears in the Main Display Pane. The tool comes up editable, and the rangeRing dialog box opens. (Clicking the middle mouse button over the legend toggles tool editability and closes/opens the rangeRing dialog box.) Within this dialog box, you can toggle on/off any of the target locations using the square selectors. Adjust the size of the radii (in nautical miles) by typing a new value in the entry boxes associated with each location and pressing the Apply button. You can also add labels at the center of the range ring and/or at any of the radial distances using the Labels Options menu associated with each location. Using the Movable Rings, you can add a new location at a specific point by using the Interactive Points Tool, or by typing in latitude/longitude coordinates. There is no practical limit on the number of new locations you can add to the display. The list of locations is pre-set but can be customized at a field site.
 
 ![image](../images/d0HFeY8.png)
+
+---
 
 ## Sunset/Sunrise
 
@@ -153,14 +173,30 @@ By typing a date, as well as the latitude and longitude of a location into the S
 
 ![image](../images/jkzIvS0.png)
 
+---
+
 ## Text Window
 
-Selecting this option brings up a Text Display window that behaves in the same way, except for scripts, as a window on the Text Workstation.
+Selecting this option brings up a Text Display window that behaves in the same way as a window on the [Text Workstation](#text-workstation), except that the scripts menu is disabled.
+
+---
+
+## Time of Arrival / Lead Time
+
+Selecting the Time Of Arrival / Lead Time option displays a tracking line from a feature's initial starting point in a past frame to its final position in the current frame. Once the final position is set, an Arrival Point is displayed. You can drag this point anywhere along the line to get the Time Of Arrival / Lead Time and Distance. You can also change the Mode from Point to Circular Front or Polyline anywhere along the line to better represent the feature(s).
+
+---
 
 ## Units Calculator
 
-This tool converts the units of the first column into differing units of the second column. The units are grouped into temperature, velocity, distance, time, and atmospheric pressure. First, simply type the number and select the units of the value you wish to convert in the firstcolumn entry box. Then in the second column, select the desired units to which you want the original value converted. The new value will appear in the second column entry box.
+This tool converts the units of the first column into differing units of the second column. The units are grouped into temperature, speed, distance, time, and atmospheric pressure. First, simply type the number and select the units of the value you wish to convert in the firstcolumn entry box. Then in the second column, select the desired units to which you want the original value converted. The new value will appear in the second column entry box.
 
 ![image](../images/pdSH69h.png)
 
+---
+
 ## Text Workstation
+
+By selecting one of the "Text" buttons, a text window opens up. In National Weather Service operations, the text workstation is used to edit new warning text as well as look up past warnings, METARs, and TAFs. This functionality is **disabled** in the Unidata AWIPS version.
+
+![](../images/textWorkstation.png)

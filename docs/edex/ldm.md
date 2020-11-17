@@ -1,42 +1,51 @@
+# LDM Feeds
 
 ## Default LDM Feeds for EDEX
 
-from `/awips2/ldm/etc/ldmd.conf`
+Data feeds are defined by the **ldmd.conf** file in `/awips2/ldm/etc/ldmd.conf`.  The default feeds that come "turned on" with our EDEX are the following:
 
-    REQUEST NEXRAD3 "./p(DHR|DPR|DSP|DTA|DAA|DVL|EET|HHC|N0Q|N0S|N0U|OHA|NVW|NTV|NST)." idd.unidata.ucar.edu
-    REQUEST FNEXRAD|IDS|DDPLUS|UNIWISC ".*" idd.unidata.ucar.edu
+    REQUEST NEXRAD3 "./p(DHR|DPR|DSP|DTA|DAA|HHC|N.P|N.Q|N.S|N.U|OHA)." idd.unidata.ucar.edu
+    REQUEST FNEXRAD|IDS|DDPLUS ".*" idd.unidata.ucar.edu
+    REQUEST UNIWISC|NIMAGE ".*" idd.unidata.ucar.edu        # AREA/GINI
+    REQUEST EXP "WwWind" idd.unidata.ucar.edu               # ESPL/PSD Profilers
+    REQUEST DIFAX "GLM" idd.unidata.ucar.edu                # GOES GLM
+    REQUEST EXP ".*" lead.unidata.ucar.edu                  # GOES ABI netCDF4 (full sector)
     REQUEST NGRID ".*" idd.unidata.ucar.edu
-    REQUEST NOTHER "^TIP... KNES.*" idd.unidata.ucar.edu
-    REQUEST HDS|NIMAGE ".*" idd.unidata.ucar.edu
+    REQUEST HDS ".*" idd.unidata.ucar.edu
+    REQUEST CONDUIT "nam" idd.unidata.ucar.edu              # NAM12
+    REQUEST CONDUIT "pgrb2" idd.unidata.ucar.edu            # GFS0p25
 
-    REQUEST CONDUIT "nam" idd.unidata.ucar.edu
-    REQUEST CONDUIT "rap" idd.unidata.ucar.edu
-    REQUEST CONDUIT "pgrb2" idd.unidata.ucar.edu
-    REQUEST CONDUIT "nwstg" idd.unidata.ucar.edu
-
-> Remember than LDM commands such as these require **TAB SEPARATION** between items.
+---
 
 ## Optional LDM Feeds
 
-FNMOC and CMC models
+Some additional feeds are included but commented out using '#'.  To activate the feed, simply remove the #, save the file, and [restart the LDM](#restart-the-ldm).
+
+### FNMOC and CMC models
 
     REQUEST FNMOC ".*" idd.unidata.ucar.edu
     REQUEST CMC ".*" idd.unidata.ucar.edu
     
-Lightning (restricted to educational use with rebroadcasting restricted)
+### Lightning (restricted to educational use with rebroadcasting restricted)
 
     REQUEST        LIGHTNING       ".*"    striker2.atmos.albany.edu
     REQUEST        LIGHTNING       ".*"    idd.unidata.ucar.edu
     
-FSL/GSD Experimental HRRR (Sub-hourly)
+### FSL/GSD Experimental HRRR (Sub-hourly)
 
     REQUEST FSL2 "^GRIB2.FSL.HRRR" hrrr.unidata.ucar.edu
 
+---
+
 ## Restart the LDM
+
+Use the following commands to restart the LDM:
 
     sudo service edex_ldm restart
 
     ldmadmin restart
+
+---
         
 ## Monitor Incoming Data Feeds
 
@@ -51,8 +60,12 @@ To watch for a specific product and feed and time (360 sec = 6 min):
 To watch the same on a remote queue:
 
     notifyme -vl - -h idd.unidata.ucar.edu -f NEXRAD3 -p DHR -o 360
+
+---
     
 ## LDM Logging
+
+To open a real-time readout of LDM logging you can run use the `edex` command.  To exit, press `CTRL+C`.
 
     edex log ldm
     

@@ -1,0 +1,54 @@
+name: publish mkdocs to github pages
+
+on:
+  push:
+    branches:
+      - unidata_18.1.1
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python and mkdocs
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Update pip
+        run: |
+          # install pip=>20.1 to use "pip cache dir"
+          python3 -m pip install --upgrade pip
+
+      - name: Create mkdocs_requirements.txt
+        run: |
+          echo "mkdocs==0.17.5" >> mkdocs_requirements.txt
+          echo "mkdocs-unidata==1.5.7" >> mkdocs_requirements.txt
+          echo "fontawesome_markdown" >> mkdocs_requirements.txt
+
+      - name: Get pip cache dir
+        id: pip-cache
+        run: echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/mkdocs_requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: Install python dependencies
+        run: python3 -m pip install -r ./mkdocs_requirements.txt
+
+      - run: mkdocs build
+
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site

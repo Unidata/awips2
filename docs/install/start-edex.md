@@ -1,24 +1,25 @@
+# EDEX Basic Commands 
 
-To start all EDEX services
+To start all EDEX services:
 
     edex start
     
-To stop all EDEX services
+To stop all EDEX services:
 
     edex stop
 
-These command will start and stop five EDEX service files installed into `/etc/init.d/`, four of which are run on boot:
+These commands will start and stop five EDEX service files installed into **/etc/init.d/**, four of which are run on boot:
 
     service postgres start
     service httpd-pypies start
     service qpidd start
     service edex_camel start
 
-The fifth, `edex_ldm`, does **not run at boot** to prevent filling up disk space if EDEX is not running. 
+The fifth, `edex_ldm`, does **not run at boot** to prevent filling up disk space if EDEX is not running:
 
     service edex_ldm start
 
-All of these services are started and stopped by a single program `edex`,
+All of these services are started and stopped by the single program: `edex` as mentioned above.
 
 ---
 
@@ -71,7 +72,7 @@ To start all EDEX services *except* the LDM:
 
 This command configures and/or confirms that the EDEX hostname and IP address definitions exist (`edex setup` is run by `edex start`).
 
-> If your EDEX server is running but you see the message "Connectivity Error: Unable to validate localization preferences" in CAVE, it may mean that the domain name defined in `/awips2/edex/bin/setup.env` can not be resolved from *outside* the server.  Some machines have different **internally-resolved** and **externally-resolved** domain names (cloud-based especially). The name defined in `setup.env` must be **externally-resolvable**.
+> **Note**: If your EDEX server is running but you see the message **"Connectivity Error: Unable to validate localization preferences"** in CAVE, it may mean that the domain name defined in **/awips2/edex/bin/setup.env** can not be resolved from *outside* the server.  Some machines have different *internally-resolved* and *externally-resolved* domain names (cloud-based especially). The name defined in **setup.env** must be *externally-resolvable*.
 
 ---
 
@@ -125,7 +126,7 @@ Shows a list of the the Qpid message queue to monitor data ingest (messages in v
 
 ### edex users
 
-To see a list of clients connecting to your EDEX server, use the `edex users [YYYYMMDD]` command, where `YYYYMMDD` is the optional date string.
+To see a list of clients connecting to your EDEX server, use the `edex users [YYYYMMDD]` command, where `[YYYYMMDD]` is the optional date string.
 
     edex users
     

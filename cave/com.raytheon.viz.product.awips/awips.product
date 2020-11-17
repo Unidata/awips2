@@ -118,6 +118,7 @@
       <feature id="com.raytheon.uf.viz.d2d.skewt.feature"/>
       <feature id="gov.noaa.nws.mdl.viz.boundaryTool.common.feature"/>
       <feature id="com.raytheon.uf.viz.satellite.goesr.feature"/>
+      <feature id="com.raytheon.uf.viz.gisdatastore.feature"/>
    </features>
 
    <configurations>
